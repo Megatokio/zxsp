@@ -1,0 +1,1 @@
+/pub/www/cgi-bin/zxsp-check-update.cgi

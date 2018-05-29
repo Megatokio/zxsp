@@ -1,0 +1,64 @@
+
+h1	Fullscreen mode
+	fullscreen, full-screen, fullscreen display
+
+p	zxsp can run in windowed mode, which is the default, and in fullscreen mode. In windowed mode you can change display magnification any time, in fullscreen mode the display parameters are set up according to your preferences settings.
+
+p	Pressing 'cmd' + 'F' toggles to and back from fullscreen mode. zxsp also leaves fullscreen mode if it needs to display a file selection popup if you pressed cmd-'O'pen or cmd-'S'ave. 
+h4	Preferences
+
+h5	<img class="left" src="b/fullscreen_prefs.png"> Enable fullscreen mode
+	Enable fullscreen mode
+
+p	Pressing 'cmd' + 'F' toggles to and back from fullscreen mode. If you encounter problems with the fullscreen display of zxsp, you can entirely disable switching to fullscreen mode by unchecking "Enable fullscreen mode".
+
+h5	Preferred display
+
+p	If your Computer has more than one display attached, you can select which display shall be used for fullscreen mode by selecting the desired display in the 'Preferred Display' popup. Display 1 is the display with the menu bar. 
+
+p	zxsp does not block the other display(s), like most other programmes do. If you select your secondary monitor for fullscreen display, then you still have access to the menu bar and all tool windows which open on other monitors, even in fullscreen mode.
+
+h5	Refresh rate
+
+p	Now to the technical things: 'Refresh rate' lets you choose the display refresh rate for the selected monitor during fullscreen mode. Most TFTs only work with 60 Hz and you cannot select a refresh rate here.
+
+p	The best choice would be 50 Hz, which is the natural refresh frequency of all European ZX computers and clones, but i doubt that there are many people out there with a graphics card capable of this. If the card offers 50 Hz refresh rate, then this means that it will use the TV output for the monitor signal.
+
+p	The second best choice is 100 Hz, which doubles the natural refresh rate of the ZX Spectrum. This leads to the best, steady impression for scrolling text etc., but you get a 'ghost' image, when your eye follows the moving graphics and the image is displayed a second time at the old position. 
+
+p	Any other refresh rate, e.g. the one used for your desktop, will also be perfectly working. 
+
+h5	Resolution
+
+p	The next pop-up let's you select the desired display resolution in fullscreen mode. This list is trimmed according to the capabilities of your graphics card for the selected refresh rate and thus varies with the selected refresh rate. Most importently you'll probably get only resolutions marked as 'TV' if you selected 50 Hz.
+
+p	The suggested resolution is 640 x 480 pixels, which will use 2x magnification and leave some border to show the border effects of various games and demos and, most importantly, during file load and save. The inner screen in this mode is slightly larger than could be achieved on most TV sets.
+
+p	If you use certain other resolutions, namely 1024 x 768, you will get no border at all, because this resolutione exactly matches the screen size in x4 magnification.
+
+h5	Colours
+
+p	You can choose 16 or 32 bit colours here. Especially on low-powered notebooks 16 bits are a good choice, on any other Computer with hardware acceleration you will hardly notice a difference, though sometimes a 16 bit screen will skip less frames and look smoother. I would also like to offer a 8 bit indexed colours screen mode, which is still more than required to display the Speccies' 16 colours, but unfortunately i'm running into a problem here which i could not yet resolve.
+
+h5	Other options
+
+p	'Hardware acceleration' let's you insist on a hardware accelerated driver. zxsp will get a hardware driver if one is available, even if not especially requesting it. Else no hardware driver is available and zxsp will always fail if you enabled this option. This option will probably be removed because it seems senseless.
+
+p	'Synchronise with VBL' instructs the OpenGL driver to synchronise screen data updates with the vertical screen blanking. This is available for CRT displays only, TFTs do not have a VBL. (Though they should have a point in time when they have updated their display and are starting updating it again.) This should result in less flicker, but somehow i cannot see a difference on my Mac, using a ATI 8500 graphics card. Maybe it is helpful for you.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

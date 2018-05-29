@@ -1,0 +1,74 @@
+/*	Copyright  (c)	Günter Woigk 1994 - 2018
+  					mailto:kio@little-bat.de
+
+ 	This program is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+ 	Permission to use, copy, modify, distribute, and sell this software and
+ 	its documentation for any purpose is hereby granted without fee, provided
+ 	that the above copyright notice appear in all copies and that both that
+ 	copyright notice and this permission notice appear in supporting
+ 	documentation, and that the name of the copyright holder not be used
+ 	in advertising or publicity pertaining to distribution of the software
+ 	without specific, written prior permission.  The copyright holder makes no
+ 	representations about the suitability of this software for any purpose.
+ 	It is provided "as is" without express or implied warranty.
+
+ 	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+ 	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
+ 	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+ 	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
+ 	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+ 	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ 	PERFORMANCE OF THIS SOFTWARE.
+*/
+
+#include "kio/kio.h"
+#include "ZxInfo.h"
+
+
+
+/*	0x90 "A" - 0xa4 "U" are UDGs.
+	"SPECTRUM" and "PLAY" are new tokens on 128++ replacing UDG "T" and "U"
+*/
+cstr basic_token[] =
+{
+/* 0x80 */	" ", "▝", "▘", "▀", "▗", "▐", "▚", "▜", "▖", "▞", "▌", "▛", "▄", "▟", "▙", "█",
+/* 0x90 */	"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
+/* 0xa0 */	"Q", "R", "S", "SPECTRUM", "PLAY", "RND", "INKEY$", "PI", "FN", "POINT", "SCREEN$", "ATTR", "AT", "TAB", "VAL$", "CODE",
+/* 0xb0 */	"VAL", "LEN", "SIN", "COS", "TAN", "ASN", "ACS", "ATN", "LN", "EXP", "INT", "SQR", "SGN", "ABS", "PEEK", "IN",
+/* 0xc0 */	"USR", "STR$", "CHR$", "NOT", "BIN", "OR", "AND", "<=", ">=", "<>", "LINE", "THEN", "TO", "STEP", "DEF FN", "CAT",
+/* 0xd0 */	"FORMAT", "MOVE", "ERASE", "OPEN #", "CLOSE #", "MERGE", "VERIFY", "BEEP",
+			"CIRCLE", "INK", "PAPER", "FLASH", "BRIGHT", "INVERSE", "OVER", "OUT",
+/* 0xe0 */	"LPRINT", "LLIST", "STOP", "READ", "DATA", "RESTORE", "NEW", "BORDER",
+			"CONTINUE", "DIM", "REM", "FOR", "GO TO", "GO SUB", "INPUT", "LOAD",
+/* 0xf0 */	"LIST", "LET", "PAUSE", "NEXT", "POKE", "PRINT", "PLOT", "RUN",
+			"SAVE", "RANDOMIZE", "IF", "CLS", "DRAW", "CLEAR", "RETURN", "COPY"
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

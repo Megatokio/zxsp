@@ -1,0 +1,119 @@
+
+h2	To Do
+	todo
+
+h4 high priority - for next release:
+
+	bw_renderer: fix border update after top border height (et.al.) change
+	gif_renderer: for bw screens
+	Jupiter Ace .tap file: block-type byte 
+
+
+h4	milestones:
+
+p	Timex high color and high res modes
+	ZX Spectrum +3 disc support
+
+
+h4	peripherals:
+
+p	serial ports of 128K models
+	128K keypad
+	ZX Printer
+	ZX Spectrum +3 printer support
+	ZX Interface 1 and Microdrives
+	DevIDE
+	AMX Mouse
+	Fuller IF
+	Currah µSpeech
+	Cheetah Sweet Talker
+	Cheetah Spec Drum
+	Multiface 1 to 3
+	32k RAM extension (Cheetah, Indescomp)
+	Lightpens (misc.)
+	Joystick interfaces (Datel, AGF, Protek, dk'tronics, etc.)
+
+
+h4 other:
+
+p	TapeRecorder, .p files: decoded tape too long, but loads. why?
+	ZX81: instant load from tape: takes some secs after loading to show prompt. why?
+	bwRenderer: leftmost partial pixel octet seems not to be drawn
+	bwRenderer: vert. center screen$ also if large top border 
+	ZX80: EI -> r-register D6 -> interrupt
+	Preference: Joystick IF nur laden, wenn auch ein USB-Joystick angeschlossen ist.
+	tape recorder: ctrl-click on eject button => insert new & empty tape
+	NXPanels: 3rd state: open-if-attached
+	"save & restore panel state" preference
+	"remember last machine used" pref
+	Halt Cpu after last block loaded
+	Audio: high frequency damping
+	.z80: Fixit for "IF1 required"
+	Jupiter Ace: save/load .z80
+	ZX81: save to tape
+	Bug report form
+	Documentation: version 0.7.2
+
+p	NSAlert
+
+p	instant tape loader: TZX files, PZX files
+
+p	Fullscreen: 8 bit indexed color screens do not work. maybe clut not set?
+	Fullscreen: if selected resolution is not found and current resolution is not in list of selected refresh rate then do not swich to "no change" but to any (first) of available modes
+	Fullscreen: open and save dialog in specci screen. also needed for "startup in fullscreen mode"
+	Fullscreen: move panels resp. open panels on other display
+	Fullscreen: open and save dialog: don't quit FS if computer has 2 displays
+
+p	use NSURLDownload instead of NSURLConnection ?!?
+
+p	Spanish plus/128K: charset for tape recorder; keyboard pict (drawing), keyboard panel keyboard translation
+p	TC2048: MMU, ULA
+
+p	auto-start-tape: monitor only the Rom routines
+	Tape Recorder: load aiff, wav, rles, csw
+	Tape recorder: save .o and .p files
+	tzx file: 'goto' and 'gosub'
+
+p	Machine: reload snapshot: don't reset timing and other settings
+	Machine: display real used/remaining processing time, measure long-run fps for performance test
+	Machine: performance monitor -> emergency throttle
+	Machine: precompensate kbd->screen latency by wormhole machine
+
+p	Ass: accept // and 0x1234 and !=
+	Ass: local variables
+	Ass: #align
+ !	Ass: missing #endif => crash
+	Ass: load .bin files
+
+p	Cpu: re-entry after EI and superfluxuous prefix opcodes
+	Cpu: re-entry after HALT
+	Cpu: eliminate "+2" in waitmap access
+	Cpu panel: scroll memory view
+	Cpu panel: edit data in memory view
+	Cpu panel: add "no register selected"
+	Cpu panel: display & update memory view (but don't adjust base addr) when running
+	
+p	File: load AY file
+	
+p	Model: SE
+	
+p	Ula panel: show/edit waitmap and waitmap offset
+	Ula panel: graphical display of dropped frames 
+	Ula panel: show contendion indicator for mapped pages
+  !	Ula panel: 'as displayed by crt beam' screen update vs. 'current memory contents'
+	Ula: UnhandledInput(): when read which attribute byte?
+	
+p	Audio: re-route audio
+	Audio: mix audio-in to audio-out only if EAR/MIC are hi/lo (as for recording)
+		
+p	Keyboard: hilighting for scorpion, sam coupé
+	Keyboard: mouse clicking for scorpion, sam coupé
+	Keyboard: key caps for spanish, french, arabic, scorpion and sam coupé
+	
+p	Video: record in's into video file
+	Video: playback
+	
+p	Network: connect two speccis over udp
+	Network: bug/crash reporter		
+	
+	

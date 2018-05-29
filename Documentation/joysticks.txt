@@ -1,0 +1,56 @@
+
+
+h1	Joysticks
+
+p.c	<img src="b/Specci_JS_and_IF.png">
+
+p	&nbsp;<br>The 128K Spectrum models had built-in joystick ports, but in order to use a joystick with most 48K models, you needed a 3rd party interface. You can plug in a joystick interface by selecting one from the 'Items' menu. Currently supported are the widely used Kempston interface and the Sinclair Interface 2, which also has a Cartridge port. Joystick interfaces were quite uncommon on the ZX80 and ZX81.
+
+p	zxsp supports USB joysticks to be used as if they were plugged into a joystick interface or one of the built-in joystick ports of a ZX Spectrum 128K. zxsp supports up to 2 USB joysticks plugged in simultaneously.
+
+p	If you have opened 2 or more machine instances, then the USB joysticks are only forwarded to the front machine. So you can attach interfaces to all machines and plug in into each the same USB joystick – probably you have only one joystick. This way you do not disturb the background machines while you play a game in the front machine.
+
+
+
+h4	Keyboard Emulation
+
+p	If you have no USB joystick, then you can use the keyboard emulation, which is good for testing but not really a good choice for games. zxsp allows you to set the real keyboard keys, but they are not discarded from normal key handling, so assigning normal keys will trigger the joystick and the keyboard simultaneously. If a game itself offers keyboard support, and most do, you should prefer this.
+
+
+
+h4	Kempston Joystick Interface
+
+p	<img class="left" src="b/kempston_IF_panel.png"> This was the most common interface until Sinclair came up with it's Interface 2 and the 128K models. Selecting the Kempston Interface from the 'Items' menu brings up the panel to the left. Now the interface is attached to the current machine. But maybe there is still no joystick plugged in. zxsp tries to automatically plug in your USB joystick, but you can select another one from the joystick popup menu. If you play with your joystick you see the detected buttons displayed in the 'Buttons' text field. If you detach the interface or switch to a second machine which has no Kempston interface attached, the panel display is greyed out.
+
+
+h4	Sinclair Interface 2
+
+p	<img class="right" src="b/IF2.png"> If you select the Interface 2 from the 'Items' menu, then you get another control panel. Basically it works like the one for the Kempston interface, but with this interface you had 2 joysticks ports, referred to as Sinclair 1 and Sinclair 2. You can select to plug in any of your USB joysticks into any port, even the same joystick into both, imagine you had wired up such an adapter lead. Keyboard emulation is only supported for one joystick supported, so you cannot simulate two different joysticks with just your keyboard.
+
+p	The Interface 2 had also a Cartridge port, which accepted 16K Rom cartridges. You can select a 16K Rom file to plug it in if you click on the 'Insert..' button. There were only 10 different Cartridges commercially sold ever, 4 of which were from Ultimate, now Rush and owned by Microsoft and they unfortunately don't allow archiving, not to say distribution, of their games, so they are hard to find. If you send me a nice picture of you with one of the Ultimate cartridges in your hands, then i'll send you back the cartridge Rom file. 
+
+h4	Built-in Joystick Ports
+
+p	<img class="left" src="b/plus2_builtin_JS_panel.png"> Starting with the ZX Spectrum+ 128K, all Specci models had 2 built-in joystick ports. Though some of them were wired up differently to urge people to buy Sinclair joysticks only, you can happily ignore this problem with zxsp. There were also clones which had built-in joystick ports, e.g. the TC2048 joystick port is supported. 
+
+p	The Specci models open a separate joystick panel which allows to plug in 2 USB joysticks which are presented to the machine as Sinclair 1 and Sinclair 2 compatible joysticks. You can additionally plug in the Interface 2 and try to figure out what is read if you mix joysticks here and there. They are accessed with the same addresses.
+
+p	The TS2048 model presents it's joystick in the Kempston panel, because it was just a Kempston compatible port. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

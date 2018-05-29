@@ -1,0 +1,474 @@
+kios-imac:dev kio$ ioreg -Src IOUSBDevice
++-o OHCI Root Hub Simulation@4  <class IOUSBRootHubDevice, id 0x100000242, registered, matched, active, busy 0 (99 ms), retain 15>
+  | {
+  |   "sessionID" = 271867130
+  |   "Low Power Displayed" = No
+  |   "AAPL,current-extra-in-sleep" = 1000
+  |   "iManufacturer" = 2
+  |   "bNumConfigurations" = 1
+  |   "idProduct" = 32773
+  |   "bcdDevice" = 512
+  |   "Bus Power Available" = 250
+  |   "bMaxPacketSize0" = 8
+  |   "USB Product Name" = "OHCI Root Hub Simulation"
+  |   "iProduct" = 1
+  |   "iSerialNumber" = 0
+  |   "USB Address" = 1
+  |   "AAPL,device-internal" = 32
+  |   "locationID" = 67108864
+  |   "bDeviceSubClass" = 0
+  |   "bDeviceClass" = 9
+  |   "IOUserClientClass" = "IOUSBDeviceUserClientV2"
+  |   "Ports" = 7
+  |   "IOCFPlugInTypes" = {"9dc7b780-9ec0-11d4-a54f-000a27052861"="IOUSBFamily.kext/Contents/PlugIns/IOUSBLib.bundle"}
+  |   "AAPL,max-port-current-in-sleep" = 1000
+  |   "bDeviceProtocol" = 0
+  |   "USB Vendor Name" = "Apple Inc."
+  |   "Device Speed" = 1
+  |   "idVendor" = 1452
+  |   "Requested Power" = 0
+  |   "IOGeneralInterest" = "IOCommand is not serializable"
+  |   "AAPL,standard-port-current-in-sleep" = 500
+  | }
+  | 
+  +-o AppleUSBHub  <class AppleUSBHub, id 0x100000244, registered, matched, active, busy 0 (0 ms), retain 11>
+  +-o IOUSBInterface@0  <class IOUSBInterface, id 0x100000246, !registered, !matched, active, busy 0, retain 7>
+
++-o IR Receiver@4500000  <class IOUSBDevice, id 0x1000002a2, registered, matched, active, busy 0 (621 ms), retain 10>
+  | {
+  |   "sessionID" = 887408712
+  |   "iManufacturer" = 1
+  |   "bNumConfigurations" = 1
+  |   "idProduct" = 33346
+  |   "bcdDevice" = 22
+  |   "Bus Power Available" = 250
+  |   "bMaxPacketSize0" = 8
+  |   "USB Product Name" = "IR Receiver"
+  |   "iProduct" = 2
+  |   "iSerialNumber" = 0
+  |   "USB Address" = 3
+  |   "bDeviceClass" = 0
+  |   "locationID" = 72351744
+  |   "bDeviceSubClass" = 0
+  |   "IOUserClientClass" = "IOUSBDeviceUserClientV2"
+  |   "PortNum" = 5
+  |   "non-removable" = "yes"
+  |   "IOCFPlugInTypes" = {"9dc7b780-9ec0-11d4-a54f-000a27052861"="IOUSBFamily.kext/Contents/PlugIns/IOUSBLib.bundle"}
+  |   "bDeviceProtocol" = 0
+  |   "USB Vendor Name" = "Apple Computer, Inc."
+  |   "Device Speed" = 0
+  |   "idVendor" = 1452
+  |   "Requested Power" = 50
+  |   "IOGeneralInterest" = "IOCommand is not serializable"
+  |   "Low Power Displayed" = No
+  | }
+  | 
+  +-o IOUSBCompositeDriver  <class IOUSBCompositeDriver, id 0x1000002a4, !registered, !matched, active, busy 0, retain 4>
+  +-o IOUSBInterface@0  <class IOUSBInterface, id 0x1000002a5, registered, matched, active, busy 0 (527 ms), retain 9>
+    +-o AppleIRController  <class AppleIRController, id 0x1000002a7, registered, matched, active, busy 0 (198 ms), retain 10>
+      +-o IOHIDInterface  <class IOHIDInterface, id 0x1000002a8, registered, matched, active, busy 0 (2 ms), retain 6>
+      +-o IOHIDLibUserClient  <class IOHIDLibUserClient, id 0x10000038f, !registered, !matched, active, busy 0, retain 6>
+      +-o IOHIDLibUserClient  <class IOHIDLibUserClient, id 0x1000003fa, !registered, !matched, active, busy 0, retain 6>
+
++-o IEEE-1284 Controller@4100000  <class IOUSBDevice, id 0x100008ab8, registered, matched, active, busy 0 (185 ms), retain 9>
+  | {
+  |   "sessionID" = 1092497882443991
+  |   "iManufacturer" = 1
+  |   "bNumConfigurations" = 1
+  |   "idProduct" = 8965
+  |   "bcdDevice" = 514
+  |   "Bus Power Available" = 250
+  |   "bMaxPacketSize0" = 8
+  |   "USB Product Name" = "IEEE-1284 Controller"
+  |   "iProduct" = 2
+  |   "iSerialNumber" = 0
+  |   "USB Address" = 2
+  |   "bDeviceClass" = 0
+  |   "locationID" = 68157440
+  |   "bDeviceSubClass" = 0
+  |   "IOUserClientClass" = "IOUSBDeviceUserClientV2"
+  |   "PortNum" = 1
+  |   "IOCFPlugInTypes" = {"9dc7b780-9ec0-11d4-a54f-000a27052861"="IOUSBFamily.kext/Contents/PlugIns/IOUSBLib.bundle"}
+  |   "bDeviceProtocol" = 0
+  |   "USB Vendor Name" = "Prolific Technology Inc."
+  |   "Device Speed" = 1
+  |   "idVendor" = 1659
+  |   "Requested Power" = 50
+  |   "IOGeneralInterest" = "IOCommand is not serializable"
+  |   "Low Power Displayed" = No
+  | }
+  | 
+  +-o IOUSBCompositeDriver  <class IOUSBCompositeDriver, id 0x100008ac0, !registered, !matched, active, busy 0, retain 4>
+  +-o IOUSBInterface@0  <class IOUSBInterface, id 0x100008ac1, registered, matched, active, busy 0 (68 ms), retain 7>
+
++-o USB-Serial Controller C@4300000  <class IOUSBDevice, id 0x100008c09, registered, matched, active, busy 0 (373 ms), retain 9>
+  | {
+  |   "sessionID" = 1096885076443566
+  |   "iManufacturer" = 1
+  |   "bNumConfigurations" = 1
+  |   "idProduct" = 8963
+  |   "bcdDevice" = 1024
+  |   "Bus Power Available" = 250
+  |   "bMaxPacketSize0" = 64
+  |   "USB Product Name" = "USB-Serial Controller C"
+  |   "iProduct" = 2
+  |   "iSerialNumber" = 0
+  |   "USB Address" = 4
+  |   "bDeviceClass" = 0
+  |   "locationID" = 70254592
+  |   "bDeviceSubClass" = 0
+  |   "IOUserClientClass" = "IOUSBDeviceUserClientV2"
+  |   "PortNum" = 3
+  |   "IOCFPlugInTypes" = {"9dc7b780-9ec0-11d4-a54f-000a27052861"="IOUSBFamily.kext/Contents/PlugIns/IOUSBLib.bundle"}
+  |   "bDeviceProtocol" = 0
+  |   "USB Vendor Name" = "Prolific Technology Inc."
+  |   "Device Speed" = 1
+  |   "idVendor" = 1659
+  |   "Requested Power" = 50
+  |   "IOGeneralInterest" = "IOCommand is not serializable"
+  |   "Low Power Displayed" = No
+  | }
+  | 
+  +-o IOUSBCompositeDriver  <class IOUSBCompositeDriver, id 0x100008c12, !registered, !matched, active, busy 0, retain 4>
+  +-o IOUSBInterface@0  <class IOUSBInterface, id 0x100008c13, registered, matched, active, busy 0 (206 ms), retain 9>
+    +-o com_prolific_driver_PL2303  <class com_prolific_driver_PL2303, id 0x100008c16, !registered, !matched, active, busy 0 (0 ms), retain 5>
+      +-o IORS232SerialStreamSync  <class IORS232SerialStreamSync, id 0x100008c17, registered, matched, active, busy 0 (0 ms), retain 6>
+        +-o IOSerialBSDClient  <class IOSerialBSDClient, id 0x100008c18, registered, matched, active, busy 0 (0 ms), retain 5>
+
++-o EHCI Root Hub Simulation@4,1  <class IOUSBRootHubDevice, id 0x10000022f, registered, matched, active, busy 0 (93 ms), retain 11>
+  | {
+  |   "sessionID" = 217159915
+  |   "Low Power Displayed" = No
+  |   "AAPL,current-extra-in-sleep" = 1000
+  |   "iManufacturer" = 2
+  |   "bNumConfigurations" = 1
+  |   "idProduct" = 32774
+  |   "bcdDevice" = 512
+  |   "Bus Power Available" = 250
+  |   "bMaxPacketSize0" = 64
+  |   "USB Product Name" = "EHCI Root Hub Simulation"
+  |   "iProduct" = 1
+  |   "iSerialNumber" = 0
+  |   "USB Address" = 1
+  |   "bDeviceClass" = 9
+  |   "locationID" = 603979776
+  |   "bDeviceSubClass" = 0
+  |   "AAPL,current-extra" = 1100
+  |   "AAPL,device-internal" = 16
+  |   "IOUserClientClass" = "IOUSBDeviceUserClientV2"
+  |   "IOCFPlugInTypes" = {"9dc7b780-9ec0-11d4-a54f-000a27052861"="IOUSBFamily.kext/Contents/PlugIns/IOUSBLib.bundle"}
+  |   "AAPL,current-available" = 1500
+  |   "bDeviceProtocol" = 1
+  |   "AAPL,max-port-current-in-sleep" = 1000
+  |   "Ports" = 7
+  |   "USB Vendor Name" = "Apple Inc."
+  |   "Device Speed" = 2
+  |   "idVendor" = 1452
+  |   "Requested Power" = 0
+  |   "IOGeneralInterest" = "IOCommand is not serializable"
+  |   "AAPL,standard-port-current-in-sleep" = 500
+  | }
+  | 
+  +-o AppleUSBHub  <class AppleUSBHub, id 0x100000232, registered, matched, active, busy 0 (0 ms), retain 8>
+  +-o IOUSBInterface@0  <class IOUSBInterface, id 0x100000234, !registered, !matched, active, busy 0, retain 7>
+
++-o Built-in iSight@24400000  <class IOUSBDevice, id 0x10000025b, registered, matched, active, busy 0 (397 ms), retain 11>
+  | {
+  |   "sessionID" = 460741185
+  |   "iManufacturer" = 1
+  |   "bNumConfigurations" = 1
+  |   "idProduct" = 34050
+  |   "bcdDevice" = 560
+  |   "Bus Power Available" = 250
+  |   "bMaxPacketSize0" = 64
+  |   "USB Product Name" = "Built-in iSight"
+  |   "iProduct" = 2
+  |   "iSerialNumber" = 3
+  |   "USB Address" = 2
+  |   "bDeviceClass" = 239
+  |   "bDeviceSubClass" = 2
+  |   "locationID" = 608174080
+  |   "IOUserClientClass" = "IOUSBDeviceUserClientV2"
+  |   "PortNum" = 4
+  |   "non-removable" = "yes"
+  |   "IOCFPlugInTypes" = {"9dc7b780-9ec0-11d4-a54f-000a27052861"="IOUSBFamily.kext/Contents/PlugIns/IOUSBLib.bundle"}
+  |   "bDeviceProtocol" = 1
+  |   "USB Vendor Name" = "Apple Inc."
+  |   "Device Speed" = 2
+  |   "idVendor" = 1452
+  |   "USB Serial Number" = "8J99K2T4377G3A00"
+  |   "Requested Power" = 250
+  |   "IOGeneralInterest" = "IOCommand is not serializable"
+  |   "kSuspendPort" = Yes
+  |   "Low Power Displayed" = No
+  | }
+  | 
+  +-o IOUSBCompositeDriver  <class IOUSBCompositeDriver, id 0x10000025f, !registered, !matched, active, busy 0, retain 4>
+  +-o Built-in iSight@0  <class IOUSBInterface, id 0x100000268, registered, matched, active, busy 0 (75 ms), retain 7>
+  +-o IOUSBInterface@1  <class IOUSBInterface, id 0x10000026a, registered, matched, active, busy 0 (255 ms), retain 7>
+  +-o IOUSBInterface@2  <class IOUSBInterface, id 0x10000026b, registered, matched, active, busy 0 (241 ms), retain 7>
+
++-o OHCI Root Hub Simulation@6  <class IOUSBRootHubDevice, id 0x100000250, registered, matched, active, busy 0 (102 ms), retain 13>
+  | {
+  |   "sessionID" = 282447789
+  |   "Low Power Displayed" = No
+  |   "AAPL,current-extra-in-sleep" = 1000
+  |   "iManufacturer" = 2
+  |   "bNumConfigurations" = 1
+  |   "idProduct" = 32773
+  |   "bcdDevice" = 512
+  |   "Bus Power Available" = 250
+  |   "bMaxPacketSize0" = 8
+  |   "USB Product Name" = "OHCI Root Hub Simulation"
+  |   "iProduct" = 1
+  |   "iSerialNumber" = 0
+  |   "USB Address" = 1
+  |   "AAPL,device-internal" = 2
+  |   "locationID" = 100663296
+  |   "bDeviceSubClass" = 0
+  |   "bDeviceClass" = 9
+  |   "IOUserClientClass" = "IOUSBDeviceUserClientV2"
+  |   "Ports" = 5
+  |   "IOCFPlugInTypes" = {"9dc7b780-9ec0-11d4-a54f-000a27052861"="IOUSBFamily.kext/Contents/PlugIns/IOUSBLib.bundle"}
+  |   "AAPL,max-port-current-in-sleep" = 1000
+  |   "bDeviceProtocol" = 0
+  |   "USB Vendor Name" = "Apple Inc."
+  |   "Device Speed" = 1
+  |   "idVendor" = 1452
+  |   "Requested Power" = 0
+  |   "IOGeneralInterest" = "IOCommand is not serializable"
+  |   "AAPL,standard-port-current-in-sleep" = 500
+  | }
+  | 
+  +-o AppleUSBHub  <class AppleUSBHub, id 0x100000252, registered, matched, active, busy 0 (0 ms), retain 12>
+  +-o IOUSBInterface@0  <class IOUSBInterface, id 0x100000254, !registered, !matched, active, busy 0, retain 7>
+
++-o BRCM2046 Hub@6100000  <class IOUSBHubDevice, id 0x10000026f, registered, matched, active, busy 0 (110 ms), retain 11>
+  | {
+  |   "sessionID" = 610096910
+  |   "AAPL,standard-port-current-in-sleep" = 500
+  |   "iManufacturer" = 1
+  |   "bNumConfigurations" = 1
+  |   "idProduct" = 17664
+  |   "bcdDevice" = 256
+  |   "Bus Power Available" = 250
+  |   "bMaxPacketSize0" = 8
+  |   "USB Product Name" = "BRCM2046 Hub"
+  |   "iProduct" = 2
+  |   "iSerialNumber" = 0
+  |   "USB Address" = 2
+  |   "bDeviceClass" = 9
+  |   "locationID" = 101711872
+  |   "bDeviceSubClass" = 0
+  |   "IOUserClientClass" = "IOUSBDeviceUserClientV2"
+  |   "Ports" = 3
+  |   "PortNum" = 1
+  |   "non-removable" = "yes"
+  |   "IOCFPlugInTypes" = {"9dc7b780-9ec0-11d4-a54f-000a27052861"="IOUSBFamily.kext/Contents/PlugIns/IOUSBLib.bundle"}
+  |   "bDeviceProtocol" = 0
+  |   "USB Vendor Name" = "Apple Inc."
+  |   "Device Speed" = 1
+  |   "idVendor" = 2652
+  |   "Requested Power" = 0
+  |   "IOGeneralInterest" = "IOCommand is not serializable"
+  |   "Low Power Displayed" = No
+  | }
+  | 
+  +-o AppleUSBHub  <class AppleUSBHub, id 0x100000277, registered, matched, active, busy 0 (0 ms), retain 9>
+  +-o IOUSBInterface@0  <class IOUSBInterface, id 0x100000279, !registered, !matched, active, busy 0, retain 7>
+
++-o USB Receiver@6200000  <class IOUSBDevice, id 0x100000296, registered, matched, active, busy 0 (844 ms), retain 12>
+  | {
+  |   "sessionID" = 767079047
+  |   "iManufacturer" = 1
+  |   "bNumConfigurations" = 1
+  |   "idProduct" = 50437
+  |   "bcdDevice" = 5921
+  |   "Bus Power Available" = 250
+  |   "bMaxPacketSize0" = 8
+  |   "USB Product Name" = "USB Receiver"
+  |   "iProduct" = 2
+  |   "iSerialNumber" = 0
+  |   "USB Address" = 3
+  |   "bDeviceClass" = 0
+  |   "locationID" = 102760448
+  |   "bDeviceSubClass" = 0
+  |   "IOUserClientClass" = "IOUSBDeviceUserClientV2"
+  |   "PortNum" = 2
+  |   "non-removable" = "yes"
+  |   "IOCFPlugInTypes" = {"9dc7b780-9ec0-11d4-a54f-000a27052861"="IOUSBFamily.kext/Contents/PlugIns/IOUSBLib.bundle"}
+  |   "bDeviceProtocol" = 0
+  |   "USB Vendor Name" = "Logitech"
+  |   "Device Speed" = 0
+  |   "idVendor" = 1133
+  |   "Requested Power" = 49
+  |   "IOGeneralInterest" = "IOCommand is not serializable"
+  |   "Low Power Displayed" = No
+  | }
+  | 
+  +-o IOUSBCompositeDriver  <class IOUSBCompositeDriver, id 0x100000298, !registered, !matched, active, busy 0, retain 4>
+  +-o IOUSBInterface@0  <class IOUSBInterface, id 0x100000299, registered, matched, active, busy 0 (606 ms), retain 9>
+  | +-o IOUSBHIDDriver  <class IOUSBHIDDriver, id 0x10000029c, registered, matched, active, busy 0 (161 ms), retain 10>
+  |   +-o IOHIDInterface  <class IOHIDInterface, id 0x10000029d, registered, matched, active, busy 0 (2 ms), retain 7>
+  |   | +-o IOHIDEventDriver  <class IOHIDEventDriver, id 0x10000029e, registered, matched, active, busy 0 (0 ms), retain 9>
+  |   |   +-o IOHIDKeyboard  <class IOHIDKeyboard, id 0x10000029f, registered, matched, active, busy 0 (0 ms), retain 9>
+  |   |   | +-o IOHIDSystem  <class IOHIDSystem, id 0x10000027e, registered, matched, active, busy 0 (0 ms), retain 23>
+  |   |   |   +-o IOHIDStackShotUserClient  <class IOHIDStackShotUserClient, id 0x100000336, !registered, !matched, active, busy 0, retain 5>
+  |   |   |   +-o IOHIDUserClient  <class IOHIDUserClient, id 0x10000033d, !registered, !matched, active, busy 0, retain 5>
+  |   |   |   +-o IOHIDParamUserClient  <class IOHIDParamUserClient, id 0x10000033e, !registered, !matched, active, busy 0, retain 5>
+  |   |   |   +-o IOHIDEventSystemUserClient  <class IOHIDEventSystemUserClient, id 0x100000378, !registered, !matched, active, busy 0, retain 5>
+  |   |   |   +-o IOHIDEventSystemUserClient  <class IOHIDEventSystemUserClient, id 0x100000379, !registered, !matched, active, busy 0, retain 5>
+  |   |   |   +-o IOHIDEventSystemUserClient  <class IOHIDEventSystemUserClient, id 0x10000038a, !registered, !matched, active, busy 0, retain 5>
+  |   |   +-o IOHIDSystem  <class IOHIDSystem, id 0x10000027e, registered, matched, active, busy 0 (0 ms), retain 22>
+  |   |     +-o IOHIDStackShotUserClient  <class IOHIDStackShotUserClient, id 0x100000336, !registered, !matched, active, busy 0, retain 5>
+  |   |     +-o IOHIDUserClient  <class IOHIDUserClient, id 0x10000033d, !registered, !matched, active, busy 0, retain 5>
+  |   |     +-o IOHIDParamUserClient  <class IOHIDParamUserClient, id 0x10000033e, !registered, !matched, active, busy 0, retain 5>
+  |   |     +-o IOHIDEventSystemUserClient  <class IOHIDEventSystemUserClient, id 0x100000378, !registered, !matched, active, busy 0, retain 5>
+  |   |     +-o IOHIDEventSystemUserClient  <class IOHIDEventSystemUserClient, id 0x100000379, !registered, !matched, active, busy 0, retain 5>
+  |   |     +-o IOHIDEventSystemUserClient  <class IOHIDEventSystemUserClient, id 0x10000038a, !registered, !matched, active, busy 0, retain 5>
+  |   +-o IOHIDLibUserClient  <class IOHIDLibUserClient, id 0x100000390, !registered, !matched, active, busy 0, retain 6>
+  |   +-o IOHIDLibUserClient  <class IOHIDLibUserClient, id 0x1000003fb, !registered, !matched, active, busy 0, retain 6>
+  +-o IOUSBInterface@1  <class IOUSBInterface, id 0x10000029a, registered, matched, active, busy 0 (661 ms), retain 9>
+    +-o IOUSBHIDDriver  <class IOUSBHIDDriver, id 0x10000031a, registered, matched, active, busy 0 (20 ms), retain 10>
+      +-o IOHIDInterface  <class IOHIDInterface, id 0x10000031d, registered, matched, active, busy 0 (3 ms), retain 7>
+      | +-o IOHIDEventDriver  <class IOHIDEventDriver, id 0x100000322, registered, matched, active, busy 0 (0 ms), retain 10>
+      |   +-o IOHIDPointing  <class IOHIDPointing, id 0x100000323, registered, matched, active, busy 0 (0 ms), retain 8>
+      |   | +-o IOHIDSystem  <class IOHIDSystem, id 0x10000027e, registered, matched, active, busy 0 (0 ms), retain 23>
+      |   |   +-o IOHIDStackShotUserClient  <class IOHIDStackShotUserClient, id 0x100000336, !registered, !matched, active, busy 0, retain 5>
+      |   |   +-o IOHIDUserClient  <class IOHIDUserClient, id 0x10000033d, !registered, !matched, active, busy 0, retain 5>
+      |   |   +-o IOHIDParamUserClient  <class IOHIDParamUserClient, id 0x10000033e, !registered, !matched, active, busy 0, retain 5>
+      |   |   +-o IOHIDEventSystemUserClient  <class IOHIDEventSystemUserClient, id 0x100000378, !registered, !matched, active, busy 0, retain 5>
+      |   |   +-o IOHIDEventSystemUserClient  <class IOHIDEventSystemUserClient, id 0x100000379, !registered, !matched, active, busy 0, retain 5>
+      |   |   +-o IOHIDEventSystemUserClient  <class IOHIDEventSystemUserClient, id 0x10000038a, !registered, !matched, active, busy 0, retain 5>
+      |   +-o IOHIDConsumer  <class IOHIDConsumer, id 0x100000324, registered, matched, active, busy 0 (0 ms), retain 9>
+      |   | +-o IOHIDSystem  <class IOHIDSystem, id 0x10000027e, registered, matched, active, busy 0 (0 ms), retain 23>
+      |   |   +-o IOHIDStackShotUserClient  <class IOHIDStackShotUserClient, id 0x100000336, !registered, !matched, active, busy 0, retain 5>
+      |   |   +-o IOHIDUserClient  <class IOHIDUserClient, id 0x10000033d, !registered, !matched, active, busy 0, retain 5>
+      |   |   +-o IOHIDParamUserClient  <class IOHIDParamUserClient, id 0x10000033e, !registered, !matched, active, busy 0, retain 5>
+      |   |   +-o IOHIDEventSystemUserClient  <class IOHIDEventSystemUserClient, id 0x100000378, !registered, !matched, active, busy 0, retain 5>
+      |   |   +-o IOHIDEventSystemUserClient  <class IOHIDEventSystemUserClient, id 0x100000379, !registered, !matched, active, busy 0, retain 5>
+      |   |   +-o IOHIDEventSystemUserClient  <class IOHIDEventSystemUserClient, id 0x10000038a, !registered, !matched, active, busy 0, retain 5>
+      |   +-o IOHIDSystem  <class IOHIDSystem, id 0x10000027e, registered, matched, active, busy 0 (0 ms), retain 22>
+      |     +-o IOHIDStackShotUserClient  <class IOHIDStackShotUserClient, id 0x100000336, !registered, !matched, active, busy 0, retain 5>
+      |     +-o IOHIDUserClient  <class IOHIDUserClient, id 0x10000033d, !registered, !matched, active, busy 0, retain 5>
+      |     +-o IOHIDParamUserClient  <class IOHIDParamUserClient, id 0x10000033e, !registered, !matched, active, busy 0, retain 5>
+      |     +-o IOHIDEventSystemUserClient  <class IOHIDEventSystemUserClient, id 0x100000378, !registered, !matched, active, busy 0, retain 5>
+      |     +-o IOHIDEventSystemUserClient  <class IOHIDEventSystemUserClient, id 0x100000379, !registered, !matched, active, busy 0, retain 5>
+      |     +-o IOHIDEventSystemUserClient  <class IOHIDEventSystemUserClient, id 0x10000038a, !registered, !matched, active, busy 0, retain 5>
+      +-o IOHIDLibUserClient  <class IOHIDLibUserClient, id 0x10000038e, !registered, !matched, active, busy 0, retain 6>
+      +-o IOHIDLibUserClient  <class IOHIDLibUserClient, id 0x1000003f9, !registered, !matched, active, busy 0, retain 6>
+
++-o Bluetooth USB Host Controller@6110000  <class IOUSBDevice, id 0x1000002b0, registered, matched, active, busy 0 (255 ms), retain 12>
+  | {
+  |   "sessionID" = 1066096219
+  |   "iManufacturer" = 1
+  |   "bNumConfigurations" = 1
+  |   "idProduct" = 33301
+  |   "bcdDevice" = 519
+  |   "Bus Power Available" = 250
+  |   "bMaxPacketSize0" = 64
+  |   "USB Product Name" = "Bluetooth USB Host Controller"
+  |   "iProduct" = 2
+  |   "iSerialNumber" = 3
+  |   "USB Address" = 5
+  |   "bDeviceClass" = 255
+  |   "bDeviceSubClass" = 1
+  |   "locationID" = 101777408
+  |   "IOUserClientClass" = "IOUSBDeviceUserClientV2"
+  |   "PortNum" = 1
+  |   "non-removable" = "yes"
+  |   "IOCFPlugInTypes" = {"9dc7b780-9ec0-11d4-a54f-000a27052861"="IOUSBFamily.kext/Contents/PlugIns/IOUSBLib.bundle"}
+  |   "bDeviceProtocol" = 1
+  |   "USB Vendor Name" = "Apple Inc."
+  |   "Device Speed" = 1
+  |   "idVendor" = 1452
+  |   "USB Serial Number" = "64B9E8D71E33"
+  |   "Requested Power" = 0
+  |   "IOGeneralInterest" = "IOCommand is not serializable"
+  |   "Low Power Displayed" = No
+  | }
+  | 
+  +-o BroadcomBluetoothHostControllerUSBTransport  <class BroadcomBluetoothHostControllerUSBTransport, id 0x1000002f5, registered, matched, active, busy 0 (0$
+  +-o IOUSBInterface@0  <class IOUSBInterface, id 0x1000002fc, !registered, !matched, active, busy 0, retain 7>
+  +-o IOUSBInterface@1  <class IOUSBInterface, id 0x1000002fd, !registered, !matched, active, busy 0, retain 7>
+  +-o IOUSBInterface@2  <class IOUSBInterface, id 0x1000002fe, !registered, !matched, active, busy 0, retain 7>
+  +-o IOUSBInterface@3  <class IOUSBInterface, id 0x1000002ff, !registered, !matched, active, busy 0, retain 6>
+
++-o EHCI Root Hub Simulation@6,1  <class IOUSBRootHubDevice, id 0x100000230, registered, matched, active, busy 0 (99 ms), retain 11>
+  | {
+  |   "sessionID" = 217223970
+  |   "Low Power Displayed" = No
+  |   "AAPL,current-extra-in-sleep" = 1000
+  |   "iManufacturer" = 2
+  |   "bNumConfigurations" = 1
+  |   "idProduct" = 32774
+  |   "bcdDevice" = 512
+  |   "Bus Power Available" = 250
+  |   "bMaxPacketSize0" = 64
+  |   "USB Product Name" = "EHCI Root Hub Simulation"
+  |   "iProduct" = 1
+  |   "iSerialNumber" = 0
+  |   "USB Address" = 1
+  |   "bDeviceClass" = 9
+  |   "locationID" = 637534208
+  |   "bDeviceSubClass" = 0
+  |   "AAPL,current-extra" = 1100
+  |   "AAPL,device-internal" = 32
+  |   "IOUserClientClass" = "IOUSBDeviceUserClientV2"
+  |   "IOCFPlugInTypes" = {"9dc7b780-9ec0-11d4-a54f-000a27052861"="IOUSBFamily.kext/Contents/PlugIns/IOUSBLib.bundle"}
+  |   "AAPL,current-available" = 1500
+  |   "bDeviceProtocol" = 1
+  |   "AAPL,max-port-current-in-sleep" = 1000
+  |   "Ports" = 5
+  |   "USB Vendor Name" = "Apple Inc."
+  |   "Device Speed" = 2
+  |   "idVendor" = 1452
+  |   "Requested Power" = 0
+  |   "IOGeneralInterest" = "IOCommand is not serializable"
+  |   "AAPL,standard-port-current-in-sleep" = 500
+  | }
+  | 
+  +-o AppleUSBHub  <class AppleUSBHub, id 0x100000236, registered, matched, active, busy 0 (0 ms), retain 9>
+  +-o IOUSBInterface@0  <class IOUSBInterface, id 0x100000238, !registered, !matched, active, busy 0, retain 7>
+
++-o Card Reader@26500000  <class IOUSBDevice, id 0x10000025c, registered, matched, active, busy 0 (475 ms), retain 9>
+  | {
+  |   "sessionID" = 466590965
+  |   "iManufacturer" = 3
+  |   "bNumConfigurations" = 1
+  |   "idProduct" = 33795
+  |   "bcdDevice" = 38963
+  |   "Bus Power Available" = 250
+  |   "bMaxPacketSize0" = 64
+  |   "USB Product Name" = "Internal Memory Card Reader"
+  |   "iProduct" = 4
+  |   "iSerialNumber" = 2
+  |   "USB Address" = 2
+  |   "bDeviceClass" = 0
+  |   "bDeviceSubClass" = 0
+  |   "locationID" = 642777088
+  |   "IOUserClientClass" = "IOUSBDeviceUserClientV2"
+  |   "kHasMSCInterface" = Yes
+  |   "PortNum" = 5
+  |   "non-removable" = "yes"
+  |   "IOCFPlugInTypes" = {"9dc7b780-9ec0-11d4-a54f-000a27052861"="IOUSBFamily.kext/Contents/PlugIns/IOUSBLib.bundle"}
+  |   "bDeviceProtocol" = 0
+  |   "uid" = "USB:05AC8403000000009833"
+  |   "USB Vendor Name" = "Apple"
+  |   "Device Speed" = 2
+  |   "idVendor" = 1452
+  |   "USB Serial Number" = "000000009833"
+  |   "Requested Power" = 250
+  |   "IOGeneralInterest" = "IOCommand is not serializable"
+  |   "Low Power Displayed" = No
+  | }
+  | 
+  +-o IOUSBCompositeDriver  <class IOUSBCompositeDriver, id 0x100000262, !registered, !matched, active, busy 0, retain 4>
+  +-o IOUSBInterface@0  <class IOUSBInterface, id 0x100000263, registered, matched, active, busy 0 (384 ms), retain 8>
+    +-o com_apple_driver_AppleUSBCardReaderUMC  <class com_apple_driver_AppleUSBCardReaderUMC, id 0x100000265, registered, matched, active, busy 0 (160 ms), $
+      +-o IOSCSIPeripheralDeviceNub  <class IOSCSIPeripheralDeviceNub, id 0x100000269, registered, matched, active, busy 0 (37 ms), retain 7>
+        +-o com_apple_driver_AppleUSBCardReaderSBC  <class com_apple_driver_AppleUSBCardReaderSBC, id 0x100000270, !registered, !matched, active, busy 0 (34 $
+          +-o IOBlockStorageServices  <class IOBlockStorageServices, id 0x100000274, registered, matched, active, busy 0 (34 ms), retain 6>
+            +-o IOBlockStorageDriver  <class IOBlockStorageDriver, id 0x100000275, registered, matched, active, busy 0 (34 ms), retain 8>
+
+

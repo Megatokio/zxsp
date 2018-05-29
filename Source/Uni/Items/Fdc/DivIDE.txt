@@ -1,0 +1,137 @@
+﻿
+
+
+DivIDE programming model
+
+--> Pavel "Zilog" Cimbal (xcimbal@quick.cz)
+
+
+	DivIDE has 8k EEPROM (or none) and 32k RAM (or more)
+	ROM is paged in at $0000-1FFF (RAM bank 3 may be programmed to replace ROM)
+	RAM is paged in at $2000-3FFF
+	DivIDE memory is paged in explicitely by writing to control register
+	or by executing certain rom addresses (can be disabled)
+	read/write to IDE data register combines/splits 8 to 16 bit
+
+
+Jumper
+
+	Link E enables automatic memory paging at certain rom addresses and disables writing to the rom.
+		   If the current lower 8 KB is EEPROM and the link is removed, it can be programmed by writing to it.
+	Link A should be always set on Amstrad Spectrum models +2A/+3.
+
+
+IDE registers
+IDE has 8 registers (via address lines A0…2)
+
+	address = %101r.rr11
+
+->	%1010.0011, 0A3h, 163 - DATA REGISTER (R/W)
+	%1010.0111, 0a7h, 167 - ERROR REGISTER (R) / FEATURES REGISTER (W)
+	%1010.1011, 0abh, 171 - SECTOR COUNT (R/W)
+	%1010.1111, 0afh, 175 - SECTOR NUMBER or LBA bits 0..7 (R/W)
+	%1011.0011, 0b3h, 179 - CYLINDER LOW or LBA bits 8..15 (R/W)
+	%1011.0111, 0b7h, 183 - CYLINDER HIGH or LBA bits 16..23 (R/W)
+	%1011.1011, 0bbh, 187 - DRIVE/HEAD or LBA bits 24..28 (R/W)
+	%1011.1111, 0bfh, 191 - STATUS REGISTER (R) / COMMAND REGISTER (W)
+
+
+IDE DATA REGISTER (R/W)
+	%1010.0011, 0A3h, 163
+
+	This register is used to read and write data to/from HDD. It is 16 bits wide,
+	so divIDE joins pairs of 8-bit writes into words and splits read words into bytes.
+
+	reading alternates between reading LOW byte and storing high byte <-and-> reading the stored HIGH byte.
+	writing alternates between storing LOW byte <-and-> writing stored low byte and HIGH byte.
+	access to any other IDE register or the DivIDE register resets this toggle FF.
+	After reset or power-on the toggle FF state is undefined.
+
+
+DivIDE control register
+	xxxx%1110.0011, 0E3h, 227 (Write Only)
+
+	This register is write only.
+	All bits are reset to '0' after power-on.
+
+	Bits:	7		6		5432 10
+			CONMEM	MAPRAM	RAMPAGE
+
+	RAMPAGE
+	select which 8k bank is paged in at 2000h-3FFFh when divIDE memory is paged in.
+	The original DivIDE has 32k: 4 pages, bits 0 and 1 used.
+	Bits 2 to 5 are reserved for accessing up to 512 KB of memory and should be written '0'.
+
+	MAPRAM = 1
+	Bank 3 is paged in at 0000h-1FFFh when DivIDE memory is paged in
+	Once set to '1', MAPRAM can only be reset with a power-on. RESET leaves it unchanged.
+	Bank 3 is write protected. (at $0000 and $2000)
+
+	CONMEM = 1
+	this instantly pages ROM in at 0000h-1FFFh and the selected RAM page at 2000h-3FFFh.
+	CONMEM overrides MAPRAM: ROM is mapped to 0000h-1FFFh even if MAPRAM is also set.
+	-> EEPROM at 0000h-1FFFh is writable if the write protect link E is removed.
+	-> RAM    at 2000h-3FFFh is writable - even bank 3 if MAPRAM is active.
+
+The values written to the control register can be summarised as follows:
+
+	00h-03h: When divIDE is activated the specified RAM bank will be paged in at 2000h-3FFFh.
+			 Depending on MAPRAM state, either ROM or bank 3 will be mapped to 0000h-1FFFh.
+	40h-43h: When divIDE is activated, write protected bank 3 will be paged in at 0000h-1FFFh,
+			 and the specified RAM bank will be paged in at 2000h-3FFFh (bank 3 write protected).
+	80h-83h: Immediately page divIDE ROM/EPROM/EEPROM in at 0000h-1FFFh and the
+             specified RAM bank at 2000h-3FFFh (which is always writable).
+
+	Note:	 While it is perfectly possible to set both CONMEM and MAPRAM by single instruction,
+			 firmware developers are advised not to use this combination as it may be used in
+			 future hardware revisions of divIDE to expand the function of the control register.
+
+
+Memory mapping
+
+	DivIDE memory is mapped in instantly by setting CONMEM or automatically
+	when the CPU fetches an opcode from an entry point.
+	Automatic mapping only happens if link E is set (indicating: ROM is present),
+	or if MAPRAM is set in the Control Register.
+
+	Automatic mapping occurs *after* an M1 cycle (opcode fetch) on these addresses:
+		0000h,
+		0008h,
+		0038h,
+		0066h,
+		04C6h,
+		0562h,
+		address range 3D00h-3DFFh.
+
+	DivIDE memory is paged out *after* an M1 cycle
+		in range 1FF8h-1FFFh, referred to as the 'off-area'.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

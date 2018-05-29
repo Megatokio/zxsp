@@ -1,0 +1,167 @@
+
+Locks & Semaphoren:
+	globals.mlock			schützt Zugriff auf 'mlist'
+	Machine.lock				schützt Zugriff auf Machine data
+	Machine.state				cpu_running oder cpu_halted
+	Screen.lock					schützt Zugriff auf Screen.machine und neue Framedaten
+	Screen.sema					synchronisiert Übergabe neuer Framedaten an den updateThread
+	Screen.new_data_valid		flag für updateThread nach sema: neue Framedaten sind gültig
+	Screen.machine				flag für updateThread nach sema: forced screen update möglich
+
+	Hierarchie:		äußerste:	mlock
+								machine.lock 
+					innerste:	screen.lock
+	
+Threads:
+	mainEventLoop				Events, Menu Events and Notifications von der Main Eventloop
+	audioInterrupt				Audio Callback Thread:  -> RunMachinesForSound()
+	updateThread				Ein Thread pro Machine: -> Draw/update Screen 
+
+
+-------------------------------------------------------------------------------
+Threads:
+
+mainEventLoop	-> 'main_thread'
+				-> Testen mit:	([NSThread currentThread] == main_thread)
+				-> Events, Notifications etc.
+
+audioInterrupt	-> ruft Machine::RunMachinesForSound auf
+				-> hier werden die Maschinen tatsächlich 'laufen gelassen'.
+		 Mutex:	Machine.lock
+		 State:	Machine.state
+
+n* updateThread	-> ein Thread pro Machine
+				-> hier wird das TV-Bild 50 x pro Sekunde in das zugehörige Fenster gezeichnet.
+		 Mutex:	Screen.lock
+		 Sema:	Screen.sema
+		 State:	new_data_valid
+		 State:	machine
+
+
+-------------------------------------------------------------------------------
+Locks, Semaphores and Flags:
+
+
+mlock
+	Dieses Lock schützt den Zugriff auf HierObj 'mlist'.
+	'mlist' ist der Parent für alle Maschinen-Instanzen.
+	
+	'mlist' darf nur in der mainEventLoop verändert werden:
+	=>	Einhängen/Aushängen/Umsortieren der Childs (==Maschinen).
+
+	=>	Lesezugriff		mainEventLoop		mlock.Lock() nicht nötig
+						anderer Thread		mlock.Lock() nötig
+		Schreibzugriff	mainEventLoop		mlock.Lock() nötig
+						anderer Thread		verboten!
+
+	=>	'mlock' darf nur ganz kurz blockiert werden. 
+		Das ist bei den ChildList-Manipulationen der Fall.
+		Anm.: audioInterrupt:RunMachinesForSound(): Sperrt 'mlock' für die gesamte Laufzeit, 
+			  damit die Child-Liste unverändert bleibt. Das ist aber auch nur max. ~1/100 Sekunde.
+
+
+Machine.lock
+	Dieses Lock schützt den Zugriff auf alle Daten einer Maschine.
+	Die Maschinen können von jedem Thread aus geändert werden:
+		mainEventLoop:	r/w	menuItems, buttons, loadFile etc.
+		audioInterrupt:	r/w	runForSound ändert cpu, ula, ay, ram, etc.
+		updateThread:	r/-	Kann nach Timeout für ein forced redraw die AttrPixel und Border Maps lesen.
+							Nach exit_screen löscht er die Screen-Instanz.
+							Normalerweise kann man den updateThread also als 'Nur-Leser' ansehen.
+
+	Bevor man Daten einer Machine liest oder ändert, muss man das 'lock' sperren.
+	Da dadurch 'runForSound' blockiert wird, darf diese Sperre aber nur sehr kurz andauern!
+	Bei länger dauernden Änderungen muss man die Maschine mit Machine.HaltCpu() stoppen.
+	Dadurch überspringt der audioInterrupt diese Maschine und wird nicht von ihrem 'lock' blockiert.
+	Der updateThread wird derweil durch das 'lock' blockiert, sobald er nach Timeout ein forced redraw startet.
+
+	=>	Kurzer Zugriff:		r/w  'lock' sperren, von allen Threads aus erlaubt
+		Langsamer Zugriff:	r/w	 HaltCpu(), lock.Lock(), <DOIT>, lock.Unlock(), ResumeCpu()
+	
+	=>	audioInterrupt:RunMachinesForSound(): Sperrt 'lock' für die gesamte Laufzeit der Maschine,
+		da die laufende Cpu die Daten der Maschine ändert. Das ist aber auch nur max. ~1/200 Sekunde.
+		
+	Machine:~Machine():		
+		Der Destructor sperrt 'lock' nicht! Sonst könnte evtl. der updateThread daran hängen bleiben.
+		Statt dessen wird die Maschine aus der 'mlist' ausgehängt.
+		
+		
+Machine.state
+	Der Machinenstatus kann 'state==0' == 'cpu_running' oder 'state>0' == 'cpu_halted' sein.
+	Zum Ändern des Maschinenstatus dienen die Funktionen HaltCpu() und ResumeCpu(), 
+		die mehrfach geschachtelt aufgerufen werden dürfen.
+	Während 'cpu_halted' wird die Maschine im audioInterrupt von RunMachinesForSound() übersprungen.
+	Der Maschinenstatus wird auf 'cpu_halted' gestellt, 
+		- vom Benutzer um die Maschine anzuhalten, z.B. im Debugger.
+		- während langwierigen Änderungen an der Maschine, z.B. LoadFile()
+		- Während der Initialisierung einer neuen Maschine bis alle Items 'powered_on'.
+		- vor dem Löschen der Maschine. 
+
+
+updateThread.sema:
+updateThread.new_data_valid:
+updateThread.machine:
+	Der updateThread jeder Maschine blockiert sich an 'sema' und wartet, 
+	dass 'sema' von einem anderen Thread gelöst wird. 
+	Dann prüft er die Flags 'machine' und 'new_data_valid'.
+
+	machine==NULL:	Normalerweise zeigt 'machine' auf die zugehörige Maschine.
+					NULL: updateThread released die Screen-Instanz (die dadurch wahrscheinlich sofort gelöscht wird)
+					und terminiert sich.
+	new_data_valid:	updateThread liest die neuen Daten, die mit Screen:nextFrame() eingestellt wurden
+					zeichnet sie in den OpenGLView und setzt dann 'new_data_valid' wieder zurück.
+	sonst:			Timeout beim Warten auf die Semaphore.
+					=> 'cpu_halted' oder Frame-Frequenz massiv verlangsamt (~ula / cpu clock)
+					=> forced intermediate screen refresh.
+
+
+updateThread.lock:
+	Schützt die neuen Framedaten 'new_*' und der Machinepointer 'machine'.
+
+	Neue Frame-Daten schreiben: 
+	=>	in Screen:nextFrame()
+		'lock' sperren und dann 'new_data_valid' prüfen:
+		=>	!new_data_valid	=> Neue Daten ablegen, 'new_data_valid' setzen und 'sema' lösen.
+			new_data_valid	=> Der updateThread kommt nicht nach => drop Frame.
+	
+	Neue Frame-Daten lesen:
+	=>	im updateThread:
+		'lock' sperren nicht nötig!
+			machine==NULL	=> release screen and terminate
+			new_data_valid	=> neuen Frame darstellen, 'new_data_valid' wieder löschen.
+			!new_data_valid	=> keine neuen Daten da => Timeout => forced screen refresh.
+			
+	Forced screen refresh:
+		Während bei normalen Screen Refreshs der updateThread nur auf seine Screen-Instanz
+		zugreifen muss -- alle benötigten Daten werden in Screen:nextFrame() kopiert --
+		liegen bei diesem 'unerwarteten' Ereignis keine gültigen Daten vor.
+		der updateThread holt sich die Daten dann aus 'seiner' Maschine und der Ula.
+
+		Dazu muss der updateThread sicherstellen, dass:
+		-1- 'seine' Maschine noch existiert
+		-2- die Ula noch existiert
+		-3- dass Screen:nextFrame() nicht gleichzeitig Daten übergeben kann
+		-4- dass die Daten der Ula nicht gleichzeitig von der Cpu geändert werden.
+		
+		1)	Solange 'machine!=NULL' existiert die Maschine. 
+			Zugriffe auf 'machine' müssen mit 'lock' geschützt werden.
+			'machine' wird in 'closeAndDispose()' gelöscht, was von 'Machine:~Machine()' aufgerufen wird.
+		2)	'Machine:~Machine()' löscht Items erst nach 'Screen:closeAndDispose()'.
+		3)	Schutz der neuen Framedaten mittels 'lock'
+		4)	Schutz der Maschinendaten mittels 'Machine:lock' z.B. mit 'Machine:Block()'
+		
+		
+		
+		
+	
+		
+		
+
+
+
+
+
+
+
+
+						

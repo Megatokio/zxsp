@@ -1,0 +1,58 @@
+type,name,info,zxsp_i1,zxsp_i2,zxsp_i3,zxplus,zxplus_span,inves,zx128,zx128_span,zxplus2,zxplus2_span,zxplus2_frz,zxplus3,zxplus3_span,zxplus2a,zxplus2a_span,tc2048,tc2068,ts2068,u2086,tk90x,tk95,pentagon128,scorpion,samcoupe,zx80,zx81,ts1000,ts1500,tk85,jupiter
+cstr,name,,ZX Spectrum Issue 1,ZX Spectrum Issue 2,ZX Spectrum Issue 3,ZX Spectrum+,investronica ZX Spectrum+ (Spain),Inves Spectrum+ (Spain),Sinclair ZX Spectrum+ 128K,Sinclair ZX Spectrum+ 128K (Spain),ZX Spectrum +2,ZX Spectrum +2 (Spain),ZX Spectrum +2 (France),ZX Spectrum +3,ZX Spectrum +3 (Spain),ZX Spectrum +2A,ZX Spectrum +2A (Spain),Timex Computer 2048 (Portugal),Timex Computer 2068 (Portugal),Timex Sinclair 2068 (USA),unipolbrit Komputer 2086 (Poland),TK 90X color computer (Brazil),TK 95 color computer (Brazil),Pentagon 128k (USSR),ZS Scorpion 256k (USSR),Sam Coupé,Sinclair ZX80,Sinclair ZX81,Timex Sinclair 1000 (USA),Timex Sinclair 1500 (USA),TK85 Personal Computer (Brazil),Jupiter ACE
+bool,is_supported,,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1
+bool,has_zxsp_bus,,yes,yes,yes,yes,yes,yes,yes,yes,yes,yes,yes,yes,yes,yes,yes,yes,yes,no,yes,yes,yes,no,yes,no,no,no,no,no,no,no
+bool,has_zx80_bus,,no,no,no,no,no,no,no,no,no,no,no,no,no,no,no,no,no,yes,no,no,no,no,no,no,yes,yes,yes,yes,yes,no
+isa_id,id,,isa_MachineZxsp,isa_MachineZxsp,isa_MachineZxsp,isa_MachineZxsp,isa_MachineZxsp,isa_MachineInves,isa_MachineZx128,isa_MachineZx128,isa_MachineZxPlus2,isa_MachineZxPlus2,isa_MachineZxPlus2,isa_MachineZxPlus3,isa_MachineZxPlus3,isa_MachineZxPlus2a,isa_MachineZxPlus2a,isa_MachineTc2048,isa_MachineTc2068,isa_MachineTs2068,isa_MachineUnipol,isa_MachineTk90x,isa_MachineTk95,isa_MachinePentagon128,isa_MachineZx128,isa_MachineZxsp,isa_MachineZx80,isa_MachineZx81,isa_MachineTs1000,isa_MachineTs1500,isa_MachineTk85,isa_MachineJupiter
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+cstr,nickname,,zxsp_i1,zxsp_i2,zxsp_i3,zxplus,zxplus_span,inves,zx128,zx128_span,zxplus2,zxplus2_span,zxplus2_frz,zxplus3,zxplus3_span,zxplus2a,zxplus2a_span,tc2048,tc2068,ts2068,u2086,tk90x,tk95,pentagon128,scorpion,samcoupe,zx80,zx81,ts1000,ts1500,tk85,jupiter
+cstr,rom_filename,,48k.rom,48k.rom,48k.rom,48k.rom,plus_span.rom,plus_span.rom,128k.rom,128k_span.rom,plus2.rom,plus2_span.rom,plus2_frz.rom,plus3_v41.rom,plus3_span.rom,plus3_v41.rom,plus3_span.rom,tc2048.rom,ts2068.rom,ts2068.rom,ts2068.rom,tk90x.rom,tk95.rom,pentagon.rom,scorpion.rom,coupe.rom,zx80.rom,zx81.rom,zx81.rom,ts1500.rom,tk85.rom,jupiter.rom
+cstr,kbd_filename,,16k_kbd.png,48k_kbd.png,48k_kbd.png,128k_kbd.jpg,128k_kbd_span.jpg,128k_kbd_span.jpg,128k_kbd.jpg,128k_kbd_span.jpg,plus2_kbd.png,plus2_kbd.png,plus2_kbd.png,plus3_kbd.png,plus3_kbd.png,plus3_kbd.png,plus3_kbd.png,tc2048_kbd.png,ts2068_kbd.png,ts2068_kbd.png,ts2068_kbd.png,tk90x_kbd.jpg,tk95_kbd.jpg,pentagon_kbd.png,scorpion_kbd.png,coupe_kbd.png,zx80_kbd.png,zx81_kbd.png,ts1000_kbd.jpg,ts1500_kbd.jpg,tk85_kbd.jpg,jupiter_kbd.png
+cstr,image_filename,,zxsp_i1.jpg,zxsp_i3.jpg,zxsp_i3.jpg,zxplus.jpg,zxplus_span.jpg,inves.jpg,zx128.jpg,zx128_span.jpg,zxplus2.jpg,zxplus2.jpg,zxplus2.jpg,zxplus3.jpg,zxplus3_span.jpg,zxplus2a.jpg,zxplus2a_span.jpg,tc2048.jpg,tc2068.jpg,ts2068.jpg,u2086.jpg,tk90x.jpg,tk95.jpg,pentagon128.jpg,scorpion.jpg,samcoupe.jpg,zx80.jpg,zx81.jpg,ts1000.jpg,ts1500.jpg,tk85.jpg,jupiter.jpg
+Language,language,,british,british,british,british,spanish,spanish,british,spanish,british,spanish,french,british,spanish,british,spanish,portuguese,portuguese,american,british,portuguese,portuguese,british,british,british,british,british,american,american,portuguese,british
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+uint32,ula_cycles_per_second,,14000000,14000000,14000000,14000000,17734500,17734500,14187600,17734500,35469000,35469000,35469000,35469000,35469000,35469000,35469000,14112000,14112000,14112000,14112000,14320000,14320000,14000000,14000000,24000000,6500000,6500000,6500000,6500000,6500000,6500000
+uint,cpu_clock_predivider,,4,4,4,4,5,5,4,5,10,10,10,10,10,10,10,4,4,4,4,4,4,4,2,4,2,2,2,2,2,2
+uint32,cpu_cycles_per_second,,3500000,3500000,3500000,3500000,3546900,3546900,3546900,3546900,3546900,3546900,3546900,3546900,3546900,3546900,3546900,3528000,3528000,3528000,3528000,3580000,3580000,3500000,7000000,6000000,3250000,3250000,3250000,3250000,3250000,3250000
+uint,cpu_cycles_per_line,,224,224,224,224,224,224,228,228,228,228,228,228,228,228,228,224,224,224,224,224,224,224,224,224,207,207,207,207,207,208
+uint,lines_before_screen,,64,64,64,64,63,63,63,63,63,63,63,63,63,63,63,64,64,34,64,40,40,80,64,64,56,56,32,32,32,56
+uint,lines_in_screen,,192,192,192,192,192,192,192,192,192,192,192,192,192,192,192,192,192,192,192,192,192,192,192,192,192,192,192,192,192,192
+uint,lines_after_screen,,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,34,56,32,32,48,56,56,62,62,38,38,38,64
+uint32,cpu_cycles_per_frame,cpu_cycles_per_line * ( lines_before_screen + lines_in_screen + lines_after_screen ),69888,69888,69888,69888,69664,69664,70908,70908,70908,70908,70908,70908,70908,70908,70908,69888,69888,58240,69888,59136,59136,71680,69888,69888,64170,64170,54234,54234,54234,64896
+double,frames_per_second,,50.0801282051,50.0801282051,50.0801282051,50.0801282051,50.9143890675,50.9143890675,50.0211541716,50.0211541716,50.0211541716,50.0211541716,50.0211541716,50.0211541716,50.0211541716,50.0211541716,50.0211541716,50.4807692308,50.4807692308,60.5769230769,50.4807692308,60.5384199134,60.5384199134,48.828125,100.1602564103,85.8516483516,50.6467196509,50.6467196509,59.9255079839,59.9255079839,59.9255079839,50.0801282051
+bool,has_50_60hz_switch,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1,0,0,0,1,1
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+uint,page_size,,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,16384,8192,8192,8192,8192,16384,16384,16384,16384,16384,1024,1024,1024,1024,1024,1024
+uint,rom_pages,,1,1,1,1,1,1,2,2,2,2,2,4,4,4,4,2,3,3,3,1,1,2,4,2,4,8,8,8,10,8
+uint,ram_pages,,1,3,3,3,3,3,8,8,8,8,8,8,8,8,8,6,6,6,6,3,3,8,16,16,1,1,2,16,16,3
+uint32,rom_size,,16384,16384,16384,16384,16384,16384,32768,32768,32768,32768,32768,65536,65536,65536,65536,16384,24576,24576,24576,16384,16384,32768,65536,32768,4096,8192,8192,8192,10240,8192
+uint32,ram_size,,16384,49152,49152,49152,49152,49152,131072,131072,131072,131072,131072,131072,131072,131072,131072,49152,49152,49152,49152,49152,49152,131072,262144,262144,1024,1024,2048,16384,16384,3072
+uint32,contended_rampages,,0x80000000,0x80000000,0x80000000,0x80000000,0,0,0x55000000,0x55000000,0x55000000,0x55000000,0x55000000,0x0F000000,0x0F000000,0x0F000000,0x0F000000,0xc0000000,0xc0000000,0xc0000000,0xc0000000,0x80000000,0x80000000,0,0,0,0,0,0,0,0,0
+uint8,waitmap,,0x7e,0x7e,0x7e,0x7e,0,0,0xFC,0xFC,0xFC,0xFC,0xFC,0xFE,0xFE,0xFE,0xFE,0x7e,0x7e,0x7e,0x7e,0x7e,0x7e,0,0,0,0,0,0,0,0,0
+uint32,videoram_start,offset inside ram,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,16 * 1024 * 5,16 * 1024 * 5,16 * 1024 * 5,16 * 1024 * 5,16 * 1024 * 5,16 * 1024 * 5,16 * 1024 * 5,16 * 1024 * 5,16 * 1024 * 5,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x4000*5,0x4000*5,0x4000*5,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000
+uint32,videoram_start_2,offset inside ram,0,0,0,0,0,0,16 * 1024 * 7,16 * 1024 * 7,16 * 1024 * 7,16 * 1024 * 7,16 * 1024 * 7,16 * 1024 * 7,16 * 1024 * 7,16 * 1024 * 7,16 * 1024 * 7,0x2000,0x2000,0x2000,0x2000,0,0,0x4000*7,0x4000*7,0x4000*7,0,0,0,0,0,0
+uint32,videoram_size,,6912,6912,6912,6912,6912,6912,6912,6912,6912,6912,6912,6912,6912,6912,6912,6912,6912,6912,6912,6912,6912,32*24*(8+1),32*24*(8+1),32*24*(8+1),24*33,24*33,24*33,24*33,24*33,24*32
+uint,characterram_start,offset inside ram,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0x0400
+uint,characterram_size,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,128*8
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+float,earin_threshold_mic_lo,,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,-0.005,-0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005
+float,earin_threshold_mic_hi,,-0.005,-0.005,0.005,0.001,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,-0.005,-0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+uint,tape_load_routine,offset inside rom,0x0556,0x0556,0x0556,0x0556,0x0556,0x0556,0x4000 + 0x0556,0x4000 + 0x0556,0x4000 + 0x0556,0x4000 + 0x0556,0x4000 + 0x0556,0xc000 + 0x0556,0xc000 + 0x0556,0xc000 + 0x0556,0xc000 + 0x0556,0x0556,0x40FC,0x40FC,0x40FC,0x0556,0x0556,0x4000 + 0x0556,0x4000 + 0x0556,0,0x0207,0x0340+7,0x0340+7,0x0340+7,0x0340+7,0x18B1
+uint,tape_save_routine,offset inside rom,0x04d0,0x04d0,0x04d0,0x04d0,0x04d0,0x04d0,0x4000 + 0x04D0,0x4000 + 0x04D0,0x4000 + 0x04D0,0x4000 + 0x04D0,0x4000 + 0x04D0,0xc000 + 0x04D0,0xc000 + 0x04D0,0xc000 + 0x04D0,0xc000 + 0x04D0,0x04d0,0x4076,0x4076,0x4076,0x04d0,0x04d0,0x4000 + 0x04D0,0x4000 + 0x04D0,0,0x01B6+1,0x02F6+6,0x02F6+6,0x02F6+6,0x02F6+6,0x1829
+uint,tape_load_ret_addr,offset inside rom,0x053f,0x053f,0x053f,0x053f,0x053f,0x053f,0x4000 + 0x053F,0x4000 + 0x053F,0x4000 + 0x053F,0x4000 + 0x053F,0x4000 + 0x053F,0xc000 + 0x053F,0xc000 + 0x053F,0xc000 + 0x053F,0xc000 + 0x053F,0x053f,0x40E5,0x40E5,0x40E5,0x053f,0x053f,0x4000 + 0x053F,0x4000 + 0x053F,0,0x0202,0x0207+3,0x0207+3,0x0207+3,0x0207+3,0x1892
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+bool,has_port_7ffd,,no,no,no,no,no,no,yes,yes,yes,yes,yes,yes,yes,yes,yes,no,no,no,no,no,no,yes,yes,1,no,no,no,no,no,no
+bool,has_port_1ffd,,no,no,no,no,no,no,no,no,no,no,no,yes,yes,yes,yes,no,no,no,no,no,no,no,0,0,no,no,no,no,no,no
+bool,has_port_F4,,no,no,no,no,no,no,no,no,no,no,no,no,no,no,no,yes,yes,yes,yes,no,no,no,0,0,no,no,no,no,no,no
+bool,has_port_FF,,no,no,no,no,no,no,no,no,no,no,no,no,no,no,no,yes,yes,yes,yes,no,no,no,0,0,no,no,no,no,no,no
+bool,has_ay_soundchip,,no,no,no,no,no,no,yes,yes,yes,yes,yes,yes,yes,yes,yes,no,yes,yes,yes,no,no,yes,yes,1,0,0,0,0,0,0
+uint32,ay_cycles_per_second,,1750000,1750000,1750000,1750000,1773450,1773450,1773450,1773450,1773450,1773450,1773450,1773450,1773450,1773450,1773450,1750000,1764750,1764000,1764750,1790000,1790000,1750000,3500000/2,6000000/4,0,0,0,0,0,0
+bool,has_tape_drive,,no,no,no,no,no,no,no,no,yes,yes,yes,no,no,yes,yes,no,no,no,no,0,0,0,0,0,0,0,0,0,0,0
+bool,has_module_port,,no,no,no,no,no,no,no,no,no,no,no,no,no,no,no,no,yes,yes,yes,0,0,0,0,0,0,0,0,0,0,0
+bool,has_floppy_drive,,no,no,no,no,no,no,no,no,no,no,no,yes,yes,no,no,no,no,no,no,0,0,0,0,yes/*2*/,0,0,0,0,0,0
+bool,has_printer_port,,no,no,no,no,no,no,no,no,no,no,no,yes,yes,yes,yes,no,no,no,no,0,0,0,0,0,0,0,0,0,0,0
+uint,has_serial_ports,,0,0,0,0,0,0,2,2,2,2,2,2,2,2,2,no,no,no,no,0,0,0,0,1,0,0,0,0,0,0
+uint,has_joystick_ports,,0,0,0,0,1,1,0,0,2,2,2,2,2,2,2,1,2,2,2,1,1,1,1,2,0,0,0,0,yes,0
+bool,has_kempston_joystick_ports,,no,no,no,no,yes,yes,no,no,no,no,no,no,no,no,no,yes,no,no,no,0,1,1,1,0,0,0,0,0,0,0
+bool,has_sinclair_joystick_ports,,no,no,no,no,no,no,no,no,yes,yes,yes,yes,yes,yes,yes,no,no,no,no,1,0,0,0,1,0,0,0,0,0,0

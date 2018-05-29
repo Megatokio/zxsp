@@ -1,0 +1,125 @@
+
+
+Port $7FFD
+----------
+
+Paging control register on 128, +2, +3 and +2A.
+Register $7FFD is read-only.
+
+On the 128 and +2, memory mapping is entirely controlled by port $7FFD. 
+On the +3 and +2A, this port behaves as on 128/+2 when $1FFD.bit(0) = 0,
+except that the ROM bit is only the low bit of the ROM selection and 
+the upper bit comes from $1FFD, as the +3/+2A have 64K of ROM.
+
+The 128 and +2 have 128K RAM and 32K ROM.  RAM pages 1, 3, 5 and 7 are contended. Waitmap = 11111100. 
+The +3 and +2A have 128K RAM and 64K ROM.  RAM pages 4, 5, 6 and 7 are contended. Waitmap = 11111110.
+
+
+Port $7FFD address:
+
+	128, +2:	Only Bit 1 and 15 are decoded:		%0xxx.xxxx.xxxx.xx0x
+	+2A, +3:	Bits 1, 14 and 15 are decoded:		%01xx.xxxx.xxxx.xx0x
+
+
+Bits in port $7FFD:
+
+	Bits 0-2:	RAM page select for $C000.
+				Selects RAM page 0..7 to map into memory at $C000.
+	Bit  3:		Video page select.
+				Select normal (0) or shadow (1) screen. 
+				The normal screen is page 5 and normally appears at $4000.
+				The shadow screen is page 7 and can only be mapped at $C000. 
+	Bit  4:		ROM select. 
+				ROM 0 is the boot ROM and contains the 128K editor and menu system.
+				ROM 1 contains the 48K BASIC.
+	Bit  5:		48K mode lock.
+				If set, memory is set to 48K mode and paging is disabled and further 
+				output to this port will be ignored until the computer is reset. 
+				On the +3/+2A this also disables port $1FFD, disc motor and printer strobe.
+
+
+Memory map of the 128 and +2:
+ 
+	FFFFh +--------+--------+--------+--------+--------+--------+--------+--------+ 
+		  | Page 0 | Page 1 | Page 2*| Page 3 | Page 4 | Page 5*| Page 6 | Page 7 | 
+		  |        |        |        |        |        |(screen)|        |(screen)| 
+	C000h +--------+--------+--------+--------+--------+--------+--------+--------+ 
+		  | Page 2 |        
+		  |        | 
+	8000h +--------+ 
+		  | Page 5 | 
+		  |(screen)| 
+	4000h +--------+--------+ 
+		  | ROM 0  | ROM 1  |  
+		  |        |        | 
+	0000h +--------+--------+ 
+
+	Note: *) Page 2 and 5 are visible twice if they are are mapped in at $C000.
+
+
+
+
+Port $1FFD
+----------
+
+Extended memory control register on the +3 and +2A.
+Handles the larger ROM and provides RAM-only mappings.
+Also controls disc motor and printer strobe.
+
+
+Port $1FFD address decoding:
+
+	Bits 1, 12, 13, 14 and 15 are decoded:		%0001.xxxx.xxxx.xx0x
+
+
+Bits in port $1FFD:
+
+	Bit 0:	Paging mode: 0 = normal, 1 = RAM-only.
+	Bit 1:	Normal mode: ignored. 
+	Bit 2:	Normal mode: high bit of ROM selection. (low bit in $7FFD bit 4)
+			ROM 0: Boot ROM, 128K editor, menu system and self-test program 
+			ROM 1: 128K syntax checker 
+			ROM 2: +3DOS 
+			ROM 3: 48 BASIC 
+	Bit 3:	Disk motor: 1 = on.
+	Bit 4:	Printer strobe: 1 = on.
+
+
+Memory map in RAM-only mode for the +3 and +2A:
+
+	When RAM-only mode is selected, the following four configurations 
+	can be selected with bits 1 and 2 of port $1FFD:
+
+		  %xxxx.x001  %xxxx.x011  %xxxx.x101  %xxxx.x111
+	 
+	FFFFh +--------+  +--------+  +--------+  +--------+ 
+	      | Page 3 |  | Page 7 |  | Page 3 |  | Page 3 | 
+	      |        |  |(screen)|  |        |  |        | 
+	C000h +--------+  +--------+  +--------+  +--------+ 
+	      | Page 2 |  | Page 6 |  | Page 6 |  | Page 6 | 
+	      |        |  |        |  |        |  |        | 
+	8000h +--------+  +--------+  +--------+  +--------+ 
+	      | Page 1 |  | Page 5 |  | Page 5 |  | Page 7 | 
+	      |        |  |(screen)|  |(screen)|  |(screen)| 
+	4000h +--------+  +--------+  +--------+  +--------+ 
+	      | Page 0 |  | Page 4 |  | Page 4 |  | Page 4 | 
+	      |        |  |        |  |        |  |        | 
+	0000h +--------+  +--------+  +--------+  +--------+ 
+
+	Note: RAM banks 1, 3, 4 and 6 are used for the disc cache and RAM disc.
+		  Bank 7 contains editor scratchpads and +3DOS workspace.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

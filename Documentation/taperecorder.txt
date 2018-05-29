@@ -1,0 +1,123 @@
+
+//	----------------------------------------------------------------------------------------
+h1	Tape recorder
+h4	The built-in virtual tape recorder
+	virtual tape recorder, taperecorder, tape deck
+	built-in tape recorder, virtual tape recorder
+
+p.c	<img src="b/taperecorder.jpg">
+
+p	<img src="b/tap.gif"> &nbsp; zxsp comes with a built-in virtual tape recorder for loading from and saving to ".tap" files. 
+
+p	<img src="b/tzx.gif"> <img src="b/zx80.gif"> <img src="b/zx81.gif"> &nbsp; It can also load ".tzx" files, ".pzx" files, ".80" and ".o" files for the ZX80, and ".81" and ".p" files for the ZX81. It behaves much like a real tape recorder, just try it. 
+
+p	<img src="b/button_record.png"> <img src="b/button_pause.png"> &nbsp; For recording you must insert an empty tape file (use the one supplied in the zxsp distribution or do a "touch newtape.tap" in the console) and click the 'record' button and then the 'pause/play' button, just as you would do on a real tape recorder. There is only one virtual tape recorder shared by all machines, regardless of how many ZX computer instances are open.
+
+p	The tape recorder does not simply copy the bytes from or to the machine. Actually it plays and records from the audio i/o buffers. It has a built-in encoder and decoder for the original ZX Spectrum load routine. This has some side effects:
+
+ul
+li	the tape recorder can also record from audio-in.
+li	the tape recorder can also save to audio-out.
+li	you can load a tape on all open machines simultaneously. <b>:-)</b>
+li	while saving to tape you should not produce sound from other open machines.
+li	you can load from '.tap' and '.tzx' files even if the program does not use the Rom laod routine.
+li	you can save to '.tap' files even if the programme does not use the Rom save routine.
+
+p	Due to limitations of the .tap file format, recording actually does not start until an audio signal conforming to the original ZX Spectrum load routine is detected. Silence between blocks of data and the pilot sequence for synchronizing are not stored but generated automatically later when loading. 
+
+p	The tape recorder currently can only record to '.tap' files. This implies, that all data saved must be saved with signals compatible to the Rom load and save routines. Luckily enough, most games were saved that way, because the original ZX Spectrum load routine was fast and very reliable at the same time. At least this is true for the first years '82 to '84 approximately. In later years sophisticated loaders were common, but quickly replaced with hacked versions. <b>B-)</b> 
+
+p	The signal saved must only comply with the physical modulation. Long headers, illegal block types and intentionally wrong checksums are supported.
+
+p	'.80', '.o', '.81' and '.p' files for the ZX80 and ZX81 can be saved using the 'Save' menu option from the 'Files' menu.
+
+h4	Options
+p	There are some options in the 'Options' menu which apply to the tape recorder.
+
+h5	Enable audio input
+p	Audio input is obviously only needed if you want to load a program or dub a tape from an external tape recorder or attached real ZX Spectrum. Else you may disable audio input. This is also a good choice if you have a notebook and encounter audio loop-back hissing. Disabling audio input also prevents noise from the audio-in device to be mixed into the ear input of the emulated machine, which actually may result in tape loading errors, if a loud audio signal is present at the audio input, e.g. your laptop's microphone. If your machine has no audio input device, e.g. the Mac mini, or if a 3rd party audio device uses an unusual, unsupported format, then audio input is permanently disabled. This option can be disabled by default in the preferences.
+
+h5	Auto start/stop tape recorder for loading
+p	This starts the tape recorder, when the machine behavior indicates, that it wants to load from tape. Just take it like this. It only starts the tape once, so if it starts errorneously you may stop it. And if no tape is loaded in the virtual tape recorder, then it only brings the tape recorder to the front. This option may be switched on or off as default in the preferences. 
+p	The 'Auto start/stop tape' feature will be reworked in one of the next releases. [2007-03] 
+
+h5	Auto start/stop tape recorder for saving
+p	This starts the tape recorder, when the machine behavior indicates, that it wants to save to tape. Just take it like this. It only starts the tape once, so if it starts erroneously you may stop it. And if no tape is loaded, it only brings the tape recorder to the front. This option is dangerous, so there is no preference to enable it by default.
+p	The 'Auto start/stop tape' feature will be reworked in one of the next releases. [2007-03] 
+
+h4	Archiving your old tapes
+p	<img align="left" style="padding-right:8px" src="b/tape.png"> Using the built-in tape recorder you can load your old tapes into your Mac and save them to '.tap' files for archiving. Just try it!
+
+p	You can load and save to a real tape recorder, if you connect it to audio-in and audio-out of your Mac. Or, in case you connected your Mac to your HiFi equipment, just save on the virtual machine and record on your tape deck. Or play on your tape deck and load on the virtual machine.
+
+p	You can load from or save to a real ZX Spectrum, if you connect it to audio-in and audio-out of your Mac or to your HiFi Amp. Just save on one and record on the other. Use a copy program on the saving machine if required.
+
+
+h4	tzx files
+	tzx tape, tzx tape file
+
+h5	tzx and Archiving
+
+p	Since version 6.6.4 zxsp supports loading of tzx tape files, which are the preferred archiving format on <a target="wos" href="http://www.worldofspectrum.org/">WoS</a>. I must admit that i do not like this format very much. 
+
+p	tzx files are used for archiving. I feel that a format for long-term archiving should be as simple as possible, therefore i would have choosen a variant of rle compression of the signal's pulse lengths, with only few additional meta infos in the tape file itself. 
+
+p	The complexity of tzx files leads to the fact, that creating a tzx file is a sophisticated task. It implies people to scrutinise the signal of tapes with custom loader and to reproduce it with it's inner logics. Once this is done you get the 'best possible' representation of this tape. But until then there is no or no real good tzx file at all. Huge amounts of effort are spend on creating tzx files, where a simple algorithm had suited better. IMHO. You can take a view at the <a target="wos" href="http://newton.sunderland.ac.uk/~biotoxin/Bad-Tzx/Index.html">Bad Tzx Files Project</a> and, maybe, support them. <b>;-)</b>
+
+p	The tzx file format still undergoes changes every now and then. Every time this happens programmers around the world sit down and implement the new bits.
+
+p	The handling of passages of silence, "pause" in tzx speak, have a design flaw. This is the tzx's definition of when to toggle the signal from 'high' to 'low' level which resembles the state as read on a ZX Spectrum, not as stored on the tape. The problem with this is, that the logical level read by a ZX Spectrum after a certain time of silence depends on the ZX Spectrum model, so tzx files actually store the signal as seen by a certain ZX Spectrum model. In practice this is no problem and can even be overcome by rendering delays of silence as seen by the currently emulated model.
+
+h5	Limitations of tzx files in zxsp
+
+h6	Instant loading
+p	As of version 6.6.4 zxsp supports loading of tzx tape files with the virtual tape recorder. Instant loading by double clicking the file or by using "Open…" from the "File" menu is not yet implemented. When it is implemented it will have the same limitations as with tap files: For instant loading to work the tape must be read with the Rom routines of the ZX Spectrum, else zxsp can only guess when to load which bits where, so it doesn't.
+
+h6 Unsupported blocks
+p	Currently all tzx files up to version 1.20 load, except for the following:
+	<b>"ARCHIVE INFO"</b> is currently ignored and not displayed.
+	<b>"GOSUB"</b> and <b>"GOTO"</b> chunks are not implemented. Very few tzx files use these.
+	<b>"C64 ROM LOAD"</b> and <b>"C64 TURBO LOAD"</b> blocks are not supported. They have been removed in tzx version 1.20 and were a crap idea from the beginning.
+	<b>"SELECT BLOCK"</b> is ignored. I really don't know what this has to do here...
+	<b>"STOP TAPE IF IN 48K MODE"</b> yet another interesting idea.
+	<b>"MESSAGE BLOCK"</b> Subtitles for tzx files. <b>B-]</b>
+	<b>"HARDWARE TYPE"</b> contains tips which hardware is required. Currently ignored but this will be supported some time.
+	<b>"EMULATION INFO"</b> was pretty useful in the days of 8086 running at 4.77 MHz. <b><B-)</b>
+	<b>"CUSTOM BLOCK"</b> evolved organically into lots of semi-standardised informations which had been better put into "HARDWARE TYPE" and "ARCHIVE INFO" from the beginning. This is now removed from the tzx 1.20 specs.
+	<b>"SNAPSHOT BLOCK"</b>: why not also store a sna or z80 snapshot in a tzx file? Now you can ... except that it is also removed from the tzx 1.20 specs, which would have been a good idea from the beginning.
+	
+	
+
+
+
+
+
+
+h4	Preferences
+h5	Enable audio input
+p	Per default audio input from the standard audio-in device is enabled. Audio input is obviously only needed if you want to load a program or dub a tape from an external tape recorder or attached real machine. If you don't plan to do so you may disable audio-in. This may also be the option of choice if you have a notebook and encounter loop-back hissing. Disabling audio-in also prevents noise from the audio-in device to be mixed into the ear input of the emulated machine, which may result in tape loading errors, if it is loud enough.
+
+
+h5	Audio play through
+p	With factory settings zxsp plays audio-in back on your audio-out device with a -30 dB damping.
+
+p	'Audio play through' is required for both recording from audio-in to the virtual tape recorder and for playing back from the virtual tape recorder to the outside world. This may be reworked in one of the next releases. [2007-03]
+
+p	The signal is dampened by -30 dB by default. This is because you can get loop-back hissing on notebooks with built-in microphones. 
+
+p	If you do not need the tape dubbing feature or if your notebook hisses despite -30 dB dampening then you can completely disable play through.
+
+p	If the virtual tape recorder plays too soft for proper recording on your real-world Specci or if it cannot successfully record from a real-world tape recorder or Specci then you can reduce the damping to -10 dB.
+
+h5	Open tape recorder at startup
+p	Use this option if you always want the tape recorder to show up when you launch zxsp.
+
+h5	Leave tape recorder open when in background
+p	Normally all tool windows are hidden when zxsp is pushed in the background. You may want to keep the tape recorder panel open even then. But then it keeps hovering above the windows of the frontmost application. It's your choice.
+
+h5	Auto start/stop tape for loading
+p	This option comes at two places, one for snapshots and one for new machines opened or reset without a snapshot loaded. 
+p	This option enables or disables the corresponding menu item when you load a snapshot or open a new machine. 
+
+
+

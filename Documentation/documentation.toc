@@ -1,0 +1,42 @@
+
+
+h0	zxsp - The Sinclair ZX Home Computer Simulator
+toc	Table of contents
+
+p.c <b style="color:#880000;">Version 0.7.1</b>
+p.c	Last edited %%DATE%%
+p.c	<img src="b/zxsp.png">
+
+
+
+//	----------------------------------------------------------------------------------------
++	features.txt
++	readme.txt
+
+
+//	----------------------------------------------------------------------------------------
++	keyboard.txt
++	joysticks.txt
++	mouse.txt
++	fullscreen.txt
++	snapshots.txt
++	taperecorder.txt
++	gif.txt
++	sound.txt
++	ula_panel.txt
++	debugger.txt
++	assembler.txt
+
+
+//	----------------------------------------------------------------------------------------
++	history.txt
++	done.txt
++	todo.txt
+
+
+
+
+
+
+
+

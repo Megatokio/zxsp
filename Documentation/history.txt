@@ -1,0 +1,9 @@
+
+
+h1	History
+
+//	p	Since 1994 i am writing ZX Spectrum emulators. Due to frequent switches between Mac and Linux my work was frequently disrupted. Finally i'm back to Mac. Linux is a never ending promise.
+
+
+
+

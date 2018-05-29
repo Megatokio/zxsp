@@ -1,0 +1,107 @@
+
+h1	Debugger
+	Cpu control panel, cpu panel
+
+p	zxsp features a debugger with disassembler, breakpoints and single stepper. Additionally you can load assembler sources for snapshots directly with the 'Open' menu command.
+
+
+
+
+h4	Registers
+
+p	<img align="left" src="b/cpu_panel.png"> In the windows menu you find a panel for the Z80 central processing unit (cpu). This is the central panel for the debugger. If you want to cancel editing, just enter empty data.
+
+h5	Clock
+p	Throttle down the cpu to any speed and watch it running in the memory view. Setting the cpu clock set's the speed for the whole machine. A running program cannot detect this.
+
+h5	CPU cycle
+p	This field shows the current cpu cycle since last interrupt. With the information about total cpu cycles per interrupt, in-screen start and end cycle you know how many time is left until the next interrupt or whether writing into the screen will be displayed still this frame or not until the next frame. The ay panel and the video beam indicator are helpful in this case too.
+
+p	If the machine is halted then you can edit this field. Then the cpu will run up to the entered cycle. If the value is smaller than the current cycle, then it will run up to this cycle in the next frame. This way you may quickly advance to a certain video beam position, where you want to see whether your program is fast enough to write to this screen position before it is displayed. 
+
+h5	AF ... HL'
+
+p	These fields display the current values of the z80 registers. They may be changed even while running, but then you should better know which register is not used in your program. 
+p	The values are shown in hex, so that the double registers easily form a 16 bit value for reading. When you set a register, you may enter the value in decimal or hex.
+
+h5	Flags
+p	In addition to the hex value the currently used flags are also displayed with their named bits. To set or clear a flag, add it's name or remove it from the visual flags display field. The name is important, not the position where you put it in. 
+
+h5	IM, I, R
+p	These 3 fields display and set the values for the interrupt mode, im 2 interrupt table high byte and refresh register.
+
+h5	Irpt, NMI, IE
+p	Clicking on a button triggers the according interrupt. When the machine is halted, you also have the chance to clear a pending interrupt. In the control menu there are also menu items for a power-on or a simple push button reset and an NMI interrupt.  
+
+p	The IE flag represents the iff1 interrupt enable flip flop. Using this flag you can simplify debugging with a simple trick: Insert 'di' and 'halt' at a position into your source where you want to stop your program, load and run the source and when the cpu hogs on 'halt' halt the machine, enable interrupts (or increment the pc) und resume using the single stepper.
+
+
+h4	Memory view
+
+h5	Radio buttons
+p	The radio buttons left of the registers select which register should be used as base address for the memory view.
+
+h5	Popup
+p	The popup over the memory view lets you choose how the memory contents should be presented:
+ul	
+li	Disassemble. This option is automatically selected, when you select the pc as address base. The memory is disassembled.
+li	Hexdump. This is the default for all other register. The memory is displayed in a compact manner using hexadecimal bytes.
+li	Decimal bytes. Similarly the memory is displayed in decimal representation using bytes.
+li	Decimal words. As above but as 2-byte words.
+li	Textual. Use this mode to display ranges of memory which are supposed to contain printable text.
+
+h5	Memory view
+p	The memory view itself display approx. 20 lines of disassembly or raw data. The display is switched on when you halt the machine for single stepping or lower the cpu clock below 100 Hz. Then you can watch the cpu plowing through the code.
+p	Scrolling and editing memory contents is not yet implemented. (as of version 0.6.2)
+
+
+h4	Breakpoints
+
+p	The breakpoint view allows you to set breakpoints. These breakpoints are not visible to the running program; e.g. they are not a RST opcode as would be required for a native debugger. Breakpoints can be set for execution and also for read and write access.
+
+p	One special breakpoint can be set from the options menu: 'Halt Cpu after Block Loaded' sets a breakpoint at the end of the tape load routine in rom. The panel reproduced above shows this breakpoint.
+
+p	To enter a breakpoint simply enter a new line with the desired address. By default this adds a breakpoint for execution, indicated with an 'x' if you specify no other condition. You may also set breakpoints which halt program execution for memory reading or writing for certain addresses, appending 'r' or 'w' to the address instead of 'x'. 
+
+p	The breakpoint display also starts with an information, in which page the breakpoint lies, in the above example this is rom number 0, obviously a 48k machine. Else it would have been rom 1. If the traced memory cell is paged out of the cpu's address page, then the page and address information are still valid, only the two high bits of the address are of no interest and are set to default values. ($0000 for roms and $C000 for ram pages) Breakpoints refer to memory cells, not to cpu addresses. This is a great advantage with paged memory and is especially good, as some pages may be visible twice in the cpu's address space.
+
+p	If you enter a breakpoint with ram or rom number, then the address is taken module page size, that is, the two upper bits of the address are ignored. So you may enter the visible address or the address inside the page at your choice.
+
+p	<b>note:</b> Currently it is hard to remove the last breakpoint, because clearing an input field cancels input. If you want to clear all breakpoints clear the breakpoints field and enter a single space. (version 0.6.2)
+
+
+h4	Single stepping
+
+h5	Pause button
+	pause, halt
+
+p	The pause button halts or resumes the machine. The single stepper buttons become active when the machine is halted.
+p	You may also use the menu entry in the options menu or, supposedly, the menu shortcut for this purpose.
+
+h6	Step in button
+	step in
+
+p	This button steps over a simple instruction as the step over button does. But in case of 'call' and 'rst' it steps into the subroutine. Block instructions are executed byte by byte and 'halt' only executes once.
+
+h6	Step over button
+	step over
+
+p	This button steps over a simple instruction as the step in button does. But it steps over subroutine calls, block instructions and 'halt' in one go. In case of a subroutine call it enters the soubroutine and sets a stack marker like step out does. Step over also detects when block instructions overwrite themself or are overwritten or paged out by interrupt code and stop. 'Halt' stops at the next interrupt even if interrupts are disabled.
+
+p	Stepping over a subroutine call may stop prematurely if the stack is manipulated, namely if the subroutine pops the return address.
+
+h6	Step out button
+	step out
+
+p	This button sets a stack marker and runs until a 'ret', 'pop' or 'ex (sp),hl' instruction pops the marked address from the return stack. For this reason step out also stops at the next unbalanced 'pop' and it won't stop if the stack is repositioned and the marked address is never encountered.
+
+	
+
+
+
+
+
+
+
+
+

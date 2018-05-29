@@ -1,0 +1,144 @@
+
+
+
+
+
+General Audio Flow Chart:
+-------------------------
+
+	1.	line in       -->  audio_in_buffer
+	2.	tape recorder -->  audio_in_buffer
+	3.	                   audio_in_buffer ---- -10dB --> audio_out_buffer
+	4.                     audio_in_buffer -> Machines -> audio_out_buffer
+	5.                                                    audio_out_buffer  -->  tape recorder
+	6.                                                    audio_out_buffer  -->  line out
+
+
+Sample Stitching Buffer
+-----------------------
+
+	Der In- und Outpuffer haben 4 Samples extra am Ende.
+
+Output:
+	Die Maschinen können nicht auf Sample-Grenze gestoppt werden, müssen aber den Outpuffer komplett füllen.
+	Also werden sie immer etwas über den Endzeitpunkt hinauslaufen und mindestens noch ins nächste Sample schreiben.
+	4 Samples @ 44.100 Hz ergeben einen Überlaufpuffer von 90.7 µs, bei einem CPU-Takt von 3.5 MHz sind das bspw. 317.5 T-Zyklen
+	oder für einen PSG-Takt von 1,75 MHz sind das 159 T-Zyklen, nach internem Vorteiler 1/16 noch 9.9 Takte.
+	Die Überlauf-Samples werden beim nächsten Audio-Interrupt an den Start des Puffers kopiert, so dass die Maschinen
+	ihren Sound jetzt nahtlos anschließen können. Dazu müssen sich die Maschinen natürlich immer den Zeitpunkt exakt merken,
+	bis zu dem sie bereits gelaufen sind.
+
+Input:
+	Für den Audioin-Puffer gilt ähnliches. Nur da die Maschinen ggf. etwas über das Pufferende hinausschießen, werden sie
+	aus dem Überlaufpuffer lesen, dieser muss also gültige Daten enthalten. Deshalb wird der Audioin-Puffer vom Interrupt
+	ab Offset +DSP_SAMPLES_STITCHING bis zum Ende der Überlaufsamples bei Pufferende+DSP_SAMPLES_STITCHING gelesen.
+	Vorher werden die alten Samples aus dem Überlaufbereich an den Audioin-Puffer-Anfang kopiert. Diese Samples konnten
+	also entweder beim Letzten Lauf aus dem Überlaufbereich oder bei diesem Interrupt aus dem Pufferanfang gelesen werden,
+	jenachdem wie weit die Maschine beim letzten Interrupt über das Pufferende hinaus schoss.
+
+
+Latenz:
+-------
+
+Latenz:
+	Liest eine Maschine den Audio-Input und kopiert ihn sofort danach wieder nach Output, ergibt sich folgende Latenz:
+	2 Buffer für das Betriebssystem
+		Das BS hat 2 Puffer für Audio-In und zwei für Audio-Out. Jeweils ein Puffer wird gerade von der Audio-HW beackert,
+		und jeweils ein Puffer ist der, den wir per Audio-Interrupt zum Befüllen/Auslesen übergeben bekommen.
+		Das 1. Sample im Audio-In-Puffer is "1 Puffer alt". Nach Kopieren in den Audio-Out-Puffer ist das 1. Sample im
+		Output-Puffer also "1 Puffer alt".
+		Der nächste Audio-Interrupt wird kommen, wenn die Puffer an der Audio-HW wieder voll/leer sind, also nach "einem Puffer".
+		In diesem Moment wird "unser" Puffer an die Audio-HW übergeben, und das Sample wird also mit 2 Pufferlängen Verspätung
+		wieder abgespielt.
+	Hinzu kommen jetzt 1 Buffer + 4 Bytes Überlaufbereich für unsere Audio-Implementierung.		((DSP_SAMPLES_STITCHING=4))
+	Grande Totale 3 Puffer + 4 Samples = 3x256+4 = 772 Samples = 17,5 ms bzw. ~57 Hz
+
+
+Modi Of Operandi:
+-----------------
+
+There are 3 modes of operation depending on the hardware and the selected default audio-in and -out devices:
+
+	combined io:	input und output gehen über das selbe Device.
+					Es gibt _einen_ Callback für input und output.
+
+	output only:	es gibt kein Audio-Input-Device.
+					Der Inputbuffer muss im Audio-Output-Callback gelöscht werden.
+
+	split io:		Audio-Input und -Output laufen über unterschiedliche Devices.
+					Es gibt für Input und Output jeweils einen eigenen Callback.
+					Es ist nicht sicher, ob die sich evtl. gegenseitig unterbrechen können => mutex.
+					Falls Input- und Output-Datenrate unterschiedlich sind, muss der Input resampelt werden.
+
+
+
+Core Audio Callback:
+--------------------
+
+-that's what it's all about-
+
+1.	Handle Audio Input
+
+	if no audio-in data is supplied:
+	=>	this is an audio-out-only callback:
+		either there is no audio-in device present or
+		we get separate callbacks for audio-in and -out in systems with different audio-in and -out device IDs
+
+		if no audio-in device present:
+		=>	we'll never be called for audio-in:
+			=>	handle audio-in here: clear input sample buffer & merge tape recorder signal.
+
+		if audio-in device is present:
+		=>	we'll get a separate callback for audio-in:
+			=>	skip audio-in handling!
+
+	if audio-in data is supplied:
+	=>	this is an audio-in-only callback in systems with different audio-in and -out device IDs or
+		a combined audio-in and -out callback, if the device ID are the same.
+		still, audio-in may be disabled by the user.
+
+		if audio-in is enabled:
+		=>	handle audio-in: copy audio-in data to input sample buffer & merge tape recorder signal.
+
+		if audio-in is disabled:
+		=>	handle audio-in: clear input sample buffer & merge tape recorder signal.
+
+2.	Handle Audio Output:
+
+	if no audio-in data is supplied:
+	=>	this is an audio-out-only callback:
+		either there is no audio-in device present or
+		we get separate callbacks for audio-in and -out in systems with different audio-in and -out device IDs
+
+		if no audio-in device present:
+		=>	we'll never be called for audio-in:
+			=>	handle audio-in here: clear input sample buffer & merge tape recorder signal.
+
+		if audio-in device is present:
+		=>	we'll get a separate callback for audio-in:
+			=>	skip audio-in handling!
+
+	if audio-in data is supplied:
+	=>	this is an audio-in-only callback in systems with different audio-in and -out device IDs or
+		a combined audio-in and -out callback, if the device ID are the same.
+		still, audio-in may be disabled by the user.
+
+		if audio-in is enabled:
+		=>	handle audio-in: copy audio-in data to input sample buffer & merge tape recorder signal.
+
+		if audio-in is disabled:
+		=>	handle audio-in: clear input sample buffer & merge tape recorder signal.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

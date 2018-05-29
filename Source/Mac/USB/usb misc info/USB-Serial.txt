@@ -1,0 +1,33 @@
++-o USB-Serial Controller C@4300000  <class IOUSBDevice, id 0x100008c09, registered, matched, active, busy 0 (373 ms), retain 9>
+  | {
+  |   "sessionID" = 1096885076443566
+  |   "iManufacturer" = 1
+  |   "bNumConfigurations" = 1
+  |   "idProduct" = 8963
+  |   "bcdDevice" = 1024
+  |   "Bus Power Available" = 250
+  |   "bMaxPacketSize0" = 64
+  |   "USB Product Name" = "USB-Serial Controller C"
+  |   "iProduct" = 2
+  |   "iSerialNumber" = 0
+  |   "USB Address" = 4
+  |   "bDeviceClass" = 0
+  |   "locationID" = 70254592
+  |   "bDeviceSubClass" = 0
+  |   "IOUserClientClass" = "IOUSBDeviceUserClientV2"
+  |   "PortNum" = 3
+  |   "IOCFPlugInTypes" = {"9dc7b780-9ec0-11d4-a54f-000a27052861"="IOUSBFamily.kext/Contents/PlugIns/IOUSBLib.bundle"}
+  |   "bDeviceProtocol" = 0
+  |   "USB Vendor Name" = "Prolific Technology Inc."
+  |   "Device Speed" = 1
+  |   "idVendor" = 1659
+  |   "Requested Power" = 50
+  |   "IOGeneralInterest" = "IOCommand is not serializable"
+  |   "Low Power Displayed" = No
+  | }
+  | 
+  +-o IOUSBCompositeDriver  <class IOUSBCompositeDriver, id 0x100008c12, !registered, !matched, active, busy 0, retain 4>
+  +-o IOUSBInterface@0  <class IOUSBInterface, id 0x100008c13, registered, matched, active, busy 0 (206 ms), retain 9>
+    +-o com_prolific_driver_PL2303  <class com_prolific_driver_PL2303, id 0x100008c16, !registered, !matched, active, busy 0 (0 ms), retain 5>
+      +-o IORS232SerialStreamSync  <class IORS232SerialStreamSync, id 0x100008c17, registered, matched, active, busy 0 (0 ms), retain 6>
+        +-o IOSerialBSDClient  <class IOSerialBSDClient, id 0x100008c18, registered, matched, active, busy 0 (0 ms), retain 5>
