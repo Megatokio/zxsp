@@ -1,0 +1,6 @@
+[submodule "zasm"]
+	path = zasm
+	url = https://megatokio@bitbucket.org/megatokio/zasm.git
+[submodule "Libraries"]
+	path = Libraries
+	url = https://megatokio@bitbucket.org/megatokio/libraries.git
