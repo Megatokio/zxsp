@@ -106,12 +106,12 @@
 #include "Qt/Settings.h"
 #include "SpectraVideo.h"
 #include "Fdc/DivIDE.h"
-#include "TESTING/TimeTester.h"
 #include "CurrahMicroSpeech.h"
 #include "Files/RzxFile.h"
 #include "Files/Z80Head.h"
 #include "Screen/Screen.h"
 #include "Templates/NVPtr.h"
+#include "Libraries/kio/TestTimer.h"
 
 
 class MachineList : private Array<volatile Machine*>
@@ -1074,7 +1074,7 @@ a:		int32  cc_ffb = ula->cpuCycleOfFrameFlyback();
 
 	assert(this->is_locked());
 	ForAllItems( audioBufferEnd(t) );		// announce time shift, force audio output
-	TTest(2e-3,"TT: Machine.runForSound took %.0f µsec");
+	TTest(2e-3,"Machine.runForSound()");
 
 	total_buffers += 1;
 	total_realtime += t;

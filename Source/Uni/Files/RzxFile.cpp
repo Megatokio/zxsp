@@ -40,7 +40,7 @@
 #include "unix/files.h"
 #include "Uni/globals.h"
 #include "unix/files.h"
-#include "TESTING/TimeTester.h"
+#include "kio/TestTimer.h"
 
 
 
@@ -259,12 +259,7 @@ void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // data_error,fi
 {
 	xlogIn("RzxFile.readFile(%s)",filename);
 
-	#ifdef XLOG
-	TimeTester tt;
-	#define tt_test(a,b) tt.test(a,b)
-	#else
-	#define tt_test(a,b)
-	#endif
+	TT;
 
 	purge();
 	state = OutOfSync;
@@ -413,7 +408,7 @@ void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // data_error,fi
 	//bi = 0;
 	state = Snapshot;	// position = Snapshotfile Block
 
-	tt_test(1e-3,"TT: RzxFile: readFile() took %.3f msec");
+	TTest(1e-3,"RzxFile:readFile()");
 }
 
 

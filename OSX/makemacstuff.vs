@@ -44,7 +44,7 @@ var version = "0.8.28"
 var t0 = now
 
 var projectdir = "../"
-var sdccdir = projectdir#"sdcc/"
+var sdccdir = projectdir#"zasm/sdcc/"
 
 if !exists dir "zxsp.app/" new dir "zxsp.app/" then
 if !exists dir "zxsp.app/Contents/" new dir "zxsp.app/Contents/" then

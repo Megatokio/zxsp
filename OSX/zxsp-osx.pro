@@ -45,7 +45,9 @@ SOURCES +=	\
 	Libraries/unix/files.cpp \
 	Libraries/unix/n-compress.cpp \
 	Libraries/audio/AudioDecoder.cpp \
-	Libraries/TESTING/TimeTester.cpp \
+	Libraries/kio/TestTimer.cpp \
+	Libraries/audio/audio.cpp \
+	Libraries/audio/WavFile.cpp \
 	\
     zasm/Source/Error.cpp \
     zasm/Source/Label.cpp \
@@ -318,11 +320,13 @@ HEADERS += \
 	\
 	Libraries/cstrings/cstrings.h \
 	Libraries/hash/sdbm_hash.h \
-    Libraries/TESTING/TimeTester.h \
+    Libraries/kio/TestTimer.h \
 	\
 	Libraries/audio/AudioDecoder.h \
     Libraries/audio/CADebugMacros.h \
     Libraries/audio/CAStreamBasicDescription.h \
+	Libraries/audio/audio.h \
+	Libraries/audio/WavFile.h \
 	\
     zasm/Source/Error.h \
     zasm/Source/Label.h \
@@ -564,8 +568,7 @@ HEADERS += \
 
 OTHER_FILES += \
 	../.gitignore \
-	makemacstuff-5.8.vs \
-	makemacstuff-5.9.vs \
+    makemacstuff.vs \
 	Source/Mac/Dsp.txt \
 	Libraries/kio/linux_errors.txt \
 	Source/Uni/ZxInfo/info_video.txt \
@@ -742,7 +745,7 @@ OTHER_FILES += \
     sdcc/include/typeof.h \
     \
     sdcc/sdcc_info.txt \
-	\
+
 
 
 

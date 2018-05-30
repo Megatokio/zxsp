@@ -31,7 +31,7 @@
 #include "Application.h"
 #include "Audio/StereoSample.h"
 #include "Qt/Settings.h"
-#include "TESTING/TimeTester.h"
+#include "kio/TestTimer.h"
 
 
 Time		system_time			= 0.0;
