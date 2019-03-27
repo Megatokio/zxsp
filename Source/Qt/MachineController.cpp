@@ -249,7 +249,7 @@ void MachineController::loadSnapshot( cstr filename )
 		if(eq(ext,".ass")||eq(ext,".asm")||eq(ext,".src")||eq(ext,".s"))
 		{
 			filename = fullpath(filename);
-			if(errno) throw file_error(filename,-1,errno);
+			if(errno) throw file_error(filename,errno);
 
 			Z80Assembler ass;
 
