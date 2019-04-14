@@ -249,7 +249,7 @@ cstr getKeyJoyFnmatchPattern(uint8 keys[5], cstr filename)
 
 	for(uint i=0;i<5;i++)
 	{
-		keys[i] = (digit_value(s0[2*i])<<4) + digit_value(s0[2*i+1]);
+		keys[i] = (hex_digit_value(s0[2*i])<<4) + hex_digit_value(s0[2*i+1]);
 	}
 
 	return s0+10;

@@ -1112,8 +1112,8 @@ void MemoryDisassInspector::keyPressEvent(QKeyEvent* e)
 			if(uint32(hex_edit_address-data.baseaddress) < uint32(data.size) && is_hex_digit(e->key()))
 			{
 				uint8& byte = dataReadPtrForOffset(hex_edit_address)->data;
-				if(hex_edit_col) byte = (byte & 0xF0) + (digit_value(e->key()));
-				else			 byte = (byte & 0x0F) + (digit_value(e->key())<<4);
+				if(hex_edit_col) byte = (byte & 0xF0) + (hex_digit_value(e->key()));
+				else			 byte = (byte & 0x0F) + (hex_digit_value(e->key())<<4);
 				step_right_in_hex();
 				goto X;
 			}

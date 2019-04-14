@@ -88,15 +88,15 @@ static const int MAX_ROWS = 100;
 MemoryHexInspector::MemoryHexInspector(QWidget* parent, MachineController* mc, volatile IsaObject *item)
 :
 	MemoryInspector(parent,mc,item,Bytes),
-	address_view(0),
-	hex_view(0),
-	ascii_view(0),
-	checkbox_words(0),
+	address_view(nullptr),
+	hex_view(nullptr),
+	ascii_view(nullptr),
+	checkbox_words(nullptr),
 	show_words(no),
-	widget_edit_mode(0),
-	button_breakpoint_r(0),
-	button_breakpoint_w(0),
-	button_breakpoint_x(0),
+	widget_edit_mode(nullptr),
+	button_breakpoint_r(nullptr),
+	button_breakpoint_w(nullptr),
+	button_breakpoint_x(nullptr),
 	ascii_edit_offset(0),
 	hex_edit_offset(0),
 	hex_edit_nibble(0),
@@ -863,7 +863,7 @@ void MemoryHexInspector::updateTooltip()
 	}
 	else
 	{
-X:		QToolTip::showText(gpos, NULL, ascii_view, QRect());
+X:		QToolTip::showText(gpos, nullptr, ascii_view, QRect());
 		return;
 	}
 
@@ -1028,8 +1028,8 @@ void MemoryHexInspector::keyPressEvent(QKeyEvent* e)
 			if(is_hex_digit(e->key()))
 			{
 				uint8& byte = dataReadPtrForOffset(hex_edit_offset)->data;
-				if(hex_edit_nibble) byte = (byte & 0xF0) + (digit_value(e->key()));
-				else				byte = (byte & 0x0F) + (digit_value(e->key())<<4);
+				if(hex_edit_nibble) byte = (byte & 0xF0) + (hex_digit_value(e->key()));
+				else				byte = (byte & 0x0F) + (hex_digit_value(e->key())<<4);
 				step_right_in_hex();
 			}
 	X:		while(hex_edit_offset<uint32(scroll_offset)) { setScrollOffset(scroll_offset-bytes_per_row); }
