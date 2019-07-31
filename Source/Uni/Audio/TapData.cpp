@@ -156,7 +156,7 @@ bool isaZxSpectrumHeaderBlock( uint8 const* data, int blen)
 */
 cstr calcMajorTapBlockInfo( uint8 const* data, int blen )
 {
-	if (blen<=0)	return NULL;				// not decodable
+	if (blen<=0)	return nullptr;				// not decodable
 	if (blen<2)		return "Blips";				// minimum length is 3 = type + data[1] + crc
 
 	uint btyp = data[0];						// block type
@@ -215,7 +215,7 @@ cstr calcMajorTapBlockInfo( uint8 const* data, int blen )
 */
 cstr calcMinorTapBlockInfo( uint8 const* data, int blen )
 {
-	if (blen<2) return NULL;					// blib
+	if (blen<2) return nullptr;					// blib
 	uint btyp = data[0];						// block type
 	if(btyp==0x00)								// else not a header block
 	if(blen==27 || blen==19)					// else long header
@@ -590,7 +590,7 @@ void TapData::writeFile( cstr fpath, TapeFile& data ) throws // file_error,data_
 		TapeFileDataBlock* db = data[i];
 		db->tapdata =
 			db->tapdata  ? db->tapdata :
-			db->o80data  ? NULL :
+			db->o80data  ? nullptr :
 		//	db->tapedata ? new TapData(*db->tzxdata) :		sollte unnötig sein!
 			db->tzxdata  ? new TapData(*db->tzxdata) :
 						   new TapData(*db->cswdata);

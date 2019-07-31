@@ -57,7 +57,7 @@
 #include "Z80.h"			// major header file
 #include "Z80options.h"		// customizations, other includes and/or typedefs
 #include "Z80macros.h"		// required and optional macros
-#include "Z80/Z80opcodes.h"		// opcode enumeration
+#include "Z80/Z80opcodes.h"	// opcode enumeration
 
 
 
@@ -79,13 +79,13 @@ static uint8 zlog_flags[256] =
 
 Z80::Z80( Machine* m )
 :
-	Item(m, isa_Z80, isa_Z80, internal, NULL, NULL)
+	Item(m, isa_Z80, isa_Z80, internal, nullptr, nullptr)
 {
 	xlogIn("new Z80");
 	assert(_prev==NULL);
 	assert( sizeof(FourBytes)==4 );	// this should be a nop
 
-	crtc = NULL;					// cathode ray tube controller
+	crtc = nullptr;					// cathode ray tube controller
 	cc_irpt_on  = 0;				// T cycle of next/regular interrupt ON ... OFF
 	cc_irpt_off = 0;
 	instr_cnt   = 0;				// current instruction counter
@@ -619,14 +619,14 @@ void Z80::unmapMemory( CoreByte* a, uint32 size )
 		{
 			PgInfo& p = page[i>>CPU_PAGEBITS];
 			p.core_r		 = noreadpage - i;
-			p.waitmap_r 	 = NULL;
+			p.waitmap_r 	 = nullptr;
 			p.waitmap_r_size = 0;
 		}
 		p = wrPtr(i); if( p>=a && p<e )
 		{
 			PgInfo& p = page[i>>CPU_PAGEBITS];
 			p.core_w		 = nowritepage - i;
-			p.waitmap_w		 = NULL;
+			p.waitmap_w		 = nullptr;
 			p.waitmap_w_size = 0;
 		}
 		p = wrPtr2(i); if( p>=a && p<e )		// page.core_w2 may be null, but that's ok here

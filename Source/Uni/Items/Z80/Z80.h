@@ -1,4 +1,4 @@
-/*	Copyright  (c)	Günter Woigk 1996 - 2018
+/*	Copyright  (c)	Günter Woigk 1996 - 2019
   					mailto:kio@little-bat.de
 
  	This program is distributed in the hope that it will be useful,
@@ -41,8 +41,8 @@
 
 
 #ifdef _BIG_ENDIAN		// m68k, ppc
-	struct twobytes  { uint8 hi,lo; };
-	struct fourbytes { uint8 flags3,flags2,flags1,data; };
+	struct TwoBytes  { uint8 hi,lo; };
+	struct FourBytes { uint8 flags3,flags2,flags1,data; };
 #else					// i386, pdp
 	struct TwoBytes  { uint8 lo,hi; };
 	struct FourBytes { uint8 data,flags1,flags2,flags3; };

@@ -33,9 +33,6 @@ SOURCES +=	\
 	Libraries/gif/BoxP1SZ.cpp \
 	Source/Uni/Items/Z80/Z80_Disassembler.cpp \
 	Source/Uni/Items/Z80/Z80.cpp \
-	Libraries/Z80/goodies/z80_clock_cycles.cpp \
-	Libraries/Z80/goodies/z80_opcode_length.cpp \
-	Libraries/Z80/goodies/z80_major_opcode.cpp \
 	Libraries/kio/kio.cpp \
 	Libraries/unix/log.cpp \
 	Libraries/unix/os_utilities.cpp \
@@ -49,18 +46,21 @@ SOURCES +=	\
 	Libraries/audio/audio.cpp \
 	Libraries/audio/WavFile.cpp \
 	\
-    zasm/Source/Error.cpp \
-    zasm/Source/Label.cpp \
-    zasm/Source/Segment.cpp \
-    zasm/Source/Source.cpp \
-    zasm/Source/Z80Assembler.cpp \
+	zasm/Source/Error.cpp \
+	zasm/Source/Label.cpp \
+	zasm/Source/Segment.cpp \
+	zasm/Source/Source.cpp \
+	zasm/Source/Z80Assembler.cpp \
 	zasm/Source/Z80Header.cpp \
 	zasm/Source/CharMap.cpp \
-    zasm/Source/helpers.cpp \
-    zasm/Source/outputfile.cpp \
-    zasm/Source/listfile.cpp \
-    zasm/Source/SyntaxError.cpp \
-    zasm/Source/zx7.cpp \
+	zasm/Source/helpers.cpp \
+	zasm/Source/outputfile.cpp \
+	zasm/Source/listfile.cpp \
+	zasm/Source/SyntaxError.cpp \
+	zasm/Source/zx7.cpp \
+	zasm/Source/z80_clock_cycles.cpp \
+	zasm/Source/z80_opcode_length.cpp \
+	zasm/Source/z80_major_opcode.cpp \
 	\
 	Source/Mac/Joystick.cpp \
 	Source/Mac/USB/UsbJoystick.cpp \
@@ -119,7 +119,7 @@ SOURCES +=	\
 	Source/Qt/Inspector/PrinterPlus3Insp.cpp \
 	Source/Qt/Inspector/PrinterTs2040Insp.cpp \
 	Source/Qt/Inspector/GrafPadInsp.cpp \
-    Source/Qt/Inspector/Multiface1Insp.cpp \
+	Source/Qt/Inspector/Multiface1Insp.cpp \
 	Source/Qt/Inspector/Multiface128Insp.cpp \
 	Source/Qt/Inspector/Multiface3Insp.cpp \
 	Source/Qt/Inspector/Zx3kInsp.cpp \
@@ -134,7 +134,7 @@ SOURCES +=	\
 	Source/Qt/Inspector/TccDockInspector.cpp \
 	Source/Qt/Inspector/DivIDEInspector.cpp \
 	Source/Qt/Inspector/KeyboardInspector.cpp \
-    Source/Qt/Inspector/CurrahMicroSpeechInsp.cpp \
+	Source/Qt/Inspector/CurrahMicroSpeechInsp.cpp \
 	\
 	Source/Uni/Audio/CswBuffer.cpp \
 	Source/Uni/Audio/TapeFile.cpp \
@@ -218,7 +218,7 @@ SOURCES +=	\
 	Source/Uni/Items/Ay/Ay.cpp \
 	Source/Uni/Items/Ay/FullerBox.cpp \
 	Source/Uni/Items/Ay/AySubclasses.cpp \
-    Source/Uni/Items/Multiface/Multiface1.cpp \
+	Source/Uni/Items/Multiface/Multiface1.cpp \
 	Source/Uni/Items/Multiface/Multiface128.cpp \
 	Source/Uni/Items/Multiface/Multiface3.cpp \
 	Source/Uni/Items/IcTester.cpp \
@@ -256,22 +256,22 @@ SOURCES +=	\
 	Source/Uni/Memory.cpp \
 	Source/Uni/util.cpp \
 	Source/Uni/IsaObject.cpp \
-    Source/Uni/Items/SP0256.cpp \
-    Source/Uni/Items/Multiface/Multiface.cpp \
-    Source/Qt/Inspector/MultifaceInsp.cpp \
-    Source/Mac/USB/UsbDevice.cpp \
-    Source/Mac/mac_util.cpp \
-    Source/Uni/Items/Fdc/SmartSDCard.cpp \
-    Source/Qt/Inspector/SmartSDCardInspector.cpp \
-    Source/Uni/Items/MassStorage.cpp \
-    Source/Uni/Files/RzxBlock.cpp \
-    Source/Uni/Files/RzxFile.cpp \
-    Source/Qt/Dialogs/ConfigDialog.cpp \
-    Source/Qt/Dialogs/ConfigureKeyboardJoystickDialog.cpp \
-    Source/Qt/Overlays/Overlay.cpp \
-    Source/Uni/Machine/MachinePentagon128.cpp \
-    Source/Uni/Items/Ula/Crtc.cpp \
-    Source/Uni/Files/bestModelForFile.cpp
+	Source/Uni/Items/SP0256.cpp \
+	Source/Uni/Items/Multiface/Multiface.cpp \
+	Source/Qt/Inspector/MultifaceInsp.cpp \
+	Source/Mac/USB/UsbDevice.cpp \
+	Source/Mac/mac_util.cpp \
+	Source/Uni/Items/Fdc/SmartSDCard.cpp \
+	Source/Qt/Inspector/SmartSDCardInspector.cpp \
+	Source/Uni/Items/MassStorage.cpp \
+	Source/Uni/Files/RzxBlock.cpp \
+	Source/Uni/Files/RzxFile.cpp \
+	Source/Qt/Dialogs/ConfigDialog.cpp \
+	Source/Qt/Dialogs/ConfigureKeyboardJoystickDialog.cpp \
+	Source/Qt/Overlays/Overlay.cpp \
+	Source/Uni/Machine/MachinePentagon128.cpp \
+	Source/Uni/Items/Ula/Crtc.cpp \
+	Source/Uni/Files/bestModelForFile.cpp
 
 HEADERS += \
 	settings.h \
@@ -298,10 +298,8 @@ HEADERS += \
 	Source/Uni/Items/Z80/Z80codesCB.h \
 	Source/Uni/Items/Z80/Z80codes.h \
 	Source/Uni/Items/Z80/Z80.h \
-	Libraries/Z80/goodies/z80_clock_cycles.h \
-	Libraries/Z80/goodies/z80_opcode_length.h \
-	Libraries/Z80/goodies/z80_major_opcode.h \
 	Source/Uni/Items/Z80/Z80_Disassembler.h \
+	Source/Uni/Items/Z80/Z80opcodes.h \
 	\
 	Libraries/gif/BoxP1SZ.h \
 	Libraries/gif/Colormap.h \
@@ -316,30 +314,33 @@ HEADERS += \
 	Libraries/Templates/RCPtr.h \
 	Libraries/Templates/RCObject.h \
 	Libraries/Templates/NVPtr.h \
-    Libraries/Templates/StrArray.h \
+	Libraries/Templates/StrArray.h \
 	\
 	Libraries/cstrings/cstrings.h \
 	Libraries/hash/sdbm_hash.h \
-    Libraries/kio/TestTimer.h \
+	Libraries/kio/TestTimer.h \
 	\
 	Libraries/audio/AudioDecoder.h \
-    Libraries/audio/CADebugMacros.h \
-    Libraries/audio/CAStreamBasicDescription.h \
+	Libraries/audio/CADebugMacros.h \
+	Libraries/audio/CAStreamBasicDescription.h \
 	Libraries/audio/audio.h \
 	Libraries/audio/WavFile.h \
 	\
-    zasm/Source/Error.h \
-    zasm/Source/Label.h \
-    zasm/Source/Segment.h \
-    zasm/Source/settings.h \
-    zasm/Source/Source.h \
-    zasm/Source/SyntaxError.h \
-    zasm/Source/Z80Assembler.h \
-    zasm/Source/settings.h \
+	zasm/Source/Error.h \
+	zasm/Source/Label.h \
+	zasm/Source/Segment.h \
+	zasm/Source/settings.h \
+	zasm/Source/Source.h \
+	zasm/Source/SyntaxError.h \
+	zasm/Source/Z80Assembler.h \
+	zasm/Source/settings.h \
 	zasm/Source/Z80Header.h \
 	zasm/Source/CharMap.h \
-    zasm/Source/helpers.h \
-    zasm/Source/zx7.h \
+	zasm/Source/helpers.h \
+	zasm/Source/zx7.h \
+	zasm/Source/z80_clock_cycles.h \
+	zasm/Source/z80_opcode_length.h \
+	zasm/Source/z80_major_opcode.h \
 	\
 	Source/Mac/Dsp.h \
 	Source/Mac/Joystick.h \
@@ -377,7 +378,7 @@ HEADERS += \
 	Source/Qt/Inspector/PrinterPlus3Insp.h \
 	Source/Qt/Inspector/PrinterTs2040Insp.h \
 	Source/Qt/Inspector/GrafPadInsp.h \
-    Source/Qt/Inspector/Multiface1Insp.h \
+	Source/Qt/Inspector/Multiface1Insp.h \
 	Source/Qt/Inspector/Multiface128Insp.h \
 	Source/Qt/Inspector/Multiface3Insp.h \
 	Source/Qt/Inspector/Zx3kInsp.h \
@@ -395,7 +396,7 @@ HEADERS += \
 	Source/Qt/Inspector/TccDockInspector.h \
 	Source/Qt/Inspector/DivIDEInspector.h \
 	Source/Qt/Inspector/KeyboardInspector.h \
-    Source/Qt/Inspector/CurrahMicroSpeechInsp.h \
+	Source/Qt/Inspector/CurrahMicroSpeechInsp.h \
 	\
 	Source/Qt/Screen/ScreenMono.h \
 	Source/Qt/Screen/Screen.h \
@@ -491,7 +492,7 @@ HEADERS += \
 	Source/Uni/Items/Item.h \
 	Source/Uni/Items/Multiface/Multiface128.h \
 	Source/Uni/Items/Multiface/Multiface3.h \
-    Source/Uni/Items/Multiface/Multiface1.h \
+	Source/Uni/Items/Multiface/Multiface1.h \
 	Source/Uni/Items/Grafpad.h \
 	Source/Uni/Items/Ay/AySubclasses.h \
 	Source/Uni/Items/Ula/Ula128k.h \
@@ -547,28 +548,28 @@ HEADERS += \
 	Source/Uni/IoInfo.h \
 	Source/Uni/Memory.h \
 	Source/Uni/precompiled_header.h \
-    Source/Uni/about_text.h \
-    Source/Uni/Items/SP0256.h \
-    Source/Uni/Items/Multiface/Multiface.h \
-    Source/Qt/Inspector/MultifaceInsp.h \
-    Source/Uni/Keymap.h \
-    Source/Mac/USB/UsbDevice.h \
-    Source/Mac/mac_util.h \
-    Source/Uni/Items/Fdc/SmartSDCard.h \
-    Source/Qt/Inspector/SmartSDCardInspector.h \
-    Source/Uni/Items/MassStorage.h \
-    Source/Uni/Files/RzxFile.h \
-    Source/Uni/Files/RzxBlock.h \
-    Source/Qt/Dialogs/ConfigDialog.h \
-    Source/Qt/Dialogs/ConfigureKeyboardJoystickDialog.h \
-    Source/Qt/Overlays/Overlay.h \
-    Source/Uni/Machine/MachinePentagon128.h \
-    Source/Uni/Items/Ula/Crtc.h \
-    Source/Uni/Items/MemObject.h
+	Source/Uni/about_text.h \
+	Source/Uni/Items/SP0256.h \
+	Source/Uni/Items/Multiface/Multiface.h \
+	Source/Qt/Inspector/MultifaceInsp.h \
+	Source/Uni/Keymap.h \
+	Source/Mac/USB/UsbDevice.h \
+	Source/Mac/mac_util.h \
+	Source/Uni/Items/Fdc/SmartSDCard.h \
+	Source/Qt/Inspector/SmartSDCardInspector.h \
+	Source/Uni/Items/MassStorage.h \
+	Source/Uni/Files/RzxFile.h \
+	Source/Uni/Files/RzxBlock.h \
+	Source/Qt/Dialogs/ConfigDialog.h \
+	Source/Qt/Dialogs/ConfigureKeyboardJoystickDialog.h \
+	Source/Qt/Overlays/Overlay.h \
+	Source/Uni/Machine/MachinePentagon128.h \
+	Source/Uni/Items/Ula/Crtc.h \
+	Source/Uni/Items/MemObject.h
 
 OTHER_FILES += \
 	../.gitignore \
-    makemacstuff.vs \
+	makemacstuff.vs \
 	Source/Mac/Dsp.txt \
 	Libraries/kio/linux_errors.txt \
 	Source/Uni/ZxInfo/info_video.txt \
@@ -577,174 +578,174 @@ OTHER_FILES += \
 	Source/Uni/Items/Fdc/DivIDE.txt \
 	Info/Disk/FDC765_info.txt \
 	\
-    sdcc/lib/___setjmp.s \
-    sdcc/lib/__divsint.s \
-    sdcc/lib/__divsuchar.s \
-    sdcc/lib/__divuint.s \
-    sdcc/lib/__divuschar.s \
-    sdcc/lib/__modsint.s \
-    sdcc/lib/__modsuchar.s \
-    sdcc/lib/__moduint.s \
-    sdcc/lib/__mulint.s \
-    sdcc/lib/__mulschar.s \
-    sdcc/lib/__sdcc_call_hl.s \
-    sdcc/lib/_localtime.s \
-    sdcc/lib/_memmove.s \
-    sdcc/lib/_putchar.s \
-    sdcc/lib/_strcpy.s \
-    sdcc/lib/_strlen.s \
-    sdcc/lib/crt0 .s \
-    sdcc/lib/heap .s \
-    sdcc/lib/___fs2schar.c \
-    sdcc/lib/___fs2sint.c \
-    sdcc/lib/___fs2slong.c \
-    sdcc/lib/___fs2uchar.c \
-    sdcc/lib/___fs2uint.c \
-    sdcc/lib/___fs2ulong.c \
-    sdcc/lib/___fsadd.c \
-    sdcc/lib/___fsdiv.c \
-    sdcc/lib/___fseq.c \
-    sdcc/lib/___fsgt.c \
-    sdcc/lib/___fslt.c \
-    sdcc/lib/___fsmul.c \
-    sdcc/lib/___fsneq.c \
-    sdcc/lib/___fssub.c \
-    sdcc/lib/___schar2fs.c \
-    sdcc/lib/___sint2fs.c \
-    sdcc/lib/___slong2fs.c \
-    sdcc/lib/___uchar2fs.c \
-    sdcc/lib/___uint2fs.c \
-    sdcc/lib/___ulong2fs.c \
-    sdcc/lib/__assert.c \
-    sdcc/lib/__divslong.c \
-    sdcc/lib/__divslonglong.c \
-    sdcc/lib/__divulong.c \
-    sdcc/lib/__divulonglong.c \
-    sdcc/lib/__itoa.c \
-    sdcc/lib/__modslong.c \
-    sdcc/lib/__modulong.c \
-    sdcc/lib/__mullong.c \
-    sdcc/lib/__mullonglong.c \
-    sdcc/lib/__print_format.c \
-    sdcc/lib/__rlslonglong.c \
-    sdcc/lib/__rlulonglong.c \
-    sdcc/lib/__rrslonglong.c \
-    sdcc/lib/__rrulonglong.c \
-    sdcc/lib/__uitoa.c \
-    sdcc/lib/_abs.c \
-    sdcc/lib/_acosf.c \
-    sdcc/lib/_asctime.c \
-    sdcc/lib/_asincosf.c \
-    sdcc/lib/_asinf.c \
-    sdcc/lib/_atan2f.c \
-    sdcc/lib/_atanf.c \
-    sdcc/lib/_atof.c \
-    sdcc/lib/_atoi.c \
-    sdcc/lib/_atol.c \
-    sdcc/lib/_calloc.c \
-    sdcc/lib/_ceilf.c \
-    sdcc/lib/_check_struct_tm.c \
-    sdcc/lib/_cosf.c \
-    sdcc/lib/_coshf.c \
-    sdcc/lib/_cotf.c \
-    sdcc/lib/_ctime.c \
-    sdcc/lib/_days_per_month.c \
-    sdcc/lib/_errno.c \
-    sdcc/lib/_expf.c \
-    sdcc/lib/_fabsf.c \
-    sdcc/lib/_floorf.c \
-    sdcc/lib/_free.c \
-    sdcc/lib/_frexpf.c \
-    sdcc/lib/_gets.c \
-    sdcc/lib/_gmtime.c \
-    sdcc/lib/_heap.c \
-    sdcc/lib/_isalnum.c \
-    sdcc/lib/_isalpha.c \
-    sdcc/lib/_isblank.c \
-    sdcc/lib/_iscntrl.c \
-    sdcc/lib/_isdigit.c \
-    sdcc/lib/_isgraph.c \
-    sdcc/lib/_islower.c \
-    sdcc/lib/_isprint.c \
-    sdcc/lib/_ispunct.c \
-    sdcc/lib/_isspace.c \
-    sdcc/lib/_isupper.c \
-    sdcc/lib/_isxdigit.c \
-    sdcc/lib/_labs.c \
-    sdcc/lib/_ldexpf.c \
-    sdcc/lib/_log10f.c \
-    sdcc/lib/_logf.c \
-    sdcc/lib/_ltoa.c \
-    sdcc/lib/_malloc.c \
-    sdcc/lib/_memchr.c \
-    sdcc/lib/_memcmp.c \
-    sdcc/lib/_memcpy.c \
-    sdcc/lib/_memset.c \
-    sdcc/lib/_mktime.c \
-    sdcc/lib/_modff.c \
-    sdcc/lib/_powf.c \
-    sdcc/lib/_printf_small.c \
-    sdcc/lib/_printf.c \
-    sdcc/lib/_put_char_to_stdout.c \
-    sdcc/lib/_put_char_to_string.c \
-    sdcc/lib/_puts.c \
-    sdcc/lib/_rand.c \
-    sdcc/lib/_realloc.c \
-    sdcc/lib/_sincosf.c \
-    sdcc/lib/_sincoshf.c \
-    sdcc/lib/_sinf.c \
-    sdcc/lib/_sinhf.c \
-    sdcc/lib/_sprintf.c \
-    sdcc/lib/_sqrtf.c \
-    sdcc/lib/_strcat.c \
-    sdcc/lib/_strchr.c \
-    sdcc/lib/_strcmp.c \
-    sdcc/lib/_strcspn.c \
-    sdcc/lib/_strncat.c \
-    sdcc/lib/_strncmp.c \
-    sdcc/lib/_strncpy.c \
-    sdcc/lib/_strpbrk.c \
-    sdcc/lib/_strrchr.c \
-    sdcc/lib/_strspn.c \
-    sdcc/lib/_strstr.c \
-    sdcc/lib/_strtok.c \
-    sdcc/lib/_strxfrm.c \
-    sdcc/lib/_tancotf.c \
-    sdcc/lib/_tanf.c \
-    sdcc/lib/_tanhf.c \
-    sdcc/lib/_time.c \
-    sdcc/lib/_tolower.c \
-    sdcc/lib/_toupper.c \
-    sdcc/lib/_vprintf.c \
-    sdcc/lib/_vsprintf.c \
-    sdcc/lib/_log_table.h \
-    \
-    sdcc/include/asm/default/features.h \
-    sdcc/include/asm/z80/features.h \
-    sdcc/include/assert.h \
-    sdcc/include/ctype.h \
-    sdcc/include/errno.h \
-    sdcc/include/float.h \
-    sdcc/include/iso646.h \
-    sdcc/include/limits.h \
-    sdcc/include/malloc.h \
-    sdcc/include/math.h \
-    sdcc/include/sdcc-lib.h \
-    sdcc/include/setjmp.h \
-    sdcc/include/stdalign.h \
-    sdcc/include/stdarg.h \
-    sdcc/include/stdbool.h \
-    sdcc/include/stddef.h \
-    sdcc/include/stdint.h \
-    sdcc/include/stdio.h \
-    sdcc/include/stdlib.h \
-    sdcc/include/stdnoreturn.h \
-    sdcc/include/string.h \
-    sdcc/include/time.h \
-    sdcc/include/tinibios.h \
-    sdcc/include/typeof.h \
-    \
-    sdcc/sdcc_info.txt \
+	sdcc/lib/___setjmp.s \
+	sdcc/lib/__divsint.s \
+	sdcc/lib/__divsuchar.s \
+	sdcc/lib/__divuint.s \
+	sdcc/lib/__divuschar.s \
+	sdcc/lib/__modsint.s \
+	sdcc/lib/__modsuchar.s \
+	sdcc/lib/__moduint.s \
+	sdcc/lib/__mulint.s \
+	sdcc/lib/__mulschar.s \
+	sdcc/lib/__sdcc_call_hl.s \
+	sdcc/lib/_localtime.s \
+	sdcc/lib/_memmove.s \
+	sdcc/lib/_putchar.s \
+	sdcc/lib/_strcpy.s \
+	sdcc/lib/_strlen.s \
+	sdcc/lib/crt0 .s \
+	sdcc/lib/heap .s \
+	sdcc/lib/___fs2schar.c \
+	sdcc/lib/___fs2sint.c \
+	sdcc/lib/___fs2slong.c \
+	sdcc/lib/___fs2uchar.c \
+	sdcc/lib/___fs2uint.c \
+	sdcc/lib/___fs2ulong.c \
+	sdcc/lib/___fsadd.c \
+	sdcc/lib/___fsdiv.c \
+	sdcc/lib/___fseq.c \
+	sdcc/lib/___fsgt.c \
+	sdcc/lib/___fslt.c \
+	sdcc/lib/___fsmul.c \
+	sdcc/lib/___fsneq.c \
+	sdcc/lib/___fssub.c \
+	sdcc/lib/___schar2fs.c \
+	sdcc/lib/___sint2fs.c \
+	sdcc/lib/___slong2fs.c \
+	sdcc/lib/___uchar2fs.c \
+	sdcc/lib/___uint2fs.c \
+	sdcc/lib/___ulong2fs.c \
+	sdcc/lib/__assert.c \
+	sdcc/lib/__divslong.c \
+	sdcc/lib/__divslonglong.c \
+	sdcc/lib/__divulong.c \
+	sdcc/lib/__divulonglong.c \
+	sdcc/lib/__itoa.c \
+	sdcc/lib/__modslong.c \
+	sdcc/lib/__modulong.c \
+	sdcc/lib/__mullong.c \
+	sdcc/lib/__mullonglong.c \
+	sdcc/lib/__print_format.c \
+	sdcc/lib/__rlslonglong.c \
+	sdcc/lib/__rlulonglong.c \
+	sdcc/lib/__rrslonglong.c \
+	sdcc/lib/__rrulonglong.c \
+	sdcc/lib/__uitoa.c \
+	sdcc/lib/_abs.c \
+	sdcc/lib/_acosf.c \
+	sdcc/lib/_asctime.c \
+	sdcc/lib/_asincosf.c \
+	sdcc/lib/_asinf.c \
+	sdcc/lib/_atan2f.c \
+	sdcc/lib/_atanf.c \
+	sdcc/lib/_atof.c \
+	sdcc/lib/_atoi.c \
+	sdcc/lib/_atol.c \
+	sdcc/lib/_calloc.c \
+	sdcc/lib/_ceilf.c \
+	sdcc/lib/_check_struct_tm.c \
+	sdcc/lib/_cosf.c \
+	sdcc/lib/_coshf.c \
+	sdcc/lib/_cotf.c \
+	sdcc/lib/_ctime.c \
+	sdcc/lib/_days_per_month.c \
+	sdcc/lib/_errno.c \
+	sdcc/lib/_expf.c \
+	sdcc/lib/_fabsf.c \
+	sdcc/lib/_floorf.c \
+	sdcc/lib/_free.c \
+	sdcc/lib/_frexpf.c \
+	sdcc/lib/_gets.c \
+	sdcc/lib/_gmtime.c \
+	sdcc/lib/_heap.c \
+	sdcc/lib/_isalnum.c \
+	sdcc/lib/_isalpha.c \
+	sdcc/lib/_isblank.c \
+	sdcc/lib/_iscntrl.c \
+	sdcc/lib/_isdigit.c \
+	sdcc/lib/_isgraph.c \
+	sdcc/lib/_islower.c \
+	sdcc/lib/_isprint.c \
+	sdcc/lib/_ispunct.c \
+	sdcc/lib/_isspace.c \
+	sdcc/lib/_isupper.c \
+	sdcc/lib/_isxdigit.c \
+	sdcc/lib/_labs.c \
+	sdcc/lib/_ldexpf.c \
+	sdcc/lib/_log10f.c \
+	sdcc/lib/_logf.c \
+	sdcc/lib/_ltoa.c \
+	sdcc/lib/_malloc.c \
+	sdcc/lib/_memchr.c \
+	sdcc/lib/_memcmp.c \
+	sdcc/lib/_memcpy.c \
+	sdcc/lib/_memset.c \
+	sdcc/lib/_mktime.c \
+	sdcc/lib/_modff.c \
+	sdcc/lib/_powf.c \
+	sdcc/lib/_printf_small.c \
+	sdcc/lib/_printf.c \
+	sdcc/lib/_put_char_to_stdout.c \
+	sdcc/lib/_put_char_to_string.c \
+	sdcc/lib/_puts.c \
+	sdcc/lib/_rand.c \
+	sdcc/lib/_realloc.c \
+	sdcc/lib/_sincosf.c \
+	sdcc/lib/_sincoshf.c \
+	sdcc/lib/_sinf.c \
+	sdcc/lib/_sinhf.c \
+	sdcc/lib/_sprintf.c \
+	sdcc/lib/_sqrtf.c \
+	sdcc/lib/_strcat.c \
+	sdcc/lib/_strchr.c \
+	sdcc/lib/_strcmp.c \
+	sdcc/lib/_strcspn.c \
+	sdcc/lib/_strncat.c \
+	sdcc/lib/_strncmp.c \
+	sdcc/lib/_strncpy.c \
+	sdcc/lib/_strpbrk.c \
+	sdcc/lib/_strrchr.c \
+	sdcc/lib/_strspn.c \
+	sdcc/lib/_strstr.c \
+	sdcc/lib/_strtok.c \
+	sdcc/lib/_strxfrm.c \
+	sdcc/lib/_tancotf.c \
+	sdcc/lib/_tanf.c \
+	sdcc/lib/_tanhf.c \
+	sdcc/lib/_time.c \
+	sdcc/lib/_tolower.c \
+	sdcc/lib/_toupper.c \
+	sdcc/lib/_vprintf.c \
+	sdcc/lib/_vsprintf.c \
+	sdcc/lib/_log_table.h \
+	\
+	sdcc/include/asm/default/features.h \
+	sdcc/include/asm/z80/features.h \
+	sdcc/include/assert.h \
+	sdcc/include/ctype.h \
+	sdcc/include/errno.h \
+	sdcc/include/float.h \
+	sdcc/include/iso646.h \
+	sdcc/include/limits.h \
+	sdcc/include/malloc.h \
+	sdcc/include/math.h \
+	sdcc/include/sdcc-lib.h \
+	sdcc/include/setjmp.h \
+	sdcc/include/stdalign.h \
+	sdcc/include/stdarg.h \
+	sdcc/include/stdbool.h \
+	sdcc/include/stddef.h \
+	sdcc/include/stdint.h \
+	sdcc/include/stdio.h \
+	sdcc/include/stdlib.h \
+	sdcc/include/stdnoreturn.h \
+	sdcc/include/string.h \
+	sdcc/include/time.h \
+	sdcc/include/tinibios.h \
+	sdcc/include/typeof.h \
+	\
+	sdcc/sdcc_info.txt \
 
 
 
