@@ -93,7 +93,7 @@ protected:
 public:
 	ZxspGifWriter(QObject* p, bool update_border, uint frames_per_second=50);
 
-VIR	void drawScreen( IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline,
+	virtual	void drawScreen( IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline,
 					 uint32 cc_start_of_screenfile, bool flashphase);
 	void writeFrame( IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline,
 					 uint32 cc_start_of_screenfile, bool flashphase) throws;

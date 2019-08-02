@@ -32,7 +32,8 @@
 #include "IsaObject.h"
 #include <QToolBar>
 #include "Templates/RCPtr.h"
-
+#include "kio/peekpoke.h"
+#define VIR virtual
 
 class Inspector : public QWidget
 {
@@ -76,7 +77,7 @@ public:
 	static Inspector* newInspector(QWidget*, MachineController*, volatile IsaObject*);
 	Inspector(const Inspector&) = delete;
 	Inspector& operator=(const Inspector&) = delete;
-	~Inspector();
+	~Inspector() override;
 
 protected:
 	Inspector(QWidget*, MachineController*, volatile IsaObject*, cstr bgr = "/Backgrounds/light-grey-75.jpg");

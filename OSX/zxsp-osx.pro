@@ -58,9 +58,9 @@ SOURCES +=	\
 	zasm/Source/listfile.cpp \
 	zasm/Source/SyntaxError.cpp \
 	zasm/Source/zx7.cpp \
-	zasm/Source/z80_clock_cycles.cpp \
-	zasm/Source/z80_opcode_length.cpp \
-	zasm/Source/z80_major_opcode.cpp \
+	Libraries/Z80/goodies/z80_clock_cycles.cpp \
+	Libraries/Z80/goodies/z80_opcode_length.cpp \
+	Libraries/Z80/goodies/z80_major_opcode.cpp \
 	\
 	Source/Mac/Joystick.cpp \
 	Source/Mac/USB/UsbJoystick.cpp \
@@ -279,7 +279,7 @@ HEADERS += \
 	Libraries/kio/kio.h \
 	Libraries/kio/standard_types.h \
 	Libraries/kio/exceptions.h \
-	Libraries/kio/error_emacs.h \
+	Libraries/kio/errors.h \
 	Libraries/kio/peekpoke.h \
 	Libraries/kio/util/swap.h \
 	Libraries/kio/util/msbit.h \
@@ -338,9 +338,10 @@ HEADERS += \
 	zasm/Source/CharMap.h \
 	zasm/Source/helpers.h \
 	zasm/Source/zx7.h \
-	zasm/Source/z80_clock_cycles.h \
-	zasm/Source/z80_opcode_length.h \
-	zasm/Source/z80_major_opcode.h \
+	Libraries/Z80/goodies/z80_clock_cycles.h \
+	Libraries/Z80/goodies/z80_opcode_length.h \
+	Libraries/Z80/goodies/z80_major_opcode.h \
+	Libraries/Z80/goodies/z80_opcodes.h \
 	\
 	Source/Mac/Dsp.h \
 	Source/Mac/Joystick.h \

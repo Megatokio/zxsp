@@ -29,7 +29,7 @@
 
 #include "kio/kio.h"
 #include "Templates/Array.h"
-
+#include "kio/peekpoke.h"
 
 extern void throw_zlib_error(int err) noexcept(false); // data_error
 

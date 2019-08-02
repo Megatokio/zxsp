@@ -31,7 +31,9 @@
 #include "zxsp_types.h"
 #include "IsaObject.h"
 #include "IoInfo.h"
-
+#include "kio/peekpoke.h"
+#define VIR virtual
+#define EXT extern
 
 extern uint16	bitsForSpec	( cstr s );
 extern uint16	maskForSpec	( cstr s );

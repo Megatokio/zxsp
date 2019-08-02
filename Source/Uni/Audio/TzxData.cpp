@@ -39,6 +39,7 @@
 #include "kio/standard_types.h"
 #include "kio/util/count1bits.h"
 #include "globals.h"
+#include "kio/peekpoke.h"
 class FD;
 
 
@@ -448,7 +449,7 @@ struct TzxBlock13 : public TzxBlock
 	uint16*	data;			// cc_per_pulse
 
 	TzxBlock13()				:TzxBlock(0x13,yes),data(0){}
-    ~TzxBlock13()				{ delete[] data; }
+	~TzxBlock13()				{ delete[] data; }
 	void read(FD&);
 	void write(FD&)			const;
 	void write(CswBuffer&)	const;

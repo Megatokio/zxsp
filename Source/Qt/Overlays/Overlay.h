@@ -90,8 +90,8 @@ protected:
 public:
 				~Overlay(){}
 
-VIR	void		setZoom		(int);
-VIR	void		draw		(QPainter&) = 0;
+virtual	void		setZoom		(int);
+virtual	void		draw		(QPainter&) = 0;
 };
 
 

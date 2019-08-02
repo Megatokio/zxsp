@@ -31,6 +31,7 @@
 #include "zxsp_types.h"
 #include "unix/FD.h"
 #include "cpp/cppthreads.h"
+#include <unistd.h>
 
 
 class IdeDevice			// Base class for IdeCFcard, IdeHadDisk and IdeCDrom

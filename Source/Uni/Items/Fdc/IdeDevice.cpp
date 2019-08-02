@@ -30,7 +30,7 @@
 #include "unix/files.h"
 #include "unix/FD.h"
 #include <pthread.h>
-
+#include "kio/peekpoke.h"
 
 
 /*

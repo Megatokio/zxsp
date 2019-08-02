@@ -36,6 +36,8 @@
 //
 
 extern const uint8 ayRegMask[16];
+const bool low = false;
+const bool high = true;
 
 
 /* ----	the sound channels of the ay chip ---------------------------------------------
@@ -189,7 +191,7 @@ VIR uint8 getInputValueAtPortA(Time, uint16) { return 0xff; }
 VIR uint8 getInputValueAtPortB(Time, uint16) { return 0xff; }
 
 public:
-	virtual ~Ay();
+	virtual ~Ay() override;
 
 // set & read register
 	void	setRegister(uint r, uint8 n)	{ setRegister(time_of_last_sample,r,n); }
