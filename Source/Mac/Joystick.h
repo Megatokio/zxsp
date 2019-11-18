@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2006 - 2019
 					mailto:kio@little-bat.de
 
@@ -26,9 +27,6 @@
 	These 4 Joystick instances are never deleted. They are only disconnected when getState() fails.
 	To discover new USB joysticks call findUsbJoysticks().
 */
-
-#ifndef JOYSTICK_H
-#define	JOYSTICK_H
 
 #include "kio/kio.h"
 #include "zxsp_types.h"
@@ -113,7 +111,7 @@ public:
 	void	allKeysUp	() volatile				{ state = 0; }
 };
 
-#endif
+
 
 
 

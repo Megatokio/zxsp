@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2000 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef O80DATA_H
-#define O80DATA_H
 
 #include "TapeData.h"
 #include "RlesData.h"
@@ -80,7 +78,7 @@ public:
 };
 
 
-#endif
+
 
 
 

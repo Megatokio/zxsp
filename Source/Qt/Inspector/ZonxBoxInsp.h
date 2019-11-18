@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2009 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,9 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef ZONXBOXINSP_H
-#define ZONXBOXINSP_H
-
 #include "Inspector.h"
 
 class ZonxBoxInsp : public Inspector
@@ -27,7 +25,6 @@ public:
 	ZonxBoxInsp(QWidget*, MachineController *mc, volatile IsaObject* );
 };
 
-#endif
 
 
 

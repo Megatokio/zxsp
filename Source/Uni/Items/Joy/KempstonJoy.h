@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2006 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,9 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef KEMPSTONJOY_H
-#define KEMPSTONJOY_H
-
 #include "Joy.h"
 
 
@@ -35,4 +33,4 @@ protected:
 };
 
 
-#endif
+

@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2009 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,14 +17,10 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef APPLICATION_H
-#define APPLICATION_H
-
 #include <QSplashScreen>
 #include <QApplication>
 #include "kio/kio.h"
 #include "globals.h"
-
 
 
 class Application : public QApplication
@@ -53,6 +50,6 @@ virtual bool    event(QEvent*e);
 };
 
 
-#endif
+
 
 

@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2015 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,11 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-
-#ifndef MAC_UTIL_H
-#define MAC_UTIL_H
-
 
 #include "kio/kio.h"
 
@@ -97,7 +93,7 @@ public:
 
 
 
-#endif
+
 
 
 

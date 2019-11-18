@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 1994 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef TAPDATA_H
-#define TAPDATA_H
 
 #include "TapeData.h"
 #include "RlesData.h"
@@ -85,7 +83,7 @@ public:
 };
 
 
-#endif
+
 
 
 

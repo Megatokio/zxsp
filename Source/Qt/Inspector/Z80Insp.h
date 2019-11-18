@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2002 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef Z80INSP_H
-#define Z80INSP_H
 
 #include <QAction>
 #include <QLineEdit>
@@ -60,7 +58,7 @@ private:
 };
 
 
-#endif
+
 
 
 

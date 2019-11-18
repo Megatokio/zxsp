@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2015 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,10 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-
-#ifndef USBDEVICE_H
-#define USBDEVICE_H
 
 #include "mac_util.h"
 //#include <IOKit/hid/IOHIDLib.h>
@@ -77,7 +74,7 @@ public:
 	~UsbDevice();
 };
 
-#endif
+
 
 
 

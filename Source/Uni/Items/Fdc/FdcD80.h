@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,9 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef FDCD80_H
-#define FDCD80_H
-
 #include "Fdc.h"
 
 
@@ -29,4 +27,4 @@ public:
 };
 
 
-#endif
+

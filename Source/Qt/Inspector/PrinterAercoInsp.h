@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef PRINTERAERCOINSP_H
-#define PRINTERAERCOINSP_H
-
 #include "Inspector.h"
 
 class PrinterAercoInsp : public Inspector
@@ -28,4 +25,4 @@ public:
 	PrinterAercoInsp( QWidget*, MachineController*, volatile IsaObject* );
 };
 
-#endif
+

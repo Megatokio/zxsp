@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2013 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,10 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-
-#ifndef DOCKINSPECTOR_H
-#define DOCKINSPECTOR_H
 
 #include <QRect>
 #include "Inspector.h"
@@ -72,7 +69,7 @@ private:
 	void	insert_again();					// ""
 };
 
-#endif
+
 
 
 

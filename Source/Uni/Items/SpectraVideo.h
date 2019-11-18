@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2013 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,11 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-
-#ifndef SPECTRAVIDEOINTERFACE_H
-#define SPECTRAVIDEOINTERFACE_H
-
 
 #include <QObject>
 #include "Ula/Crtc.h"
@@ -138,7 +134,7 @@ public:
 };
 
 
-#endif
+
 
 
 

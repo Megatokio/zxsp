@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2009 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,9 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef FULLERBOXINSP_H
-#define FULLERBOXINSP_H
-
 #include "Inspector.h"
 
 class FullerBoxInsp : public Inspector
@@ -27,4 +25,4 @@ public:
 	FullerBoxInsp( QWidget*, MachineController*, volatile IsaObject* );
 };
 
-#endif
+

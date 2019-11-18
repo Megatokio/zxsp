@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 1996 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,9 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef Z80_DISASSEMBLER_H
-#define Z80_DISASSEMBLER_H
 #include "kio/kio.h"
 
 
@@ -47,7 +45,7 @@ public:
 };
 
 
-#endif
+
 
 
 

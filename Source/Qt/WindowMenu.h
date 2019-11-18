@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2009 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef WINDOWMENU_H
-#define WINDOWMENU_H
 
 #include <QMenu>
 
@@ -54,7 +52,7 @@ public:
 };
 
 
-#endif // WINDOWMENU_H
+
 
 
 

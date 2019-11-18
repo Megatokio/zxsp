@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef DIDAKTIKMELODIKINSP_H
-#define DIDAKTIKMELODIKINSP_H
-
 #include "Inspector.h"
 
 
@@ -30,7 +27,7 @@ public:
 };
 
 
-#endif
+
 
 
 

@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2013 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,11 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-
-#ifndef ZXSPRENDERER_H
-#define ZXSPRENDERER_H
-
 
 #include "Renderer.h"
 #include "gif/GifEncoder.h"
@@ -94,7 +90,7 @@ public:
 };
 
 
-#endif
+
 
 
 

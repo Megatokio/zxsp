@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef TK85JOYINSP_H
-#define TK85JOYINSP_H
-
 #include "JoyInsp.h"
 
 class Tk85JoyInsp : public JoyInsp
@@ -28,4 +25,4 @@ public:
 	Tk85JoyInsp( QWidget*, MachineController*, volatile IsaObject* );
 };
 
-#endif
+

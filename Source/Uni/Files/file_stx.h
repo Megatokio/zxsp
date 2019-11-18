@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2013 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,18 +17,7 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef FILE_STX_H
-#define FILE_STX_H
-
 #include "kio/kio.h"
-
-
-
-
-
-#endif
-
-
 
 
 

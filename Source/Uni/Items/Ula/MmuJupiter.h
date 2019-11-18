@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 1995 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,9 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef MMUJUPITER_H
-#define MMUJUPITER_H
-
 #include "Mmu.h"
 
 
@@ -32,7 +30,7 @@ public:
 };
 
 
-#endif
+
 
 
 

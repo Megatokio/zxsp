@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2008 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,11 +17,7 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef MMUZX80_H
-#define MMUZX80_H
-
 #include "Mmu.h"
-
 
 
 class MmuZx80 : public Mmu
@@ -60,7 +57,7 @@ void	mapMem();
 
 
 
-#endif
+
 
 
 

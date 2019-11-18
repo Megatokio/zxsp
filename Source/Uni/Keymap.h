@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2015 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,8 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef KEYMAP_H
-#define KEYMAP_H
 #include "kio/kio.h"
 
 
@@ -42,7 +41,7 @@ union Keymap
 };
 
 
-#endif
+
 
 
 

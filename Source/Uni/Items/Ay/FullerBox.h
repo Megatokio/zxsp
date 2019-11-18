@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2004 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,9 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef FULLERBOX_H
-#define FULLERBOX_H
-
 #include "Ay.h"
 
 
@@ -29,7 +27,6 @@ public:
 };
 
 
-#endif
 
 
 

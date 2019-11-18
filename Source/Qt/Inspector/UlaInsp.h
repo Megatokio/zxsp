@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2009 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef ULAINSP_H
-#define ULAINSP_H
 
 #include <QTimer>
 #include <QObject>
@@ -122,7 +120,7 @@ protected:
 	 void	updateWidgets() override;
 };
 
-#endif
+
 
 
 

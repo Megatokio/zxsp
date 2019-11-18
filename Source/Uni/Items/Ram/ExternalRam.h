@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,9 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef EXTERNALRAM_H
-#define EXTERNALRAM_H
-
 #include "Item.h"
 #include "zxsp_types.h"
 
@@ -30,7 +28,6 @@ protected:
 };
 
 
-#endif
 
 
 

@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2000 - 2019
 					mailto:kio@little-bat.de
 
@@ -63,9 +64,6 @@
 			- recording: this is the time akkumulated so for for the currently recorded pulse: akku>0.
 			due to rounding akku may refer ±0.5 into the opposite pulse.
 */
-
-#ifndef CSWBUFFER_H
-#define	CSWBUFFER_H
 
 #include "zxsp_types.h"
 
@@ -212,7 +210,7 @@ public:
 };
 
 
-#endif
+
 
 
 

@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2015 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef MASSSTORAGE_H
-#define MASSSTORAGE_H
-
 #include "kio/kio.h"
 #include "Item.h"
 
@@ -34,6 +31,6 @@ public:
 };
 
 
-#endif
+
 
 

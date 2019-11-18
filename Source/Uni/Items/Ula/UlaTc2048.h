@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,10 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-
-#ifndef CRTCTC2048_H
-#define CRTCTC2048_H
 
 #include "UlaZxsp.h"
 
@@ -49,7 +46,7 @@ public:
 };
 
 
-#endif
+
 
 
 

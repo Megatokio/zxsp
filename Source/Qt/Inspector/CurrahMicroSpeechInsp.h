@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2015 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,10 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-
-#ifndef CURRAHMICROSPEECHINSPECTOR_H
-#define CURRAHMICROSPEECHINSPECTOR_H
 
 #include "Inspector.h"
 
@@ -49,7 +46,7 @@ private:
 };
 
 
-#endif
+
 
 
 

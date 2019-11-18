@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2013 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,11 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef LANGUAGE_H
-#define LANGUAGE_H
-
-
 enum Language
 {
 	british,
@@ -31,4 +27,4 @@ enum Language
 };
 
 
-#endif // LANGUAGE_H
+

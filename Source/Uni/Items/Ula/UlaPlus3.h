@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef ULAPLUS3_H
-#define ULAPLUS3_H
-
 #include "Ula128k.h"
 
 
@@ -36,4 +33,4 @@ public:
 };
 
 
-#endif
+

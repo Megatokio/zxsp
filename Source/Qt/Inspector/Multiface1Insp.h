@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,11 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-
-#ifndef MULTIFACE1INSP_H
-#define MULTIFACE1INSP_H
-
 
 #include "MultifaceInsp.h"
 class QLineEdit;
@@ -48,4 +44,3 @@ private:
 	void			enable_joystick(bool);
 };
 
-#endif

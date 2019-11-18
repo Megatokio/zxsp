@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2008 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-#ifndef ULAZX81_H
-#define ULAZX81_H
-
 
 #include "UlaMono.h"
 
@@ -148,7 +146,6 @@ private:
 
 
 
-#endif
 
 
 

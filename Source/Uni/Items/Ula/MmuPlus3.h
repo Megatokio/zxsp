@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 1995 - 2019
 					mailto:kio@little-bat.de
 
@@ -19,9 +20,6 @@
 
 	based on Mmu128k
 */
-
-#ifndef MMUPLUS3_H
-#define MMUPLUS3_H
 
 #include "Mmu128k.h"
 
@@ -79,7 +77,7 @@ private:
 };
 
 
-#endif
+
 
 
 

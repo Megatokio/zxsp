@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2013 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,10 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-
-#ifndef MYSIMPLETOGGLEBUTTON_H
-#define MYSIMPLETOGGLEBUTTON_H
 
 #include <functional>
 #include <QPixmap>
@@ -56,7 +53,8 @@ signals:
 	void	toggled(bool);
 };
 
-#endif
+
+
 
 
 

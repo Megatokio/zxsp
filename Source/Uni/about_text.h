@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2015 - 2019
 					mailto:kio@little-bat.de
 
@@ -17,16 +18,13 @@
 */
 
 
-#ifndef ABOUT_TEXT_H
-#define ABOUT_TEXT_H
-
 #define ABOUT_TEXT	\
-	" Copyright © 1994-2018 Günter Woigk\n"			\
+	" Copyright © 1994-2019 Günter Woigk\n"			\
 	" Erlangen, Germany, kio@little-bat.de\n"		\
 	" Z80 emulation based on Marat Fayzullin\n"		\
 	" SP0256 based on Joe Zbiciak & Frank Palazzolo\n" \
 	" ZX Spectrum keyboard images by Andrew Owen\n" \
 
 
-#endif
+
 

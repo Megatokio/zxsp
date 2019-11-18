@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef WAFADRIVE_H
-#define WAFADRIVE_H
-
 #include"Item.h"
 
 
@@ -29,4 +26,4 @@ public:
 	explicit WafaDrive(Machine*);
 };
 
-#endif
+

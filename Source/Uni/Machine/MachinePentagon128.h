@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2016 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,9 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef MACHINEPENTAGON128_H
-#define MACHINEPENTAGON128_H
-
 #include "kio/kio.h"
 #include "MachineZx128.h"
 
@@ -30,7 +28,7 @@ public:
 };
 
 
-#endif
+
 
 
 

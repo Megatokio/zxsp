@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef TC2068JOYINSP_H
-#define TC2068JOYINSP_H
-
 #include <QObject>
 #include "JoyInsp.h"
 
@@ -32,7 +29,7 @@ protected:
 	void updateWidgets() override;
 };
 
-#endif
+
 
 
 

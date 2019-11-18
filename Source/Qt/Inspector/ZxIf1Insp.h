@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2009 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,9 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef ZXIF1INSP_H
-#define ZXIF1INSP_H
-
 #include "Inspector.h"
 
 class ZxIf1Insp : public Inspector
@@ -27,7 +25,7 @@ public:
 	ZxIf1Insp( QWidget*, MachineController*, volatile IsaObject* );
 };
 
-#endif
+
 
 
 

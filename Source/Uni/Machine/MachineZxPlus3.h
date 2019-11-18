@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 1995 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef MACHINEZXPLUS3_H
-#define MACHINEZXPLUS3_H
-
 #include "MachineZxPlus2a.h"
 #include "ZxInfo/info.h"
 #include "Fdc/FdcPlus3.h"
@@ -34,4 +31,4 @@ public:
 };
 
 
-#endif
+

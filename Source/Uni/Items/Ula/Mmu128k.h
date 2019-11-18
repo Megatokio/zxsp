@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 1995 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,11 +17,7 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef MMU128K_H
-#define MMU128K_H
-
 #include "Mmu.h"
-
 
 
 class Mmu128k : public Mmu
@@ -65,7 +62,7 @@ private:
 };
 
 
-#endif
+
 
 
 
