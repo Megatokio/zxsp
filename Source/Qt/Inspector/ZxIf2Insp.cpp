@@ -28,6 +28,7 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <QMenu>
+#include <QPushButton>
 #include "ZxIf2Insp.h"
 #include "Joy/ZxIf2.h"
 #include "Machine.h"
@@ -44,10 +45,10 @@ ZxIf2Insp::ZxIf2Insp(QWidget*w, MachineController* mc, volatile IsaObject *i )
 	SinclairJoyInsp(w,mc,i,"/Images/zxif2.jpg"),
 	old_romfilepath(NULL)
 {
-    assert(object->isA(isa_ZxIf2));
+	assert(object->isA(isa_ZxIf2));
 
-    button_insert_eject = new QPushButton("Insert",this);
-    button_insert_eject->setMinimumWidth(100);
+	button_insert_eject = new QPushButton("Insert",this);
+	button_insert_eject->setMinimumWidth(100);
 	connect(button_insert_eject,&QPushButton::clicked,this,&ZxIf2Insp::insert_or_eject_rom);
 
 	label_romfilename = new QLabel(this);
@@ -55,7 +56,7 @@ ZxIf2Insp::ZxIf2Insp(QWidget*w, MachineController* mc, volatile IsaObject *i )
 	label_romfilename->setFont(QFont("Arial",10));
 //	rom_name->setMinimumWidth(100);
 	label_romfilename->setAlignment(Qt::AlignTop);
-    setColors(label_romfilename, 0xffffff/*foregroundcolor*/);
+	setColors(label_romfilename, 0xffffff/*foregroundcolor*/);
 
 	QGridLayout* g = new QGridLayout(this);
 	g->setContentsMargins(10,10,10,5);
@@ -84,22 +85,22 @@ ZxIf2Insp::ZxIf2Insp(QWidget*w, MachineController* mc, volatile IsaObject *i )
 //slot
 void ZxIf2Insp::insert_or_eject_rom()
 {
-    if(zxif2()->isLoaded())
-    {
-        xlogIn("ZxIf2Insp::eject()");
-        bool f = machine->powerOff();
-	        NV(zxif2())->ejectRom();
+	if(zxif2()->isLoaded())
+	{
+		xlogIn("ZxIf2Insp::eject()");
+		bool f = machine->powerOff();
+			NV(zxif2())->ejectRom();
 		if(f) machine->powerOn();
-    }
-    else
-    {
-        xlogIn("ZxIf2Insp::insert()");
+	}
+	else
+	{
+		xlogIn("ZxIf2Insp::insert()");
 
-        cstr filter = "IF2 Rom Cartridges (*.rom)"; //";;All Files (*)";
+		cstr filter = "IF2 Rom Cartridges (*.rom)"; //";;All Files (*)";
 		cstr filepath = selectLoadFile(this, "Select IF2 Rom Cartridge", filter);
 		if(!filepath) return;
 
-        bool f = machine->powerOff();
+		bool f = machine->powerOff();
 			NV(zxif2())->insertRom(filepath);
 		if(f) machine->powerOn();
 	}
@@ -135,7 +136,7 @@ void ZxIf2Insp::fillContextMenu(QMenu* menu)
 {
 	Inspector::fillContextMenu(menu);	// NOP
 
-    if(zxif2()->isLoaded())
+	if(zxif2()->isLoaded())
 	{
 		menu->addAction("Eject Rom",this,&ZxIf2Insp::insert_or_eject_rom);
 	}

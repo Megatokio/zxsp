@@ -28,6 +28,7 @@
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>
+#include <QPushButton>
 #include "InvesJoyInsp.h"
 #include "Joy/InvesJoy.h"
 

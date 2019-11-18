@@ -26,7 +26,6 @@
 
 #include "Z80_Disassembler.h"
 #include "cstrings/cstrings.h"
-#include "unix/tempmem.h"
 
 
 // ----	opcode definitions ------------------------------------------------------------------
@@ -124,7 +123,7 @@ static char c_sh[]  	= { RLC,RRC,RL,RR,SLA,SRA,SLL,SRL };
 int Z80_Disassembler::opcodeLength(uint ip) const
 {
 	static cstr len0 = "1311112111111121231111212111112123311121213111212331112121311121";	// 0x00 - 0x3F
- 	static cstr len3 = "1133312111303321113231211132302111313121113130211131312111313021";	// 0xC0 - 0xFF; prefixes are 0
+	static cstr len3 = "1133312111303321113231211132302111313121113130211131312111313021";	// 0xC0 - 0xFF; prefixes are 0
 
 	const uint8 op1 = peek(ip++);
 	switch(op1>>6)
@@ -164,9 +163,9 @@ int Z80_Disassembler::opcodeLength(uint ip) const
 // helper
 inline void copy3(char* z, char const* q)
 {
-    *z++ = *q++;
-    *z++ = *q++;
-    *z++ = *q++;
+	*z++ = *q++;
+	*z++ = *q++;
+	*z++ = *q++;
 }
 
 
@@ -175,7 +174,7 @@ inline void copy3(char* z, char const* q)
 //
 static char* mnemo( uint8 op )
 {
-    char* s;
+	char* s;
 	switch(op>>6)
 	{
 	case 0:
@@ -188,7 +187,7 @@ static char* mnemo( uint8 op )
 		s[2] = B + (op&0x07);
 		return s;
 	case 2:
-        s = tempmem(3);
+		s = tempmem(3);
 		s[0] = c_ari[(op>>3)&0x07];
 		s[1] = A;
 		s[2] = B + (op&0x07);
@@ -205,7 +204,7 @@ static char* mnemo( uint8 op )
 //
 static char* mnemoCB( uint8 op2 )
 {
-    char* s = tempmem(3);
+	char* s = tempmem(3);
 	switch(op2>>6)
 	{
 	case 0:
@@ -261,7 +260,7 @@ static char* mnemoED( uint8 op2 )
 	{
 		if( (op2&0xE4)!=0xA0 ) return cmd_nop;
 
-        char* s = tempmem(3);
+		char* s = tempmem(3);
 		s[0]=c_blk[op2&0x1B];
 		s[1]=0;
 		s[2]=0;
@@ -277,7 +276,7 @@ static char* mnemoED( uint8 op2 )
 //
 static char* mnemoIX( uint8 op2 )
 {
-    char* s = tempmem(3);
+	char* s = tempmem(3);
 	copy3( s, mnemo(op2) );
 	if (s[1]==XHL) { s[1]=XIX; return s; }
 	if (s[2]==XHL) { s[2]=XIX; return s; }
@@ -296,7 +295,7 @@ static char* mnemoIX( uint8 op2 )
 //
 static char* mnemoIY( uint8 op2 )
 {
-    char* s = tempmem(3);
+	char* s = tempmem(3);
 	copy3( s, mnemo(op2) );
 	if (s[1]==XHL) { s[1]=XIY; return s; }
 	if (s[2]==XHL) { s[2]=XIY; return s; }
@@ -328,21 +327,21 @@ cstr Z80_Disassembler::opcodeMnemo( uint ip ) const
 	default:	m = mnemo(op1);                 break;
 	}
 
-    cstr s1 = word[uchar(m[0])];  if(m[1]==0) return s1;
-    cstr s2 = word[uchar(m[1])];
-    cstr s3 = word[uchar(m[2])];
+	cstr s1 = word[uchar(m[0])];  if(m[1]==0) return s1;
+	cstr s2 = word[uchar(m[1])];
+	cstr s3 = word[uchar(m[2])];
 
-    str s = tempstr( 5 + strlen(s2) + (*s3?1+strlen(s3):0) );
+	str s = tempstr( 5 + strlen(s2) + (*s3?1+strlen(s3):0) );
 
-    strcpy(s,s1);
-    strcat(s,"    ");
-    strcpy(s+5,s2);
+	strcpy(s,s1);
+	strcat(s,"    ");
+	strcpy(s+5,s2);
 
-    if(*s3)
-    {
-        strcat(s,",");
-        strcat(s,s3);
-    };
+	if(*s3)
+	{
+		strcat(s,",");
+		strcat(s,s3);
+	};
 	return s;
 }
 
@@ -502,21 +501,21 @@ cstr Z80_Disassembler::disassemble( uint ip ) const
 		break;
 	}
 
-    cstr s1 = word[uchar(m[0])]; if(m[1]==0) return s1;
-    cstr s2 = expand_word(m[1],ip);
-    cstr s3 = expand_word(m[2],ip);
+	cstr s1 = word[uchar(m[0])]; if(m[1]==0) return s1;
+	cstr s2 = expand_word(m[1],ip);
+	cstr s3 = expand_word(m[2],ip);
 
-    str s = tempstr( 5 + strlen(s2) + (*s3?1+strlen(s3):0) );
+	str s = tempstr( 5 + strlen(s2) + (*s3?1+strlen(s3):0) );
 
-    strcpy(s,s1);
-    strcat(s,"    ");
-    strcpy(s+5,s2);
+	strcpy(s,s1);
+	strcat(s,"    ");
+	strcpy(s+5,s2);
 
-    if(*s3)
-    {
-        strcat(s,",");
-        strcat(s,s3);
-    };
+	if(*s3)
+	{
+		strcat(s,",");
+		strcat(s,s3);
+	};
 
 	return s;
 }

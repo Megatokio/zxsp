@@ -40,7 +40,7 @@
 #include "TzxData.h"
 #include "TapData.h"
 #include "CswBuffer.h"
-
+#include <cmath>
 
 
 #define dB05	18426				// 32767 / sqrt(10^0.5)
@@ -404,16 +404,16 @@ AudioData::AudioData(CswBuffer const& q, uint32 sps )
 */
 CswBuffer::CswBuffer(AudioData const& qa, uint32 ccps)
 :
-    data(NULL),
-    max(0),
+	data(NULL),
+	max(0),
 	end(0),
 	cc_end(0),
 	ccps(ccps),
-    recording(no),
-    pos(0),
-    cc_pos(0),
-    phase(0),
-    cc_offset(0)
+	recording(no),
+	pos(0),
+	cc_pos(0),
+	phase(0),
+	cc_offset(0)
 {
 	xlogIn("CswBuffer(AudioData)");
 
@@ -528,7 +528,7 @@ CswBuffer::CswBuffer(const int16* samples, uint32 count, uint32 samples_per_seco
 {
 	xlogIn("new CswBuffer(int16[])");
 
-    data = new uint16[count>>4];
+	data = new uint16[count>>4];
 
 	// Definition of silence level
 	// real silence is < -40dB. a data signal is expected to be at least -20dB. (already very faint.)
@@ -618,7 +618,7 @@ a:	i = 0;
 	{
 		i0 = i;				// start of pulse
 
-		assert(neg == samples[i]<=0);
+		assert(neg == (samples[i]<=0));
 
 		if(neg) while(i<count && samples[i]<=0) { i++; }	// find zero crossing
 		else	while(i<count && samples[i]> 0) { i++; }	// find zero crossing
@@ -646,7 +646,7 @@ a:	i = 0;
 			double last_sample = samples[i-1]-null;		// last sample of this pulse
 			double next_sample = samples[i+0]-null;		// first sample of next pulse
 
-			e0 = fabs( last_sample / (last_sample-next_sample) ) - 0.5;
+			e0 = std::fabs( last_sample / (last_sample-next_sample) ) - 0.5;
 		}
 		else	// silence or i==count
 		{

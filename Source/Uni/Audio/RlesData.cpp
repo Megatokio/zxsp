@@ -87,7 +87,6 @@ Notes:
 
 #include <zlib.h>
 #include <math.h>
-#include "unix/tempmem.h"
 #include "StereoSample.h"
 #include "TapeFile.h"
 #include "TapeFileDataBlock.h"
@@ -183,7 +182,7 @@ CswBuffer::CswBuffer(RlesData const& , uint32 ccps)
 :
 	ccps(ccps)
 {
-    TODO();
+	TODO();
 }
 
 
@@ -368,7 +367,7 @@ void RlesData::readFile (cstr /*fpath*/, TapeFile& /*tapeblocks*/) throws
 
 		case 'rles':
 			{
-    			TODO();
+				TODO();
 //				uint32 sps = Peek4Z(q);
 //				xlogline( "rles compressed audio, f=%lu Hz, %lu samples", sps, uint32(len) );
 //				if( sps<8000 || sps>100000 )

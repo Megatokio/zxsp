@@ -28,7 +28,7 @@
 #include "Fdc765.h"
 #include "Machine/Machine.h"
 #include "FloppyDiskDrive.h"
-INIT_MSG
+DEBUG_INIT_MSG
 
 
 enum Command
@@ -61,7 +61,7 @@ enum BitMask
 	msrFdd3Busy = 1<<3,		//		3
 	msrFdcBusy	= 1<<4,		// Controller Busy: A Read or Write command is in process. FDC will not accept any other command.
 							// Dieses Flag wird gesetzt, sobald das erste Byte eines neuen Befehles in's Datenregister geschrieben wurde.
-	 	 					// Es wird erst mit dem Ende der Auswertungsphase wieder zurückgesetzt.
+							// Es wird erst mit dem Ende der Auswertungsphase wieder zurückgesetzt.
 	msrEXM = 1<<5,			// Execution Mode:  Set in Exe Phase in Non-DMA-Mode
 	msrDIO = 1<<6,			// Data direction:  0 = CPU->FDC
 	msrRQM = 1<<7,			// Request for Master: FDC is ready to send or read data from CPU
@@ -701,7 +701,7 @@ read_sector_id:			// ( -- SR0 )
 		GOSUB(read_byte_from_fdd); if(CMD==mRdSecId) track_id = byte;
 		if(byte!=track_id)
 		{
- 			SR0 |= ICaborted;
+			SR0 |= ICaborted;
 			SR1 |= NoData;
 			SR2 |= WrongTrack;
 			if(byte==0xff) SR2 |= BadTrack;

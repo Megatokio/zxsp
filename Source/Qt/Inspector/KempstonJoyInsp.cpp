@@ -27,6 +27,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QGridLayout>
+#include <QPushButton>
 #include "KempstonJoyInsp.h"
 #include "Joy/KempstonJoy.h"
 

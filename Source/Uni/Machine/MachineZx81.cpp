@@ -1,27 +1,27 @@
 /*	Copyright  (c)	Günter Woigk 2008 - 2018
-                    mailto:kio@little-bat.de
+					mailto:kio@little-bat.de
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    Permission to use, copy, modify, distribute, and sell this software and
-    its documentation for any purpose is hereby granted without fee, provided
-    that the above copyright notice appear in all copies and that both that
-    copyright notice and this permission notice appear in supporting
-    documentation, and that the name of the copyright holder not be used
-    in advertising or publicity pertaining to distribution of the software
-    without specific, written prior permission.  The copyright holder makes no
-    representations about the suitability of this software for any purpose.
-    It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software and
+	its documentation for any purpose is hereby granted without fee, provided
+	that the above copyright notice appear in all copies and that both that
+	copyright notice and this permission notice appear in supporting
+	documentation, and that the name of the copyright holder not be used
+	in advertising or publicity pertaining to distribution of the software
+	without specific, written prior permission.  The copyright holder makes no
+	representations about the suitability of this software for any purpose.
+	It is provided "as is" without express or implied warranty.
 
-    THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-    INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
-    EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-    CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
-    DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-    TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-    PERFORMANCE OF THIS SOFTWARE.
+	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
+	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
+	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+	PERFORMANCE OF THIS SOFTWARE.
 */
 
 #include "MachineZx81.h"
@@ -32,7 +32,6 @@
 #include "TapeRecorder.h"
 #include "Ram/Memotech64kRam.h"
 #include "Ram/Zx16kRam.h"
-#include "unix/tempmem.h"
 #include "Audio/O80Data.h"
 #include "Keyboard.h"
 
@@ -130,7 +129,7 @@ bool MachineZx81::handleSaveTapePatch()
 	//reg.i  = 0x1e;
 	//reg.iff1 = reg.iff2 = 0;
 
-    return 1;   // handled
+	return 1;   // handled
 }
 
 bool MachineZx81::handleLoadTapePatch()
@@ -144,14 +143,14 @@ bool MachineZx81::handleLoadTapePatch()
 // test whether the tape recorder can read a block:
 	if(!taperecorder->can_read_block()) return 0;		 // not handled
 
-    Z80Regs& regs = cpu->getRegisters();
-    if(regs.pc != 0x0347) return 0;		// patch address = NEXT-PROG
+	Z80Regs& regs = cpu->getRegisters();
+	if(regs.pc != 0x0347) return 0;		// patch address = NEXT-PROG
 
 a:	O80Data* bu = taperecorder->getZx80Block();
 	if(!bu) return 0;					// not handled
 	uint32 sz = bu->count(); uint8* data = bu->getData();
-    assert(sz>0);
-    assert(bu->trust_level >= TapeData::truncated_data_error);
+	assert(sz>0);
+	assert(bu->trust_level >= TapeData::truncated_data_error);
 
 // compare program name (DE++)
 // the ZX81 compares the first bytes from tape against the desired program name
@@ -161,18 +160,18 @@ a:	O80Data* bu = taperecorder->getZx80Block();
 	uint   l  = progname_len(data,sz);
 	uint16 de = regs.de;		// de -> program name
 	if((de&0x8000)==0)			// except if d.bit7==1
-        // && data[0]!=0x80 )	// except if file has no filename stored: .p and .81 files
+		// && data[0]!=0x80 )	// except if file has no filename stored: .p and .81 files
 	{
 		for(uint i=0;i<l;i++) { if(cpu->peek(de+i)!=data[i]) goto a; }
 	}
 	data += l; sz -= l;			// omit prog name
 
 // calculate length of actually loaded data:
-    uint end = sz<=0x4015-0x4009 ? 0x4009 + sz : peek2Z(data+0x4014-0x4009);
-    uint len = min(sz,max(end,0x4015u)-0x4009u);
+	uint end = sz<=0x4015-0x4009 ? 0x4009 + sz : peek2Z(data+0x4014-0x4009);
+	uint len = min(sz,max(end,0x4015u)-0x4009u);
 
 // copy data to ram:
-    cpu->copyBufferToRam(data,0x4009,len);
+	cpu->copyBufferToRam(data,0x4009,len);
 
 // detect errors:
 	if(bu->isZX80())
@@ -193,16 +192,16 @@ a:	O80Data* bu = taperecorder->getZx80Block();
 		showWarning("Data corrupted: data is too short: len < ($4014)-$4009");
 		return 1;
 	}
-    if(end>0x4000+ram.count())
-    {
+	if(end>0x4000+ram.count())
+	{
 		showWarning("Programme did not fit in ram.\nProgramme size = %u bytes", uint(end-0x4000));
 	}
-    else if(end>regs.sp)
-    {
+	else if(end>regs.sp)
+	{
 		showInfo("Note: The machine stack was overwritten by the data");
 	}
-    else if(end+256>0x4000+ram.count())
-    {
+	else if(end+256>0x4000+ram.count())
+	{
 		showWarning("Programme uses almost all ram and may require more ram to run.");
 	}
 
@@ -235,7 +234,7 @@ void MachineZx81::saveP81(FD &fd, bool p81) noexcept(false) /*file_error,data_er
 
 // write to file:
 	if(p81) fd.write_bytes(data,cnt+1);
-    else fd.write_bytes(data+1,cnt);
+	else fd.write_bytes(data+1,cnt);
 }
 
 void MachineZx81::loadP81(FD &fd, bool p81) noexcept(false) /*file_error,data_error*/
@@ -259,7 +258,7 @@ void MachineZx81::loadP81(FD &fd, bool p81) noexcept(false) /*file_error,data_er
 	if(p81) while( ++pnamelen <= 127 && fd.read_uint8() < 0x80 ){}
 
 // get actual data size:
-    uint len = fd.file_remaining();
+	uint len = fd.file_remaining();
 	if(len>0x15-0x09)
 	{
 		fd.skip_bytes(0x14-0x09);
@@ -272,13 +271,13 @@ void MachineZx81::loadP81(FD &fd, bool p81) noexcept(false) /*file_error,data_er
 // note: MachineController must update the menu entries!
 	if(len+MIN_FREE_16k>ram.count() && len+MIN_FREE_16k>16 kB)
 	{
-        delete findIsaItem(isa_ExternalRam);
-        new Memotech64kRam(this);
+		delete findIsaItem(isa_ExternalRam);
+		new Memotech64kRam(this);
 	}
 	else if(ram.count()<16 kB && len+MIN_FREE_4k>ram.count())
 	{
-        delete findIsaItem(isa_ExternalRam);
-        new Zx16kRam(this);
+		delete findIsaItem(isa_ExternalRam);
+		new Zx16kRam(this);
 	}
 
 	// we need to power on the machine but it must not runForSound()
@@ -300,25 +299,25 @@ void MachineZx81::loadP81(FD &fd, bool p81) noexcept(false) /*file_error,data_er
 // setup registers for 'success':
 // Aussprungstelle der "Alle Bytes geladen?" Testroutine:
 // version 2 'improved' rom:
-    Z80Regs& regs = cpu->getRegisters();
+	Z80Regs& regs = cpu->getRegisters();
 
-    regs.pc = SLOW_FAST;
-    regs.sp = 0x4000+ramsize;
-    cpu->push2(0x3e00);			// always
-    cpu->push2(0x0676);			// always
-    regs.bc = 0x0080;			// always
-    regs.de = 0xffff;			// always
-    regs.ix = 0x0281;			// TODO: nötig?
-    regs.iy = 0x4000;			// must be
-    regs.de2 = 0x002b;			// TODO: nötig?
-    regs.im = 1;				// must be
-    regs.i  = 0x1e;				// must be
-    regs.iff1 =					// must be
-    regs.iff2 = disabled;		// must be
+	regs.pc = SLOW_FAST;
+	regs.sp = 0x4000+ramsize;
+	cpu->push2(0x3e00);			// always
+	cpu->push2(0x0676);			// always
+	regs.bc = 0x0080;			// always
+	regs.de = 0xffff;			// always
+	regs.ix = 0x0281;			// TODO: nötig?
+	regs.iy = 0x4000;			// must be
+	regs.de2 = 0x002b;			// TODO: nötig?
+	regs.im = 1;				// must be
+	regs.i  = 0x1e;				// must be
+	regs.iff1 =					// must be
+	regs.iff2 = disabled;		// must be
 
 // load data:
-    uint8 data[len];
-    fd.read_bytes(data,len);	// throws
+	uint8 data[len];
+	fd.read_bytes(data,len);	// throws
 	cpu->copyBufferToRam(data,0x4009,len);
 
 // show possible issues:
@@ -327,13 +326,13 @@ void MachineZx81::loadP81(FD &fd, bool p81) noexcept(false) /*file_error,data_er
 		regs.pc = BREAK_CONT_REPEATS;
 		showWarning("Data corrupted: data is too short: len < sysvars");
 	}
-    else if(0x4009+len<cpu->peek2(0x4014))
-    {
+	else if(0x4009+len<cpu->peek2(0x4014))
+	{
 		regs.pc = BREAK_CONT_REPEATS;
 		showWarning("Data corrupted: data is too short: len < ($4014)-$4009");
 	}
-    else if(0x4009+len>cpu->getRegisters().sp)
-    {
+	else if(0x4009+len>cpu->getRegisters().sp)
+	{
 		showInfo("Note: The machine stack was overwritten by the data");
 	}
 }
@@ -373,42 +372,42 @@ void MachineZx81::loadP81(FD &fd, bool p81) noexcept(false) /*file_error,data_er
 		.p81 files:			start with the 1..127 bytes filename, last byte ORed with $80
 
 
-    LOAD TAPE Routine
-    -----------------
+	LOAD TAPE Routine
+	-----------------
 
-        in:		DE -> fname				except if D.bit7=1  =>  load any file
-        Patch is placed at 0x0347.
+		in:		DE -> fname				except if D.bit7=1  =>  load any file
+		Patch is placed at 0x0347.
 
-    L0340:  CALL    L03A8           ; routine NAME  ->  DE points to start of name in RAM.
-            RL      D               ; pick up carry
-            RRC     D               ; carry now in bit 7.
-    ;; NEXT-PROG
-    L0347:  CALL    L034C           ; routine IN-BYTE		<-- patch must be applied here
-            JR      L0347           ; loop to NEXT-PROG
+	L0340:  CALL    L03A8           ; routine NAME  ->  DE points to start of name in RAM.
+			RL      D               ; pick up carry
+			RRC     D               ; carry now in bit 7.
+	;; NEXT-PROG
+	L0347:  CALL    L034C           ; routine IN-BYTE		<-- patch must be applied here
+			JR      L0347           ; loop to NEXT-PROG
 
-    Registers on success:
+	Registers on success:
 
-        Aussprungstelle der "Alle Bytes geladen?" Testroutine:
-        version 2 'improved' rom:
+		Aussprungstelle der "Alle Bytes geladen?" Testroutine:
+		version 2 'improved' rom:
 
-    *   regs.pc = 0x0207;
-        regs.sp = 0x4000+ramsize;   preserved
-        cpu.push2(0x3e00);
-        cpu.push2(0x0676);
-        reg.af =					egal: will be overwritten in $020A
-    *	regs.bc = 0x0080;
-    *	regs.de = 0xffff;
-        reg.hl =					egal: will be overwritten in $0207
-        reg.ix =					preserved
-        reg.iy = 0x4000;			preserved
-        reg.af2 = 0x0000 or 4e81	egal
-        reg.bc2 =					preserved
-        reg.de2 = 0x002b;			preserved
-        reg.hl2 =					preserved
-        reg.im = 1;                 preserved
-        reg.i  = 0x1e;              preserved
-        reg.r  = 0xa6;              egal
-        reg.iff1 = reg.iff2 = 0;	preserved
+	*   regs.pc = 0x0207;
+		regs.sp = 0x4000+ramsize;   preserved
+		cpu.push2(0x3e00);
+		cpu.push2(0x0676);
+		reg.af =					egal: will be overwritten in $020A
+	*	regs.bc = 0x0080;
+	*	regs.de = 0xffff;
+		reg.hl =					egal: will be overwritten in $0207
+		reg.ix =					preserved
+		reg.iy = 0x4000;			preserved
+		reg.af2 = 0x0000 or 4e81	egal
+		reg.bc2 =					preserved
+		reg.de2 = 0x002b;			preserved
+		reg.hl2 =					preserved
+		reg.im = 1;                 preserved
+		reg.i  = 0x1e;              preserved
+		reg.r  = 0xa6;              egal
+		reg.iff1 = reg.iff2 = 0;	preserved
 
 
 	SAVE TAPE Routine

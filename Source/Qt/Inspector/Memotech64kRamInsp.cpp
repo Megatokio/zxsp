@@ -28,6 +28,7 @@
 #include <QLabel>
 #include <QAction>
 #include <QComboBox>
+#include <QPushButton>
 #include <QVariant>
 #include <QSettings>
 #include <QList>
@@ -46,7 +47,7 @@ static uint dipsw[5] = {8,4,2,6,1};  // {0b1000,0b0100,0b0010,0b0110,0b0001};
 
 Memotech64kRamInsp::Memotech64kRamInsp(QWidget* p, MachineController* mc, volatile IsaObject* item)
 :
-    Inspector(p,mc,item,"/Images/memopak64k.jpg")
+	Inspector(p,mc,item,"/Images/memopak64k.jpg")
 {
 	assert(object->isA(isa_Memotech64kRam));
 

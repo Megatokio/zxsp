@@ -1,15 +1,40 @@
-QT += network opengl multimedia
+cache()
+
 TARGET   = zxsp
 TEMPLATE = app
-CONFIG(release,debug|release) { DEFINES += NDEBUG } # ATTN: curly brace must start in same line!
-CONFIG += c++11 precompile_header
-PRECOMPILED_HEADER = Source/Uni/precompiled_header.h
-DEFINES += QT_NO_SESSIONMANAGER
-QMAKE_MAC_SDK = macosx10.9
 
-LIBS += -framework CoreAudio -framework ApplicationServices -framework IOKit -framework AudioToolbox -lz
+QT += core gui
+QT += network opengl multimedia
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+# http://qt-project.org/faq/answer/what_does_the_syntax_configdebugdebugrelease_mean_what_does_the_1st_argumen
+CONFIG(release,debug|release) { DEFINES += NDEBUG RELEASE } # ATTN: curly brace must start in same line!
+CONFIG(debug,debug|release) { DEFINES += DEBUG } # ATTN: curly brace must start in same line!
+
+CONFIG += c++11
+CONFIG += precompiled_header
+PRECOMPILED_HEADER = Source/Uni/precompiled_header.h
+
+DEFINES += QT_NO_SESSIONMANAGER
 
 RESOURCES += Resources/zxsp.qrc
+
+
+
+#win32{}
+#unix{}
+#macx{}
+#unix:!macx{}
+#linux-g++{}
+#unix:!macx: LIBS += -L/usr/lib/x86_64-linux-gnu/ -lcurl
+#linux-g++ {LIBS += -pthread}
+
+macx: QMAKE_MAC_SDK = macosx10.9
+macx: LIBS += -framework CoreAudio -framework ApplicationServices -framework IOKit -framework AudioToolbox -lz
+unix:!macx: LIBS += -pthread -lz
+
+
+
 
 INCLUDEPATH += \
 	Source \
@@ -24,6 +49,21 @@ INCLUDEPATH += \
 	Libraries \
 	zasm/Source \
 
+
+macx: SOURCES += \
+	Source/Mac/Joystick.cpp \
+	Source/Mac/USB/UsbJoystick.cpp \
+	Source/Mac/Dsp.cpp \
+	Source/Mac/Mouse.cpp \
+	Source/Mac/USB/UsbDevice.cpp \
+	Source/Mac/mac_util.cpp \
+	Libraries/audio/AudioDecoder.cpp \
+
+
+unix:!macx: SOURCES += \
+	Source/Linux/missing_definitions.cpp \
+
+
 SOURCES +=	\
 	Libraries/kio/exceptions.cpp \
 	Libraries/cstrings/cstrings.cpp \
@@ -36,12 +76,11 @@ SOURCES +=	\
 	Libraries/kio/kio.cpp \
 	Libraries/unix/log.cpp \
 	Libraries/unix/os_utilities.cpp \
-	Libraries/unix/tempmem.cpp \
+	Libraries/cstrings/tempmem.cpp \
 	Libraries/cpp/cppthreads.cpp \
 	Libraries/unix/FD.cpp \
 	Libraries/unix/files.cpp \
 	Libraries/unix/n-compress.cpp \
-	Libraries/audio/AudioDecoder.cpp \
 	Libraries/kio/TestTimer.cpp \
 	Libraries/audio/audio.cpp \
 	Libraries/audio/WavFile.cpp \
@@ -61,11 +100,6 @@ SOURCES +=	\
 	Libraries/Z80/goodies/z80_clock_cycles.cpp \
 	Libraries/Z80/goodies/z80_opcode_length.cpp \
 	Libraries/Z80/goodies/z80_major_opcode.cpp \
-	\
-	Source/Mac/Joystick.cpp \
-	Source/Mac/USB/UsbJoystick.cpp \
-	Source/Mac/Dsp.cpp \
-	Source/Mac/Mouse.cpp \
 	\
 	Source/Qt/qt_util.cpp \
 	Source/Qt/Settings.cpp \
@@ -259,8 +293,6 @@ SOURCES +=	\
 	Source/Uni/Items/SP0256.cpp \
 	Source/Uni/Items/Multiface/Multiface.cpp \
 	Source/Qt/Inspector/MultifaceInsp.cpp \
-	Source/Mac/USB/UsbDevice.cpp \
-	Source/Mac/mac_util.cpp \
 	Source/Uni/Items/Fdc/SmartSDCard.cpp \
 	Source/Qt/Inspector/SmartSDCardInspector.cpp \
 	Source/Uni/Items/MassStorage.cpp \
@@ -274,6 +306,8 @@ SOURCES +=	\
 	Source/Uni/Files/bestModelForFile.cpp
 
 HEADERS += \
+	Libraries/kio/auto_config.h \
+	Libraries/kio/detect_configuration.h \
 	settings.h \
 	\
 	Libraries/kio/kio.h \
@@ -286,7 +320,7 @@ HEADERS += \
 	Libraries/kio/util/count1bits.h \
 	\
 	Libraries/unix/log.h \
-	Libraries/unix/tempmem.h \
+	Libraries/cstrings/tempmem.h \
 	Libraries/cpp/cppthreads.h \
 	Libraries/unix/os_utilities.h \
 	Libraries/unix/FD.h \
@@ -537,7 +571,6 @@ HEADERS += \
 	Source/Uni/Files/FloppyDisk.h \
 	Source/Uni/Files/TccRom.h \
 	\
-	Source/Uni/config.h \
 	Source/Uni/custom_errors.h \
 	Source/Uni/Language.h \
 	Source/Uni/globals.h \

@@ -26,6 +26,7 @@
 
 #include <QtGui>
 #include <QGridLayout>
+#include <QPushButton>
 #include "SinclairJoyInsp.h"
 #include "Joy/SinclairJoy.h"
 #include "Joystick.h"
@@ -46,7 +47,7 @@ SinclairJoyInsp::SinclairJoyInsp(QWidget* w, MachineController* mc, volatile Isa
 {
 	assert(object->isA(isa_SinclairJoy));
 
-    if(j->isA(isa_ZxIf2)) return;       // ZxIf2 macht sein eigenes Layout
+	if(j->isA(isa_ZxIf2)) return;       // ZxIf2 macht sein eigenes Layout
 
 	QGridLayout* g = new QGridLayout(this);
 	g->setContentsMargins(10,10,10,5);

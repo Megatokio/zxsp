@@ -28,6 +28,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QGridLayout>
+#include <QPushButton>
 #include "Tk85JoyInsp.h"
 
 Tk85JoyInsp::Tk85JoyInsp(QWidget*p, MachineController* mc, volatile IsaObject *j)

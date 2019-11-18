@@ -27,6 +27,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QGridLayout>
+#include <QPushButton>
 #include "Tc2048JoyInsp.h"
 #include "Joy/Tc2048Joy.h"
 

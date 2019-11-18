@@ -90,7 +90,6 @@
 #include "Files/RzxFile.h"
 #include "Joystick.h"
 #include "Dialogs/ConfigureKeyboardJoystickDialog.h"
-#include "unix/tempmem.h"
 #include "MemObject.h"
 
 

@@ -26,6 +26,7 @@
 
 #include <QtGui>
 #include <QComboBox>
+#include <QPushButton>
 #include "JoyInsp.h"
 #include "Joy/Joy.h"
 #include "Joystick.h"
@@ -37,7 +38,7 @@
 JoyInsp::JoyInsp( QWidget* w, MachineController* mc, volatile IsaObject*j, cstr imgpath )
 : Inspector(w,mc,j,imgpath)
 {
- 	assert(object->isA(isa_Joy));
+	assert(object->isA(isa_Joy));
 
 	num_ports = joy()->getNumPorts();
 	xlogIn("new JoyInsp for %s (%i ports)", object->name, num_ports);
@@ -53,7 +54,7 @@ JoyInsp::JoyInsp( QWidget* w, MachineController* mc, volatile IsaObject*j, cstr 
 		lineedit_display[i]->setReadOnly(yes);
 		lineedit_display[i]->setMinimumWidth(100);
 		joystick_selectors[i] = new QComboBox(this);
-        joystick_selectors[i]->setFocusPolicy(Qt::NoFocus);
+		joystick_selectors[i]->setFocusPolicy(Qt::NoFocus);
 		joystick_selectors[i]->setMinimumWidth(80);
 		connect(joystick_selectors[i], static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
 				this, &JoyInsp::joystick_selected);

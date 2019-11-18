@@ -26,6 +26,7 @@
 
 #include <QGridLayout>
 #include <QComboBox>
+#include <QPushButton>
 #include "DktronicsDualJoyInsp.h"
 #include "Item.h"
 

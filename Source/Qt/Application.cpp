@@ -29,7 +29,6 @@
 #include <QtGui>
 #include <QPainter>
 #include <QNetworkAccessManager>
-#include "unix/tempmem.h"
 #include "unix/files.h"
 #include "unix/FD.h"
 #include "Dsp.h"
@@ -64,8 +63,8 @@ class MyProxyStyle : public QProxyStyle
 {
 	int styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w, QStyleHintReturn *hret) const
 	{
-	 	int result = QProxyStyle::styleHint(sh, opt, w, hret);
-	  	return sh == QStyle::SH_ScrollBar_LeftClickAbsolutePosition ? 0 : result;
+		int result = QProxyStyle::styleHint(sh, opt, w, hret);
+		return sh == QStyle::SH_ScrollBar_LeftClickAbsolutePosition ? 0 : result;
 	}
 };
 #endif
@@ -229,6 +228,7 @@ int main( int argc, char *argv[] )
 {
 	logline("\nWelcome to zxsp\n");		// no LogIn() because indentation would last forever
 
+#ifdef _MACOSX
 	extern double kCFCoreFoundationVersionNumber;	// CFBase.h
 	// 299 ~ 10.3
 	// 368 ~ 10.4
@@ -236,6 +236,7 @@ int main( int argc, char *argv[] )
 	// 744 ~ 10.8 Mountain Lion
 	// 855 ~ 10.9 Maverics
 	logline("  Core Foundation version: %.2lf",kCFCoreFoundationVersionNumber);
+#endif
 
 	logline("  Qt version: %s (0x%06X)",QT_VERSION_STR,QT_VERSION);
 
@@ -280,9 +281,9 @@ int main( int argc, char *argv[] )
 	assert( peek4X(abcd)=='abcd' );
 	assert( peek4Z(abcd)=='dcba' );
 
-#ifndef _STDINT_H_
-	ABORT("_STDINT_H_ not defined <-> stdint.h not included");
-#endif
+//#ifndef _STDINT_H_
+//	ABORT("_STDINT_H_ not defined <-> stdint.h not included");			why?
+//#endif
 
 // the following generates no code: (except if library functions are broken!)
 	assert( count1bits( int(0x01020304)    ) == 5 );

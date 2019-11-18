@@ -30,7 +30,6 @@
 #include "Settings.h"
 #include "Z80Head.h"
 #include "RzxFile.h"
-#include "unix/tempmem.h"
 #include "zasm/Source/Z80Assembler.h"
 
 

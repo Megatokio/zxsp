@@ -25,6 +25,7 @@
 */
 
 #include <QLabel>
+#include <QPushButton>
 #include <QComboBox>
 #include <QGridLayout>
 #include "CursorJoyInsp.h"
@@ -39,8 +40,8 @@ CursorJoyInsp::CursorJoyInsp(QWidget*w, MachineController* mc, volatile IsaObjec
 
 	QLabel* label = new QLabel("Buttons:");
 
-    lineedit_display[0]->setMinimumWidth(110);
-    lineedit_display[0]->setText("%-----:-----");
+	lineedit_display[0]->setMinimumWidth(110);
+	lineedit_display[0]->setText("%-----:-----");
 
 	QGridLayout* g = new QGridLayout(this);
 	g->setContentsMargins(10,10,10,5);

@@ -27,7 +27,6 @@
 #include <QLabel>
 #include <QGridLayout>
 #include <QTimer>
-#include "unix/tempmem.h"
 #include "Z80Insp.h"
 #include "Z80/Z80.h"
 #include "Machine.h"
@@ -165,7 +164,7 @@ void Z80Insp::updateWidgets()
 	if(cpu->cpuCycle()!=value.cc)
 	{
 		value.cc = cpu->cpuCycle();
-        cc->setText(tostr(value.cc));
+		cc->setText(tostr(value.cc));
 	}
 
 	if(machine->cpu_clock!=value.clock)
@@ -189,7 +188,7 @@ void Z80Insp::return_pressed_in_lineedit(MyLineEdit* led)
 {
 	xlogIn("Z80Insp::returnPressed");
 
-    //MyLineEdit* led = dynamic_cast<MyLineEdit*>(QObject::sender());
+	//MyLineEdit* led = dynamic_cast<MyLineEdit*>(QObject::sender());
 	cstr text = led->text().toUtf8().data();
 	uint32 n = intValue(text);
 
@@ -261,8 +260,8 @@ void Z80Insp::return_pressed_in_lineedit(MyLineEdit* led)
 
 			value.cc = cpu->cpuCycle();
 			cstr s = tostr(value.cc);
-	        cc->setText(s);
-	        cc->QLineEdit::setText(s);	// wg. Kbd Fokus wird der Text sonst nicht aktualisiert
+			cc->setText(s);
+			cc->QLineEdit::setText(s);	// wg. Kbd Fokus wird der Text sonst nicht aktualisiert
 		}
 	}
 

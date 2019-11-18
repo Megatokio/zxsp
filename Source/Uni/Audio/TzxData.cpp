@@ -28,14 +28,12 @@
 #define SAFETY 1
 #include <zlib.h>
 #include <math.h>
-#include "unix/tempmem.h"
 #include "TapeFile.h"
 #include "TzxData.h"
 #include "RlesData.h"
 #include "TapData.h"
 #include "O80Data.h"
 #include "TapeFileDataBlock.h"
-#include "unix/tempmem.h"
 #include "kio/standard_types.h"
 #include "kio/util/count1bits.h"
 #include "globals.h"

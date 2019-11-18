@@ -1,27 +1,28 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 1995 - 2018
-  					mailto:kio@little-bat.de
+					mailto:kio@little-bat.de
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
- 	Permission to use, copy, modify, distribute, and sell this software and
- 	its documentation for any purpose is hereby granted without fee, provided
- 	that the above copyright notice appear in all copies and that both that
- 	copyright notice and this permission notice appear in supporting
- 	documentation, and that the name of the copyright holder not be used
- 	in advertising or publicity pertaining to distribution of the software
- 	without specific, written prior permission.  The copyright holder makes no
- 	representations about the suitability of this software for any purpose.
- 	It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software and
+	its documentation for any purpose is hereby granted without fee, provided
+	that the above copyright notice appear in all copies and that both that
+	copyright notice and this permission notice appear in supporting
+	documentation, and that the name of the copyright holder not be used
+	in advertising or publicity pertaining to distribution of the software
+	without specific, written prior permission.  The copyright holder makes no
+	representations about the suitability of this software for any purpose.
+	It is provided "as is" without express or implied warranty.
 
- 	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- 	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- 	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- 	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- 	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- 	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- 	PERFORMANCE OF THIS SOFTWARE.
+	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
+	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
+	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+	PERFORMANCE OF THIS SOFTWARE.
 */
 
 #include "MmuZx80.h"
@@ -38,7 +39,7 @@ static CoreByte zx80_crtc_nomem[CPU_PAGESIZE];
 
 ON_INIT([]
 {
-    xlogline("init zx80_crtc_nomem");
+	xlogline("init zx80_crtc_nomem");
 	CoreByte *p = zx80_crtc_nomem, *e = p+CPU_PAGESIZE;
 	while(p<e) { *p++ = cpu_crtc_zx81 | 0x00ff; }	// flag + idle bus value
 });
@@ -62,10 +63,10 @@ void MmuZx80::mapMem()
 	cpu->unmapAllMemory();
 
 // 0x0000 - 0x3FFF: ROM
-    cpu->mapRom(0/*addr*/,4 kB/*size*/,&rom[0],NULL,0);
-    switch(rom.count()/(2 kB))
-    {
-    case 2:	// 4kB
+	cpu->mapRom(0/*addr*/,4 kB/*size*/,&rom[0],NULL,0);
+	switch(rom.count()/(2 kB))
+	{
+	case 2:	// 4kB
 			cpu->mapRom(4 kB,4 kB,&rom[0],NULL,0); // mirror rom
 			break;
 	case 5:	// 10 kB
@@ -83,7 +84,7 @@ void MmuZx80::mapMem()
 			break;
 	default:
 			IERR();
-    }
+	}
 
 
 // 0x8000-0xFFFF: preset unattached memory: cpu_crtc_zx81 = cpu liest NOP statt opcode
@@ -97,9 +98,9 @@ void MmuZx80::mapMem()
 // ZX81 internal 1kB: ?
 // ZX81 U.S. internal 2kB: ?
 // Bei Anschluss des Sinclair 1-3k Ram ergibt sich wohl ein 4k Raster
-    uint sz = ram.count();
+	uint sz = ram.count();
 	cpu->mapRam( 0x4000, min(sz,0xC000u), ram.getData(), NULL, 0 );
-    if(ram.count()<0x1000 && ram.count()!=0x400) sz = 0x1000;    // 4 kB
+	if(ram.count()<0x1000 && ram.count()!=0x400) sz = 0x1000;    // 4 kB
 
 // Speicher spiegeln:
 	for( uint32 i=0x4000+sz; i<0x8000; i+= CPU_PAGESIZE )
