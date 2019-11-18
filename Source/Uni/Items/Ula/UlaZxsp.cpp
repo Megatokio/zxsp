@@ -1,27 +1,19 @@
-/*	Copyright  (c)	Günter Woigk 1995 - 2018
-  					mailto:kio@little-bat.de
+/*	Copyright  (c)	Günter Woigk 1995 - 2019
+					mailto:kio@little-bat.de
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This file is free software.
 
- 	Permission to use, copy, modify, distribute, and sell this software and
- 	its documentation for any purpose is hereby granted without fee, provided
- 	that the above copyright notice appear in all copies and that both that
- 	copyright notice and this permission notice appear in supporting
- 	documentation, and that the name of the copyright holder not be used
- 	in advertising or publicity pertaining to distribution of the software
- 	without specific, written prior permission.  The copyright holder makes no
- 	representations about the suitability of this software for any purpose.
- 	It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software
+	and its documentation for any purpose is hereby granted without fee,
+	provided that the above copyright notice appears in all copies and
+	that both that copyright notice, this permission notice and the
+	following disclaimer appear in supporting documentation.
 
- 	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- 	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- 	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- 	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- 	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- 	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- 	PERFORMANCE OF THIS SOFTWARE.
+	THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY,
+	NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR
+	A PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE COPYRIGHT HOLDER
+	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
+	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
 /*	waitstates for any i/o:
@@ -93,7 +85,7 @@ UlaZxsp::UlaZxsp (Machine* m, isa_id id, cstr oaddr, cstr iaddr)
 	xlogIn("new UlaZxsp");
 
 	assert(sizeof(waitmap) == MAX_BYTES_PER_LINE * cc_per_byte);
-    assert(screen && screen->isA(isa_ScreenZxsp));
+	assert(screen && screen->isA(isa_ScreenZxsp));
 	assert(video_ram == ram.getData());		// current video ram
 	m->cpu_options |= cpu_floating_bus;
 }
@@ -151,7 +143,7 @@ void UlaZxsp::powerOn(int32 cc)
 void UlaZxsp::setupTiming()
 {
 // validate settings.:
-    static_assert(cc_per_byte == 4, "cc_per_byte must be 4");
+	static_assert(cc_per_byte == 4, "cc_per_byte must be 4");
 	assert(uint(cc_per_line) <= NELEM(waitmap));
 	assert(cc_per_line >= MIN_BYTES_PER_LINE * cc_per_byte);
 	assert(lines_before_screen >= MIN_LINES_BEFORE_SCREEN);
@@ -319,10 +311,10 @@ void UlaZxsp::output( Time now, int32 cc, uint16 addr, uint8 byte )
 	ula_out_byte = byte;
 
 // --- TAPE ---
-    if((x&MIC_OUT_MASK) && machine->taperecorder->isRecording())
-    {
-        machine->taperecorder->output(cc,~byte&MIC_OUT_MASK);
-    }
+	if((x&MIC_OUT_MASK) && machine->taperecorder->isRecording())
+	{
+		machine->taperecorder->output(cc,~byte&MIC_OUT_MASK);
+	}
 
 // --- BEEPER ---
 	if(x & (MIC_OUT_MASK|EAR_OUT_MASK))
@@ -519,10 +511,10 @@ void UlaZxsp::loadFromFile( FD& fd ) noexcept(false) /*file_error,bad_alloc*/
 	Diese Funktion passt für 48K Spectrums und TK90x/TK95
 Chilenischer NTSC Spectrum:
 	The CPU is clocked at 3.5275 MHz
-    One frame lasts 0xe700 (59136) tstates, giving a frame rate of 3.5275×106 / 59136 = 59.65 Hz
-    224 tstates per line implies 264 lines per frame.
-    The first contended cycle is at 0x22ff (8959). This implies 40 lines of upper border, 192 lines of picture and 32 lines of lower border/retrace.
-    The contention pattern is confirmed as being the same 6,5,4,3,2,1,0,0 as on the 48K machine.
+	One frame lasts 0xe700 (59136) tstates, giving a frame rate of 3.5275×106 / 59136 = 59.65 Hz
+	224 tstates per line implies 264 lines per frame.
+	The first contended cycle is at 0x22ff (8959). This implies 40 lines of upper border, 192 lines of picture and 32 lines of lower border/retrace.
+	The contention pattern is confirmed as being the same 6,5,4,3,2,1,0,0 as on the 48K machine.
 */
 void UlaTk90x::set60Hz(bool is60hz)
 {

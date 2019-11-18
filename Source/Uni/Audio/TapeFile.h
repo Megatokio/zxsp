@@ -1,27 +1,19 @@
-/*	Copyright  (c)	Günter Woigk 2000 - 2018
+/*	Copyright  (c)	Günter Woigk 2000 - 2019
 					mailto:kio@little-bat.de
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This file is free software.
 
-	Permission to use, copy, modify, distribute, and sell this software and
-	its documentation for any purpose is hereby granted without fee, provided
-	that the above copyright notice appear in all copies and that both that
-	copyright notice and this permission notice appear in supporting
-	documentation, and that the name of the copyright holder not be used
-	in advertising or publicity pertaining to distribution of the software
-	without specific, written prior permission.  The copyright holder makes no
-	representations about the suitability of this software for any purpose.
-	It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software
+	and its documentation for any purpose is hereby granted without fee,
+	provided that the above copyright notice appears in all copies and
+	that both that copyright notice, this permission notice and the
+	following disclaimer appear in supporting documentation.
 
-	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
-	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
-	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-	PERFORMANCE OF THIS SOFTWARE.
+	THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY,
+	NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR
+	A PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE COPYRIGHT HOLDER
+	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
+	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 
 
 	class TapeFile
@@ -77,15 +69,15 @@ note:
 
 
 /*  Manage a tape file
-    not re-entrant!
-    tapes are split in TapeFileDataBlocks
-    TapeFileDataBlocks are stored in data[]
-    pos points to the current block
+	not re-entrant!
+	tapes are split in TapeFileDataBlocks
+	TapeFileDataBlocks are stored in data[]
+	pos points to the current block
 
-    last block must always be empty except while recording into it
-    => data[] always contains at least one block
-    => pos always points to an existing block
-    => cached values are always valid
+	last block must always be empty except while recording into it
+	=> data[] always contains at least one block
+	=> pos always points to an existing block
+	=> cached values are always valid
 */
 
 
@@ -95,20 +87,20 @@ class TapeFile : protected Array<TapeFileDataBlock*>
 	using	Array<TapeFileDataBlock*>::cnt;		// make cnt and data visible
 	using	Array<TapeFileDataBlock*>::data;
 
-    cstr	filepath;				// allocated
-    uint32	machine_ccps;			// cc per second
-    bool	write_protected;
-    bool	modified;
-    enum State { stopped=0, playing, recording };
-    State	mode;
+	cstr	filepath;				// allocated
+	uint32	machine_ccps;			// cc per second
+	bool	write_protected;
+	bool	modified;
+	enum State { stopped=0, playing, recording };
+	State	mode;
 
 	uint        pos;                // aktueller Block in data[]
 	// cached values:
-    TapeFileDataBlock* current_block; // aktueller Block; secondary pointer
+	TapeFileDataBlock* current_block; // aktueller Block; secondary pointer
 	CswBuffer*  blk_cswbuffer;      // aktueller Block; secondary pointer
-    uint32      blk_cc_size;        // aktueller Block; block size in tapeblock_cc's
-    Time        blk_starttime;      // aktueller Block;
-    uint32      blk_cc_offset;      // aktueller Block; cc_base in tapeblock_cc's; valid during play/record
+	uint32      blk_cc_size;        // aktueller Block; block size in tapeblock_cc's
+	Time        blk_starttime;      // aktueller Block;
+	uint32      blk_cc_offset;      // aktueller Block; cc_base in tapeblock_cc's; valid during play/record
 
 	// while recording:
 	bool		current_phase;
@@ -118,9 +110,9 @@ class TapeFile : protected Array<TapeFileDataBlock*>
 private:
 	void	purge()					{ while(cnt) delete data[--cnt]; Array<TapeFileDataBlock*>::purge(); }
 	void	remove(uint i)			{ assert(i<cnt); delete data[i]; Array<TapeFileDataBlock*>::remove(i); }
-    void	update_blk_info();
-    void    goto_block(uint i)		{ pos = i; update_blk_info(); }
-    void	append_empty_block();
+	void	update_blk_info();
+	void    goto_block(uint i)		{ pos = i; update_blk_info(); }
+	void	append_empty_block();
 	void	insert_empty_block(uint i);
 
 
@@ -138,10 +130,10 @@ public:
 	TapeFile& operator=(const TapeFile&) = delete;
 	virtual ~TapeFile();
 
-    bool        isStopped           () volatile const noexcept	{ return mode==stopped; }
-    bool        isRunning           () volatile const noexcept	{ return mode!=stopped; }
-    bool        isPlaying           () volatile const noexcept	{ return mode==playing; }
-    bool        isRecording         () volatile const noexcept	{ return mode==recording; }
+	bool        isStopped           () volatile const noexcept	{ return mode==stopped; }
+	bool        isRunning           () volatile const noexcept	{ return mode!=stopped; }
+	bool        isPlaying           () volatile const noexcept	{ return mode==playing; }
+	bool        isRecording         () volatile const noexcept	{ return mode==recording; }
 	bool		isModified			() volatile const noexcept	{ return modified; }
 
 	bool		isWriteProtected	() volatile const noexcept	{ return write_protected; }
@@ -153,9 +145,9 @@ public:
 	void		stop				(uint32 cc);
 	void		startRecording		(uint32 cc);
 	void		startPlaying		(uint32 cc);
-    bool        input               (uint32 cc);                // MUST be playing
-    void        output              (uint32 cc, bool bit);      // MUST be recording
-    void        videoFrameEnd       (int32 cc);                 // MUST be playing or recording
+	bool        input               (uint32 cc);                // MUST be playing
+	void        output              (uint32 cc, bool bit);      // MUST be recording
+	void        videoFrameEnd       (int32 cc);                 // MUST be playing or recording
 
 // record/playback with system samples_per_second
 //	void		play				( StereoSample* buffer, int count );
@@ -198,7 +190,7 @@ public:
 	void		seekStartOfNextBlock();			// MUST be stopped; goto start of next block
 	void		seekEndOfPrevBlock	();			// MUST be stopped; goto end of prev block
 
-    void        purgeCurrentBlock   ();			// MUST be stopped
+	void        purgeCurrentBlock   ();			// MUST be stopped
 	void		deleteCurrentBlock	();         // MUST be stopped
 	void		insertBlockBeforeCurrent();		// MUST be stopped
 	void		insertBlockAfterCurrent();		// MUST be stopped
@@ -208,11 +200,11 @@ public:
 	cstr		getMinorBlockInfo	() const	{ return current_block->getMinorBlockInfo();} //e.g. "246/3000 bytes"
 	void		setMajorBlockInfo	(cstr info) { current_block->setMajorBlockInfo(info); }
 
-    TapData*	readTapDataBlock	() noexcept;
-    O80Data*	readO80DataBlock	() noexcept;
+	TapData*	readTapDataBlock	() noexcept;
+	O80Data*	readO80DataBlock	() noexcept;
 	void		writeTapeDataBlock	(TapeData*);
 
-    uint32		ccps				()			{ return machine_ccps; }
+	uint32		ccps				()			{ return machine_ccps; }
 };
 
 

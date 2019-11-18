@@ -1,27 +1,19 @@
-/*	Copyright  (c)	Günter Woigk 2002 - 2018
-  					mailto:kio@little-bat.de
+/*	Copyright  (c)	Günter Woigk 2002 - 2019
+					mailto:kio@little-bat.de
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This file is free software.
 
- 	Permission to use, copy, modify, distribute, and sell this software and
- 	its documentation for any purpose is hereby granted without fee, provided
- 	that the above copyright notice appear in all copies and that both that
- 	copyright notice and this permission notice appear in supporting
- 	documentation, and that the name of the copyright holder not be used
- 	in advertising or publicity pertaining to distribution of the software
- 	without specific, written prior permission.  The copyright holder makes no
- 	representations about the suitability of this software for any purpose.
- 	It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software
+	and its documentation for any purpose is hereby granted without fee,
+	provided that the above copyright notice appears in all copies and
+	that both that copyright notice, this permission notice and the
+	following disclaimer appear in supporting documentation.
 
- 	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- 	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- 	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- 	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- 	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- 	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- 	PERFORMANCE OF THIS SOFTWARE.
+	THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY,
+	NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR
+	A PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE COPYRIGHT HOLDER
+	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
+	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
 #include <QWidget>
@@ -48,7 +40,7 @@
 
 
 /* ----	write compressed .z80 block -------------------------------------------
-        writes block header and compressed data for v2.01 or later
+		writes block header and compressed data for v2.01 or later
 		block layout:
 			dc.w		length of data (without this header; low byte first)
 			dc.b		page number of block
@@ -94,22 +86,22 @@ static void write_compressed_page ( FD& fd, uint8 flag, CoreByte const* q, uint 
 */
 static void read_uncompressed_page( FD& fd, CoreByte* z, uint size ) throws
 {
-    uint8  bu[size];
-    fd.read_bytes(bu,size);
+	uint8  bu[size];
+	fd.read_bytes(bu,size);
 	Z80::b2c(bu,z,size);
 }
 
 
 /* ----	read compressed .z80 block -----------------------------------------
-        read data from a v1.45 or v2.01 or later compressed data block
-        does not read the block header, only the compressed data:
-            wg. v1.45: has no header and
-                v2.01: caller needs to know the flag byte for destination
-        in: fd      input file
-            qsize   source size from block header
+		read data from a v1.45 or v2.01 or later compressed data block
+		does not read the block header, only the compressed data:
+			wg. v1.45: has no header and
+				v2.01: caller needs to know the flag byte for destination
+		in: fd      input file
+			qsize   source size from block header
 					0xFFFF: uncompressed 0x4000 bytes
-            z       destination pointer: -> uint16[] Memory: flags in upper byte are preserved
-            zsize   destination size:    must match decoded data
+			z       destination pointer: -> uint16[] Memory: flags in upper byte are preserved
+			zsize   destination size:    must match decoded data
 		throws on error
 */
 static void read_compressed_page( FD& fd, uint qsize, CoreByte* z, uint zsize ) throws
@@ -121,7 +113,7 @@ static void read_compressed_page( FD& fd, uint qsize, CoreByte* z, uint zsize ) 
 		return;
 	}
 
-    uint8  bu[qsize]; fd.read_bytes(bu,qsize);
+	uint8  bu[qsize]; fd.read_bytes(bu,qsize);
 
 	uint8   c,n;
 	uint8*  q = bu;
@@ -156,11 +148,11 @@ static void read_compressed_page( FD& fd, uint qsize, CoreByte* z, uint zsize ) 
 		//  }
 		//	logline("decompressed page validated ok");
 
-        return;    		// ok
-    }
+		return;    		// ok
+	}
 
 	if(z==z_end && q+4<=q_end && zsize==0xC000 &&	// version 1.45 file with end marker ?
-       *q++==0 && *q++==0xed && *q++==0xed && *q++==0) return;
+	   *q++==0 && *q++==0xed && *q++==0xed && *q++==0) return;
 
 e:  throw data_error("File corrupted: decoding of a compressed block failed");
 }
@@ -172,25 +164,25 @@ void Machine::saveZ80(FD &fd ) throws
 {
 	xlogIn("Machine:saveZ80");
 
-    Z80Head head;
-    head.setRegisters(cpu->getRegisters());
+	Z80Head head;
+	head.setRegisters(cpu->getRegisters());
 
-    head.h2lenl = z80v3len - 2 - z80v1len;
+	head.h2lenl = z80v3len - 2 - z80v1len;
 
-    head.data |= ula->getBorderColor()<<1;
+	head.data |= ula->getBorderColor()<<1;
 
-    Joy* kj = (Joy*)findIsaItem(isa_KempstonJoy);
+	Joy* kj = (Joy*)findIsaItem(isa_KempstonJoy);
 	Joy* sj = (Joy*)findIsaItem(isa_SinclairJoy);
 															// Bit 6-7: 0=Cursor/Protek/AGF joystick
-    if( kj ) head.im |= 1<<6;								// Bit 6-7: 1=Kempston
+	if( kj ) head.im |= 1<<6;								// Bit 6-7: 1=Kempston
 	else if( sj && sj->isConnected(0) ) head.im |= 3<<6;	//          3=IF2 right JS
 	else if( sj && sj->isConnected(1) ) head.im |= 2<<6;	//          2=IF2 left JS
 
-    ZxIf1* if1 = (ZxIf1*)findItem(isa_ZxIf1);	if(if1) showWarning("Interface 1: TODO");
-    Item*  mgt = findItem(isa_MGT);				if(mgt) showWarning("M.G.T. interface: TODO");	// probably never
+	ZxIf1* if1 = (ZxIf1*)findItem(isa_ZxIf1);	if(if1) showWarning("Interface 1: TODO");
+	Item*  mgt = findItem(isa_MGT);				if(mgt) showWarning("M.G.T. interface: TODO");	// probably never
 	Model model = this->model==zxsp_i1 && ram.count()>0x4000 ? zxsp_i2 : this->model;
-    head.setZxspModel(model,if1,mgt);
-    if(ula->isA(isa_UlaMono) && ula->is60Hz()) head.im |= 0x04;
+	head.setZxspModel(model,if1,mgt);
+	if(ula->isA(isa_UlaMono) && ula->is60Hz()) head.im |= 0x04;
 
 	bool varying_ramsize = head.varyingRamsize();
 	if(varying_ramsize) head.spectator = ram.count()/0x400;
@@ -198,12 +190,12 @@ void Machine::saveZ80(FD &fd ) throws
 	// port_7ffd:	// In SamRam mode: bitwise state of 74ls259.
 					// In 128 mode:    last OUT to 7ffd (paging control)
 					// Timex TS2068:   last out to port F4
-    head.port_7ffd	= mmu->hasPort7ffd() ? mmu->getPort7ffd()
-                    : mmu->hasPortF4()   ? mmu->getPortF4() : 0;
+	head.port_7ffd	= mmu->hasPort7ffd() ? mmu->getPort7ffd()
+					: mmu->hasPortF4()   ? mmu->getPortF4() : 0;
 
 	// if1paged:	// !=0 means: interface1 rom is paged in
 					// Timex TS2068: last out to port FF
-    head.if1paged	= if1 ? if1->isRomPagedIn() : ula->hasPortFF() ? ula->getPortFF() : 0;
+	head.if1paged	= if1 ? if1->isRomPagedIn() : ula->hasPortFF() ? ula->getPortFF() : 0;
 
 	// port_fffd: (byte 38)			// Last OUT to fffd (soundchip register number)
 	// soundreg[16]: (byte 39-54)	// Contents of the sound chip registers
@@ -213,21 +205,21 @@ void Machine::saveZ80(FD &fd ) throws
 									// Bit 6: (if bit 2 set) Fuller Audio Box emulation
 									// Bit 7: Modify hardware: 48k->16k, 128->+2, +3->+2A
 
-    head.rldiremu |= 0x03;			// R register and LDIR emu: always on
+	head.rldiremu |= 0x03;			// R register and LDIR emu: always on
 
-    Ay* ay = this->ay; if(!ay) ay = AyPtr(findIsaItem(isa_Ay));
-    if(ay)
-    {
-        head.rldiremu |= (1<<2);                                	// ay in use, even on 48k machine
-        if(find(ay->name,"Fuller")) head.rldiremu |= (1<<6);		// AY chip for Fuller box
-        head.port_fffd	= ay->getRegNr();                   		// selected register
-        memcpy ( head.soundreg, ay->getRegisters(), 16 );           // registers
-    }
+	Ay* ay = this->ay; if(!ay) ay = AyPtr(findIsaItem(isa_Ay));
+	if(ay)
+	{
+		head.rldiremu |= (1<<2);                                	// ay in use, even on 48k machine
+		if(find(ay->name,"Fuller")) head.rldiremu |= (1<<6);		// AY chip for Fuller box
+		head.port_fffd	= ay->getRegNr();                   		// selected register
+		memcpy ( head.soundreg, ay->getRegisters(), 16 );           // registers
+	}
 
-    SpectraVideo* spectra = findSpectraVideo();
-    if(spectra)
-    {
-	    head.h2lenl = max(uint(head.h2lenl), z80v3len - 2u - z80v1len + 3u);
+	SpectraVideo* spectra = findSpectraVideo();
+	if(spectra)
+	{
+		head.h2lenl = max(uint(head.h2lenl), z80v3len - 2u - z80v1len + 3u);
 		head.rldiremu |= 0x08;
 		head.spectra_port_7fdf = spectra->getVideoMode();
 		head.spectra_bits = (spectra->newVideoModesEnabled()<<0) + (spectra->rs232_enabled<<1) +
@@ -238,7 +230,7 @@ void Machine::saveZ80(FD &fd ) throws
 	}
 
 	// T state counter: (byte 55-57)
-    head.setCpuCycle(cpu->cpuCycle(),ula->cpuCycleOfFrameFlyback());
+	head.setCpuCycle(cpu->cpuCycle(),ula->cpuCycleOfFrameFlyback());
 	assert(head.getCpuCycle(ula->cpuCycleOfFrameFlyback())==cpu->cpuCycle());
 
 	// Flag used by Spectator:
@@ -267,9 +259,9 @@ void Machine::saveZ80(FD &fd ) throws
 	// disciple_inhibit_flag = 0;
 
 	// Last OUT to port 0x1ffd: (byte 86)		// +3 and +2A only
-    if( mmu->hasPort1ffd() )
-    {
-	    head.h2lenl = max(uint(head.h2lenl), z80v3len - 2u - z80v1len + 1u);
+	if( mmu->hasPort1ffd() )
+	{
+		head.h2lenl = max(uint(head.h2lenl), z80v3len - 2u - z80v1len + 1u);
 		head.port_1ffd = mmu->getPort1ffd();
 	}
 
@@ -278,40 +270,40 @@ void Machine::saveZ80(FD &fd ) throws
 
 
 /*	Now the compressed ram pages follow. Each block has a 3 byte header:
-        dc.w		length of data (without this header; low byte first)
-        dc.b		page number of block
-        dc.s		compressed data follows
+		dc.w		length of data (without this header; low byte first)
+		dc.b		page number of block
+		dc.s		compressed data follows
 
-    The pages are numbered, depending on the hardware mode, in the following way:
+	The pages are numbered, depending on the hardware mode, in the following way:
 
-        PageID	48 mode				128 mode			SamRam mode
-        0		48K rom				rom (basic)			48K rom
-        1		Interface I, Disciple or Plus D rom, according to setting
+		PageID	48 mode				128 mode			SamRam mode
+		0		48K rom				rom (basic)			48K rom
+		1		Interface I, Disciple or Plus D rom, according to setting
 		2							rom (reset)			samram rom (basic)
-        3		-					page 0				samram rom (monitor,..)
-        4		8000-bfff			page 1				Normal 8000-bfff
-        5		c000-ffff			page 2				Normal c000-ffff
-        6		-					page 3				Shadow 8000-bfff
-        7		-					page 4				Shadow c000-ffff
-        8		4000-7fff			page 5				4000-7fff
-        9		-					page 6				-
-        10		-					page 7				-
-        11		Multiface rom		Multiface rom		-
+		3		-					page 0				samram rom (monitor,..)
+		4		8000-bfff			page 1				Normal 8000-bfff
+		5		c000-ffff			page 2				Normal c000-ffff
+		6		-					page 3				Shadow 8000-bfff
+		7		-					page 4				Shadow c000-ffff
+		8		4000-7fff			page 5				4000-7fff
+		9		-					page 6				-
+		10		-					page 7				-
+		11		Multiface rom		Multiface rom		-
 *zxsp*	12		SPECTRA rom			SPECTRA rom			SPECTRA rom
 *zxsp*	13		SPECTRA ram[0]		SPECTRA ram[0]		SPECTRA ram[0]
 *zxsp*	14		SPECTRA ram[1]		SPECTRA ram[1]		SPECTRA ram[1]
 
-    In 16k mode, only page 8 is saved.					kio 1999-05-02
-    In 48k mode, pages 4,5 and 8 are saved.
-    In SamRam mode, pages 4 to 8 must be saved.			((SamRam not supported))
-    In 128 mode, all pages from 3 to 10 are saved.
+	In 16k mode, only page 8 is saved.					kio 1999-05-02
+	In 48k mode, pages 4,5 and 8 are saved.
+	In SamRam mode, pages 4 to 8 must be saved.			((SamRam not supported))
+	In 128 mode, all pages from 3 to 10 are saved.
 
-    The 128 has a memory map like:   Rom [switchable];   Ram 5;   Ram 2;   Ram [switchable]
-    */
+	The 128 has a memory map like:   Rom [switchable];   Ram 5;   Ram 2;   Ram [switchable]
+	*/
 
 
 
-    // Custom ROM:
+	// Custom ROM:
 	// .z80 can only save 1 or 2 16k rom pages
 	// either only one 16k rom page with id 0
 	// or two rom pages: id 0 = basic rom, id 2 = boot rom
@@ -320,7 +312,7 @@ void Machine::saveZ80(FD &fd ) throws
 	//	TODO
 	//
 
-    // RAM:
+	// RAM:
 	if(varying_ramsize)
 	{
 		uint32 addr  = 0;
@@ -422,8 +414,8 @@ void Machine::loadZ80_attach_joysticks(uint z80head_im)
 
 
 /*  load .z80 snapshot file
-    the machine model must match the file!
-    query model beforehand with Z80Head.getZxspModel()
+	the machine model must match the file!
+	query model beforehand with Z80Head.getZxspModel()
 	--> machine is powered up but suspended
 */
 void Machine::loadZ80(FD &fd) noexcept(false) /*file_error,data_error*/
@@ -434,8 +426,8 @@ void Machine::loadZ80(FD &fd) noexcept(false) /*file_error,data_error*/
 
 	bool ismainthread = isMainThread();
 
-    Z80Head head;
-    head.read(fd);
+	Z80Head head;
+	head.read(fd);
 
 // version 1.45 file
 
@@ -469,13 +461,13 @@ void Machine::loadZ80(FD &fd) noexcept(false) /*file_error,data_error*/
 
 // version 2.01 or above
 
-    xlogline( head.isVersion201() ? "Version 2.01" : "Version 3.00 or higher" );
+	xlogline( head.isVersion201() ? "Version 2.01" : "Version 3.00 or higher" );
 
-    if( head.isVersion201() && head.model>=3 && head.model<=4 ) head.model += 1;     // z80 v2.01 -> v3.00
+	if( head.isVersion201() && head.model>=3 && head.model<=4 ) head.model += 1;     // z80 v2.01 -> v3.00
 
 	// attach SPECTRA which has a Kempston joystick port:
 	bool spectra_used = head.isVersion300() && (head.rldiremu & 0x08) && isA(isa_MachineZxsp); // else not supported
-    SpectraVideo* spectra = findSpectraVideo();
+	SpectraVideo* spectra = findSpectraVideo();
 	if(spectra_used && !spectra) spectra = addSpectraVideo();
 
 	// attach joysticks:
@@ -483,27 +475,27 @@ void Machine::loadZ80(FD &fd) noexcept(false) /*file_error,data_error*/
 
 	// attach IF1:
 	bool if1_used = head.model==1 || head.model==5;
-    if(if1_used)
-    {
-        if(head.if1paged) showAlert("ZX Interface-1 ROM paged in (TODO)");
+	if(if1_used)
+	{
+		if(head.if1paged) showAlert("ZX Interface-1 ROM paged in (TODO)");
 		//else			  ignore: never used.
-    }
+	}
 
-    // attach MGT:
+	// attach MGT:
 	bool mgt_used = head.model==3 || head.model==6;
-    if(mgt_used)
-    {
-        if(head.mgt_paged) showAlert("M.G.T. ROM paged in: not supported");
-        //else             ignore: never seen.
-    }
+	if(mgt_used)
+	{
+		if(head.mgt_paged) showAlert("M.G.T. ROM paged in: not supported");
+		//else             ignore: never seen.
+	}
 
 	// attach AY sound chip:
 	bool ay_used   = head.rldiremu & 0x04;
 	bool fuller_ay = head.rldiremu & 0x40;			// only if ay_used
-    Ay* ay = this->ay; if(!ay) ay = AyPtr(findIsaItem(isa_Ay));
-    if(ay_used && fuller_ay && (!ay||!ay->isA(isa_FullerBox))) ay = new FullerBox(this);
-    if(ay_used && !ay) ay = new DidaktikMelodik(this);
-    if(!this->ay) this->ay = ay;
+	Ay* ay = this->ay; if(!ay) ay = AyPtr(findIsaItem(isa_Ay));
+	if(ay_used && fuller_ay && (!ay||!ay->isA(isa_FullerBox))) ay = new FullerBox(this);
+	if(ay_used && !ay) ay = new DidaktikMelodik(this);
+	if(!this->ay) this->ay = ay;
 
 	// attach external ram extension:
 	uint32 req_ramsize = head.getRamsize();		// may be 0 for dflt ram size <=> no extension required
@@ -536,7 +528,7 @@ void Machine::loadZ80(FD &fd) noexcept(false) /*file_error,data_error*/
 	assert(now()==0.0);
 
 	// init cpu:
-    head.getRegisters(cpu->getRegisters());
+	head.getRegisters(cpu->getRegisters());
 
 	// init ula:
 	if(spectra_used)
@@ -558,59 +550,59 @@ void Machine::loadZ80(FD &fd) noexcept(false) /*file_error,data_error*/
 	ula->setBorderColor(head.data>>1);
 
 // init mmu:
-    mmu->setPort7ffd(head.port_7ffd);
-    mmu->setPort1ffd(head.port_1ffd);
-    mmu->setPortF4(head.port_f4);
+	mmu->setPort7ffd(head.port_7ffd);
+	mmu->setPort1ffd(head.port_1ffd);
+	mmu->setPortF4(head.port_f4);
 	ula->setPortFF(head.port_ff);	// mmu & ula
 	if(fdc) fdc->initForSnapshot(cc);
 
 // init AY soundchip:
-    if(ay)
-    {
-        ay->setRegisters(head.soundreg );
-        ay->setRegNr(head.port_fffd);
-    }
+	if(ay)
+	{
+		ay->setRegisters(head.soundreg );
+		ay->setRegNr(head.port_fffd);
+	}
 
 // load memory pages:
-    bool varying_ramsize = head.varyingRamsize();
+	bool varying_ramsize = head.varyingRamsize();
 	uint addr = 0;
 	uint32 loaded = 0;
 	bool paged_mem = mmu->hasPort7ffd();	// for page numbering sceme
 
-    while(!fd.is_at_eof())
-    {
-        uint len  = fd.read_uint16_z();     // compressed size
-        uint page = fd.read_uint8();        // page
+	while(!fd.is_at_eof())
+	{
+		uint len  = fd.read_uint16_z();     // compressed size
+		uint page = fd.read_uint8();        // page
 
-        xlogline("decompressing page %i", int(page));
+		xlogline("decompressing page %i", int(page));
 
-        if(!paged_mem&&!varying_ramsize&&page==8) page = 3;     // convert page number 48k -> 128k
+		if(!paged_mem&&!varying_ramsize&&page==8) page = 3;     // convert page number 48k -> 128k
 
-        if(page>=3 && page<32+3)
-        {
+		if(page>=3 && page<32+3)
+		{
 			if(loaded & (1<<(page-3))) throw data_error("Snapshot: page index occured twice");
 			loaded |= 1<<(page-3);
 		}
 
-        switch (page)
-        {
-        case 0:
+		switch (page)
+		{
+		case 0:
 			xlogline("--> Basic Rom");		// rom page 0: zxsp rom or +128k BASIC rom
-            read_compressed_page(fd,len,&rom[0x0000],min(0x4000u,rom.count()));
-            break;
+			read_compressed_page(fd,len,&rom[0x0000],min(0x4000u,rom.count()));
+			break;
 
-        case 1:
+		case 1:
 			xlogline("--> IF1, Disciple or Plus D Rom: skipped!");
 			fd.skip_bytes(len==0xffff?0x4000:len);
 			break;
 
-        case 2:
+		case 2:
 			xlogline("--> Boot Rom");		// rom page 1: +128k BOOT rom
-            if(rom.count() < 0x8000) throw data_error("Snapshot: rom page index out of range");
+			if(rom.count() < 0x8000) throw data_error("Snapshot: rom page index out of range");
 			read_compressed_page(fd,len,&rom[0x4000],0x4000);
 			break;
 
-        case 11:
+		case 11:
 			if(ram.count() > 128 kB) goto loadrampage;	// Scorpion 256k etc.
 
 			xlogline("--> Multiface Rom: skipped!");
@@ -634,7 +626,7 @@ void Machine::loadZ80(FD &fd) noexcept(false) /*file_error,data_error*/
 			read_compressed_page(fd,len,&spectra->shadowram[(page-13)*0x4000],0x4000);
 			break;
 
-        default:
+		default:
 
 loadrampage:
 			page-=3; // load ram page page-3
@@ -667,8 +659,8 @@ loadrampage:
 				}
 			}
 			break;
-        }
-    }
+		}
+	}
 
 	uint32 needed = varying_ramsize ? (req_ramsize/0x400)						// up to 255k
 									: ~((0xffffffff << (req_ramsize/0x4000)));	// up to 512k
@@ -680,7 +672,7 @@ loadrampage:
 		spectra->setVideoMode(head.spectra_port_7fdf);
 	}
 
-    xlogline("loaded ok");
+	xlogline("loaded ok");
 }
 
 

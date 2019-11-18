@@ -1,27 +1,19 @@
-/*	Copyright  (c)	Günter Woigk 2009 - 2018
+/*	Copyright  (c)	Günter Woigk 2009 - 2019
 					mailto:kio@little-bat.de
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This file is free software.
 
-	Permission to use, copy, modify, distribute, and sell this software and
-	its documentation for any purpose is hereby granted without fee, provided
-	that the above copyright notice appear in all copies and that both that
-	copyright notice and this permission notice appear in supporting
-	documentation, and that the name of the copyright holder not be used
-	in advertising or publicity pertaining to distribution of the software
-	without specific, written prior permission.  The copyright holder makes no
-	representations about the suitability of this software for any purpose.
-	It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software
+	and its documentation for any purpose is hereby granted without fee,
+	provided that the above copyright notice appears in all copies and
+	that both that copyright notice, this permission notice and the
+	following disclaimer appear in supporting documentation.
 
-	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
-	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
-	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-	PERFORMANCE OF THIS SOFTWARE.
+	THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY,
+	NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR
+	A PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE COPYRIGHT HOLDER
+	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
+	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
 #include <QPainter>
@@ -100,7 +92,7 @@ PlusTapeRecorderInsp::PlusTapeRecorderInsp( QWidget *parent, MachineController* 
 		6,								// axis symmetries
 		89,187,67)						// axis position x1, x2, y
 {
-    xlogIn("new PlusTapeRecorderInsp");
+	xlogIn("new PlusTapeRecorderInsp");
 
 	const int btn_x = 30, btn_y = 201, btn_w = 40;
 
@@ -137,7 +129,7 @@ TS2020Inspector::TS2020Inspector( QWidget* parent, MachineController* mc, volati
 		6,								// axis symmetries
 		104,205,94)						// axis position x1, x2, y
 {
-    xlogIn("new TS2020Inspector");
+	xlogIn("new TS2020Inspector");
 
 	const int  btn_y = 237;
 	const cstr root  = ":/Icons/ts2020/";
@@ -183,13 +175,13 @@ TapeRecorderInsp::TapeRecorderInsp( QWidget* w, MachineController* mc, volatile 
 	btn_eject(NULL),
 	btn_pause(NULL),
 	major_block_info(""),
-    minor_block_info(""),
-    tape_position(0),
-    major_block_info_label(new QLabel(this)),
-    minor_block_info_label(new QLabel(this)),
-    tape_position_label(new QLineEdit(this)),
-    tape_filepath(NULL),
-    cass(BlueBody,head_position),
+	minor_block_info(""),
+	tape_position(0),
+	major_block_info_label(new QLabel(this)),
+	minor_block_info_label(new QLabel(this)),
+	tape_position_label(new QLineEdit(this)),
+	tape_filepath(NULL),
+	cass(BlueBody,head_position),
 	axis_x1(axis_x1),
 	axis_x2(axis_x2),
 	axis_y(axis_y),								// position in tr_image [pixels]
@@ -198,7 +190,7 @@ TapeRecorderInsp::TapeRecorderInsp( QWidget* w, MachineController* mc, volatile 
 	anim_tr_pause(no),
 	anim_tr_state(TapeRecorder::stopped)
 {
-    xlogIn("new TapeRecorderInsp");
+	xlogIn("new TapeRecorderInsp");
 	assert( item->isA(isa_TapeRecorder) );
 
 	// tape recorder background image:
@@ -214,7 +206,7 @@ TapeRecorderInsp::TapeRecorderInsp( QWidget* w, MachineController* mc, volatile 
 
 	// tape recorder window image:
 	// scaled to fit tr_window_rect:
-    {
+	{
 		tr_window_image = QImage(catstr(appl_rsrc_path,tray_image_filename));
 		if(tr_window_image.format()!=QImage::Format_ARGB32_Premultiplied)
 		{
@@ -237,7 +229,7 @@ TapeRecorderInsp::TapeRecorderInsp( QWidget* w, MachineController* mc, volatile 
 			trans = trans.scale((qreal)axis_dia/axis_source_image.width(),(qreal)axis_dia/axis_source_image.height());
 
 			tr_axis_images.append(QImage(axis_source_image.transformed(trans,Qt::SmoothTransformation)));
-   		}
+		}
 	}
 
 	// cassette image
@@ -252,7 +244,7 @@ TapeRecorderInsp::TapeRecorderInsp( QWidget* w, MachineController* mc, volatile 
 		int cass_y1 = int(round( axis_y  - scale *  cass.axis_y ));
 		int cass_y2 = int(round( axis_y  + scale * (cass.height-cass.axis_y) ));
 
- 		cass_rect = QRect(cass_x1,cass_y1,cass_x2-cass_x1,cass_y2-cass_y1);
+		cass_rect = QRect(cass_x1,cass_y1,cass_x2-cass_x1,cass_y2-cass_y1);
 
 		cass_image = QImage(cass_rect.size(),QImage::Format_ARGB32_Premultiplied);
 		cass_image.fill(0x00000000);
@@ -293,8 +285,8 @@ TapeRecorderInsp::TapeRecorderInsp( QWidget* w, MachineController* mc, volatile 
 	// tape on reel:
 	// note: in a real cassette the max. diameter of the left and right tape winding can overlap
 	// we limit the max. diameter to be not intersecting.
-    min_d		= round(23/*~20*/*ppmm);// min. diameter of tape on reel for tape winding diameter calculation
-    max_d		= round(42.5*ppmm);		// max. diameter of tape on reel for tape winding diameter calculation (30 minutes)
+	min_d		= round(23/*~20*/*ppmm);// min. diameter of tape on reel for tape winding diameter calculation
+	max_d		= round(42.5*ppmm);		// max. diameter of tape on reel for tape winding diameter calculation (30 minutes)
 	min_vis_d	= round(23*ppmm);		// min. visible diameter of tape on reel	TODO: depends on reel image
 	max_vis_d	= round(39*ppmm);		// max. visible diameter of tape on reel	TODO: depends on reel image
 
@@ -389,7 +381,7 @@ void TapeRecorderInsp::updateWidgets()
 	// This handles the animation and 6 buttons of the +2/+2A/TS2020
 	// The WalkmanInspector reimplements this method for its 7 button control
 
-    xxlogIn("TapeRecorderInsp::updateWidgets");
+	xxlogIn("TapeRecorderInsp::updateWidgets");
 
 	if(!is_visible) return;
 	if(!object) return;
@@ -397,7 +389,7 @@ void TapeRecorderInsp::updateWidgets()
 	Inspector::updateWidgets();	// nop
 	updateAnimation();
 
-    volatile TapeRecorder* tr = tape_recorder();
+	volatile TapeRecorder* tr = tape_recorder();
 	btn_record->setDown(tr->isRecordDown());
 	btn_back->setDown(tr->isRewinding());
 	btn_play->setDown(tr->isPlayDown());
@@ -467,7 +459,7 @@ inline Time TapeRecorderInsp::delay_to_next_frame_for_animation( int dia )
 	//	tpf	= tpr/fpr					time/frame
 	//		= 1/vr/36
 	//		= 1/36/vl*vu
- 	//		= 1/36/47.5*d*pi					*s/mm
+	//		= 1/36/47.5*d*pi					*s/mm
 	//		= 1/36/47.5*pi*diam*ptm				*s/mm
 	//		= 1/36/47.5*42.5*pi*diam/reel_d		*s
 	//		= 1000/36/47.5*42.5*pi/reel_d*diam	*ms
@@ -477,14 +469,14 @@ inline Time TapeRecorderInsp::delay_to_next_frame_for_animation( int dia )
 
 void TapeRecorderInsp::updateAnimation()
 {
-    xxlogIn("TapeRecorderInsp::updateAnimation");
+	xxlogIn("TapeRecorderInsp::updateAnimation");
 
 	if(!is_visible) return;
 
-    NVPtr<TapeRecorder> tr(tape_recorder());
+	NVPtr<TapeRecorder> tr(tape_recorder());
 
 	// update text fields:
-    {
+	{
 		cstr s; int p;
 
 		if(major_block_info != (s=tr->getMajorBlockInfo()))
@@ -737,12 +729,12 @@ void TapeRecorderInsp::handleEjectButton()
 {
 	// with button animation & sound
 
-    if(!tape_recorder()->isStopped())	// wenn Motor läuft, dann stoppen
-    {
+	if(!tape_recorder()->isStopped())	// wenn Motor läuft, dann stoppen
+	{
 		nv_taperecorder()->stop();
 	}
-    else if(tape_recorder()->isLoaded())  // wenn Band eingelegt, dann auswerfen
-    {
+	else if(tape_recorder()->isLoaded())  // wenn Band eingelegt, dann auswerfen
+	{
 		eject_tape();
 	}
 	else								// sonst Band einlegen
