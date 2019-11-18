@@ -1,27 +1,19 @@
-/*	Copyright  (c)	Günter Woigk 2008 - 2018
-                    mailto:kio@little-bat.de
+/*	Copyright  (c)	Günter Woigk 2008 - 2019
+					mailto:kio@little-bat.de
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This file is free software.
 
-    Permission to use, copy, modify, distribute, and sell this software and
-    its documentation for any purpose is hereby granted without fee, provided
-    that the above copyright notice appear in all copies and that both that
-    copyright notice and this permission notice appear in supporting
-    documentation, and that the name of the copyright holder not be used
-    in advertising or publicity pertaining to distribution of the software
-    without specific, written prior permission.  The copyright holder makes no
-    representations about the suitability of this software for any purpose.
-    It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software
+	and its documentation for any purpose is hereby granted without fee,
+	provided that the above copyright notice appears in all copies and
+	that both that copyright notice, this permission notice and the
+	following disclaimer appear in supporting documentation.
 
-    THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-    INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
-    EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-    CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
-    DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-    TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-    PERFORMANCE OF THIS SOFTWARE.
+	THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY,
+	NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR
+	A PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE COPYRIGHT HOLDER
+	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
+	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
 #include "MachineJupiter.h"
@@ -46,7 +38,7 @@
 
 MachineJupiter::MachineJupiter(MachineController* m)
 :
-    Machine(m,jupiter,isa_MachineJupiter)
+	Machine(m,jupiter,isa_MachineJupiter)
 {
 	cpu			= new Z80(this);
 	ula			= new UlaJupiter(this,settings.get_bool(key_framerate_jupiter_60hz,false)?60:50);
@@ -79,8 +71,8 @@ bool MachineJupiter::handleSaveTapePatch()
 	if(!taperecorder->can_store_block()) return 0;		 // not handled
 
 // get registers:
-    Z80Regs& regs = cpu->getRegisters();
-    if(regs.pc != 0x1829) return 0;		// patch address = short after TXALL = $1820
+	Z80Regs& regs = cpu->getRegisters();
+	if(regs.pc != 0x1829) return 0;		// patch address = short after TXALL = $1820
 
 	uint dataaddr = regs.iy;		// IY = data address
 	uint datalen  = regs.de;		// DE = count
@@ -106,7 +98,7 @@ bool MachineJupiter::handleSaveTapePatch()
 	regs.f  = Z_FLAG | N_FLAG;
 	regs.iy = dataaddr + datalen + 1;
 
-    return 1;   // handled
+	return 1;   // handled
 }
 
 bool MachineJupiter::handleLoadTapePatch()
@@ -118,7 +110,7 @@ bool MachineJupiter::handleLoadTapePatch()
 
 // load the block:
 	TapData* bu = taperecorder->getZxspBlock();
-    if(!bu) return 0;								// not handled - no block found
+	if(!bu) return 0;								// not handled - no block found
 
 	//  load data from tape file as with the ZX Spectrum Rom load routine
 	//  nominal patch address: 0x18B1 (zxsp=0x0556)
@@ -298,7 +290,7 @@ static uint read_compressed_data( FD& fd, uint qsize, uint8* z ) throws
 	// throws on any error
 
 	if(qsize>0x1C000) qsize = 0x1C000;	// worst case qsize
-    uint8  bu[qsize]; fd.read_bytes(bu,qsize);
+	uint8  bu[qsize]; fd.read_bytes(bu,qsize);
 	uint8* q = bu;
 	uint8* q_end = q+qsize;
 	uint8* z_end = z+0xE000;			// 64K - 8K rom
@@ -384,7 +376,7 @@ void MachineJupiter::loadAce(FD& fd) noexcept(false) /*file_error,data_error*/
 	{
 		logline("  a f  b c  d e  h l a2f2 b2c2 d2e2 h2l2  i x  i y   pc   sp  iff  i r   im");
 		for(int i=0;i<16;i++) log(" %04x",regs.nn[i]); logNl();
-    }
+	}
 
 	cpu->copyBufferToRam(bu+0x0400,0x2400,0x400);			// $2400 - $2800: video ram
 	cpu->copyBufferToRam(bu+0x0C00,0x2C00,0x400);			// $2C00 - $3000: character ram

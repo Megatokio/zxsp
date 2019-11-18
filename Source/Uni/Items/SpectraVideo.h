@@ -1,27 +1,19 @@
-/*	Copyright  (c)	Günter Woigk 2013 - 2018
+/*	Copyright  (c)	Günter Woigk 2013 - 2019
 					mailto:kio@little-bat.de
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This file is free software.
 
-	Permission to use, copy, modify, distribute, and sell this software and
-	its documentation for any purpose is hereby granted without fee, provided
-	that the above copyright notice appear in all copies and that both that
-	copyright notice and this permission notice appear in supporting
-	documentation, and that the name of the copyright holder not be used
-	in advertising or publicity pertaining to distribution of the software
-	without specific, written prior permission.  The copyright holder makes no
-	representations about the suitability of this software for any purpose.
-	It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software
+	and its documentation for any purpose is hereby granted without fee,
+	provided that the above copyright notice appears in all copies and
+	that both that copyright notice, this permission notice and the
+	following disclaimer appear in supporting documentation.
 
-	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
-	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
-	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-	PERFORMANCE OF THIS SOFTWARE.
+	THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY,
+	NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR
+	A PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE COPYRIGHT HOLDER
+	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
+	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
 
@@ -55,10 +47,10 @@ public:
 	bool		rs232_enabled;			// RS232
 	bool		joystick_enabled;		// Joystick
 	bool		if1_rom_hooks_enabled;	// ROM
-    MemoryPtr	rom;
-    cstr        filepath;
+	MemoryPtr	rom;
+	cstr        filepath;
 	//bool		romdis_in;				// rear-side input state		--> Item
-    bool		own_romdis_state;		// own state
+	bool		own_romdis_state;		// own state
 
 // CRTC:
 	int32		current_frame;			// counter, used for flash phase
@@ -104,8 +96,8 @@ public:
 
 
 // ROM handling:
-    cstr    getRomFilepath	()  volatile const		{ return filepath; }
-    cstr    getRomFilename	()  volatile const		{ return basename_from_path(filepath); }
+	cstr    getRomFilepath	()  volatile const		{ return filepath; }
+	cstr    getRomFilename	()  volatile const		{ return basename_from_path(filepath); }
 	bool	isRomInserted	()	volatile const		{ return rom.isnot(nullptr); }
 	bool	isRomPagedIn	()	volatile const		{ return own_romdis_state; }
 

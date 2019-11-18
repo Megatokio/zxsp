@@ -1,27 +1,19 @@
-/*	Copyright  (c)	Günter Woigk 2012 - 2018
-                    mailto:kio@little-bat.de
+/*	Copyright  (c)	Günter Woigk 2012 - 2019
+					mailto:kio@little-bat.de
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This file is free software.
 
-    Permission to use, copy, modify, distribute, and sell this software and
-    its documentation for any purpose is hereby granted without fee, provided
-    that the above copyright notice appear in all copies and that both that
-    copyright notice and this permission notice appear in supporting
-    documentation, and that the name of the copyright holder not be used
-    in advertising or publicity pertaining to distribution of the software
-    without specific, written prior permission.  The copyright holder makes no
-    representations about the suitability of this software for any purpose.
-    It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software
+	and its documentation for any purpose is hereby granted without fee,
+	provided that the above copyright notice appears in all copies and
+	that both that copyright notice, this permission notice and the
+	following disclaimer appear in supporting documentation.
 
-    THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-    INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
-    EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-    CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
-    DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-    TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-    PERFORMANCE OF THIS SOFTWARE.
+	THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY,
+	NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR
+	A PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE COPYRIGHT HOLDER
+	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
+	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
 
@@ -98,9 +90,9 @@ CONCLUSIO:
 	  thereof out $7FFD and out $1FFD are useful.
 	  a program may fool the MF+3 by using non-standard out addresses for port $7FFD.
 	  info in port $1FFD: probably only bit 3 is used: disk motor state.
-	    other bits are useless and paged-in rom can be deduced by probing, as the MF128 did.
+		other bits are useless and paged-in rom can be deduced by probing, as the MF128 did.
 	  info in port $7FFD: probably for bit3 only: screen displayed
-	    selected ram page at $C000 can be deduced by probing, as the MF128 did.
+		selected ram page at $C000 can be deduced by probing, as the MF128 did.
 
 	in  %----.----.-011.1111		4x4RAM.RD	 (if !disabled)
 	in  %----.----.-011.1111		FF_PAGE.CLK: page in/out MF+3 memory (page-in = !A7 & enabled)
@@ -118,9 +110,9 @@ static cstr o_addr = "----.----.--11.11-1";
 
 Multiface3::Multiface3(Machine* m)
 :
-    Multiface(m,isa_Multiface3,"Roms/mf3.rom",o_addr,i_addr),
+	Multiface(m,isa_Multiface3,"Roms/mf3.rom",o_addr,i_addr),
 	mf_enabled(),
-    all_ram()
+	all_ram()
 {}
 
 

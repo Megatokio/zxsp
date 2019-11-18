@@ -1,27 +1,19 @@
-/*	Copyright  (c)	Günter Woigk 2013 - 2018
+/*	Copyright  (c)	Günter Woigk 2013 - 2019
 					mailto:kio@little-bat.de
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This file is free software.
 
-	Permission to use, copy, modify, distribute, and sell this software and
-	its documentation for any purpose is hereby granted without fee, provided
-	that the above copyright notice appear in all copies and that both that
-	copyright notice and this permission notice appear in supporting
-	documentation, and that the name of the copyright holder not be used
-	in advertising or publicity pertaining to distribution of the software
-	without specific, written prior permission.  The copyright holder makes no
-	representations about the suitability of this software for any purpose.
-	It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software
+	and its documentation for any purpose is hereby granted without fee,
+	provided that the above copyright notice appears in all copies and
+	that both that copyright notice, this permission notice and the
+	following disclaimer appear in supporting documentation.
 
-	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
-	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
-	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-	PERFORMANCE OF THIS SOFTWARE.
+	THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY,
+	NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR
+	A PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE COPYRIGHT HOLDER
+	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
+	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
 #include "Templates/Array.h"
@@ -117,7 +109,7 @@ void ZxspRenderer::drawScreen(IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pix
 					while(p<e) { *p++ = bordercolor; }		// draw left border
 					if(p<a+h_border) break;					// exit pixel loop if at cc_io
 
-			 	// draw screen row:
+				// draw screen row:
 					e = min(ee,e+screen_width);
 					while(p<e)
 					{
@@ -239,7 +231,7 @@ void ZxspGifWriter::drawScreen(IoInfo* ioinfo, uint ioinfo_count, uint8 *attr_pi
 					while(p<e) { *p++ = bordercolor; }		// draw left border
 					if(p<a+h_border) break;					// exit pixel loop if at cc_io
 
-			 	// draw screen row:
+				// draw screen row:
 					for(e+=screen_width; p<e;)
 					{
 						uint pixels = *q++;
@@ -329,7 +321,7 @@ void ZxspGifWriter::saveScreenshot( cstr path, IoInfo *ioinfo, uint ioinfo_count
 	for( int i=0; i<cmap.usedColors(); i++ ) { total_colors += cmap2.findColor(cmap[i])==Colormap::not_found; }
 
 // Write to file:
-    gif_encoder.openFile(path);
+	gif_encoder.openFile(path);
 	gif_encoder.writeScreenDescriptor(width, height, total_colors, 0/*aspect_ratio*/);
 	gif_encoder.writeCommentBlock( usingstr("created on %s by %s with %s %s\n",
 								   datestr(now()), getUser(), appl_name,appl_version_str) );
@@ -348,7 +340,7 @@ void ZxspGifWriter::saveScreenshot( cstr path, IoInfo *ioinfo, uint ioinfo_count
 		gif_encoder.writeImage(*bits2,cmap2);
 	}
 
-    gif_encoder.closeFile();
+	gif_encoder.closeFile();
 
 	delete bits;  bits=NULL;
 	delete bits2; bits2=NULL;

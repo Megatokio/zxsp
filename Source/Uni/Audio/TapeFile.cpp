@@ -1,27 +1,19 @@
-/*	Copyright  (c)	Günter Woigk 2000 - 2018
-  					mailto:kio@little-bat.de
+/*	Copyright  (c)	Günter Woigk 2000 - 2019
+					mailto:kio@little-bat.de
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This file is free software.
 
- 	Permission to use, copy, modify, distribute, and sell this software and
- 	its documentation for any purpose is hereby granted without fee, provided
- 	that the above copyright notice appear in all copies and that both that
- 	copyright notice and this permission notice appear in supporting
- 	documentation, and that the name of the copyright holder not be used
- 	in advertising or publicity pertaining to distribution of the software
- 	without specific, written prior permission.  The copyright holder makes no
- 	representations about the suitability of this software for any purpose.
- 	It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software
+	and its documentation for any purpose is hereby granted without fee,
+	provided that the above copyright notice appears in all copies and
+	that both that copyright notice, this permission notice and the
+	following disclaimer appear in supporting documentation.
 
- 	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- 	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- 	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- 	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- 	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- 	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- 	PERFORMANCE OF THIS SOFTWARE.
+	THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY,
+	NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR
+	A PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE COPYRIGHT HOLDER
+	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
+	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 
 	class TapeFile: representation for program tapes
 */
@@ -68,12 +60,12 @@ isa_id isaIdFromFilename( cstr path )
 // helper
 void TapeFile::update_blk_info()
 {
-    assert(pos<this->count());
+	assert(pos<this->count());
 
-    current_block  = data[pos];
-    blk_cswbuffer  = current_block->cswdata;
-    blk_cc_size    = current_block->getTotalCc();
-    blk_starttime  = getStartOfBlock(pos);
+	current_block  = data[pos];
+	blk_cswbuffer  = current_block->cswdata;
+	blk_cc_size    = current_block->getTotalCc();
+	blk_starttime  = getStartOfBlock(pos);
 //  blk_cc_offset  = xxx; wird in startRecording/Playing gesetzt und in input/output/videoFrameEnd aktualisiert
 }
 
@@ -81,8 +73,8 @@ void TapeFile::update_blk_info()
 // helper
 void TapeFile::append_empty_block()
 {
-    bool phase0 = cnt>0 ? last()->cswdata->getFinalPhase() : 0;
-    append(new CswBuffer(machine_ccps,phase0,666));
+	bool phase0 = cnt>0 ? last()->cswdata->getFinalPhase() : 0;
+	append(new CswBuffer(machine_ccps,phase0,666));
 //	last()->setMajorBlockInfo("End of tape");
 //	modified = yes;
 }
@@ -95,7 +87,7 @@ void TapeFile::insert_empty_block(uint i)
 
 	if(i==cnt) { append_empty_block(); return; }
 
-    bool phase0 = data[i]->cswdata->getPhase0();
+	bool phase0 = data[i]->cswdata->getPhase0();
 	insertrange(i,i+1);
 	assert(data[i]==NULL);
 	data[i] = new TapeFileDataBlock(new CswBuffer(machine_ccps,phase0,666));
@@ -133,14 +125,14 @@ TapeFile::TapeFile(uint32 machine_ccps, cstr filename)
 
 	try
 	{
-	    readFile(filename);
+		readFile(filename);
 	}
 	catch(any_error& e)
 	{
 		showAlert("Could not read tape file:\n%s",e.what());
-	    modified = no;
+		modified = no;
 		write_protected = yes;
-	    append_empty_block();
+		append_empty_block();
 		goto_block(0);
 		current_block->seekStart();
 	}
@@ -220,7 +212,7 @@ Time TapeFile::getTotalPlaytime() const
 */
 Time TapeFile::getStartOfBlock(uint blk)
 {
-    assert(blk<count());
+	assert(blk<count());
 
 	Time t = 0.0;
 	while(blk) t += data[--blk]->getTotalTime();
@@ -240,8 +232,8 @@ void TapeFile::readFile( cstr path ) throws // file_error,data_error,bad_alloc
 	xlogIn("TapeFile:readFile");
 	assert(mode==stopped);
 
-    purge();
-    delete[] filepath; filepath = NULL;
+	purge();
+	delete[] filepath; filepath = NULL;
 
 	isa_id ft = isaIdFromFilename(path);
 	switch(ft)
@@ -254,23 +246,23 @@ void TapeFile::readFile( cstr path ) throws // file_error,data_error,bad_alloc
 		default: throw data_error("unknown file type");
 	}
 
-    for(uint i=0;i<this->count();i++)
-    {
-        TapeFileDataBlock* d = data[i]; (void)d;
-        assert(d->cswdata!=NULL);
-        assert(d->cswdata->ccPerSecond()==machine_ccps);
-        assert(d->isStopped());
+	for(uint i=0;i<this->count();i++)
+	{
+		TapeFileDataBlock* d = data[i]; (void)d;
+		assert(d->cswdata!=NULL);
+		assert(d->cswdata->ccPerSecond()==machine_ccps);
+		assert(d->isStopped());
 		xlogline("%s",d->major_block_info);
 		xlogline("%s",d->minor_block_info);
 		xlogline("  total cc = %u", uint(d->getTotalCc()));
 		xlogline("  total time = %u", uint(d->getTotalTime()));
-    }
+	}
 
-    modified = no;
-    filepath = newcopy(path);
-    write_protected = !is_writable(path);
+	modified = no;
+	filepath = newcopy(path);
+	write_protected = !is_writable(path);
 
-    append_empty_block();
+	append_empty_block();
 	goto_block(0);
 	current_block->seekStart();
 }
@@ -311,8 +303,8 @@ void TapeFile::stop(uint32 cc)
 
 	if(mode==recording)
 	{
-	    blk_cc_size = current_block->getTotalCc();		// update_blk_info();
-	    if(current_block==last()) append_empty_block();		// allow ">>" to "End of file"
+		blk_cc_size = current_block->getTotalCc();		// update_blk_info();
+		if(current_block==last()) append_empty_block();		// allow ">>" to "End of file"
 	}
 
 	mode = stopped;
@@ -328,8 +320,8 @@ void TapeFile::startRecording( uint32 cc )
 {
 	xlogIn("TapeFile.startRecording()");
 
-    assert(pos<count());
-    assert(blk_cswbuffer && blk_cswbuffer==current_block->cswdata);
+	assert(pos<count());
+	assert(blk_cswbuffer && blk_cswbuffer==current_block->cswdata);
 
 	if( getPlaytimeOfBlock()>2.0 &&
 		isNearEndOfBlock(min(5.0,getPlaytimeOfBlock()/4)) )
@@ -338,17 +330,17 @@ void TapeFile::startRecording( uint32 cc )
 		if(getPlaytimeOfBlock()>2.0) insertBlockBeforeCurrent();
 	}
 
-    blk_cc_size = 0;			// update_blk_info();
-    blk_cc_offset = 0 - cc;		// blk_cswbuffer->getCurrentCc() - cc;
-    current_block->startRecording(0/*cc+blk_cc_offset*/);
+	blk_cc_size = 0;			// update_blk_info();
+	blk_cc_offset = 0 - cc;		// blk_cswbuffer->getCurrentCc() - cc;
+	current_block->startRecording(0/*cc+blk_cc_offset*/);
 
-    mode = recording;
-    modified = yes;
+	mode = recording;
+	modified = yes;
 
 	// for auto block splitting:
-    current_phase = current_block->cswdata->getCurrentPhase();
-    current_cc = cc;
-    num_data_pulses = 0;
+	current_phase = current_block->cswdata->getCurrentPhase();
+	current_cc = cc;
+	num_data_pulses = 0;
 }
 
 
@@ -358,53 +350,53 @@ void TapeFile::startPlaying(uint32 cc)
 {
 	xlogIn("TapeFile.startPlaying()");
 
-    assert(pos<this->count());
-    assert(blk_cswbuffer && blk_cswbuffer==current_block->cswdata);
+	assert(pos<this->count());
+	assert(blk_cswbuffer && blk_cswbuffer==current_block->cswdata);
 
-    if(mode==playing) return;
-    if(mode==recording) stop(cc);
+	if(mode==playing) return;
+	if(mode==recording) stop(cc);
 
-    mode = playing;
+	mode = playing;
 
 //    cc *= blk_cc_ratio;
 
-    blk_cc_offset = blk_cswbuffer->getCurrentCc() - cc;
+	blk_cc_offset = blk_cswbuffer->getCurrentCc() - cc;
 
-    current_block->startPlaying(cc+blk_cc_offset);
+	current_block->startPlaying(cc+blk_cc_offset);
 }
 
 
 /*  input from tape:
-    tape must be playing
+	tape must be playing
 */
 bool TapeFile::input( uint32 machine_cc )
 {
-    assert(mode==playing);
-    assert(blk_cswbuffer && blk_cswbuffer==current_block->cswdata);
+	assert(mode==playing);
+	assert(blk_cswbuffer && blk_cswbuffer==current_block->cswdata);
 
 a:	uint32 blk0_cc = machine_cc + blk_cc_offset;
-    if(blk0_cc<=blk_cc_size) return blk_cswbuffer->inputCc(blk0_cc);
+	if(blk0_cc<=blk_cc_size) return blk_cswbuffer->inputCc(blk0_cc);
 
 	// End of tape?
 	// note: tape will be stopped at videoFrameEnd()
-    if(pos+1==this->count()) return blk_cswbuffer->inputCc(blk_cc_size);
+	if(pos+1==this->count()) return blk_cswbuffer->inputCc(blk_cc_size);
 
 	// step into next block:
-    current_block->stop(blk0_cc);
-    blk_cc_offset -= blk_cc_size;
-    goto_block(pos+1);
-    current_block->startPlaying(0);
+	current_block->stop(blk0_cc);
+	blk_cc_offset -= blk_cc_size;
+	goto_block(pos+1);
+	current_block->startPlaying(0);
 
 	goto a;
 }
 
 
 /*  output to tape
-    tape must be recording
+	tape must be recording
 */
 void TapeFile::output( uint32 cc, bool bit )
 {
-    assert(mode==recording);
+	assert(mode==recording);
 
 	// scrutinize pulse for auto block splitting:
 	if(current_phase!=bit)
@@ -432,19 +424,19 @@ void TapeFile::output( uint32 cc, bool bit )
 		current_cc = cc;
 	}
 
-    blk_cc_size = blk_cc_offset+cc;
-    assert(blk_cswbuffer && blk_cswbuffer==current_block->cswdata);
-    blk_cswbuffer->outputCc( blk_cc_size, bit );
+	blk_cc_size = blk_cc_offset+cc;
+	assert(blk_cswbuffer && blk_cswbuffer==current_block->cswdata);
+	blk_cswbuffer->outputCc( blk_cc_size, bit );
 }
 
 
 /*  Notification: video frame end
-    items should run up to cc
-    time base of machine will be decremented by cc after this call
+	items should run up to cc
+	time base of machine will be decremented by cc after this call
 */
 void TapeFile::videoFrameEnd( int32 cc )
 {
-    assert(mode==playing || mode==recording);
+	assert(mode==playing || mode==recording);
 
 	blk_cc_offset += cc;
 
@@ -512,31 +504,31 @@ void TapeFile::videoFrameEnd( int32 cc )
 
 
 /*  get the next standard data block from tape
-    returns either valid TapData block or NULL
+	returns either valid TapData block or NULL
 */
 TapData* TapeFile::readTapDataBlock() noexcept
 {
-    assert(mode==stopped);
+	assert(mode==stopped);
 
 	if(isNearEndOfBlock(min(5.0,getPlaytimeOfBlock()/4)))
 		seekStartOfNextBlock();
 
-    for(;;)
-    {
-        if(isAtEndOfTape()) return NULL;
-        TapData* bu = current_block->getTapData();
-        seekStartOfNextBlock();
-        if(bu->trust_level>=TapeData::conversion_success) return bu;
-    }
+	for(;;)
+	{
+		if(isAtEndOfTape()) return NULL;
+		TapData* bu = current_block->getTapData();
+		seekStartOfNextBlock();
+		if(bu->trust_level>=TapeData::conversion_success) return bu;
+	}
 }
 
 
 /*  get the next standard data block from tape
-    returns either valid O80Data block or NULL
+	returns either valid O80Data block or NULL
 */
 O80Data* TapeFile::readO80DataBlock() noexcept
 {
-    assert(mode==stopped);
+	assert(mode==stopped);
 
 	if(isNearEndOfBlock(min(5.0,getPlaytimeOfBlock()/4)))
 		seekStartOfNextBlock();
@@ -546,7 +538,7 @@ O80Data* TapeFile::readO80DataBlock() noexcept
 		if(isAtEndOfTape()) return NULL;
 		O80Data* bu = current_block->getO80Data();
 		seekStartOfNextBlock();
-        if(bu->trust_level>=TapeData::conversion_success) return bu;
+		if(bu->trust_level>=TapeData::conversion_success) return bu;
 	}
 }
 
@@ -559,7 +551,7 @@ O80Data* TapeFile::readO80DataBlock() noexcept
 */
 void TapeFile::writeTapeDataBlock( TapeData* q )
 {
-    assert(mode==stopped);
+	assert(mode==stopped);
 
 	if( isNearEndOfBlock(min(5.0,getPlaytimeOfBlock()/4)) &&
 		!current_block->isSilenceOrNoise())
@@ -588,7 +580,7 @@ void TapeFile::seekStart()
 {
 	assert(mode==stopped);
 
-    goto_block(0);
+	goto_block(0);
 	current_block->seekStart();
 }
 
@@ -596,7 +588,7 @@ void TapeFile::seekEnd()
 {
 	assert(mode==stopped);
 
-    goto_block(this->count()-1);
+	goto_block(this->count()-1);
 	current_block->seekEnd();
 }
 
@@ -616,20 +608,20 @@ void TapeFile::seekPosition( Time t )
 
 	while( t<a && pos>0 )
 	{
-        e = a;
-        a -= data[--pos]->getTotalTime();
-    }
+		e = a;
+		a -= data[--pos]->getTotalTime();
+	}
 
 	while( a!=e ? t>=e				// block not empty: move to next block if beyond or at end of block
 		   : t>e && pos+1<count())	// block empty: move to next block if beyond end, except if this is the final empty block
 	{
 		if(pos+1==this->count()) append_empty_block();	// 2014-02-16 wg. nicht mehr auto-grow; korr. 2014-4-12
-        a=e; e += data[++pos]->getTotalTime();
-    }
+		a=e; e += data[++pos]->getTotalTime();
+	}
 
-    update_blk_info();
-    t = t-a;
-    limit(0.0,t,current_block->getTotalTime());
+	update_blk_info();
+	t = t-a;
+	limit(0.0,t,current_block->getTotalTime());
 	current_block->seekTimePos(t);
 }
 
@@ -678,26 +670,26 @@ void TapeFile::seekStartOfNextBlock()
 	if( pos+1 < this->count() || current_block->isNotEmpty() )
 	{
 		if(pos+1==this->count()) append_empty_block();	// 2014-02-16 wg. nicht mehr auto-grow  &&  hat wohl eh gebummert
-        goto_block(pos+1);
+		goto_block(pos+1);
 		current_block->seekStart();
 	}
 }
 
 
 /*	Move tape position to the end of the previous tapedata.
-    except if already in first block, then move to start of block
+	except if already in first block, then move to start of block
 */
 void TapeFile::seekEndOfPrevBlock()
 {
 	assert(mode==stopped);
 	assert(pos<this->count());
 
-    if(pos)
-    {
-        goto_block(pos-1);
-        current_block->seekEnd();
-    }
-    else current_block->seekStart();
+	if(pos)
+	{
+		goto_block(pos-1);
+		current_block->seekEnd();
+	}
+	else current_block->seekStart();
 }
 
 
@@ -721,10 +713,10 @@ void TapeFile::deleteCurrentBlock()
 
 	if(current_block->isNotEmpty()) modified = yes;
 
-    if(current_block==last()) current_block->purgeBlock();
-    else remove(pos);
-    update_blk_info();
-    current_block->seekStart();
+	if(current_block==last()) current_block->purgeBlock();
+	else remove(pos);
+	update_blk_info();
+	current_block->seekStart();
 }
 
 

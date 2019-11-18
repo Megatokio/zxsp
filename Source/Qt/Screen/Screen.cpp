@@ -1,27 +1,19 @@
-/*	Copyright  (c)	Günter Woigk 2002 - 2018
-  					mailto:kio@little-bat.de
+/*	Copyright  (c)	Günter Woigk 2002 - 2019
+					mailto:kio@little-bat.de
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This file is free software.
 
- 	Permission to use, copy, modify, distribute, and sell this software and
- 	its documentation for any purpose is hereby granted without fee, provided
- 	that the above copyright notice appear in all copies and that both that
- 	copyright notice and this permission notice appear in supporting
- 	documentation, and that the name of the copyright holder not be used
- 	in advertising or publicity pertaining to distribution of the software
- 	without specific, written prior permission.  The copyright holder makes no
- 	representations about the suitability of this software for any purpose.
- 	It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software
+	and its documentation for any purpose is hereby granted without fee,
+	provided that the above copyright notice appears in all copies and
+	that both that copyright notice, this permission notice and the
+	following disclaimer appear in supporting documentation.
 
- 	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- 	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- 	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- 	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- 	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- 	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- 	PERFORMANCE OF THIS SOFTWARE.
+	THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY,
+	NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR
+	A PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE COPYRIGHT HOLDER
+	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
+	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
 #define LOGLEVEL 0
@@ -107,8 +99,8 @@ Screen::Screen (QWidget* owner, isa_id id)
 	//setAttribute(Qt::WA_NoSystemBackground,1);	// the widget has transparent parts
 	setAutoFillBackground(false);	// else ctors of Painters in paint_screen() will erase whole Screen
 
-    assert(context()->isValid());
-    doneCurrent();					// release OGL context so that render_thread can aquire it
+	assert(context()->isValid());
+	doneCurrent();					// release OGL context so that render_thread can aquire it
 
 	#if QT_VERSION >= 0x050000
 	  context()->moveToThread(render_thread);
@@ -138,7 +130,7 @@ Screen::~Screen()
 void Screen::initializeGL()
 {
 	// Setup resources needed by the OpenGL implementation to render the scene.
-    QGLWidget::initializeGL();
+	QGLWidget::initializeGL();
 }
 
 GifWriter* Screen::newGifWriter(bool update_border)
@@ -235,8 +227,8 @@ bool ScreenZxsp::ffb_or_vbi( IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixe
 
 		bool ffb_ready = ~_what & FFB_OR_VBI;
 		frames_hit_percent *= 0.98f;
-	    if(ffb_ready)
-	    {
+		if(ffb_ready)
+		{
 			frames_hit_percent += 2.0f;
 
 			_what |= FFB_OR_VBI;

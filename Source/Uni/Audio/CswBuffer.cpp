@@ -1,27 +1,19 @@
-/*	Copyright  (c)	Günter Woigk 2000 - 2018
-  					mailto:kio@little-bat.de
+/*	Copyright  (c)	Günter Woigk 2000 - 2019
+					mailto:kio@little-bat.de
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This file is free software.
 
- 	Permission to use, copy, modify, distribute, and sell this software and
- 	its documentation for any purpose is hereby granted without fee, provided
- 	that the above copyright notice appear in all copies and that both that
- 	copyright notice and this permission notice appear in supporting
- 	documentation, and that the name of the copyright holder not be used
- 	in advertising or publicity pertaining to distribution of the software
- 	without specific, written prior permission.  The copyright holder makes no
- 	representations about the suitability of this software for any purpose.
- 	It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software
+	and its documentation for any purpose is hereby granted without fee,
+	provided that the above copyright notice appears in all copies and
+	that both that copyright notice, this permission notice and the
+	following disclaimer appear in supporting documentation.
 
- 	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- 	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- 	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- 	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- 	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- 	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- 	PERFORMANCE OF THIS SOFTWARE.
+	THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY,
+	NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR
+	A PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE COPYRIGHT HOLDER
+	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
+	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
 #include "CswBuffer.h"
@@ -32,23 +24,23 @@
 
 
 /*
-                    _________________________                  __________
-                   |                         |                |
-    _______________|  <-- current pulse -->  |________________|
-                   ^
-                   |
-                  out
-                  0->1
+					_________________________                  __________
+				   |                         |                |
+	_______________|  <-- current pulse -->  |________________|
+				   ^
+				   |
+				  out
+				  0->1
 
-                    _________________________                  __________
-                   |                         |                |
-    _______________|  <-- current pulse -->  |________________|
-                            ^         ^
-                      . . . | . . . . | . .
-                            in        in
-                   ^
-                   |
-                   pos/cc_pos
+					_________________________                  __________
+				   |                         |                |
+	_______________|  <-- current pulse -->  |________________|
+							^         ^
+					  . . . | . . . . | . .
+							in        in
+				   ^
+				   |
+				   pos/cc_pos
 */
 
 
@@ -59,16 +51,16 @@
 
 CswBuffer::CswBuffer (uint32 ccps, bool phase0, int)
 :
-    data(NULL),
-    max(0),
+	data(NULL),
+	max(0),
 	end(0),
 	cc_end(0),
 	ccps(ccps),
-    recording(no),
-    pos(0),
-    cc_pos(0),
-    phase(phase0),
-    cc_offset(0)
+	recording(no),
+	pos(0),
+	cc_pos(0),
+	phase(phase0),
+	cc_offset(0)
 {}
 
 /*  purge contents:
@@ -78,32 +70,32 @@ void CswBuffer::purge() noexcept
 {
 	phase = getPhase0();	// current phase
 
-    delete[] data;
-    data    = NULL;         // buffer
-    max     = 0;            // allocated size
+	delete[] data;
+	data    = NULL;         // buffer
+	max     = 0;            // allocated size
 	end     = 0;            // used size
 	cc_end  = 0;            // total samples up to 'end'
-    recording = no;
+	recording = no;
 
-    pos     = 0;            // current index in 'data'
-    cc_pos  = 0;            // total samples up to 'pos' (excl.)
-    cc_offset = 0;          // current CC offset inside current sample
+	pos     = 0;            // current index in 'data'
+	cc_pos  = 0;            // total samples up to 'pos' (excl.)
+	cc_offset = 0;          // current CC offset inside current sample
 }
 
 
 CswBuffer::CswBuffer(TapeData const& q, uint32 ccps)
 {
-    xlogIn("new CswBuffer(TapeData&)");
+	xlogIn("new CswBuffer(TapeData&)");
 
-    switch(q.isaId())
-    {
-    case isa_TapData:   new(this) CswBuffer(TapDataRef(q), ccps); break;
-    case isa_TzxData:   new(this) CswBuffer(TzxDataRef(q), ccps); break;
-    case isa_O80Data:   new(this) CswBuffer(O80DataRef(q), ccps); break;
-    case isa_RlesData:  new(this) CswBuffer(RlesDataRef(q), ccps); break;
-    case isa_AudioData:	new(this) CswBuffer(AudioDataRef(q), ccps); break;
-    default:            IERR();
-    }
+	switch(q.isaId())
+	{
+	case isa_TapData:   new(this) CswBuffer(TapDataRef(q), ccps); break;
+	case isa_TzxData:   new(this) CswBuffer(TzxDataRef(q), ccps); break;
+	case isa_O80Data:   new(this) CswBuffer(O80DataRef(q), ccps); break;
+	case isa_RlesData:  new(this) CswBuffer(RlesDataRef(q), ccps); break;
+	case isa_AudioData:	new(this) CswBuffer(AudioDataRef(q), ccps); break;
+	default:            IERR();
+	}
 }
 
 
@@ -112,16 +104,16 @@ CswBuffer::CswBuffer(TapeData const& q, uint32 ccps)
 */
 CswBuffer::CswBuffer( CswBuffer const& q, uint32 ccps)
 :
-    data(NULL),
-    max(q.end+80),		// add some extra, e.g. allow appending pause without realloc
+	data(NULL),
+	max(q.end+80),		// add some extra, e.g. allow appending pause without realloc
 	end(q.end),
 	cc_end(q.cc_end),
 	ccps(ccps),
-    recording(no),
-    pos(0),
-    cc_pos(0),
-    phase(q.getPhase0()),
-    cc_offset(0)
+	recording(no),
+	pos(0),
+	cc_pos(0),
+	phase(q.getPhase0()),
+	cc_offset(0)
 {
 	if(ccps==q.ccps)	// no resampling
 	{
@@ -171,64 +163,64 @@ CswBuffer::CswBuffer( CswBuffer const& q, uint32 ccps)
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
 /*  step foreward to next pulse
-    don't call at buffer end
+	don't call at buffer end
 */
 //private
 inline void CswBuffer::skip() const noexcept
 {
-    assert(pos<end);
+	assert(pos<end);
 
-    phase = !phase;
-    cc_pos += data[pos++];
+	phase = !phase;
+	cc_pos += data[pos++];
 }
 
 /*  step backward to previous pulse
-    don't call at buffer start
+	don't call at buffer start
 */
 //private
 inline void CswBuffer::rskip() const noexcept
 {
-    assert(pos>0);
+	assert(pos>0);
 
-    phase = !phase;
-    cc_pos -= data[--pos];
+	phase = !phase;
+	cc_pos -= data[--pos];
 }
 
 /*  grow buffer
-    may shrink buffer as well,
-    but new 'max' size must be ≥ current 'end' size
+	may shrink buffer as well,
+	but new 'max' size must be ≥ current 'end' size
 */
 //private
 void CswBuffer::grow(uint32 n) throws/*bad alloc*/
 {
-    assert(n>=end);
+	assert(n>=end);
 
-    uint16* z = new uint16[n];
-    memcpy(z,data,end*sizeof(uint16));
-    delete[] data;
-    data = z;
-    max  = n;
+	uint16* z = new uint16[n];
+	memcpy(z,data,end*sizeof(uint16));
+	delete[] data;
+	data = z;
+	max  = n;
 }
 
 
 /*  grow the data[] buffer:
-    does not shrink the buffer
+	does not shrink the buffer
 */
 //public
 void CswBuffer::growBuffer(uint32 n) throws/*bad alloc*/
 {
-    if(n>max) grow(n);
+	if(n>max) grow(n);
 }
 
 
 /*  shrink buffer to fit the actually used size
-    if reallocating the buffer fails, nothing is done (fail safe)
-        this is highly unlikely nowadays
+	if reallocating the buffer fails, nothing is done (fail safe)
+		this is highly unlikely nowadays
 */
 void CswBuffer::shrinkToFit() noexcept
 {
-    try { if(max>end) grow(end); }
-    catch(bad_alloc&){}
+	try { if(max>end) grow(end); }
+	catch(bad_alloc&){}
 }
 
 
@@ -240,40 +232,40 @@ void CswBuffer::shrinkToFit() noexcept
 */
 void CswBuffer::seekStart() const noexcept
 {
-    if(pos&1) phase = !phase;
-    cc_offset = cc_pos = pos = 0;
+	if(pos&1) phase = !phase;
+	cc_offset = cc_pos = pos = 0;
 }
 
 /*  move 'pos/cc_pos' to end of this buffer
 */
 void CswBuffer::seekEnd() const noexcept
 {
-    if((end-pos)&1) phase = !phase;
+	if((end-pos)&1) phase = !phase;
 	pos = end;
 	cc_offset = 0;
 	cc_pos = cc_end;
 }
 
 /*  move 'cc_pos' to the given position
-    moves 'pos/cc_pos' to the pulse which contains the given cc:
-        cc_pos[pos] ≤ cc < cc_pos[pos+1]
+	moves 'pos/cc_pos' to the pulse which contains the given cc:
+		cc_pos[pos] ≤ cc < cc_pos[pos+1]
 */
 CC CswBuffer::seekCc(CC cc) const noexcept
 {
-    if(recording)
-    {
-        assert(cc>=cc_pos+cc_offset);
-    }
-    else
-    {
-        if(cc==0)      { seekStart(); return 0; }
-        if(cc>=cc_end) { seekEnd(); return cc_end; }
+	if(recording)
+	{
+		assert(cc>=cc_pos+cc_offset);
+	}
+	else
+	{
+		if(cc==0)      { seekStart(); return 0; }
+		if(cc>=cc_end) { seekEnd(); return cc_end; }
 
-        while(cc>cc_pos) skip();
-        while(cc<cc_pos) rskip();
-    }
-    cc_offset = cc-cc_pos;
-    return cc;
+		while(cc>cc_pos) skip();
+		while(cc<cc_pos) rskip();
+	}
+	cc_offset = cc-cc_pos;
+	return cc;
 }
 
 /*	move pos to the given buffer index
@@ -292,7 +284,7 @@ void CswBuffer::seekPos( uint32 newpos ) const noexcept
 	while(newpos>pos) cc_pos += data[pos++];
 	while(newpos<pos) cc_pos -= data[--pos];
 
-    cc_offset = 0;
+	cc_offset = 0;
 }
 
 
@@ -303,68 +295,68 @@ void CswBuffer::seekPos( uint32 newpos ) const noexcept
 
 bool CswBuffer::inputCc(uint32 cc) const noexcept
 {
-    assert(!recording);
-    assert(cc>=cc_pos+cc_offset);
+	assert(!recording);
+	assert(cc>=cc_pos+cc_offset);
 
-    if(cc>=cc_end) seekEnd(); else while(cc>=cc_pos+data[pos]) skip();
-    cc_offset = cc-cc_pos;
-    return phase;
+	if(cc>=cc_end) seekEnd(); else while(cc>=cc_pos+data[pos]) skip();
+	cc_offset = cc-cc_pos;
+	return phase;
 }
 
 bool CswBuffer::inputTime(Time s) const noexcept
 {
 	CC cc = s*ccps;
 
-    assert(!recording);
-    assert(cc>=cc_pos+cc_offset);
+	assert(!recording);
+	assert(cc>=cc_pos+cc_offset);
 
-    if(cc>=cc_end) seekEnd(); else while(cc>=cc_pos+data[pos]) skip();
-    cc_offset = cc-cc_pos;
-    return phase;
+	if(cc>=cc_end) seekEnd(); else while(cc>=cc_pos+data[pos]) skip();
+	cc_offset = cc-cc_pos;
+	return phase;
 }
 
 void CswBuffer::outputCc(uint32 cc, bool bit) throws/*bad alloc*/
 {
-    assert(recording);
-    assert(cc >= cc_pos+cc_offset);
+	assert(recording);
+	assert(cc >= cc_pos+cc_offset);
 
-    if(bit!=phase) writePulseCc(cc-cc_pos);
-    cc_offset = cc-cc_pos;
+	if(bit!=phase) writePulseCc(cc-cc_pos);
+	cc_offset = cc-cc_pos;
 }
 
 void CswBuffer::outputTime(Time s, bool bit) throws/*bad alloc*/
 {
 	CC cc = s*ccps;
 
-    assert(recording);
-    assert(cc >= cc_pos+cc_offset);
+	assert(recording);
+	assert(cc >= cc_pos+cc_offset);
 
-    if(bit!=phase) writePulseCc(cc-cc_pos);
-    cc_offset = cc-cc_pos;
+	if(bit!=phase) writePulseCc(cc-cc_pos);
+	cc_offset = cc-cc_pos;
 }
 
 void CswBuffer::stopRecording (CC cc) throws/*bad alloc*/
 {
-    assert(recording);
-    assert(cc >= cc_pos+cc_offset);
+	assert(recording);
+	assert(cc >= cc_pos+cc_offset);
 
-    writePulseCc(cc-cc_pos);	// finalize current pulse
-    writePulseCc(0);			// but don't toggle phase
+	writePulseCc(cc-cc_pos);	// finalize current pulse
+	writePulseCc(0);			// but don't toggle phase
 
-    recording = no;
+	recording = no;
 	shrinkToFit();
 }
 
 void CswBuffer::startRecording (CC cc) noexcept
 {
-    assert(!recording);
-    assert(cc <= cc_end);
+	assert(!recording);
+	assert(cc <= cc_end);
 	assert(cc >= cc_pos+cc_offset);
 
-    seekCc(cc);
-    cc_end = cc_pos;
-    end = pos;
-    recording = yes;
+	seekCc(cc);
+	cc_end = cc_pos;
+	end = pos;
+	recording = yes;
 }
 
 
@@ -377,21 +369,21 @@ void CswBuffer::startRecording (CC cc) noexcept
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
 /*  read current pulse
-    and step to next pulse.
-    Returns 0 at buffer end
+	and step to next pulse.
+	Returns 0 at buffer end
 */
 uint32 CswBuffer::readPulse() const noexcept
 {
-    if(pos>=end) return 0;
+	if(pos>=end) return 0;
 
-    uint32 cc = data[pos];
-    while( ++pos<end && data[pos]==0 && pos+1<end) { cc += data[++pos]; }
-    assert(pos<=end);
-    assert(pos<=max);
+	uint32 cc = data[pos];
+	while( ++pos<end && data[pos]==0 && pos+1<end) { cc += data[++pos]; }
+	assert(pos<=end);
+	assert(pos<=max);
 
-    phase = !phase;
-    cc_pos += cc;
-    return cc;
+	phase = !phase;
+	cc_pos += cc;
+	return cc;
 }
 
 void CswBuffer::putbackPulse() const noexcept
@@ -400,64 +392,64 @@ void CswBuffer::putbackPulse() const noexcept
 	assert(pos>0);
 
 	// step back 1 pos:
-    uint32 cc = data[--pos];
+	uint32 cc = data[--pos];
 
-    // step back N*2 more pos if pulses separated by 0-length pulses:
-    // note: there may be a lonely 0-pulse at data[0]
-    while( pos>1 && data[pos-1]==0) { cc += data[----pos]; }
+	// step back N*2 more pos if pulses separated by 0-length pulses:
+	// note: there may be a lonely 0-pulse at data[0]
+	while( pos>1 && data[pos-1]==0) { cc += data[----pos]; }
 
-    phase = !phase;
-    cc_pos -= cc;
+	phase = !phase;
+	cc_pos -= cc;
 }
 
 /*  append pulse
 */
 void CswBuffer::writePulseCc(uint32 cc) throws/*bad alloc*/
 {
-    while(cc>>16) { writePulseCc(0xFFFFu); writePulseCc(0); cc -= 0xFFFFu; }
+	while(cc>>16) { writePulseCc(0xFFFFu); writePulseCc(0); cc -= 0xFFFFu; }
 
-    if(pos==max) growBuffer(max + (max>>1) + 10000);
-    assert(pos<=end);
-    assert(pos<max);
+	if(pos==max) growBuffer(max + (max>>1) + 10000);
+	assert(pos<=end);
+	assert(pos<max);
 
-    data[pos++] = cc;
+	data[pos++] = cc;
 
-    end = pos;
-    cc_end = cc_pos += cc;
-    phase = !phase;
+	end = pos;
+	cc_end = cc_pos += cc;
+	phase = !phase;
 }
 
 /*  elongate last pulse
 */
 void CswBuffer::appendToPulseCc(uint32 cc) throws/*bad alloc*/
 {
-    if(pos==0)
-        phase = !phase;
-    else
-    {
-        rskip();
-        cc += data[pos];
-    }
-    writePulseCc(cc);
+	if(pos==0)
+		phase = !phase;
+	else
+	{
+		rskip();
+		cc += data[pos];
+	}
+	writePulseCc(cc);
 }
 
 /*  write pulse with given polarity
-    if bit toggles then write a new pulse
-    else elongate the last pulse.
-    Can be used as first pulse to set starting polarity of this buffer
+	if bit toggles then write a new pulse
+	else elongate the last pulse.
+	Can be used as first pulse to set starting polarity of this buffer
 */
 void CswBuffer::writePulseCc(uint32 cc, bool bit) throws/*bad alloc*/
 {
-    if(bit==phase) writePulseCc(cc);  // new pulse
-    else appendToPulseCc(cc);         // append
+	if(bit==phase) writePulseCc(cc);  // new pulse
+	else appendToPulseCc(cc);         // append
 }
 
 /*  set polarity of current phase
-    if polarity is wrong then a 0-pulse is added to toggle polarity
+	if polarity is wrong then a 0-pulse is added to toggle polarity
 */
 void CswBuffer::setPhase(bool bit) throws/*bad alloc*/
 {
-    if(phase!=bit) writePulseCc(0);
+	if(phase!=bit) writePulseCc(0);
 }
 
 
@@ -561,10 +553,10 @@ bool CswBuffer::isSilenceOrNoise() const noexcept
 a:	for(int n=0; n<n_max; n++)		// at most n_max short pulses
 	{
 		if(pos==end) return yes;
-	    uint32 cc = data[pos];
-	    while( ++pos<end && data[pos]==0 && pos+1<end) { cc += data[++pos]; }
-	    assert(pos<=end);
-	    assert(pos<=max);
+		uint32 cc = data[pos];
+		while( ++pos<end && data[pos]==0 && pos+1<end) { cc += data[++pos]; }
+		assert(pos<=end);
+		assert(pos<=max);
 		if(cc >= cc_2ms) goto a;	// long pulse <=> silence
 	}
 

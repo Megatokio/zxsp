@@ -1,27 +1,19 @@
-/*	Copyright  (c)	Günter Woigk 1995 - 2018
-                    mailto:kio@little-bat.de
+/*	Copyright  (c)	Günter Woigk 1995 - 2019
+					mailto:kio@little-bat.de
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This file is free software.
 
-    Permission to use, copy, modify, distribute, and sell this software and
-    its documentation for any purpose is hereby granted without fee, provided
-    that the above copyright notice appear in all copies and that both that
-    copyright notice and this permission notice appear in supporting
-    documentation, and that the name of the copyright holder not be used
-    in advertising or publicity pertaining to distribution of the software
-    without specific, written prior permission.  The copyright holder makes no
-    representations about the suitability of this software for any purpose.
-    It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software
+	and its documentation for any purpose is hereby granted without fee,
+	provided that the above copyright notice appears in all copies and
+	that both that copyright notice, this permission notice and the
+	following disclaimer appear in supporting documentation.
 
-    THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-    INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
-    EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-    CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
-    DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-    TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-    PERFORMANCE OF THIS SOFTWARE.
+	THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY,
+	NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR
+	A PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE COPYRIGHT HOLDER
+	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
+	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
 #include "MachineZxsp.h"
@@ -120,8 +112,8 @@ bool MachineZxsp::handleLoadTapePatch()
 // test whether the tape recorder can read a block:
 	if(!taperecorder->can_read_block()) return 0;		 // not handled
 
-    TapData* bu = taperecorder->getZxspBlock();
-    if(!bu) return 0;		// not handled
+	TapData* bu = taperecorder->getZxspBlock();
+	if(!bu) return 0;		// not handled
 
 /*	load data from tape file as with the ZX Spectrum Rom load routine
 	nominal patch address: 0x0556
@@ -160,8 +152,8 @@ bool MachineZxsp::handleLoadTapePatch()
 		NC NZ = final CRC wrong (but not 1)	IX,DE entspr. count;  A = H > 1;  L = last (crc) byte
 */
 
-    cu8ptr q = bu->getData();
-    uint32 qlen = bu->count();
+	cu8ptr q = bu->getData();
+	uint32 qlen = bu->count();
 
 	Z80Regs& regs   = cpu->getRegisters();
 	uint16   zaddr  = regs.ix;				// target address
@@ -254,9 +246,9 @@ void MachineZxsp::saveScr(FD& fd) throws
 	// this is the standard 6912 byte frame buffer of a ZX Spectrum
 	// ZX128: the actually visible frame buffer is saved.
 
-    uint8 bu[6912];
-    Z80::c2b(UlaZxspPtr(ula)->getVideoRam(),bu,6912);
-    fd.write_bytes(bu,6912);
+	uint8 bu[6912];
+	Z80::c2b(UlaZxspPtr(ula)->getVideoRam(),bu,6912);
+	fd.write_bytes(bu,6912);
 }
 
 void MachineZxsp::loadScr(FD& fd) throws
@@ -264,7 +256,7 @@ void MachineZxsp::loadScr(FD& fd) throws
 	uint32 sz = uint32(fd.file_size());
 	if(sz!=6912) showWarning("The .scr Screen file seems to be corrupted");
 	sz = min(6912u,sz);
-    uint8 bu[6912];
+	uint8 bu[6912];
 	fd.read_bytes(bu,sz);
 
 	if(crtc->isA(isa_SpectraVideo))
@@ -293,14 +285,14 @@ void write_mem(FD& fd, const CoreByte *q, uint32 cnt) throws
 void read_mem(FD& fd, CoreByte* z, uint32 cnt) throws
 {
 	std::unique_ptr<uint8[]> bu{new uint8[cnt]};
-    fd.read_bytes(bu.get(),cnt);
-    Z80::b2c(bu.get(),z,cnt);			// copy data, preserve flags
+	fd.read_bytes(bu.get(),cnt);
+	Z80::b2c(bu.get(),z,cnt);			// copy data, preserve flags
 }
 
 Model modelForSna(FD& fd) throws
 {
-    uint32 ramsize = uint32(fd.file_size())-snalen;
-    return ramsize > 0x4000 ? zxsp_i3 : zxsp_i1;
+	uint32 ramsize = uint32(fd.file_size())-snalen;
+	return ramsize > 0x4000 ? zxsp_i3 : zxsp_i1;
 }
 
 struct SnaHead
@@ -313,12 +305,12 @@ struct SnaHead
 		iff,r,f,a,spl,sph,im,
 		brdr;
 
-    void    clear()							{ memset(this,0,snalen); }
-    void    readFromFile(FD& fd)   throws		{ fd.read_bytes(this,snalen); }
-    void    writeToFile(FD& fd)    throws		{ fd.write_bytes(this,snalen); }
+	void    clear()							{ memset(this,0,snalen); }
+	void    readFromFile(FD& fd)   throws		{ fd.read_bytes(this,snalen); }
+	void    writeToFile(FD& fd)    throws		{ fd.write_bytes(this,snalen); }
 
-    void    setRegisters(Z80Regs const&);	// put regs into SnaHead.   ATTN: push PC!
-    void    getRegisters(Z80Regs&);			// get regs from SnaHead.   ATTN: pop PC!
+	void    setRegisters(Z80Regs const&);	// put regs into SnaHead.   ATTN: push PC!
+	void    getRegisters(Z80Regs&);			// get regs from SnaHead.   ATTN: pop PC!
 };
 
 void SnaHead::setRegisters(Z80Regs const& regs)
@@ -327,7 +319,7 @@ void SnaHead::setRegisters(Z80Regs const& regs)
 	// does not store PC
 	// PC must be pushed on stack BEFORE calling storeRegisters()
 
-    xlogIn("SnaHead:setRegisters");
+	xlogIn("SnaHead:setRegisters");
 
 	iff = regs.iff1 ? 0x04 : 0x00;
 	im	= regs.im;
@@ -352,7 +344,7 @@ void SnaHead::getRegisters(Z80Regs& regs)
 	// does not set the PC
 	// PC must be popped from stack AFTER calling getRegisters()
 
-    xlogIn("SnaHead:getRegisters");
+	xlogIn("SnaHead:getRegisters");
 
 	regs.i 	= i;    regs.r 	= r;
 	regs.a 	= a;	regs.f	= f;
@@ -374,7 +366,7 @@ void SnaHead::getRegisters(Z80Regs& regs)
 	{
 		logline("  a f  b c  d e  h l a2f2 b2c2 d2e2 h2l2  i x  i y   pc   sp  iff  i r   im");
 		for(int i=0;i<16;i++) log(" %04x",regs.nn[i]); logNl();
-    }
+	}
 }
 
 void MachineZxsp::saveSna(FD &fd ) throws
@@ -387,17 +379,17 @@ void MachineZxsp::saveSna(FD &fd ) throws
 	assert(ram.count()<=48 kB);
 
 	SnaHead head;
-    cpu->push2(cpu->getRegisters().pc);
-    head.setRegisters(cpu->getRegisters());
-    (void)cpu->pop2();
+	cpu->push2(cpu->getRegisters().pc);
+	head.setRegisters(cpu->getRegisters());
+	(void)cpu->pop2();
 	head.brdr = ula->getBorderColor();
 	head.writeToFile(fd);
 
 	uint32 ramsize = ram.count();                   // note: includes external ram, if any
 	for( uint32 i=0; i<ramsize; i+=CPU_PAGESIZE )
 	{
-        write_mem( fd, cpu->rdPtr(0x4000+i), CPU_PAGESIZE );
-    }
+		write_mem( fd, cpu->rdPtr(0x4000+i), CPU_PAGESIZE );
+	}
 }
 
 void MachineZxsp::loadSna(FD &fd ) throws
@@ -413,8 +405,8 @@ void MachineZxsp::loadSna(FD &fd ) throws
 	assert(ram.count()<=48 kB);
 	assert(is_locked());
 
-    uint32 qramsize = fd.file_size()-snalen;  if(qramsize>0xC000) qramsize=0xc000;
-    assert(ram.count()/*zramsize*/>=qramsize);
+	uint32 qramsize = fd.file_size()-snalen;  if(qramsize>0xC000) qramsize=0xc000;
+	assert(ram.count()/*zramsize*/>=qramsize);
 
 	// we need to power on the machine but it must not runForSound()
 	// don't block: we might be called from runForSound()!
@@ -423,21 +415,21 @@ void MachineZxsp::loadSna(FD &fd ) throws
 
 	SnaHead head;
 	head.readFromFile(fd);
-    head.getRegisters(cpu->getRegisters());
+	head.getRegisters(cpu->getRegisters());
 
 	if(crtc->isaId() == isa_SpectraVideo) SpectraVideoPtr(crtc)->setVideoMode(0);
 	crtc->setBorderColor(head.brdr);
 
 	for( uint32 i=0; i<qramsize; i+=CPU_PAGESIZE )
 	{
-        xlog("x"); read_mem( fd, cpu->wrPtr(0x4000+i), CPU_PAGESIZE );
-    }
+		xlog("x"); read_mem( fd, cpu->wrPtr(0x4000+i), CPU_PAGESIZE );
+	}
 
 	uint16& sp = cpu->getRegisters().sp;
 	if(sp>=0x4000+qramsize) showWarning("Stack beyond ram: $%4X", uint(sp));
-    cpu->getRegisters().pc = cpu->pop2();
+	cpu->getRegisters().pc = cpu->pop2();
 	if(sp<=0x4000) showWarning("Stack within rom: $%4X", uint(sp));
-    xlogline(" snapshot loaded ok");
+	xlogline(" snapshot loaded ok");
 }
 
 
@@ -447,12 +439,12 @@ void MachineZxsp::loadSna(FD &fd ) throws
 
 #if 0
 /*  save data as with the ZXSP ROM 'save tape' routine
-    nominal routine address: 0x04D0
-    • addr = IX
-    • size = DE
-    • pilot length = HL
-    • type byte = A
-    • return address = (SP++)
+	nominal routine address: 0x04D0
+	• addr = IX
+	• size = DE
+	• pilot length = HL
+	• type byte = A
+	• return address = (SP++)
 	return:	registers set for 'ok'
 */
 int TapData::save( Z80& cpu ) noexcept			// zx80 rom save patch
@@ -492,35 +484,35 @@ int TapData::save( Z80& cpu ) noexcept			// zx80 rom save patch
 
 
 /*	load data from buffer to ram file as with the ZX Spectrum Rom load routine
-    nominal patch address: 0x0556
-    in:
-        IX:	addr
-        DE:	count		(D must not be $FF)
-        A:	blocktype	(byte 1)
-        F:	CY = load
-            NC = verify
-    ok:
-        CY,NZ = ok
-        A	  = 0 (crc)
-        B	  = 0xB0
-        C     = 0x02 oder 0x22  je nach letztem ear_in bit
-        H     = 0 (crc)
-        L     = last (crc) byte
-        IX	 += count
-        DE	  = 0		( -= count)
-        AF,BC,DE,HL,AF',IX modified
-        IFF	disabled	(will be enabled in SAVLOA)
-        PC	return address popped from stack
-        • SAVLOA ($053F) wird anfangs auf den Stack gepusht und kann dort überschrieben werden
-        • FLANK2 ($05E3) und darin FLANK1 ($05E7) werden für jedes Bit aufgerufen und überschreiben die geladenen Daten
-    err:
-        NC    = break or error
-        NC NZ = break						IX,DE entspr. geladenen bytes
-        NC NZ = wrong block type			IX,DE untouched;  EX AF,AF';  L = block type found
-        NC NZ = verify error				IX,DE entspr. wrong byte;  EX AF,AF';
-        NC Z  = error (pulse too long)
-        NC Z  = final CRC == 1				IX,DE entspr. count;  A = H = 1;  L = last (crc) byte
-        NC NZ = final CRC wrong (but not 1)	IX,DE entspr. count;  A = H > 1;  L = last (crc) byte
+	nominal patch address: 0x0556
+	in:
+		IX:	addr
+		DE:	count		(D must not be $FF)
+		A:	blocktype	(byte 1)
+		F:	CY = load
+			NC = verify
+	ok:
+		CY,NZ = ok
+		A	  = 0 (crc)
+		B	  = 0xB0
+		C     = 0x02 oder 0x22  je nach letztem ear_in bit
+		H     = 0 (crc)
+		L     = last (crc) byte
+		IX	 += count
+		DE	  = 0		( -= count)
+		AF,BC,DE,HL,AF',IX modified
+		IFF	disabled	(will be enabled in SAVLOA)
+		PC	return address popped from stack
+		• SAVLOA ($053F) wird anfangs auf den Stack gepusht und kann dort überschrieben werden
+		• FLANK2 ($05E3) und darin FLANK1 ($05E7) werden für jedes Bit aufgerufen und überschreiben die geladenen Daten
+	err:
+		NC    = break or error
+		NC NZ = break						IX,DE entspr. geladenen bytes
+		NC NZ = wrong block type			IX,DE untouched;  EX AF,AF';  L = block type found
+		NC NZ = verify error				IX,DE entspr. wrong byte;  EX AF,AF';
+		NC Z  = error (pulse too long)
+		NC Z  = final CRC == 1				IX,DE entspr. count;  A = H = 1;  L = last (crc) byte
+		NC NZ = final CRC wrong (but not 1)	IX,DE entspr. count;  A = H > 1;  L = last (crc) byte
 */
 int TapData::load( Z80& cpu ) const noexcept	// zx80 rom load patch
 {

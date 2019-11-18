@@ -1,27 +1,19 @@
-/*	Copyright  (c)	Günter Woigk 2015 - 2018
+/*	Copyright  (c)	Günter Woigk 2015 - 2019
 					mailto:kio@little-bat.de
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This file is free software.
 
-	Permission to use, copy, modify, distribute, and sell this software and
-	its documentation for any purpose is hereby granted without fee, provided
-	that the above copyright notice appear in all copies and that both that
-	copyright notice and this permission notice appear in supporting
-	documentation, and that the name of the copyright holder not be used
-	in advertising or publicity pertaining to distribution of the software
-	without specific, written prior permission.  The copyright holder makes no
-	representations about the suitability of this software for any purpose.
-	It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software
+	and its documentation for any purpose is hereby granted without fee,
+	provided that the above copyright notice appears in all copies and
+	that both that copyright notice, this permission notice and the
+	following disclaimer appear in supporting documentation.
 
-	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
-	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
-	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-	PERFORMANCE OF THIS SOFTWARE.
+	THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY,
+	NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR
+	A PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE COPYRIGHT HOLDER
+	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
+	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
 #include <stdio.h>
@@ -183,7 +175,7 @@ void add(CFMutableDictionaryRef dict, cstr key, cstr value)
 }
 
 /*	get an iterator for all services matching a matching directory
-    -->
+	-->
 		for(io_service_t device; (device = IOIteratorNext(iter)); IOObjectRelease(device))
 		{
 			// do something
@@ -193,8 +185,8 @@ void add(CFMutableDictionaryRef dict, cstr key, cstr value)
 io_iterator_t newIteratorForMatchingServices(CFDictionaryRef matchingDict)
 {
 	if(matchingDict==NULL) return 0;
-    io_iterator_t iter;
-    kern_return_t err = IOServiceGetMatchingServices(kIOMasterPortDefault, matchingDict, &iter);
+	io_iterator_t iter;
+	kern_return_t err = IOServiceGetMatchingServices(kIOMasterPortDefault, matchingDict, &iter);
 	if(err) return 0;
 	else return iter;
 }
@@ -224,7 +216,7 @@ CFTypeRef usbSearchProperty(io_registry_entry_t registry_entry, QCFString proper
 {
 	xlogline("searchProperty(%s)",(cstr)property_key);
 
-    return IORegistryEntrySearchCFProperty(registry_entry, kIOUSBPlane/*kIOServicePlane*/, property_key,
+	return IORegistryEntrySearchCFProperty(registry_entry, kIOUSBPlane/*kIOServicePlane*/, property_key,
 										   NULL, recursive);
 }
 
@@ -234,7 +226,7 @@ CFTypeRef usbSearchProperty(io_registry_entry_t registry_entry, QCFString proper
 cstr usbSearchStringProperty(io_registry_entry_t registry_entry, QCFString property_key, uint recursive)
 {
 	QCFType<CFTypeRef> value = usbSearchProperty(registry_entry, property_key, recursive);
-    return toStr(value.as<CFStringRef>());
+	return toStr(value.as<CFStringRef>());
 }
 
 /*	search uint16 property from registry entry recursively in service plane
@@ -243,10 +235,10 @@ cstr usbSearchStringProperty(io_registry_entry_t registry_entry, QCFString prope
 */
 uint16 usbSearchShortIntProperty(io_registry_entry_t registry_entry, QCFString property_key, uint recursive, bool* ok)
 {
-    QCFType<CFTypeRef> prop = usbSearchProperty(registry_entry, property_key, recursive);
-    uint32 value = 0;
-    *ok = prop.isNotNull() && CFNumberGetValue(prop.as<CFNumberRef>(), kCFNumberSInt32Type, &value) && value<=0xffffu;
-    return value;
+	QCFType<CFTypeRef> prop = usbSearchProperty(registry_entry, property_key, recursive);
+	uint32 value = 0;
+	*ok = prop.isNotNull() && CFNumberGetValue(prop.as<CFNumberRef>(), kCFNumberSInt32Type, &value) && value<=0xffffu;
+	return value;
 }
 
 
@@ -263,7 +255,7 @@ uint16 usbSearchShortIntProperty(io_registry_entry_t registry_entry, QCFString p
 MyUSBDeviceInterface** newUSBDeviceInterfaceForDevice(io_service_t device)
 {
 	SInt32	score = 0;
-    IOCFPlugInInterface** plugInInterface = NULL;
+	IOCFPlugInInterface** plugInInterface = NULL;
 
 	kern_return_t kr = IOCreatePlugInInterfaceForService(device,
 							kIOUSBDeviceUserClientTypeID,	// plugin type: for Device
@@ -293,7 +285,7 @@ MyUSBDeviceInterface** newUSBDeviceInterfaceForDevice(io_service_t device)
 MyUSBInterfaceInterface** newUSBInterfaceInterfaceForInterface(io_service_t interface)
 {
 	SInt32	score = 0;
-    IOCFPlugInInterface** plugInInterface = NULL;
+	IOCFPlugInInterface** plugInInterface = NULL;
 
 	kern_return_t kr = IOCreatePlugInInterfaceForService(interface,
 							kIOUSBInterfaceUserClientTypeID,// plugin type: for Interface
@@ -323,7 +315,7 @@ MyUSBInterfaceInterface** newUSBInterfaceInterfaceForInterface(io_service_t inte
 MyHIDDeviceInterface** newHIDDeviceInterfaceForService(io_service_t device)
 {
 	SInt32	score = 0;
-    IOCFPlugInInterface** plugInInterface = NULL;
+	IOCFPlugInInterface** plugInInterface = NULL;
 
 	kern_return_t kr = IOCreatePlugInInterfaceForService(device,
 							kIOHIDDeviceUserClientTypeID,	// plugin type
@@ -353,19 +345,19 @@ MyHIDDeviceInterface** newHIDDeviceInterfaceForService(io_service_t device)
 static
 cstr getDeviceName(io_registry_entry_t registry_entry, cstr* key)
 {
-    cstr name = usbSearchStringProperty(registry_entry, *key=key_ProductName, no);
-    if(!name) name = usbSearchStringProperty(registry_entry, *key=key_USBProductName, no);
-    if(!name) name = usbSearchStringProperty(registry_entry, *key="BTName", no);
-    return name;
+	cstr name = usbSearchStringProperty(registry_entry, *key=key_ProductName, no);
+	if(!name) name = usbSearchStringProperty(registry_entry, *key=key_USBProductName, no);
+	if(!name) name = usbSearchStringProperty(registry_entry, *key="BTName", no);
+	return name;
 }
 
 static
 io_registry_entry_t parentService(io_registry_entry_t service)
 {
-    io_registry_entry_t parent = 0;
-    IORegistryEntryGetParentEntry(service, kIOServicePlane, &parent);
-    IOObjectRelease(service);
-    return parent;
+	io_registry_entry_t parent = 0;
+	IORegistryEntryGetParentEntry(service, kIOServicePlane, &parent);
+	IOObjectRelease(service);
+	return parent;
 }
 
 static
@@ -509,39 +501,39 @@ void logDeviceInformationBits(uint32 n)
 */
 IOReturn ConfigureDevice(MyUSBDeviceInterface **dev, uint configuration_idx)
 {
-    uint8		num_configurations;
-    IOReturn	err;
-    IOUSBConfigurationDescriptorPtr configuration_descriptor;
+	uint8		num_configurations;
+	IOReturn	err;
+	IOUSBConfigurationDescriptorPtr configuration_descriptor;
 
-    // Get the number of configurations.
-    err = (*dev)->GetNumberOfConfigurations(dev, &num_configurations);		assert(!err);
-    if(configuration_idx >= num_configurations) return error;
+	// Get the number of configurations.
+	err = (*dev)->GetNumberOfConfigurations(dev, &num_configurations);		assert(!err);
+	if(configuration_idx >= num_configurations) return error;
 
-    // Get the configuration descriptor
-    err = (*dev)->GetConfigurationDescriptorPtr(dev, configuration_idx, &configuration_descriptor);
-    if(err) { logline("GetConfigurationDescriptorPtr: error = 0x%08X", err); return err; }
+	// Get the configuration descriptor
+	err = (*dev)->GetConfigurationDescriptorPtr(dev, configuration_idx, &configuration_descriptor);
+	if(err) { logline("GetConfigurationDescriptorPtr: error = 0x%08X", err); return err; }
 
-    // Set the device’s configuration. The configuration value is found in
-    // the bConfigurationValue field of the configuration descriptor
-    err = (*dev)->SetConfiguration(dev, configuration_descriptor->bConfigurationValue);
-    if(err) { logline("SetConfiguration: error = 0x%08X", err); return err; }
+	// Set the device’s configuration. The configuration value is found in
+	// the bConfigurationValue field of the configuration descriptor
+	err = (*dev)->SetConfiguration(dev, configuration_descriptor->bConfigurationValue);
+	if(err) { logline("SetConfiguration: error = 0x%08X", err); return err; }
 
-    return ok;
+	return ok;
 }
 
 
 IOReturn writeToDevice(IOUSBDeviceInterface **dev, UInt16 deviceAddress, UInt16 length, UInt8 writeBuffer[])
 {
-    IOUSBDevRequest request;
+	IOUSBDevRequest request;
 
-    request.bmRequestType = USBmakebmRequestType(kUSBOut, kUSBVendor, kUSBDevice);
-    request.bRequest = 0xa0;
-    request.wValue = deviceAddress;
-    request.wIndex = 0;
-    request.wLength = length;
-    request.pData = writeBuffer;
+	request.bmRequestType = USBmakebmRequestType(kUSBOut, kUSBVendor, kUSBDevice);
+	request.bRequest = 0xa0;
+	request.wValue = deviceAddress;
+	request.wIndex = 0;
+	request.wLength = length;
+	request.pData = writeBuffer;
 
-    return (*dev)->DeviceRequest(dev, &request);
+	return (*dev)->DeviceRequest(dev, &request);
 }
 
 
@@ -562,41 +554,41 @@ IOReturn printerGetIEEEDeviceDescription(IOUSBDeviceInterface** dev_if,
 {
 	uint8 bu[256];
 
-    IOUSBDevRequest request;
-    request.bmRequestType = 0b10100001;			// bit fields: %DTTRRRRR D=Dir[0=out,1=in], T=Type, R=Recipient
-    request.bRequest = 0;						// 0 = GET_DEVICE_ID
-    request.wValue = configuration_idx;			// mostly 0
-    request.wIndex = interface_and_alt_idx;		// mostly 0
-    request.wLength = 256;
-    request.pData = bu;
+	IOUSBDevRequest request;
+	request.bmRequestType = 0b10100001;			// bit fields: %DTTRRRRR D=Dir[0=out,1=in], T=Type, R=Recipient
+	request.bRequest = 0;						// 0 = GET_DEVICE_ID
+	request.wValue = configuration_idx;			// mostly 0
+	request.wIndex = interface_and_alt_idx;		// mostly 0
+	request.wLength = 256;
+	request.pData = bu;
 
-    *result = NULL;
-    IOReturn err = (*dev_if)->DeviceRequest(dev_if, &request);
-    if(err) return err;
-    uint numBytesReceived = request.wLenDone;
-    if(numBytesReceived<=2) { logline("IEEE Device ID returned 0 bytes"); return err; }
+	*result = NULL;
+	IOReturn err = (*dev_if)->DeviceRequest(dev_if, &request);
+	if(err) return err;
+	uint numBytesReceived = request.wLenDone;
+	if(numBytesReceived<=2) { logline("IEEE Device ID returned 0 bytes"); return err; }
 
-    uint len = peek2X(bu)-2;
-    assert(len<255);
-    *result = substr(bu+2,bu+2+len);
-    return err;
+	uint len = peek2X(bu)-2;
+	assert(len<255);
+	*result = substr(bu+2,bu+2+len);
+	return err;
 }
 #endif
 
 
 IOReturn printerGetPortStatus(MyUSBDeviceInterface **dev, uint interface_idx, uint8* result)
 {
-    IOUSBDevRequest request;
-    request.bmRequestType = 0b10100001;			// bit fields: %DTTRRRRR D=Dir[0=out,1=in], T=Type, R=Recipient
-    request.bRequest = 1;						// 1 = GET_PORT_STATUS
-    request.wValue = 0;
-    request.wIndex = interface_idx;
-    request.wLength = 1;
-    request.pData = result;
+	IOUSBDevRequest request;
+	request.bmRequestType = 0b10100001;			// bit fields: %DTTRRRRR D=Dir[0=out,1=in], T=Type, R=Recipient
+	request.bRequest = 1;						// 1 = GET_PORT_STATUS
+	request.wValue = 0;
+	request.wIndex = interface_idx;
+	request.wLength = 1;
+	request.pData = result;
 
-    IOReturn err = (*dev)->DeviceRequest(dev, &request);
-    assert(err || request.wLenDone==1);
-    return err;
+	IOReturn err = (*dev)->DeviceRequest(dev, &request);
+	assert(err || request.wLenDone==1);
+	return err;
 }
 
 int testProlific2305pipe(MyUSBDeviceInterface** dev_if, MyUSBInterfaceInterface** if_if, int pipe_idx)
@@ -802,7 +794,7 @@ void testProlific2305()
 
 	// loop over all devices:
 
-    for(io_service_t device; (device = IOIteratorNext(iter)); IOObjectRelease(device))
+	for(io_service_t device; (device = IOIteratorNext(iter)); IOObjectRelease(device))
 	{
 		logline("Found a Device:");
 		num++;
@@ -881,15 +873,15 @@ https://developer.apple.com/library/mac/documentation/DeviceDrivers/Conceptual/I
 io_iterator_t newIteratorForMatchingServices(cstr service, int32 vendorID, int32 productID, int32 /*bcdDevice*/,
 							int32 /*bInterfaceNumber*/, int32 /*bConfigurationValue*/)
 {
-    /*	Set up the matching criteria for the devices we're interested in. The matching criteria needs to follow
+	/*	Set up the matching criteria for the devices we're interested in. The matching criteria needs to follow
 		the same rules as kernel drivers: mainly it needs to follow the USB Common Class Specification, pp. 6-7.
 		See also Technical Q&A QA1076 "Tips on USB driver matching on Mac OS X"
 		<http://developer.apple.com/qa/qa2001/qa1076.html>.
 		One exception is that you can use the matching dictionary "as is", i.e. without adding any matching
 		criteria to it and it will match every IOUSBDevice in the system.
 	*/
-    CFMutableDictionaryRef dict = newMatchingDictForService(service);	// Interested in instances of class
-    if(dict==NULL) return 0;											// IOUSBDevice and its subclasses
+	CFMutableDictionaryRef dict = newMatchingDictForService(service);	// Interested in instances of class
+	if(dict==NULL) return 0;											// IOUSBDevice and its subclasses
 
 // fill in matching criteria (if any):
 
@@ -899,8 +891,8 @@ io_iterator_t newIteratorForMatchingServices(cstr service, int32 vendorID, int32
 		IOUSBInterface, we would need to set more values in the matching dictionary (e.g. idVendor, idProduct,
 		bInterfaceNumber and bConfigurationValue.
 	*/
- 	if(vendorID!=0)  add(dict,kUSBVendorID,vendorID);
- 	if(productID!=0) add(dict,kUSBProductID,productID);
+	if(vendorID!=0)  add(dict,kUSBVendorID,vendorID);
+	if(productID!=0) add(dict,kUSBProductID,productID);
 
 // Now we have a dictionary, get an iterator:
 	return newIteratorForMatchingServices(dict);
@@ -981,25 +973,25 @@ void printSomething(io_registry_entry_t interface)
 		if(err!=kIOReturnSuccess) { logline("GetNumEndpoints returned error 0x%08X", uint(err)); goto x; }
 		else logline("interfaceNumEndpoints = %u",interfaceNumEndpoints);
 
-        // Access each pipe in turn, starting with the pipe at index 1
-        // The pipe at index 0 is the default control pipe and should be
-        // accessed using (*usbDevice)->DeviceRequest() instead
+		// Access each pipe in turn, starting with the pipe at index 1
+		// The pipe at index 0 is the default control pipe and should be
+		// accessed using (*usbDevice)->DeviceRequest() instead
 
-        for(int pipeRef = 1; pipeRef <= interfaceNumEndpoints; pipeRef++)
-        {
-            uint8	direction;
-            uint8	number;
-            uint8	transferType;
-            uint16	maxPacketSize;
-            uint8	interval;
-            cstr	message;
+		for(int pipeRef = 1; pipeRef <= interfaceNumEndpoints; pipeRef++)
+		{
+			uint8	direction;
+			uint8	number;
+			uint8	transferType;
+			uint16	maxPacketSize;
+			uint8	interval;
+			cstr	message;
 
-            err = (*if_if)->GetPipeProperties(if_if,
-                                        pipeRef, &direction,
-                                        &number, &transferType,
-                                        &maxPacketSize, &interval);
-            if (err != kIOReturnSuccess)
-            {
+			err = (*if_if)->GetPipeProperties(if_if,
+										pipeRef, &direction,
+										&number, &transferType,
+										&maxPacketSize, &interval);
+			if (err != kIOReturnSuccess)
+			{
 				logline("InterfaceGetPipeProperties(%d) returned error 0x%08X", pipeRef, err);
 				continue;
 			}
@@ -1060,7 +1052,7 @@ void printSomething(io_registry_entry_t interface)
 
 				continue;
 			}
-        }
+		}
 	}
 
 x:	err = (*if_if)->USBInterfaceClose(if_if);
@@ -1200,8 +1192,8 @@ void showUSBDevices()
 
 	assert(eq("fooBar",toStr(QCFString("fooBar"))));
 
-    for(io_service_t device; (device = IOIteratorNext(iter)); IOObjectRelease(device))
-    {
+	for(io_service_t device; (device = IOIteratorNext(iter)); IOObjectRelease(device))
+	{
 			logIn("USB device:");
 			io_name_t       deviceName;
 			kern_return_t kr = IORegistryEntryGetName(device, deviceName);
@@ -1234,42 +1226,42 @@ void showUSBDevices()
 
 /*
 	IOReturn (*CreateDeviceAsyncEventSource)(void *self, CFRunLoopSourceRef *source);
-    CFRunLoopSourceRef (*GetDeviceAsyncEventSource)(void *self);
-    IOReturn (*CreateDeviceAsyncPort)(void *self, mach_port_t *port);
-    mach_port_t (*GetDeviceAsyncPort)(void *self);
-    IOReturn (*USBDeviceOpen)(void *self);
-    IOReturn (*USBDeviceClose)(void *self);
-    IOReturn (*GetDeviceClass)(void *self, UInt8 *devClass);
-    IOReturn (*GetDeviceSubClass)(void *self, UInt8 *devSubClass);
-    IOReturn (*GetDeviceProtocol)(void *self, UInt8 *devProtocol);
-    IOReturn (*GetDeviceVendor)(void *self, UInt16 *devVendor);
-    IOReturn (*GetDeviceProduct)(void *self, UInt16 *devProduct);
-    IOReturn (*GetDeviceReleaseNumber)(void *self, UInt16 *devRelNum);
-    IOReturn (*GetDeviceAddress)(void *self, USBDeviceAddress *addr);
-    IOReturn (*GetDeviceBusPowerAvailable)(void *self, UInt32 *powerAvailable);
-    IOReturn (*GetDeviceSpeed)(void *self, UInt8 *devSpeed);
-    IOReturn (*GetNumberOfConfigurations)(void *self, UInt8 *numConfig);
-    IOReturn (*GetLocationID)(void *self, UInt32 *locationID);
-    IOReturn (*GetConfigurationDescriptorPtr)(void *self, UInt8 configIndex, IOUSBConfigurationDescriptorPtr *desc);
-    IOReturn (*GetConfiguration)(void *self, UInt8 *configNum);
-    IOReturn (*SetConfiguration)(void *self, UInt8 configNum);
-    IOReturn (*GetBusFrameNumber)(void *self, UInt64 *frame, AbsoluteTime *atTime);
-    IOReturn (*ResetDevice)(void *self);
-    IOReturn (*DeviceRequest)(void *self, IOUSBDevRequest *req);
-    IOReturn (*DeviceRequestAsync)(void *self, IOUSBDevRequest *req, IOAsyncCallback1 callback, void *refCon);
-    IOReturn (*CreateInterfaceIterator)(void *self, IOUSBFindInterfaceRequest *req, io_iterator_t *iter);
-    IOReturn (*USBDeviceOpenSeize)(void *self);
-    IOReturn (*DeviceRequestTO)(void *self, IOUSBDevRequestTO *req);
-    IOReturn (*DeviceRequestAsyncTO)(void *self, IOUSBDevRequestTO *req, IOAsyncCallback1 callback, void *refCon);
-    IOReturn (*USBDeviceSuspend)(void *self, Boolean suspend);
-    IOReturn (*USBDeviceAbortPipeZero)(void *self);
-    IOReturn (*USBGetManufacturerStringIndex)(void *self, UInt8 *msi);
-    IOReturn (*USBGetProductStringIndex)(void *self, UInt8 *psi);
-    IOReturn (*USBGetSerialNumberStringIndex)(void *self, UInt8 *snsi);
-    IOReturn (*USBDeviceReEnumerate)(void *self, UInt32 options);
-    IOReturn (*GetBusMicroFrameNumber)(void *self, UInt64 *microFrame, AbsoluteTime *atTime);
-    IOReturn (*GetIOUSBLibVersion)(void *self, NumVersion *ioUSBLibVersion, NumVersion *usbFamilyVersion);
-    IOReturn (*GetBusFrameNumberWithTime)(void *self, UInt64 *frame, AbsoluteTime *atTime);
+	CFRunLoopSourceRef (*GetDeviceAsyncEventSource)(void *self);
+	IOReturn (*CreateDeviceAsyncPort)(void *self, mach_port_t *port);
+	mach_port_t (*GetDeviceAsyncPort)(void *self);
+	IOReturn (*USBDeviceOpen)(void *self);
+	IOReturn (*USBDeviceClose)(void *self);
+	IOReturn (*GetDeviceClass)(void *self, UInt8 *devClass);
+	IOReturn (*GetDeviceSubClass)(void *self, UInt8 *devSubClass);
+	IOReturn (*GetDeviceProtocol)(void *self, UInt8 *devProtocol);
+	IOReturn (*GetDeviceVendor)(void *self, UInt16 *devVendor);
+	IOReturn (*GetDeviceProduct)(void *self, UInt16 *devProduct);
+	IOReturn (*GetDeviceReleaseNumber)(void *self, UInt16 *devRelNum);
+	IOReturn (*GetDeviceAddress)(void *self, USBDeviceAddress *addr);
+	IOReturn (*GetDeviceBusPowerAvailable)(void *self, UInt32 *powerAvailable);
+	IOReturn (*GetDeviceSpeed)(void *self, UInt8 *devSpeed);
+	IOReturn (*GetNumberOfConfigurations)(void *self, UInt8 *numConfig);
+	IOReturn (*GetLocationID)(void *self, UInt32 *locationID);
+	IOReturn (*GetConfigurationDescriptorPtr)(void *self, UInt8 configIndex, IOUSBConfigurationDescriptorPtr *desc);
+	IOReturn (*GetConfiguration)(void *self, UInt8 *configNum);
+	IOReturn (*SetConfiguration)(void *self, UInt8 configNum);
+	IOReturn (*GetBusFrameNumber)(void *self, UInt64 *frame, AbsoluteTime *atTime);
+	IOReturn (*ResetDevice)(void *self);
+	IOReturn (*DeviceRequest)(void *self, IOUSBDevRequest *req);
+	IOReturn (*DeviceRequestAsync)(void *self, IOUSBDevRequest *req, IOAsyncCallback1 callback, void *refCon);
+	IOReturn (*CreateInterfaceIterator)(void *self, IOUSBFindInterfaceRequest *req, io_iterator_t *iter);
+	IOReturn (*USBDeviceOpenSeize)(void *self);
+	IOReturn (*DeviceRequestTO)(void *self, IOUSBDevRequestTO *req);
+	IOReturn (*DeviceRequestAsyncTO)(void *self, IOUSBDevRequestTO *req, IOAsyncCallback1 callback, void *refCon);
+	IOReturn (*USBDeviceSuspend)(void *self, Boolean suspend);
+	IOReturn (*USBDeviceAbortPipeZero)(void *self);
+	IOReturn (*USBGetManufacturerStringIndex)(void *self, UInt8 *msi);
+	IOReturn (*USBGetProductStringIndex)(void *self, UInt8 *psi);
+	IOReturn (*USBGetSerialNumberStringIndex)(void *self, UInt8 *snsi);
+	IOReturn (*USBDeviceReEnumerate)(void *self, UInt32 options);
+	IOReturn (*GetBusMicroFrameNumber)(void *self, UInt64 *microFrame, AbsoluteTime *atTime);
+	IOReturn (*GetIOUSBLibVersion)(void *self, NumVersion *ioUSBLibVersion, NumVersion *usbFamilyVersion);
+	IOReturn (*GetBusFrameNumberWithTime)(void *self, UInt64 *frame, AbsoluteTime *atTime);
 */
 //			IOUSBDeviceInterface** usb_if = newUSBDeviceInterfaceForService(device);
 //			uint8  byte;
@@ -1302,7 +1294,7 @@ void showUSBDevices()
 //			logline("deviceBusPowerAvailable = 0x%08X",uint(n));
 
 
-    }
+	}
 
 	IOObjectRelease(iter);
 }

@@ -1,27 +1,19 @@
-/*	Copyright  (c)	Günter Woigk 2000 - 2018
+/*	Copyright  (c)	Günter Woigk 2000 - 2019
 					mailto:kio@little-bat.de
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This file is free software.
 
-	Permission to use, copy, modify, distribute, and sell this software and
-	its documentation for any purpose is hereby granted without fee, provided
-	that the above copyright notice appear in all copies and that both that
-	copyright notice and this permission notice appear in supporting
-	documentation, and that the name of the copyright holder not be used
-	in advertising or publicity pertaining to distribution of the software
-	without specific, written prior permission.  The copyright holder makes no
-	representations about the suitability of this software for any purpose.
-	It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software
+	and its documentation for any purpose is hereby granted without fee,
+	provided that the above copyright notice appears in all copies and
+	that both that copyright notice, this permission notice and the
+	following disclaimer appear in supporting documentation.
 
-	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
-	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
-	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-	PERFORMANCE OF THIS SOFTWARE.
+	THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY,
+	NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR
+	A PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE COPYRIGHT HOLDER
+	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
+	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
 #include "TapeFile.h"
@@ -36,38 +28,38 @@
 
 /*  A ZX80 program is stored like this on a real audio tape:
 
-        x seconds    your voice, saying "filename" (optional)
-        x seconds    video noise
-        5 seconds    silence
-        LEN bytes    data, loaded to address $4000, LEN = ($400A)-$4000.
-        x seconds    silence / video noise
+		x seconds    your voice, saying "filename" (optional)
+		x seconds    video noise
+		5 seconds    silence
+		LEN bytes    data, loaded to address $4000, LEN = ($400A)-$4000.
+		x seconds    silence / video noise
 
-    Notes:
-        ZX80 files do not have filenames
-        ZX80 files cannot be autostarted.
-        The data is loaded to address $4000++
-        The data contains the whole system area, basic program, VARS.
-        Video memory is NOT included in ZX80 files.
-        the last byte of a (clean) file should be $80 (the last byte of VARS)
-        The system area should contain proper data.
-        $400A       (2 bytes) defines the data end address (used to calculate the file length).
-        $4028++     may be misused for whatever purpose.
+	Notes:
+		ZX80 files do not have filenames
+		ZX80 files cannot be autostarted.
+		The data is loaded to address $4000++
+		The data contains the whole system area, basic program, VARS.
+		Video memory is NOT included in ZX80 files.
+		the last byte of a (clean) file should be $80 (the last byte of VARS)
+		The system area should contain proper data.
+		$400A       (2 bytes) defines the data end address (used to calculate the file length).
+		$4028++     may be misused for whatever purpose.
 
-        While loading, the data at address $400A/400B is overwritten. After this they contain
-        the real data end address of the data loaded and define when loading will stop. :-)
+		While loading, the data at address $400A/400B is overwritten. After this they contain
+		the real data end address of the data loaded and define when loading will stop. :-)
 
-        Files should usually not exceed 16 kBytes.
-        The memory detection procedure in both ZX80 and ZX81 stops after 16 kBytes (at $8000),
-        and initializes the stack pointer at that address, even if more memory is installed.
-        Thus loading files of 16k or more would destroy the stack area,
-        unless a separate loader has previously moved the stack area to another location.
-        However, most ZXes don't have more than 16k RAM, so bigger files won't load on most computers.
+		Files should usually not exceed 16 kBytes.
+		The memory detection procedure in both ZX80 and ZX81 stops after 16 kBytes (at $8000),
+		and initializes the stack pointer at that address, even if more memory is installed.
+		Thus loading files of 16k or more would destroy the stack area,
+		unless a separate loader has previously moved the stack area to another location.
+		However, most ZXes don't have more than 16k RAM, so bigger files won't load on most computers.
 
-    ".o" and ".80" files consists of the raw data as saved by the ZX80 tape saving routine.
-    They can only store one program, not a whole tape with multiple programs.
+	".o" and ".80" files consists of the raw data as saved by the ZX80 tape saving routine.
+	They can only store one program, not a whole tape with multiple programs.
 
-        .80 and .o files:   include only the data, loaded to $4000++
-        .o files:           typically there is some garbage at the file end
+		.80 and .o files:   include only the data, loaded to $4000++
+		.o files:           typically there is some garbage at the file end
 */
 
 
@@ -114,7 +106,7 @@ O80Data::~O80Data()
 
 /*  convert arbitrary TapeData to O80 data
 	set's data_trust_level to indicate success or failure
-    note: also used for P81 data
+	note: also used for P81 data
 */
 O80Data::O80Data( TapeData const& q )
 :
@@ -135,7 +127,7 @@ O80Data::O80Data( TapeData const& q )
 O80Data::O80Data( O80Data const& q )
 :
 	TapeData(q),
-    data(q.data),
+	data(q.data),
 	is_zx80(q.is_zx80),
 	is_zx81(q.is_zx81)
 {}
@@ -325,14 +317,14 @@ cstr zx81_progname_str( cu8ptr p, int n )
 */
 cstr O80Data::calcMajorBlockInfo() const noexcept
 {
-    if(is_zx80) return "ZX80 Programme";
-    if(is_zx81)
-    {
+	if(is_zx80) return "ZX80 Programme";
+	if(is_zx81)
+	{
 		cu8ptr p = data.getData();
 		uint   n = data.count();
 		return n==0 ? "(no data)" : *p==0x80 ? "(unnamed)" : zx81_progname_str(p,n);
-    }
-    return NULL;
+	}
+	return NULL;
 }
 
 /* returns info: block size
@@ -342,8 +334,8 @@ cstr O80Data::calcMinorBlockInfo() const noexcept
 	if(zx81||zx80)
 	{
 		uint n = data.count();
-	    if(zx81) n -= zx81_progname_len(data.getData(),data.count());
-	    return usingstr("%u bytes",n);
+		if(zx81) n -= zx81_progname_len(data.getData(),data.count());
+		return usingstr("%u bytes",n);
 	}
 	return NULL;
 }
@@ -354,21 +346,21 @@ CswBuffer::CswBuffer(O80Data const& o80data, uint32 ccps)
 :
 	CswBuffer(ccps,0,666)
 {
-    xlogIn("new CswBuffer(O80Data&)");
+	xlogIn("new CswBuffer(O80Data&)");
 
-    // resize to estimated size:
-    uint32 n1 = count1bits(o80data.data.getData(),o80data.data.count());
-    uint32 n0 = o80data.data.count() * 8 - n1;
-    grow(n1*18 + n0*8 + 600);
+	// resize to estimated size:
+	uint32 n1 = count1bits(o80data.data.getData(),o80data.data.count());
+	uint32 n0 = o80data.data.count() * 8 - n1;
+	grow(n1*18 + n0*8 + 600);
 
-    // initial level := low  &  leading silence required by zx80 rom tape loading routine
+	// initial level := low  &  leading silence required by zx80 rom tape loading routine
 	writePulse(5.0,0);
 
-    // data
-    double f = (double)::ccps / ccps;
-    uint zx81lo  = uint(::zx81lo  * f +0.5);
-    uint zx81hi  = uint(::zx81hi  * f +0.5);
-    uint zx81ooo = uint(::zx81ooo * f +0.5);
+	// data
+	double f = (double)::ccps / ccps;
+	uint zx81lo  = uint(::zx81lo  * f +0.5);
+	uint zx81hi  = uint(::zx81hi  * f +0.5);
+	uint zx81ooo = uint(::zx81ooo * f +0.5);
 
 	for( uint i=0; i<o80data.data.count(); i++ )
 	{
@@ -380,19 +372,19 @@ CswBuffer::CswBuffer(O80Data const& o80data, uint32 ccps)
 			for( int i=b?8:3; i; i-- ) { writePulseCc(zx81lo); writePulseCc(zx81hi); }
 			writePulseCc(zx81ooo);
 		}
-    }
+	}
 
-    // trailing pause, low level
+	// trailing pause, low level
 	writePulse(1.0,0);
 
-    assert(getPhase0()==0);
+	assert(getPhase0()==0);
 }
 
 
 /*  read block from file
-    .p and .81 files contain only one block => load entire file (limited to 0xC000 bytes)
-                     contain no prog name   => store prog name " "
-    .p81 file can contain multiple blocks   => parse contained data to find block end
+	.p and .81 files contain only one block => load entire file (limited to 0xC000 bytes)
+					 contain no prog name   => store prog name " "
+	.p81 file can contain multiple blocks   => parse contained data to find block end
 */
 void O80Data::zx81_read_from_file( FD& fd, bool incl_pname ) noexcept(false) // bad_alloc,file_error,data_error
 {
@@ -402,18 +394,18 @@ void O80Data::zx81_read_from_file( FD& fd, bool incl_pname ) noexcept(false) // 
 
 	if(incl_pname)  // .p81 file
 	{
-        uint n = min(uint(fd.file_remaining()),127+12u); // 12 = 0x4015-0x4009
+		uint n = min(uint(fd.file_remaining()),127+12u); // 12 = 0x4015-0x4009
 		data.grow(n);
 		fd.read_bytes(&data[0],n);						// prog name + some sysvars + evtl. some prog data
 
 		uint l = zx81_progname_len(data.getData(),n);
-        if(n-l < 12) throw file_error(fd,endoffile);
+		if(n-l < 12) throw file_error(fd,endoffile);
 
-        uint end = peek2Z(data.getData()+l+0x4014-0x4009);
-        if(end<0x4015) throw data_error("data corrupted: ($4014) < $4015");
+		uint end = peek2Z(data.getData()+l+0x4014-0x4009);
+		if(end<0x4015) throw data_error("data corrupted: ($4014) < $4015");
 
 		data.grow(end-0x4009+l);
-        fd.read_bytes(&data[n],end-0x4009+l-n);			// remaining sysvars & program data.  throws at eof
+		fd.read_bytes(&data[n],end-0x4009+l-n);			// remaining sysvars & program data.  throws at eof
 	}
 	else    // .p or .81 file
 	{
@@ -427,7 +419,7 @@ void O80Data::zx81_read_from_file( FD& fd, bool incl_pname ) noexcept(false) // 
 
 
 /*  write ZX81 block to .p81 file
-    .p81 blocks are checked for integrity, because a corrupted block makes the remaining file unreadable:
+	.p81 blocks are checked for integrity, because a corrupted block makes the remaining file unreadable:
 		sysvar $4014 E_LINE must be contained and it must match actual block size
 		if block is larger than required, then the data is silently truncated to match E_LINE
 	this is the minimum requirement for not to corrupt the .p81 file, NOT for a valid program!
@@ -445,7 +437,7 @@ void O80Data::write_block_to_p81_file(FD &fd) const noexcept(false) // file_erro
 	uint end = peek2Z(p+l+0x4014-0x4009);
 	if(n-l < end -0x4009) throw data_error("data corrupted: data size does not match sysvar $4014");
 
-    fd.write_bytes(p, end -0x4009 +l);
+	fd.write_bytes(p, end -0x4009 +l);
 }
 
 

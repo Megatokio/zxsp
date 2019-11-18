@@ -1,27 +1,19 @@
-/*	Copyright  (c)	Günter Woigk 2012 - 2018
-                    mailto:kio@little-bat.de
+/*	Copyright  (c)	Günter Woigk 2012 - 2019
+					mailto:kio@little-bat.de
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This file is free software.
 
-    Permission to use, copy, modify, distribute, and sell this software and
-    its documentation for any purpose is hereby granted without fee, provided
-    that the above copyright notice appear in all copies and that both that
-    copyright notice and this permission notice appear in supporting
-    documentation, and that the name of the copyright holder not be used
-    in advertising or publicity pertaining to distribution of the software
-    without specific, written prior permission.  The copyright holder makes no
-    representations about the suitability of this software for any purpose.
-    It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software
+	and its documentation for any purpose is hereby granted without fee,
+	provided that the above copyright notice appears in all copies and
+	that both that copyright notice, this permission notice and the
+	following disclaimer appear in supporting documentation.
 
-    THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-    INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
-    EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-    CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
-    DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-    TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-    PERFORMANCE OF THIS SOFTWARE.
+	THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY,
+	NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR
+	A PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE COPYRIGHT HOLDER
+	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
+	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
 #include "TapeFileDataBlock.h"
@@ -38,9 +30,9 @@ void TapeFileDataBlock::purge()
 	if(tapdata!=tapedata) delete tapdata; tapdata = NULL;
 	if(o80data!=tapedata) delete o80data; o80data = NULL;
 	if(tzxdata!=tapedata) delete tzxdata; tzxdata = NULL;
-    delete tapedata; tapedata = NULL;
-    delete[] major_block_info; major_block_info = NULL;
-    delete[] minor_block_info; minor_block_info = NULL;
+	delete tapedata; tapedata = NULL;
+	delete[] major_block_info; major_block_info = NULL;
+	delete[] minor_block_info; minor_block_info = NULL;
 }
 
 void TapeFileDataBlock::purgeBlock()
@@ -52,7 +44,7 @@ void TapeFileDataBlock::purgeBlock()
 TapeFileDataBlock::~TapeFileDataBlock()
 {
 	purge();
-    delete cswdata;
+	delete cswdata;
 }
 
 
@@ -185,12 +177,12 @@ void TapeFileDataBlock::videoFrameEnd(uint32 cc)
 
 void TapeFileDataBlock::startPlaying (uint32 cc)
 {
-    assert(cswdata);
-    assert(cswdata->ccPerSecond());
-    assert(mode==stopped);
+	assert(cswdata);
+	assert(cswdata->ccPerSecond());
+	assert(mode==stopped);
 
-    mode = playing;
-    cswdata->seekCc(cc);
+	mode = playing;
+	cswdata->seekCc(cc);
 }
 
 
@@ -200,31 +192,31 @@ void TapeFileDataBlock::startPlaying (uint32 cc)
 */
 void TapeFileDataBlock::startRecording (uint32 cc)
 {
-    assert(cswdata);
-    assert(cswdata->ccPerSecond());
+	assert(cswdata);
+	assert(cswdata->ccPerSecond());
 
 	purge();
-    mode = recording;
-    cswdata->startRecording(cc);
+	mode = recording;
+	cswdata->startRecording(cc);
 }
 
 
 void TapeFileDataBlock::stop(CC cc)
 {
-    assert(cswdata);
-    assert(mode!=stopped);
+	assert(cswdata);
+	assert(mode!=stopped);
 
-    if(mode==recording)
-    {
-        cswdata->stopRecording(cc);
-        calcBlockInfos();
-    }
-    else
-    {
-        cswdata->seekCc(cc);
-    }
+	if(mode==recording)
+	{
+		cswdata->stopRecording(cc);
+		calcBlockInfos();
+	}
+	else
+	{
+		cswdata->seekCc(cc);
+	}
 
-    mode = stopped;
+	mode = stopped;
 }
 
 

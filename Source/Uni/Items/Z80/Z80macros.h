@@ -1,27 +1,19 @@
-/*	Copyright  (c)	Günter Woigk 1996 - 2018
-  					mailto:kio@little-bat.de
+/*	Copyright  (c)	Günter Woigk 1996 - 2019
+					mailto:kio@little-bat.de
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This file is free software.
 
- 	Permission to use, copy, modify, distribute, and sell this software and
- 	its documentation for any purpose is hereby granted without fee, provided
- 	that the above copyright notice appear in all copies and that both that
- 	copyright notice and this permission notice appear in supporting
- 	documentation, and that the name of the copyright holder not be used
- 	in advertising or publicity pertaining to distribution of the software
- 	without specific, written prior permission.  The copyright holder makes no
- 	representations about the suitability of this software for any purpose.
- 	It is provided "as is" without express or implied warranty.
+	Permission to use, copy, modify, distribute, and sell this software
+	and its documentation for any purpose is hereby granted without fee,
+	provided that the above copyright notice appears in all copies and
+	that both that copyright notice, this permission notice and the
+	following disclaimer appear in supporting documentation.
 
- 	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- 	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- 	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- 	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- 	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- 	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- 	PERFORMANCE OF THIS SOFTWARE.
+	THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY,
+	NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR
+	A PARTICULAR PURPOSE, AND IN NO EVENT SHALL THE COPYRIGHT HOLDER
+	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
+	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 
 
 	Z80 Emulator
@@ -148,7 +140,7 @@
 	z32 = pg.both_r(pc);					\
 	R = uint8(z32);							\
 	if( (z32&options&cpu_crtc_zx81) && (pc&0x8000) )	\
-    { R = peek(pc&0x7fff); if(~R&0x40) R = NOP; };		\
+	{ R = peek(pc&0x7fff); if(~R&0x40) R = NOP; };		\
 }
 
 #define	GET_INSTR(R)						\
@@ -163,7 +155,7 @@
 		if(z32&cpu_patch)   { SAVE_REGISTERS; R = machine->handleRomPatch(pc,R); LOAD_REGISTERS;}			\
 		if(z32&cpu_crtc_zx81 && pc&0x8000)																	\
 							{ R = peek(pc&0x7fff);															\
-                              if(~R&0x40) { UlaMonoPtr(crtc)->crtcRead(cc,R); R = NOP; }					\
+							  if(~R&0x40) { UlaMonoPtr(crtc)->crtcRead(cc,R); R = NOP; }					\
 							  if(~r&0x40) { cc_irpt_on=cc; cc_irpt_off=cc+8; if(IFF1==enabled) cc_max=cc; }	\
 							  else        { cc_irpt_on=0x7fffffff; } }										\
 		if(z32&cpu_waitmap)	{ CC_WAIT_R(cc+2); }															\
