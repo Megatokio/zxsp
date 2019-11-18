@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,11 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-
-#ifndef MEMORYACCESSINSPECTOR_H
-#define MEMORYACCESSINSPECTOR_H
-
 
 #include "MemoryInspector.h"
 #include "Templates/Array.h"
@@ -88,7 +84,7 @@ private:
 	void		slotSetBytesPerRow(int);			// combobox_bytes_per_row
 };
 
-#endif
+
 
 
 

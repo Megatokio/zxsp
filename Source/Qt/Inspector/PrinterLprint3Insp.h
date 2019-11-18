@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef PRINTERLPRINT3INSP_H
-#define PRINTERLPRINT3INSP_H
-
 #include "Inspector.h"
 
 class PrinterLprint3Insp : public Inspector
@@ -28,4 +25,4 @@ public:
 	PrinterLprint3Insp( QWidget*, MachineController*, volatile IsaObject* );
 };
 
-#endif
+

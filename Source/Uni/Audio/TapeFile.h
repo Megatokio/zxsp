@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2000 - 2019
 					mailto:kio@little-bat.de
 
@@ -57,9 +58,6 @@ note:
 	Framework	AudioToolbox/AudioToolbox.h
 	Declared in	AudioToolbox/AudioFile.h
 */
-
-#ifndef TAPEFILE_H
-#define	TAPEFILE_H
 
 #include <QObject>
 #include "Templates/Array.h"
@@ -211,7 +209,7 @@ public:
 typedef TapeFile* TapeFilePtr;
 
 
-#endif
+
 
 
 

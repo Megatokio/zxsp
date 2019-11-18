@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef MACHINETS1000_H
-#define MACHINETS1000_H
-
 #include "MachineZx81.h"
 
 
@@ -30,4 +27,3 @@ public:
 };
 
 
-#endif

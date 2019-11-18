@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2009 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,9 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef TC2048JOYINSP_H
-#define TC2048JOYINSP_H
-
 #include "JoyInsp.h"
 
 class Tc2048JoyInsp : public JoyInsp
@@ -27,7 +25,7 @@ public:
 	Tc2048JoyInsp( QWidget*, MachineController*, volatile IsaObject* );
 };
 
-#endif
+
 
 
 

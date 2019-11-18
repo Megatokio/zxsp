@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef ZX3KINSP_H
-#define ZX3KINSP_H
-
 #include "Inspector.h"
 class QRadioButton;
 
@@ -36,4 +33,3 @@ private:
 	void	set_ram_size(uint);
 };
 
-#endif

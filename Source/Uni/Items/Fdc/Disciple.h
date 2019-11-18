@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,9 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef DISCIPLE_H
-#define DISCIPLE_H
-
 #include "Fdc.h"
 
 
@@ -28,4 +26,4 @@ public:
 	explicit Disciple(Machine*);
 };
 
-#endif
+

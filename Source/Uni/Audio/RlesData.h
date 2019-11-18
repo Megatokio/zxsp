@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2000 - 2019
 					mailto:kio@little-bat.de
 
@@ -36,9 +37,6 @@ note:
 	Declared in	AudioToolbox/AudioFile.h
 */
 
-#ifndef RLESDATA_H
-#define RLESDATA_H
-
 #include "Templates/Array.h"
 #include "CswBuffer.h"
 #include "TapeFile.h"
@@ -63,7 +61,7 @@ public:
 };
 
 
-#endif
+
 
 
 

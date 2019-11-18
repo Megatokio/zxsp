@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2009 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef MACHINETC2048_H
-#define MACHINETC2048_H
-
 #include "MachineZxsp.h"
 
 
@@ -35,7 +32,7 @@ public:
 };
 
 
-#endif
+
 
 
 

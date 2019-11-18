@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2016 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef RZXBLOCK_H
-#define RZXBLOCK_H
 
 #include "kio/kio.h"
 #include "Templates/Array.h"
@@ -131,7 +129,7 @@ private:
 
 
 
-#endif
+
 
 
 

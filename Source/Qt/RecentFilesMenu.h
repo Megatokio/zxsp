@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2009 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,10 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-
-#ifndef RECENTFILESMENU_H
-#define RECENTFILESMENU_H
 
 #include <QMenu>
 #include "kio/kio.h"
@@ -68,4 +65,4 @@ extern void		clearRecentFiles(ListId);
 
 
 
-#endif // RECENTFILESMENU_H
+

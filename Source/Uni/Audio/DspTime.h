@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2004 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef DSPTIME_H
-#define	DSPTIME_H
 
 // Samples(stereo) per dsp exchange buffer
 
@@ -47,7 +45,7 @@ inline double samples_per_dsp_buffer()		{ return DSP_SAMPLES_PER_BUFFER; }
 inline Time   seconds_per_dsp_buffer()      { return DSP_SAMPLES_PER_BUFFER/samples_per_second; }
 inline Time   seconds_per_dsp_buffer_max()  { return (DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING-0.01)/samples_per_second; }
 
-#endif
+
 
 
 /*	Es gibt im System zwei Zeitbasen:

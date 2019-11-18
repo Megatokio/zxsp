@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef GRAFPADINSP_H
-#define GRAFPADINSP_H
-
 #include "Inspector.h"
 
 class GrafPadInsp : public Inspector
@@ -28,4 +25,4 @@ public:
 	GrafPadInsp( QWidget*, MachineController*, volatile IsaObject* );
 };
 
-#endif
+

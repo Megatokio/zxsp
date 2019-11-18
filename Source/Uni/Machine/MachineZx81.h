@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2008 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,10 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-
-#ifndef MACHINEZX81_H
-#define MACHINEZX81_H
 
 #include "Machine.h"
 #include "ZxInfo/info.h"
@@ -43,4 +40,4 @@ public:
 	void	saveP81(FD&, bool p81) throws override;
 };
 
-#endif
+

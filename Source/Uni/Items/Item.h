@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2004 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef ITEM_H
-#define	ITEM_H
 
 #include <QObject>
 #include "zxsp_types.h"
@@ -154,7 +152,7 @@ inline void Item::record_ioinfo(int32 cc, uint16 addr, uint8 byte, uint8 mask)
 }
 
 
-#endif
+
 
 
 

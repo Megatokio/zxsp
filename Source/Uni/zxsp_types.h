@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2002 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef ZXSP_TYPES_H
-#define ZXSP_TYPES_H
 
 #include "kio/kio.h"
 #include "Audio/DspTime.h"
@@ -238,7 +236,7 @@ class MemoryInspector;
 class SpectraVideoInspector;
 class DivIDEInspector;
 
-#endif
+
 
 
 

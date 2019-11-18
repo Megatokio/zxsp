@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2009 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,9 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef KEMPSTONJOYINSP_H
-#define KEMPSTONJOYINSP_H
-
 #include <QObject>
 #include "JoyInsp.h"
 
@@ -28,7 +26,7 @@ public:
 	KempstonJoyInsp( QWidget*, MachineController*, volatile IsaObject* );
 };
 
-#endif
+
 
 
 

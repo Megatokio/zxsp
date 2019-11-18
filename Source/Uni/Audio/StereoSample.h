@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2002 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,10 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef STEREOSAMPLE_H
-#define STEREOSAMPLE_H
-
 
 typedef float Sample;
 typedef Sample const cSample;
@@ -52,7 +49,7 @@ Sample			mono		()				const	noexcept	{ return (left+right)/2.0f; }
 };
 
 
-#endif
+
 
 
 

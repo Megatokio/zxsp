@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2016 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef RZX_FILE
-#define RZX_FILE
 
 #include "kio/kio.h"
 #include <zlib.h>
@@ -148,7 +146,7 @@ private:
 };
 
 
-#endif
+
 
 
 

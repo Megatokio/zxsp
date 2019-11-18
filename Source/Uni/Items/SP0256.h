@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2014 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,10 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-
-#ifndef SP0256_H
-#define SP0256_H
 
 #include "kio/kio.h"
 #include "DspTime.h"
@@ -153,7 +150,7 @@ private:
 };
 
 
-#endif
+
 
 
 

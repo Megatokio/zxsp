@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2013 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef FLOPPYDISK_H
-#define FLOPPYDISK_H
 
 #include "Templates/Array.h"
 
@@ -115,7 +113,8 @@ private:
 };
 
 
-#endif
+#pragma once
+
 
 
 

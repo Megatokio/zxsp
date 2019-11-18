@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2009 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,9 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef ZXPRINTERINSP_H
-#define ZXPRINTERINSP_H
-
 #include "Inspector.h"
 
 class ZxPrinterInsp : public Inspector
@@ -27,7 +25,7 @@ public:
 	ZxPrinterInsp(QWidget*, MachineController *mc, volatile IsaObject* );
 };
 
-#endif
+
 
 
 

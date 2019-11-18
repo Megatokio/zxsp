@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2009 - 2019
 					mailto:kio@little-bat.de
 
@@ -27,11 +28,6 @@
 
 	Der Item TapeRecorder kann nicht von AudioIn/Out lesen/schreiben!
 */
-
-
-
-#ifndef TAPERECORDER_H
-#define TAPERECORDER_H
 
 #include <QMainWindow>
 #include "cpp/cppthreads.h"
@@ -280,7 +276,7 @@ public:
 };
 
 
-#endif
+
 
 
 

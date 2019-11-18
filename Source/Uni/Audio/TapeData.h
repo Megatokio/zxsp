@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2000 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,10 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-
-#ifndef TAPEDATA_H
-#define	TAPEDATA_H
 
 #include "zxsp_types.h"
 #include "DspTime.h"
@@ -82,7 +79,7 @@ inline AudioData&	AudioDataRef(TapeData const&p)	{ assert(p.isA(isa_AudioData));
 
 
 
-#endif
+
 
 
 

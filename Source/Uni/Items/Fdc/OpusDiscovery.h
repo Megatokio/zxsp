@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,9 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef OPUSDISCOVERY_H
-#define OPUSDISCOVERY_H
-
 #include "Fdc.h"
 
 
@@ -28,4 +26,4 @@ public:
 	explicit OpusDiscovery(Machine*);
 };
 
-#endif
+

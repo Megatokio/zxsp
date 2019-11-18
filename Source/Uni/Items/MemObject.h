@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2017 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,7 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef MEMOBJECT_H
-#define MEMOBJECT_H
-
-#include "Libraries/kio/kio.h"
+#include "kio/kio.h"
 #include "IsaObject.h"
 
 
@@ -33,4 +31,4 @@ public:
 };
 
 
-#endif
+

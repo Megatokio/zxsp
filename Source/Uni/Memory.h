@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2007 - 2019
 					mailto:kio@little-bat.de
 
@@ -19,9 +20,6 @@
 	Internal or external memory
 	copy c'tor creates shared instances
 */
-
-#ifndef MEMORY_H
-#define MEMORY_H
 
 #include "kio/kio.h"
 #include "Templates/RCPtr.h"
@@ -105,7 +103,7 @@ public:
 
 
 
-#endif
+
 
 
 

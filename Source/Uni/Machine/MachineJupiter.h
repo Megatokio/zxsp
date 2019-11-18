@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2008 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef MACHINEJUPITER_H
-#define MACHINEJUPITER_H
-
 #include "Machine.h"
 
 
@@ -36,6 +33,6 @@ public:
 };
 
 
-#endif
+
 
 

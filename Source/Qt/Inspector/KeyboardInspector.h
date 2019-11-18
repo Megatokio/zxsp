@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2000 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef KBDINSP_H
-#define KBDINSP_H
 
 #include "Inspector.h"
 #include "Keyboard.h"
@@ -88,7 +86,7 @@ class Tk95KbdInsp : public KeyboardInspector
 public:	Tk95KbdInsp( QWidget*p, MachineController*m, volatile IsaObject*i )	:KeyboardInspector(p,m,i){}
 };
 
-#endif
+
 
 
 

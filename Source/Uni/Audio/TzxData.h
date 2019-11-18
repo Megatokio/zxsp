@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2000 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef TZXDATA_H
-#define TZXDATA_H
 
 #include "kio/kio.h"
 #include "TapeData.h"
@@ -75,7 +73,7 @@ public:
 };
 
 
-#endif
+
 
 
 

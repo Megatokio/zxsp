@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2009 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef TAPERECORDERINSP_H
-#define TAPERECORDERINSP_H
 
 #include <QRect>
 #include <QLabel>
@@ -194,7 +192,7 @@ public:
 	Plus2aTapeRecorderInsp( QWidget*, MachineController*, volatile IsaObject* );
 };
 
-#endif
+
 
 
 

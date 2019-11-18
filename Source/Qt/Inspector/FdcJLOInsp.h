@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef FDCJLOINSP_H
-#define FDCJLOINSP_H
-
 #include <QObject>
 #include "Inspector.h"
 
@@ -30,4 +27,4 @@ public:
 	FdcJLOInsp( QWidget*, MachineController*, volatile IsaObject* );
 };
 
-#endif
+

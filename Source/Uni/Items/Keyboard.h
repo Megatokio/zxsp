@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 1994 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef KEYBOARD_H
-#define KEYBOARD_H
 
 #include "Item.h"
 #include "Keymap.h"
@@ -163,7 +161,7 @@ private:
 };
 
 
-#endif
+
 
 
 

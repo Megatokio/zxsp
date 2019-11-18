@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2009 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef GLOBALS_H
-#define GLOBALS_H
 
 #include "zxsp_types.h"
 #include <QEvent>
@@ -57,7 +55,6 @@ EXT void	showWarning		( cstr msg, ... );	// ConfigDialog.cpp: "yellow" alert: at
 EXT void	showInfo		( cstr msg, ... );	// ConfigDialog.cpp: a friendly information alert
 
 
-#endif
 
 
 

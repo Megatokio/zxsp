@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2007 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef MOUSE_H
-#define MOUSE_H
 
 #include <Qt>
 #include <QWidget>
@@ -56,7 +54,7 @@ private:
 extern Mouse mouse;
 
 
-#endif
+
 
 
 

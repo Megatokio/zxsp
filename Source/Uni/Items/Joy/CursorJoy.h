@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2009 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef CURSORJOY_H
-#define CURSORJOY_H
 
 #include "Joy.h"
 
@@ -49,7 +47,7 @@ public:
 };
 
 
-#endif
+
 
 
 

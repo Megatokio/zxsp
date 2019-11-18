@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef MACHINETK85_H
-#define MACHINETK85_H
-
 #include "MachineZx81.h"
 
 
@@ -29,4 +26,4 @@ public:
 	explicit MachineTk85(MachineController*);
 };
 
-#endif
+

@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 1996 - 2019
 					mailto:kio@little-bat.de
 
@@ -25,8 +26,6 @@
 
    ##################################################################### */
 
-#ifndef Z80OPTIONS_H
-#define Z80OPTIONS_H
 typedef uint32_t uint32;
 
 #define	CPU_PAGEBITS		10
@@ -70,6 +69,6 @@ enum
 };
 
 
-#endif
+
 
 

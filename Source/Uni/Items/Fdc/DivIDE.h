@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2014 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,9 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-#ifndef DIVIDE_H
-#define DIVIDE_H
 
 #include "MassStorage.h"
 #include "unix/files.h"
@@ -102,6 +100,6 @@ private:
 };
 
 
-#endif
+
 
 

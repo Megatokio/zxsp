@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 1996 - 2019
 					mailto:kio@little-bat.de
 
@@ -18,9 +19,7 @@
 	Z80 cpu emulation version 2.2.4
 */
 
-#ifndef	Z80_H
 #define	Z80_H
-
 #include "Z80options.h"
 #include "Item.h"
 
@@ -219,7 +218,7 @@ protected:
 };
 
 
-#endif
+
 
 
 

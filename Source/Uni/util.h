@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,10 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-
-#ifndef UTIL_H
-#define UTIL_H
 
 #include "cstrings/cstrings.h"
 #include "zxsp_types.h"
@@ -38,4 +35,4 @@ extern uint16	printablechar(uint8 c);		// unprintable -> middle-dot
 
 
 
-#endif // UTIL_H
+

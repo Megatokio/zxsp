@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 1995 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef MACHINEZXPLUS2A_H
-#define MACHINEZXPLUS2A_H
-
 #include "MachineZx128.h"
 #include "ZxInfo/info.h"
 #include "Joy/SinclairJoy.h"
@@ -36,4 +33,4 @@ public:
 };
 
 
-#endif
+

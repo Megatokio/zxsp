@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2004 - 2019
 					mailto:kio@little-bat.de
 
@@ -15,10 +16,6 @@
 	BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE,
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
-
-
-#ifndef ISAOBJECT_H
-#define ISAOBJECT_H
 
 #include <QObject>
 #include "kio/kio.h"
@@ -132,7 +129,7 @@ DEFPTR(Multiface3)
 DEFPTR(MachineTc2068)
 DEFPTR(MachineZxPlus3)
 
-#endif
+
 
 
 

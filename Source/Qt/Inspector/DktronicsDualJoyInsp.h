@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2009 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,9 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#ifndef DKTRONICSDUALJOYINSP_H
-#define DKTRONICSDUALJOYINSP_H
-
 #include "JoyInsp.h"
 
 
@@ -28,5 +26,5 @@ public:
 	DktronicsDualJoyInsp( QWidget*, MachineController*, volatile IsaObject* );
 };
 
-#endif
+
 

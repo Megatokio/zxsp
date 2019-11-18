@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef MEMOTECH64KRAMINSP_H
-#define MEMOTECH64KRAMINSP_H
-
 #include "Inspector.h"
 class QComboBox;
 
@@ -32,7 +29,6 @@ public:
 	Memotech64kRamInsp( QWidget*, MachineController*, volatile IsaObject* );
 };
 
-#endif
 
 
 

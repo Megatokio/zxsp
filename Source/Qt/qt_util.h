@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2012 - 2019
 					mailto:kio@little-bat.de
 
@@ -16,10 +17,6 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-
-#ifndef QT_UTIL_H
-#define QT_UTIL_H
-
 #include <QRgb>
 #include <QWidget>
 #include "kio/kio.h"
@@ -31,4 +28,4 @@ extern cstr selectLoadFile(QWidget* parent, cstr headline, cstr filefilterstr);
 extern cstr selectSaveFile(QWidget* parent, cstr headline, cstr filefilterstr);
 
 
-#endif
+
