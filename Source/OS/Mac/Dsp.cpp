@@ -18,10 +18,10 @@
 
 #include <CoreAudio/CoreAudio.h>
 #include "cpp/cppthreads.h"
-#include "unix/tempmem.h"
+#include "cstrings/tempmem.h"
 #include "Dsp.h"
 #include "Application.h"
-#include "Audio/StereoSample.h"
+#include "StereoSample.h"
 #include "Qt/Settings.h"
 #include "kio/TestTimer.h"
 

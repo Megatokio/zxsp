@@ -18,7 +18,7 @@
 */
 
 #include "Item.h"
-#include "Audio/StereoSample.h"
+#include "StereoSample.h"
 #include "Keymap.h"
 #include "Crtc.h"
 

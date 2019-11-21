@@ -29,7 +29,7 @@
 #include "qt_util.h"
 #include "ConfigDialog.h"
 #include "MachineController.h"
-#include "Mac/Mouse.h"
+#include "Mouse.h"
 
 
 // helper

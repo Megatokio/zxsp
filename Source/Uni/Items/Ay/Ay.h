@@ -18,7 +18,7 @@
 */
 
 #include "Item.h"
-#include "Audio/StereoSample.h"
+#include "StereoSample.h"
 
 //
 // ay-3-8912 emulation

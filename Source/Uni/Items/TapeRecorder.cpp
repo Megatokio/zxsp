@@ -21,7 +21,7 @@
 #include "Audio/TapeFile.h"
 #include "Machine.h"
 #include "ZxInfo.h"
-#include "Audio/DspTime.h"
+#include "DspTime.h"
 #include "Audio/TapeFileDataBlock.h"
 #include "cpp/cppthreads.h"
 #include "Qt/Settings.h"
