@@ -233,7 +233,7 @@ void MonoGifWriter::saveScreenshot( cstr path, uint8* new_pixels, uint screen_w,
 	gif_encoder.openFile(path);
 	gif_encoder.writeScreenDescriptor(width, height, mono_colormap);
 	gif_encoder.writeCommentBlock( usingstr("created on %s by %s with %s %s\n",
-								   datestr(now()), getUser(), appl_name,appl_version_str) );
+								   datestr(now()), getUser(), APPL_NAME,APPL_VERSION_STR) );
 	gif_encoder.writeImage(*bits,mono_colormap);
 	gif_encoder.closeFile();
 

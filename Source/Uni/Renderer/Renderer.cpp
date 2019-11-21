@@ -84,7 +84,7 @@ void GifWriter::startRecording( cstr path ) throws
 	gif_encoder.openFile(path);
 	gif_encoder.writeScreenDescriptor(width, height, 16);
 	gif_encoder.writeCommentBlock( usingstr("created on %s by %s with %s %s\n",
-								   datestr(now()), getUser(), appl_name, appl_version_str) );
+								   datestr(now()), getUser(), APPL_NAME, APPL_VERSION_STR) );
 	gif_encoder.writeLoopingAnimationExtension();
 
 	frame_count = 0;	// indicate first frame

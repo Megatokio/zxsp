@@ -324,7 +324,7 @@ void ZxspGifWriter::saveScreenshot( cstr path, IoInfo *ioinfo, uint ioinfo_count
 	gif_encoder.openFile(path);
 	gif_encoder.writeScreenDescriptor(width, height, total_colors, 0/*aspect_ratio*/);
 	gif_encoder.writeCommentBlock( usingstr("created on %s by %s with %s %s\n",
-								   datestr(now()), getUser(), appl_name,appl_version_str) );
+								   datestr(now()), getUser(), APPL_NAME,APPL_VERSION_STR) );
 
 	if(bits2->isEmpty())	// no flashing bits
 	{

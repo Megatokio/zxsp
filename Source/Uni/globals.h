@@ -33,14 +33,8 @@ EXT volatile void*		front_machine;				// only for comparison with this etc.
 EXT cstr	QEventTypeStr(int n);   // Util/QEventTypes.cpp
 EXT bool	cmdKeyDown();           // Application.cpp
 
-EXT cstr	appl_name;              // Application.cpp:         "zxsp"
 EXT cstr	appl_path;              // Application.cpp
-EXT cstr	appl_bundle_path;       // Application.cpp
 EXT cstr	appl_rsrc_path;         // Application.cpp
-EXT cstr	appl_version_str;		// Application.cpp: 		e.g.: "0.6.6"
-EXT uint8	appl_version_h;			// Application.cpp:
-EXT uint8	appl_version_m;			// Application.cpp:
-EXT uint8	appl_version_l;			// Application.cpp:
 EXT cstr	basic_token[];          // ZxInfo/BasicTokens.cpp
 
 EXT void	write_mem		(FD& fd, CoreByte const* q, uint32 cnt) throws;	// MachineZxsp.cpp

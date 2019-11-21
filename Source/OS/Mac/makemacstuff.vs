@@ -39,6 +39,8 @@
 //
 //var version = "0.8.0pre28"
 var version = "0.8.28"
+log "should read version from settings.h",nl
+exit 1
 
 
 var t0 = now
