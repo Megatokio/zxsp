@@ -17,8 +17,8 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#include "Audio/DspTime.h"
-#include "Audio/StereoSample.h"
+#include "DspTime.h"
+#include "StereoSample.h"
 
 typedef float	Sample;			typedef Sample const		cSample;
 		class	StereoSample;	typedef StereoSample const	cStereoSample;

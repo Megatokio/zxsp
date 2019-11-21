@@ -21,7 +21,7 @@
 #include "kio/kio.h"
 #include "cpp/cppthreads.h"
 #include "zxsp_types.h"
-#include "Audio/StereoSample.h"
+#include "StereoSample.h"
 #include "globals.h"
 #include "Ula/Ula.h"
 #include "Ula/UlaZx81.h"

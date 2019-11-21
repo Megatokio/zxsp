@@ -21,7 +21,7 @@
 #include "cstrings/tempmem.h"
 #include "Dsp.h"
 #include "Application.h"
-#include "Audio/StereoSample.h"
+#include "StereoSample.h"
 #include "Qt/Settings.h"
 #include "kio/TestTimer.h"
 

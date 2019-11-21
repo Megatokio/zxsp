@@ -18,7 +18,7 @@
 */
 
 #include "kio/kio.h"
-#include "Audio/DspTime.h"
+#include "DspTime.h"
 #include "Uni/Language.h"
 //#include "Uni/IsaObject.h"
 

@@ -25,7 +25,7 @@
 #include "Fdc.h"
 #include "Dsp.h"
 #include "globals.h"
-#include "Audio/DspTime.h"
+#include "DspTime.h"
 #include "RecentFilesMenu.h"
 
 

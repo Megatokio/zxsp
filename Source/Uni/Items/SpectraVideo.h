@@ -19,7 +19,7 @@
 
 #include <QObject>
 #include "Ula/Crtc.h"
-#include "Mac/Joystick.h"
+#include "Joystick.h"
 #include "Memory.h"
 #include "unix/files.h"
 class OverlayJoystick;

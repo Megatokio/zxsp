@@ -16,7 +16,7 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#include "USB/UsbJoystick.h"
+#include "UsbJoystick.h"
 #include "Joystick.h"
 
 

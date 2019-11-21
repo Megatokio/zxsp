@@ -41,7 +41,7 @@ unix:!macx: LIBS += -pthread -lz
 INCLUDEPATH += \
 	Source \
 	Source/Qt \
-	Source/Mac \
+	Source/OS \
 	Source/Uni \
 	Source/Uni/Audio \
 	Source/Uni/Machine \
@@ -53,17 +53,17 @@ INCLUDEPATH += \
 
 
 macx: SOURCES += \
-	Source/Mac/Joystick.cpp \
-	Source/Mac/USB/UsbJoystick.cpp \
-	Source/Mac/Dsp.cpp \
-	Source/Mac/Mouse.cpp \
-	Source/Mac/USB/UsbDevice.cpp \
-	Source/Mac/mac_util.cpp \
+	Source/OS/Mac/Joystick.cpp \
+	Source/OS/Mac/UsbJoystick.cpp \
+	Source/OS/Mac/Dsp.cpp \
+	Source/OS/Mac/Mouse.cpp \
+	Source/OS/Mac/UsbDevice.cpp \
+	Source/OS/Mac/mac_util.cpp \
 	Libraries/audio/AudioDecoder.cpp \
 
 
 unix:!macx: SOURCES += \
-	Source/Linux/missing_definitions.cpp \
+	Source/OS/Linux/missing_definitions.cpp \
 
 
 SOURCES +=	\
@@ -73,8 +73,6 @@ SOURCES +=	\
 	Libraries/gif/Pixelmap.cpp \
 	Libraries/gif/GifEncoder.cpp \
 	Libraries/gif/BoxP1SZ.cpp \
-	Source/Uni/Items/Z80/Z80_Disassembler.cpp \
-	Source/Uni/Items/Z80/Z80.cpp \
 	Libraries/kio/kio.cpp \
 	Libraries/unix/log.cpp \
 	Libraries/unix/os_utilities.cpp \
@@ -86,6 +84,9 @@ SOURCES +=	\
 	Libraries/kio/TestTimer.cpp \
 	Libraries/audio/audio.cpp \
 	Libraries/audio/WavFile.cpp \
+	Libraries/Z80/goodies/z80_clock_cycles.cpp \
+	Libraries/Z80/goodies/z80_opcode_length.cpp \
+	Libraries/Z80/goodies/z80_major_opcode.cpp \
 	\
 	zasm/Source/Error.cpp \
 	zasm/Source/Label.cpp \
@@ -99,9 +100,6 @@ SOURCES +=	\
 	zasm/Source/listfile.cpp \
 	zasm/Source/SyntaxError.cpp \
 	zasm/Source/zx7.cpp \
-	Libraries/Z80/goodies/z80_clock_cycles.cpp \
-	Libraries/Z80/goodies/z80_opcode_length.cpp \
-	Libraries/Z80/goodies/z80_major_opcode.cpp \
 	\
 	Source/Qt/qt_util.cpp \
 	Source/Qt/Settings.cpp \
@@ -171,6 +169,12 @@ SOURCES +=	\
 	Source/Qt/Inspector/DivIDEInspector.cpp \
 	Source/Qt/Inspector/KeyboardInspector.cpp \
 	Source/Qt/Inspector/CurrahMicroSpeechInsp.cpp \
+	Source/Qt/Inspector/MultifaceInsp.cpp \
+	Source/Qt/Inspector/SmartSDCardInspector.cpp \
+	\
+	Source/Qt/Dialogs/ConfigDialog.cpp \
+	Source/Qt/Dialogs/ConfigureKeyboardJoystickDialog.cpp \
+	Source/Qt/Overlays/Overlay.cpp \
 	\
 	Source/Uni/Audio/CswBuffer.cpp \
 	Source/Uni/Audio/TapeFile.cpp \
@@ -199,6 +203,7 @@ SOURCES +=	\
 	Source/Uni/Machine/MachineTk90x.cpp \
 	Source/Uni/Machine/MachineTk95.cpp \
 	Source/Uni/Machine/MachineZxPlus2.cpp \
+	Source/Uni/Machine/MachinePentagon128.cpp \
 	\
 	Source/Uni/Items/Item.cpp \
 	Source/Uni/Items/Joy/Joy.cpp \
@@ -231,6 +236,8 @@ SOURCES +=	\
 	Source/Uni/Items/Ula/UlaPlus3.cpp \
 	Source/Uni/Items/Ula/MmuTk85.cpp \
 	Source/Uni/Items/Ula/MmuTs1500.cpp \
+	Source/Uni/Items/Ula/MmuTc2068.cpp \
+	Source/Uni/Items/Ula/Crtc.cpp \
 	Source/Uni/Items/Fdc/Fdc.cpp \
 	Source/Uni/Items/Fdc/FdcPlus3.cpp \
 	Source/Uni/Items/Fdc/FdcBeta128.cpp \
@@ -239,6 +246,11 @@ SOURCES +=	\
 	Source/Uni/Items/Fdc/FdcJLO.cpp \
 	Source/Uni/Items/Fdc/OpusDiscovery.cpp \
 	Source/Uni/Items/Fdc/Disciple.cpp \
+	Source/Uni/Items/Fdc/SmartSDCard.cpp \
+	Source/Uni/Items/Fdc/Fdc765.cpp \
+	Source/Uni/Items/Fdc/DivIDE.cpp \
+	Source/Uni/Items/Fdc/FloppyDiskDrive.cpp \
+	Source/Uni/Items/Fdc/IdeDevice.cpp \
 	Source/Uni/Items/Printer/Printer.cpp \
 	Source/Uni/Items/Printer/ZxPrinter.cpp \
 	Source/Uni/Items/Printer/PrinterPlus3.cpp \
@@ -257,6 +269,10 @@ SOURCES +=	\
 	Source/Uni/Items/Multiface/Multiface1.cpp \
 	Source/Uni/Items/Multiface/Multiface128.cpp \
 	Source/Uni/Items/Multiface/Multiface3.cpp \
+	Source/Uni/Items/Multiface/Multiface.cpp \
+	Source/Uni/Items/Z80/Z80_Disassembler.cpp \
+	Source/Uni/Items/Z80/Z80.cpp \
+	\
 	Source/Uni/Items/IcTester.cpp \
 	Source/Uni/Items/KempstonMouse.cpp \
 	Source/Uni/Items/ZxIf1.cpp \
@@ -265,13 +281,10 @@ SOURCES +=	\
 	Source/Uni/Items/Grafpad.cpp \
 	Source/Uni/Items/TapeRecorder.cpp \
 	Source/Uni/Items/SpectraVideo.cpp \
-	Source/Uni/Items/Fdc/Fdc765.cpp \
 	Source/Uni/Items/CurrahMicroSpeech.cpp \
-	Source/Uni/Items/Fdc/DivIDE.cpp \
-	Source/Uni/Items/Fdc/FloppyDiskDrive.cpp \
-	Source/Uni/Items/Fdc/IdeDevice.cpp \
 	Source/Uni/Items/Keyboard.cpp \
-	Source/Uni/Items/Ula/MmuTc2068.cpp \
+	Source/Uni/Items/SP0256.cpp \
+	Source/Uni/Items/MassStorage.cpp \
 	\
 	Source/Uni/Renderer/ZxspRenderer.cpp \
 	Source/Uni/Renderer/Tc2048Renderer.cpp \
@@ -284,6 +297,9 @@ SOURCES +=	\
 	Source/Uni/Files/TccRom.cpp \
 	Source/Uni/Files/file_z80.cpp \
 	Source/Uni/Files/Z80Head.cpp \
+	Source/Uni/Files/RzxBlock.cpp \
+	Source/Uni/Files/RzxFile.cpp \
+	Source/Uni/Files/bestModelForFile.cpp \
 	\
 	Source/Uni/ZxInfo/ZxInfo.cpp \
 	Source/Uni/ZxInfo/BasicTokens.cpp \
@@ -292,27 +308,14 @@ SOURCES +=	\
 	Source/Uni/Memory.cpp \
 	Source/Uni/util.cpp \
 	Source/Uni/IsaObject.cpp \
-	Source/Uni/Items/SP0256.cpp \
-	Source/Uni/Items/Multiface/Multiface.cpp \
-	Source/Qt/Inspector/MultifaceInsp.cpp \
-	Source/Uni/Items/Fdc/SmartSDCard.cpp \
-	Source/Qt/Inspector/SmartSDCardInspector.cpp \
-	Source/Uni/Items/MassStorage.cpp \
-	Source/Uni/Files/RzxBlock.cpp \
-	Source/Uni/Files/RzxFile.cpp \
-	Source/Qt/Dialogs/ConfigDialog.cpp \
-	Source/Qt/Dialogs/ConfigureKeyboardJoystickDialog.cpp \
-	Source/Qt/Overlays/Overlay.cpp \
-	Source/Uni/Machine/MachinePentagon128.cpp \
-	Source/Uni/Items/Ula/Crtc.cpp \
-	Source/Uni/Files/bestModelForFile.cpp
+
+
+# Library Headers:
 
 HEADERS += \
+	Libraries/kio/kio.h \
 	Libraries/kio/auto_config.h \
 	Libraries/kio/detect_configuration.h \
-	settings.h \
-	\
-	Libraries/kio/kio.h \
 	Libraries/kio/standard_types.h \
 	Libraries/kio/exceptions.h \
 	Libraries/kio/errors.h \
@@ -320,22 +323,13 @@ HEADERS += \
 	Libraries/kio/util/swap.h \
 	Libraries/kio/util/msbit.h \
 	Libraries/kio/util/count1bits.h \
+	Libraries/kio/TestTimer.h \
 	\
 	Libraries/unix/log.h \
-	Libraries/cstrings/tempmem.h \
 	Libraries/cpp/cppthreads.h \
 	Libraries/unix/os_utilities.h \
 	Libraries/unix/FD.h \
 	Libraries/unix/files.h \
-	\
-	Source/Uni/Items/Z80/Z80macros.h \
-	Source/Uni/Items/Z80/Z80codesXY.h \
-	Source/Uni/Items/Z80/Z80codesED.h \
-	Source/Uni/Items/Z80/Z80codesCB.h \
-	Source/Uni/Items/Z80/Z80codes.h \
-	Source/Uni/Items/Z80/Z80.h \
-	Source/Uni/Items/Z80/Z80_Disassembler.h \
-	Source/Uni/Items/Z80/Z80opcodes.h \
 	\
 	Libraries/gif/BoxP1SZ.h \
 	Libraries/gif/Colormap.h \
@@ -353,8 +347,8 @@ HEADERS += \
 	Libraries/Templates/StrArray.h \
 	\
 	Libraries/cstrings/cstrings.h \
+	Libraries/cstrings/tempmem.h \
 	Libraries/hash/sdbm_hash.h \
-	Libraries/kio/TestTimer.h \
 	\
 	Libraries/audio/AudioDecoder.h \
 	Libraries/audio/CADebugMacros.h \
@@ -362,6 +356,15 @@ HEADERS += \
 	Libraries/audio/audio.h \
 	Libraries/audio/WavFile.h \
 	\
+	Libraries/Z80/goodies/z80_clock_cycles.h \
+	Libraries/Z80/goodies/z80_opcode_length.h \
+	Libraries/Z80/goodies/z80_major_opcode.h \
+	Libraries/Z80/goodies/z80_opcodes.h \
+
+
+# zasm Z80 Assembler Headers:
+
+HEADERS += \
 	zasm/Source/Error.h \
 	zasm/Source/Label.h \
 	zasm/Source/Segment.h \
@@ -374,16 +377,25 @@ HEADERS += \
 	zasm/Source/CharMap.h \
 	zasm/Source/helpers.h \
 	zasm/Source/zx7.h \
-	Libraries/Z80/goodies/z80_clock_cycles.h \
-	Libraries/Z80/goodies/z80_opcode_length.h \
-	Libraries/Z80/goodies/z80_major_opcode.h \
-	Libraries/Z80/goodies/z80_opcodes.h \
-	\
-	Source/Mac/Dsp.h \
-	Source/Mac/Joystick.h \
-	Source/Mac/USB/UsbJoystick.h \
-	Source/Mac/Mouse.h \
-	\
+
+
+# zxsp Headers - OS stuff (AudioIO, Joysticks, Mouse):
+
+HEADERS += \
+	Source/settings.h \
+	Source/OS/Mouse.h \
+	Source/OS/StereoSample.h \
+	Source/OS/DspTime.h \
+	Source/OS/Dsp.h \
+	Source/OS/Joystick.h \
+	Source/OS/Mac/UsbJoystick.h \
+	Source/OS/Mac/UsbDevice.h \
+	Source/OS/Mac/mac_util.h \
+
+
+# zxsp Headers - Qt GUI stuff:
+
+HEADERS += \
 	Source/Qt/Inspector/Inspector.h \
 	Source/Qt/Inspector/AyInsp.h \
 	Source/Qt/Inspector/CursorJoyInsp.h \
@@ -434,9 +446,15 @@ HEADERS += \
 	Source/Qt/Inspector/DivIDEInspector.h \
 	Source/Qt/Inspector/KeyboardInspector.h \
 	Source/Qt/Inspector/CurrahMicroSpeechInsp.h \
+	Source/Qt/Inspector/MultifaceInsp.h \
+	Source/Qt/Inspector/SmartSDCardInspector.h \
 	\
 	Source/Qt/Screen/ScreenMono.h \
 	Source/Qt/Screen/Screen.h \
+	\
+	Source/Qt/Dialogs/ConfigDialog.h \
+	Source/Qt/Dialogs/ConfigureKeyboardJoystickDialog.h \
+	Source/Qt/Overlays/Overlay.h \
 	\
 	Source/Qt/CheckUpdate.h \
 	Source/Qt/qt_util.h \
@@ -451,7 +469,11 @@ HEADERS += \
 	Source/Qt/MySimpleToggleButton.h \
 	Source/Qt/Lenslok.h \
 	Source/Qt/RecentFilesMenu.h \
-	\
+
+
+# zxsp Headers - ZX Spectrum Machine & Item Models:
+
+HEADERS += \
 	Source/Uni/Machine/Machine.h \
 	Source/Uni/Machine/MachineZx80.h \
 	Source/Uni/Machine/MachineZx81.h \
@@ -462,15 +484,21 @@ HEADERS += \
 	Source/Uni/Machine/MachineTc2068.h \
 	Source/Uni/Machine/MachineZxPlus2a.h \
 	Source/Uni/Machine/MachineZxPlus3.h \
+	Source/Uni/Machine/MachineTk85.h \
+	Source/Uni/Machine/MachineTs1000.h \
+	Source/Uni/Machine/MachineTs1500.h \
+	Source/Uni/Machine/MachineInves.h \
+	Source/Uni/Machine/MachineTk90x.h \
+	Source/Uni/Machine/MachineTk95.h \
+	Source/Uni/Machine/MachineZxPlus2.h \
+	Source/Uni/Machine/MachinePentagon128.h \
 	\
-	Source/Uni/Audio/DspTime.h \
 	Source/Uni/Audio/TapeFile.h \
 	Source/Uni/Audio/TapeData.h \
 	Source/Uni/Audio/TapData.h \
 	Source/Uni/Audio/O80Data.h \
 	Source/Uni/Audio/TzxData.h \
 	Source/Uni/Audio/AudioData.h \
-	Source/Uni/Audio/StereoSample.h \
 	Source/Uni/Audio/CswBuffer.h \
 	Source/Uni/Audio/RlesData.h \
 	Source/Uni/Audio/TapeFileDataBlock.h \
@@ -493,6 +521,14 @@ HEADERS += \
 	Source/Uni/Items/Ula/MmuZx80.h \
 	Source/Uni/Items/Ula/MmuJupiter.h \
 	Source/Uni/Items/Ula/MmuTc2048.h \
+	Source/Uni/Items/Ula/Ula128k.h \
+	Source/Uni/Items/Ula/UlaPlus3.h \
+	Source/Uni/Items/Ula/UlaTc2048.h \
+	Source/Uni/Items/Ula/MmuTk85.h \
+	Source/Uni/Items/Ula/MmuTs1500.h \
+	Source/Uni/Items/Ula/MmuTc2068.h \
+	Source/Uni/Items/Ula/Crtc.h \
+	\
 	Source/Uni/Items/Joy/Joy.h \
 	Source/Uni/Items/Joy/KempstonJoy.h \
 	Source/Uni/Items/Joy/Tc2048Joy.h \
@@ -501,12 +537,21 @@ HEADERS += \
 	Source/Uni/Items/Joy/Tc2068Joy.h \
 	Source/Uni/Items/Joy/DktronicsDualJoy.h \
 	Source/Uni/Items/Joy/SinclairJoy.h \
+	Source/Uni/Items/Joy/ZxIf2.h \
+	Source/Uni/Items/Joy/Tk85Joy.h \
 	Source/Uni/Items/Fdc/FdcPlus3.h \
 	Source/Uni/Items/Fdc/FdcBeta128.h \
 	Source/Uni/Items/Fdc/FdcPlusD.h \
 	Source/Uni/Items/Fdc/FdcD80.h \
 	Source/Uni/Items/Fdc/FdcJLO.h \
 	Source/Uni/Items/Fdc/Fdc.h \
+	Source/Uni/Items/Fdc/DivIDE.h \
+	Source/Uni/Items/Fdc/FloppyDiskDrive.h \
+	Source/Uni/Items/Fdc/IdeDevice.h \
+	Source/Uni/Items/Fdc/OpusDiscovery.h \
+	Source/Uni/Items/Fdc/Disciple.h \
+	Source/Uni/Items/Fdc/Fdc765.h \
+	Source/Uni/Items/Fdc/SmartSDCard.h \
 	Source/Uni/Items/Printer/Printer.h \
 	Source/Uni/Items/Printer/ZxPrinter.h \
 	Source/Uni/Items/Printer/PrinterPlus3.h \
@@ -520,44 +565,37 @@ HEADERS += \
 	Source/Uni/Items/Ram/Zx3kRam.h \
 	Source/Uni/Items/Ram/Memotech64kRam.h \
 	Source/Uni/Items/Ay/Ay.h \
+	Source/Uni/Items/Ay/AySubclasses.h \
 	Source/Uni/Items/Ay/FullerBox.h \
+	Source/Uni/Items/Multiface/Multiface.h \
+	Source/Uni/Items/Multiface/Multiface128.h \
+	Source/Uni/Items/Multiface/Multiface3.h \
+	Source/Uni/Items/Multiface/Multiface1.h \
+	\
+	Source/Uni/Items/Z80/Z80macros.h \
+	Source/Uni/Items/Z80/Z80codesXY.h \
+	Source/Uni/Items/Z80/Z80codesED.h \
+	Source/Uni/Items/Z80/Z80codesCB.h \
+	Source/Uni/Items/Z80/Z80codes.h \
+	Source/Uni/Items/Z80/Z80.h \
+	Source/Uni/Items/Z80/Z80_Disassembler.h \
+	Source/Uni/Items/Z80/Z80opcodes.h \
+	Source/Uni/Items/Z80/Z80options.h \
+	\
 	Source/Uni/Items/IcTester.h \
 	Source/Uni/Items/KempstonMouse.h \
 	Source/Uni/Items/TapeRecorder.h \
 	Source/Uni/Items/ZxIf1.h \
-	Source/Uni/Items/Joy/ZxIf2.h \
 	Source/Uni/Items/Item.h \
-	Source/Uni/Items/Multiface/Multiface128.h \
-	Source/Uni/Items/Multiface/Multiface3.h \
-	Source/Uni/Items/Multiface/Multiface1.h \
 	Source/Uni/Items/Grafpad.h \
-	Source/Uni/Items/Ay/AySubclasses.h \
-	Source/Uni/Items/Ula/Ula128k.h \
-	Source/Uni/Items/Ula/UlaPlus3.h \
-	Source/Uni/Items/Ula/UlaTc2048.h \
-	Source/Uni/Items/Ula/MmuTk85.h \
-	Source/Uni/Items/Ula/MmuTs1500.h \
-	Source/Uni/Items/Joy/Tk85Joy.h \
-	Source/Uni/Items/Fdc/OpusDiscovery.h \
-	Source/Uni/Items/Fdc/Disciple.h \
 	Source/Uni/Items/WafaDrive.h \
 	Source/Uni/Items/AmxMouse.h \
-	Source/Uni/Items/Fdc/DivIDE.h \
-	Source/Uni/Items/Fdc/FloppyDiskDrive.h \
-	Source/Uni/Items/Fdc/IdeDevice.h \
 	Source/Uni/Items/Keyboard.h \
-	Source/Uni/Items/Ula/MmuTc2068.h \
 	Source/Uni/Items/CurrahMicroSpeech.h \
 	Source/Uni/Items/SpectraVideo.h \
-	Source/Uni/Items/Fdc/Fdc765.h \
-	\
-	Source/Uni/Machine/MachineTk85.h \
-	Source/Uni/Machine/MachineTs1000.h \
-	Source/Uni/Machine/MachineTs1500.h \
-	Source/Uni/Machine/MachineInves.h \
-	Source/Uni/Machine/MachineTk90x.h \
-	Source/Uni/Machine/MachineTk95.h \
-	Source/Uni/Machine/MachineZxPlus2.h \
+	Source/Uni/Items/MemObject.h \
+	Source/Uni/Items/SP0256.h \
+	Source/Uni/Items/MassStorage.h \
 	\
 	Source/Uni/Renderer/ZxspRenderer.h \
 	Source/Uni/Renderer/Tc2048Renderer.h \
@@ -572,11 +610,12 @@ HEADERS += \
 	Source/Uni/Files/file_stx.h \
 	Source/Uni/Files/FloppyDisk.h \
 	Source/Uni/Files/TccRom.h \
+	Source/Uni/Files/RzxFile.h \
+	Source/Uni/Files/RzxBlock.h \
 	\
 	Source/Uni/custom_errors.h \
 	Source/Uni/Language.h \
 	Source/Uni/globals.h \
-	Source/Uni/Items/Z80/Z80options.h \
 	Source/Uni/zxsp_types.h \
 	Source/Uni/util.h \
 	Source/Uni/IsaObject.h \
@@ -585,35 +624,26 @@ HEADERS += \
 	Source/Uni/Memory.h \
 	Source/Uni/precompiled_header.h \
 	Source/Uni/about_text.h \
-	Source/Uni/Items/SP0256.h \
-	Source/Uni/Items/Multiface/Multiface.h \
-	Source/Qt/Inspector/MultifaceInsp.h \
 	Source/Uni/Keymap.h \
-	Source/Mac/USB/UsbDevice.h \
-	Source/Mac/mac_util.h \
-	Source/Uni/Items/Fdc/SmartSDCard.h \
-	Source/Qt/Inspector/SmartSDCardInspector.h \
-	Source/Uni/Items/MassStorage.h \
-	Source/Uni/Files/RzxFile.h \
-	Source/Uni/Files/RzxBlock.h \
-	Source/Qt/Dialogs/ConfigDialog.h \
-	Source/Qt/Dialogs/ConfigureKeyboardJoystickDialog.h \
-	Source/Qt/Overlays/Overlay.h \
-	Source/Uni/Machine/MachinePentagon128.h \
-	Source/Uni/Items/Ula/Crtc.h \
-	Source/Uni/Items/MemObject.h
+
+
+# Other Files - Info & Helpers
 
 OTHER_FILES += \
-	../.gitignore \
-	makemacstuff.vs \
-	Source/Mac/Dsp.txt \
+	.gitignore \
+	Source/OS/Mac/makemacstuff.vs \
+	Source/OS/Mac/Dsp.txt \
 	Libraries/kio/linux_errors.txt \
 	Source/Uni/ZxInfo/info_video.txt \
 	Source/Uni/ZxInfo/makezxinfo.vs \
 	Source/Uni/ZxInfo/ZxInfo.csv \
 	Source/Uni/Items/Fdc/DivIDE.txt \
 	Info/Disk/FDC765_info.txt \
-	\
+
+
+# sdcc C Compiler Sources and Header Files:
+
+OTHER_FILES += \
 	sdcc/lib/___setjmp.s \
 	sdcc/lib/__divsint.s \
 	sdcc/lib/__divsuchar.s \

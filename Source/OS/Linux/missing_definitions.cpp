@@ -1,8 +1,6 @@
 
 #include "kio/kio.h"
-
-
-#include "Mac/Dsp.h"
+#include "Dsp.h"
 
 namespace Dsp{
 StereoSample	audio_out_buffer [DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING];
@@ -14,19 +12,19 @@ void outputSamples ( cStereoSample&, Time start, Time end ) {}
 }
 
 
-#include "Audio/DspTime.h"
+#include "DspTime.h"
 
 Frequency	samples_per_second;	// DSP-Konstante & Zeitbasis des Systems: samples/second
 Time		system_time;		// Realzeit [seconds]
 
 
-#include "Mac/Joystick.h"
+#include "Joystick.h"
 
 Joystick* joysticks[max_joy];
 void findUsbJoysticks() {debugstr("findUsbJoysticks\n");TODO();}
 
 
-#include "Mac/Mouse.h"
+#include "Mouse.h"
 
 Mouse mouse;
 Mouse::Mouse(){debugstr("Mouse\n");}

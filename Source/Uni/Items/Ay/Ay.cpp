@@ -39,7 +39,7 @@ $BFFD	%1011.----.----.--0-	ZX128 AY reg. write -/o
 ================================================================== */
 
 #include "Ay.h"
-#include "Audio/DspTime.h"
+#include "DspTime.h"
 #include "Dsp.h"
 #include "Machine.h"
 #include "ZxInfo/ZxInfo.h"
