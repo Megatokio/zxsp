@@ -237,32 +237,21 @@ int main( int argc, char *argv[] )
 	xlogline("  Processor:  %s",_PROCESSOR);
 	xlogline("  Byte order: %s",_BYTEORDER);
 
-	#ifdef _bits_per_byte
 	xlogline("  bits per byte:      %i", _bits_per_byte);		{ assert(uchar(0xffffffff)==(1<<_bits_per_byte)-1); }
-	#endif
-	#ifdef _sizeof_char
 	xlogline("  sizeof char:        %i", _sizeof_char);			{ assert(sizeof(char)==_sizeof_char); }
-	#endif
-	#ifdef _sizeof_short
 	xlogline("  sizeof short:       %i", _sizeof_short);		{ assert(sizeof(short)==_sizeof_short); }
-	#endif
-	#ifdef _sizeof_int
 	xlogline("  sizeof int:         %i", _sizeof_int);			{ assert(sizeof(int)==_sizeof_int); }
-	#endif
-	#ifdef _sizeof_long
 	xlogline("  sizeof long:        %i", _sizeof_long);			{ assert(sizeof(long)==_sizeof_long); }
-	#endif
+	xlogline("  sizeof pointer:     %i", _sizeof_pointer);		{ assert(sizeof(char*)==_sizeof_pointer); }
+
 	#ifdef _sizeof_double
 	xlogline("  sizeof double:		%i", _sizeof_double);		{ assert(sizeof(double)==_sizeof_double); }
 	#endif
-	#ifdef _sizeof_short_float
-	xlogline("  sizeof short float: %i", _sizeof_short_float);	{ assert(sizeof(float)==_sizeof_short_float); }
+	#ifdef _sizeof_float
+	xlogline("  sizeof short float: %i", _sizeof_float);		{ assert(sizeof(float)==_sizeof_float); }
 	#endif
-	#ifdef _sizeof_long_float
-	xlogline("  sizeof long float:  %i", _sizeof_long_float);	{ assert(sizeof(long double)==_sizeof_long_float); }
-	#endif
-	#ifdef _sizeof_pointer
-	xlogline("  sizeof pointer:     %i", _sizeof_pointer);		{ assert(sizeof(char*)==_sizeof_pointer); }
+	#ifdef _sizeof_long_double
+	xlogline("  sizeof long double: %i", _sizeof_long_float);	{ assert(sizeof(long double)==_sizeof_long_double); }
 	#endif
 
 	xlogline("  max. alignment:     %i", int(_MAX_ALIGNMENT) );
@@ -272,46 +261,6 @@ int main( int argc, char *argv[] )
 	IFDEBUG( char const abcd[5]="abcd"; )
 	assert( peek4X(abcd)=='abcd' );
 	assert( peek4Z(abcd)=='dcba' );
-
-//#ifndef _STDINT_H_
-//	ABORT("_STDINT_H_ not defined <-> stdint.h not included");			why?
-//#endif
-
-// the following generates no code: (except if library functions are broken!)
-	assert( count1bits( int(0x01020304)    ) == 5 );
-	assert( count1bits( uint(0x01020304)   ) == 5 );
-	assert( count1bits( int32(0x01020304)  ) == 5 );
-	assert( count1bits( uint32(0x01020304) ) == 5 );
-	assert( count1bits( int16(0x0304)      ) == 3 );
-	assert( count1bits( uint16(0x0304)     ) == 3 );
-	assert( count1bits( int8(0x3b)         ) == 5 );
-	assert( count1bits( uint8(0x3b)        ) == 5 );
-
-	assert( msbit(0x20000000)	== 29 );
-	assert( msbit(0x3fffffff)	== 29 );
-	assert( msbit(0x20000000u)	== 29 );
-	assert( msbit(0x3fffffffu)	== 29 );
-	assert( msbit(int16(0x2000)) == 13 );
-	assert( msbit(int16(0x3fff)) == 13 );
-	assert( msbit(uint8(0x20))	== 5 );
-	assert( msbit(int8(0x3f))	== 5 );
-	assert( msbit(0)			== 0 );
-	for(int i=0;i<32;i++) { assert(msbit(1<<i)==i); }
-
-	assert( reqBits(0)		==0 );
-	assert( reqBits(1)		==0 );
-	assert( reqBits(2)		==1 );
-	assert( reqBits(3)		==2 );
-	assert( reqNibbles(0)	==0 );
-	assert( reqNibbles(1)	==0 );
-	assert( reqNibbles(2)	==1 );
-	assert( reqNibbles(16)	==1 );
-	assert( reqNibbles(17)	==2 );
-	assert( reqBytes(0)		==0 );
-	assert( reqBytes(1)		==0 );
-	assert( reqBytes(2)		==1 );
-	assert( reqBytes(256)	==1 );
-	assert( reqBytes(257)	==2 );
 
 
 // appl name:
