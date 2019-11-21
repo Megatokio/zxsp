@@ -17,6 +17,8 @@ PRECOMPILED_HEADER = Source/Uni/precompiled_header.h
 
 DEFINES += QT_NO_SESSIONMANAGER
 
+QMAKE_CXXFLAGS += -Wno-multichar
+
 RESOURCES += Resources/zxsp.qrc
 
 
