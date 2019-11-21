@@ -2,7 +2,16 @@
 
 
 #define APPL_NAME			"zxsp"
+
+#define APPL_VERSION_H	0
+#define APPL_VERSION_M	9
+#define APPL_VERSION_L	0
+#define STRINGIFY(X) #X
+#define TOSTR(X) STRINGIFY(X)
+#define APPL_VERSION_STR	TOSTR(APPL_VERSION_H) "." TOSTR(APPL_VERSION_M) "." TOSTR(APPL_VERSION_L)
+
 #define CUSTOM_ERRORS		"custom_errors.h"
+
 #define LOGFILE_ROTATION	DAILY
 #define USE_THREADS 1
 #define LOGFILE 1

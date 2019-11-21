@@ -38,7 +38,9 @@
 // zxsp version:
 //
 //var version = "0.8.0pre28"
-var version = "0.8.28"
+var version = "0.8.0pre28"
+log "TODO: should read version from settings.h",nl
+//exit 1
 
 
 var t0 = now
@@ -170,7 +172,7 @@ file "zxsp.app/Contents/Info.plist" =
 
 // create icns files:
 {
-	var qdir = projectdir # "OSX/Resources/Files/"
+	var qdir = projectdir # "Resources/Files/"
 	var d1 = dir(qdir#"*.iconset")
 	var d2 = dir(qdir#"*.icns")
 

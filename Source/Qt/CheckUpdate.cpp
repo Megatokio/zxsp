@@ -58,7 +58,7 @@ CheckUpdate::CheckUpdate(QObject* parent, bool verbose)
 	reply(NULL),
 	request()
 {
-	request.setUrl(QUrl(catstr(check_update_url, appl_version_str)));
+	request.setUrl(QUrl(catstr(check_update_url, APPL_VERSION_STR)));
 	network_manager = new QNetworkAccessManager(this);
 	IFDEBUG( bool f = ) connect(network_manager, &QNetworkAccessManager::finished, this, &CheckUpdate::slot_finished);
 	assert(f);

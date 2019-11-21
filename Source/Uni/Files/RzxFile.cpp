@@ -427,8 +427,8 @@ void RzxFile::writeFile(cstr filename) throws
 	fd.write_uint32_z(29);						// block length: 29 = min. length => no custom data
 	char crea[20]; strncpy(crea,APPL_NAME,20);
 	fd.write_bytes(crea,20);					// char[20] creator name
-	fd.write_uint16_z(appl_version_h*256+appl_version_m);
-	fd.write_uint16_z(appl_version_l);			// uint16[2] creator version
+	fd.write_uint16_z(APPL_VERSION_H*256+APPL_VERSION_M);
+	fd.write_uint16_z(APPL_VERSION_L);			// uint16[2] creator version
 	//fd.write_bytes(NULL,0);					// no custom data
 
 	// the blocks:

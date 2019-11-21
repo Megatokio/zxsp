@@ -735,7 +735,7 @@ void FloppyDisk::write_extended_disk_file(FD& fd) const throws
 	uint num_tracks = max(trackinfo[0].count(),trackinfo[1].count());
 
 	strcpy(ptr(dip),"EXTENDED CPC DSK File\r\nDisk-Info\r\n");		dip += 34;
-	strcpy(ptr(dip),catstr(appl_name," ",appl_version_str));		dip += 14;
+	strcpy(ptr(dip),catstr(APPL_NAME," ",APPL_VERSION_STR));		dip += 14;
 	*dip++ = uint8(num_tracks);
 	*dip++ = uint8(num_sides);
 	dip += 2;				// unused
