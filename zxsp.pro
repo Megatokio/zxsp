@@ -53,10 +53,9 @@ INCLUDEPATH += \
 
 
 macx: SOURCES += \
-	Source/OS/Mac/Joystick.cpp \
 	Source/OS/Mac/UsbJoystick.cpp \
-	Source/OS/Mac/Dsp.cpp \
-	Source/OS/Mac/Mouse.cpp \
+	Source/OS/Mac/MacDsp.cpp \
+	Source/OS/Mac/MacMouse.cpp \
 	Source/OS/Mac/UsbDevice.cpp \
 	Source/OS/Mac/mac_util.cpp \
 	Libraries/audio/AudioDecoder.cpp \
@@ -64,6 +63,11 @@ macx: SOURCES += \
 
 unix:!macx: SOURCES += \
 	Source/OS/Linux/missing_definitions.cpp \
+
+
+SOURCES += \
+	Source/OS/Joystick.cpp \
+	Source/OS/Dsp.cpp
 
 
 SOURCES +=	\

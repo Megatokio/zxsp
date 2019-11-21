@@ -16,7 +16,7 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#include "UsbJoystick.h"
+//#include "UsbJoystick.h"
 #include "Joystick.h"
 
 
@@ -24,7 +24,7 @@
 static_assert(max_joy == 5, "max_joy != 5");
 static_assert(num_usb == 3, "num_usb != 3");
 
-Joystick* joysticks[max_joy] = {0,0,0,0,0};
+Joystick* joysticks[max_joy]; // = {0,0,0,0,0};
 
 ON_INIT([]
 {
