@@ -31,10 +31,10 @@ public:
 	StereoSample() noexcept						: left(0), right(0) {}
 	StereoSample(Sample m) noexcept				: left(m), right(m) {}
 	StereoSample(Sample l, Sample r) noexcept	: left(l), right(r) {}
-	StereoSample(cStereoSample& q) noexcept		: left(q.left), right(q.right) {}
+	StereoSample(cStereoSample& q) noexcept		= default;
 
 StereoSample&	operator=	( Sample q )			noexcept	{ left=right=q; return *this; }
-StereoSample&	operator=	( cStereoSample& q )	noexcept	{ left=q.left; right=q.right; return *this; }
+StereoSample&	operator=	( cStereoSample& q )	noexcept	= default;
 StereoSample&	operator+=	( Sample q )			noexcept	{ left+=q; right+=q; return *this; }
 StereoSample&	operator+=	( cStereoSample& q )	noexcept	{ left+=q.left; right+=q.right;	return *this; }
 StereoSample&	operator-=	( Sample q )			noexcept	{ left-=q; right-=q; return *this; }
