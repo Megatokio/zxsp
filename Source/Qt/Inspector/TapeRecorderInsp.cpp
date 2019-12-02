@@ -765,7 +765,7 @@ void TapeRecorderInsp::insert_empty_tape_w_anim()
 	eject_tape();				// wg. sound
 
 	cstr filepath = get_save_filename("Insert new empty tape");
-	if(filepath) try{ create_file(filepath); } catch(file_error){}
+	if(filepath) try{ create_file(filepath); } catch(file_error&){}
 
 	insert_tape(filepath);
 	btn_eject->setDown(no);

@@ -16,10 +16,10 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#import "MmuJupiter.h"
-#import "Machine.h"
-#import "Z80/Z80.h"
-#import "Ula/UlaJupiter.h"
+#include "MmuJupiter.h"
+#include "Machine.h"
+#include "Z80/Z80.h"
+#include "Ula/UlaJupiter.h"
 
 
 
