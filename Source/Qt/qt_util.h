@@ -19,6 +19,8 @@
 
 #include <QRgb>
 #include <QWidget>
+#include <QAudioFormat>
+#include <QAudioDeviceInfo>
 #include "kio/kio.h"
 
 
@@ -27,5 +29,8 @@ extern void setColors   (QWidget* widget, QRgb foregroundcolor, QRgb backgroundc
 extern cstr selectLoadFile(QWidget* parent, cstr headline, cstr filefilterstr);
 extern cstr selectSaveFile(QWidget* parent, cstr headline, cstr filefilterstr);
 
-
-
+extern cstr tostr (QAudioFormat::Endian endi) noexcept;
+extern cstr tostr (QAudioFormat::SampleType styp) noexcept;
+extern cstr tostr (const QAudioFormat& afmt) noexcept;
+extern void print_QAudioFormat (cstr title, const QAudioFormat& afmt);
+extern void print_QAudioDeviceInfo (cstr title, const QAudioDeviceInfo& info);

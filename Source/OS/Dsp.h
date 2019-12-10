@@ -17,57 +17,75 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
+#include "kio/kio.h"
 #include "DspTime.h"
 #include "StereoSample.h"
+#include <QIODevice>
 
-typedef float	Sample;			typedef Sample const		cSample;
-		class	StereoSample;	typedef StereoSample const	cStereoSample;
+typedef float Sample;
+typedef Sample const cSample;
+class StereoSample;
+typedef StereoSample const cStereoSample;
+class QAudioOutput;
+class QAudioInput;
+class QAudioDeviceInfo;
 
-
-namespace Dsp
+class Dsp : private QIODevice
 {
-extern	StereoSample	audio_out_buffer[];
-extern	StereoSample	audio_in_buffer[];
+	Q_OBJECT
 
-extern	bool	audio_input_device_present;
-extern	bool	audio_input_device_enabled;
-extern	bool	audio_output_device_enabled;
-extern	Sample	audio_output_volume;
+	qint64 readData (char* data, qint64 max) override;
+	qint64 writeData (const char* data, qint64 max) override;
+	qint64 bytesAvailable() const override;
 
+	static inline void highpassInputBuffer();
+	static inline void highpassOutputBuffer();
+	static inline void shiftOutputStitching();
+	static inline void shiftInputStitching();
+	static inline void copyInputToOutputBuffer();
+	static inline void clearInputBuffer();
 
-extern	void	startCoreAudio				(bool input_enabled);//, int playthrough_mode );
-extern	void	stopCoreAudio				( );
+	static QAudioOutput* audio_output;
+	static QAudioInput*  audio_input;
 
-inline	bool	isAudioInputDevicePresent	( )			{ return audio_input_device_present; }
-inline	bool	isAudioInputDeviceEnabled	( )			{ return audio_input_device_enabled; }
-extern	void	enableAudioInputDevice		( bool f );
+public:
+	static StereoSample	audio_out_buffer[];
+	static StereoSample	audio_in_buffer[];
 
-inline	bool	isAudioOutputDevicePresent	( )			{ return 1/*yes*/; }
-inline	bool	isAudioOutputDeviceEnabled	( )			{ return audio_output_device_enabled; }
-extern	void	enableAudioOutputDevice		( bool f );
+	static bool	audio_input_device_present;
+	static bool	audio_input_device_enabled;
+	static bool	audio_output_device_enabled;
+	static Sample audio_output_volume;
 
-extern	void	setOutputVolume				( Sample volume );
-inline	Sample	getOutputVolume				( )			{ return audio_output_volume; }
+	Dsp (const QAudioDeviceInfo& outDevInfo, const QAudioDeviceInfo& inDevInfo);
+	~Dsp () override;
 
-//extern	void	setPlaythrough				( uint mode );
-//		enum
-//		{		playthrough_minus10dB,
-//				playthrough_minus30dB,
-//			 	playthrough_off
-//		};
+	static void start ();
 
-extern	void	outputSamples				( cStereoSample&, Time start, Time end );
-extern	void	outputSamples				( Sample, Time start, Time end );
+	static void startCoreAudio (bool input_enabled);
+	static void stopCoreAudio  ();
 
-// ---- Utilities ----
+	static inline bool isAudioInputDevicePresent () noexcept { return audio_input_device_present; }
+	static inline bool isAudioInputDeviceEnabled () noexcept { return audio_input_device_enabled; }
+	static void enableAudioInputDevice (bool);
 
-inline void shiftBuffer(StereoSample*bu)
-			{ for( int i=0; i<DSP_SAMPLES_STITCHING; i++ ) bu[i] = bu[DSP_SAMPLES_PER_BUFFER+i]; }
-inline void clearBuffer(StereoSample*bu)	// preserves stitching at buffer start
-			{ for( int i=DSP_SAMPLES_STITCHING; i<DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING; i++ ) bu[i] = 0.0; }
+	static inline bool isAudioOutputDevicePresent () noexcept { return 1/*yes*/; }
+	static inline bool isAudioOutputDeviceEnabled () noexcept { return audio_output_device_enabled; }
+	static void enableAudioOutputDevice (bool);
 
+	static void setOutputVolume (Sample volume);
+	static inline Sample getOutputVolume () noexcept { return audio_output_volume; }
 
-}
+	//void setPlaythrough (uint mode);
+	//		enum
+	//		{		playthrough_minus10dB,
+	//				playthrough_minus30dB,
+	//			 	playthrough_off
+	//		};
+
+	static void outputSamples (cStereoSample&, Time start, Time end);
+	static void outputSamples (Sample, Time start, Time end);
+};
 
 
 
