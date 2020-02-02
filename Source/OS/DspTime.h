@@ -19,10 +19,19 @@
 
 // Samples(stereo) per dsp exchange buffer
 
+#include "kio/auto_config.h"
+#include "settings.h"
+#if defined(_MACOSX)
 #define DSP_SAMPLES_PER_BUFFER	735		// 735 = 44.1kHz/60Hz
 #define	DSP_SAMPLES_STITCHING	4
+#elif defined(_LINUX)
+#define DSP_SAMPLES_PER_BUFFER	256
+#define	DSP_SAMPLES_STITCHING	4
+#endif
 
-/*	notes on buffer size:
+/*	notes on buffer size: (MacOSX)
+	2019-12: das Problem ist sehr wahrscheinlich, dass direkt und/oder indirekt Mutexe gelockt werden
+	und der Audiothread dann manchmal hängt bis ein niedriger priorisierter Thread diesen wieder freigibt.
 
 	512 debug|final: sehr häufige input-drops, häufige output-drops
 	735 debug: sporadische in- und out-drops (~alle 2min) zumeist nach runForSound ≥ 15ms

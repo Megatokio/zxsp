@@ -148,7 +148,7 @@ Application::Application (int argc, char* argv[]) :
 //	}
 
 // start core audio == start running the machine:
-	Dsp::startCoreAudio(settings.get_bool(key_warn_if_audio_in_fails,yes));
+//	Dsp::startCoreAudio(settings.get_bool(key_warn_if_audio_in_fails,yes));
 
 // open tool windows if set so in preferences:
 	if(settings.get_bool(key_save_and_restore_session,no))
@@ -315,6 +315,9 @@ int main( int argc, char *argv[] )
 
 	try
 	{
+		// start core audio == start running the machine:
+		Dsp::startCoreAudio(settings.get_bool(key_warn_if_audio_in_fails,yes));
+
 		return app.exec();
 	}
 	catch(any_error& e)

@@ -54,6 +54,11 @@ static AudioDeviceIOProcID  audio_out_ioProcID  = NULL;     // kio 2012-08-08   
 static AudioDeviceIOProcID  audio_in_ioProcID   = NULL;     // kio 2012-08-08
 
 
+inline void shiftStitching(StereoSample*bu)
+			{ for( int i=0; i<DSP_SAMPLES_STITCHING; i++ ) bu[i] = bu[DSP_SAMPLES_PER_BUFFER+i]; }
+//inline void clearBuffer(StereoSample*bu)	// preserves stitching at buffer start
+//			{ for( int i=DSP_SAMPLES_STITCHING; i<DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING; i++ ) bu[i] = 0.0; }
+
 // ###################################################################################
 // High-pass filter: (remove signal bias)
 
@@ -76,7 +81,7 @@ inline void HighpassOutputBuffer()
 // ###################################################################################
 // audio input handling:
 
-inline void ShiftInputStitching() { shiftBuffer(audio_in_buffer); }
+inline void ShiftInputStitching() { shiftStitching(audio_in_buffer); }
 
 inline void ClearInputBuffer()
 {
@@ -154,7 +159,7 @@ inline void ReadInputData( AudioBufferList const* inInputData )
 // ###################################################################################
 // audio output handling:
 
-inline void ShiftOutputStitching() { shiftBuffer(audio_out_buffer); }
+inline void ShiftOutputStitching() { shiftStitching(audio_out_buffer); }
 
 inline void CopyInputToOutputBuffer()
 {
