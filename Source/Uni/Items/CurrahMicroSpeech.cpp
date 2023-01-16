@@ -481,8 +481,8 @@ void CurrahMicroSpeech::add_history(uint8 command)
 	++lastwp;
 }
 
-void CurrahMicroSpeech::saveToFile(FD&) const noexcept(false) /*file_error,bad_alloc*/{TODO();}
-void CurrahMicroSpeech::loadFromFile(FD&) noexcept(false) /*file_error,bad_alloc*/{TODO();}
+void CurrahMicroSpeech::saveToFile(FD&) const noexcept(false) /*FileError,bad_alloc*/{TODO();}
+void CurrahMicroSpeech::loadFromFile(FD&) noexcept(false) /*FileError,bad_alloc*/{TODO();}
 
 
 

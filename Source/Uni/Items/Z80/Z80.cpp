@@ -138,7 +138,7 @@ void Z80::reset_registers()
 	save cpu internal state for later Init()
 	does not save: memory page mapping, waitmaps, options and contents!
 */
-void Z80::saveToFile( FD& fd ) const noexcept(false) /*file_error,bad_alloc*/
+void Z80::saveToFile( FD& fd ) const noexcept(false) /*FileError,bad_alloc*/
 {
 	Item::saveToFile(fd);
 	fd.write(registers);
@@ -150,7 +150,7 @@ void Z80::saveToFile( FD& fd ) const noexcept(false) /*file_error,bad_alloc*/
 	fd.write(stack_breakpoint);
 }
 
-void Z80::loadFromFile( FD &fd ) noexcept(false) /*file_error,bad_alloc*/
+void Z80::loadFromFile( FD &fd ) noexcept(false) /*FileError,bad_alloc*/
 {
 	Item::loadFromFile(fd);
 	fd.read(registers);
@@ -682,7 +682,7 @@ int Z80::run( int32 cc_max, int32 ic_max, uint32 options )
 
 	uint16*	rzp;						// pointer to IX or IY after 0xDD or 0xFD
 	#define	rz		(*rzp)				// IX or IY
-	#ifdef _BIG_ENDIAN
+	#ifdef __BIG_ENDIAN__
 	#define	rzh		(((uint8*)rzp)[0])	// XH or YH
 	#define	rzl		(((uint8*)rzp)[1])	// XL or YL
 	#else

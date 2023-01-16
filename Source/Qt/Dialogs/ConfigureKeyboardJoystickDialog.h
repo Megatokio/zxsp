@@ -21,10 +21,10 @@
 #include "kio/kio.h"
 #include "ConfigDialog.h"
 class MachineController;
-class QLineEdit;
-class QLabel;
-class QPushButton;
-class QRadioButton;
+class LineEdit;
+class Label;
+class PushButton;
+class RadioButton;
 class KbdLed;
 
 
@@ -38,17 +38,17 @@ extern cstr getKeyJoyFnmatchPattern(uint8 keys[5], cstr filename);
 class ConfigureKeyboardJoystickDialog : public ConfigDialog
 {
 public:
-	QLineEdit*	led_filenamepattern;
-	QRadioButton* btn_default_for_all_files;
-	QRadioButton* btn_for_match_pattern;
-	QRadioButton* btn_use_just_now;
+	LineEdit*	led_filenamepattern;
+	RadioButton* btn_default_for_all_files;
+	RadioButton* btn_for_match_pattern;
+	RadioButton* btn_use_just_now;
 	KbdLed*	led_up;
 	KbdLed*	led_down;
 	KbdLed*	led_left;
 	KbdLed*	led_right;
 	KbdLed*	led_fire;
-	QPushButton* btn_cancel;
-	QPushButton* btn_ok;
+	PushButton* btn_cancel;
+	PushButton* btn_ok;
 
 	int		xm,ym;				// center position for joystick graphics
 
@@ -58,11 +58,11 @@ public:
 	uint8	new_keys[5];		// (RLDUF) Qt keycode to use for keyboard joystick
 
 public:
-	explicit ConfigureKeyboardJoystickDialog(MachineController*);
+	explicit ConfigureKeyboardJoystickDialog();
 	~ConfigureKeyboardJoystickDialog();
 
 protected:
-	void	paintEvent(QPaintEvent*);
+	//void	paintEvent(QPaintEvent*);
 };
 
 

@@ -119,7 +119,7 @@ public:
 	void	purge();				// alle Daten löschen.			any time
 	void	rewind();				// Datei zurückspulen.			any time
 
-	void	readFile(cstr filename, bool snapshotOnly=no) throws;	// data_error,file_error		// any time
+	void	readFile(cstr filename, bool snapshotOnly=no) throws;	// DataError,FileError		// any time
 	void	writeFile(cstr filename) throws;						// any time
 	void	writeFileUpToBlockAndFrame(cstr filename,uint32,uint32) throws;	// TODO
 	void	writeFileUpToCurrentPosition(cstr filename) throws;				// TODO

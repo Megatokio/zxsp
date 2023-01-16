@@ -76,14 +76,14 @@ void Mmu128k::reset ( Time t, int32 cc )
 }
 
 
-void Mmu128k::saveToFile( FD& fd ) const noexcept(false) /*file_error,bad_alloc*/
+void Mmu128k::saveToFile( FD& fd ) const noexcept(false) /*FileError,bad_alloc*/
 {
 	Mmu::saveToFile(fd);
 	fd.write_uchar(port_7ffd);
 }
 
 
-void Mmu128k::loadFromFile( FD& fd ) noexcept(false) /*file_error,bad_alloc*/
+void Mmu128k::loadFromFile( FD& fd ) noexcept(false) /*FileError,bad_alloc*/
 {
 	xlogIn("Mmu128k::loadFromFile");
 

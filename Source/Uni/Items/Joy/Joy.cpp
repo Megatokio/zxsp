@@ -55,7 +55,7 @@ void Joy::insertJoystick( int i, int id )
 }
 
 
-void Joy::saveToFile( FD& fd ) const noexcept(false) /*file_error,bad_alloc*/
+void Joy::saveToFile( FD& fd ) const noexcept(false) /*FileError,bad_alloc*/
 {
 	Item::saveToFile(fd);
 	switch(getNumPorts())
@@ -66,7 +66,7 @@ void Joy::saveToFile( FD& fd ) const noexcept(false) /*file_error,bad_alloc*/
 	}
 }
 
-void Joy::loadFromFile( FD& fd ) noexcept(false) /*file_error,bad_alloc*/
+void Joy::loadFromFile( FD& fd ) noexcept(false) /*FileError,bad_alloc*/
 {
 	Item::loadFromFile(fd);
 	switch(getNumPorts())

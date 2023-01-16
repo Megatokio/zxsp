@@ -194,12 +194,12 @@ void Fdc765::audioBufferEnd( Time t )
 	Fdc::audioBufferEnd(t);
 }
 
-void Fdc765::saveToFile( FD& /*fd*/ ) const throws /*file_error,bad_alloc*/
+void Fdc765::saveToFile( FD& /*fd*/ ) const throws /*FileError,bad_alloc*/
 {
 	TODO();
 }
 
-void Fdc765::loadFromFile( FD& /*fd*/ ) throws /*file_error,bad_alloc*/
+void Fdc765::loadFromFile( FD& /*fd*/ ) throws /*FileError,bad_alloc*/
 {
 	TODO();
 }

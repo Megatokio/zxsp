@@ -21,7 +21,7 @@
 #include "Templates/Array.h"
 #include "kio/peekpoke.h"
 
-extern void throw_zlib_error(int err) noexcept(false); // data_error
+extern void throw_zlib_error(int err) noexcept(false); // DataError
 
 
 // Input Recording Block (IRB), ID=0x80
@@ -108,11 +108,11 @@ struct RzxBlock
 	void	endFrame(uint);						// recording
 	void	amendFrame(uint);					// recording
 	void	compress();
-	int		uncompress() noexcept(false); // data_error
+	int		uncompress() noexcept(false); // DataError
 
 	// read from / write to rzx file:
-	void	readInputRecordingBlock(FD&, uint32 blklen)			throws; // file_error,data_error
-	void	readSnapshotBlock(FD&, uint32 blklen, cstr filename)throws; // file_error,data_error
+	void	readInputRecordingBlock(FD&, uint32 blklen)			throws; // FileError,DataError
+	void	readSnapshotBlock(FD&, uint32 blklen, cstr filename)throws; // FileError,DataError
 	void	write(FD&)											throws;
 
 private:
@@ -122,7 +122,7 @@ private:
 	void	resize_ucbu(uint32 newmax);
 	void	scan_ucbu();
 	void	 _compress();
-	void	_uncompress() noexcept(false); // data_error
+	void	_uncompress() noexcept(false); // DataError
 };
 
 

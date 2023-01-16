@@ -379,7 +379,7 @@ void FdcPlus3Insp::save_as()
 		addRecentFile(RecentPlus3Disks,filepath);
 		addRecentFile(RecentFiles,filepath);
 	}
-	catch(any_error& e) { showAlert(e.what()); }
+	catch(AnyError& e) { showAlert(e.what()); }
 }
 
 void FdcPlus3Insp::insert_unformatted_disk()

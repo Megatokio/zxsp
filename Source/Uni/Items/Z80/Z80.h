@@ -31,7 +31,7 @@
 #define		CPU_PAGES			(0x10000>>CPU_PAGEBITS)
 
 
-#ifdef _BIG_ENDIAN		// m68k, ppc
+#ifdef __BIG_ENDIAN__		// m68k, ppc
 	struct TwoBytes  { uint8 hi,lo; };
 	struct FourBytes { uint8 flags3,flags2,flags1,data; };
 #else					// i386, pdp
@@ -68,7 +68,7 @@ union Z80Regs
 {
 	uint16	nn[16];
 	struct	 { uint16 af,bc,de,hl, af2,bc2,de2,hl2, ix,iy,pc,sp, iff, ir; };
-   #ifdef _BIG_ENDIAN			// m68k, ppc
+   #ifdef __BIG_ENDIAN__			// m68k, ppc
 	struct	 { uint8 a,f,b,c,d,e,h,l, a2,f2,b2,c2,d2,e2,h2,l2, xh,xl,yh,yl,pch,pcl,sph,spl, iff1,iff2, i,r, im,xxx; };
    #else						// i386, pdp
 	struct	 { uint8 f,a,c,b,e,d,l,h, f2,a2,c2,b2,e2,d2,l2,h2, xl,xh,yl,yh,pcl,pch,spl,sph, iff1,iff2, r,i, im,xxx; };

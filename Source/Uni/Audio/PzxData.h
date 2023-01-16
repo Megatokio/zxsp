@@ -77,8 +77,8 @@ public:				PzxData				()						:TapeData(isa_PzxData){ init(); }
 	virtual void	calcBlockInfos		();
 	virtual void	purge				();
 
-	static void		readFile			( cstr fpath, AoP<TapeData>&, MetaData& ) throw(file_error,data_error,bad_alloc);
-	static void		writeFile			( cstr fpath, AoP<TapeData>&, MetaData& ) throw(file_error,data_error,bad_alloc);
+	static void		readFile			( cstr fpath, AoP<TapeData>&, MetaData& ) throw(FileError,DataError,bad_alloc);
+	static void		writeFile			( cstr fpath, AoP<TapeData>&, MetaData& ) throw(FileError,DataError,bad_alloc);
 };
 
 #endif

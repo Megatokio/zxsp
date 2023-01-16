@@ -88,6 +88,7 @@ SOURCES +=	\
 	Libraries/kio/TestTimer.cpp \
 	Libraries/audio/audio.cpp \
 	Libraries/audio/WavFile.cpp \
+	Libraries/Z80/goodies/z180_clock_cycles.cpp \
 	Libraries/Z80/goodies/z80_clock_cycles.cpp \
 	Libraries/Z80/goodies/z80_opcode_length.cpp \
 	Libraries/Z80/goodies/z80_major_opcode.cpp \
@@ -360,10 +361,9 @@ HEADERS += \
 	Libraries/audio/audio.h \
 	Libraries/audio/WavFile.h \
 	\
-	Libraries/Z80/goodies/z80_clock_cycles.h \
-	Libraries/Z80/goodies/z80_opcode_length.h \
-	Libraries/Z80/goodies/z80_major_opcode.h \
+	Libraries/Z80/goodies/z80_goodies.h \
 	Libraries/Z80/goodies/z80_opcodes.h \
+	Libraries/Z80/goodies/z80_major_opcode_tables.h \
 
 
 # zasm Z80 Assembler Headers:

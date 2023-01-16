@@ -302,7 +302,7 @@ void DivIDEInspector::save_rom()
 		//addRecentFile(RecentFiles,filepath);		würde in's interne Rom laden
 		emit updateCustomTitle();
 	}
-	catch(file_error& e)
+	catch(FileError& e)
 	{
 		showAlert("File error:\n%s",e.what());
 	}
@@ -405,7 +405,7 @@ void DivIDEInspector::insert_new_disk(cstr basename)
 		decompress(qfilepath,zfilepath);
 		insert_disk(zfilepath);
 	}
-	catch(file_error& e)
+	catch(FileError& e)
 	{
 		showAlert("File Error:\n%s",e.what());
 	}

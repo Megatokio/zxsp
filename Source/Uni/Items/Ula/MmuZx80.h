@@ -36,8 +36,8 @@ VIR void	powerOn			(/*t=0*/ int32 cc);
 //VIR void	output			(Time t, int32 cc, uint16 addr, uint8 byte);
 //VIR void	audioBufferEnd	(Time t);
 //VIR void	videoFrameEnd	(int32 cc);
-//VIR void	saveToFile		(FD& fd)  const         noexcept(false) /*file_error,bad_alloc*/;
-//VIR void	loadFromFile	(FD& fd)				noexcept(false) /*file_error,bad_alloc*/;
+//VIR void	saveToFile		(FD& fd)  const         noexcept(false) /*FileError,bad_alloc*/;
+//VIR void	loadFromFile	(FD& fd)				noexcept(false) /*FileError,bad_alloc*/;
 void	mapMem();
 
 //VIR bool	hasPort7ffd		()	volatile const noexcept       { return no; }

@@ -332,14 +332,14 @@ void MmuPlus3::output( Time t, int32 /*cc*/, uint16 addr, uint8 byte )
 }
 
 
-void MmuPlus3::saveToFile( FD& fd ) const noexcept(false) /*file_error,bad_alloc*/
+void MmuPlus3::saveToFile( FD& fd ) const noexcept(false) /*FileError,bad_alloc*/
 {
 	Mmu128k::saveToFile(fd);
 	fd.write_uchar(port_1ffd);
 }
 
 
-void MmuPlus3::loadFromFile( FD& fd ) noexcept(false) /*file_error,bad_alloc*/
+void MmuPlus3::loadFromFile( FD& fd ) noexcept(false) /*FileError,bad_alloc*/
 {
 	Mmu128k::loadFromFile(fd);
 	setPort1ffd( fd.read_uchar() );

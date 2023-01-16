@@ -29,9 +29,9 @@
 #define Z80HEAD_H
 
 /*
-void Machine::writeZ80( int fd ) throw(file_error)
-void Machine::readZ80( int fd ) throw(file_error)
-int  modelForZ80( int fd ) throw(file_error)
+void Machine::writeZ80( int fd ) throw(FileError)
+void Machine::readZ80( int fd ) throw(FileError)
+int  modelForZ80( int fd ) throw(FileError)
 */
 
 #endif

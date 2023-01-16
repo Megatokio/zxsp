@@ -22,7 +22,7 @@
 #include "ZxInfo/ZxInfo.h"
 
 #define EXT extern
-#define throws	noexcept(false)			// file_error
+#define throws	noexcept(false)			// FileError
 
 
 EXT Application*		appl;					    // Application.cpp

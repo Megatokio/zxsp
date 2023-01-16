@@ -494,13 +494,13 @@ void UlaZxsp::drawVideoBeamIndicator(int32 cc)	// called from runForSound()
 	}
 }
 
-void UlaZxsp::saveToFile( FD& fd ) const noexcept(false) /*file_error,bad_alloc*/
+void UlaZxsp::saveToFile( FD& fd ) const noexcept(false) /*FileError,bad_alloc*/
 {
 	Ula::saveToFile(fd);
 	TODO();
 }
 
-void UlaZxsp::loadFromFile( FD& fd ) noexcept(false) /*file_error,bad_alloc*/
+void UlaZxsp::loadFromFile( FD& fd ) noexcept(false) /*FileError,bad_alloc*/
 {
 	Ula::loadFromFile(fd);
 	TODO();

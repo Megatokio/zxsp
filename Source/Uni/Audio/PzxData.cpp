@@ -192,7 +192,7 @@ void PzxData::calcBlockInfos()
 // ############################################################################
 
 
-//void PzxData::WriteToFile( int fd ) const throw(file_error)
+//void PzxData::WriteToFile( int fd ) const throw(FileError)
 //{
 //	write_bytes( fd, data.Data(), data.Size() );
 //}
@@ -205,7 +205,7 @@ void PzxData::calcBlockInfos()
 //	on file end, an empty block is returned
 //	only the chunks BRWS, PULS, DATA, PAUS and STOP are stored.
 //
-void PzxData::ReadFromFile( int fd ) throw(bad_alloc,file_error,data_error)
+void PzxData::ReadFromFile( int fd ) throw(bad_alloc,FileError,DataError)
 {
 	XLogIn("PzxData::ReadFromFile");
 
@@ -219,7 +219,7 @@ a:	off_t flen = file_remaining(fd); if(flen<8) return;	// eof
 	q = data.Data()+old_sz;
 	read_data( fd, q, 8 );
 	int32 id   = Peek4X(q);
-	int32 blen = Peek4Z(q+4); if( blen>16 MB ) throw(data_error("pzx: illegal blen"));
+	int32 blen = Peek4Z(q+4); if( blen>16 MB ) throw(DataError("pzx: illegal blen"));
 
 	data.Grow( old_sz+8+blen+20 );		// grow & add spare fore late end-of-block tests
 	q = data.Data()+old_sz+8;			// read pointer
@@ -268,7 +268,7 @@ a:	off_t flen = file_remaining(fd); if(flen<8) return;	// eof
 		int32 req_sz = (bits+7)/8;
 		if( e-q != req_sz )
 		{
-			if( e-q < req_sz ) throw(data_error("pzx: DATA too short"));
+			if( e-q < req_sz ) throw(DataError("pzx: DATA too short"));
 			else { SET_BLEN( blen-(e-q)+req_sz); }
 		}
 
@@ -296,7 +296,7 @@ a:	off_t flen = file_remaining(fd); if(flen<8) return;	// eof
 	case 'PAUS':
 	{
 		XXLogIn("PAUS block");
-		if(blen<4) throw(data_error("pzx: PAUS too short"));
+		if(blen<4) throw(DataError("pzx: PAUS too short"));
 		if(blen>4) { SET_BLEN(4); }
 		old_sz += 8+blen;
 	}	break;		// block end
@@ -304,7 +304,7 @@ a:	off_t flen = file_remaining(fd); if(flen<8) return;	// eof
 	case 'STOP':
 	{
 		XXLogIn("STOP block");
-		if(blen<2) throw(data_error("pzx: STOP too short"));
+		if(blen<2) throw(DataError("pzx: STOP too short"));
 		if(blen>2) { SET_BLEN(2); }
 		old_sz += 8+blen;
 	}	break;		// block end
@@ -327,7 +327,7 @@ void PzxData::init( RlesData const& )
 }
 
 /*static*/
-void PzxData::readFile( cstr fpath, AoP<TapeData>& tapeblocks, MetaData& metadata ) throw(file_error,data_error,bad_alloc)
+void PzxData::readFile( cstr fpath, AoP<TapeData>& tapeblocks, MetaData& metadata ) throw(FileError,DataError,bad_alloc)
 {
 	XLogIn("PzxData::readFile(%s)",fpath);
 	(void)tapeblocks;
@@ -336,7 +336,7 @@ void PzxData::readFile( cstr fpath, AoP<TapeData>& tapeblocks, MetaData& metadat
 }
 
 /*static*/
-void PzxData::writeFile( cstr fpath, AoP<TapeData>& tapeblocks, MetaData& metadata ) throw(file_error,data_error,bad_alloc)
+void PzxData::writeFile( cstr fpath, AoP<TapeData>& tapeblocks, MetaData& metadata ) throw(FileError,DataError,bad_alloc)
 {
 	XLogIn("PzxData::writeFile(%s)",fpath);
 	(void)tapeblocks;
@@ -351,7 +351,7 @@ void PzxData::writeFile( cstr fpath, AoP<TapeData>& tapeblocks, MetaData& metada
 // #######################################################################################
 
 
-void RlesData::init( PzxData const& qq ) throw(data_error)
+void RlesData::init( PzxData const& qq ) throw(DataError)
 {
 	init();
 	buffer.startRecordingPulses();
@@ -361,7 +361,7 @@ void RlesData::init( PzxData const& qq ) throw(data_error)
 
 a:	if(qend-qptr<8) { buffer.stop(); return; }	// end of data
 	int32 id   = Peek4X(qptr); qptr+=4;
-	int32 blen = Peek4Z(qptr); qptr+=4;	if( blen>qend-qptr ) throw(data_error("pzx: chunk size exceeds data"));
+	int32 blen = Peek4Z(qptr); qptr+=4;	if( blen>qend-qptr ) throw(DataError("pzx: chunk size exceeds data"));
 	cu8ptr q  = qptr;
 	cu8ptr e  = qptr+=blen;
 
@@ -369,7 +369,7 @@ a:	if(qend-qptr<8) { buffer.stop(); return; }	// end of data
 	{
 		case 'ZXTP':	// old PZX header (draft)
 			XXLogLine("ZXTP block");
-			throw( data_error("pzx: draft version pre 1.0. no longer supported.") );
+			throw( DataError("pzx: draft version pre 1.0. no longer supported.") );
 
 		case 'PZXT':	// PZX header block:
 		{				//		dc.b	major version number
@@ -377,11 +377,11 @@ a:	if(qend-qptr<8) { buffer.stop(); return; }	// end of data
 						//		dc.s	info  dictionary
 						//
 			XXLogIn("PZXT block");
-			if(blen<2) throw(data_error("pzx: PZXT chunk too short"));
+			if(blen<2) throw(DataError("pzx: PZXT chunk too short"));
 			uchar vh=*q++;			// major version number
 			uchar vl=*q++;			// minor version number
 			XXLogLine("version %hhu.%hhu", vh,vl );
-			if( vh!=1 ) throw(data_error(usingstr("pzx: version %hhu.%hhu is not supported.",vh,vl)));
+			if( vh!=1 ) throw(DataError(usingstr("pzx: version %hhu.%hhu is not supported.",vh,vl)));
 		}	goto a;
 
 		case 'PULS':	// arbitrary repetitions of pulses
@@ -409,17 +409,17 @@ a:	if(qend-qptr<8) { buffer.stop(); return; }	// end of data
 			uint    tail = Peek2Z(q);	q += 2;		// trailing pulse
 			uint    cnt0 = Peek1Z(q);	q += 1;		// pulses for bit==0
 			uint    cnt1 = Peek1Z(q);	q += 1;		// pulses for bit==1
-		#if defined(_LITTLE_ENDIAN)
+		#if defined(__LITTLE_ENDIAN__)
 			uint16*	dur0 = (uint16*)q;	q += 2*cnt0;// table of pulse durations for bit 0
 			uint16*	dur1 = (uint16*)q;	q += 2*cnt1;// table of pulse durations for bit 1
-		#elif defined(_BIG_ENDIAN)
+		#elif defined(__BIG_ENDIAN__)
 			uint16*	dur0 = tempMem(2*cnt0); for( uint i=0; i<cnt0; i++ ) { dur0[i] = Peek2Z(q); q+=2; }
 			uint16*	dur1 = tempMem(2*cnt1); for( uint i=0; i<cnt1; i++ ) { dur1[i] = Peek2Z(q); q+=2; }
 		#else
 			#error booboo
 		#endif
 
-			if( q + (bits+7)/8 > e ) throw(data_error("pzx: DATA chunk size mismatch"));
+			if( q + (bits+7)/8 > e ) throw(DataError("pzx: DATA chunk size mismatch"));
 			buffer.setPhase(initial_phase);			// first pulse polarity
 			if( !data_start ) data_start = buffer.getPos();
 
@@ -441,7 +441,7 @@ a:	if(qend-qptr<8) { buffer.stop(); return; }	// end of data
 			XXLogIn("PAUS block");
 			int32 dur = Peek4Z(q); q+=4;
 			bool initial_phase = dur<0; dur &= 0x7fffffff;
-			if( q>e ) throw(data_error("pzx: PAUS chunk too short"));
+			if( q>e ) throw(DataError("pzx: PAUS chunk too short"));
 			data_end = buffer.getPos();
 			if(dur) buffer.writeCC(dur,initial_phase);
 		}	goto a;

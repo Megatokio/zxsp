@@ -76,12 +76,12 @@ void Multiface::page_out()
 }
 
 
-void Multiface::saveToFile ( FD& ) const noexcept(false) /*file_error,bad_alloc*/
+void Multiface::saveToFile ( FD& ) const noexcept(false) /*FileError,bad_alloc*/
 {
 	TODO();
 }
 
-void Multiface::loadFromFile( FD& ) noexcept(false) /*file_error,bad_alloc*/
+void Multiface::loadFromFile( FD& ) noexcept(false) /*FileError,bad_alloc*/
 {
 	TODO();
 }

@@ -204,7 +204,7 @@ a:	O80Data* bu = taperecorder->getZx80Block();
 	return 1;
 }
 
-void MachineZx81::saveP81(FD &fd, bool p81) noexcept(false) /*file_error,data_error*/
+void MachineZx81::saveP81(FD &fd, bool p81) noexcept(false) /*FileError,DataError*/
 {
 	// SNAPSHOT: save a ZX81 .p, .81 or .p81 file:
 	// data contains all ram from $4009 to ($4014)  (sysvar E_LINE)
@@ -216,7 +216,7 @@ void MachineZx81::saveP81(FD &fd, bool p81) noexcept(false) /*file_error,data_er
 	//   if saved while the ZX81 is waiting at the command prompt!
 
 	uint end = cpu->peek2(0x4014);
-	if( end<0x403c ) throw data_error("Save Tape: illegal sysvar E_LINE ($4014): %u",end);
+	if( end<0x403c ) throw DataError("Save Tape: illegal sysvar E_LINE ($4014): %u",end);
 
 // get data
 	uint16 cnt = end - 0x4009u;
@@ -229,7 +229,7 @@ void MachineZx81::saveP81(FD &fd, bool p81) noexcept(false) /*file_error,data_er
 	else fd.write_bytes(data+1,cnt);
 }
 
-void MachineZx81::loadP81(FD &fd, bool p81) noexcept(false) /*file_error,data_error*/
+void MachineZx81::loadP81(FD &fd, bool p81) noexcept(false) /*FileError,DataError*/
 {
 	// SNAPSHOT: load a ZX80 .p, .81 or .p81 file:
 	// loads data into ram from address $4009 to ($4014)		(sysvar E_LINE)

@@ -219,12 +219,12 @@ void Multiface3::triggerNmi()
 }
 
 
-void Multiface3::saveToFile ( FD& ) const noexcept(false) /*file_error,bad_alloc*/
+void Multiface3::saveToFile ( FD& ) const noexcept(false) /*FileError,bad_alloc*/
 {
 	TODO();
 }
 
-void Multiface3::loadFromFile( FD& ) noexcept(false) /*file_error,bad_alloc*/
+void Multiface3::loadFromFile( FD& ) noexcept(false) /*FileError,bad_alloc*/
 {
 	TODO();
 }

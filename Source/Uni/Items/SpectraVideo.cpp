@@ -797,9 +797,9 @@ void SpectraVideo::deactivate_hooks()
 
 
 
-void SpectraVideo::saveToFile(FD&) const noexcept(false) /*file_error,bad_alloc*/
+void SpectraVideo::saveToFile(FD&) const noexcept(false) /*FileError,bad_alloc*/
 {TODO();}
-void SpectraVideo::loadFromFile(FD&) noexcept(false) /*file_error,bad_alloc*/
+void SpectraVideo::loadFromFile(FD&) noexcept(false) /*FileError,bad_alloc*/
 {TODO();}
 
 

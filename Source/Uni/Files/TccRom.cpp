@@ -123,12 +123,12 @@ TccRom::TccRom(Machine* machine, cstr path)
 		while(fd.file_remaining()>=9)
 		{
 			uint bank = fd.read_uint8();
-			if(bank && bank<254) throw data_error("Invalid bank Id: 0x%02X", int(bank));
+			if(bank && bank<254) throw DataError("Invalid bank Id: 0x%02X", int(bank));
 			xlogline("  Bank = 0x%02X", uint(bank));
 
 			uint8 flags[8];
 			fd.read_bytes(flags,8);
-			for(int i=0;i<8;i++) if(flags[i]>3) throw data_error("Invalid block flag: %02X", int(flags[i]));
+			for(int i=0;i<8;i++) if(flags[i]>3) throw DataError("Invalid block flag: %02X", int(flags[i]));
 			#ifdef XXLOG
 				log("chunks: "); for(int i=0;i<8;i++) log("%i ", int(flags[i])); logNl();
 			#endif
@@ -196,7 +196,7 @@ TccRom::TccRom(Machine* machine, cstr path)
 		addRecentFile(RecentTccRoms,path);
 		addRecentFile(RecentFiles,path);
 	}
-	catch(any_error& e)
+	catch(AnyError& e)
 	{
 		showAlert("An error occured while reading file \"%s\":\n%s", filename_from_path(fpath), e.what());
 		dock_d = exrom_d = home_d = 0x00;	// prevent write-on-close
@@ -214,7 +214,7 @@ TccRom::~TccRom()
 	if((dock_d&dock_w)|(exrom_d&exrom_w)|(home_d&home_w))	// write back NVRam contents
 	{
 		try { save_as(fpath); }
-		catch(file_error& e) { showAlert("Writing back the NVRam of the cartridge failed:\n%s", e.what()); }
+		catch(FileError& e) { showAlert("Writing back the NVRam of the cartridge failed:\n%s", e.what()); }
 	}
 
 	if(rom)						// restore internal rom
@@ -236,14 +236,14 @@ void TccRom::saveAs(cstr filepath)
 		addRecentFile(RecentTccRoms,filepath);
 		addRecentFile(RecentFiles,filepath);
 	}
-	catch(file_error e)
+	catch(FileError e)
 	{
 		showAlert("Writing to file \"%s\" failed:\n%s", filename_from_path(filepath), e.what());
 	}
 }
 
 
-void TccRom::save_as(cstr fpath) throws // any_error
+void TccRom::save_as(cstr fpath) throws // AnyError
 {
 	FD fd; fd.open_file_w(fpath);
 	uint8 bu[0x2000];

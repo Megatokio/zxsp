@@ -146,7 +146,7 @@ void Block10::read(FD &fd)
 	XXXASSERT(data==NULL);
 
 	pause_ms = fd.read_uint16_z();
-	cnt      = fd.read_uint16_z();	if(cnt==0) throw data_error("tzx block 0x10: count==0");
+	cnt      = fd.read_uint16_z();	if(cnt==0) throw DataError("tzx block 0x10: count==0");
 	data     = new uint8[cnt]; fd.read_bytes(data,cnt);
 }
 
@@ -241,8 +241,8 @@ void Block11::read(FD &fd)
 	cnt      = fd.read_uint24_z();
 	data     = new uint8[cnt]; fd.read_bytes(data,cnt);
 
-	if(lastbits>8) throw data_error("tzx block 0x11: last bits > 8");
-	if(cnt==0)     throw data_error("tzx block 0x11: cnt == 0");
+	if(lastbits>8) throw DataError("tzx block 0x11: last bits > 8");
+	if(cnt==0)     throw DataError("tzx block 0x11: cnt == 0");
 
 	XXLogLine("cc_pilot = %i",(int)cc_pilot);
 	XXLogLine("cc_sync1 = %i",(int)cc_sync1);
@@ -424,8 +424,8 @@ void Block14::read(FD &fd)
 	cnt      = fd.read_uint24_z();
 	data     = new uint8[cnt]; fd.read_bytes(data,cnt);
 
-	if(lastbits>8) throw data_error("tzx block 0x14: last bits > 8");
-	if(cnt==0)     throw data_error("tzx block 0x14: cnt == 0");
+	if(lastbits>8) throw DataError("tzx block 0x14: last bits > 8");
+	if(cnt==0)     throw DataError("tzx block 0x14: cnt == 0");
 }
 
 void Block14::write(FD& fd) const
@@ -500,11 +500,11 @@ void Block15::read(FD& fd)
 	cnt         = fd.read_uint24_z();		// ≥ 1
 	data        = new uint8[cnt]; fd.read_bytes(data,cnt);
 
-	if(cc_per_sample<8000) throw data_error(usingstr("tzx block 0x15: sample rate too low: %u",(uint)cc_per_sample));
-	if(lastbits>8)	throw data_error("tzx block 0x15: last bits > 8");
-	if(cnt==0)		throw data_error("tzx block 0x15: cnt = 0");
+	if(cc_per_sample<8000) throw DataError(usingstr("tzx block 0x15: sample rate too low: %u",(uint)cc_per_sample));
+	if(lastbits>8)	throw DataError("tzx block 0x15: last bits > 8");
+	if(cnt==0)		throw DataError("tzx block 0x15: cnt = 0");
 	if(lastbits==0) { lastbits=8; cnt--; }							  // just in case			 / for polarity
-	if(cnt==0)		throw data_error("tzx block 0x15: num bits = 0"); // block must contain at least one sample
+	if(cnt==0)		throw DataError("tzx block 0x15: num bits = 0"); // block must contain at least one sample
 }
 
 void Block15::write(FD& fd) const
@@ -582,14 +582,14 @@ void Block18::read(FD &fd)
 	XXLogIn("Block 0x18: CSW recording");
 	XXXASSERT(!data);
 
-	blen        = fd.read_uint32_z(); if(blen<=10) throw data_error("tzx block 0x18: count <= 0");
+	blen        = fd.read_uint32_z(); if(blen<=10) throw DataError("tzx block 0x18: count <= 0");
 	pause_ms    = fd.read_uint16_z();
 	sam_per_sec = fd.read_uint24_z();
 	compression = fd.read_uint8   ();
 	num_pulses  = fd.read_uint32_z();
 	data        = new uint8[blen-10]; fd.read_bytes(data,blen-10);
 
-	if(compression!=1&&compression!=2) throw data_error("tzx block 0x18: ill. compression mode");
+	if(compression!=1&&compression!=2) throw DataError("tzx block 0x18: ill. compression mode");
 
 	if(compression==2)  // Z-compressed data
 	{                   // => uncompress bu[len] (compressed)  -->  bu[len] (uncompressed)
@@ -612,8 +612,8 @@ void Block18::read(FD &fd)
 			delete[] zbu;
 			goto c;
 		case Z_MEM_ERROR:	throw bad_alloc();
-		case Z_DATA_ERROR:	throw data_error("tzx block 0x18: corrupted data (uncompress)");
-		default:			throw data_error("tzx block 0x18: unknown error (uncompress)");
+		case Z_DATA_ERROR:	throw DataError("tzx block 0x18: corrupted data (uncompress)");
+		default:			throw DataError("tzx block 0x18: unknown error (uncompress)");
 		}
 	}
 
@@ -624,12 +624,12 @@ void Block18::read(FD &fd)
 		pulses++;
 		if(data[i]==0)
 		{
-			if(i+4>blen-10) throw data_error("tzx block 0x18: corrupted data (final pulse)");
+			if(i+4>blen-10) throw DataError("tzx block 0x18: corrupted data (final pulse)");
 			i += 4;
 		}
 	}
 
-	if(pulses != num_pulses) throw data_error("tzx block 0x18: corrupted data (num pulses)");
+	if(pulses != num_pulses) throw DataError("tzx block 0x18: corrupted data (num pulses)");
 }
 
 void Block18::write(FD& fd) const     // TODO: compress data before writing
@@ -753,7 +753,7 @@ void SymDef::read(FD &fd, uint max)     // read from file
 	while( i<max && (n=fd.read_uint16_z()) )		// don't delete: there's an action in the condition!
 		XXLog("%i ",(int)data[i-1]);
 	XXLogNL();
-	if(i==0) throw data_error("tzx block19 read symdef: pulses==0");
+	if(i==0) throw DataError("tzx block19 read symdef: pulses==0");
 	pulses = i;
 	if(i<max) fd.skip_bytes((max-i-1)*2);
 }
@@ -1033,7 +1033,7 @@ void Block21::read(FD &fd)
 	// TODO: convert to utf-8
 
 	blocks = readFromFile(fd,0x22/*GroupEnd*/);
-	if(!blocks || blocks->last()->id!=0x22) throw data_error("tzx block 0x21: block 0x22 EndGroup missing");
+	if(!blocks || blocks->last()->id!=0x22) throw DataError("tzx block 0x21: block 0x22 EndGroup missing");
 }
 
 void Block21::write(FD& fd) const
@@ -1109,7 +1109,7 @@ void Block24::read(FD &fd)
 
 	cnt = fd.read_uint16_z();
 	blocks = readFromFile(fd,0x25/*LoopEnd*/);
-	if(!blocks || blocks->last()->id!=0x25) throw data_error("tzx block 0x24: block 0x25 LoopEnd missing");
+	if(!blocks || blocks->last()->id!=0x25) throw DataError("tzx block 0x24: block 0x25 LoopEnd missing");
 }
 
 void Block24::write(FD& fd) const
@@ -1168,7 +1168,7 @@ void Block2A::read(FD& fd)
 {
 	XXLogIn("Block 0x2A: stop the tape in 48k mode");
 	len = fd.read_uint32_z();
-	if(len!=0) throw data_error("tzx block 0x2A: wrong len");
+	if(len!=0) throw DataError("tzx block 0x2A: wrong len");
 }
 
 void Block2A::write(FD& fd) const
@@ -1213,7 +1213,7 @@ void Block2B::read(FD& fd)
 	XXLogIn("Block 0x2B: set signal level");
 
 	len = fd.read_uint32_z();
-	if(len!=1) throw data_error("tzx block 0x2B: wrong len");
+	if(len!=1) throw DataError("tzx block 0x2B: wrong len");
 	phase = fd.read_uint8() & 1;
 }
 
@@ -1414,7 +1414,7 @@ void Block32::read(FD& fd)
 		n += 2+len;
 	}
 
-	if(n!=blen) throw data_error("tzx block 0x32: corrupted archive info block");
+	if(n!=blen) throw DataError("tzx block 0x32: corrupted archive info block");
 }
 
 void Block32::write(FD& fd) const
@@ -1671,7 +1671,7 @@ void Block33::write(FD& fd) const
 	returns NULL at eof
 */
 //static
-TzxBlock* TzxBlock::read_next(FD &fd) throw(data_error, file_error)
+TzxBlock* TzxBlock::read_next(FD &fd) throw(DataError, FileError)
 {
 	XLogIn("TzxBlock.read_next()");
 
@@ -1689,18 +1689,18 @@ a:  if(fd.file_remaining()==0) return NULL;
 	case 0x13:  block = new Block13; break;
 	case 0x14:  block = new Block14; break;
 	case 0x15:  block = new Block15; break;
-	case 0x16:	throw data_error("unsupported tzx block: 0x16 C64_ROM_TAPE_DATA_BLOCK");    // deprecated
-	case 0x17:	throw data_error("unsupported tzx block: 0x17 C64_TURBO_TAPE_DATA_BLOCK");  // deprecated
+	case 0x16:	throw DataError("unsupported tzx block: 0x16 C64_ROM_TAPE_DATA_BLOCK");    // deprecated
+	case 0x17:	throw DataError("unsupported tzx block: 0x17 C64_TURBO_TAPE_DATA_BLOCK");  // deprecated
 	case 0x18:  block = new Block18; break;
 	case 0x19:  block = new Block19; break;
 	case 0x20:  block = new Block20; break;
 	case 0x21:  block = new Block21; break;
 	case 0x22:  block = new Block22; break;
-	case 0x23:  throw data_error("unsupported tzx block: 0x23 JUMP");   // tape probably won't load
+	case 0x23:  throw DataError("unsupported tzx block: 0x23 JUMP");   // tape probably won't load
 	case 0x24:  block = new Block24; break;
 	case 0x25:  block = new Block25; break;
-	case 0x26:  throw data_error("unsupported tzx block: 0x26 CALL");   // tape probably won't load
-	case 0x27:  throw data_error("unsupported tzx block: 0x27 RETURN"); // tape probably won't load
+	case 0x26:  throw DataError("unsupported tzx block: 0x26 CALL");   // tape probably won't load
+	case 0x27:  throw DataError("unsupported tzx block: 0x27 RETURN"); // tape probably won't load
 	case 0x28:  XLogLine("readTzxBlock: skipping block 0x28 SELECT_BLOCK");       // ignore
 				// not supported: writing back to tzx file will result in a corrupted SELECT block,
 				// due to added and removed blocks => remove this block
@@ -1717,10 +1717,10 @@ a:  if(fd.file_remaining()==0) return NULL;
 	case 0x35:  // CUSTOM_INFO_BLOCK deprecated in tzx 1.20
 				XLogLine("readTzxBlock: skipping block 0x35 CUSTOM_INFO_BLOCK");    // ignore
 				fd.skip_bytes(16); fd.skip_bytes(fd.read_uint32_z()); goto a;
-	case 0x40:  throw data_error("unsupported tzx block: 0x40 SNAPSHOT");   // deprecated in tzx 1.20
+	case 0x40:  throw DataError("unsupported tzx block: 0x40 SNAPSHOT");   // deprecated in tzx 1.20
 	case 'Z':   fd.skip_bytes(9); goto a;                                   // concatenated files
 	default:    if(id>=0x10&&id<0x60) { fd.skip_bytes(fd.read_uint32_z()); return NULL; }  // skip tzx 1.30++ block
-				throw data_error(catstr("ill. tzx block number: 0x",hexstr(id,2)));
+				throw DataError(catstr("ill. tzx block number: 0x",hexstr(id,2)));
 	}
 
 	block->read(fd);
@@ -1745,15 +1745,15 @@ a:  if(fd.file_remaining()==0) return NULL;
 	all blocks are linked in a list via "next".
 	returns NULL at eof
 */
-TzxBlock* TzxBlock::readFromFile( FD& fd, uint stopper ) throw(data_error, file_error)
+TzxBlock* TzxBlock::readFromFile( FD& fd, uint stopper ) throw(DataError, FileError)
 {
 	TzxBlock* result = read_next(fd);
 	TzxBlock* p      = result;
 
 	while(p)	// p==NULL -> eof
 	{
-		if(p->id==0x22 && stopper!=0x22) throw data_error("tzx file: unexpected block 0x22 GROUP_END");
-		if(p->id==0x25 && stopper!=0x25) throw data_error("tzx file: unexpected block 0x25 LOOP_END");
+		if(p->id==0x22 && stopper!=0x22) throw DataError("tzx file: unexpected block 0x22 GROUP_END");
+		if(p->id==0x25 && stopper!=0x25) throw DataError("tzx file: unexpected block 0x25 LOOP_END");
 
 		if(stopper) { if(p->id==stopper) break; }
 		else		{ if(p->is_end_block()) break; }
@@ -1764,7 +1764,7 @@ TzxBlock* TzxBlock::readFromFile( FD& fd, uint stopper ) throw(data_error, file_
 	return result;
 }
 
-//TzxBlock* TzxBlock::readFromFile(FD& fd, bool& phase ) throw(data_error, file_error)
+//TzxBlock* TzxBlock::readFromFile(FD& fd, bool& phase ) throw(DataError, FileError)
 //{
 //	TzxBlock* block = readFromFile(fd,0);
 //	if(!block) return NULL;
@@ -1774,7 +1774,7 @@ TzxBlock* TzxBlock::readFromFile( FD& fd, uint stopper ) throw(data_error, file_
 //	return block;
 //}
 
-void TzxBlock::writeToFile( FD& fd ) const throw(data_error)
+void TzxBlock::writeToFile( FD& fd ) const throw(DataError)
 {
 	for(TzxBlock const* p = this; p; p=p->next)
 	{

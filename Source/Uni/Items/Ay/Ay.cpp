@@ -775,7 +775,7 @@ void Ay::setClock( Frequency psg_cycles_per_second )
 }
 
 
-void Ay::saveToFile ( FD& fd ) const noexcept(false) /*file_error,bad_alloc*/
+void Ay::saveToFile ( FD& fd ) const noexcept(false) /*FileError,bad_alloc*/
 {
 	Item::saveToFile(fd);
 
@@ -790,7 +790,7 @@ void Ay::saveToFile ( FD& fd ) const noexcept(false) /*file_error,bad_alloc*/
 	fd.write_data(ay_reg,16);
 }
 
-void Ay::loadFromFile ( FD& fd ) noexcept(false) /*file_error,bad_alloc*/
+void Ay::loadFromFile ( FD& fd ) noexcept(false) /*FileError,bad_alloc*/
 {
 	Item::loadFromFile(fd);
 

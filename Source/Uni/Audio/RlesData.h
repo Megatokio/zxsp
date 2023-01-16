@@ -46,15 +46,15 @@ class RlesData : public TapeData
 {
 public:
 	RlesData();
-	explicit RlesData(const TapeData&) noexcept(false); // data_error
-	explicit RlesData(const TapData&)  noexcept(false); // data_error
-	explicit RlesData(const TzxData&)  noexcept(false); // data_error
-	explicit RlesData(const O80Data&)  noexcept(false); // data_error
-	explicit RlesData(const RlesData&) noexcept(false); // data_error
-	explicit RlesData(const AudioData&)noexcept(false); // data_error
-	explicit RlesData(const CswBuffer&)noexcept(false); // data_error
+	explicit RlesData(const TapeData&) noexcept(false); // DataError
+	explicit RlesData(const TapData&)  noexcept(false); // DataError
+	explicit RlesData(const TzxData&)  noexcept(false); // DataError
+	explicit RlesData(const O80Data&)  noexcept(false); // DataError
+	explicit RlesData(const RlesData&) noexcept(false); // DataError
+	explicit RlesData(const AudioData&)noexcept(false); // DataError
+	explicit RlesData(const CswBuffer&)noexcept(false); // DataError
 	virtual	 ~RlesData();
-	RlesData& operator=(const RlesData&) noexcept(false); // data_error
+	RlesData& operator=(const RlesData&) noexcept(false); // DataError
 
 	static void readFile(cstr fpath, TapeFile&) throws;
 	static void writeFile(cstr fpath, TapeFile&) throws;

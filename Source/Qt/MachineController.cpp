@@ -240,7 +240,7 @@ void MachineController::loadSnapshot( cstr filename )
 		if(eq(ext,".ass")||eq(ext,".asm")||eq(ext,".src")||eq(ext,".s"))
 		{
 			filename = fullpath(filename);
-			if(errno) throw file_error(filename,errno);
+			if(errno) throw FileError(filename,errno);
 
 			Z80Assembler ass;
 
@@ -254,7 +254,7 @@ void MachineController::loadSnapshot( cstr filename )
 
 			ass.assembleFile( filename, destdir, listfile, tempdir, liststyle, deststyle , clean);
 
-			if(ass.numErrors()) throw any_error("your assembly had %i error%s",ass.numErrors(),ass.numErrors()==1?"":"s");
+			if(ass.numErrors()) throw AnyError("your assembly had %i error%s",ass.numErrors(),ass.numErrors()==1?"":"s");
 			filename = dupstr(ass.targetFilepath());
 			ext = lowerstr(extension_from_path(filename));
 			// TODO: store path to listfile for disassembler
@@ -289,7 +289,7 @@ void MachineController::loadSnapshot( cstr filename )
 			{
 				rzx->readFile(filename);
 			}
-			catch(any_error& e)
+			catch(AnyError& e)
 			{
 				rzx->rewind();		   // versuche, das File bis zur Fehlerposition abspielbar zu machen
 				if(!rzx->isSnapshot()) { delete rzx; rzx = NULL; }	// defekt ab Start
@@ -325,7 +325,7 @@ void MachineController::loadSnapshot( cstr filename )
 
 		else if(eq(ext,".z80"))
 		{
-			Model id = modelForZ80(fd); if(id == unknown_model) throw data_error("illegal model in file");
+			Model id = modelForZ80(fd); if(id == unknown_model) throw DataError("illegal model in file");
 			if(model!=id) machine = init_machine(id,0,s,j,no,d);
 			machine->loadZ80(fd);
 		}
@@ -350,7 +350,7 @@ void MachineController::loadSnapshot( cstr filename )
 			Language language = zx_info[m].language;
 
 			if(fsz!=4 kB && fsz!=8 kB && fsz!=10 kB && fsz!=16 kB && fsz!=24 kB && fsz!=32 kB && fsz!=64 kB)
-				throw data_error("The rom file size does not match any supported machine.");
+				throw DataError("The rom file size does not match any supported machine.");
 
 			if(fsz < 16 kB)		// zx80/81/clone or jupiter ace: load into interal rom
 			{
@@ -459,7 +459,7 @@ void MachineController::loadSnapshot( cstr filename )
 
 				cstr loader = usingstr("%sSnapshots/load_tape_%s.z80", appl_rsrc_path, zx_info[m].nickname);
 				if(!is_file(loader))
-					throw any_error("Sorry, i have no loader for loading tapes into a %s", zx_info[m].name);
+					throw AnyError("Sorry, i have no loader for loading tapes into a %s", zx_info[m].name);
 
 				fd.close_file(0);
 				if(m!=model) machine = init_machine(m,0,s,j,no,d);
@@ -480,7 +480,7 @@ void MachineController::loadSnapshot( cstr filename )
 		{
 			cstr loader = catstr(appl_rsrc_path, "Snapshots/load_tape_", model_info->nickname, ".z80");
 			if(!is_file(loader))
-				throw any_error("Sorry, i have no loader to load tapes into a %s",model_info->name);
+				throw AnyError("Sorry, i have no loader to load tapes into a %s",model_info->name);
 
 			fd.close_file(0);
 			fd.open_file_r(loader);
@@ -502,7 +502,7 @@ void MachineController::loadSnapshot( cstr filename )
 
 			cstr loader = catstr(appl_rsrc_path, "Snapshots/load_disk_", zx_info[m].nickname, ".z80");
 			if(!is_file(loader))
-				throw any_error("Sorry, i have no loader to load discs into a %s", zx_info[m].name);
+				throw AnyError("Sorry, i have no loader to load discs into a %s", zx_info[m].name);
 
 			fd.close_file(0);
 			if(m!=model) machine = init_machine(m,0,s,j,0,d);
@@ -550,7 +550,7 @@ void MachineController::loadSnapshot( cstr filename )
 			}
 		}
 	}
-	catch(any_error& e)
+	catch(AnyError& e)
 	{
 		showAlert("Error: %s",e.what());
 		if(!machine) machine = init_machine(zxsp_i3,0,s,j,r,d);
@@ -1378,7 +1378,7 @@ void MachineController::save_as()
 			NV(machine)->saveAs(filepath);
 			set_filepath(filepath);
 		}
-		catch(any_error& e)
+		catch(AnyError& e)
 		{
 			showAlert("%s",e.what());
 		}
@@ -1641,7 +1641,7 @@ void MachineController::save_screenshot()		// controlMenu
 	str  time = datetimestr(time_t(now()));     // time[10]='-'; time[13]='.'; time[16]='.';
 	cstr path = catstr(dir,name," [",time,"]",".gif");
 	try { screen->saveScreenshot(path); }
-	catch(file_error& e) { showAlert("File error: \n%s",e.what()); }
+	catch(FileError& e) { showAlert("File error: \n%s",e.what()); }
 }
 
 void MachineController::record_movie(bool f)	// controlMenu
@@ -1662,7 +1662,7 @@ void MachineController::record_movie(bool f)	// controlMenu
 				bool f = action_gifAnimateBorder->isChecked();
 				screen->startRecording(path,f);
 			}
-			catch(file_error& e)
+			catch(FileError& e)
 			{
 				showAlert("File error: \n%s",e.what());
 				action_recordMovie->setChecked(off);

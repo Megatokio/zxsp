@@ -139,7 +139,7 @@ void MachineZx80::saveO80(FD &fd) throws
 	fd.write_bytes(bu,len);
 }
 
-void MachineZx80::loadO80(FD &fd) noexcept(false) /*file_error,data_error*/
+void MachineZx80::loadO80(FD &fd) noexcept(false) /*FileError,DataError*/
 {
 	// load a SNAPSHOT: load a ZX80 .o or .80 file:
 	// loads data into ram from address $4000 to ($400A)		(sysvar E_LINE)

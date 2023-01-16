@@ -242,7 +242,7 @@ void TapeRecorder::videoFrameEnd( int32 cc )
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 // Misc.:
 
-void TapeRecorder::saveToFile( FD& fd ) const noexcept(false) /*file_error,bad_alloc*/
+void TapeRecorder::saveToFile( FD& fd ) const noexcept(false) /*FileError,bad_alloc*/
 {
 	assert(isStopped());
 	assert(isLoaded());
@@ -250,7 +250,7 @@ void TapeRecorder::saveToFile( FD& fd ) const noexcept(false) /*file_error,bad_a
 }
 
 
-void TapeRecorder::loadFromFile( FD& fd ) noexcept(false) /*file_error,bad_alloc*/
+void TapeRecorder::loadFromFile( FD& fd ) noexcept(false) /*FileError,bad_alloc*/
 {
 	assert(isStopped());
 	TODO();(void)fd;

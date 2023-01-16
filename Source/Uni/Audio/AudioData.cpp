@@ -462,7 +462,7 @@ CswBuffer::CswBuffer(AudioData const& qa, uint32 ccps)
 			qa.audio_decoder->seekSamplePosition(qa.adc_start_pos);
 			qa.audio_decoder->read(samples,count,1/*num.channels*/);
 		}
-		catch(any_error& e)
+		catch(AnyError& e)
 		{
 			delete[] samples;
 			showAlert("Reading \"%s\" failed:\n%s", qa.audio_decoder->getFilename(), e.what());
@@ -698,7 +698,7 @@ s:			e0 = 0;
 
 
 /*static*/
-void AudioData::readFile(cstr fpath, TapeFile& tapeblocks) noexcept(false) // file_error,data_error,bad_alloc
+void AudioData::readFile(cstr fpath, TapeFile& tapeblocks) noexcept(false) // FileError,DataError,bad_alloc
 {
 	xlogIn("AudioData::readFile(%s)",fpath);
 	assert(tapeblocks.count()==0);
@@ -805,7 +805,7 @@ void AudioData::readFile(cstr fpath, TapeFile& tapeblocks) noexcept(false) // fi
 
 
 /*static*/
-void AudioData::writeFile(cstr fpath, TapeFile& tapeblocks ) noexcept(false) // file_error,data_error,bad_alloc
+void AudioData::writeFile(cstr fpath, TapeFile& tapeblocks ) noexcept(false) // FileError,DataError,bad_alloc
 {
 	xlogIn("AudioData::writeFile(%s)",fpath);
 	showAlert("AudioData::writeFile(): TODO");

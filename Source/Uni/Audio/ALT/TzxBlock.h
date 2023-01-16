@@ -54,7 +54,7 @@ virtual void    write		(CswBuffer&)	const {}	// store this block to CSW buffer
 virtual cstr    get_info	()				const { return NULL; }		// get block info of this block, if any
 virtual bool    is_end_block()				const { return no; }	// most times: does it end with a pause?
 
-static	TzxBlock* read_next	(FD& fd)		throw(data_error, file_error);
+static	TzxBlock* read_next	(FD& fd)		throw(DataError, FileError);
 		TzxBlock* last		();
 
 public:
@@ -66,10 +66,10 @@ virtual         ~TzxBlock   ();
 		TzxBlock& operator+	(TzxBlock* n)	{ next = n; return *this; }
 
 		// read a (linked list of) TzxBlocks from file
-static	TzxBlock* readFromFile(FD&, uint=0)	throw(data_error, file_error);
+static	TzxBlock* readFromFile(FD&, uint=0)	throw(DataError, FileError);
 
 		// write a (liked list of) TzxBlocks to file
-		void writeToFile (FD&)				const throw(data_error);
+		void writeToFile (FD&)				const throw(DataError);
 
 		// render a (linked list of) TzxBlocks into a CswBuffer
 		void storeCsw(CswBuffer&)			const;

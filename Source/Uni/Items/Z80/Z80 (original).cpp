@@ -147,7 +147,7 @@ void Z80::reset_registers()
 	save cpu internal state for later Init()
 	does not save: memory page mapping, waitmaps, options and contents!
 */
-void Z80::saveToFile ( int fd ) const throw(file_error,bad_alloc)
+void Z80::saveToFile ( int fd ) const throw(FileError,bad_alloc)
 {
 	Z80_BASECLASS::saveToFile(fd);
 	write_data(fd,&registers);
@@ -159,7 +159,7 @@ void Z80::saveToFile ( int fd ) const throw(file_error,bad_alloc)
 	write_data(fd,&stack_breakpoint);
 }
 
-void Z80::loadFromFile ( int fd ) throw(file_error,bad_alloc)
+void Z80::loadFromFile ( int fd ) throw(FileError,bad_alloc)
 {
 	Z80_BASECLASS::loadFromFile(fd);
 	read_data(fd,&registers);
@@ -249,7 +249,7 @@ void Z80::copyBufferToRam ( uint8 const* q, uint16 z, uint16 cnt ) throw()
 	while( cnt );
 }
 
-void Z80::readRamFromFile ( int fd, uint16 z, uint16 cnt ) throw(file_error)
+void Z80::readRamFromFile ( int fd, uint16 z, uint16 cnt ) throw(FileError)
 {
 	uint8 bu[CPU_PAGESIZE];
 	uint16 n = CPU_PAGESIZE-(z&CPU_PAGEMASK);
@@ -263,7 +263,7 @@ void Z80::readRamFromFile ( int fd, uint16 z, uint16 cnt ) throw(file_error)
 	while( cnt );
 }
 
-void Z80::writeRamToFile ( int fd, uint16 q, uint16 cnt ) throw(file_error)
+void Z80::writeRamToFile ( int fd, uint16 q, uint16 cnt ) throw(FileError)
 {
 	uint8 bu[CPU_PAGESIZE];
 	uint16 n = CPU_PAGESIZE-(q&CPU_PAGEMASK);
@@ -530,7 +530,7 @@ int Z80::run ( int32 cc_max, int32 ic_max, uint32 options )
 
 	uint16*			rzp;						// pointer to IX or IY after 0xDD or 0xFD
 	#define			rz		(*rzp)				// IX or IY
-	#ifdef _BIG_ENDIAN
+	#ifdef __BIG_ENDIAN__
 	#define			rzh		(((uint8*)rzp)[0])	// XH or YH
 	#define			rzl		(((uint8*)rzp)[1])	// XL or YL
 	#else

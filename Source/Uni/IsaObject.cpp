@@ -46,16 +46,16 @@ cstr isa_names[] =
 
 
 //virtual
-void IsaObject::saveToFile( FD& fd ) const noexcept(false) /*file_error,bad_alloc*/
+void IsaObject::saveToFile( FD& fd ) const noexcept(false) /*FileError,bad_alloc*/
 {
 	fd.write_uint8(magic);
 	fd.write_nstr(name);
 }
 
 //virtual
-void IsaObject::loadFromFile( FD& fd ) noexcept(false) /*file_error,bad_alloc,data_error*/
+void IsaObject::loadFromFile( FD& fd ) noexcept(false) /*FileError,bad_alloc,DataError*/
 {
-	if(fd.read_uint8()!=magic) throw data_error("IsaObject magic corrupted");
+	if(fd.read_uint8()!=magic) throw DataError("IsaObject magic corrupted");
 	delete[]name; name=NULL;
 	name = fd.read_nstr();
 }

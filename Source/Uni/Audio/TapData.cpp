@@ -534,11 +534,11 @@ p5:	data.shrink(z-data.getData());
 /*  write block to .tap file
 	if omit_typebyte then don't write the typebyte at data[0]	(for Jupiter Ace .tap files)
 */
-void TapData::writeToFile(FD& fd, bool omit_typebyte ) const throws // file_error,data_error
+void TapData::writeToFile(FD& fd, bool omit_typebyte ) const throws // FileError,DataError
 {
 	uint32 n = data.count();
 	if(n<2) return;		// too short: min. 2 bytes required for typebyte and checksum => ignore
-	if(n>=0x10002) throw data_error(".tap block ≥ $10002 bytes");	// too long
+	if(n>=0x10002) throw DataError(".tap block ≥ $10002 bytes");	// too long
 
 	fd.write_uint16_z(n-omit_typebyte);
 	fd.write_bytes(data.getData()+omit_typebyte,n-omit_typebyte);
@@ -553,7 +553,7 @@ void TapData::writeToFile(FD& fd, bool omit_typebyte ) const throws // file_erro
 		and a data block might accidentially be 26 bytes long as well.
 		So the caller must fix the typebyte.
 */
-void TapData::readFromFile(FD &fd, bool add_typebyte) throws // bad_alloc,file_error
+void TapData::readFromFile(FD &fd, bool add_typebyte) throws // bad_alloc,FileError
 {
 	assert(data.count()==0);
 
@@ -570,11 +570,11 @@ void TapData::readFromFile(FD &fd, bool add_typebyte) throws // bad_alloc,file_e
 	This is probably incompatible with other Jupiter Ace emulators but ok with zxsp.
 */
 //static
-void TapData::writeFile( cstr fpath, TapeFile& data ) throws // file_error,data_error,bad_alloc
+void TapData::writeFile( cstr fpath, TapeFile& data ) throws // FileError,DataError,bad_alloc
 {
 	xlogIn("TapData::writeFile(%s)",fpath);
 
-	FD fd; fd.open_file_w(fpath);			// throw file_error
+	FD fd; fd.open_file_w(fpath);			// throw FileError
 
 	for(uint i=0; i<data.count(); i++)
 	{
@@ -589,7 +589,7 @@ void TapData::writeFile( cstr fpath, TapeFile& data ) throws // file_error,data_
 		// note: auch ein misslungener TapData-Block bleibt erhalten
 		// => zukünftige Konvertierungsversuche unnötig
 
-		if(db && db->tapdata->trust_level >= truncated_data_error)
+		if(db->tapdata && db->tapdata->trust_level >= truncated_data_error)
 			db->tapdata->writeToFile(fd,no);
 	}
 }
@@ -598,12 +598,12 @@ void TapData::writeFile( cstr fpath, TapeFile& data ) throws // file_error,data_
 /*  read data[] from .tap file
 	static
 */
-void TapData::readFile( cstr fpath, TapeFile& data ) throws // file_error,data_error,bad_alloc
+void TapData::readFile( cstr fpath, TapeFile& data ) throws // FileError,DataError,bad_alloc
 {
 	xlogIn("TapData::readFile(%s)",fpath);
 	assert(data.count()==0);
 
-	FD fd(fpath,'r');					// throw file_error
+	FD fd(fpath,'r');					// throw FileError
 	if(fd.file_size()<2) return;		// empty file
 
 	uint16 len = fd.read_uint16_z();

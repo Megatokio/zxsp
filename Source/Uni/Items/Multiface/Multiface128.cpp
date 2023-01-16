@@ -186,12 +186,12 @@ void Multiface128::triggerNmi()
 }
 
 
-void Multiface128::saveToFile ( FD& ) const noexcept(false) /*file_error,bad_alloc*/
+void Multiface128::saveToFile ( FD& ) const noexcept(false) /*FileError,bad_alloc*/
 {
 	TODO();
 }
 
-void Multiface128::loadFromFile( FD& ) noexcept(false) /*file_error,bad_alloc*/
+void Multiface128::loadFromFile( FD& ) noexcept(false) /*FileError,bad_alloc*/
 {
 	TODO();
 }

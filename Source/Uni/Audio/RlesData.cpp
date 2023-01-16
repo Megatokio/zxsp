@@ -154,7 +154,7 @@ RlesData::~RlesData()
 {
 }
 
-RlesData::RlesData( TapeData const& q ) noexcept(false) // data_error
+RlesData::RlesData( TapeData const& q ) noexcept(false) // DataError
 :
 	TapeData(isa_RlesData)
 {
@@ -183,14 +183,14 @@ CswBuffer::CswBuffer(RlesData const& , uint32 ccps)
 // #######################################################################################
 
 
-RlesData::RlesData( TzxData const& ) noexcept(false) // data_error
+RlesData::RlesData( TzxData const& ) noexcept(false) // DataError
 :
 	TapeData(isa_RlesData)
 {
 	TODO();
 }
 
-RlesData::RlesData( TapData const& ) noexcept(false) // data_error
+RlesData::RlesData( TapData const& ) noexcept(false) // DataError
 :
 	TapeData(isa_RlesData)
 {
@@ -199,7 +199,7 @@ RlesData::RlesData( TapData const& ) noexcept(false) // data_error
 //	buffer.stop();
 }
 
-RlesData::RlesData( O80Data const& ) noexcept(false) // data_error
+RlesData::RlesData( O80Data const& ) noexcept(false) // DataError
 :
 	TapeData(isa_RlesData)
 {
@@ -208,14 +208,14 @@ RlesData::RlesData( O80Data const& ) noexcept(false) // data_error
 //	buffer.stop();
 }
 
-RlesData::RlesData(class AudioData const& ) noexcept(false) // data_error
+RlesData::RlesData(class AudioData const& ) noexcept(false) // DataError
 :
 	TapeData(isa_RlesData)
 {
 	TODO();
 }
 
-RlesData::RlesData(RlesData const& ) noexcept(false) // data_error
+RlesData::RlesData(RlesData const& ) noexcept(false) // DataError
 :
 	TapeData(isa_RlesData)
 {
@@ -311,19 +311,19 @@ void RlesData::readFile (cstr /*fpath*/, TapeFile& /*tapeblocks*/) throws
 	xlogIn("RlesData::readFile(%s)",fpath);
 
 // read file:
-	FD fd(fpath,'r');				// throw file_error
-	off_t flen = fd.file_size();				// throw file_error
+	FD fd(fpath,'r');				// throw FileError
+	off_t flen = fd.file_size();				// throw FileError
 	ADA<uint8> data; data  = (uint8*)tempmem(flen);	// throw bad_alloc
-	fd.read_data(data+0,flen);					// throw file_error
+	fd.read_data(data+0,flen);					// throw FileError
 
 // header:
 //		dc.m	"RlesTape"				; 8 bytes: file magic
 //		dc.m	"1.0", $00				; 4 bytes: major + minor version, delimiter
 	{
-		if( flen<12 || !eq(substr(data+0,data+8),"RlesTape") ) throw data_error("not a rles file");
+		if( flen<12 || !eq(substr(data+0,data+8),"RlesTape") ) throw DataError("not a rles file");
 		char version_h = data[8];
 		//char version_l = data[10];
-		if(version_h!='1') throw data_error("rles: version %s not supported",substr(data+8,data+11));
+		if(version_h!='1') throw DataError("rles: version %s not supported",substr(data+8,data+11));
 		//metadata->AddData("file_type","rles");
 		//metadata->AddData("version_h",CharStr(version_h));
 		//metadata->AddData("version_l",CharStr(version_l));
@@ -338,7 +338,7 @@ void RlesData::readFile (cstr /*fpath*/, TapeFile& /*tapeblocks*/) throws
 	for( ;e-q>=8; q+=len )
 	{
 		id  = peek4Z(q); q+=4; if(id=='Rles') { len=8; continue; }
-		len = peek4Z(q); q+=4; if(uint32(e-q)<len) throw data_error("rles: premature end of file");
+		len = peek4Z(q); q+=4; if(uint32(e-q)<len) throw DataError("rles: premature end of file");
 		if(!rlesdata)
 		{
 			rlesdata = new RlesData();
@@ -355,7 +355,7 @@ void RlesData::readFile (cstr /*fpath*/, TapeFile& /*tapeblocks*/) throws
 				info = (str)q;
 				break;
 			}
-			throw data_error("rles: broken 'info' chunk");
+			throw DataError("rles: broken 'info' chunk");
 
 		case 'rles':
 			{
@@ -363,7 +363,7 @@ void RlesData::readFile (cstr /*fpath*/, TapeFile& /*tapeblocks*/) throws
 //				uint32 sps = Peek4Z(q);
 //				xlogline( "rles compressed audio, f=%lu Hz, %lu samples", sps, uint32(len) );
 //				if( sps<8000 || sps>100000 )
-//				{ throw data_error("rles: sample frequency out of range"); }
+//				{ throw DataError("rles: sample frequency out of range"); }
 //				rlesdata->buffer.setSamplesPerSecond( sps );
 
 //				TODO();//rlesdata->buffer.startRecordingPulses();
@@ -385,7 +385,7 @@ void RlesData::readFile (cstr /*fpath*/, TapeFile& /*tapeblocks*/) throws
 
 
 /*static*/
-void RlesData::writeFile (cstr fpath, TapeFile &tapedata ) noexcept(false) // file_error,data_error,bad_alloc
+void RlesData::writeFile (cstr fpath, TapeFile &tapedata ) noexcept(false) // FileError,DataError,bad_alloc
 {
 	xlogIn("RlesData::writeFile(%s)",fpath);
 	TODO();(void)tapedata;

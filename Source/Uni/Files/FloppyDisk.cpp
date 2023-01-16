@@ -127,7 +127,7 @@ void FloppyDisk::saveDisk() throws
 		fd.close_file(1);
 		modified = no;
 	}
-	catch(file_error& e)
+	catch(FileError& e)
 	{
 		showAlert(e.what());
 	}
@@ -156,7 +156,7 @@ void FloppyDisk::setFilepath(cstr fpath)
 	fpath = fullpath(fpath);
 	filepath = newcopy(fpath);
 	try { create_file(fpath); }		// touch
-	catch(file_error&) {}
+	catch(FileError&) {}
 	writeprotected = !fileIsWritable();
 }
 
@@ -789,7 +789,7 @@ void FloppyDisk::write_extended_disk_file(FD& fd) const throws
 		uint8 trackinfo[256]; memset(trackinfo,0,256);
 		uint8* tip = trackinfo;
 
-		memcpy(tip,"Track-Info",13); tip += 16;
+		memcpy(tip,"Track-Info\r\n",13); tip += 16;
 		*tip++ = uint8(t);		//	track#
 		*tip++ = uint8(s);		//	side#
 		tip += 2;				//	unused

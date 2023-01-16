@@ -81,7 +81,7 @@ public:
 	MemoryPtr		(Memory* p)      	:RCPtr(p)   {}
 	//MemoryPtr		(RCPtr const& q)	:p(q.p) { retain(); }
 	~MemoryPtr		()					{ assert(!p||p->_cnt>0); }
-	MemoryPtr		(Machine* m, cstr name, uint cnt)	noexcept(false) /*limit_error*/	:RCPtr(new Memory(m,name,cnt)){}
+	MemoryPtr		(Machine* m, cstr name, uint cnt)	noexcept(false) /*LimitError*/	:RCPtr(new Memory(m,name,cnt)){}
 
 // access data members:
 	uint			count		() const			{ return p->data.count(); }
@@ -98,7 +98,7 @@ public:
 
 // modifiy:
 	void			shrink		(uint newcnt)						{ p->shrink(newcnt); }
-	void			grow		(uint newcnt)		noexcept(false) /*limit_error*/	{ p->grow(newcnt); }
+	void			grow		(uint newcnt)		noexcept(false) /*LimitError*/	{ p->grow(newcnt); }
 };
 
 
