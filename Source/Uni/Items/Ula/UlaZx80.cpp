@@ -311,13 +311,13 @@ void UlaZx80::input ( Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask 
 
 // any in(FE) activates the SYNC signal and resets the LCNTR of the ULA
 // insbes. auch IN(7FFE) weil das wird in der SAVE-Routine benutzt!
-	current_lcntr = 0;
 	if( sync_off() )
 	{											// Achtung: ZX80 Laderoutine ist phasenempfindlich!
 		mic_out(now,-beeper_volume);			// TODO: müsste eigentlich in sync_on()
 		if(machine->taperecorder->isRecording()) machine->taperecorder->output(cc,0);
 		sync_on(cc);
 	}
+	current_lcntr = 0;
 
 // insert bits from keyboard:
 	byte &= readKeyboard(addr);	// Ähh.. TODO: wird auch high getrieben?
