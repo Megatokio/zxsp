@@ -713,17 +713,23 @@ slow_loop:
 // test non-maskable interrupt:
 // the NMI is edge-triggered and automatically cleared
 
-	if( cc>=cc_nmi )
-	{										// 11 T cycles, probably: M1:5T, M2:3T, M3:3T
-		PEEK_INSTR(c); if(c==HALT) pc++;
-	//	IFF2 = IFF1;						// save current irpt enable bit
-		IFF1 = disabled;					// disable irpt, preserve IFF2
-		r  += 1;
-		cc += 5;							// M1: 5 T: interrupt acknowledge cycle
-		cc_nmi = machine->nmiAtCycle(cc-2);	// clear or re-trigger nmi (in macro)
-		PUSH(pc>>8);						// M2: 3 T: push pch
-		PUSH(pc);							// M3: 3 T: push pcl
-		pc = 0x0066;						// jump to 0x0066
+	if( cc>=cc_nmi ) // timing: 4+1,3,3
+	{
+		// NMI starts with a dummy opcode fetch plus 1 cc
+		// /WAIT test in cc+2 => nmiAtCycles() may add wait cycles to cpu_cycle.
+
+		// note: nmiAtCycle() was formerly called with cc+3
+
+		IFF1 = disabled;				// disable maskable irpt. IFF2 is used to restore IFF1 in RETN.
+		PEEK_INSTR(c);
+		if (c == HALT) pc++;
+		r += 1;
+		cpu_cycle = cc;					// nmiAtCycles() may add wait states to cpu_cycle.
+		cc_nmi = machine->nmiAtCycle(cc); // clear or re-trigger nmi.
+		cc = cpu_cycle + 4+1;
+		PUSH(pc>>8);					// M2: 3 cc: push pch
+		PUSH(pc);						// M3: 3 cc: push pcl
+		pc = 0x0066;					// jump to 0x0066
 	}
 	cc_max = min(cc_max,cc_nmi);
 
@@ -750,69 +756,64 @@ slow_loop:
 	}
 	else								// handle interrupt
 	{
-		PEEK_INSTR(c); if(c==HALT) pc++;
+		// Interrpt starts with 2 cc (for daisy chain irpt arbitration?)
+		// /WAIT test in cc+4 => interruptAtCycles() may add wait cycles to cpu_cycle.
+
+		// note: interruptAtCycle() was formerly called with cc+4
+
 		IFF1 = IFF2 = disabled;			// disable interrupt
-		r  += 1;						// M1: 2 cc + standard opcode timing (min. 4 cc)
-		cc += 6;						// /HALT test and busbyte read in cc+4
-		c = machine->interruptAtCycle(cc-2,pc);	// c = busbyte
-		w = 0xffff;						// w = busbytes read in M2+M3 cycle (if c==CALL && mode 0)
+		PEEK_INSTR(c); if(c==HALT) pc++;
+		r += 1;
+		cpu_cycle = cc;					// interruptAtCycles() may add wait states to cpu_cycle.
+		c = machine->interruptAtCycle(cc,pc); // c = busbyte
+		cc = cpu_cycle;
 
 		switch( registers.im )
 		{
-		case 0:
-		/*	mode 0: read instruction from bus
-			NOTE:	docs say that M1 is always 6 cc in mode 0, but that is not conclusive:
-					the 2 additional T cycles are before opcode fetch, and thus they must always add to instruction execution
-					the timing from the moment of instruction fetch (e.g. cc +2 in a normal M1 cycle, cc +4 in int ack M1 cycle)
-					and can't be shortended.
-					to be tested somehow.	kio 2004-11-12
-		*/
+		case 0:	//	mode 0: read instruction from bus
+				//	timing: 2cc + opcode timing
+
 			switch(c)
 			{
-			case RST00: case RST08:		//	timing: M1: 2+5 cc: opcode RSTxx  ((RST is 5 cc))
-			case RST10: case RST18:		//			M2:	3 cc:   push pch
-			case RST20: case RST28:		//			M3: 3 cc:   push pcl
+			case RST00: case RST08:		//	M1: 2+5 cc: opcode RSTxx  ((RST is 5 cc))
+			case RST10: case RST18:		//	M2:	3 cc:   push pch
+			case RST20: case RST28:		//	M3: 3 cc:   push pcl
 			case RST30:	case RST38:
-				cc += 1;
+				cc += 2+5;
 				w = c-RST00;
 				goto irpt_xw;
 
-			case CALL:					//	timing:	M1:   2+4 cc: opcode CALL
-				cc += 7;				//			M2+3: 3+4 cc: get NN			provided in w (by macro Z80_INFO_IRPT)
-				goto irpt_xw;			//			M4+5: 3+3 cc: push pch, pcl
+			case CALL:
+				cc += 2+4;				//	M1:   2+4 cc: opcode CALL
+				cc += 3+4;				//	M2+3: 3+4 cc: get NN	(formerly provided by macro Z80_INFO_IRPT)
+				w = 0xffff;				//	   	      w = busbytes read in M2+M3 cycle TODO
+				goto irpt_xw;			//	M4+5: 3+3 cc: push pch, pcl
 
 			default:					//	only RSTxx and CALL NN are supported
 				TODO();					//  any other opcode is of no real use.
 			};
 
-		case 1:
-		/*	Mode 1:	RST38
-			NOTE:	docs say, timing is 13 cc for implicit RST38 in mode 1 and 12 cc for fetched RST38 in mode 0.
-					maybe it is just vice versa? in mode 1 the implicitely known RST38 can be executed with the start of the M1 cycle
-					and finish after 5 cc, prolonged to the irpt ackn M1 cycle min. length of 6 cc. Currently i'll stick to 13 cc as doc'd.
-					to be tested somehow.	kio 2004-11-12
-			TODO:	does the cpu a dummy read in M1?
-					at least ZX Spectrum videoram waitcycles is no issue because irpt is off-screen.
-		*/
-			cc += 1;				//	timing:	M1:	7 cc: int ack cycle (as doc'd)
-			w = 0x0038;				//			M2: 3 cc: push pch
-			goto irpt_xw;			//			M3: 3 cc: push pcl
+		case 1:	//	Mode 1:	RST38
+				//	timing: 7+3+3
 
-	irpt_xw: //log("%1X",int(pc&15));//TEST
-			 PUSH(pc>>8);			//	M2: 3 cc: push pch
-			 PUSH(pc);				//	M3: 3 cc: push pcl and load pc
+			cc += 7;					//	M1:	7 cc: int ack cycle
+			w = 0x0038;
+			goto irpt_xw;
+
+	irpt_xw: PUSH(pc>>8);				//	M2: 3 cc: push pch
+			 PUSH(uint8(pc));			//	M3: 3 cc: push pcl and load pc
 			 pc = w;
 			 LOOP;
 
-		case 2:
-		/*	Mode 2:	jump via table
-		*/
-			cc += 1;				//	timing:	M1: 7 cc: int ack  and  read interrupt vector from bus
-			PUSH(pc>>8);			//			M2: 3 cc: push pch
-			PUSH(pc);				//			M3: 3 cc: push pcl
+		case 2:	//	Mode 2:	jump via table
+				//	timing: 7+3+3+3+3
+
+			cc += 7;				//	M1: 7 cc: int ack  and  read interrupt vector from bus
+			PUSH(pc>>8);			//	M2: 3 cc: push pch
+			PUSH(uint8(pc));		//	M3: 3 cc: push pcl
 			w = registers.i*256+c;
-			PEEK(PCL,w);			//			M4: 3 cc: read low byte from table
-			PEEK(PCH,w+1);			//			M5: 3 cc: read high byte and jump
+			PEEK(PCL,w);			//	M4: 3 cc: read low byte from table
+			PEEK(PCH,w+1);			//	M5: 3 cc: read high byte and jump
 			pc = PC;
 			LOOP;
 

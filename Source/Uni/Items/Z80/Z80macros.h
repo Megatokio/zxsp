@@ -150,7 +150,7 @@
 	R = uint8(z32);							\
 	if((z32 &= options))					\
 	{										\
-		if(z32&cpu_break_x)	{ if(machine->break_ptr==&pg.both_r(pc)) { machine->break_ptr=0; } else			\
+		if(z32&cpu_break_x)	{ if(machine->break_ptr==&pg.both_r(pc)) { machine->break_ptr=nullptr; } else	\
 							{ break_addr=pc; result=cpu_exit_x; EXIT; } }									\
 		if(z32&cpu_patch)   { SAVE_REGISTERS; R = machine->handleRomPatch(pc,R); LOAD_REGISTERS;}			\
 		if(z32&cpu_crtc_zx81 && pc&0x8000)																	\
