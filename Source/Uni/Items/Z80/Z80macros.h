@@ -156,7 +156,7 @@
 		if(z32&cpu_crtc_zx81 && pc&0x8000)																	\
 							{ R = peek(pc&0x7fff);															\
 							  if(~R&0x40) { UlaMonoPtr(crtc)->crtcRead(cc,R); R = NOP; }					\
-							  if(~r&0x40) { cc_irpt_on=cc; cc_irpt_off=cc+8; if(IFF1==enabled) cc_max=cc; }	\
+							  if(~r&0x40) { cc_irpt_on=cc+2; cc_irpt_off=cc+5; if(IFF1==enabled) cc_max=cc+2; }	\
 							  else        { cc_irpt_on=0x7fffffff; } }										\
 		if(z32&cpu_waitmap)	{ CC_WAIT_R(cc+2); }															\
 		if(z32&cpu_x_access){ pg.both_r(pc) -= cpu_x_access; }												\
