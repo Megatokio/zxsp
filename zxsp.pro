@@ -9,7 +9,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 # http://qt-project.org/faq/answer/what_does_the_syntax_configdebugdebugrelease_mean_what_does_the_1st_argumen
 CONFIG(release,debug|release) { DEFINES += NDEBUG RELEASE } # ATTN: curly brace must start in same line!
-CONFIG(debug,debug|release) { DEFINES += DEBUG } # ATTN: curly brace must start in same line!
+#CONFIG(debug,debug|release) { DEFINES += DEBUG } # ATTN: curly brace must start in same line!
 
 CONFIG += c++11
 CONFIG += precompiled_header
