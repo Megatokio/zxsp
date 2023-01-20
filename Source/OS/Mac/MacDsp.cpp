@@ -26,8 +26,8 @@
 #include "kio/TestTimer.h"
 
 
-Time		system_time			= 0.0;
-Frequency	samples_per_second	= 44100;
+//Time		system_time			= 0.0;
+//Frequency	samples_per_second	= 44100;
 
 
 namespace Dsp
@@ -37,16 +37,16 @@ namespace Dsp
 
 static PLock audio_callback_lock;			// 2006-11-16 kio:	needed if in and out devices are different
 
-bool			audio_input_device_present	= no;	// preset to no if error
-bool			audio_input_device_enabled	= no;	// preset to no if error
-bool			audio_output_device_enabled = yes;	// must be present
-Sample			audio_output_volume			= 0.3f;
+//bool			audio_input_device_present	= no;	// preset to no if error
+//bool			audio_input_device_enabled	= no;	// preset to no if error
+//bool			audio_output_device_enabled = yes;	// must be present
+//Sample 		audio_output_volume			= 0.3f;
 //Sample  		play_through_damping		= 0.0;	// no playthrough during startup: no 'klick' if audio-in disabled in prefs
 static StereoSample	audio_out_center		= 0.0f;	// for audio out High-pass filter
 static StereoSample	audio_in_center			= 0.0f;	// for audio in High-pass filter
 
-StereoSample	audio_out_buffer [DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING];
-StereoSample	audio_in_buffer	 [DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING];
+//StereoSample	audio_out_buffer [DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING];
+//StereoSample	audio_in_buffer	 [DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING];
 
 static AudioDeviceID        input_device_id     = 0;        // actually used audio devices
 static AudioDeviceID        output_device_id    = 0;
