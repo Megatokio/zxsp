@@ -127,7 +127,7 @@ TapeFile::TapeFile(uint32 machine_ccps, cstr filename)
 	{
 		readFile(filename);
 	}
-	catch(any_error& e)
+	catch(AnyError& e)
 	{
 		showAlert("Could not read tape file:\n%s",e.what());
 		modified = no;
@@ -152,7 +152,7 @@ TapeFile::~TapeFile()
 			mode = stopped;
 			writeFile(filepath);
 		}
-		catch(any_error& e)
+		catch(AnyError& e)
 		{
 			showAlert("An error occured while writing to tape file:\n%s",e.what());
 		}
@@ -192,7 +192,7 @@ void TapeFile::setFilepath(cstr fpath) volatile noexcept
 	{
 		create_file(fpath);		// touch
 	}
-	catch(file_error&) {}
+	catch(FileError&) {}
 	write_protected = !is_writable(filepath);
 	modified = yes;
 }
@@ -243,7 +243,7 @@ void TapeFile::readFile( cstr path ) throws // file_error,data_error,bad_alloc
 		case isa_TapData:	TapData::readFile(path,*this); break;
 		case isa_TzxData:	TzxData::readFile(path,*this); break;
 		case isa_O80Data:	O80Data::readFile(path,*this); break;
-		default: throw data_error("unknown file type");
+		default: throw DataError("unknown file type");
 	}
 
 	for(uint i=0;i<this->count();i++)
@@ -281,7 +281,7 @@ void TapeFile::writeFile( cstr path ) throws
 		case isa_TapData:	TapData::writeFile(path,*this); break;
 		case isa_TzxData:	TzxData::writeFile(path,*this,TzxConversionDefault); break;
 		case isa_O80Data:	O80Data::writeFile(path,*this); break;
-		default: throw data_error("unknown file type");
+		default: throw DataError("unknown file type");
 	}
 }
 

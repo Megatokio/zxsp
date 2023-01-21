@@ -538,7 +538,7 @@ void TapData::writeToFile(FD& fd, bool omit_typebyte ) const throws // file_erro
 {
 	uint32 n = data.count();
 	if(n<2) return;		// too short: min. 2 bytes required for typebyte and checksum => ignore
-	if(n>=0x10002) throw data_error(".tap block ≥ $10002 bytes");	// too long
+	if(n>=0x10002) throw DataError(".tap block ≥ $10002 bytes");	// too long
 
 	fd.write_uint16_z(n-omit_typebyte);
 	fd.write_bytes(data.getData()+omit_typebyte,n-omit_typebyte);

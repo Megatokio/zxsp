@@ -257,7 +257,7 @@ void* IdeDevice::worker_proc()
 					file_writable = can_write;		// file is open R/W
 					disk_writable = can_write;		// true if also can_write set (not for CD-Rom)
 				}
-				catch(file_error&)
+				catch(FileError&)
 				{
 					diskfile.open_file(hd_path,O_RDONLY);
 					file_writable = no;
@@ -267,9 +267,9 @@ void* IdeDevice::worker_proc()
 				if(eq(lowerstr(extension_from_path(hd_path)),".hdf"))
 				{
 					uint8 bu[0x100]; diskfile.read_bytes(bu,0x100);
-					if(memcmp(bu,"RS-IDE\x1A",7)) throw file_error(diskfile,wrongmagic);
+					if(memcmp(bu,"RS-IDE\x1A",7)) throw FileError(diskfile,wrongmagic);
 					xlogline("  file version:  %02X",int(bu[7]));
-					if(bu[8]&1) throw file_error(diskfile,filecontainslowbytesonly); // does not work with DivIDE anyway
+					if(bu[8]&1) throw FileError(diskfile,filecontainslowbytesonly); // does not work with DivIDE anyway
 					if(bu[8]&2) logline("  ATAPI");		// ATAPI ignored. should work as CF card or HDD as well. TODO
 					base = peek2Z(bu+9);
 					uint n;
@@ -364,9 +364,9 @@ void* IdeDevice::worker_proc()
 			}
 			}
 		}
-		catch(any_error& e)
+		catch(AnyError& e)
 		{
-			hd_error = e.error;
+			hd_error = e.error();
 			continue;
 		}
 	}

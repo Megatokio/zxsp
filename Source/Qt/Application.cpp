@@ -317,9 +317,9 @@ int main( int argc, char *argv[] )
 	{
 		return app.exec();
 	}
-	catch(any_error& e)
+	catch(AnyError& e)
 	{
-		logline("\nzxsp: Unhandled exception:\n%s (%i)\n", e.what(), e.error);
+		logline("\nzxsp: Unhandled exception:\n%s (%i)\n", e.what(), e.error());
 		return 112; // error
 	}
 }

@@ -154,7 +154,7 @@ static void read_compressed_page( FD& fd, uint qsize, CoreByte* z, uint zsize ) 
 	if(z==z_end && q+4<=q_end && zsize==0xC000 &&	// version 1.45 file with end marker ?
 	   *q++==0 && *q++==0xed && *q++==0xed && *q++==0) return;
 
-e:  throw data_error("File corrupted: decoding of a compressed block failed");
+e:  throw DataError("File corrupted: decoding of a compressed block failed");
 }
 
 
@@ -418,7 +418,7 @@ void Machine::loadZ80_attach_joysticks(uint z80head_im)
 	query model beforehand with Z80Head.getZxspModel()
 	--> machine is powered up but suspended
 */
-void Machine::loadZ80(FD &fd) noexcept(false) /*file_error,data_error*/
+void Machine::loadZ80(FD &fd) noexcept(false) /*file_error,DataError*/
 {
 	xlogIn("Machine:loadZ80");
 
@@ -504,7 +504,7 @@ void Machine::loadZ80(FD &fd) noexcept(false) /*file_error,data_error*/
 	{
 		Item* xram = findIsaItem(isa_ExternalRam);
 		if(xram && !ismainthread)
-			 throw data_error("Cannot detach ram extension on background thread");	// can't happen for zxsp models
+			 throw DataError("Cannot detach ram extension on background thread");	// can't happen for zxsp models
 		else delete xram;
 		if(model==jupiter) addExternalItem(isa_Jupiter16kRam);
 		else if(model_info->has_zxsp_bus) addExternalItem(isa_Cheetah32kRam);
@@ -515,7 +515,7 @@ void Machine::loadZ80(FD &fd) noexcept(false) /*file_error,data_error*/
 			 else new Memotech64kRam(this);
 		}
 		if(ram.count() < req_ramsize)
-			throw data_error("Snapshot: can't find a suitable ram extension to load this file");
+			throw DataError("Snapshot: can't find a suitable ram extension to load this file");
 	}
 
 	// set T cycle counter and reset machine:
@@ -580,7 +580,7 @@ void Machine::loadZ80(FD &fd) noexcept(false) /*file_error,data_error*/
 
 		if(page>=3 && page<32+3)
 		{
-			if(loaded & (1<<(page-3))) throw data_error("Snapshot: page index occured twice");
+			if(loaded & (1<<(page-3))) throw DataError("Snapshot: page index occured twice");
 			loaded |= 1<<(page-3);
 		}
 
@@ -598,7 +598,7 @@ void Machine::loadZ80(FD &fd) noexcept(false) /*file_error,data_error*/
 
 		case 2:
 			xlogline("--> Boot Rom");		// rom page 1: +128k BOOT rom
-			if(rom.count() < 0x8000) throw data_error("Snapshot: rom page index out of range");
+			if(rom.count() < 0x8000) throw DataError("Snapshot: rom page index out of range");
 			read_compressed_page(fd,len,&rom[0x4000],0x4000);
 			break;
 
@@ -633,7 +633,7 @@ loadrampage:
 
 			if(varying_ramsize)
 			{
-				if(page > 7) throw data_error("Snapshot: page index out of range");
+				if(page > 7) throw DataError("Snapshot: page index out of range");
 				uint size = 0x400u << page;
 				assert(addr+size <= ram.count());
 				read_compressed_page(fd, len, &ram[addr], size);
@@ -641,7 +641,7 @@ loadrampage:
 			}
 			else
 			{
-				if(page >= (ram.count()>>14)) throw data_error("Snapshot: page index out of range");
+				if(page >= (ram.count()>>14)) throw DataError("Snapshot: page index out of range");
 				read_compressed_page(fd, len, &ram[page<<14], 0x4000);
 				if(spectra!=NULL)
 				{
@@ -664,7 +664,7 @@ loadrampage:
 
 	uint32 needed = varying_ramsize ? (req_ramsize/0x400)						// up to 255k
 									: ~((0xffffffff << (req_ramsize/0x4000)));	// up to 512k
-	if(needed & ~loaded) throw data_error("Snapshot: some pages are missing");
+	if(needed & ~loaded) throw DataError("Snapshot: some pages are missing");
 
 	if(spectra_used)
 	{

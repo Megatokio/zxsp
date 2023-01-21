@@ -155,7 +155,7 @@ void CheckUpdate::slot_finished()
 		default: break;
 		}
 	}
-	catch(any_error& e)
+	catch(AnyError& e)
 	{
 		if(verbose) showWarning("CheckUpdate: %s",e.what());
 		else xlogline("CheckUpdate: %s",e.what());

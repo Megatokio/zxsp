@@ -91,7 +91,7 @@ void ScreenMono::do_ffb_or_vbi() noexcept(false)
 
 		MonoGifWriter* gif = new MonoGifWriter(this,no);
 		try{ gif->saveScreenshot(path,new_pixels,screen_w,screen_h,frame_w,frame_h,screen_x0,screen_y0); }
-		catch(file_error& e){ showWarning("File error: %s",e.what()); }
+		catch(FileError& e){ showWarning("File error: %s",e.what()); }
 		delete[] path;
 		delete gif;
 	}
@@ -107,7 +107,7 @@ void ScreenMono::do_ffb_or_vbi() noexcept(false)
 		{
 			gif_writer->startRecording(path);
 		}
-		catch(file_error& e)
+		catch(FileError& e)
 		{
 			showWarning("File error: %s",e.what());
 			delete gif_writer;
@@ -123,7 +123,7 @@ void ScreenMono::do_ffb_or_vbi() noexcept(false)
 			MonoGifWriterPtr(gif_writer)->writeFrame(
 				new_pixels,screen_w,screen_h,frame_w,frame_h,screen_x0,screen_y0);
 		}
-		catch(file_error& e)
+		catch(FileError& e)
 		{
 			showWarning("File error: %s",e.what());
 			delete gif_writer;

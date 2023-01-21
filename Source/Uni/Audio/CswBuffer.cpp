@@ -220,7 +220,7 @@ void CswBuffer::growBuffer(uint32 n) throws/*bad alloc*/
 void CswBuffer::shrinkToFit() noexcept
 {
 	try { if(max>end) grow(end); }
-	catch(bad_alloc&){}
+	catch(std::bad_alloc&){}
 }
 
 

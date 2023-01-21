@@ -247,7 +247,7 @@ void RzxFile::rewind()
 	throws:	state --> OutOfSync: file empty, snapshot missing, data corrupted or truncated:
 								 after rewind() the file may become playable up to the error position.
 */
-void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // data_error,file_error
+void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // DataError,file_error
 {
 	xlogIn("RzxFile.readFile(%s)",filename);
 
@@ -267,18 +267,18 @@ void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // data_error,fi
 	FD fd(filename);			// throws
 	uint8 bu[10];
 	fd.read_bytes(bu,10);
-	if(memcmp(bu,"RZX!",4)) throw data_error(wrongfiletype);
+	if(memcmp(bu,"RZX!",4)) throw DataError(wrongfiletype);
 
 	xlogline("rzx file version = %u.%u",bu[4],bu[5]);
 	rzx_file_version = peek2X(bu+4);				// MSB first
 	if(rzx_file_version > MaxRzxLibraryVersion)
-		throw data_error(wrongfiletype, usingstr("unsupported rzx file version %u.%u", bu[4],bu[5]));
+		throw DataError(wrongfiletype, usingstr("unsupported rzx file version %u.%u", bu[4],bu[5]));
 
 	uint32 flags = peek4Z(bu+6);
 	if(flags) xlogline("flags = 0x%08X",flags);
 
 	off_t filesize = fd.file_size();
-	if(filesize > 99 MB) throw data_error("file too long");
+	if(filesize > 99 MB) throw DataError("file too long");
 
 
 	// read the blocks:
@@ -288,7 +288,7 @@ void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // data_error,fi
 		uint   btyp = fd.read_uint8();
 		uint32 blen = fd.read_uint32_z();
 		fileposition += blen;
-		if(fileposition > filesize) throw data_error("Block 0x%02X exceeds file size", btyp);
+		if(fileposition > filesize) throw DataError("Block 0x%02X exceeds file size", btyp);
 
 		switch(btyp)
 		{
@@ -302,7 +302,7 @@ void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // data_error,fi
 
 			xlogline("Creator Information Block");
 
-			if(blen < 0x1D) throw data_error("block too short");
+			if(blen < 0x1D) throw DataError("block too short");
 			{
 				str s = newstr(20); fd.read_bytes(s,20);
 				for(int i=20;i && (s[--i]==' '||s[i]==0);) { s[i]=0; }	// SpecEmu pads with spaces up to slen=19
@@ -324,7 +324,7 @@ void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // data_error,fi
 				block.readSnapshotBlock(fd,blen,filename);
 				if(snapshotOnly) return;
 			}
-			catch(any_error&)
+			catch(AnyError&)
 			{
 				block.kill();
 				blocks.drop();
@@ -348,7 +348,7 @@ void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // data_error,fi
 				}
 				else block.compress();
 			}
-			catch(any_error&)
+			catch(AnyError&)
 			{
 				// if readInputRecordingBlock() throws, then the block is usable but truncated, maybe empty.
 				if(block.num_frames==0) { block.kill(); blocks.drop(); }
@@ -389,13 +389,13 @@ void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // data_error,fi
 		}
 
 		if(fd.file_position() == fileposition) continue;
-		if(fd.file_position() > fileposition) throw data_error("block data exceeds block length");
+		if(fd.file_position() > fileposition) throw DataError("block data exceeds block length");
 		xlogline("%u unused bytes at end of block", fileposition - fd.file_position());
 		fd.seek_fpos(fileposition);
 	}
 
-	if(blocks.count()==0) throw data_error("file contains no data");	// no Block 0x30 or 0x80
-	if(blocks[0].isaInputRecordingBlock()) throw data_error("file has no initial snapshot");
+	if(blocks.count()==0) throw DataError("file contains no data");	// no Block 0x30 or 0x80
+	if(blocks[0].isaInputRecordingBlock()) throw DataError("file has no initial snapshot");
 
 	//bi = 0;
 	state = Snapshot;	// position = Snapshotfile Block
@@ -820,7 +820,7 @@ cstr RzxFile::getFirstSnapshot(cstr filename)
 {
 	RzxFile rzx;
 	try { rzx.readFile(filename,yes); }
-	catch(any_error&) {}
+	catch(AnyError&) {}
 
 	if(rzx.blocks.count() && rzx.blocks.last().isaSnapshotBlock())
 		return rzx.blocks.last().snapshot_filename;

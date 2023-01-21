@@ -462,7 +462,7 @@ CswBuffer::CswBuffer(AudioData const& qa, uint32 ccps)
 			qa.audio_decoder->seekSamplePosition(qa.adc_start_pos);
 			qa.audio_decoder->read(samples,count,1/*num.channels*/);
 		}
-		catch(any_error& e)
+		catch(AnyError& e)
 		{
 			delete[] samples;
 			showAlert("Reading \"%s\" failed:\n%s", qa.audio_decoder->getFilename(), e.what());

@@ -216,7 +216,7 @@ void MachineZx81::saveP81(FD &fd, bool p81) noexcept(false) /*file_error,data_er
 	//   if saved while the ZX81 is waiting at the command prompt!
 
 	uint end = cpu->peek2(0x4014);
-	if( end<0x403c ) throw data_error("Save Tape: illegal sysvar E_LINE ($4014): %u",end);
+	if( end<0x403c ) throw DataError("Save Tape: illegal sysvar E_LINE ($4014): %u",end);
 
 // get data
 	uint16 cnt = end - 0x4009u;

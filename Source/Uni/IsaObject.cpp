@@ -55,7 +55,7 @@ void IsaObject::saveToFile( FD& fd ) const noexcept(false) /*file_error,bad_allo
 //virtual
 void IsaObject::loadFromFile( FD& fd ) noexcept(false) /*file_error,bad_alloc,data_error*/
 {
-	if(fd.read_uint8()!=magic) throw data_error("IsaObject magic corrupted");
+	if(fd.read_uint8()!=magic) throw DataError("IsaObject magic corrupted");
 	delete[]name; name=NULL;
 	name = fd.read_nstr();
 }

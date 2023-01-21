@@ -406,9 +406,9 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 
 #if 0
 	status = UpdateDeviceList();
-	if(status) throw any_error("Dsp:UpdateDeviceList");
+	if(status) throw AnyError("Dsp:UpdateDeviceList");
 	status = AudioHardwareAddPropertyListener(kAudioHardwarePropertyDevices, AHPropertyListenerProc, NULL );
-	if(status) throw any_error("AudioHardwareAddPropertyListener");
+	if(status) throw AnyError("AudioHardwareAddPropertyListener");
 #endif
 
 // block audio interrupt until setup completed:
@@ -437,8 +437,8 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 		status = AudioObjectGetPropertyData( kAudioObjectSystemObject, &address,		// kio 2012-04-29
 											 0,NULL, &propertySize, &output_device_id);	// kio 2012-04-29
 
-		if(status) throw any_error("GetDefaultOutputDevice");
-		if(output_device_id == kAudioDeviceUnknown) throw any_error("GetDefaultOutputDevice: kAudioDeviceUnknown");
+		if(status) throw AnyError("GetDefaultOutputDevice");
+		if(output_device_id == kAudioDeviceUnknown) throw AnyError("GetDefaultOutputDevice: kAudioDeviceUnknown");
 
 	// Check & print output device status
 
@@ -455,7 +455,7 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 			&propertySize,					// UInt32* ioDataSize 							// kio 2012-04-29
 			&outputStreamBasicDescription);	// void* outData   								// kio 2012-04-29
 
-		if(status) throw any_error("GetOutputStreamFormat");
+		if(status) throw AnyError("GetOutputStreamFormat");
 
 		{	logIn ( "Dsp: CoreAudio default output device:" );
 			logline ( "%.2f mSampleRate",       outputStreamBasicDescription.mSampleRate		);
@@ -472,8 +472,8 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 		UInt32 ocpf = outputStreamBasicDescription.mChannelsPerFrame;
 		UInt32 obpf = outputStreamBasicDescription.mBytesPerFrame;
 
-		if( ofmt != kAudioFormatLinearPCM ) throw any_error("Default Audio Output Device does not use Linear PCM");
-		if( obpf != ocpf * sizeof(Sample) )	throw any_error("Default Audio Output Device has not 4 bytes per sample");
+		if( ofmt != kAudioFormatLinearPCM ) throw AnyError("Default Audio Output Device does not use Linear PCM");
+		if( obpf != ocpf * sizeof(Sample) )	throw AnyError("Default Audio Output Device has not 4 bytes per sample");
 
 	// Configure output device
 
@@ -491,16 +491,16 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 			propertySize,		// UInt32 inDataSize, 							// kio 2012-04-29
 			&bufferByteCount);	// const void* inData							// kio 2012-04-29
 
-		if(status) throw any_error("SetOutputBufferSize");
+		if(status) throw AnyError("SetOutputBufferSize");
 
 	// Start audio output interrupt
 
 		status = AudioDeviceCreateIOProcID(output_device_id, audioDeviceIOProc, NULL, &audio_out_ioProcID);	// kio 2012-04-29
-		if(status) throw any_error("AudioDeviceCreateIOProcID");									// kio 2012-04-29
-		if(audio_out_ioProcID==NULL) throw any_error("AudioDeviceCreateIOProcID returned NULL");    // kio 2012-04-29
+		if(status) throw AnyError("AudioDeviceCreateIOProcID");									// kio 2012-04-29
+		if(audio_out_ioProcID==NULL) throw AnyError("AudioDeviceCreateIOProcID returned NULL");    // kio 2012-04-29
 
 		status = AudioDeviceStart(output_device_id, audio_out_ioProcID);                            // kio 2012-04-29
-		if(status) throw any_error("AudioDeviceStart(output)");
+		if(status) throw AnyError("AudioDeviceStart(output)");
 	}
 	catch(std::exception& e)
 	{
@@ -527,8 +527,8 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 		status = AudioObjectGetPropertyData( kAudioObjectSystemObject,&address, 0,NULL,	// kio 2012-04-29
 											 &propertySize, &input_device_id );			// kio 2012-04-29
 
-		if(status) throw any_error("GetDefaultInputDevice");
-		if(input_device_id == kAudioDeviceUnknown) throw any_error("GetDefaultInputDevice: kAudioDeviceUnknown");
+		if(status) throw AnyError("GetDefaultInputDevice");
+		if(input_device_id == kAudioDeviceUnknown) throw AnyError("GetDefaultInputDevice: kAudioDeviceUnknown");
 
 		xlogline( "Dsp: Input and output device are %s.", output_device_id==input_device_id?"same":"different" );
 
@@ -547,7 +547,7 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 			&propertySize,					// UInt32* ioDataSize 				// kio 2012-04-29
 			&inputStreamBasicDescription);	// void* outData   					// kio 2012-04-29
 
-		if(status) throw any_error("GetInputStreamFormat");
+		if(status) throw AnyError("GetInputStreamFormat");
 
 		{	logIn ( "Dsp: CoreAudio default input device:" );
 			logline ( "%.2f mSampleRate",       inputStreamBasicDescription.mSampleRate		);	// 44100
@@ -562,10 +562,10 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 		UInt32 icpf = inputStreamBasicDescription.mChannelsPerFrame;
 		UInt32 ibpf = inputStreamBasicDescription.mBytesPerFrame;
 
-		if( ifmt != kAudioFormatLinearPCM)	throw any_error("Default Audio Input Device does not use Linear PCM");
-		if( ibpf != icpf*sizeof(Sample) )	throw any_error("Default Audio Input Device has not 4 bytes per sample");
+		if( ifmt != kAudioFormatLinearPCM)	throw AnyError("Default Audio Input Device does not use Linear PCM");
+		if( ibpf != icpf*sizeof(Sample) )	throw AnyError("Default Audio Input Device has not 4 bytes per sample");
 		if( samples_per_second != Frequency(inputStreamBasicDescription.mSampleRate) )
-											throw any_error("Audio-in and -out sampling frequencies differ");
+											throw AnyError("Audio-in and -out sampling frequencies differ");
 
 	// Configure input device
 
@@ -586,22 +586,22 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 				propertySize,		// UInt32 inDataSize, 							// kio 2012-04-29
 				&bufferByteCount);	// const void* inData							// kio 2012-04-29
 
-			if(status) throw any_error("SetBufferSize");
+			if(status) throw AnyError("SetBufferSize");
 
 		// Start audio input interrupt
 
 			status = AudioDeviceCreateIOProcID(input_device_id, audioDeviceIOProc, NULL, &audio_in_ioProcID);	// kio 2012-04-29
-			if(status) throw any_error("AudioDeviceCreateIOProcID");                                            // kio 2012-04-29
-			if(audio_in_ioProcID==NULL) throw any_error("AudioDeviceCreateIOProcID returned NULL");         	// kio 2012-04-29
+			if(status) throw AnyError("AudioDeviceCreateIOProcID");                                            // kio 2012-04-29
+			if(audio_in_ioProcID==NULL) throw AnyError("AudioDeviceCreateIOProcID returned NULL");         	// kio 2012-04-29
 			status = AudioDeviceStart(input_device_id, audio_in_ioProcID);                                      // kio 2012-04-29
-			if(status) throw any_error("AudioDeviceStart");
+			if(status) throw AnyError("AudioDeviceStart");
 		}
 
 		audio_input_device_present = yes;
 		audio_input_device_enabled = input_enabled;
 //		setPlaythrough( playthrough_mode );
 	}
-	catch( any_error& e )
+	catch( AnyError& e )
 	{
 		if(settings.get_bool(key_warn_if_audio_in_fails,yes))
 		{

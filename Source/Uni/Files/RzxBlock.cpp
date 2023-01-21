@@ -29,18 +29,18 @@
 
 
 
-void throw_zlib_error(int err) noexcept(false) // data_error
+void throw_zlib_error(int err) noexcept(false) // DataError
 {
 	switch(err)
 	{
-	case Z_STREAM_END:		throw data_error("zlib: stream end");
-	case Z_NEED_DICT:		throw data_error("zlib: need dict");
+	case Z_STREAM_END:		throw DataError("zlib: stream end");
+	case Z_NEED_DICT:		throw DataError("zlib: need dict");
 	case Z_OK:				return;
-	case Z_BUF_ERROR:		throw data_error(zlibbuffererror);	// decompressed data too long
-	case Z_MEM_ERROR:		throw data_error(zliboutofmemory);	// => can be catched as a data_error
-	case Z_DATA_ERROR:		throw data_error(zlibdataerror);	// data corrupted
-	case Z_VERSION_ERROR:	throw data_error(zlibversionerror);
-	default:				throw data_error("zlib: unknown error %i",err);
+	case Z_BUF_ERROR:		throw DataError(zlibbuffererror);	// decompressed data too long
+	case Z_MEM_ERROR:		throw DataError(zliboutofmemory);	// => can be catched as a DataError
+	case Z_DATA_ERROR:		throw DataError(zlibdataerror);	// data corrupted
+	case Z_VERSION_ERROR:	throw DataError(zlibversionerror);
+	default:				throw DataError("zlib: unknown error %i",err);
 	}
 }
 
@@ -319,7 +319,7 @@ void RzxBlock::_compress()
 //	if ucsize!=0 then it is assumed that ucbu[ucsize] was formerly valid
 //		and ucsize is the uncompressed size of cbu[]
 //
-void RzxBlock::_uncompress() noexcept(false) // data_error
+void RzxBlock::_uncompress() noexcept(false) // DataError
 {
 	assert(isaInputRecordingBlock());
 	assert(ucmax==0 || ucbu!=NULL);
@@ -356,7 +356,7 @@ void RzxBlock::_uncompress() noexcept(false) // data_error
 		{
 			if(newsize > 666 MB) // worst case assumption for 4h gameplay with 30' tape loading in one block…
 			{
-				if(ucsize == 666 MB) throw data_error("zlib bomb");
+				if(ucsize == 666 MB) throw DataError("zlib bomb");
 				else newsize = 666 MB;
 			}
 
@@ -697,7 +697,7 @@ int RzxBlock::rewind()
 	return > 0	icount
 		   -1	state = EndOfBlock
 */
-int RzxBlock::uncompress() noexcept(false) // data_error
+int RzxBlock::uncompress() noexcept(false) // DataError
 {
 	xlogIn("RzxBlock::uncompress");
 
@@ -747,10 +747,10 @@ void RzxBlock::compress()
 	out: at start of block
 
 	throw file_error: real problem, not just EndOfFile. the block is empty.
-	throw data_error: EndOfFile, uncompression error, error in block or frame data.
+	throw DataError: EndOfFile, uncompression error, error in block or frame data.
 					  the block is usable but truncated at the error position.
 */
-void RzxBlock::readInputRecordingBlock(FD& fd, uint32 blen) throws // file_error,data_error
+void RzxBlock::readInputRecordingBlock(FD& fd, uint32 blen) throws // file_error,DataError
 {
 	xlogIn("read Input Recording Block");
 
@@ -773,7 +773,7 @@ void RzxBlock::readInputRecordingBlock(FD& fd, uint32 blen) throws // file_error
 	kill();
 	init(IsaInputRecordingBlock);
 
-	if(blen<18) throw data_error("block too short");
+	if(blen<18) throw DataError("block too short");
 	blen -= 18;								// payload data length
 
 	uint32 frames = fd.read_uint32_z();		// number of frames
@@ -794,14 +794,14 @@ void RzxBlock::readInputRecordingBlock(FD& fd, uint32 blen) throws // file_error
 
 	// num frames testen:
 	// TODO: ggf. Block splitten
-	//if(frames > 12*60*60*60) throw data_error("illegal num_frames");	// 12 Stunden @ 60 Hz
+	//if(frames > 12*60*60*60) throw DataError("illegal num_frames");	// 12 Stunden @ 60 Hz
 
 	if(flags&2)	// compressed data
 	{
 		cbu = new uint8[blen];
 		csize = fd.read_bytes(&cbu[0], blen, 123);
 		try { _uncompress(); }
-		catch(data_error& e)
+		catch(DataError& e)
 		{
 			scan_ucbu();
 			rewind();
@@ -822,10 +822,10 @@ void RzxBlock::readInputRecordingBlock(FD& fd, uint32 blen) throws // file_error
 	rewind();
 
 	if(flags&2 ? csize!=blen : zsize!=blen)		// EndOfFile in fd.read_bytes()
-		throw data_error("file truncated");
+		throw DataError("file truncated");
 
 	if(num_frames != frames)
-		throw data_error(num_frames<frames ? "less frames than expected" : "more frames than expected");
+		throw DataError(num_frames<frames ? "less frames than expected" : "more frames than expected");
 
 	if(ucsize != zsize)
 		xlogline("some dirt after frames. (ignored)");
@@ -836,7 +836,7 @@ void RzxBlock::readInputRecordingBlock(FD& fd, uint32 blen) throws // file_error
 	in:	blen = block length from rzx file
 	if readSnapshot throws, then the snapshot_filename is NULL.
 */
-void RzxBlock::readSnapshotBlock(FD& fd, uint32 blen, cstr filename) throws // file_error,data_error
+void RzxBlock::readSnapshotBlock(FD& fd, uint32 blen, cstr filename) throws // file_error,DataError
 {
 	//	0x00 	0x30 	BYTE		Snapshot block ID
 	//	0x01 	17+SL 	DWORD		Block length
@@ -856,7 +856,7 @@ void RzxBlock::readSnapshotBlock(FD& fd, uint32 blen, cstr filename) throws // f
 	kill();
 	init(IsaSnapshotBlock);
 
-	if(blen<17) throw data_error("block too short");
+	if(blen<17) throw DataError("block too short");
 	blen -= 17;									// payload data length
 
 	uint32 flags = fd.read_uint32_z();			// flags: b0=snapshot descriptor, b1=compressed
@@ -867,7 +867,7 @@ void RzxBlock::readSnapshotBlock(FD& fd, uint32 blen, cstr filename) throws // f
 
 	if(flags&1)			// external data
 	{
-		if(blen>MAXPATHLEN) throw data_error("snapshot filepath too long");
+		if(blen>MAXPATHLEN) throw DataError("snapshot filepath too long");
 
 		fd.skip_bytes(4);						// skip crc: probably always 0
 		blen -= 4;								// snapshot filename length
@@ -879,8 +879,8 @@ void RzxBlock::readSnapshotBlock(FD& fd, uint32 blen, cstr filename) throws // f
 	}
 	else if(flags&2)	// compressed snapshot
 	{
-		if(blen > 1 MB)  throw data_error("compressed snapshot too long");
-		if(uclen > 1 MB) throw data_error("uncompressed snapshot too long");
+		if(blen > 1 MB)  throw DataError("compressed snapshot too long");
+		if(uclen > 1 MB) throw DataError("uncompressed snapshot too long");
 
 		xlogline("compressed data: %u --> %u bytes",blen,uclen);
 
@@ -904,7 +904,7 @@ void RzxBlock::readSnapshotBlock(FD& fd, uint32 blen, cstr filename) throws // f
 			uLongf zlen = uclen;
 			int err = ::uncompress( &zbu[0], &zlen, &qbu[0], blen );
 			if(err) throw_zlib_error(err);
-			if(zlen!=uclen) throw data_error("zlib: decompressed data has wrong size");
+			if(zlen!=uclen) throw DataError("zlib: decompressed data has wrong size");
 			xlogline("tempfile = %s",ssfn);
 			FD zd(ssfn,'w');
 			zd.write_bytes(&zbu[0],zlen);
@@ -912,8 +912,8 @@ void RzxBlock::readSnapshotBlock(FD& fd, uint32 blen, cstr filename) throws // f
 	}
 	else				// uncompressed snapshot
 	{
-		if(uclen != blen) throw data_error("uncompressed snapshot length mismatch");
-		if(uclen > 1 MB)  throw data_error("uncompressed snapshot too long");
+		if(uclen != blen) throw DataError("uncompressed snapshot length mismatch");
+		if(uclen > 1 MB)  throw DataError("uncompressed snapshot too long");
 
 		xlogline("uncompressed data: %u bytes",blen);
 

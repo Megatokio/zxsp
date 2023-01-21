@@ -74,7 +74,7 @@ DivIDE::DivIDE(Machine* machine)
 		{
 			insertRom(fpath);
 		}
-		catch(file_error& e)
+		catch(FileError& e)
 		{
 			showWarning("I could not load the recent Rom:\n%s\nI'll load " DEFAULT_ROM_NAME " instead.",e.what());
 			settings.remove(key_divide_rom_file);	// sonst krakeelt der beim nächsten mal wieder
@@ -87,7 +87,7 @@ DivIDE::DivIDE(Machine* machine)
 		{
 			insertRom(DEFAULT_ROM_PATH);
 		}
-		catch(file_error& e)
+		catch(FileError& e)
 		{
 			showAlert("I could not find the internal DivIDE rom:\n%s\nI'll remove jumper 'E' for you...",e.what());
 			jumper_E = false;
@@ -460,12 +460,12 @@ int DivIDE::insertRom(cstr path, bool silent)
 		applyRomPatches();
 		return ok;
 	}
-	catch(file_error& e)
+	catch(FileError& e)
 	{
 		if(!silent) showAlert("File %s:\n%s",e.filepath,e.what());
 		delete[] romfilepath;
 		romfilepath = NULL;
-		return e.error;
+		return e.error();
 	}
 }
 

@@ -399,10 +399,10 @@ void O80Data::zx81_read_from_file( FD& fd, bool incl_pname ) noexcept(false) // 
 		fd.read_bytes(&data[0],n);						// prog name + some sysvars + evtl. some prog data
 
 		uint l = zx81_progname_len(data.getData(),n);
-		if(n-l < 12) throw file_error(fd,endoffile);
+		if(n-l < 12) throw FileError(fd,endoffile);
 
 		uint end = peek2Z(data.getData()+l+0x4014-0x4009);
-		if(end<0x4015) throw data_error("data corrupted: ($4014) < $4015");
+		if(end<0x4015) throw DataError("data corrupted: ($4014) < $4015");
 
 		data.grow(end-0x4009+l);
 		fd.read_bytes(&data[n],end-0x4009+l-n);			// remaining sysvars & program data.  throws at eof
@@ -432,10 +432,10 @@ void O80Data::write_block_to_p81_file(FD &fd) const noexcept(false) // file_erro
 	uint  n = data.count();
 	uint  l = zx81_progname_len(p,n);
 
-	if(n-l < 0x4015-0x4009) throw data_error("data corrupted: data does not include sysvar $4014");
+	if(n-l < 0x4015-0x4009) throw DataError("data corrupted: data does not include sysvar $4014");
 
 	uint end = peek2Z(p+l+0x4014-0x4009);
-	if(n-l < end -0x4009) throw data_error("data corrupted: data size does not match sysvar $4014");
+	if(n-l < end -0x4009) throw DataError("data corrupted: data size does not match sysvar $4014");
 
 	fd.write_bytes(p, end -0x4009 +l);
 }

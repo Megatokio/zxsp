@@ -272,7 +272,7 @@ void Machine::load_rom()
 		FD fd( catstr(appl_rsrc_path, "Roms/", model_info->rom_filename) );	// throws
 		read_mem(fd, rom.getData(), rom.count() );							// throws
 	}
-	catch (any_error& e)
+	catch (AnyError& e)
 	{
 		logline("load rom failed: %s", e.what());
 		rom[0] = HALT;
@@ -1343,13 +1343,13 @@ void Machine::rzx_load_snapshot(int32& cc_final, int32& ic_end)
 		{
 			FD fd(filename);
 			Model id = modelForZ80(fd);
-			if(id==unknown_model) throw data_error("illegal model in file");
-			if(model!=id)     throw data_error("snapshot requires different model.");
+			if(id==unknown_model) throw DataError("illegal model in file");
+			if(model!=id)     throw DataError("snapshot requires different model.");
 
 			loadZ80(fd);
 			_resume();
 		}
-		catch(any_error& e)
+		catch(AnyError& e)
 		{
 			cc = old_cc;
 			rzxOutOfSync(usingstr("RZX file: load .z80 snapshot: %s", e.what()));
@@ -1396,7 +1396,7 @@ void Machine::rzx_store_snapshot()
 		cpu->setInstrCount(0);
 		rzx_file->startBlock(cpu->cpuCycle());
 	}
-	catch(any_error& e)
+	catch(AnyError& e)
 	{
 		rzxOutOfSync(catstr("recording rzx: store snapshot: ",e.what()),yes);
 	}

@@ -319,7 +319,7 @@ void Screen::do_render_thread()
 
 				if(gif_writer)
 				try{ gif_writer->stopRecording(); }
-				catch(file_error& e){ showWarning("File error: %s",e.what()); }
+				catch(FileError& e){ showWarning("File error: %s",e.what()); }
 				delete gif_writer; gif_writer = NULL;
 				continue;
 			}
@@ -509,7 +509,7 @@ void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
 		{
 			gif->saveScreenshot(path,ioinfo,ioinfo_count,attrpixels,cc_per_scanline,cc_start_of_screenfile);
 		}
-		catch(file_error& e)
+		catch(FileError& e)
 		{
 			showWarning("File error: %s",e.what());
 		}
@@ -528,7 +528,7 @@ void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
 		{
 			gif_writer->startRecording(path);
 		}
-		catch(file_error& e)
+		catch(FileError& e)
 		{
 			showWarning("File error: %s",e.what());
 			delete gif_writer;
@@ -544,7 +544,7 @@ void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
 			ZxspGifWriterPtr(gif_writer)->writeFrame(
 				ioinfo, ioinfo_count, attrpixels, cc_per_scanline, cc_start_of_screenfile, flashphase);
 		}
-		catch(file_error& e)
+		catch(FileError& e)
 		{
 			showWarning("File error: %s",e.what());
 			delete gif_writer;

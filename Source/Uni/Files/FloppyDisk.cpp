@@ -127,7 +127,7 @@ void FloppyDisk::saveDisk() throws
 		fd.close_file(1);
 		modified = no;
 	}
-	catch(file_error& e)
+	catch(FileError& e)
 	{
 		showAlert(e.what());
 	}
@@ -156,7 +156,7 @@ void FloppyDisk::setFilepath(cstr fpath)
 	fpath = fullpath(fpath);
 	filepath = newcopy(fpath);
 	try { create_file(fpath); }		// touch
-	catch(file_error&) {}
+	catch(FileError&) {}
 	writeprotected = !fileIsWritable();
 }
 

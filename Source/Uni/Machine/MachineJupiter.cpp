@@ -316,8 +316,8 @@ static uint read_compressed_data( FD& fd, uint qsize, uint8* z ) throws
 		};
 	}
 
-	if(q==q_end) throw file_error(fd,endoffile);
-	else throw data_error("decompressed data exceeds maximum size ($E000)");
+	if(q==q_end) throw FileError(fd,endoffile);
+	else throw DataError("decompressed data exceeds maximum size ($E000)");
 }
 
 void MachineJupiter::loadAce(FD& fd) noexcept(false) /*file_error,data_error*/
@@ -332,9 +332,9 @@ void MachineJupiter::loadAce(FD& fd) noexcept(false) /*file_error,data_error*/
 	uint8 bu[0x1C000];
 	uint zsize = read_compressed_data(fd,fd.file_size(),bu);
 
-	if(zsize<0x2000) throw data_error("decompressed ram image too short (<$2000)");
+	if(zsize<0x2000) throw DataError("decompressed ram image too short (<$2000)");
 	zsize = min(zsize, uint(peek2Z(bu+0x80))-0x2000u);
-	if(zsize<0x2000) throw data_error("RAMTOP too low (<$4000)");
+	if(zsize<0x2000) throw DataError("RAMTOP too low (<$4000)");
 
 	if(zsize==0x2000)	   	//  8k => jupiter 3k without ram extension
 	{
@@ -344,9 +344,9 @@ void MachineJupiter::loadAce(FD& fd) noexcept(false) /*file_error,data_error*/
 	{
 		if(ram.count()<19*1024) addExternalItem(isa_Jupiter16kRam);
 	}
-	else throw data_error("this snapshot needs more than 16K external ram (TODO)");
+	else throw DataError("this snapshot needs more than 16K external ram (TODO)");
 
-	if(bu[0x130]>2) throw data_error("invalid interrupt mode (im=%i)",int(bu[0x130]));
+	if(bu[0x130]>2) throw DataError("invalid interrupt mode (im=%i)",int(bu[0x130]));
 
 	// we need to power on the machine but it must not runForSound()
 	// don't block: we might be called from runForSound()!
