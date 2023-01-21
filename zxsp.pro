@@ -89,6 +89,7 @@ SOURCES +=	\
 	Libraries/audio/audio.cpp \
 	Libraries/audio/WavFile.cpp \
 	Libraries/Z80/goodies/z80_clock_cycles.cpp \
+	Libraries/Z80/goodies/z180_clock_cycles.cpp \
 	Libraries/Z80/goodies/z80_opcode_length.cpp \
 	Libraries/Z80/goodies/z80_major_opcode.cpp \
 	\
@@ -104,6 +105,9 @@ SOURCES +=	\
 	zasm/Source/listfile.cpp \
 	zasm/Source/SyntaxError.cpp \
 	zasm/Source/zx7.cpp \
+	zasm/Source/assemble8080.cpp \
+	zasm/Source/assembleZ80.cpp \
+	zasm/Source/convert8080.cpp \
 	\
 	Source/Qt/qt_util.cpp \
 	Source/Qt/Settings.cpp \
@@ -360,10 +364,9 @@ HEADERS += \
 	Libraries/audio/audio.h \
 	Libraries/audio/WavFile.h \
 	\
-	Libraries/Z80/goodies/z80_clock_cycles.h \
-	Libraries/Z80/goodies/z80_opcode_length.h \
-	Libraries/Z80/goodies/z80_major_opcode.h \
 	Libraries/Z80/goodies/z80_opcodes.h \
+	Libraries/Z80/goodies/z80_goodies.h \
+
 
 
 # zasm Z80 Assembler Headers:
