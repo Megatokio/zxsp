@@ -55,13 +55,13 @@ protected:
 		uint32 lba_address;
 		struct
 		{
-		#ifdef _LITTLE_ENDIAN
+		#ifdef __LITTLE_ENDIAN__
 			uint8	sector_number;		// lba_0_7		// rw
 			uint8	cylinder_low;		// lba_8_15		// rw
 			uint8	cylinder_high;		// lba_16_23	// rw
 			uint8	drive_head;			// lba_24_28	// rw
 		#endif
-		#ifdef _BIG_ENDIAN
+		#ifdef __BIG_ENDIAN__
 			uint8	drive_head;			// lba_24_28	// rw
 			uint8	cylinder_high;		// lba_16_23	// rw
 			uint8	cylinder_low;		// lba_8_15		// rw

@@ -682,12 +682,14 @@ int Z80::run( int32 cc_max, int32 ic_max, uint32 options )
 
 	uint16*	rzp;						// pointer to IX or IY after 0xDD or 0xFD
 	#define	rz		(*rzp)				// IX or IY
-	#ifdef _BIG_ENDIAN
+	#if defined(__BIG_ENDIAN__)
 	#define	rzh		(((uint8*)rzp)[0])	// XH or YH
 	#define	rzl		(((uint8*)rzp)[1])	// XL or YL
-	#else
+	#elif defined(__LITTLE_ENDIAN__)
 	#define	rzh		(((uint8*)rzp)[1])	// XH or YH
 	#define	rzl		(((uint8*)rzp)[0])	// XL or YL
+	#else
+	#error "endian error"
 	#endif
 
 	uint8	c = 0;						// general purpose byte register

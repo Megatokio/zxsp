@@ -9,7 +9,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 # http://qt-project.org/faq/answer/what_does_the_syntax_configdebugdebugrelease_mean_what_does_the_1st_argumen
 CONFIG(release,debug|release) { DEFINES += NDEBUG RELEASE } # ATTN: curly brace must start in same line!
-#CONFIG(debug,debug|release) { DEFINES += DEBUG } # ATTN: curly brace must start in same line!
+CONFIG(debug,debug|release) { DEFINES += DEBUG } # ATTN: curly brace must start in same line!
 
 CONFIG += c++11
 CONFIG += precompiled_header
@@ -88,6 +88,7 @@ SOURCES +=	\
 	Libraries/kio/TestTimer.cpp \
 	Libraries/audio/audio.cpp \
 	Libraries/audio/WavFile.cpp \
+	Libraries/audio/CAStreamBasicDescription.cpp \
 	Libraries/Z80/goodies/z80_clock_cycles.cpp \
 	Libraries/Z80/goodies/z80_opcode_length.cpp \
 	Libraries/Z80/goodies/z80_disass.cpp \
@@ -365,6 +366,8 @@ HEADERS += \
 	Libraries/audio/AudioDecoder.h \
 	Libraries/audio/CADebugMacros.h \
 	Libraries/audio/CAStreamBasicDescription.h \
+	Libraries/audio/CAMath.h \
+	Libraries/audio/CADebugPrintf.h \
 	Libraries/audio/audio.h \
 	Libraries/audio/WavFile.h \
 	\

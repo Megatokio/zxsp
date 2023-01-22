@@ -19,10 +19,12 @@
 
 #include "file_stx.h"
 
-#if defined(_LITTLE_ENDIAN)
+#if defined(__LITTLE_ENDIAN__)
 #define ID(A,B,C,D)		((A<<0) + (B<<8) + (C<<16) + (D<<24))
-#elif defined(_BIG_ENDIAN)
+#elif defined(__BIG_ENDIAN__)
 #define ID(A,B,C,D)		((A<<24) + (B<<16) + (C<<8) + (D<<0))
+#else
+#error "endian macro"
 #endif
 
 
