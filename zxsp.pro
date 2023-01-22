@@ -89,9 +89,8 @@ SOURCES +=	\
 	Libraries/audio/audio.cpp \
 	Libraries/audio/WavFile.cpp \
 	Libraries/Z80/goodies/z80_clock_cycles.cpp \
-	Libraries/Z80/goodies/z180_clock_cycles.cpp \
 	Libraries/Z80/goodies/z80_opcode_length.cpp \
-	Libraries/Z80/goodies/z80_major_opcode.cpp \
+	Libraries/Z80/goodies/z80_disass.cpp \
 	\
 	zasm/Source/Error.cpp \
 	zasm/Source/Label.cpp \
@@ -108,6 +107,11 @@ SOURCES +=	\
 	zasm/Source/assemble8080.cpp \
 	zasm/Source/assembleZ80.cpp \
 	zasm/Source/convert8080.cpp \
+	zasm/Source/runTestcode.cpp \
+	zasm/Source/Z80Registers.cpp \
+	zasm/Source/Z80.cpp \
+	zasm/Source/Z180.cpp \
+	zasm/Source/Value.cpp \
 	\
 	Source/Qt/qt_util.cpp \
 	Source/Qt/Settings.cpp \
@@ -279,7 +283,7 @@ SOURCES +=	\
 	Source/Uni/Items/Multiface/Multiface3.cpp \
 	Source/Uni/Items/Multiface/Multiface.cpp \
 	Source/Uni/Items/Z80/Z80_Disassembler.cpp \
-	Source/Uni/Items/Z80/Z80.cpp \
+	Source/Uni/Items/Z80/zxsp_Z80.cpp \
 	\
 	Source/Uni/Items/IcTester.cpp \
 	Source/Uni/Items/KempstonMouse.cpp \
@@ -366,7 +370,7 @@ HEADERS += \
 	\
 	Libraries/Z80/goodies/z80_opcodes.h \
 	Libraries/Z80/goodies/z80_goodies.h \
-
+	Libraries/Z80/goodies/CpuID.h \
 
 
 # zasm Z80 Assembler Headers:
@@ -384,6 +388,9 @@ HEADERS += \
 	zasm/Source/CharMap.h \
 	zasm/Source/helpers.h \
 	zasm/Source/zx7.h \
+	zasm/Source/Z80Registers.h \
+	zasm/Source/Z80.h \
+	zasm/Source/Value.cpp \
 
 
 # zxsp Headers - OS stuff (AudioIO, Joysticks, Mouse):

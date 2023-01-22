@@ -18,9 +18,10 @@
 */
 
 #include "kio/kio.h"
+#include "Z80/goodies/z80_goodies.h"
 
 
-enum { LegalOpcode, IllegalOpcode, WeirdOpcode };
+//enum { LegalOpcode, IllegalOpcode, WeirdOpcode };
 
 
 class Z80_Disassembler
