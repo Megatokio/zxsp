@@ -1,29 +1,8 @@
-﻿/*	Copyright  (c)	Günter Woigk 1996 - 2016
-  					mailto:kio@little-bat.de
+// Copyright (c) 1996 - 2023 kio@little-bat.de
+// BSD-2-Clause license
+// https://opensource.org/licenses/BSD-2-Clause
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
- 	Permission to use, copy, modify, distribute, and sell this software and
- 	its documentation for any purpose is hereby granted without fee, provided
- 	that the above copyright notice appear in all copies and that both that
- 	copyright notice and this permission notice appear in supporting
- 	documentation, and that the name of the copyright holder not be used
- 	in advertising or publicity pertaining to distribution of the software
- 	without specific, written prior permission.  The copyright holder makes no
- 	representations about the suitability of this software for any purpose.
- 	It is provided "as is" without express or implied warranty.
-
- 	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- 	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- 	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- 	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- 	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- 	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- 	PERFORMANCE OF THIS SOFTWARE.
-
-
+/*
 	Z80 disassembler
 	----------------
 
@@ -296,7 +275,7 @@ char* Z80::getOpcodeMnemo( uint16 ip ) const
 //		IX/IY before IX/IY/ED have no effect and are reported as length 1
 int Z80OpcodeLength ( uint8 op1, uint8 op2 )
 {	static int8 len0[] = "1311112111111121231111212111112123311121213111212331112121311121";	// 0x00 - 0x3F
- 	static int8 len3[] = "1133312111303321113231211132302111313121113130211131312111313021";	// 0xC0 - 0xFF; prefixes are 0
+	static int8 len3[] = "1133312111303321113231211132302111313121113130211131312111313021";	// 0xC0 - 0xFF; prefixes are 0
 
 	switch (op1>>6)
 	{
