@@ -46,8 +46,8 @@ void Multiface::page_in()
 {
 	paged_in = yes;
 	prev()->romCS(yes);
-	machine->cpu->mapRom(0x0000,8 kB, rom.getData(), NULL,0);
-	machine->cpu->mapRam(0x2000,8 kB, ram.getData(), NULL,0);
+	machine->cpu->mapRom(0x0000,8 kB, rom.getData(), nullptr,0);
+	machine->cpu->mapRam(0x2000,8 kB, ram.getData(), nullptr,0);
 }
 
 void Multiface::page_out()

@@ -16,8 +16,8 @@
 
 
 
-static cstr o_addr = NULL;//TODO
-static cstr i_addr = NULL;//TODO
+static cstr o_addr = nullptr;//TODO
+static cstr i_addr = nullptr;//TODO
 
 FdcD80::FdcD80(Machine*m)
 :    Fdc(m,isa_FdcD80,external,o_addr,i_addr)

@@ -328,10 +328,10 @@ SmartSDCard::SmartSDCard(Machine* m)
 	MassStorage(m,isa_SmartSDCard,external,o_addr,i_addr),
 	ram(m,"SMART card Ram",128 kB),
 	rom(m,"SMART card Flash Ram",256 kB),
-	joystick(NULL),
-	overlay(NULL),
-	sd_card(NULL),
-	sio(NULL),
+	joystick(nullptr),
+	overlay(nullptr),
+	sd_card(nullptr),
+	sio(nullptr),
 	config(),
 	dip_joystick_enabled(settings.get_bool(key_smart_card_joystick_enabled,yes)),
 	dip_memory_enabled(settings.get_bool(key_smart_card_memory_enabled,yes)),
@@ -551,19 +551,19 @@ void SmartSDCard::map_card_memory(uint a, uint e)
 	{
 		if(flash_state==flash_writing)
 		{
-			machine->cpu->mapDummyRomPage(a, m-a, flash_dummy_page, NULL,0);
+			machine->cpu->mapDummyRomPage(a, m-a, flash_dummy_page, nullptr,0);
 		}
 		else
 		{
 			uint32 romaddr = dip_force_bank_B ? 0x4000 : (config&rompage_bits)<<6;
-			machine->cpu->mapRom(a, m-a, &rom[romaddr+a], NULL,0);
+			machine->cpu->mapRom(a, m-a, &rom[romaddr+a], nullptr,0);
 		}
 	}
 
 	if(m<e)
 	{
 		uint32 ramaddr = (config&rampage_bits) << 13;
-		machine->cpu->mapRam(m, e-m, &ram[ramaddr], NULL,0);
+		machine->cpu->mapRam(m, e-m, &ram[ramaddr], nullptr,0);
 	}
 
 	if(config&pageout_armed) set_rom_pageout_bits(a,e);
@@ -1024,7 +1024,7 @@ void SmartSDCard::insertJoystick( int id ) volatile
 {
 	if(joystick == joysticks[id]) return;
 
-	if(overlay) { machine->removeOverlay(overlay); overlay=NULL; }
+	if(overlay) { machine->removeOverlay(overlay); overlay=nullptr; }
 	joystick = joysticks[id];
 	if(id!=no_joystick) overlay = machine->addOverlay(joystick,"K",Overlay::TopRight);
 }

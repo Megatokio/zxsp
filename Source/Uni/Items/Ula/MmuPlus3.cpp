@@ -122,7 +122,7 @@ const int ram_only_mode_page_table[] = { 0,1,2,3, 4,5,6,7, 4,5,6,3, 4,7,6,3 };
 
 MmuPlus3::MmuPlus3( Machine* m )
 :
-	Mmu128k( m, isa_MmuPlus3, And(o_addr_7ffd,o_addr_1ffd), NULL )
+	Mmu128k( m, isa_MmuPlus3, And(o_addr_7ffd,o_addr_1ffd), nullptr )
 {
 	xlogIn("new MmuPlus3");
 }
@@ -191,7 +191,7 @@ void MmuPlus3::romCS( bool f )
 
 		// ram banks 4,5,6,7 are contended
 		if(port_1ffd&6) cpu->mapRam( 0x0000, 0x4000, &ram[4*0x4000], ula_zxsp->getWaitmap(), ula_zxsp->getWaitmapSize() );
-		else			cpu->mapRam( 0x0000, 0x4000, &ram[0*0x4000], NULL, 0 );
+		else			cpu->mapRam( 0x0000, 0x4000, &ram[0*0x4000], nullptr, 0 );
 	}
 	else page_rom_plus3();
 }
@@ -208,7 +208,7 @@ void MmuPlus3::page_rom_plus3()
 		  + ( (int(port_7ffd&0x10)) << 10 );	// lobit from bit 4 to bit 14
 
 	cpu->unmapWom(0x0000, 0x4000);
-	cpu->mapRom( 0x0000, 0x4000, &rom[c], NULL, 0 );
+	cpu->mapRom( 0x0000, 0x4000, &rom[c], nullptr, 0 );
 }
 
 
@@ -220,7 +220,7 @@ inline void MmuPlus3::page_ram_plus3()
 	int n = port_7ffd & 0x07;
 	// only ram banks 4,5,6,7 are contended				fixed kio 2016-02-11
 	if(n>=4) cpu->mapRam( 3*0x4000, 0x4000, &ram[n*0x4000], ula_zxsp->getWaitmap(), ula_zxsp->getWaitmapSize() );
-	else	 cpu->mapRam( 3*0x4000, 0x4000, &ram[n*0x4000], NULL, 0 );
+	else	 cpu->mapRam( 3*0x4000, 0x4000, &ram[n*0x4000], nullptr, 0 );
 }
 
 
@@ -231,7 +231,7 @@ void MmuPlus3::page_mem_plus3()
 {
 	page_ram_plus3();
 	// only ram banks 4,5,6,7 are contended				fixed kio 2016-02-11
-	cpu->mapRam( 2*0x4000, 0x4000, &ram[2*0x4000], NULL, 0 );
+	cpu->mapRam( 2*0x4000, 0x4000, &ram[2*0x4000], nullptr, 0 );
 	cpu->mapRam( 1*0x4000, 0x4000, &ram[5*0x4000], ula_zxsp->getWaitmap(), ula_zxsp->getWaitmapSize() );
 	if(!romdis_in) page_rom_plus3();
 }
@@ -253,7 +253,7 @@ void MmuPlus3::page_only_ram()
 		// ram banks 4,5,6,7 are contended
 		int n = pp[i];
 		if(n>=4) cpu->mapRam( i*0x4000, 0x4000, &ram[n*0x4000], ula_zxsp->getWaitmap(), ula_zxsp->getWaitmapSize() );
-		else	 cpu->mapRam( i*0x4000, 0x4000, &ram[n*0x4000], NULL, 0 );
+		else	 cpu->mapRam( i*0x4000, 0x4000, &ram[n*0x4000], nullptr, 0 );
 	}
 }
 

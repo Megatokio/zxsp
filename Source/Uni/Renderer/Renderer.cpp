@@ -41,10 +41,10 @@ GifWriter::GifWriter( QObject* p, isa_id id, cColormap& colormap, uint screen_wi
 	width(screen_width+2*h_border),
 	height(screen_height+2*v_border),
 	frame_count(0),
-	bits(NULL),
-	diff(NULL),
-	bits2(NULL),
-	diff2(NULL),
+	bits(nullptr),
+	diff(nullptr),
+	bits2(nullptr),
+	diff2(nullptr),
 	update_border(update_border),
 	frames_per_second(frames_per_second),
 	frames_per_flashphase(16),
@@ -88,10 +88,10 @@ void GifWriter::stopRecording() throws
 	if(frame_count) write_diff2_to_file();
 	gif_encoder.closeFile();
 
-	delete bits;  bits=NULL;
-	delete diff;  diff=NULL;
-	delete bits2; bits2=NULL;
-	delete diff2; diff2=NULL;
+	delete bits;  bits=nullptr;
+	delete diff;  diff=nullptr;
+	delete bits2; bits2=nullptr;
+	delete diff2; diff2=nullptr;
 }
 
 

@@ -10,9 +10,9 @@
 Joy::Joy (Machine* m, isa_id id, Internal internal, cstr o_addr, cstr i_addr , cstr idf1, cstr idf2, cstr idf3)
 :
 	Item(m,id,isa_Joy,internal,o_addr,i_addr),
-	joy{NULL,NULL,NULL},
+	joy{nullptr,nullptr,nullptr},
 	idf{idf1,idf2,idf3},
-	overlays{NULL,NULL,NULL},
+	overlays{nullptr,nullptr,nullptr},
 	num_ports(idf3?3:idf2?2:1)
 {
 	xlogIn("new Joy");
@@ -35,7 +35,7 @@ void Joy::insertJoystick( int i, int id )
 {
 	if(joy[i] == joysticks[id]) return;
 
-	if(overlays[i]) { machine->removeOverlay(overlays[i]); overlays[i]=NULL; }
+	if(overlays[i]) { machine->removeOverlay(overlays[i]); overlays[i]=nullptr; }
 	joy[i] = joysticks[id];
 	if(id!=no_joystick) overlays[i] = machine->addOverlay(joy[i],idf[i],i&1?Overlay::TopLeft:Overlay::TopRight);
 }

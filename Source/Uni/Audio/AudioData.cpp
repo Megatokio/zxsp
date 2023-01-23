@@ -382,7 +382,7 @@ AudioData::AudioData(CswBuffer const& q, uint32 sps )
 */
 CswBuffer::CswBuffer(AudioData const& qa, uint32 ccps)
 :
-	data(NULL),
+	data(nullptr),
 	max(0),
 	end(0),
 	cc_end(0),
@@ -767,7 +767,7 @@ void AudioData::readFile(cstr fpath, TapeFile& tapeblocks) noexcept(false) // fi
 			}
 		}
 
-		if(ranges[i].is_silence() && tfd->getMajorBlockInfo()==NULL) tfd->setMajorBlockInfo("Silence");
+		if(ranges[i].is_silence() && tfd->getMajorBlockInfo()==nullptr) tfd->setMajorBlockInfo("Silence");
 		tapeblocks.append(tfd);
 	}
 

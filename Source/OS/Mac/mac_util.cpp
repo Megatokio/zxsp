@@ -36,7 +36,7 @@ ON_INIT(init_CFTypeIDs);
 */
 str toStr(CFStringRef cfstr)
 {
-	if(cfstr==NULL) return NULL;
+	if(cfstr==nullptr) return nullptr;
 	uint32 cfstrlen = CFStringGetLength(cfstr);
 
 	cstr s = CFStringGetCStringPtr(cfstr,kCFStringEncodingUTF8);
@@ -50,14 +50,14 @@ str toStr(CFStringRef cfstr)
 	}
 
 	logline("ERROR: convert CFStringRef to c-string failed");
-	return NULL;
+	return nullptr;
 }
 
 
 
 QCFString::QCFString(cstr str)
 :
-	QCFType<CFStringRef>(CFStringCreateWithCString(NULL/*allocator*/, str, kCFStringEncodingUTF8))
+	QCFType<CFStringRef>(CFStringCreateWithCString(nullptr/*allocator*/, str, kCFStringEncodingUTF8))
 {}
 
 

@@ -35,7 +35,7 @@ Memory::Memory(Machine* machine, cstr name, uint size) noexcept
 	machine(machine)
 {
 	assert(isMainThread());
-	assert(machine != NULL);
+	assert(machine != nullptr);
 	assert(machine->is_locked());
 	assert(size <= MAXSIZE);
 

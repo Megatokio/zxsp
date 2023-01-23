@@ -35,7 +35,7 @@ Mmu128k::Mmu128k ( Machine* m, isa_id id, cstr o_addr, cstr i_addr )
 
 Mmu128k::Mmu128k ( Machine* m )
 :
-	Mmu( m, isa_Mmu128k, o_addr_128, NULL )
+	Mmu( m, isa_Mmu128k, o_addr_128, nullptr )
 {
 	xlogIn("new Mmu128k");
 }
@@ -88,7 +88,7 @@ inline void Mmu128k::page_rom_128k()
 	assert(!romdis_in);
 
 	int i = port_7ffd & 0x10;
-	cpu->mapRom(0x0000, 0x4000, &rom[i*0x400], NULL, 0);
+	cpu->mapRom(0x0000, 0x4000, &rom[i*0x400], nullptr, 0);
 }
 
 
@@ -100,7 +100,7 @@ inline void Mmu128k::page_ram_128k()
 {
 	int n = port_7ffd & 0x07;
 	if(n&1) cpu->mapRam( 3*0x4000, 0x4000, &ram[n*0x4000], ula_zxsp->getWaitmap(), ula_zxsp->getWaitmapSize() );
-	else    cpu->mapRam( 3*0x4000, 0x4000, &ram[n*0x4000], NULL, 0 );
+	else    cpu->mapRam( 3*0x4000, 0x4000, &ram[n*0x4000], nullptr, 0 );
 }
 
 
@@ -111,7 +111,7 @@ inline void Mmu128k::page_ram_128k()
 inline void Mmu128k::page_mem_128k()
 {
 	page_ram_128k();
-	cpu->mapRam( 2*0x4000, 0x4000, &ram[2*0x4000], NULL, 0 );
+	cpu->mapRam( 2*0x4000, 0x4000, &ram[2*0x4000], nullptr, 0 );
 	cpu->mapRam( 1*0x4000, 0x4000, &ram[5*0x4000], ula_zxsp->getWaitmap(), ula_zxsp->getWaitmapSize() );
 	if(!romdis_in) page_rom_128k();
 }

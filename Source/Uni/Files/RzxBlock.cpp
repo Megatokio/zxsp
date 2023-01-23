@@ -189,7 +189,7 @@ void RzxBlock::scan_ucbu()
 	{
 		xlogline("first frame was marked as a repeated frame. (fixed)");
 		setInputCount(0,0);
-		delete[] cbu; cbu=NULL; csize=0;
+		delete[] cbu; cbu=nullptr; csize=0;
 	}
 
 	uint32 busize = ucsize;				// original ucbu[] size
@@ -255,7 +255,7 @@ void RzxBlock::scan_ucbu()
 	if(ucsize < busize)
 	{
 		xlogline("truncated frame at end: %u bytes)", busize-ucsize);
-x:		delete[] cbu; cbu=NULL; csize=0;
+x:		delete[] cbu; cbu=nullptr; csize=0;
 	}
 
 	xlogline("normal frames:   %u",nframes);
@@ -276,14 +276,14 @@ x:		delete[] cbu; cbu=NULL; csize=0;
 void RzxBlock::_compress()
 {
 	assert(isaInputRecordingBlock());
-	assert(ucsize <= ucmax || (ucmax==0&&ucbu==NULL));
-	assert(csize==0 || cbu!=NULL);
+	assert(ucsize <= ucmax || (ucmax==0&&ucbu==nullptr));
+	assert(csize==0 || cbu!=nullptr);
 
 	if(csize == 0 && ucsize != 0)
 	{
-		assert(ucsize <= ucmax && ucbu!=NULL);
+		assert(ucsize <= ucmax && ucbu!=nullptr);
 
-		delete[] cbu; cbu = NULL;
+		delete[] cbu; cbu = nullptr;
 		uLongf zsize = compressBound(ucsize);
 		xlogline("compressBound(%u) = %u", uint(ucsize), uint(zsize));
 		std::unique_ptr<uint8[]> zbu(new uint8[zsize]);
@@ -308,7 +308,7 @@ void RzxBlock::_compress()
 void RzxBlock::_uncompress() noexcept(false) // DataError
 {
 	assert(isaInputRecordingBlock());
-	assert(ucmax==0 || ucbu!=NULL);
+	assert(ucmax==0 || ucbu!=nullptr);
 
 	if(csize == 0)		// empty
 	{
@@ -317,7 +317,7 @@ void RzxBlock::_uncompress() noexcept(false) // DataError
 
 	else if(ucsize)		// was uncompressed previously => uncompress in one go:
 	{
-		delete[] ucbu; ucbu = NULL; ucmax = 0;
+		delete[] ucbu; ucbu = nullptr; ucmax = 0;
 		ucbu = new uint8[ucsize];
 		ucmax = ucsize;
 		uLongf rsize = ucsize;
@@ -490,11 +490,11 @@ void RzxBlock::startFrame(uint32 cc)
 	assert(isaInputRecordingBlock());
 	assert(state==EndOfBlock);
 	assert(fpos == ucsize);
-	assert(ucsize==0 || ucbu!=NULL);
+	assert(ucsize==0 || ucbu!=nullptr);
 	assert(current_frame==num_frames);
 
 	// compressed buffer becomes invalid:
-	delete[] cbu; cbu = NULL; csize = 0;
+	delete[] cbu; cbu = nullptr; csize = 0;
 
 	//fpos = valid
 	//apos = valid
@@ -573,10 +573,10 @@ void RzxBlock::startRecording()
 
 	assert(isaInputRecordingBlock());
 	assert(state==Playing);
-	assert(ucsize==0 || ucbu!=NULL);
+	assert(ucsize==0 || ucbu!=nullptr);
 
 	// compressed buffer becomes invalid:
-	delete[] cbu; cbu = NULL; csize = 0;
+	delete[] cbu; cbu = nullptr; csize = 0;
 
 	//fpos valid
 	//apos valid
@@ -713,13 +713,13 @@ void RzxBlock::compress()
 	assert(isaInputRecordingBlock());
 	if(state == Compressed) return;
 
-	assert(csize==0 || cbu!=NULL);
-	assert(ucsize==0 || ucbu!=NULL);
+	assert(csize==0 || cbu!=nullptr);
+	assert(ucsize==0 || ucbu!=nullptr);
 	assert(ucsize <= ucmax);
 
 	_compress();
 	state = Compressed;
-	delete[] ucbu; ucbu = NULL; ucmax = 0;
+	delete[] ucbu; ucbu = nullptr; ucmax = 0;
 	//ucsize = ucsize;				// preserved for faster decompression!
 	fpos = apos = ipos = epos = 0;
 	current_frame = 0;
@@ -975,7 +975,7 @@ void RzxBlock::write(FD& fd) throws
 		fd.write_uint32_z(cc_at_start);			// T-STATES counter at the beginning
 		fd.write_uint32_z(2);					// Flags: 2 = compressed
 		fd.write_bytes(&cbu[0], csize);			// Frame data (compressed)
-		if(state==Recording) { delete[] cbu; cbu=NULL; csize=0; }
+		if(state==Recording) { delete[] cbu; cbu=nullptr; csize=0; }
 		break;
 
 	default:

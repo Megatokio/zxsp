@@ -21,7 +21,7 @@ TapeData::TapeData( TapeData const& q )
 
 TapeData::TapeData(isa_id id , TrustLevel trustlevel)
 :
-	IsaObject(NULL,id,isa_TapeData),
+	IsaObject(nullptr,id,isa_TapeData),
 	trust_level(trustlevel)
 {}
 

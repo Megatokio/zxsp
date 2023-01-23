@@ -36,8 +36,8 @@ static StereoSample	audio_in_center			= 0.0f;	// for audio in High-pass filter
 
 static AudioDeviceID        input_device_id     = 0;        // actually used audio devices
 static AudioDeviceID        output_device_id    = 0;
-static AudioDeviceIOProcID  audio_out_ioProcID  = NULL;     // kio 2012-08-08   procIDs for my audioDeviceIOProc()
-static AudioDeviceIOProcID  audio_in_ioProcID   = NULL;     // kio 2012-08-08
+static AudioDeviceIOProcID  audio_out_ioProcID  = nullptr;     // kio 2012-08-08   procIDs for my audioDeviceIOProc()
+static AudioDeviceIOProcID  audio_in_ioProcID   = nullptr;     // kio 2012-08-08
 
 
 // ###################################################################################
@@ -421,7 +421,7 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 		address.mScope    = kAudioObjectPropertyScopeGlobal;							// kio 2012-04-29
 		address.mElement  = kAudioObjectPropertyElementMaster;							// kio 2012-04-29
 		status = AudioObjectGetPropertyData( kAudioObjectSystemObject, &address,		// kio 2012-04-29
-											 0,NULL, &propertySize, &output_device_id);	// kio 2012-04-29
+											 0,nullptr, &propertySize, &output_device_id);	// kio 2012-04-29
 
 		if(status) throw AnyError("GetDefaultOutputDevice");
 		if(output_device_id == kAudioDeviceUnknown) throw AnyError("GetDefaultOutputDevice: kAudioDeviceUnknown");
@@ -437,7 +437,7 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 			output_device_id,				// AudioObjectID inObjectID						// kio 2012-04-29
 			&address,						// const AudioObjectPropertyAddress* inAddress	// kio 2012-04-29
 			0,								// UInt32 inQualifierDataSize 					// kio 2012-04-29
-			NULL,							// const void* inQualifierData 					// kio 2012-04-29
+			nullptr,							// const void* inQualifierData 					// kio 2012-04-29
 			&propertySize,					// UInt32* ioDataSize 							// kio 2012-04-29
 			&outputStreamBasicDescription);	// void* outData   								// kio 2012-04-29
 
@@ -473,7 +473,7 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 			output_device_id,	// AudioObjectID inObjectID, 					// kio 2012-04-29
 			&address,			// const AudioObjectPropertyAddress*inAddress, 	// kio 2012-04-29
 			0,					// UInt32 inQualifierDataSize, 					// kio 2012-04-29
-			NULL,				// const void* inQualifierData, 				// kio 2012-04-29
+			nullptr,				// const void* inQualifierData, 				// kio 2012-04-29
 			propertySize,		// UInt32 inDataSize, 							// kio 2012-04-29
 			&bufferByteCount);	// const void* inData							// kio 2012-04-29
 
@@ -481,9 +481,9 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 
 	// Start audio output interrupt
 
-		status = AudioDeviceCreateIOProcID(output_device_id, audioDeviceIOProc, NULL, &audio_out_ioProcID);	// kio 2012-04-29
+		status = AudioDeviceCreateIOProcID(output_device_id, audioDeviceIOProc, nullptr, &audio_out_ioProcID);	// kio 2012-04-29
 		if(status) throw AnyError("AudioDeviceCreateIOProcID");									// kio 2012-04-29
-		if(audio_out_ioProcID==NULL) throw AnyError("AudioDeviceCreateIOProcID returned NULL");    // kio 2012-04-29
+		if(audio_out_ioProcID==nullptr) throw AnyError("AudioDeviceCreateIOProcID returned NULL");    // kio 2012-04-29
 
 		status = AudioDeviceStart(output_device_id, audio_out_ioProcID);                            // kio 2012-04-29
 		if(status) throw AnyError("AudioDeviceStart(output)");
@@ -510,7 +510,7 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 		address.mScope    = kAudioObjectPropertyScopeGlobal;							// kio 2012-04-29
 		address.mElement  = kAudioObjectPropertyElementMaster;							// kio 2012-04-29
 
-		status = AudioObjectGetPropertyData( kAudioObjectSystemObject,&address, 0,NULL,	// kio 2012-04-29
+		status = AudioObjectGetPropertyData( kAudioObjectSystemObject,&address, 0,nullptr,	// kio 2012-04-29
 											 &propertySize, &input_device_id );			// kio 2012-04-29
 
 		if(status) throw AnyError("GetDefaultInputDevice");
@@ -529,7 +529,7 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 			input_device_id,				// AudioObjectID inObjectID			// kio 2012-04-29
 			&address,						// const AudioObjectPropertyAddress* inAddress	// kio 2012-04-29
 			0,								// UInt32 inQualifierDataSize 		// kio 2012-04-29
-			NULL,							// const void* inQualifierData 		// kio 2012-04-29
+			nullptr,							// const void* inQualifierData 		// kio 2012-04-29
 			&propertySize,					// UInt32* ioDataSize 				// kio 2012-04-29
 			&inputStreamBasicDescription);	// void* outData   					// kio 2012-04-29
 
@@ -568,7 +568,7 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 				input_device_id,	// AudioObjectID inObjectID, 					// kio 2012-04-29
 				&address,			// const AudioObjectPropertyAddress* inAddress, // kio 2012-04-29
 				0,					// UInt32 inQualifierDataSize, 					// kio 2012-04-29
-				NULL,				// const void* inQualifierData, 				// kio 2012-04-29
+				nullptr,				// const void* inQualifierData, 				// kio 2012-04-29
 				propertySize,		// UInt32 inDataSize, 							// kio 2012-04-29
 				&bufferByteCount);	// const void* inData							// kio 2012-04-29
 
@@ -576,9 +576,9 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 
 		// Start audio input interrupt
 
-			status = AudioDeviceCreateIOProcID(input_device_id, audioDeviceIOProc, NULL, &audio_in_ioProcID);	// kio 2012-04-29
+			status = AudioDeviceCreateIOProcID(input_device_id, audioDeviceIOProc, nullptr, &audio_in_ioProcID);	// kio 2012-04-29
 			if(status) throw AnyError("AudioDeviceCreateIOProcID");                                            // kio 2012-04-29
-			if(audio_in_ioProcID==NULL) throw AnyError("AudioDeviceCreateIOProcID returned NULL");         	// kio 2012-04-29
+			if(audio_in_ioProcID==nullptr) throw AnyError("AudioDeviceCreateIOProcID returned NULL");         	// kio 2012-04-29
 			status = AudioDeviceStart(input_device_id, audio_in_ioProcID);                                      // kio 2012-04-29
 			if(status) throw AnyError("AudioDeviceStart");
 		}

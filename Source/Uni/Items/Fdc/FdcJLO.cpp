@@ -30,8 +30,8 @@
 	5.  Port # 1011 0111,  W, drive/density/side select
 */
 
-static cstr o_addr = NULL;//TODO
-static cstr i_addr = NULL;//TODO
+static cstr o_addr = nullptr;//TODO
+static cstr i_addr = nullptr;//TODO
 
 FdcJLO::FdcJLO(Machine*m)
 :    Fdc(m,isa_FdcJLO,external,o_addr,i_addr)

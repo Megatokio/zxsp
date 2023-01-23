@@ -48,7 +48,7 @@ protected:
 	Time		last_time;	// for activity monitoring
 	uint8		state;		// %000FUDLR
 
-	explicit	Joystick	(isa_id id)			:IsaObject(NULL,id,isa_Joystick),last_time(0),state(0){}
+	explicit	Joystick	(isa_id id)			:IsaObject(nullptr,id,isa_Joystick),last_time(0),state(0){}
 				~Joystick	()					{}
 
 public:

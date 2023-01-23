@@ -110,8 +110,8 @@ Model bestModelForFile(cstr fpath)
 		ass.assembleFile(
 			fpath,		// source file must exist
 			destpath,	// destpath, dflt = source directory, may be dir or filename
-			NULL,		// listpath, dflt = dest direcory, may be dir or filename
-			NULL,		// temppath, dflt = dest dir, must be dir
+			nullptr,		// listpath, dflt = dest direcory, may be dir or filename
+			nullptr,		// temppath, dflt = dest dir, must be dir
 			0,			// liststyle: 0=none, 1=plain, 2=w/ocode, 4=w/labels, 8=w/clkcycles
 			'b',		// deststyle: 0=none, 'b'=binary
 			no);		// clean?

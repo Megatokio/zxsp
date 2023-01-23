@@ -45,7 +45,7 @@ protected:
 	void	release		()							{ if(type) CFRelease(type); }
 
 public:
-			QCFType		()							: type(NULL) {}
+			QCFType		()							: type(nullptr) {}
 			QCFType		(const T& q)				: type(q) {}
 			QCFType		(const QCFType& q)			: type(q.type) { retain(); }
 			~QCFType	()							{ release(); }
@@ -54,8 +54,8 @@ public:
 			operator T	()							{ return type; }
 	T*		operator&	()							{ return &type; }
 
-	bool	isNull		()	const					{ return type==NULL; }
-	bool	isNotNull	()	const					{ return type!=NULL; }
+	bool	isNull		()	const					{ return type==nullptr; }
+	bool	isNotNull	()	const					{ return type!=nullptr; }
 
 	template <typename X> X as ()	const			{ return reinterpret_cast<X>(type); }
 

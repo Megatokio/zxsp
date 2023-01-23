@@ -94,7 +94,7 @@ TccRom::TccRom(Machine* machine, cstr path)
 	id(TccUnknown),
 	exrom{0,0,0,0,0,0,0,0},
 	dock{0,0,0,0,0,0,0,0},
-	rom(NULL),
+	rom(nullptr),
 	exrom_r(0), exrom_w(0), exrom_d(0),
 	dock_r(0),  dock_w(0),  dock_d(0),
 	home_r(0),  home_w(0),  home_d(0)

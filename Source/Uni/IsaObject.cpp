@@ -42,7 +42,7 @@ void IsaObject::saveToFile( FD& fd ) const noexcept(false) /*file_error,bad_allo
 void IsaObject::loadFromFile( FD& fd ) noexcept(false) /*file_error,bad_alloc,data_error*/
 {
 	if(fd.read_uint8()!=magic) throw DataError("IsaObject magic corrupted");
-	delete[]name; name=NULL;
+	delete[]name; name=nullptr;
 	name = fd.read_nstr();
 }
 

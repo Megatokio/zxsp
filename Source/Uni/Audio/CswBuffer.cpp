@@ -37,7 +37,7 @@
 
 CswBuffer::CswBuffer (uint32 ccps, bool phase0, int)
 :
-	data(NULL),
+	data(nullptr),
 	max(0),
 	end(0),
 	cc_end(0),
@@ -57,7 +57,7 @@ void CswBuffer::purge() noexcept
 	phase = getPhase0();	// current phase
 
 	delete[] data;
-	data    = NULL;         // buffer
+	data    = nullptr;         // buffer
 	max     = 0;            // allocated size
 	end     = 0;            // used size
 	cc_end  = 0;            // total samples up to 'end'
@@ -90,7 +90,7 @@ CswBuffer::CswBuffer(TapeData const& q, uint32 ccps)
 */
 CswBuffer::CswBuffer( CswBuffer const& q, uint32 ccps)
 :
-	data(NULL),
+	data(nullptr),
 	max(q.end+80),		// add some extra, e.g. allow appending pause without realloc
 	end(q.end),
 	cc_end(q.cc_end),

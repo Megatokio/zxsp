@@ -161,7 +161,7 @@ bank controller registers:
 MmuTc2068::MmuTc2068(Machine*m, isa_id id)
 :
 	MmuTc2048(m, id, o_addr, i_addr),
-	cartridge(NULL),
+	cartridge(nullptr),
 	exrom_selected(no)
 {
 	const_cast<isa_id&>(grp_id) = isa_Fdc;		// => Inspector mit cmd-D und Toolwindow-Position wie +3 FDC
@@ -386,10 +386,10 @@ void MmuTc2068::set_port_f4(uint8 f4_neu, uint8 toggled)
 		if((toggled&3) && !romdis_in)
 		{
 			cpu->unmapWom(0x0000, 0x4000);
-			cpu->mapRom(0x0000, 0x4000, &rom[0x0000], NULL, 0);
+			cpu->mapRom(0x0000, 0x4000, &rom[0x0000], nullptr, 0);
 		}
 		if(toggled&0x0C) cpu->mapRam(0x4000, 0x4000, &ram[0x0000], ula_zxsp->getWaitmap(), ula_zxsp->getWaitmapSize());
-		if(toggled&0xF0) cpu->mapRam(0x8000, 0x8000, &ram[0x4000], NULL, 0);
+		if(toggled&0xF0) cpu->mapRam(0x8000, 0x8000, &ram[0x4000], nullptr, 0);
 		return;
 	}
 
@@ -410,7 +410,7 @@ void MmuTc2068::set_port_f4(uint8 f4_neu, uint8 toggled)
 		uint mask = 1 << i;		if(~toggled & mask) continue;
 		uint addr = i << 13;
 
-		cuint8* waitmap = mask&0x0C ? ula_zxsp->getWaitmap() : NULL;
+		cuint8* waitmap = mask&0x0C ? ula_zxsp->getWaitmap() : nullptr;
 		uint    mapsize = mask&0x0C ? ula_zxsp->getWaitmapSize() : 0;
 
 		if(f4_neu&mask)		// map in EXROM or DOCK
@@ -434,8 +434,8 @@ void MmuTc2068::set_port_f4(uint8 f4_neu, uint8 toggled)
 
 h:			if(i<2)			// internal rom address range
 			{				// Im Cartridge könnte hier Ram sein:
-				cpu->mapRom(addr,0x2000,&rom[addr],NULL,0);					// immer lesbar: entweder aus dem Cartridge oder aus dem internen Rom
-				if(home_w&mask)	cpu->mapWom(addr,0x2000,&rom[addr],NULL,0);	// auch schreibbar? (also: Ram im Cartridge)
+				cpu->mapRom(addr,0x2000,&rom[addr],nullptr,0);					// immer lesbar: entweder aus dem Cartridge oder aus dem internen Rom
+				if(home_w&mask)	cpu->mapWom(addr,0x2000,&rom[addr],nullptr,0);	// auch schreibbar? (also: Ram im Cartridge)
 				else			cpu->unmapWom(addr,0x2000);					// nicht schreibbar
 			}
 			else			// internal ram address range
@@ -457,7 +457,7 @@ void MmuTc2068::ejectCartridge()
 
 	setPortF4(0);
 	delete cartridge;
-	cartridge = NULL;
+	cartridge = nullptr;
 }
 
 

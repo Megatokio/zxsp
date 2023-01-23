@@ -11,8 +11,8 @@
 	1 Joystick port (Kempston)
 */
 
-#define o_addr NULL	//TODO
-#define i_addr NULL	//TODO
+#define o_addr nullptr	//TODO
+#define i_addr nullptr	//TODO
 
 
 OpusDiscovery::OpusDiscovery(Machine*m)

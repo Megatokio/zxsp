@@ -138,7 +138,7 @@ IdeDevice::IdeDevice(cstr fpath, DeviceType dtyp, bool is_master)
 	can_write(dtyp!=CDRom),
 	max_sectors_per_multiple(MAX_SECTORS_PER_MULTIPLE),
 	status_register(0),
-	filepath(NULL),
+	filepath(nullptr),
 	io_mode(io_none),
 	hd_mode(hd_invalid)			// damit wir nicht vorzeitig in hd_mode schreiben
 {
@@ -153,7 +153,7 @@ IdeDevice::IdeDevice(cstr fpath, DeviceType dtyp, bool is_master)
 	// Grund: im Audio-Thread sollten wir keinen Disk-I/O machen, weil der könnte dauern
 	// start worker & test worker running
 
-	int e = pthread_create( &worker_thread, NULL/*attr*/, worker_proc, this/*args*/ );
+	int e = pthread_create( &worker_thread, nullptr/*attr*/, worker_proc, this/*args*/ );
 	if(e) { showAlert("Creating the HDD service failed:\n%s",errorstr()); return; }
 
 	open_diskfile(fpath);
@@ -179,7 +179,7 @@ IdeDevice::~IdeDevice()
 // helper:
 void IdeDevice::reset_hd_data()
 {
-	delete[] filepath; filepath = NULL;
+	delete[] filepath; filepath = nullptr;
 	total_sectors = 0;
 	disk_writable = no;
 	file_writable = no;
@@ -225,7 +225,7 @@ void* IdeDevice::worker_proc()
 			case hd_exit:		// terminate worker thread
 			{
 				hd_mode = hd_idle;
-				return NULL;
+				return nullptr;
 			}
 
 			case hd_open:		// open diskfile
@@ -356,7 +356,7 @@ void* IdeDevice::worker_proc()
 			continue;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 // open disk file (blocking)
@@ -630,7 +630,7 @@ void IdeDevice::create_identify_drive_page()
 
 	memcpy(words+10,"Clondyke",8);			// serial#
 	memcpy(words+23,"Cyclists",8);			// firmware revision
-	cstr diskname = filepath==NULL ? "Cemetery" : startswith(filepath,"/dev/") ? filepath : basename_from_path(filepath);
+	cstr diskname = filepath==nullptr ? "Cemetery" : startswith(filepath,"/dev/") ? filepath : basename_from_path(filepath);
 	strncpy((ptr)(words+27),diskname,40);	// model name
 	for(uint i=10;i<=46;i++) poke2X(words+i,peek2Z(words+i));					// first char in upper byte
 

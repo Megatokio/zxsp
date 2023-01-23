@@ -73,7 +73,7 @@ void ScreenMono::do_ffb_or_vbi() noexcept(false)
 	if(_screenshot_filepath && cc==0)	// --> make a screenshot
 	{
 		cstr path = _screenshot_filepath;
-		_screenshot_filepath = NULL;
+		_screenshot_filepath = nullptr;
 
 		MonoGifWriter* gif = new MonoGifWriter(this,no);
 		try{ gif->saveScreenshot(path,new_pixels,screen_w,screen_h,frame_w,frame_h,screen_x0,screen_y0); }
@@ -86,7 +86,7 @@ void ScreenMono::do_ffb_or_vbi() noexcept(false)
 	{
 		cstr path = _gifmovie_filepath;
 		bool with_border = _gifmovie_with_bordereffects;
-		_gifmovie_filepath = NULL;
+		_gifmovie_filepath = nullptr;
 
 		gif_writer = new MonoGifWriter(this,with_border);
 		try
@@ -97,7 +97,7 @@ void ScreenMono::do_ffb_or_vbi() noexcept(false)
 		{
 			showWarning("File error: %s",e.what());
 			delete gif_writer;
-			gif_writer = NULL;
+			gif_writer = nullptr;
 		}
 		delete[] path;
 	}
@@ -113,7 +113,7 @@ void ScreenMono::do_ffb_or_vbi() noexcept(false)
 		{
 			showWarning("File error: %s",e.what());
 			delete gif_writer;
-			gif_writer = NULL;
+			gif_writer = nullptr;
 		}
 	}
 }

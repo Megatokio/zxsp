@@ -328,8 +328,8 @@ void ZxspGifWriter::saveScreenshot( cstr path, IoInfo *ioinfo, uint ioinfo_count
 
 	gif_encoder.closeFile();
 
-	delete bits;  bits=NULL;
-	delete bits2; bits2=NULL;
+	delete bits;  bits=nullptr;
+	delete bits2; bits2=nullptr;
 }
 
 

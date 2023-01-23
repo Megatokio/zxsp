@@ -151,7 +151,7 @@ CFMutableDictionaryRef newMatchingDictForService(cstr service)
 
 void add(CFMutableDictionaryRef dict, cstr key, int32 value)
 {
-	QCFType<CFNumberRef> numberRef = CFNumberCreate(NULL/*allocator*/, kCFNumberSInt32Type, &value);
+	QCFType<CFNumberRef> numberRef = CFNumberCreate(nullptr/*allocator*/, kCFNumberSInt32Type, &value);
 	CFDictionarySetValue(dict, QCFString(key), numberRef);
 }
 
@@ -170,7 +170,7 @@ void add(CFMutableDictionaryRef dict, cstr key, cstr value)
 */
 io_iterator_t newIteratorForMatchingServices(CFDictionaryRef matchingDict)
 {
-	if(matchingDict==NULL) return 0;
+	if(matchingDict==nullptr) return 0;
 	io_iterator_t iter;
 	kern_return_t err = IOServiceGetMatchingServices(kIOMasterPortDefault, matchingDict, &iter);
 	if(err) return 0;
@@ -203,7 +203,7 @@ CFTypeRef usbSearchProperty(io_registry_entry_t registry_entry, QCFString proper
 	xlogline("searchProperty(%s)",(cstr)property_key);
 
 	return IORegistryEntrySearchCFProperty(registry_entry, kIOUSBPlane/*kIOServicePlane*/, property_key,
-										   NULL, recursive);
+										   nullptr, recursive);
 }
 
 /*	search string property in registry entry recursively in service plane
@@ -241,7 +241,7 @@ uint16 usbSearchShortIntProperty(io_registry_entry_t registry_entry, QCFString p
 MyUSBDeviceInterface** newUSBDeviceInterfaceForDevice(io_service_t device)
 {
 	SInt32	score = 0;
-	IOCFPlugInInterface** plugInInterface = NULL;
+	IOCFPlugInInterface** plugInInterface = nullptr;
 
 	kern_return_t kr = IOCreatePlugInInterfaceForService(device,
 							kIOUSBDeviceUserClientTypeID,	// plugin type: for Device
@@ -250,9 +250,9 @@ MyUSBDeviceInterface** newUSBDeviceInterfaceForDevice(io_service_t device)
 							&score);						// the SCORE......
 
 	if(kr!=KERN_SUCCESS) logline("IOCreatePlugInInterfaceForService returned 0x%08x", kr);
-	if(plugInInterface==NULL) return NULL;
+	if(plugInInterface==nullptr) return nullptr;
 
-	MyUSBDeviceInterface** deviceInterface = NULL;
+	MyUSBDeviceInterface** deviceInterface = nullptr;
 	HRESULT err = (*plugInInterface)->QueryInterface(plugInInterface,
 										CFUUIDGetUUIDBytes(kIOUSBDeviceInterfaceID),
 										(void**) &deviceInterface);
@@ -271,7 +271,7 @@ MyUSBDeviceInterface** newUSBDeviceInterfaceForDevice(io_service_t device)
 MyUSBInterfaceInterface** newUSBInterfaceInterfaceForInterface(io_service_t interface)
 {
 	SInt32	score = 0;
-	IOCFPlugInInterface** plugInInterface = NULL;
+	IOCFPlugInInterface** plugInInterface = nullptr;
 
 	kern_return_t kr = IOCreatePlugInInterfaceForService(interface,
 							kIOUSBInterfaceUserClientTypeID,// plugin type: for Interface
@@ -280,9 +280,9 @@ MyUSBInterfaceInterface** newUSBInterfaceInterfaceForInterface(io_service_t inte
 							&score);						// the SCORE......
 
 	if(kr!=KERN_SUCCESS) logline("IOCreatePlugInInterfaceForService returned 0x%08x", kr);
-	if(plugInInterface==NULL) return NULL;
+	if(plugInInterface==nullptr) return nullptr;
 
-	MyUSBInterfaceInterface** deviceInterface = NULL;
+	MyUSBInterfaceInterface** deviceInterface = nullptr;
 	HRESULT err = (*plugInInterface)->QueryInterface(plugInInterface,
 										CFUUIDGetUUIDBytes(kIOUSBInterfaceInterfaceID),
 										(void**) &deviceInterface);
@@ -301,7 +301,7 @@ MyUSBInterfaceInterface** newUSBInterfaceInterfaceForInterface(io_service_t inte
 MyHIDDeviceInterface** newHIDDeviceInterfaceForService(io_service_t device)
 {
 	SInt32	score = 0;
-	IOCFPlugInInterface** plugInInterface = NULL;
+	IOCFPlugInInterface** plugInInterface = nullptr;
 
 	kern_return_t kr = IOCreatePlugInInterfaceForService(device,
 							kIOHIDDeviceUserClientTypeID,	// plugin type
@@ -310,7 +310,7 @@ MyHIDDeviceInterface** newHIDDeviceInterfaceForService(io_service_t device)
 							&score);						// the SCORE......
 
 	if(kr!=KERN_SUCCESS) logline("IOCreatePlugInInterfaceForService returned 0x%08x", kr);
-	if(plugInInterface==NULL) return NULL;
+	if(plugInInterface==nullptr) return nullptr;
 
 	MyHIDDeviceInterface** deviceInterface;
 	HRESULT err = (*plugInInterface)->QueryInterface(plugInInterface,
@@ -1066,8 +1066,8 @@ void showUSBPrinters()
 	for(io_registry_entry_t interface; (interface=IOIteratorNext(iter)); IOObjectRelease(interface))
 	{
 		logIn("Printer interface:");
-		CFMutableDictionaryRef dict = NULL;
-		kern_return_t kr = IORegistryEntryCreateCFProperties(interface,&dict,NULL/*allocator*/,0/*options*/);
+		CFMutableDictionaryRef dict = nullptr;
+		kern_return_t kr = IORegistryEntryCreateCFProperties(interface,&dict,nullptr/*allocator*/,0/*options*/);
 		if(kr!=KERN_SUCCESS) break;
 		logDict(dict);
 		bool ok;
@@ -1095,11 +1095,11 @@ void showSerialDevices()
 	{
 		bool v_ok=no; uint vendorID;
 		bool p_ok=no; uint productID;
-		cstr portName = NULL;
-		cstr devicePath = NULL;
-		cstr deviceName = NULL; cstr key_deviceName;
-		cstr vendorName = NULL;
-		cstr serialNumber = NULL;
+		cstr portName = nullptr;
+		cstr devicePath = nullptr;
+		cstr deviceName = nullptr; cstr key_deviceName;
+		cstr vendorName = nullptr;
+		cstr serialNumber = nullptr;
 
 		// note: Bei BT-Devices muss man ca. 5 mal runter, bevor man was findet, bei USB ca. 10 mal.
 

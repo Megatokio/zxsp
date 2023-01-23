@@ -98,8 +98,8 @@ static cstr i_addr = "----.----.-001.--1-";		//	nmi-taster wieder scharf schalte
 Multiface1::Multiface1(Machine* m)
 :
 	Multiface(m,isa_Multiface1,"Roms/mf1.rom",o_addr,i_addr),
-	joystick(NULL),
-	overlay(NULL),
+	joystick(nullptr),
+	overlay(nullptr),
 	joystick_enabled(settings.get_bool(key_multiface1_enable_joystick,yes))
 {
 	insertJoystick(usb_joystick0);
@@ -196,7 +196,7 @@ void Multiface1::insertJoystick( int id ) volatile
 {
 	if(joystick == joysticks[id]) return;
 
-	if(overlay) { machine->removeOverlay(overlay); overlay=NULL; }
+	if(overlay) { machine->removeOverlay(overlay); overlay=nullptr; }
 	joystick = joysticks[id];
 	if(id!=no_joystick) overlay = machine->addOverlay(joystick,"K",Overlay::TopRight);
 }

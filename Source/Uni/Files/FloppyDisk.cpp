@@ -21,7 +21,7 @@ FloppyDisk::FloppyDisk(uint bytes_per_track)
 	bytes_per_track(bytes_per_track),
 	writeprotected(no),
 	modified(no),
-	filepath(NULL)
+	filepath(nullptr)
 {}
 
 
@@ -32,7 +32,7 @@ FloppyDisk::FloppyDisk(uint sides, uint tracks, uint sectors, bool interleaved, 
 	bytes_per_track(bytes_per_track),
 	writeprotected(no),
 	modified(no),
-	filepath(NULL)
+	filepath(nullptr)
 {
 	DiskFormatInfo df;
 	df.sides    = sides;
@@ -81,7 +81,7 @@ FloppyDisk::FloppyDisk(cstr fpath)
 		err = catstr("Failed to read disc file: ",e.what());
 	}
 
-	delete[] filepath; filepath = NULL;
+	delete[] filepath; filepath = nullptr;
 	writeprotected = yes;
 	showWarning(err);
 }
@@ -346,7 +346,7 @@ void FloppyDisk::formatDisk(const DiskFormatInfo& df)
 	f.gap3		  = uint8(df.gap3);
 	f.databyte	  = uint8(df.databyte);
 	f.special	  = 0;
-	f.data		  = NULL;
+	f.data		  = nullptr;
 
 	uint8 sids[sectors];
 	if(df.interleaved)				// 5 1 6 2 7 3 8 4 9
@@ -501,7 +501,7 @@ cstr FloppyDisk::read_dsk_file(uint8* bu, uint32 sz)
 		writeTrack(format,getTrack(s,t),80);
 		tp += track_size;
 	}
-	return NULL;	// ok
+	return nullptr;	// ok
 }
 
 
@@ -610,7 +610,7 @@ cstr FloppyDisk::read_extended_dsk_file(uint8* bu, uint32 sz)
 		writeTrack(format,getTrack(s,t),80);
 		tp += track_size;
 	}
-	return NULL;	// ok
+	return nullptr;	// ok
 }
 
 

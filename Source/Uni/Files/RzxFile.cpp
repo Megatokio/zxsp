@@ -152,8 +152,8 @@ RzxFile::~RzxFile()
 //
 void RzxFile::init()
 {
-	filename = NULL;
-	creator_name = NULL;
+	filename = nullptr;
+	creator_name = nullptr;
 	creator_major_version = 0;
 	creator_minor_version = 0;
 	rzx_file_version = 0;
@@ -811,7 +811,7 @@ cstr RzxFile::getFirstSnapshot(cstr filename)
 	if(rzx.blocks.count() && rzx.blocks.last().isaSnapshotBlock())
 		return rzx.blocks.last().snapshot_filename;
 	else
-		return NULL;
+		return nullptr;
 }
 
 

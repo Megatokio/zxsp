@@ -73,7 +73,7 @@ public:
 
 // misc. querries:
 	uint	bytesPerTrack()			{ return bytes_per_track; }
-	bool	diskLoaded()			{ return disk!=NULL; }
+	bool	diskLoaded()			{ return disk!=nullptr; }
 	float	floatBytePosition()		{ return bytepos; }
 	uint	bytesPerSecond()		{ return bytes_per_second; }
 	uint	bytePosition()			{ return uint(bytepos); }

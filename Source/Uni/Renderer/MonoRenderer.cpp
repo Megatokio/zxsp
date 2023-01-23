@@ -223,7 +223,7 @@ void MonoGifWriter::saveScreenshot( cstr path, uint8* new_pixels, uint screen_w,
 	gif_encoder.writeImage(*bits,mono_colormap);
 	gif_encoder.closeFile();
 
-	delete bits; bits=NULL;
+	delete bits; bits=nullptr;
 }
 
 

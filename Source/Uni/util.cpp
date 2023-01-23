@@ -44,9 +44,9 @@ int32 intValue(cstr s)
 {
 	errno = ok;
 	if(s[0]==0)	  { errno=EINVAL; return 0; }
-	if(s[0]=='$') return int32(strtol(s+1,NULL,16));
-	if(s[0]=='%') return int32(strtol(s+1,NULL,2));
-	else		  return int32(strtol(s,NULL,10));
+	if(s[0]=='$') return int32(strtol(s+1,nullptr,16));
+	if(s[0]=='%') return int32(strtol(s+1,nullptr,2));
+	else		  return int32(strtol(s,nullptr,10));
 }
 
 

@@ -249,7 +249,7 @@ void showDialog(QWidget* p, cstr title, cstr text, uint style)
 	QTimer::singleShot(0, [=]()
 	{
 		mouse.ungrab();
-		QWidget* w = new QWidget(NULL);
+		QWidget* w = new QWidget(nullptr);
 		w->setFixedSize(300,150);
 		QFont bigfont = QFont("Lucida Grande",18);
 		QLabel* ti = new QLabel(title,w);	setColors(ti,0xffffffff);	ti->setFont(bigfont);

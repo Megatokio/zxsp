@@ -19,7 +19,7 @@ private:
 	cstr expand_word(uint8 n, uint &ip) const;
 
 public:
-	Z80_Disassembler()                      :core(NULL){}
+	Z80_Disassembler()                      :core(nullptr){}
 	explicit Z80_Disassembler(uint8* core)	:core(core){}
 	virtual ~Z80_Disassembler()             {}
 

@@ -41,14 +41,14 @@ DivIDE::DivIDE(Machine* machine)
 	MassStorage(machine,isa_DivIDE,external,o_addr,i_addr),
 	rom(machine,"DivIDE Rom",8 kB),
 	ram(machine,"DivIDE Ram",settings.get_int(key_divide_ram_size, 32 kB)),
-	cf_card(NULL),
+	cf_card(nullptr),
 	ide_data_latch_state(random()&1),
 	control_register(0),						// All bits are reset to '0' after power-on.
 	jumper_E(true),								// write protect eeprom, enable auto-paging
 	jumper_A(machine->isA(isa_MachineZxPlus2a)),// most models, for +2A/+3 it must be set (what happens if jumpered wrong?)
 	auto_paged_in(0),							// state of auto-paging
 	own_romdis_state(0),						// own state
-	romfilepath(NULL)
+	romfilepath(nullptr)
 {
 	xlogIn("new DivIDE");
 
@@ -64,7 +64,7 @@ DivIDE::DivIDE(Machine* machine)
 		{
 			showWarning("I could not load the recent Rom:\n%s\nI'll load " DEFAULT_ROM_NAME " instead.",e.what());
 			settings.remove(key_divide_rom_file);	// sonst krakeelt der beim nächsten mal wieder
-			assert(romfilepath==NULL);
+			assert(romfilepath==nullptr);
 		};
 	}
 	if(!romfilepath)
@@ -213,12 +213,12 @@ void DivIDE::mapMemory()
 			int rampage = mapped_rampage();
 			if(rampage!=3 || conmem_is_set() || !mapram_is_set())	// ram writable
 			{
-				machine->cpu->mapRam(0x2000/*addr*/,8 kB/*size*/,&ram[rampage<<13],NULL,0);
+				machine->cpu->mapRam(0x2000/*addr*/,8 kB/*size*/,&ram[rampage<<13],nullptr,0);
 			}
 				else							// ram page #3 write protected
 			{
-				machine->cpu->mapRom(0x2000/*addr*/,8 kB/*size*/,&ram[3<<13],NULL,0);
-				machine->cpu->unmapWom(0x2000/*addr*/,8 kB/*size*/,NULL,0);
+				machine->cpu->mapRom(0x2000/*addr*/,8 kB/*size*/,&ram[3<<13],nullptr,0);
+				machine->cpu->unmapWom(0x2000/*addr*/,8 kB/*size*/,nullptr,0);
 			}
 		}
 
@@ -226,17 +226,17 @@ void DivIDE::mapMemory()
 
 		if(mapram_is_set() && !conmem_is_set())		// write protected ram#3 at 0x0000
 		{
-			machine->cpu->mapRom(0, 8 kB, &ram[3<<13], NULL,0);
-			machine->cpu->unmapWom(0/*addr*/,8 kB/*size*/,NULL,0);
+			machine->cpu->mapRom(0, 8 kB, &ram[3<<13], nullptr,0);
+			machine->cpu->unmapWom(0/*addr*/,8 kB/*size*/,nullptr,0);
 		}
 		else if(conmem_is_set() && !jumper_E)		// rom writable
 		{
-			machine->cpu->mapRam(0/*addr*/,8 kB/*size*/,&rom[0],NULL,0);
+			machine->cpu->mapRam(0/*addr*/,8 kB/*size*/,&rom[0],nullptr,0);
 		}
 		else										// rom write protected
 		{
-			machine->cpu->mapRom(0/*addr*/,8 kB/*size*/,&rom[0],NULL,0);
-			machine->cpu->unmapWom(0/*addr*/,8 kB/*size*/,NULL,0);
+			machine->cpu->mapRom(0/*addr*/,8 kB/*size*/,&rom[0],nullptr,0);
+			machine->cpu->unmapWom(0/*addr*/,8 kB/*size*/,nullptr,0);
 		}
 	}
 
@@ -450,7 +450,7 @@ int DivIDE::insertRom(cstr path, bool silent)
 	{
 		if(!silent) showAlert("File %s:\n%s",e.filepath,e.what());
 		delete[] romfilepath;
-		romfilepath = NULL;
+		romfilepath = nullptr;
 		return e.error();
 	}
 }
@@ -459,7 +459,7 @@ int DivIDE::insertRom(cstr path, bool silent)
 void DivIDE::ejectDisk()
 {
 	delete cf_card;
-	cf_card = NULL;
+	cf_card = nullptr;
 }
 
 
@@ -491,7 +491,7 @@ cstr DivIDE::getDiskFilename() volatile const
 {
 	assert(isMainThread());
 
-	if(!cf_card) return NULL;
+	if(!cf_card) return nullptr;
 	cstr fpath = cf_card->getFilepath();
 	if(startswith(fpath,"/dev/")) return fpath;
 	else return basename_from_path(fpath);
@@ -502,7 +502,7 @@ void DivIDE::setDiskWritable(bool f) volatile
 {
 	assert(isMainThread());
 
-	if(cf_card!=NULL) cf_card->setWritable(f);
+	if(cf_card!=nullptr) cf_card->setWritable(f);
 }
 
 

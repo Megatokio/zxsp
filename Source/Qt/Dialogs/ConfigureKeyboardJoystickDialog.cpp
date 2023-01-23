@@ -388,7 +388,7 @@ ConfigureKeyboardJoystickDialog::ConfigureKeyboardJoystickDialog(MachineControll
 	led_fire(new KbdLed(this,4)),
 	btn_cancel(new QPushButton("Cancel",this)),
 	btn_ok(new QPushButton("OK",this)),
-	old_matchpattern(NULL)
+	old_matchpattern(nullptr)
 {
 // Layout:
 	int x=x0;
@@ -458,7 +458,7 @@ ConfigureKeyboardJoystickDialog::ConfigureKeyboardJoystickDialog(MachineControll
 //	else														// have nothing
 //		led_filenamepattern->setText("");
 
-	if(old_matchpattern==NULL)	// => der User hat bei diesem Snapshot schon mal explizit "just now" angewählt
+	if(old_matchpattern==nullptr)	// => der User hat bei diesem Snapshot schon mal explizit "just now" angewählt
 		btn_use_just_now->setChecked(true);
 	if(eq(old_matchpattern,"*"))
 		btn_default_for_all_files->setChecked(true);
@@ -479,7 +479,7 @@ ConfigureKeyboardJoystickDialog::ConfigureKeyboardJoystickDialog(MachineControll
 		{
 			// use keys for current machine
 a:			memcpy(mc->keyjoy_keys, new_keys, sizeof(mc->keyjoy_keys));
-			mc->keyjoy_fnmatch_pattern = NULL;
+			mc->keyjoy_fnmatch_pattern = nullptr;
 		}
 		else if(btn_default_for_all_files->isChecked())
 		{

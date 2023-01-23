@@ -13,12 +13,12 @@ void TapeFileDataBlock::purge()
 {
 	mode = stopped;
 	cswdata->purge();
-	if(tapdata!=tapedata) delete tapdata; tapdata = NULL;
-	if(o80data!=tapedata) delete o80data; o80data = NULL;
-	if(tzxdata!=tapedata) delete tzxdata; tzxdata = NULL;
-	delete tapedata; tapedata = NULL;
-	delete[] major_block_info; major_block_info = NULL;
-	delete[] minor_block_info; minor_block_info = NULL;
+	if(tapdata!=tapedata) delete tapdata; tapdata = nullptr;
+	if(o80data!=tapedata) delete o80data; o80data = nullptr;
+	if(tzxdata!=tapedata) delete tzxdata; tzxdata = nullptr;
+	delete tapedata; tapedata = nullptr;
+	delete[] major_block_info; major_block_info = nullptr;
+	delete[] minor_block_info; minor_block_info = nullptr;
 }
 
 void TapeFileDataBlock::purgeBlock()
@@ -37,12 +37,12 @@ TapeFileDataBlock::~TapeFileDataBlock()
 TapeFileDataBlock::TapeFileDataBlock(CswBuffer* p)
 :
 	cswdata(p),
-	tapedata(NULL),
-	tapdata(NULL),
-	o80data(NULL),
-	tzxdata(NULL),
-	major_block_info(NULL),
-	minor_block_info(NULL),
+	tapedata(nullptr),
+	tapdata(nullptr),
+	o80data(nullptr),
+	tzxdata(nullptr),
+	major_block_info(nullptr),
+	minor_block_info(nullptr),
 	mode(stopped)
 {
 	assert(cswdata);
@@ -54,11 +54,11 @@ TapeFileDataBlock::TapeFileDataBlock(TapeData* q, uint32 ccps)
 :
 	cswdata(new CswBuffer(*q,ccps)),
 	tapedata(q),
-	tapdata(q->isaId()==isa_TapData ? TapDataPtr(q) : NULL),
-	o80data(q->isaId()==isa_O80Data ? O80DataPtr(q) : NULL),
-	tzxdata(q->isaId()==isa_TzxData ? TzxDataPtr(q) : NULL),
-	major_block_info(NULL),
-	minor_block_info(NULL),
+	tapdata(q->isaId()==isa_TapData ? TapDataPtr(q) : nullptr),
+	o80data(q->isaId()==isa_O80Data ? O80DataPtr(q) : nullptr),
+	tzxdata(q->isaId()==isa_TzxData ? TzxDataPtr(q) : nullptr),
+	major_block_info(nullptr),
+	minor_block_info(nullptr),
 	mode(stopped)
 {
 	calc_block_infos();
@@ -68,11 +68,11 @@ TapeFileDataBlock::TapeFileDataBlock(TapeData* q, CswBuffer* csw)
 :
 	cswdata(csw),
 	tapedata(q),
-	tapdata(q->isaId()==isa_TapData ? TapDataPtr(q) : NULL),
-	o80data(q->isaId()==isa_O80Data ? O80DataPtr(q) : NULL),
-	tzxdata(q->isaId()==isa_TzxData ? TzxDataPtr(q) : NULL),
-	major_block_info(NULL),
-	minor_block_info(NULL),
+	tapdata(q->isaId()==isa_TapData ? TapDataPtr(q) : nullptr),
+	o80data(q->isaId()==isa_O80Data ? O80DataPtr(q) : nullptr),
+	tzxdata(q->isaId()==isa_TzxData ? TzxDataPtr(q) : nullptr),
+	major_block_info(nullptr),
+	minor_block_info(nullptr),
 	mode(stopped)
 {
 	assert(cswdata);
@@ -86,7 +86,7 @@ TapeFileDataBlock::TapeFileDataBlock(TapeData* q, CswBuffer* csw)
 O80Data* TapeFileDataBlock::getO80Data() noexcept
 {
 	if(o80data) return o80data;		// ist schon
-	if(tapdata && tapdata->trust_level>=TapeData::conversion_success) return NULL;	// no chance
+	if(tapdata && tapdata->trust_level>=TapeData::conversion_success) return nullptr;	// no chance
 	return o80data = new O80Data(*cswdata);
 }
 
@@ -96,15 +96,15 @@ O80Data* TapeFileDataBlock::getO80Data() noexcept
 TapData* TapeFileDataBlock::getTapData() noexcept
 {
 	if(tapdata) return tapdata;		// ist schon
-	if(o80data && o80data->trust_level>=TapeData::conversion_success) return NULL;	// no chance
+	if(o80data && o80data->trust_level>=TapeData::conversion_success) return nullptr;	// no chance
 	return tapdata = new TapData(*cswdata);
 }
 
 
 void TapeFileDataBlock::calcBlockInfos()
 {
-	delete[] major_block_info; major_block_info = NULL;
-	delete[] minor_block_info; minor_block_info = NULL;
+	delete[] major_block_info; major_block_info = nullptr;
+	delete[] minor_block_info; minor_block_info = nullptr;
 	calc_block_infos();
 }
 

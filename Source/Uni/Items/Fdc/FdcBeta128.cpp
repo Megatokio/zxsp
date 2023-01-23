@@ -19,8 +19,8 @@
 //    #define P_TRDOS_SYSTEM                  0xff    /* System */
 
 
-static cstr o_addr = NULL;//TODO
-static cstr i_addr = NULL;//TODO
+static cstr o_addr = nullptr;//TODO
+static cstr i_addr = nullptr;//TODO
 
 
 FdcBeta128::FdcBeta128(Machine*m)
