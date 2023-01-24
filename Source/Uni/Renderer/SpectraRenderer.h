@@ -4,7 +4,7 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "ZxspRenderer.h"
-#include "gif/GifEncoder.h"
+#include "graphics/gif/GifEncoder.h"
 
 
 // ===========================================================

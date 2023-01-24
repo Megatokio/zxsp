@@ -2,8 +2,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "gif/Colormap.h"
-#include "gif/GifEncoder.h"
+#include "graphics/gif/GifEncoder.h"
 #include "ScreenMono.h"
 #include "Ula/UlaMono.h"
 #include "globals.h"

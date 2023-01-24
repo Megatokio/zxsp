@@ -5,7 +5,7 @@
 
 #include "IoInfo.h"
 #include "IsaObject.h"
-#include "gif/GifEncoder.h"
+#include "graphics/gif/GifEncoder.h"
 
 
 typedef uint32	RgbaColor;						// RGBA for OpenGL

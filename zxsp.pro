@@ -73,10 +73,9 @@ SOURCES += \
 SOURCES +=	\
 	Libraries/kio/exceptions.cpp \
 	Libraries/cstrings/cstrings.cpp \
-	Libraries/gif/Colormap.cpp \
-	Libraries/gif/Pixelmap.cpp \
-	Libraries/gif/GifEncoder.cpp \
-	Libraries/gif/BoxP1SZ.cpp \
+	Libraries/graphics/gif/Colormap.cpp \
+	Libraries/graphics/gif/Pixelmap.cpp \
+	Libraries/graphics/gif/GifEncoder.cpp \
 	Libraries/kio/kio.cpp \
 	Libraries/unix/log.cpp \
 	Libraries/unix/os_utilities.cpp \
@@ -344,12 +343,12 @@ HEADERS += \
 	Libraries/unix/FD.h \
 	Libraries/unix/files.h \
 	\
-	Libraries/gif/BoxP1SZ.h \
-	Libraries/gif/Colormap.h \
-	Libraries/gif/Pixelmap.h \
-	Libraries/gif/GifEncoder.h \
-	Libraries/gif/GifDecoder.h \
-	Libraries/gif/GifArray.h \
+	Libraries/graphics/gif/Colormap.h \
+	Libraries/graphics/gif/Pixelmap.h \
+	Libraries/graphics/gif/GifEncoder.h \
+	Libraries/graphics/gif/GifDecoder.h \
+	Libraries/graphics/gif/GifArray.h \
+	Libraries/graphics/geometry.h \
 	\
 	Libraries/Templates/Array.h \
 	Libraries/Templates/HashMap.h \

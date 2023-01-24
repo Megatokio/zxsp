@@ -6,9 +6,7 @@
 #include "MonoRenderer.h"
 #include <QImage>
 #include <QPainter>
-#include "gif/Pixelmap.h"
-#include "gif/Colormap.h"
-#include "gif/GifEncoder.h"
+#include "graphics/gif/GifEncoder.h"
 #include "globals.h"
 #include "cpp/cppthreads.h"
 #include "unix/os_utilities.h"
