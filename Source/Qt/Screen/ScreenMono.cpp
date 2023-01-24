@@ -7,7 +7,7 @@
 #include "Ula/UlaMono.h"
 #include "globals.h"
 #include "cpp/cppthreads.h"
-#include "Renderer/MonoRenderer.h"
+#include "MonoRenderer.h"
 
 
 // colors & pixels:

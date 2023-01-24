@@ -14,7 +14,7 @@
 #include "globals.h"
 #include "cpp/cppthreads.h"
 #include "Screen/Screen.h"
-#include "Renderer/ZxspRenderer.h"
+#include "ZxspRenderer.h"
 #include "Qt/Settings.h"
 #include "MachineController.h"
 #define y0 _y0	// <math.h>

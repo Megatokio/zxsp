@@ -8,7 +8,7 @@
 #include <QMutex>
 #include "zxsp_types.h"
 #include "Item.h"
-#include "Renderer/Tc2048Renderer.h"
+#include "Tc2048Renderer.h"
 #include "Overlays/Overlay.h"
 struct IoInfo;
 //typedef uint32	RgbaColor;			// RGBA

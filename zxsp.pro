@@ -44,6 +44,7 @@ INCLUDEPATH += \
 	Source/OS \
 	Source/Uni \
 	Source/Uni/Audio \
+	Source/Uni/Video \
 	Source/Uni/Machine \
 	Source/Uni/Items \
 	Source/Uni/Keyboard \
@@ -298,11 +299,11 @@ SOURCES +=	\
 	Source/Uni/Items/SP0256.cpp \
 	Source/Uni/Items/MassStorage.cpp \
 	\
-	Source/Uni/Renderer/ZxspRenderer.cpp \
-	Source/Uni/Renderer/Tc2048Renderer.cpp \
-	Source/Uni/Renderer/Renderer.cpp \
-	Source/Uni/Renderer/MonoRenderer.cpp \
-	Source/Uni/Renderer/SpectraRenderer.cpp \
+	Source/Uni/Video/ZxspRenderer.cpp \
+	Source/Uni/Video/Tc2048Renderer.cpp \
+	Source/Uni/Video/Renderer.cpp \
+	Source/Uni/Video/MonoRenderer.cpp \
+	Source/Uni/Video/SpectraRenderer.cpp \
 	\
 	Source/Uni/Files/file_stx.cpp \
 	Source/Uni/Files/FloppyDisk.cpp \
@@ -613,11 +614,11 @@ HEADERS += \
 	Source/Uni/Items/SP0256.h \
 	Source/Uni/Items/MassStorage.h \
 	\
-	Source/Uni/Renderer/ZxspRenderer.h \
-	Source/Uni/Renderer/Tc2048Renderer.h \
-	Source/Uni/Renderer/Renderer.h \
-	Source/Uni/Renderer/MonoRenderer.h \
-	Source/Uni/Renderer/SpectraRenderer.h \
+	Source/Uni/Video/ZxspRenderer.h \
+	Source/Uni/Video/Tc2048Renderer.h \
+	Source/Uni/Video/Renderer.h \
+	Source/Uni/Video/MonoRenderer.h \
+	Source/Uni/Video/SpectraRenderer.h \
 	\
 	Source/Uni/ZxInfo/ZxInfo.h \
 	Source/Uni/ZxInfo/info.h \
