@@ -2,71 +2,34 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-/*	ZX80 ULA emulation
+/* 	ZX80 ULA emulation
 	------------------
 
-	Input address:	0xFE  -  only A0 decoded
-	Output address:	0xFF  -  no address bit decoded - any OUT will do it! - and also IRPTACK!
+	Input address:	0xFE  -  A0=0: activate VSYNC - any other IN create spurious HSYNC pulses!
+	INTACK:         create HSYNC pulse
+	Output address:	0xFF  -  any address: deactivate VSYNC - any OUT will do it!
 
-	IN A,(FE)	aktiviert das SYNC-Signal (idR für VSYNC)
-				aktiviert den MIC_OUT Ausgang
-				resettet den Zeilenzähler LCNTR.
-				liest Tastaturmatrix
-				liest 50/60 Hz framerate jumper
-				liest EAR_IN Eingang
+	The MIC_OUT output is directly taken from the SYNC signal.
 
-	OUT (FF),A	deaktiviert das SYNC-Signal
-				deaktiviert den MIC_OUT Ausgang
+	IN A,(FE)	activate the SYNC-Signal (normally for VSYNC)
+				resets the 3-bit line counter LCNTR.
+				reads 5 bits from the keyboard matrix (high byte selects row)
+				reads 50/60 Hz frame rate jumper
+				reads EAR_IN input
 
-	IRPTACK		aktiviert das SYNC-Signal bis zum übernächsten M1-Zyklus ( ~24 CPU-Takte ~ 5 µsec )
-				MIC_OUT-Ausgang entsprechend
+	OUT (FF),A	deactivates the SYNC signal
 
+	INT			Reading an opcode when refresh register R.D6=0 triggers an interrupt immediately after this M1 cycle.
 
-	Lesen eines Befehls im Bereich 0x8000 .. 0xFFFF	ergibt NOP wenn im Befehlscode D6=0
-	Gleichzeitig wird der Code in der ULA gespeichert
-	Wird der Code ausgeführt (D6=1) wird vermutlich das Charactercoderegister in der ULA nicht gelesen sondern gelöscht. ((TODO))
+	INTACK		activates the SYNC signal after 17cc for 20cc. (standard ZX80 ROM INT handler)
+				this depends on the timing of the following 4 M1 cycles (1st of which is the INTACK M1 cycle)
 
-	Im Refreshzyklus gibt die CPU das I-Register auf A9-A15 aus
-		und die ULA die 6 Datenbits des Zeichencodes auf A3-A8
-		und den internen Zeilenzähler LCNTR auf A0-A2
-	Das so adressierte Byte (im Characterset des ROMs) wird in den Videoshifter geladen
-		und in den nächsten 8 XTAL-Takten (4 CPU Takte) ausgegeben.
-		War Bit 7 des Bytes aus dem VRAM gesetzt, werden die Pixel invertiert.
-
-	Das letzte Zeichen einer Zeile im VRAM ist normalerweise der HALT Opcode,
-		so dass die CPU hier 'stehen bleibt' und nur noch weiße Pixelbytes in das Shiftregister geladen werden.
-
-	Sobald das R-Register 0x80 oder 0x00 erreicht - A6=0 - wird ein INT erzeugt
-		und die CPU führt keine weiteren HALTs mehr aus sondern nimmt die Interruptbehandlung
-		außerhalb des Bereiches 0x8000 - 0xFFFF auf.  ((außer der Interrupt ist gesperrt...))
-
-	Interrupts werden auch immer erzeugt, wenn im R-Register A6=0 ist.
-	Deshalb ist es außerhalb der Bildschirmroutine vermutlich nie sinnvoll, den Interrupt zuzulassen.
-
-----------------------------------
-
-	Da das Videoram nicht durch die HW fest verdrahtet ausgelesen wird, sondern INT und VRAM read durch die CPU erfolgt,
-	haben wir effektiv kein stabiles Videobild.
-
-	inputs:		Input()		-> Sync ON
-				Output()	-> Sync OFF
-				IrptAck()	-> Sync ON/OFF
-				UlaRead()	-> read pixel byte
-				DoFrameFlyback() -> setup frame data for oglRenderer
-
-	outputs:	GetCpuCyclesPerFrame()	-> wann DoFrameFlyback() aufgerufen wird
-				frame_w, frame_h	-> oglRenderer
-				screen_w, screen_h	-> oglRenderer
-				screen_x0,screen_y0	-> oglRenderer
-				frame_data			-> oglRenderer (swapped with old buffer)
-
-	Es wird versucht, ein TV Set nachzubilden:
-
-				vsync_cc_min, vsync_cc_max:		Fangbereich für VSYNC
-				hsync_cc_min, hsync_cc_max:		Fangbereich für HSYNC
-				während SYNC=ON werden schwarze Pixel gespeichert
-				während SYNC_OFF weiße Pixel bzw. Videopixel, wenn UlaRead() aufgerufen wird
-
+	A15=1 D6=0	Reading an opcode at address A15=1 actually reads from address with A15=0
+				and returns a NOP if D6=0.
+				Then the byte is used together with LCNTR and I register to form the address of a
+				pixel byte which is read in the refresh cycle of the same M1 cycle from the the ROM
+				and stored into the video shifter.
+				Every 4 cpu clock cycles one byte must be read to produce a scanline for the video image.
 */
 
 #include "UlaZx80.h"
@@ -76,16 +39,11 @@
 #include "Dsp.h"
 #include "ZxInfo.h"
 #include "Keyboard.h"
-#include "info.h"
 #include "TapeRecorder.h"
 
 
-
-// MIC_OUT ist das SYNC-Signal
-
-
 #define o_addr  	"----.----.----.----"		// übliche Adresse: $FF
-#define i_addr		"----.----.----.---0"		// übliche Adresse: $FE
+#define i_addr		"----.----.----.----"		// übliche Adresse: $FE, but we need to see all IN as well
 #define FRAMERATE_BIT	6						// 50/60 Hz Wahlschalter (Lötbrücke)
 #define EAR_IN_BIT		7
 #define EAR_IN_MASK		(1<<7)
@@ -93,393 +51,232 @@
 // bit  6:   50/60 Hz framerate jumper
 
 
-// colored pixel octets:
-#define black_pixels	0x00
-#define white_pixels	0xFF
-
-
 UlaZx80::~UlaZx80()
-{
-}
-
-
-UlaZx80::UlaZx80 (Machine* m)
-:
-	UlaMono(m,isa_UlaZx80,o_addr,i_addr)
 {}
 
+UlaZx80::UlaZx80 (Machine* m) :
+	UlaMono(m,isa_UlaZx80,o_addr,i_addr),
+	tv_decoder(dynamic_cast<IScreenMono&>(*screen), int32(m->model_info->cpu_cycles_per_second))
+{}
 
 void UlaZx80::powerOn(int32 cc)
 {
 	xlogIn("UlaZx80:init");
 	UlaMono::powerOn(cc);
 
-	frame_w		= bytes_per_row;	// frame width [bytes] == address offset per scan line
+	// dummy. TODO: eliminate?
+	frame_w		= 52;				// frame width [bytes] == address offset per scan line
 	screen_w	= 32;				// screen width [bytes]
 	screen_x0	= 8;				// hor. screen offset inside frame scan lines [bytes]
 
-	assert( bytes_per_row_max   <= UlaMono::max_bytes_per_row );
-	assert( bytes_per_frame_max <= UlaMono::max_bytes_per_frame );
-
+	tv_decoder.reset();
 	reset();
 }
 
-
-void UlaZx80::reset ( Time t, int32 cc )
+void UlaZx80::reset(Time t, int32 cc)
 {
 	xlogIn("UlaZx80::reset");
 	UlaMono::reset(t,cc);
+
+	tv_decoder.syncOff(cc);
 	reset();
 }
 
 void UlaZx80::reset()
 {
-//	mic_out_enabled		= no;
-	beeper_volume		= 0.0025;
+	beeper_volume = 0.0025f;
 	beeper_current_sample = -beeper_volume;
-
-	//cc_frame_start = 0;	// cc of current frame start
-	cc_frame_end	 = 0;	// cc of current frame end (after ffb successfully triggered, else 0)
-	cc_row_start	 = 0;	// cc of current row start
-	cc_sync_on		 = 0;	// cc of last sync on switching
-	cc_sync_off		 = 0;	// cc of last sync off switching
-	current_row		 = 0;	// crt raster row
-	current_lcntr	 = 0;	// 3 bit low line counter [0..7] of ula
-	fbu_idx			 = 0;	// current pixel byte deposition index in frame_buffer[] dep. on cc_sync_on or cc_sync_off
+	current_lcntr = 0;	// 3 bit scanline counter
+	vsync_on = false;
 
 	set60Hz(is60hz);
 }
 
-void UlaZx80::set60Hz(bool is60hz)
+void UlaZx80::set60Hz(bool is_60hz)
 {
 	bool machine_is60hz = machine->model_info->frames_per_second > 55;
-	info = machine_is60hz == is60hz ? machine->model_info : &zx_info[is60hz ? ts1000 : zx80];
+	info = machine_is60hz == is_60hz ? machine->model_info : &zx_info[is_60hz ? ts1000 : zx80];
 
-	cc_per_line			= info->cpu_cycles_per_line;
-	lines_before_screen = info->lines_before_screen;
-	lines_after_screen  = info->lines_after_screen;
+	// dummy. TODO: eliminate?
+	cc_per_line			= int(info->cpu_cycles_per_line);
+	lines_before_screen = int(info->lines_before_screen);
+	lines_after_screen  = int(info->lines_after_screen);
 	lines_per_frame = lines_before_screen + lines_in_screen + lines_after_screen;
 
-	Ula::set60Hz(is60hz);
+	Ula::set60Hz(is_60hz);
 }
 
-
-void UlaZx80::enableMicOut( bool f )
+void UlaZx80::enableMicOut(bool f)
 {
-	beeper_volume = f ? 0.05 : 0.0025;
-	beeper_current_sample = beeper_current_sample>0.0 ? beeper_volume : -beeper_volume;
+	beeper_volume = f ? 0.05f : 0.0025f;
+	beeper_current_sample = beeper_current_sample > 0.0f ? beeper_volume : -beeper_volume;
 }
 
-
-inline
-void UlaZx80::mic_out( Time now, Sample s )
+inline void UlaZx80::mic_out(Time now, Sample s)
 {
-	Dsp::outputSamples( beeper_current_sample, beeper_last_sample_time, now );
+	Dsp::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
 	beeper_last_sample_time = now;
 	beeper_current_sample = s;
 }
 
-
-inline
-void UlaZx80::self_trigger_hsync ( int32 cc )
+void UlaZx80::output(Time now, int32 cc, uint16 /*addr*/, uint8 /*byte*/)
 {
-	while( cc >= cc_for_row_end_max() )			// hsync self triggered?
+	if (vsync_on)
 	{
-		cc_row_start += cc_per_row_max;
-		current_row  += 1;
+		// any out() deactivates the VSYNC signal after this M1 cycle
+		// output() is called at cc = 3 in the i/o cycle => cc+1 for the end
+		tv_decoder.syncOff(cc+1);
+		vsync_on = false;
+		assert(current_lcntr == 0);
+
+		mic_out(now,beeper_volume);
+		if (machine->taperecorder->isRecording()) machine->taperecorder->output(cc,1);
 	}
 }
 
-
-inline
-void UlaZx80::pad_video_bytes ( int32 cc, uchar byte )
+void UlaZx80::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 {
-// frame buffer mit schwarzen o. weißen pixeln auffüllen:
-	int i = fbu_idx;
-	int e = fbu_idx_for_cc(cc);
-	assert(e<frame_data_alloc);				// really real limit
-	while( i<e ) frame_data[i++] = byte;
-	fbu_idx = i;
-}
-
-
-inline
-void UlaZx80::pad_video_bytes ( int32 cc )
-{
-	pad_video_bytes( cc, sync_on() ? black_pixels : white_pixels );
-}
-
-
-void UlaZx80::sync_on ( int32 cc )
-{
-	assert( sync_off() );
-	xxlog("OFF:%i\n",int(cc-cc_sync_off));
-
-// add self triggered rows:
-	self_trigger_hsync(cc);
-
-// frame buffer mit weißen pixeln auffüllen:
-	pad_video_bytes(cc,white_pixels);
-
-	cc_sync_on = cc;
-	current_lcntr = ( current_lcntr+1 ) & 0x0007;
-}
-
-void UlaZx80::send_frame_to_screen(int32 cc)
-{
-	cc_frame_end = cc;
-	if(lines_per_frame != current_row)
+	if (addr & 0x0001)
 	{
-		lines_per_frame = current_row;
-		lines_after_screen = lines_per_frame - lines_before_screen - lines_in_screen;
-	}
-	cc_row_start = cc;						// Versuchsweise...
+		// A0=1: not my address
+		// this set's FF1 which after 2 M1 cycles will activate SYNC
+		// and after 2 more M1 cycles deactivate SYNC again
+		// just like in INT request handling, only with even less knowledge about the future timing.
 
-	int frame_w = this->frame_w * 8;
-	int frame_h = lines_per_frame;
-	int screen_w = this->screen_w * 8;
-	int screen_h = lines_in_screen;
-	int screen_x0 = this->screen_x0 * 8;
-	int screen_y0 = lines_before_screen;
+		// as this is too high frequency for audio we assume that is not intended for audio and ignore it.
+		// else we'd need to assert that we don't step back in time which may kill Dsp::outputSamples()
 
-	bool new_buffer_in_use = ScreenMonoPtr(screen)->ffb_or_vbi( frame_data, frame_w, frame_h, screen_w, screen_h,
-													  screen_x0, screen_y0, 0);
-	if(new_buffer_in_use) std::swap(frame_data,frame_data2);
-
-	fbu_idx		= 0;
-	current_row	= 0;
-}
-
-void UlaZx80::sync_off ( int32 cc )
-{
-	assert( sync_on() );
-	xxlog("ON: %i\n",int(cc-cc_sync_on));
-
-// add self triggered rows:
-	self_trigger_hsync(cc);
-
-// hsync:
-	if( cc >= cc_for_row_end_min() )			// if at end of row
-	{
-		cc_row_start = cc;
-		current_row  += 1;
+		if (vsync_on == false)
+		{
+			// we'll use the same timing as for INT
+			// we arbitrarily start counting at the estimated start of the IN opcode at cc-3-4
+			tv_decoder.syncOn(cc-3-4+17);
+			tv_decoder.syncOff(cc-3-4+17+20);
+			current_lcntr = (current_lcntr+1) & 7;
+		}
+		return;
 	}
 
-// vsync:
-	if( cc >= cc_for_frame_end_min() &&			// if at frame end and long enough
-		cc >= cc_sync_on+cc_for_vsync_min )
+	// A0=0:
+
+	if (vsync_on == false)
 	{
-		send_frame_to_screen(cc);
+		// any in(FE) activates the VSYNC signal and resets the LCNTR of the ULA
+
+		// input() is called at cc = +3 in the i/o cycle
+		// but /IORQ was activated at cc+1  =>  subtract 2
+		tv_decoder.syncOn(cc-2);
+		vsync_on = true;
+
+		current_lcntr = 0;
+
+		mic_out(now,-beeper_volume);
+		if (machine->taperecorder->isRecording()) machine->taperecorder->output(cc,0);
 	}
 
-// frame buffer mit schwarzen pixeln auffüllen:
-	pad_video_bytes(cc,black_pixels);
+	mask = 0xff;	// though D5 is not driven. handling of floatingbus byte is only required for ZXSP.
 
-	cc_sync_off = cc;
-}
+	// insert bits from keyboard:
+	byte &= readKeyboard(addr);
 
-void UlaZx80::output ( Time now, int32 cc, uint16 /*addr*/, uint8 /*byte*/ )
-{
-//	any out() deactivates the SYNC signal
-	if( sync_on() )
-	{
-		// output() is called with cc = +3cc into the i/o cycle
-		// but pin constellation which toggles sync is already visible at +1cc
-		sync_off(cc-2);							// -2 to adjust for this reason
+	// insert bit D6 from framerate jumper:
+	if (is60hz) byte &= ~0x40;
 
-		mic_out(now,beeper_volume);				// TODO: müsste eigentlich in sync_off()
-		if(machine->taperecorder->isRecording()) machine->taperecorder->output(cc,1);
-	}
-}
-
-void UlaZx80::input ( Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask )
-{
-	assert(~addr&0x0001);		// not my address
-
-	mask = 0xff;
-
-// any in(FE) activates the SYNC signal and resets the LCNTR of the ULA
-// insbes. auch IN(7FFE) weil das wird in der SAVE-Routine benutzt!
-	if( sync_off() )
-	{
-												// Achtung: ZX80 Laderoutine ist phasenempfindlich!
-		mic_out(now,-beeper_volume);			// TODO: müsste eigentlich in sync_on()
-		if(machine->taperecorder->isRecording()) machine->taperecorder->output(cc,0);
-
-		// input() is called with cc = +3cc into the i/o cycle
-		// but pin constellation which toggles sync is already visible at +1cc
-		sync_on(cc-2);							// -2 to adjust for this reason
-	}
-	current_lcntr = 0;
-
-// insert bits from keyboard:
-	byte &= readKeyboard(addr);	// Ähh.. TODO: wird auch high getrieben?
-
-// D6: framerate jumper:
-	if(is60hz)
-	{
-		byte &= ~0x40;
-	}
-
-// insert bit from mic socket
-// signal from EAR input is read into bit 5.
+	// insert bit D5 from EAR input socket:
 	if(machine->taperecorder->isPlaying())
 	{
-		if(!machine->taperecorder->input(cc)) byte &= ~EAR_IN_MASK;
+		if (!machine->taperecorder->input(cc)) byte &= ~EAR_IN_MASK;
 	}
-	else if(machine->audio_in_enabled)
+	else if (machine->audio_in_enabled)
 	{
-		Sample const threshold = 0.01;			// to be verified
+		Sample const threshold = 0.01f;			// to be verified
 		uint32 a = uint32(now*samples_per_second);
-		if( a>=DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING )
+		if (a >= DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING)
 		{
-			assert(int32(a)>=0);
-			showAlert( "Sample input beyond dsp buffer: +%i\n", int(a-DSP_SAMPLES_PER_BUFFER) );
-			if(0.0<=threshold) byte &= ~EAR_IN_MASK;
+			assert(int32(a) >= 0);
+			showAlert("Sample input beyond dsp buffer: +%i\n", int(a-DSP_SAMPLES_PER_BUFFER));
+			if (0.0f <= threshold) byte &= ~EAR_IN_MASK;
 		}
 		else
-		{										// Achtung: ZX80 Laderoutine ist phasenempfindlich!
-			if(Dsp::audio_in_buffer[a]<=threshold) byte &= ~EAR_IN_MASK;
+		{
+			if (Dsp::audio_in_buffer[a] <= threshold) byte &= ~EAR_IN_MASK;
 		}
 	}
 	else byte &= ~EAR_IN_MASK;
 }
 
-void UlaZx80::crtcRead ( int32 cc, uint byte )
+void UlaZx80::crtcRead(int32 cc, uint opcode)
 {
-// an instruction was read at an address with A15=1 and returned an opcode with A6=0
-// => the Ula reads a video byte and fakes a NOP for the CPU
-//	  the NOP is already handled in the Z80 macro
+	// an instruction was read at an address with A15=1 and returned an opcode with A6=0
+	// => the Ula reads a video byte and fakes a NOP for the CPU
+	//	  the NOP is already handled in the Z80 macro
 
-//	Im Refreshzyklus gibt die CPU das I-Register auf A9-A15 aus
-//		und die ULA die 6 Datenbits des Zeichencodes auf A3-A8
-//		und den internen Zeilenzähler LCNTR auf A0-A2
-//	Das so adressierte Byte (im Characterset des ROMs) wird in den Videoshifter geladen
-//		War Bit 7 des Bytes aus dem VRAM gesetzt, werden die Pixel invertiert.
+	// bits D0 … D5 of the opcode are used as character code.
+	// D7 is used to complement the output.
 
-	if( sync_on() ) return;					// SYNC => BLACK!
+	// the screen byte is read from an address composed as following:
+	// A0…2 = LCNTR
+	// A3…A8 = D0…D5 from opcode
+	// A9…A15 = A1…A7 from I register
 
-	assert( cc <= cc_per_frame_max );
+	// the byte is always read from the internal ROM. (always activated)
+	// but in case of the 4k ROM A12 must be 0. (handled by memory mapping in MmuZX80)
+	// A13 is probably ignored. (handled by memory mapping in MmuZX80)
 
-	xxlog("CHR:%i\n",int(cc-cc_sync_off));
+	if (unlikely(vsync_on)) return;			// SYNC => BLACK!
 
 	Z80* cpu = machine->cpu;
-	uint  ir = cpu->getRegisters().ir;		// i register					// note: r nicht aktualisiert
-	uchar  b = cpu->peek( (ir&0xfe00)|((byte<<3)&0x01f8)|current_lcntr );	// TODO: Sichtbarkeit für ULA evtl. anders!
-
-// add self triggered rows:
-	self_trigger_hsync(cc);
-
-// frame buffer mit weißen pixeln auffüllen
-	pad_video_bytes(cc,white_pixels);
-
-// und das pixelbyte eintragen:
-	frame_data[ fbu_idx-1 ] = byte&0x0080 ? b : ~b;
+	uint  ir = cpu->getRegisters().ir;		// i register
+	uchar  b = cpu->peek(uint16((ir&0x3e00) | ((opcode<<3)&0x01f8) | current_lcntr));
+	tv_decoder.storePixelByte(cc+4, opcode&0x0080 ? b : ~b);
 }
 
-/*	special callback for ZX80/ZX81 screen update:
-*/
-uint8 UlaZx80::interruptAtCycle ( int32 cc, uint16 /*pc*/ )
+uint8 UlaZx80::interruptAtCycle(int32 cc, uint16 /*pc*/)
 {
-// Interrupt acknowledge:
-// => IORQ, WR and M1 are active at the same time
-// => the SYNC signal is activated
-//	  it remains active until next-plus-one M1 cycle (~5µs)
-//	  then it automatically deactivates
+	//	special callback for ZX80/ZX81 screen update:
 
-/*
-	the interrupt was generated by a condition during the refresh cycle in the previous opcode:
-	the refresh cycle starts in M1 at +2cc and lasts up to +4cc (almost?) always.
-	this is also true for instructions with longer M1 cycle and with multiple memory cycles!
+	/*
+	Interrupt acknowledge:
+	=> IORQ, WR and M1 are active at the same time
+	=> the SYNC signal is activated after 2 M1 cycles
+	   and deactivated after 2 more M1 cycles (~6.15µs)
 
-	at M1+2cc the /INT signal ist generated: this is cc-2 == cpu->cc_irpt_on.
-	possibly the /INT signal is only active during this time! This is done in Z80macros.h in
-	macro GET_INSTR(R) by creating this very short irpt period from cc+2 to cc+5.
+	cc is the cycle of start of interrupt handling.
 
-	The /INT signal is sampled during the first half cycle of the last cycle of the entire instruction.
-	So if, and only if, the instruction is 4cc long then the /INT signal is sampled during the
-	refresh cycle. This is true for all 4cc opcodes incl. NOP and HALT, which performs NOPs.
+	The INT signal was generated when D6=0 during refresh cycle in previous opcode
+	and it was sampled by the cpu during this time.
+	The 3-bit shift register is clocked by the M1 signal and
+	therefore the VSYNC signal toggles at the start of an M1 cycle (~ start of opcode)
 
-	then if PC.A15=1 and OPCODE.D6=1 then R.A6 is put on the /INT input of the cpu.
-*/
+	The next 4 M1 cycles are:
+		13cc  INT ACK cycle of the cpu
+		4cc   DEC C			; INT handler at 0x0038 in ZX80 rom
+		10cc  JP NZ,L0045	;
+		10cc  POP HL  or  POP DE if jumped
+	*/
+
 	assert (machine->cpu->interruptStart() == cc-2);
 
-	// cc-2 = start of /INT signal
-	// cc   = start of int handling by cpu = cc arg to this function
-	// +13 int processing by cpu
-	// +4  after M1 cycle of first opcode in irpt handler. ((why?))
-	//     +3 … +5 also ok acc. to test with Chroma80 Demo
-	const int cc_sync_on = cc + 13 + 4;
-	// +17 because sources say sync pulse is ~5µs, but it depends on M1 cycles
-	//     and 17 = in(FE)-to-out(FF) timing in hires drivers
-	const int cc_sync_off = cc_sync_on + 17;	// 16/3.25MHz = 4.92µs, 17/3.25MHz = 5.23µs
-
-	if(sync_off()) sync_on(cc_sync_on);
-	sync_off(cc_sync_off);
-	return 0xff;
-}
-
-int32 UlaZx80::updateScreenUpToCycle ( int32 cc )
-{
-	xlogIn("UlaZx80::updateScreenUpToCycle");
-
-// add self triggered rows:
-	self_trigger_hsync(cc);
-
-// frame buffer mit schwarzen o. weißen pixeln auffüllen:
-	pad_video_bytes(cc);
-
-	return cc;
-}
-
-int32 UlaZx80::doFrameFlyback ( int32 cc )
-{
-	assert( cc < cc_per_frame_max+cc_per_row );
-
-	xxlog("FFB:%i\n",int(cc-cc_frame_start));
-
-	// self-trigger vsync?
-	if( cc_frame_end==0 )
+	if (vsync_on == false)
 	{
-		// add self triggered rows:
-		self_trigger_hsync(cc);
+		const int cc_sync_on  = cc + 13 + 4;
+		const int cc_sync_off = cc + 13 + 4 + 20;
 
-		// frame buffer mit schwarzen o. weißen pixeln auffüllen:
-		pad_video_bytes( cc_row_start/*+cc_per_row*/ );
-
-		if(sync_on()) cc_sync_on = cc; else cc_sync_off = cc;
-
-		send_frame_to_screen(cc);
+		tv_decoder.syncOn(cc_sync_on);
+		tv_decoder.syncOff(cc_sync_off);
+		current_lcntr = (current_lcntr+1) & 7;
 	}
 
-	cc_per_frame		=  cc_frame_end - cc_frame_start;
-	cc_sync_on			-= cc_per_frame;		// cc of last sync on switching
-	cc_sync_off			-= cc_per_frame;		// cc of last sync off switching
-	cc_row_start		-= cc_per_frame;		// cc of current row start
-	//cc_frame_start  	-= cc_per_frame;		// cc of current frame start
-	cc_frame_end		=  0;					// cc of current frame end (after ffb successfully triggered, else 0)
-
-	//assert( current_row >= 0 && current_row < max_rows_per_frame );
-	//assert( cc_sync_off >= 0 || cc_sync_on >= 0 );
-	//assert( cc_row_start >= 0 );
-
-	return cc_per_frame;
+	return 0xff;	// byte read during INT ACK cycle
 }
 
-void UlaZx80::drawVideoBeamIndicator(int32 /*cc*/)
-{
-	// TODO();
-}
-
-
-
-void UlaZx80::saveToFile( FD& fd ) const throws
+void UlaZx80::saveToFile(FD& fd) const throws
 {
 	UlaMono::saveToFile(fd);
 	TODO();
 }
 
-void UlaZx80::loadFromFile( FD& fd ) throws
+void UlaZx80::loadFromFile(FD& fd) throws
 {
 	UlaMono::loadFromFile(fd);
 	TODO();
