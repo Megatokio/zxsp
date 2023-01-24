@@ -304,6 +304,7 @@ SOURCES +=	\
 	Source/Uni/Video/Renderer.cpp \
 	Source/Uni/Video/MonoRenderer.cpp \
 	Source/Uni/Video/SpectraRenderer.cpp \
+	Source/Uni/Video/TVDecoderMono.cpp \
 	\
 	Source/Uni/Files/file_stx.cpp \
 	Source/Uni/Files/FloppyDisk.cpp \
@@ -619,6 +620,8 @@ HEADERS += \
 	Source/Uni/Video/Renderer.h \
 	Source/Uni/Video/MonoRenderer.h \
 	Source/Uni/Video/SpectraRenderer.h \
+	Source/Uni/Video/IScreenMono.h \
+	Source/Uni/Video/TVDecoderMono.h \
 	\
 	Source/Uni/ZxInfo/ZxInfo.h \
 	Source/Uni/ZxInfo/info.h \

@@ -4,9 +4,9 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Screen.h"
+#include "IScreenMono.h"
 
-
-class ScreenMono : public Screen
+class ScreenMono : public Screen, public IScreenMono
 {
 	// uint16*	_attrpixels;
 	// IoInfo*	_ioinfo;
@@ -33,7 +33,8 @@ public:
 	ScreenMono(const ScreenMono&) = delete;
 	ScreenMono& operator=(const ScreenMono&) = delete;
 
-	bool ffb_or_vbi(uint8* new_pixels,int frame_w,int frame_h,int scrn_w,int scrn_h,int x0,int y0,uint32 cc);
+	__deprecated bool ffb_or_vbi(uint8* new_pixels,int frame_w,int frame_h,int scrn_w,int scrn_h,int x0,int y0,uint32 cc);
+	virtual bool sendFrame(uint8* frame_data, const Size& frame_size, const Rect& screen) override;
 };
 
 
