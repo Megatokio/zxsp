@@ -49,7 +49,7 @@ public:
 	void	markVideoRam() override;
 VIR void	crtcRead(int32, uint);
 VIR int32	getCurrentFramebufferIndex() = 0;
-VIR int32	framebufferIndexForCycle(int32 cc) = 0;
+//VIR int32	framebufferIndexForCycle(int32 cc) = 0;
 };
 
 

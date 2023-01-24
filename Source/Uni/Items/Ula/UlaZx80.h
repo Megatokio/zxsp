@@ -37,7 +37,7 @@ public:
 	uint8	interruptAtCycle(int32, uint16) override;
 
 	int32	getCurrentFramebufferIndex() override		{ return fbu_idx; }
-	int32	framebufferIndexForCycle(int32 cc) override	{ return fbu_idx_for_cc(cc); }
+//	int32	framebufferIndexForCycle(int32 cc) override	{ return fbu_idx_for_cc(cc); }
 
 	void	set60Hz(bool=1) override;
 	int32	getCcPerFrame() volatile const override		{ return cc_per_frame; }
