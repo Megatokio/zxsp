@@ -48,7 +48,7 @@ protected:
 	void	setupTiming() override				{}
 
 // UlaMono:
-	int32	getCurrentFramebufferIndex() override		{ return 0; /*z.zt. nur full frames, kein highres update*/ }
+//	int32	getCurrentFramebufferIndex() override		{ return 0; /*z.zt. nur full frames, kein highres update*/ }
 //	int32	framebufferIndexForCycle(int32 cc) override	{ return cc/4; }
 };
 
