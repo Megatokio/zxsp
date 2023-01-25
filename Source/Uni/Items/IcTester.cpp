@@ -5,6 +5,6 @@
 #include "IcTester.h"
 
 IcTester::IcTester( Machine* m )
-: Item(m, isa_IcTester, isa_Item,external,NULL,NULL )
+: Item(m, isa_IcTester, isa_Item,external,nullptr,nullptr )
 {
 }

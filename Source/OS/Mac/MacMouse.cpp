@@ -24,7 +24,7 @@ static void _ungrab()
 
 Mouse::Mouse()
 :
-	grabber(NULL),
+	grabber(nullptr),
 	mouse_tracker_timer(new QTimer(this)),
 	dx(0),
 	dy(0)
@@ -68,7 +68,7 @@ void Mouse::ungrab()
 	CGAssociateMouseAndMouseCursorPosition(yes);
 	CGDisplayShowCursor(kCGDirectMainDisplay);
 	disconnect(grabber, &QWidget::destroyed, this, &Mouse::ungrab);
-	grabber = NULL;
+	grabber = nullptr;
 }
 
 void Mouse::mouse_tracker()

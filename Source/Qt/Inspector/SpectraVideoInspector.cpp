@@ -24,7 +24,7 @@ SpectraVideoInspector::SpectraVideoInspector(QWidget*w, MachineController* mc, v
 :
 	Inspector(w,mc,i,SpectraVideoPtr(i)->isRomInserted()?"/Images/Spectra_Loaded.jpg":"/Images/Spectra.jpg"),
 	js_state(0),
-	rom_file(NULL)
+	rom_file(nullptr)
 {
 	assert(object->isA(isa_SpectraVideo));
 //	ula = UlaSpectraPtr(machine->ula);
@@ -224,7 +224,7 @@ void SpectraVideoInspector::updateWidgets()
 	cstr new_romfile = spectra->filepath;
 	if(rom_file != new_romfile)
 	{
-		rom_name->setText(new_romfile?basename_from_path(new_romfile):NULL);
+		rom_name->setText(new_romfile?basename_from_path(new_romfile):nullptr);
 
 		if(!rom_file)
 		{

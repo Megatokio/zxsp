@@ -25,13 +25,13 @@
 //    #define B_KEMPSTON                      0x20    /* ---- ---- --0- ---- */
 
 
-//#define  o_addr	NULL
+//#define  o_addr	nullptr
 //#define  i_addr	"----.----.000-.----"       // Issue 4
 
 
 
 KempstonJoy::KempstonJoy ( Machine* m, isa_id id, Internal i, cstr i_addr )
-:	Joy(m,id,i,NULL,i_addr,"K")
+:	Joy(m,id,i,nullptr,i_addr,"K")
 {
 	xlogIn("new KempstonJoy");
 }

@@ -32,7 +32,7 @@ class MyLineEdit : public QLineEdit
 	QString oldtext;
 
 public:
-	MyLineEdit( QString, QWidget* parent=NULL );
+	MyLineEdit( QString, QWidget* parent=nullptr );
 
 	void	setText		(QString);
 	QString	oldText		()				{ return oldtext; }

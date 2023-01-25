@@ -43,7 +43,7 @@ protected:
 	void	paintEvent(QPaintEvent*);
 
 public:
-			GWidget(QWidget*parent)		:QWidget(parent),canvas(NULL){}
+			GWidget(QWidget*parent)		:QWidget(parent),canvas(nullptr){}
 			~GWidget()					{ delete canvas; }
 };
 
@@ -383,7 +383,7 @@ void MemoryGraphInspector::updateTooltip()
 	uint y = graphics_view->y = pos.y()+mouse_y_offset;	if( y >= uint(graphics_view->height()) ) return;
 
 	int32 offset = scroll_offset + x/8 + y*bytes_per_row;
-	if(offset>=data.size) { QToolTip::showText(gpos, NULL, graphics_view, QRect()); graphics_view->x=-99; return; }
+	if(offset>=data.size) { QToolTip::showText(gpos, nullptr, graphics_view, QRect()); graphics_view->x=-99; return; }
 
 	uint byte = data_source==AsSeenByCpu
 			? machine->cpu->peek(offset)

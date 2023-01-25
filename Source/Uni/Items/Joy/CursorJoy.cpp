@@ -15,7 +15,7 @@
 */
 
 
-#define O_ADDR  NULL
+#define O_ADDR  nullptr
 #define I_ADDR  "----.----.----.---0"
 
 

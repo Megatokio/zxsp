@@ -84,7 +84,7 @@ static const float RC = 11e3f * 22e-9f * 0.5f;			// 33kΩ * 22nF * 0.5
 CurrahMicroSpeech::CurrahMicroSpeech(Machine* m)   // CREATOR
 :
 	Item(m,isa_CurrahMicroSpeech,isa_CurrahMicroSpeech/*grp*/,external,o_addr,i_addr),
-	sp0256(NULL),
+	sp0256(nullptr),
 	rom(m,"Currah µSpeech Rom",2 kB),
 	enable_state(no),
 	pitch(0x00),
@@ -201,8 +201,8 @@ void CurrahMicroSpeech::toggle_enable_state()
 	{
 		// the rom is visible at 0x0000 and mirrored at 0x0800
 
-		machine->cpu->mapRom(0x0000,0x800,rom.getData(),NULL,0);
-		machine->cpu->mapRom(0x0800,0x800,rom.getData(),NULL,0);	// mirror at 0x0800
+		machine->cpu->mapRom(0x0000,0x800,rom.getData(),nullptr,0);
+		machine->cpu->mapRom(0x0800,0x800,rom.getData(),nullptr,0);	// mirror at 0x0800
 
 		machine->cpu->unmapRom(0x1000,0x3000);						// unmap the remainder
 
@@ -340,7 +340,7 @@ uint8 CurrahMicroSpeech::handleRomPatch( uint16 pc, uint8 opcode )
 	romdis_in = f;
 	if(f) return;
 
-	cpu->mapRom(0x0000,0x4000,&rom[0],NULL,0);
+	cpu->mapRom(0x0000,0x4000,&rom[0],nullptr,0);
 }*/
 
 uint8 CurrahMicroSpeech::readMemory(Time t, int32 cc, uint16 addr, uint8 byte)

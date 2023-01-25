@@ -310,7 +310,7 @@ cstr O80Data::calcMajorBlockInfo() const noexcept
 		uint   n = data.count();
 		return n==0 ? "(no data)" : *p==0x80 ? "(unnamed)" : zx81_progname_str(p,n);
 	}
-	return NULL;
+	return nullptr;
 }
 
 /* returns info: block size
@@ -323,7 +323,7 @@ cstr O80Data::calcMinorBlockInfo() const noexcept
 		if(zx81) n -= zx81_progname_len(data.getData(),data.count());
 		return usingstr("%u bytes",n);
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -499,16 +499,16 @@ void O80Data::writeFile(cstr fpath, TapeFile& data ) noexcept(false) // file_err
 	}
 	else	// .o or .p file can store only 1 block:
 	{
-		O80Data* bestdata = NULL;
+		O80Data* bestdata = nullptr;
 
 		for(uint i=0; i<data.count(); i++)
 		{
 			TapeFileDataBlock* datablock = data[i];
 			datablock->getO80Data();
 			O80Data* td = datablock->getO80Data();
-			if(td==NULL || td->trust_level < TrustLevel::conversion_success) continue;	// no o80 block
+			if(td==nullptr || td->trust_level < TrustLevel::conversion_success) continue;	// no o80 block
 			if(o80?td->is_zx81:td->is_zx80) continue;									// wrong model for file
-			if(bestdata==NULL) { bestdata = td; continue; }								// store first candidate
+			if(bestdata==nullptr) { bestdata = td; continue; }								// store first candidate
 			xlogline("error: more than 1 suitable block in TapeFile");
 			if(td->trust_level > bestdata->trust_level) bestdata = td;					// pick best candidate
 		}

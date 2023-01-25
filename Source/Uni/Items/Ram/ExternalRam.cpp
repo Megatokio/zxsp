@@ -8,7 +8,7 @@
 
 ExternalRam::ExternalRam(Machine*m, isa_id id)
 :
-	Item(m,id,isa_ExternalRam,external,NULL,NULL)
+	Item(m,id,isa_ExternalRam,external,nullptr,nullptr)
 {}
 
 

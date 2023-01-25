@@ -201,8 +201,8 @@ SpectraVideo::SpectraVideo(Machine* m)
 	//port_7ffd(0),
 	//shadowram_ever_used(no),
 	shadowram(new Memory(m,"SPECTRA Video Ram",0x8000)),
-	joystick(NULL),
-	overlay(NULL),
+	joystick(nullptr),
+	overlay(nullptr),
 	//port_254(0),
 	//port_239(0),
 	//port_247(0),
@@ -695,12 +695,12 @@ void SpectraVideo::ejectRom()
 {
 	assert(is_locked());
 
-	delete[] filepath; filepath=NULL;
+	delete[] filepath; filepath=nullptr;
 	if(rom.ptr()==0) return;
 
 	deactivateRom();
 	deactivate_hooks();
-	rom = NULL;
+	rom = nullptr;
 }
 
 uint8 SpectraVideo::handleRomPatch(uint16 pc, uint8 opcode)
@@ -740,21 +740,21 @@ void SpectraVideo::init_rom()
 
 void SpectraVideo::activateRom()
 {
-	if(rom.ptr()==NULL) return;
+	if(rom.ptr()==nullptr) return;
 	own_romdis_state = true;
 	if(romdis_in) return;
 
 	assert(rom.count()==0x4000);
 
 	prev()->romCS(true);
-	machine->cpu->mapRom(0/*addr*/,0x4000/*size*/,rom.getData(),NULL,0);
+	machine->cpu->mapRom(0/*addr*/,0x4000/*size*/,rom.getData(),nullptr,0);
 }
 
 void SpectraVideo::deactivateRom()
 {
 	own_romdis_state = false;
 	if(romdis_in) return;
-	if(rom.ptr()==NULL) return;
+	if(rom.ptr()==nullptr) return;
 	prev()->romCS(false);
 
 //	if(machine->cpu->rdPtr(0)==rom.getData()) machine->cpu->unmapRom(0/*addr*/,0x4000/*size*/);
@@ -862,7 +862,7 @@ void SpectraVideo::insertJoystick( int id ) volatile
 {
 	if(joystick == joysticks[id]) return;
 
-	if(overlay) { machine->removeOverlay(overlay); overlay=NULL; }
+	if(overlay) { machine->removeOverlay(overlay); overlay=nullptr; }
 	joystick = joysticks[id];
 	if(id!=no_joystick) overlay = machine->addOverlay(joystick,"K",Overlay::TopRight);
 }

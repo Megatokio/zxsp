@@ -30,7 +30,7 @@ http://8bit.yarek.pl/computer/zx.tc2048/index-de.html:
 */
 
 
-#define o_addr	NULL
+#define o_addr	nullptr
 #define	i_addr	"----.----.--0-.----"
 
 

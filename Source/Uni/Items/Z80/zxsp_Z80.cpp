@@ -60,7 +60,7 @@ Z80::Z80( Machine* m )
 	Item(m, isa_Z80, isa_Z80, internal, nullptr, nullptr)
 {
 	xlogIn("new Z80");
-	assert(_prev==NULL);
+	assert(_prev==nullptr);
 	assert( sizeof(FourBytes)==4 );	// this should be a nop
 
 	crtc = nullptr;					// cathode ray tube controller

@@ -55,7 +55,7 @@ DivIDEInspector::DivIDEInspector(QWidget* o, MachineController* mc, volatile Isa
 	state.led_green  = 1;		// power led: mostly on		// wird in updateWidgets() nicht aktualisiert
 	state.led_yellow = 0;		// MAPRAM state
 	state.led_red    = 0;		// IDE busy: mostly off
-	state.diskname   = NULL;	// NULL => no module; else name of disk
+	state.diskname   = nullptr;	// nullptr => no module; else name of disk
 
 // click area "insert/eject module":
 	module = new QWidget(this);
@@ -257,7 +257,7 @@ void DivIDEInspector::load_rom(cstr filepath)
 void DivIDEInspector::load_default_rom()
 {
 	xlogline("DivIDEInspector: slotLoadDefaultRom");
-	load_rom(NULL);
+	load_rom(nullptr);
 }
 
 void DivIDEInspector::load_rom()			// with requester
@@ -414,7 +414,7 @@ void DivIDEInspector::insert_new_128M()
 
 /*	callback provided for ToolWindow:
 	either return a custom name
-	or return NULL for default/item name
+	or return nullptr for default/item name
 */
 cstr DivIDEInspector::getCustomTitle()
 {
@@ -423,7 +423,7 @@ cstr DivIDEInspector::getCustomTitle()
 
 	return divide()->getRomFilepath()
 		? catstr( item()->name, ": ", divide()->getRomFilename() )
-		: NULL;
+		: nullptr;
 }
 
 

@@ -49,7 +49,7 @@ void MmuZxsp::mapMem()
 	assert( ula&&cpu );
 	assert( ula->isA(isa_UlaZxsp) );
 
-	if(!romdis_in) cpu->mapRom(0x0000,0x4000,&rom[0],NULL,0);
+	if(!romdis_in) cpu->mapRom(0x0000,0x4000,&rom[0],nullptr,0);
 
 	cpu->mapRam( 0x4000, 0x4000, &ram[0x0000], ula_zxsp->getWaitmap(), ula_zxsp->getWaitmapSize() );
 
@@ -57,10 +57,10 @@ void MmuZxsp::mapMem()
 // Cheetah32K erweitert aber machine.ram so dass das hier geht.
 // Um es sauber zu machen, müsste man aber wohl in machine.init erst mal allen Speicher unmappen.
 
-	if(ram.count()>0x4000)	cpu->mapRam(0x8000, 0x4000, &ram[0x4000], NULL, 0);
+	if(ram.count()>0x4000)	cpu->mapRam(0x8000, 0x4000, &ram[0x4000], nullptr, 0);
 	else					cpu->unmapRam(0x8000, 0x4000);
 
-	if(ram.count()>0x8000)	cpu->mapRam(0xC000, 0x4000, &ram[0x8000], NULL, 0);
+	if(ram.count()>0x8000)	cpu->mapRam(0xC000, 0x4000, &ram[0x8000], nullptr, 0);
 	else					cpu->unmapRam(0xC000, 0x4000);
 
 //	UlaZxspPtr(ula)->setVideoRam(ram.Data());	Stört sich mit SPECTRA interface. Sollte hier eh überflüssig sein, da die Ula ja auch ein init() kriegt.
@@ -83,7 +83,7 @@ void MmuZxsp::romCS( bool f )
 	romdis_in = f;
 	if(f) return;
 
-	cpu->mapRom(0x0000,0x4000,&rom[0],NULL,0);
+	cpu->mapRom(0x0000,0x4000,&rom[0],nullptr,0);
 }
 
 

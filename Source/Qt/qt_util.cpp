@@ -96,7 +96,7 @@ void setColors(QWidget* widget, QRgb foregroundcolor, QRgb backgroundcolor)
 static
 cstr selectFile(QWidget* parent, cstr headline, cstr filefilterlist, bool isSaveDialog)
 {
-	assert(filefilterlist != NULL);
+	assert(filefilterlist != nullptr);
 
 /*	unter OSX klappt das Vorbesetzen des Directory-Pfades nicht.
  *	Deshalb muss der mit setDirectory() erneut gesetzt werden.
@@ -128,7 +128,7 @@ cstr selectFile(QWidget* parent, cstr headline, cstr filefilterlist, bool isSave
 		filepath = dupstr(s.toUtf8().data());
 
 		parent->activateWindow();
-		if(eq(filepath,"")) return NULL;
+		if(eq(filepath,"")) return nullptr;
 	}
 	else
 	{
@@ -145,17 +145,17 @@ cstr selectFile(QWidget* parent, cstr headline, cstr filefilterlist, bool isSave
 
 		change_working_dir("/");		// nicht den Fuß im cwd lassen..
 		parent->activateWindow();
-		if(!ok) return NULL;
+		if(!ok) return nullptr;
 
 		s = dialog.selectedNameFilter(); filter = s.toUtf8().data();
 		settings.setValue(ffkey,filter);
 		xlogline("store file filter %s", filter);
 
 		QStringList fileNames = dialog.selectedFiles();
-		if(fileNames.count()<1) return NULL;
+		if(fileNames.count()<1) return nullptr;
 
 		s = fileNames.at(0); filepath = dupstr(s.toUtf8().data());
-		if(eq(filepath,"")) return NULL;
+		if(eq(filepath,"")) return nullptr;
 	}
 
 	if(is_dir(filepath))
@@ -164,7 +164,7 @@ cstr selectFile(QWidget* parent, cstr headline, cstr filefilterlist, bool isSave
 		"You must select \"All files (*)\" from the popup in the file selector box to step into this folder.\n\n"
 		"Vote up the bug at:\n"
 		"https://bugreports.qt-project.org/browse/QTBUG-34187");
-		return NULL;
+		return nullptr;
 	}
 
 	settings.setValue(vzkey, directory_from_path(filepath));
@@ -174,7 +174,7 @@ cstr selectFile(QWidget* parent, cstr headline, cstr filefilterlist, bool isSave
 cstr selectLoadFile(QWidget* parent, cstr headline, cstr filefilterlist)
 {
 	// der settings-key für einen file dialog ergibt sich aus dem Text bis zum 1. "(" in der Filterliste
-	assert(filefilterlist != NULL);
+	assert(filefilterlist != nullptr);
 
 	return selectFile(parent,headline,filefilterlist,no);
 }
@@ -182,7 +182,7 @@ cstr selectLoadFile(QWidget* parent, cstr headline, cstr filefilterlist)
 cstr selectSaveFile(QWidget* parent, cstr headline, cstr filefilterlist)
 {
 	// der settings-key für einen file dialog ergibt sich aus dem Text bis zum 1. "(" in der Filterliste
-	assert(filefilterlist != NULL);
+	assert(filefilterlist != nullptr);
 
 	return selectFile(parent,headline,filefilterlist,yes);
 }

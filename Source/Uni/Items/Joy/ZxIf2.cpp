@@ -48,15 +48,15 @@
 	evtl. das Rom an Machine.rom anhängen oder anderweitig für MemoryInspector::AllRom und MemoryInspector::RomPages sichtbarmachen
 */
 
-#define o_addr	NULL
+#define o_addr	nullptr
 #define	i_addr	"----.----.----.---0"
 
 
 ZxIf2::ZxIf2(Machine*m)
 :
 	SinclairJoy( m, isa_ZxIf2, external ),
-	rom(NULL),
-	filepath(NULL)
+	rom(nullptr),
+	filepath(nullptr)
 {
 	xlogIn("new ZxIf2");
 }
@@ -85,7 +85,7 @@ void ZxIf2::insertRom( cstr path )
 
 	filepath = newcopy(path);
 	prev()->romCS(true);
-	machine->cpu->mapRom(0/*addr*/,0x4000/*size*/,rom.getData(),NULL,0);
+	machine->cpu->mapRom(0/*addr*/,0x4000/*size*/,rom.getData(),nullptr,0);
 	addRecentFile(RecentIf2Roms,path);
 	addRecentFile(RecentFiles,path);
 }
@@ -97,8 +97,8 @@ void ZxIf2::ejectRom()
 	assert(is_locked());
 
 	prev()->romCS(false);
-	delete[] filepath; filepath = NULL;
-	rom = NULL;
+	delete[] filepath; filepath = nullptr;
+	rom = nullptr;
 }
 
 
@@ -109,7 +109,7 @@ void ZxIf2::powerOn(/*t=0*/ int32 cc)
 
 	if(rom)
 	{
-		machine->cpu->mapRom(0/*addr*/,0x4000,rom.getData(),NULL,0);
+		machine->cpu->mapRom(0/*addr*/,0x4000,rom.getData(),nullptr,0);
 		prev()->romCS(true);
 	}
 }

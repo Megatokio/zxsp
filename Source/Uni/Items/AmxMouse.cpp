@@ -10,8 +10,8 @@
 	Circuit also on k1
 */
 
-#define o_addr NULL	//TODO
-#define i_addr NULL	//TODO
+#define o_addr nullptr	//TODO
+#define i_addr nullptr	//TODO
 
 
 AmxMouse::AmxMouse(Machine*m)

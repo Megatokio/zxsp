@@ -26,7 +26,7 @@ public:
 	void		grab(QWidget*);
 	void		ungrab();
 	QWidget*	getGrabber()		{ return grabber; }
-	bool		isGrabbed()         { return grabber!=NULL; }
+	bool		isGrabbed()         { return grabber!=nullptr; }
 
 	bool		getLeftButton()     { return QApplication::mouseButtons() & Qt::LeftButton; }
 	bool		getMiddleButton()	{ return QApplication::mouseButtons() & Qt::MidButton; }

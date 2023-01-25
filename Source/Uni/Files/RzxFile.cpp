@@ -415,7 +415,7 @@ void RzxFile::writeFile(cstr filename) throws
 	fd.write_bytes(crea,20);					// char[20] creator name
 	fd.write_uint16_z(APPL_VERSION_H*256+APPL_VERSION_M);
 	fd.write_uint16_z(APPL_VERSION_L);			// uint16[2] creator version
-	//fd.write_bytes(NULL,0);					// no custom data
+	//fd.write_bytes(nullptr,0);					// no custom data
 
 	// the blocks:
 	for(uint i=0; i<blocks.count(); i++)

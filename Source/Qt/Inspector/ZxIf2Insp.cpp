@@ -21,7 +21,7 @@
 ZxIf2Insp::ZxIf2Insp(QWidget*w, MachineController* mc, volatile IsaObject *i )
 :
 	SinclairJoyInsp(w,mc,i,"/Images/zxif2.jpg"),
-	old_romfilepath(NULL)
+	old_romfilepath(nullptr)
 {
 	assert(object->isA(isa_ZxIf2));
 
@@ -96,7 +96,7 @@ void ZxIf2Insp::updateWidgets()
 	cstr new_romfilepath = zxif2()->getFilepath();
 	if(old_romfilepath != new_romfilepath)
 	{
-		label_romfilename->setText(new_romfilepath ? basename_from_path(new_romfilepath) : NULL);
+		label_romfilename->setText(new_romfilepath ? basename_from_path(new_romfilepath) : nullptr);
 
 		if(!old_romfilepath) { background.load( catstr(appl_rsrc_path,"/Images/zxif2_with_cart.jpg") ); button_insert_eject->setText("Eject Rom");  update(); }
 		if(!new_romfilepath) { background.load( catstr(appl_rsrc_path,"/Images/zxif2.jpg") );		    button_insert_eject->setText("Insert Rom"); update(); }

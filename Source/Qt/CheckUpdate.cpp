@@ -39,9 +39,9 @@ CheckUpdate::CheckUpdate(QObject* parent, bool verbose)
 	QObject(parent),
 	verbose(verbose),
 	state(dl_filelist),
-	filename(NULL),
-	network_manager(NULL),
-	reply(NULL),
+	filename(nullptr),
+	network_manager(nullptr),
+	reply(nullptr),
 	request()
 {
 	request.setUrl(QUrl(catstr(check_update_url, APPL_VERSION_STR)));

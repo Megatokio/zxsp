@@ -9,7 +9,7 @@
 #define	KI_ADDR	"----.----.000-.----"       // Kempston Issue 4
 #define	SI_ADDR	"---0.----.----.---0"       // right Sinclair, Port 0xeffe
 #define I_ADDR  "----.----.----.----"
-#define O_ADDR  NULL
+#define O_ADDR  nullptr
 
 #define k_bits  0x0000
 #define k_mask  0x00e0

@@ -33,7 +33,7 @@ public:
 	uint	getNumPorts() volatile const				{ return num_ports; }
 
 protected:
-	Joy(Machine*, isa_id, Internal, cstr o_addr, cstr i_addr, cstr idf1, cstr idf2=NULL, cstr idf3=NULL);
+	Joy(Machine*, isa_id, Internal, cstr o_addr, cstr i_addr, cstr idf1, cstr idf2=nullptr, cstr idf3=nullptr);
 
 	// Item interface
 	//void	powerOn			(/*t=0*/ int32 cc) override;

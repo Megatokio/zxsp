@@ -393,7 +393,7 @@ void startCoreAudio(bool input_enabled)//, int playthrough_mode)
 #if 0
 	status = UpdateDeviceList();
 	if(status) throw AnyError("Dsp:UpdateDeviceList");
-	status = AudioHardwareAddPropertyListener(kAudioHardwarePropertyDevices, AHPropertyListenerProc, NULL );
+	status = AudioHardwareAddPropertyListener(kAudioHardwarePropertyDevices, AHPropertyListenerProc, nullptr );
 	if(status) throw AnyError("AudioHardwareAddPropertyListener");
 #endif
 

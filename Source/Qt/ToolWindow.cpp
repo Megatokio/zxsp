@@ -92,7 +92,7 @@ void ToolWindow::kill()
 	{
 		removeToolBar(toolbar);				// hide, but does not delete
 		toolbar->setParent(inspector);		// keep alive as long as inspector lives because inspector relies on existance of toolbar widgets
-		toolbar = NULL; toolbar_height = 0;	// forget it
+		toolbar = nullptr; toolbar_height = 0;	// forget it
 	}
 
 	if(show_action)
@@ -100,7 +100,7 @@ void ToolWindow::kill()
 		volatile const IsaObject* object = item; item = nullptr;
 		QAction* showaction = show_action;	show_action = nullptr;
 
-		if(machine_controller->findToolWindowForItem(object) == NULL)
+		if(machine_controller->findToolWindowForItem(object) == nullptr)
 		{
 			showaction->blockSignals(true);
 			showaction->setChecked(off);
@@ -167,14 +167,14 @@ void ToolWindow::init(volatile IsaObject* object, QAction* showaction )
 
 void ToolWindow::keyPressEvent(QKeyEvent*e)
 {
-	xlogIn("ToolWindow[%s]:keyPressEvent",item?item->name:"NULL");
+	xlogIn("ToolWindow[%s]:keyPressEvent",item?item->name:"nullptr");
 
 	machine_controller->keyPressEvent(e);
 }
 
 void ToolWindow::keyReleaseEvent(QKeyEvent*e)
 {
-	xlogIn("ToolWindow[%s]:keyReleaseEvent",item?item->name:"NULL");
+	xlogIn("ToolWindow[%s]:keyReleaseEvent",item?item->name:"nullptr");
 
 	machine_controller->keyReleaseEvent(e);
 }
@@ -274,7 +274,7 @@ void ToolWindow::fillContextMenu(QMenu* contextmenu)
 			xlogIn("ToolWindow.contextmenu.showMemoryItem");
 
 			QAction* action = machine_controller->findShowActionForItem(item);
-			assert(action!=NULL);
+			assert(action!=nullptr);
 
 			kill();
 			init(item,action);
@@ -292,7 +292,7 @@ void ToolWindow::fillContextMenu(QMenu* contextmenu)
 			xlogIn("ToolWindow.contextmenu.showItem");
 
 			QAction* action = machine_controller->findShowActionForItem(item);
-			assert(action!=NULL);
+			assert(action!=nullptr);
 
 			kill();
 			init(item,action);

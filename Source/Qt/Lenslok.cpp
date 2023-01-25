@@ -96,8 +96,8 @@ static uint get_game_id( cstr name );
 Lenslok::Lenslok(MachineController* mc, cstr name1, cstr name2)
 :	QWidget(mc),
 	controller(mc),
-	background_a(catstr(appl_rsrc_path,"Images/Lenslok-1a-100.png"),NULL,Qt::NoOpaqueDetection),
-	background_b(catstr(appl_rsrc_path,"Images/Lenslok-1b-100.png"),NULL,Qt::NoOpaqueDetection),
+	background_a(catstr(appl_rsrc_path,"Images/Lenslok-1a-100.png"),nullptr,Qt::NoOpaqueDetection),
+	background_b(catstr(appl_rsrc_path,"Images/Lenslok-1b-100.png"),nullptr,Qt::NoOpaqueDetection),
 	background(&background_a),
 	contextmenu(new QMenu(this)),
 	timer(new QTimer(this)),

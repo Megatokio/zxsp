@@ -629,7 +629,7 @@ loadrampage:
 			{
 				if(page >= (ram.count()>>14)) throw DataError("Snapshot: page index out of range");
 				read_compressed_page(fd, len, &ram[page<<14], 0x4000);
-				if(spectra!=NULL)
+				if(spectra!=nullptr)
 				{
 					if(mmu->hasPort7ffd())
 					{

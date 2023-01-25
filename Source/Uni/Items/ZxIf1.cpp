@@ -65,6 +65,6 @@
 
 
 ZxIf1::ZxIf1(Machine*m)
-: Item(m,isa_ZxIf1,isa_Item,external,NULL,NULL)
+: Item(m,isa_ZxIf1,isa_Item,external,nullptr,nullptr)
 {
 }

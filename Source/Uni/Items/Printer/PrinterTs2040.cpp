@@ -29,8 +29,8 @@
 //        (D7) This line is high for the start of a new line.
 
 
-static cstr o_addr = NULL;//TODO
-static cstr i_addr = NULL;//TODO
+static cstr o_addr = nullptr;//TODO
+static cstr i_addr = nullptr;//TODO
 
 PrinterTs2040::PrinterTs2040(Machine *m) :
 	Printer(m,isa_PrinterTs2040,external,o_addr,i_addr)

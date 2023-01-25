@@ -27,11 +27,11 @@ public:
 	void	ejectCartridge	();
 	void	insertCartridge	(cstr filepath);
 	void	saveCartridgeAs	(cstr fpath)		{ if(cartridge) cartridge->saveAs(fpath); }
-	bool	isLoaded		() volatile const	{ return cartridge!=NULL; }
+	bool	isLoaded		() volatile const	{ return cartridge!=nullptr; }
 
 	bool	isZxspEmu()   volatile const{ assert(isMainThread()); return cartridge?cartridge->isZxspEmu():no; }
 	TccRomId getTccId() volatile const{ assert(isMainThread()); return cartridge?cartridge->getTccId():TccUnknown; }
-	cstr	getFilepath() volatile const{ assert(isMainThread()); return cartridge?cartridge->getFilepath():NULL; }
+	cstr	getFilepath() volatile const{ assert(isMainThread()); return cartridge?cartridge->getFilepath():nullptr; }
 
 protected:
 // Item interface:

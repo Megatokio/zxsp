@@ -73,7 +73,7 @@ public:
 	void		saveScreenshot	(cstr path) throws;
 	void		startRecording  (cstr path, bool update_border) throws;
 	void		stopRecording	();
-	bool		isRecording		() const			{ return _gifmovie_filepath != NULL; }
+	bool		isRecording		() const			{ return _gifmovie_filepath != nullptr; }
 
 	bool		isA				(isa_id i) volatile const	{ isa_id j=id; while(j&&j!=i) { j=isa_pid[j]; } return i==j; }
 								// { isa_id j=id; do{ if(i==j) return yes; }while((j=isa_pid[j])); return no; }

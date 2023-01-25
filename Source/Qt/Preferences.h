@@ -14,7 +14,7 @@ class Preferences : public QWidget
 	int modelList[num_models];
 
 public:
-	explicit Preferences(QWidget* parent = NULL);
+	explicit Preferences(QWidget* parent = nullptr);
 
 private:
 	void setSaveAndRestore(bool);

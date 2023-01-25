@@ -11,8 +11,8 @@
 //    Peripheral: +3 Centronics Interface.
 //    Port: 0000 ---- ---- --0-
 
-static cstr o_addr = NULL;//TODO
-static cstr i_addr = NULL;//TODO
+static cstr o_addr = nullptr;//TODO
+static cstr i_addr = nullptr;//TODO
 
 PrinterPlus3::PrinterPlus3(Machine *parent) :
 	Printer(parent,isa_PrinterPlus3,internal,o_addr,i_addr)

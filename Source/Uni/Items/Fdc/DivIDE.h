@@ -37,11 +37,11 @@ public:
 	cstr        getRomFilename	() volatile const	{ return basename_from_path(romfilepath); }
 	bool		isRomPagedIn	() volatile const	{ return own_romdis_state; }
 	int/*err*/	insertRom		(cstr path, bool silent=no);
-	int/*err*/	insertDefaultRom(bool silent=false)	{ return insertRom(NULL,silent); }
+	int/*err*/	insertDefaultRom(bool silent=false)	{ return insertRom(nullptr,silent); }
 	void		saveRom			(FD&) throws;
 
 // Disk handling:
-	bool		isDiskInserted	() volatile const	{ return cf_card != NULL; }
+	bool		isDiskInserted	() volatile const	{ return cf_card != nullptr; }
 	void		insertDisk		(cstr path);
 	void		ejectDisk		();
 
@@ -61,7 +61,7 @@ public:
 	cstr	getDiskFilename	() volatile const;
 	Memory&	getRam			() volatile const { assert(isMainThread()); return const_cast<MemoryPtr&>(ram).ref(); }
 	Memory&	getRom			() volatile const { assert(isMainThread()); return const_cast<MemoryPtr&>(rom).ref(); }
-	//cstr	getDiskFilepath	() volatile const { assertMainThread(); return cf_card?cf_card->getFilepath():NULL; }
+	//cstr	getDiskFilepath	() volatile const { assertMainThread(); return cf_card?cf_card->getFilepath():nullptr; }
 	void	setDiskWritable	(bool) volatile;
 
 protected:

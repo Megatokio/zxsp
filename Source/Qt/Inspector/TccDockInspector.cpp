@@ -59,7 +59,7 @@ TccDockInspector::TccDockInspector(QWidget* parent, MachineController* mc, volat
 //	box_front_module_inserted(u ? box_front_module_inserted_u : box_front_module_inserted_tc),
 //	box_front_module_ejected (u ? box_front_module_ejected_u  : box_front_module_ejected_tc),
 	cartridge_state(Invalid),
-	current_fpath(NULL),
+	current_fpath(nullptr),
 	current_id(TccUnknown)
 {
 	// Bereich des leeren Docks, in das man klicken kann, um ein neues Cartridge zu laden:
@@ -262,7 +262,7 @@ void TccDockInspector::insert_or_eject_cartridge()
 
 	cartridge_state = Invalid;
 	delete[] current_fpath;
-	current_fpath = NULL;
+	current_fpath = nullptr;
 
 	bool f = machine->powerOff();
 
@@ -285,7 +285,7 @@ void TccDockInspector::insert_cartridge(cstr filepath)
 
 	cartridge_state = Invalid;
 	delete[] current_fpath;
-	current_fpath = NULL;
+	current_fpath = nullptr;
 
 	bool f = machine->powerOff();
 
@@ -322,7 +322,7 @@ void TccDockInspector::remove_cartridge()
 	{
 		cartridge_state = Invalid;
 		delete[] current_fpath;
-		current_fpath = NULL;
+		current_fpath = nullptr;
 	}
 }
 

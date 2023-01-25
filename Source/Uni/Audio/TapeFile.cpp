@@ -77,7 +77,7 @@ void TapeFile::insert_empty_block(uint i)
 
 	bool phase0 = data[i]->cswdata->getPhase0();
 	insertrange(i,i+1);
-	assert(data[i]==NULL);
+	assert(data[i]==nullptr);
 	data[i] = new TapeFileDataBlock(new CswBuffer(machine_ccps,phase0,666));
 //	data[i]->setMajorBlockInfo("Empty block");
 //	modified = yes;
@@ -100,8 +100,8 @@ TapeFile::TapeFile(uint32 machine_ccps, cstr filename)
 	modified(no),
 	mode(stopped),
 	pos(0),
-	current_block(NULL),
-	blk_cswbuffer(NULL),
+	current_block(nullptr),
+	blk_cswbuffer(nullptr),
 	blk_cc_size(0),
 	blk_starttime(0.0),
 	blk_cc_offset(0)
@@ -109,7 +109,7 @@ TapeFile::TapeFile(uint32 machine_ccps, cstr filename)
 	xlogIn("new TapeFile");
 
 	assert(machine_ccps!=0);
-	assert(filename!=NULL);
+	assert(filename!=nullptr);
 
 	try
 	{
@@ -221,7 +221,7 @@ void TapeFile::readFile( cstr path ) throws // file_error,data_error,bad_alloc
 	assert(mode==stopped);
 
 	purge();
-	delete[] filepath; filepath = NULL;
+	delete[] filepath; filepath = nullptr;
 
 	isa_id ft = isaIdFromFilename(path);
 	switch(ft)
@@ -237,7 +237,7 @@ void TapeFile::readFile( cstr path ) throws // file_error,data_error,bad_alloc
 	for(uint i=0;i<this->count();i++)
 	{
 		TapeFileDataBlock* d = data[i]; (void)d;
-		assert(d->cswdata!=NULL);
+		assert(d->cswdata!=nullptr);
 		assert(d->cswdata->ccPerSecond()==machine_ccps);
 		assert(d->isStopped());
 		xlogline("%s",d->major_block_info);
@@ -492,7 +492,7 @@ void TapeFile::videoFrameEnd( int32 cc )
 
 
 /*  get the next standard data block from tape
-	returns either valid TapData block or NULL
+	returns either valid TapData block or nullptr
 */
 TapData* TapeFile::readTapDataBlock() noexcept
 {
@@ -503,7 +503,7 @@ TapData* TapeFile::readTapDataBlock() noexcept
 
 	for(;;)
 	{
-		if(isAtEndOfTape()) return NULL;
+		if(isAtEndOfTape()) return nullptr;
 		TapData* bu = current_block->getTapData();
 		seekStartOfNextBlock();
 		if(bu->trust_level>=TapeData::conversion_success) return bu;
@@ -512,7 +512,7 @@ TapData* TapeFile::readTapDataBlock() noexcept
 
 
 /*  get the next standard data block from tape
-	returns either valid O80Data block or NULL
+	returns either valid O80Data block or nullptr
 */
 O80Data* TapeFile::readO80DataBlock() noexcept
 {
@@ -523,7 +523,7 @@ O80Data* TapeFile::readO80DataBlock() noexcept
 
 	for(;;)
 	{
-		if(isAtEndOfTape()) return NULL;
+		if(isAtEndOfTape()) return nullptr;
 		O80Data* bu = current_block->getO80Data();
 		seekStartOfNextBlock();
 		if(bu->trust_level>=TapeData::conversion_success) return bu;
@@ -809,8 +809,8 @@ void TapeFile::record ( StereoSample const* buffer, int count )
 bool TapeFile::canBeSavedAs( cstr filename, cstr* why )
 {
 	cstr ext = lowerstr(extension_from_path(filename));
-	cstr msg = NULL;
-	if(why) *why = NULL;
+	cstr msg = nullptr;
+	if(why) *why = nullptr;
 
 // these always work:
 	if(eq(ext,".tzx"))  return yes;
@@ -838,7 +838,7 @@ bool TapeFile::canBeSavedAs( cstr filename, cstr* why )
 			if(tfd->o80data && tfd->o80data->is_zx81) { msg = "tape contains a block for the ZX81"; goto x; }
 
 			TapData* tapdata = tfd->getTapData();
-			if(tapdata==NULL) { msg="internal error: a block could not be converted to TapData"; goto x; }
+			if(tapdata==nullptr) { msg="internal error: a block could not be converted to TapData"; goto x; }
 
 			switch(tapdata->trust_level)
 			{
@@ -874,7 +874,7 @@ bool TapeFile::canBeSavedAs( cstr filename, cstr* why )
 			{ msg = "tape contains a block for the ZX Spectrum"; goto x; }
 
 			O80Data* o80 = tfd->getO80Data();
-			if(o80==NULL) { msg="internal error: a block could not be converted to O80Data"; goto x; }
+			if(o80==nullptr) { msg="internal error: a block could not be converted to O80Data"; goto x; }
 
 			switch(o80->trust_level)
 			{

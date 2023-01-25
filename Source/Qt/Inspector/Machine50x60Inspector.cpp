@@ -23,8 +23,8 @@ Machine50x60Inspector::Machine50x60Inspector(QWidget* p, MachineController* mc, 
 :
 	MachineInspector(p,mc,m)
 {
-	assert(controller->action_setSpeed100_50 != NULL);
-	assert(controller->action_setSpeed100_60 != NULL);
+	assert(controller->action_setSpeed100_50 != nullptr);
+	assert(controller->action_setSpeed100_60 != nullptr);
 
 	QRadioButton* btn_50hz = new QRadioButton("50 Hz",this); btn_50hz->move(7,10);
 	QRadioButton* btn_60hz = new QRadioButton("60 Hz",this); btn_60hz->move(7,30);

@@ -207,12 +207,12 @@ ZaxonAyMagic::ZaxonAyMagic(Machine* m)
 // Bi-Pak ZON X-81
 #define s81 "----.----.1--0.1111"
 #define w81 "----.----.0--0.1111"
-#define r81 NULL
+#define r81 nullptr
 
 // Bi-Pak ZON X
 #define s82 "----.----.1--1.1111"
 #define w82 "----.----.0--1.1111"
-#define r82 NULL
+#define r82 nullptr
 
 ZonxBox81::ZonxBox81( Machine*m )
 : Ay( m,isa_ZonxBox81,external, s81, w81, r81, m->cpu_clock/2, Ay::mono )

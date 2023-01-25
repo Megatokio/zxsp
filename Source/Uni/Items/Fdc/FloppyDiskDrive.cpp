@@ -36,10 +36,10 @@ inline uint random(uint n)		//	16 bit random number in range [0 ... [n
 FloppyDiskDrive::FloppyDiskDrive()
 :
 	type(NoDrive),
-	sound_insert(NULL),
-	sound_eject(NULL),
-	sound_running(NULL),
-	sound_step(NULL),
+	sound_insert(nullptr),
+	sound_eject(nullptr),
+	sound_running(nullptr),
+	sound_step(nullptr),
 	sound_insert_size(0),
 	sound_eject_size(0),
 	sound_running_size(0),
@@ -56,7 +56,7 @@ FloppyDiskDrive::FloppyDiskDrive()
 	bytes_per_track(1000),
 	bytes_per_second(bytes_per_track*rpm/60),
 	bytes_per_index(bytes_per_track),
-	disk(NULL),
+	disk(nullptr),
 	side_B_up(0),
 	motor_on(no),
 	bytepos(0),
@@ -82,10 +82,10 @@ FloppyDiskDrive::FloppyDiskDrive()
 FloppyDiskDrive::FloppyDiskDrive(FddType type, uint heads, uint tracks, Time step_delay, uint bytes_per_track)
 :
 	type(type),
-	sound_insert(NULL),
-	sound_eject(NULL),
-	sound_running(NULL),
-	sound_step(NULL),
+	sound_insert(nullptr),
+	sound_eject(nullptr),
+	sound_running(nullptr),
+	sound_step(nullptr),
 	sound_insert_size(0),
 	sound_eject_size(0),
 	sound_running_size(0),
@@ -102,7 +102,7 @@ FloppyDiskDrive::FloppyDiskDrive(FddType type, uint heads, uint tracks, Time ste
 	bytes_per_track(bytes_per_track),
 	bytes_per_second(bytes_per_track*rpm/60),
 	bytes_per_index(bytes_per_track/50),
-	disk(NULL),
+	disk(nullptr),
 	side_B_up(0),
 	motor_on(no),
 	bytepos(random(bytes_per_track)),
@@ -371,7 +371,7 @@ void FloppyDiskDrive::ejectDisk()
 	if(type==NoDrive) return;
 
 	FloppyDisk* old_disk = disk;
-	disk = NULL;
+	disk = nullptr;
 	delete old_disk;
 
 	update_signals();
@@ -383,7 +383,7 @@ void FloppyDiskDrive::update_signals()
 {
 	if(type==NoDrive) return;
 
-	is_ready   = disk!=NULL && motor_on && speed==bytes_per_second;
+	is_ready   = disk!=nullptr && motor_on && speed==bytes_per_second;
 //	is_error   = no;
 //	is_2sided  = num_heads > 1;
 	is_atindex = !disk || bytepos < bytes_per_index;

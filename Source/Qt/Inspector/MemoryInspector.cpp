@@ -50,10 +50,10 @@ const QColor color_light_grey(Qt::lightGray);
 MemoryInspector::MemoryInspector(QWidget*p, MachineController* mc, volatile IsaObject *i, MIDisplayMode displaymode)
 :
 	Inspector(p,mc,i),
-	combobox_datasource(NULL),
-	combobox_memorypage(NULL),
-	combobox_register(NULL),
-	lineedit_baseaddress(NULL),
+	combobox_datasource(nullptr),
+	combobox_memorypage(nullptr),
+	combobox_register(nullptr),
+	lineedit_baseaddress(nullptr),
 	scrollbar(new MyScrollBar(Qt::Vertical,this)),
 	scrollbar_width(scrollbar->sizeHint().width()),
 	needs_aligned_addresses(displaymode==MemAccess),
@@ -94,7 +94,7 @@ MemoryInspector::MemoryInspector(QWidget*p, MachineController* mc, volatile IsaO
 
 // toolbar:
 	toolbar = new QToolBar();
-	combobox_datasource = new QComboBox(NULL);
+	combobox_datasource = new QComboBox(nullptr);
 	combobox_datasource->setMinimumSize(80,TOOLBAR_WIDGET_HEIGHT);
 	combobox_datasource->setMaximumSize(105,TOOLBAR_WIDGET_HEIGHT);
 	combobox_datasource->addItems(QStringList()<<"As seen by CPU"<<"All Rom"<<"Rom Pages"<<"All Ram"<<"Ram Pages");
@@ -104,7 +104,7 @@ MemoryInspector::MemoryInspector(QWidget*p, MachineController* mc, volatile IsaO
 			this, &MemoryInspector::slotSetDataSource);
 	toolbar->addWidget(combobox_datasource);
 
-	combobox_memorypage = new QComboBox(NULL);
+	combobox_memorypage = new QComboBox(nullptr);
 	combobox_memorypage->setFixedSize(63,TOOLBAR_WIDGET_HEIGHT);
 	combobox_memorypage->setFocusPolicy(Qt::NoFocus);
 	action_memorypage = toolbar->addWidget(combobox_memorypage);
@@ -112,7 +112,7 @@ MemoryInspector::MemoryInspector(QWidget*p, MachineController* mc, volatile IsaO
 	connect(combobox_memorypage, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
 			this, &MemoryInspector::slotSetMemoryPage);
 
-	lineedit_baseaddress = new MyLineEdit(usingstr("$%04x",old_baseaddress=data.baseaddress),NULL);
+	lineedit_baseaddress = new MyLineEdit(usingstr("$%04x",old_baseaddress=data.baseaddress),nullptr);
 	lineedit_baseaddress->setMinimumSize(50,TOOLBAR_WIDGET_HEIGHT);
 	lineedit_baseaddress->setMaximumSize(70,TOOLBAR_WIDGET_HEIGHT);
 	lineedit_baseaddress->setFocusPolicy(Qt::ClickFocus);
@@ -156,7 +156,7 @@ void MemoryInspector::save_settings()
 
 QComboBox* MemoryInspector::newComboboxRegister()
 {
-	combobox_register = new QComboBox(NULL);
+	combobox_register = new QComboBox(nullptr);
 	combobox_register->addItems(QStringList()<<"PC"<<"SP"<<"BC"<<"DE"<<"HL"<<"IX"<<"IY");
 	combobox_register->setFixedSize(50,TOOLBAR_WIDGET_HEIGHT);
 	combobox_register->setFocusPolicy(Qt::NoFocus);

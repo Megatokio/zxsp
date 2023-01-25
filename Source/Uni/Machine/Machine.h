@@ -115,15 +115,15 @@ VIR bool		handleSaveTapePatch	()=0;
 	uint8		readMemMappedPort	(int32 cc, uint16, uint8);	// for memory mapped i/o
 	void		writeMemMappedPort	(int32 cc, uint16, uint8);	// for memory mapped i/o
 
-	bool		rzxIsLoaded()		volatile const	{ return rzx_file!=NULL; }
-	bool		rzxIsPlaying()		const			{ return rzx_file!=NULL && rzx_file->isPlaying(); }
-	bool		rzxIsRecording()	const			{ return rzx_file!=NULL && rzx_file->isRecording(); }
+	bool		rzxIsLoaded()		volatile const	{ return rzx_file!=nullptr; }
+	bool		rzxIsPlaying()		const			{ return rzx_file!=nullptr && rzx_file->isPlaying(); }
+	bool		rzxIsRecording()	const			{ return rzx_file!=nullptr && rzx_file->isRecording(); }
 
 	void		rzxPlayFile(RzxFile*);	// take-over and play the supplied RzxFile
 	void		rzxDispose();
-	void		rzxStartRecording(cstr msg=NULL, bool yellow=no);
-	void		rzxStopRecording(cstr msg=NULL, bool yellow=no);
-	void		rzxStopPlaying(cstr msg=NULL, bool yellow=no)		{ (void)msg; (void)yellow; TODO(); }
+	void		rzxStartRecording(cstr msg=nullptr, bool yellow=no);
+	void		rzxStopRecording(cstr msg=nullptr, bool yellow=no);
+	void		rzxStopPlaying(cstr msg=nullptr, bool yellow=no)		{ (void)msg; (void)yellow; TODO(); }
 	void		rzxOutOfSync(cstr msg, bool alert=no);
 
 	Machine( MachineController*, Model, isa_id );

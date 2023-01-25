@@ -52,7 +52,7 @@ void throw_zlib_error(int err) noexcept(false) // DataError
 	Compressed:
 
 		cbu  =	valid
-		ucbu =	NULL,	ucsize = valid or 0
+		ucbu =	nullptr,	ucsize = valid or 0
 		fpos =	0
 		apos =	0
 		ipos =	0
@@ -61,8 +61,8 @@ void throw_zlib_error(int err) noexcept(false) // DataError
 
 	EndOfBlock:
 
-		cbu  =	valid or NULL
-		ucbu =	valid or NULL
+		cbu  =	valid or nullptr
+		ucbu =	valid or nullptr
 		fpos =  ucsize
 		apos -> start of data of prev. frame or 0 if fpos=0
 		ipos	invalid
@@ -71,7 +71,7 @@ void throw_zlib_error(int err) noexcept(false) // DataError
 
 	Playing:
 
-		cbu  =	valid or NULL
+		cbu  =	valid or nullptr
 		ucbu =  valid
 		fpos -> header of current frame
 		apos -> start of data of prev. frame or 0 if fpos=0
@@ -81,7 +81,7 @@ void throw_zlib_error(int err) noexcept(false) // DataError
 
 	Recording:
 
-		cbu  =  NULL
+		cbu  =  nullptr
 		ucbu =  valid
 				ucmax = large enough for worst case (~10000 bytes at start of frame)
 		fpos =  ucsize
@@ -109,10 +109,10 @@ void RzxBlock::init(IsaID id)
 //		memset(this,0,sizeof(*this));
 //		break;
 //	case IsaSnapshotBlock:
-//		snapshot_filename = NULL;
+//		snapshot_filename = nullptr;
 //		break;
 //	case IsaMachineSnapshot:
-//		snapshot = NULL;
+//		snapshot = nullptr;
 //		break;
 //	case IsaInputRecordingBlock:
 //		state = EndOfBlock;
@@ -300,7 +300,7 @@ void RzxBlock::_compress()
 //	uncompress cbu[csize] -> ucbu[ucsize]
 //	cbu[] remains valid
 //
-//	returns NULL or error message
+//	returns nullptr or error message
 //
 //	if ucsize!=0 then it is assumed that ucbu[ucsize] was formerly valid
 //		and ucsize is the uncompressed size of cbu[]
@@ -701,7 +701,7 @@ int RzxBlock::uncompress() noexcept(false) // DataError
 	state -> Compressed
 
 	does not validate the uncompressed data
-	If cbu is not NULL, then it is assumed to be valid and not compressed again.
+	If cbu is not nullptr, then it is assumed to be valid and not compressed again.
 
 	note: if state==Recording, then the current frame is lost.
 		  the frame can't be finalized because we don't have the icount.
@@ -820,7 +820,7 @@ void RzxBlock::readInputRecordingBlock(FD& fd, uint32 blen) throws // file_error
 
 /*	read snapshot from rzx file block 0x30
 	in:	blen = block length from rzx file
-	if readSnapshot throws, then the snapshot_filename is NULL.
+	if readSnapshot throws, then the snapshot_filename is nullptr.
 */
 void RzxBlock::readSnapshotBlock(FD& fd, uint32 blen, cstr filename) throws // file_error,DataError
 {

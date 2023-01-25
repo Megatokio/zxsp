@@ -140,7 +140,7 @@ public:
 // load / save file:
 	void		writeFile			(cstr filepath) throws;	// MUST be stopped
 	void		readFile			(cstr filepath) throws;	// MUST be stopped
-	bool		canBeSavedAs		(cstr filepath, cstr *why = NULL);
+	bool		canBeSavedAs		(cstr filepath, cstr *why = nullptr);
 
 	Time		getTotalPlaytime	() const;
 	Time		getCurrentPosition	() const	{ return blk_starttime + current_block->getCurrentTimePos(); }

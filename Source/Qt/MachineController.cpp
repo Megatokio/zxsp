@@ -71,7 +71,7 @@
 #include "MemObject.h"
 
 
-MachineController* front_machine_controller = NULL;
+MachineController* front_machine_controller = nullptr;
 
 
 // ============================================================
@@ -230,8 +230,8 @@ void MachineController::loadSnapshot( cstr filename )
 
 			Z80Assembler ass;
 
-			cstr destdir  = NULL;		// NULL => same as source
-			cstr listfile = NULL;		// NULL => same as dest, ext = ".lst"
+			cstr destdir  = nullptr;		// nullptr => same as source
+			cstr listfile = nullptr;		// nullptr => same as dest, ext = ".lst"
 			cstr tempdir  = "/tmp/zxsp";// for temp files: c sources will be assembled into /tmp/zxsp/s/
 			int  liststyle = 6;			// with opcodes & labels list
 			int  deststyle = 'b';		// binary
@@ -278,7 +278,7 @@ void MachineController::loadSnapshot( cstr filename )
 			catch(AnyError& e)
 			{
 				rzx->rewind();		   // versuche, das File bis zur Fehlerposition abspielbar zu machen
-				if(!rzx->isSnapshot()) { delete rzx; rzx = NULL; }	// defekt ab Start
+				if(!rzx->isSnapshot()) { delete rzx; rzx = nullptr; }	// defekt ab Start
 				showAlert("%s",e.what());
 			}
 			if(rzx && rzx->isSnapshot())
@@ -540,11 +540,11 @@ void MachineController::loadSnapshot( cstr filename )
 	{
 		showAlert("Error: %s",e.what());
 		if(!machine) machine = init_machine(zxsp_i3,0,s,j,r,d);
-		delete rzx; rzx = NULL;
+		delete rzx; rzx = nullptr;
 		machine->rzxDispose();
 		action_RzxRecord->setChecked(false);
 //		screen->removeAllOverlays();
-		set_filepath(NULL);
+		set_filepath(nullptr);
 	}
 
 	assert(machine->isPowerOn());
@@ -636,7 +636,7 @@ void MachineController::create_actions()
 	action_recentFiles->setMenu(new RecentFilesMenu(RecentFiles, this, [=](cstr fpath){loadSnapshot(fpath);}));
 
 	#define NOKEY QKeySequence()
-	#define NOICON NULL
+	#define NOICON nullptr
 	#define ADDITEM(ISA) [=](bool f){add_external_item(ISA,f);},ISA // note: need to setData(ISA) in QAction
 	#define ADDRAM(ISA)  [=](bool f){add_external_ram(ISA,f);},ISA  // for findActionForItem() in slot_item_added()
 
@@ -914,8 +914,8 @@ MachineController::~MachineController()   // ---- D E S T R U C T O R ----
 			xlogline("frm = %i,%i",frameGeometry().x(),frameGeometry().y());
 		settings.setValue(catstr(key_mainwindow_position,tostr(screen->getZoom())),QRect(pos(),size()));
 
-		front_machine_controller = NULL;
-		front_machine = NULL;
+		front_machine_controller = nullptr;
+		front_machine = nullptr;
 	}
 
 	while(tool_windows.count())
@@ -928,20 +928,20 @@ MachineController::~MachineController()   // ---- D E S T R U C T O R ----
 
 MachineController::MachineController(QString filepath)   // ---- C O N S T R U C T O R ----
 :
-	QMainWindow(NULL),
+	QMainWindow(nullptr),
 	in_ctor(yes),
 	in_dtor(no),
 	in_machine_ctor(no),
 	in_machine_dtor(no),
 	model(unknown_model),
-	model_info(NULL),
-	filepath(NULL),
-	machine(NULL),
-	screen(NULL),
+	model_info(nullptr),
+	filepath(nullptr),
+	machine(nullptr),
+	screen(nullptr),
 	mem{0,0,0,0},
-	lenslok(NULL),
+	lenslok(nullptr),
 	keyjoy_keys{0,0,0,0,0},
-	keyjoy_fnmatch_pattern(NULL)
+	keyjoy_fnmatch_pattern(nullptr)
 	// actions:			  initialized in create_mbar()
 	// model_actiongroup: initialized in create_mbar()
 	// menus:			  initialized in create_mbar()
@@ -1039,16 +1039,16 @@ void MachineController::kill_machine()
 		delete mem[i]; mem[i] = nullptr;
 	}
 	hide_inspector(NV(machine), no);
-	delete machine; machine = NULL;
-	delete screen; screen = NULL;
-	if(XSAFE) foreach (ToolWindow* toolwindow, tool_windows) { assert(toolwindow->item==NULL); }
+	delete machine; machine = nullptr;
+	delete screen; screen = nullptr;
+	if(XSAFE) foreach (ToolWindow* toolwindow, tool_windows) { assert(toolwindow->item==nullptr); }
 
 	while(show_actions.count()>5) { window_menu->removeAction(show_actions.takeLast()); }
 	items_menu->clear();
 	items_menu->addAction(action_dummy); // Trick damit das Extensions-Menü bei Wechsel des Modells nicht sporadisch verschwindet
 	add_actions.clear();
 
-	//keyjoy_fnmatch_pattern = NULL;
+	//keyjoy_fnmatch_pattern = nullptr;
 
 	in_machine_dtor = no;
 }
@@ -1110,11 +1110,11 @@ init_machine(Model model, uint32 ramsize, bool alwaysAddAy, bool alwaysAddJoy, b
 	this->machine = machine;
 	this->model = model = machine->model;
 	model_info  = machine->model_info;
-	if(XSAFE) foreach (ToolWindow* toolwindow, tool_windows) { assert(toolwindow->item==NULL); }
+	if(XSAFE) foreach (ToolWindow* toolwindow, tool_windows) { assert(toolwindow->item==nullptr); }
 	machine->installRomPatches();
 	action_enable_breakpoints->setChecked(true);
 
-	set_filepath(NULL);
+	set_filepath(nullptr);
 	if(this==front_machine_controller) front_machine = machine;
 
 	set_keyboard_mode(settings.get_KbdMode(key_new_machine_keyboard_mode,kbdbasic));
@@ -1169,7 +1169,7 @@ init_machine(Model model, uint32 ramsize, bool alwaysAddAy, bool alwaysAddJoy, b
 		show_actions << action_showMachineImage << action_showMemHex << action_showMemDisass
 					 << action_showMemGraphical << action_showMemAccess;
 
-	if(XSAFE) foreach (ToolWindow* toolwindow, tool_windows) { assert(toolwindow->item==NULL); }
+	if(XSAFE) foreach (ToolWindow* toolwindow, tool_windows) { assert(toolwindow->item==nullptr); }
 	show_inspector( machine, action_showMachineImage, no/*!force*/ );
 	show_inspector( mem[0]=new MemObject(machine,isa_MemHex),	   action_showMemHex, no/*!force*/ );
 	show_inspector( mem[1]=new MemObject(machine,isa_MemDisass),   action_showMemDisass, no/*!force*/ );
@@ -1601,7 +1601,7 @@ void MachineController::keyReleaseEvent(QKeyEvent*e)
 
 void MachineController::set_filepath(cstr path)
 {
-	delete[] filepath; filepath=NULL;
+	delete[] filepath; filepath=nullptr;
 	if(path)
 	{
 		filepath = newcopy(path);
@@ -1698,7 +1698,7 @@ void MachineController::power_reset_machine()
 {
 	xlogIn("MachineController:powerOffOn");
 
-	set_filepath(NULL);
+	set_filepath(nullptr);
 	machine->powerOff();					// must be suspended
 		screen->hideOverlayPlay();
 		screen->hideOverlayRecord();
@@ -1710,7 +1710,7 @@ void MachineController::reset_machine()
 {
 	xlogIn("MachineController:Reset");
 
-	set_filepath(NULL);
+	set_filepath(nullptr);
 	NVPtr<Machine>(machine)->reset();
 	screen->hideOverlayPlay();
 	screen->hideOverlayRecord();
@@ -1781,12 +1781,12 @@ void MachineController::show_lenslok(bool f)
 	if(f)	// show
 	{
 		assert(!lenslok);
-		cstr name1 = filepath ? basename_from_path(filepath) : NULL;
+		cstr name1 = filepath ? basename_from_path(filepath) : nullptr;
 		cstr name2 = machine->fdc && machine->fdc->getDrive(0) && machine->fdc->getDrive(0)->diskLoaded()
 					? basename_from_path(machine->fdc->getDrive(0)->disk->filepath)
 					: machine->taperecorder->isLoaded()
 					? basename_from_path(machine->taperecorder->getFilepath())
-					: NULL;
+					: nullptr;
 		lenslok = new Lenslok(this,name1,name2);
 		connect(lenslok, &QObject::destroyed, [=]
 		{
@@ -1799,7 +1799,7 @@ void MachineController::show_lenslok(bool f)
 	else	// remove
 	{
 		delete lenslok;
-		lenslok = NULL;
+		lenslok = nullptr;
 	}
 }
 
@@ -1840,7 +1840,7 @@ QAction* find_action_for_item(QList<QAction*>& array, volatile const IsaObject* 
 	  foreach (QAction* a, array) { logline("  • %s", isa_names[a->data().toInt()]); }
 	#endif
 
-	return NULL;
+	return nullptr;
 }
 
 void MachineController::itemAdded(Item* item)   // callback from Item c'tor
@@ -1881,11 +1881,11 @@ void MachineController::itemAdded(Item* item)   // callback from Item c'tor
 		else
 		{
 			QAction* addAction = find_action_for_item(add_actions,item);
-			if(addAction==NULL)
+			if(addAction==nullptr)
 			{
 				showAlert("no addAction found for item %s",item->name);
 			}
-			if(addAction!=NULL)
+			if(addAction!=nullptr)
 			{
 				addAction->blockSignals(true);
 				addAction->setChecked(true);
@@ -2068,7 +2068,7 @@ ToolWindow* MachineController::findToolWindowForItem(volatile const IsaObject* i
 	// return NULL if no toolwindow found
 	// mostly for use in ToolWindow::kill()
 
-	assert(item!=NULL);
+	assert(item!=nullptr);
 
 	logIn("toolwindows.size = %i",tool_windows.count());
 	foreach(ToolWindow* toolwindow, tool_windows)
@@ -2120,7 +2120,7 @@ void MachineController::show_inspector(IsaObject* item, QAction* showaction, boo
 	// reuse existing empty toolwindow for the item's group:
 	foreach (ToolWindow* toolwindow, tool_windows)
 	{
-		if(toolwindow->item==NULL && toolwindow->grp_id == item->grp_id)
+		if(toolwindow->item==nullptr && toolwindow->grp_id == item->grp_id)
 		{
 			toolwindow->kill();
 			toolwindow->init(item,showaction);

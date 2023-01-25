@@ -6,11 +6,11 @@
 #include "Tk85Joy.h"
 
 
-#define i_addr		NULL		// TODO
+#define i_addr		nullptr		// TODO
 
 
 Tk85Joy::Tk85Joy(Machine*m)
-: Joy(m,isa_Tk85Joy,internal,NULL,i_addr,"?")
+: Joy(m,isa_Tk85Joy,internal,nullptr,i_addr,"?")
 {
 }
 

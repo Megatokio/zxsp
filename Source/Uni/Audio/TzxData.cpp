@@ -102,8 +102,8 @@ virtual	void    read        (FD&)				  =0;	// read this block from file, except 
 virtual void    write       (FD&)			const =0;	// write this block to file, except id-byte
 virtual void    write		(CswBuffer&)	const {}	// store this block to CSW buffer
 public:
-virtual cstr    get_info	()				const { return NULL; }	// get major block info of this block, if any
-virtual cstr    get_info2	()				const { return NULL; }	// get minor block info of this block, if any
+virtual cstr    get_info	()				const { return nullptr; }	// get major block info of this block, if any
+virtual cstr    get_info2	()				const { return nullptr; }	// get minor block info of this block, if any
 virtual bool    is_end_block()				const { return no; }	// does it end with a pause?
 
 // helper:
@@ -111,7 +111,7 @@ static	TzxBlock* read_next	(FD& fd)		noexcept(false); // DataError, file_error
 		TzxBlock* last		()				{ TzxBlock* p = this; while(p->next) p = p->next; return p; }
 
 public:
-				TzxBlock    (uint id, bool has_data)	:id(id),next(NULL),has_data(has_data){}
+				TzxBlock    (uint id, bool has_data)	:id(id),next(nullptr),has_data(has_data){}
 virtual			~TzxBlock   ()							{ delete next; }
 
 		// read a (linked list of) TzxBlocks from file
@@ -134,14 +134,14 @@ static	TzxBlock* readFromFile(FD&, uint stopper=0)	noexcept(false); // DataError
 		stopper=0: block.is_end_block()
 		stopper≠0: block.id==stopper
 	all blocks are linked in a list via 'next'.
-	returns NULL at eof
+	returns nullptr at eof
 */
 TzxBlock* TzxBlock::readFromFile( FD& fd, uint stopper ) noexcept(false) // DataError, file_error
 {
 	TzxBlock* result = read_next(fd);
 	TzxBlock* p      = result;
 
-	while(p)	// p==NULL -> eof
+	while(p)	// p==nullptr -> eof
 	{
 		if(p->id==0x22 && stopper!=0x22) throw DataError("tzx file: unexpected block 0x22 GROUP_END");
 		if(p->id==0x25 && stopper!=0x25) throw DataError("tzx file: unexpected block 0x25 LOOP_END");
@@ -203,7 +203,7 @@ struct TzxBlock10 : public TzxBlock
 	uint16  cnt;        // num. bytes that follow
 	uint8*	data;
 
-	TzxBlock10()				:TzxBlock(0x10,yes),data(NULL){}
+	TzxBlock10()				:TzxBlock(0x10,yes),data(nullptr){}
 	TzxBlock10(TapData const&);
 	~TzxBlock10()				{ delete[] data; }
 	void read	(FD& fd);
@@ -218,7 +218,7 @@ struct TzxBlock10 : public TzxBlock
 void TzxBlock10::read(FD &fd)
 {
 	xlogIn("Block 0x10: standard tape block");
-	assert(data==NULL);
+	assert(data==nullptr);
 
 	pause_ms = fd.read_uint16_z();
 	cnt      = fd.read_uint16_z();	if(cnt==0) throw DataError("tzx block 0x10: count==0");
@@ -289,7 +289,7 @@ public:
 	u8ptr   data;
 
 public:
-		 TzxBlock11()				:TzxBlock(0x11,yes),data(NULL){}
+		 TzxBlock11()				:TzxBlock(0x11,yes),data(nullptr){}
 		 TzxBlock11(TapData const&);
 		~TzxBlock11()				{ delete[] data; }
 	void read(FD& fd);
@@ -304,7 +304,7 @@ public:
 void TzxBlock11::read(FD &fd)
 {
 	xlogIn("Block 0x11: turbo speed tape block");
-	assert(data==NULL);
+	assert(data==nullptr);
 
 	cc_pilot = fd.read_uint16_z();
 	cc_sync1 = fd.read_uint16_z();
@@ -434,7 +434,7 @@ struct TzxBlock13 : public TzxBlock
 void TzxBlock13::read(FD &fd)
 {
 	xlogIn("Block 0x13: pulses of various length");
-	assert(data==NULL);
+	assert(data==nullptr);
 
 	numpulses = fd.read_uint8();
 	data = new uint16[numpulses]; fd.read_data(data,numpulses);
@@ -493,7 +493,7 @@ struct TzxBlock14 : public TzxBlock
 void TzxBlock14::read(FD &fd)
 {
 	xlogIn("Block 0x12: pure data block");
-	assert(data==NULL);
+	assert(data==nullptr);
 
 	cc_bit0  = fd.read_uint16_z();
 	cc_bit1  = fd.read_uint16_z();
@@ -648,7 +648,7 @@ struct TzxBlock18 : public TzxBlock
 	uint32	num_pulses;     // Number of stored pulses: after decompression, for validation
 	uint8*	data;           // CSW data, encoded according to the CSW file format specification.
 
-	TzxBlock18()				:TzxBlock(0x18,yes),data(NULL){}
+	TzxBlock18()				:TzxBlock(0x18,yes),data(nullptr){}
 	TzxBlock18(CswBuffer const&, bool last_pulse_is_pause);
 	~TzxBlock18()				{ delete[] data; }
 	void read(FD&);
@@ -812,7 +812,7 @@ struct SymDef       // Helper class: Symbol Definition
 	uint    pulses; // pulses
 	u16ptr  data;   // Array of pulse lengths; 0-delimited.  size = max+1
 
-	SymDef():data(NULL){}
+	SymDef():data(nullptr){}
 
 	void read   (FD& fd, uint max);
 	void write  (FD& fd, uint max) const;
@@ -822,7 +822,7 @@ struct SymDef       // Helper class: Symbol Definition
 
 void SymDef::read(FD &fd, uint max)     // read from file
 {
-	assert(data==NULL);
+	assert(data==nullptr);
 	xlogIn("new Symbol:");
 
 	flags  = fd.read_uint8();    xlogline("flags = %i",int(flags));
@@ -936,10 +936,10 @@ TzxBlock19::~TzxBlock19()
 void TzxBlock19::read(FD &fd)
 {
 	xlogIn("Block 0x19: generalized data block");
-	assert(p_symdef==NULL);
-	assert(p_data==NULL);
-	assert(d_symdef==NULL);
-	assert(d_data==NULL);
+	assert(p_symdef==nullptr);
+	assert(p_data==nullptr);
+	assert(d_symdef==nullptr);
+	assert(d_data==nullptr);
 
 	blen         = fd.read_uint32_z();   uint32 bend = fd.file_position()+blen;
 	pause_ms     = fd.read_uint16_z();
@@ -1089,7 +1089,7 @@ class TzxBlock21 : public TzxBlock
 	TzxBlock* blocks;	// contained blocks, incl. EndOfGroup block
 
 public:
-	TzxBlock21()				:TzxBlock(0x21,yes),text(NULL),blocks(NULL){}
+	TzxBlock21()				:TzxBlock(0x21,yes),text(nullptr),blocks(nullptr){}
 	~TzxBlock21()				{ delete[]text; delete blocks; }
 	void read(FD&);
 	void write(FD&)			const;
@@ -1172,7 +1172,7 @@ class TzxBlock24 : public TzxBlock
 	TzxBlock*	blocks;				// contained blocks, incl. EndOfLoop block
 
 public:
-		 TzxBlock24()			:TzxBlock(0x24,yes),blocks(NULL){}
+		 TzxBlock24()			:TzxBlock(0x24,yes),blocks(nullptr){}
 		 ~TzxBlock24()			{ delete blocks; }
 	void read(FD&);
 	void write(FD&)			const;
@@ -1343,7 +1343,7 @@ struct TzxBlock30 : public TzxBlock
 	uint8   len;
 	str     text;
 
-	TzxBlock30()               :TzxBlock(0x30,no),text(NULL){}
+	TzxBlock30()               :TzxBlock(0x30,no),text(nullptr){}
 	~TzxBlock30()              { delete[]text; }
 	void read(FD&);
 	void write(FD&)			const;
@@ -1396,7 +1396,7 @@ struct TzxBlock31 : public TzxBlock
 	uint8   len;
 	str     text;
 
-	TzxBlock31()				:TzxBlock(0x31,no),text(NULL){}
+	TzxBlock31()				:TzxBlock(0x31,no),text(nullptr){}
 	~TzxBlock31()				{ delete[] text; }
 	void read(FD&);
 	void write(FD&)			const;
@@ -1473,7 +1473,7 @@ struct TzxBlock32 : public TzxBlock
 					//  text[1]=len
 					//  text[2++]=text
 
-	TzxBlock32()			:TzxBlock(0x32,no),cnt(0),texte(NULL){}
+	TzxBlock32()			:TzxBlock(0x32,no),cnt(0),texte(nullptr){}
 	~TzxBlock32()			{ if(texte) for(int i=0;i<cnt;i++) { delete[] texte[i]; } delete[] texte; }
 	void read(FD&);
 	void write(FD&)		const;
@@ -1700,7 +1700,7 @@ struct TzxBlock33 : public TzxBlock
 					// data[3i+1]=hw_id
 					// data[3i+2]=hw_info
 
-	TzxBlock33()				:TzxBlock(0x33,no),data(NULL){}
+	TzxBlock33()				:TzxBlock(0x33,no),data(nullptr){}
 	~TzxBlock33()				{ delete[] data; }
 	void read(FD&);
 	void write(FD&)			const;
@@ -1728,7 +1728,7 @@ void TzxBlock33::write(FD& fd) const
 
 
 /*  read next tzx block from tape:
-	returns NULL at eof
+	returns nullptr at eof
 */
 //static
 TzxBlock* TzxBlock::read_next(FD &fd) throws // DataError, file_error
@@ -1737,7 +1737,7 @@ TzxBlock* TzxBlock::read_next(FD &fd) throws // DataError, file_error
 
 	TzxBlock* block;
 
-a:  if(fd.file_remaining()==0) return NULL;
+a:  if(fd.file_remaining()==0) return nullptr;
 
 	uint8 id = fd.read_uint8();
 	xlogline("load tzx 0x%2x block",int(id));
@@ -1779,7 +1779,7 @@ a:  if(fd.file_remaining()==0) return NULL;
 				fd.skip_bytes(16); fd.skip_bytes(fd.read_uint32_z()); goto a;
 	case 0x40:  throw DataError("unsupported tzx block: 0x40 SNAPSHOT");   // deprecated in tzx 1.20
 	case 'Z':   fd.skip_bytes(9); goto a;                                   // concatenated files
-	default:    if(id>=0x10&&id<0x60) { fd.skip_bytes(fd.read_uint32_z()); return NULL; }  // skip tzx 1.30++ block
+	default:    if(id>=0x10&&id<0x60) { fd.skip_bytes(fd.read_uint32_z()); return nullptr; }  // skip tzx 1.30++ block
 				throw DataError("ill. tzx block number: 0x%02x",uint(id));
 	}
 
@@ -1809,7 +1809,7 @@ a:  if(fd.file_remaining()==0) return NULL;
 TzxBlock10::TzxBlock10(TapData const& q)
 :
 	TzxBlock(0x10,yes),
-	data(NULL)
+	data(nullptr)
 {
 	pause_ms = uint16(minmax(1.0, q.pause*1000+0.5, 10000.0));
 	cnt		 = q.count();
@@ -1828,7 +1828,7 @@ TzxBlock10::TzxBlock10(TapData const& q)
 TzxBlock11::TzxBlock11(TapData const& q)
 :
 	TzxBlock(0x11,yes),
-	data(NULL)
+	data(nullptr)
 {
 	ppulses  = q.pilot_pulses;
 	lastbits = 8;
@@ -1880,7 +1880,7 @@ TzxBlock18::TzxBlock18(CswBuffer const& bu, bool last_pulse_is_pause)
 	sam_per_sec((bu.ccPerSecond()+8)>>4), // sps/16
 	compression(1),						  // 0x01=RLE, 0x02=Z-compressed RLE
 	num_pulses(bu.getTotalPulses()),	  // Number of stored pulses: after decompression, for validation
-	data(NULL)
+	data(nullptr)
 {
 	xlogIn("TzxBlock: new Block18(CswBuffer)");
 
@@ -1962,10 +1962,10 @@ TzxBlock18::TzxBlock18(CswBuffer const& bu, bool last_pulse_is_pause)
 TzxBlock19::TzxBlock19( O80Data const& q )
 :
 	TzxBlock(0x19,yes),
-	p_symdef(NULL),
-	p_data(NULL),
-	d_symdef(NULL),
-	d_data(NULL)
+	p_symdef(nullptr),
+	p_data(nullptr),
+	d_symdef(nullptr),
+	d_data(nullptr)
 {
 	// pilot: one low pulse for 1/4 sec:
 	p_symdef_cnt=1;				// Number of symbols in the pilot alphabet table (0=256)
@@ -2184,7 +2184,7 @@ cstr TzxData::getMajorBlockInfo() const noexcept
 		cstr info = p->get_info();
 		if(info) return info;
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -2197,7 +2197,7 @@ cstr TzxData::getMinorBlockInfo() const noexcept
 		cstr info = p->get_info2();
 		if(info) return info;
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -2219,7 +2219,7 @@ cstr TzxData::getMinorBlockInfo() const noexcept
 TzxData::TzxData(TapData const& q)
 :
 	TapeData(isa_TzxData,q.trust_level),
-	data(NULL)
+	data(nullptr)
 {
 	data = new TzxBlock2B((q.pilot_pulses&1)^1);	// set polarity: even|odd => start with hi|lo pulse
 
@@ -2254,7 +2254,7 @@ TzxData::TzxData(TapData const& q)
 TzxData::TzxData(O80Data const& q)
 :
 	TapeData(isa_TzxData,q.trust_level),
-	data(NULL)
+	data(nullptr)
 {
 	data = new TzxBlock19(q);
 }
@@ -2277,7 +2277,7 @@ TzxData::TzxData(O80Data const& q)
 TzxData::TzxData(CswBuffer const& bu, TzxConversionStyle/*currently ignored TODO*/)
 :
 	TapeData(isa_TzxData),
-	data(NULL)
+	data(nullptr)
 {
 	assert(bu.getTotalCc()>0);
 	assert(bu.is_normalized());
@@ -2323,7 +2323,7 @@ CswBuffer::CswBuffer(TzxData const& tzxdata, uint32 ccps)
 //	if(ccps!=3500000)			// resampling required?
 //	{
 //		CswBuffer* z = new CswBuffer(*this,ccps);
-//		delete[] data; data=z->data; z->data=NULL;
+//		delete[] data; data=z->data; z->data=nullptr;
 //		max = z->max;
 //		end = z->end;
 //		cc_end = z->cc_end;

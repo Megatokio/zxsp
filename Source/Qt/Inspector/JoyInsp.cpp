@@ -21,8 +21,8 @@ JoyInsp::JoyInsp( QWidget* w, MachineController* mc, volatile IsaObject*j, cstr 
 	num_ports = joy()->getNumPorts();
 	xlogIn("new JoyInsp for %s (%i ports)", object->name, num_ports);
 
-	joystick_selectors[1] = joystick_selectors[2] = NULL;
-	lineedit_display[1] = lineedit_display[2] = NULL;
+	joystick_selectors[1] = joystick_selectors[2] = nullptr;
+	lineedit_display[1] = lineedit_display[2] = nullptr;
 
 	for( int i=0; i<num_ports; i++ )
 	{

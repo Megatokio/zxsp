@@ -145,7 +145,7 @@ MemoryAccessInspector::MemoryAccessInspector(QWidget* parent, MachineController*
 // toolbar:
 	assert(toolbar);
 
-	combobox_decaymode = new QComboBox(NULL);
+	combobox_decaymode = new QComboBox(nullptr);
 	combobox_decaymode->setFixedSize(75,TOOLBAR_WIDGET_HEIGHT);
 	combobox_decaymode->addItems(QStringList()<<"Flash"<<"Decay fast"<<"Decay slow"<<"Accumulate");
 	combobox_decaymode->setCurrentIndex(decay_mode);
@@ -153,7 +153,7 @@ MemoryAccessInspector::MemoryAccessInspector(QWidget* parent, MachineController*
 	bool f = connect(combobox_decaymode,SIGNAL(currentIndexChanged(int)),this,SLOT(slotSetDecayMode(int)));
 	toolbar->addWidget(combobox_decaymode);
 
-	combobox_pixelzoom = new QComboBox(NULL);
+	combobox_pixelzoom = new QComboBox(nullptr);
 	combobox_pixelzoom->setFixedSize(65,TOOLBAR_WIDGET_HEIGHT);
 	combobox_pixelzoom->addItems(QStringList()<<"2x2"<<"3x3"<<"4x4");	// MIN_PIXEL_SIZE .. MAX_PIXEL_SIZE
 	combobox_pixelzoom->setCurrentIndex(pixel_size-MIN_PIXEL_SIZE);
@@ -161,7 +161,7 @@ MemoryAccessInspector::MemoryAccessInspector(QWidget* parent, MachineController*
 	f = f && connect(combobox_pixelzoom,SIGNAL(currentIndexChanged(int)),this,SLOT(slotSetPixelSize(int)));
 	toolbar->addWidget(combobox_pixelzoom);
 
-	combobox_bytes_per_row = new QComboBox(NULL);
+	combobox_bytes_per_row = new QComboBox(nullptr);
 	combobox_bytes_per_row->setFixedSize(60,TOOLBAR_WIDGET_HEIGHT);
 	combobox_bytes_per_row->addItems(QStringList()<<"32"<<"64"<<"128"<<"256"<<"512");	// MIN_BYTES_PER_ROW .. MAX_BYTES_PER_ROW
 	combobox_bytes_per_row->setCurrentIndex(msbit(bytes_per_row/MIN_BYTES_PER_ROW));
@@ -486,7 +486,7 @@ void MemoryAccessInspector::updateWidgets()
 			{
 				CoreByte* p = cpu->rdPtr(scroll_offset+r*bytes_per_row);
 				if(p>=romptr&&p<romptr+romsize) pixelrows[r] = rom_pixels.getData() + (p-romptr); else
-				if(p>=ramptr&&p<ramptr+ramsize) pixelrows[r] = ram_pixels.getData() + (p-ramptr); // else unmapped cpu address -> NULL
+				if(p>=ramptr&&p<ramptr+ramsize) pixelrows[r] = ram_pixels.getData() + (p-ramptr); // else unmapped cpu address -> nullptr
 			}
 			break;
 		}
@@ -521,7 +521,7 @@ void MemoryAccessInspector::updateWidgets()
 
 			for(int r=0;r<rows;r++)
 			{
-				QRgb* q = pixelrows[r]; if(q==NULL) continue;
+				QRgb* q = pixelrows[r]; if(q==nullptr) continue;
 				QRgb* z0 = graphics_view->scanLine(r*d+1) +1;
 				QRgb* z1 = graphics_view->scanLine(r*d+2) +1;
 
@@ -546,7 +546,7 @@ void MemoryAccessInspector::updateWidgets()
 
 			for( int r=0; r<rows; r++ )
 			{
-				QRgb* q  = pixelrows[r]; if(q==NULL) continue;
+				QRgb* q  = pixelrows[r]; if(q==nullptr) continue;
 				QRgb* z0 = graphics_view->scanLine(r*d+1) +1;
 				QRgb* z1 = graphics_view->scanLine(r*d+2) +1;
 				QRgb* z2 = graphics_view->scanLine(r*d+3) +1;
@@ -573,7 +573,7 @@ void MemoryAccessInspector::updateWidgets()
 
 			for( int r=0; r<rows; r++ )
 			{
-				QRgb* q  = pixelrows[r]; if(q==NULL) continue;
+				QRgb* q  = pixelrows[r]; if(q==nullptr) continue;
 				QRgb* z0 = graphics_view->scanLine(r*d+1) +1;
 				QRgb* z1 = graphics_view->scanLine(r*d+2) +1;
 				QRgb* z2 = graphics_view->scanLine(r*d+3) +1;

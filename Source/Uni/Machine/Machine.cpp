@@ -118,7 +118,7 @@ public:
 
 
 static MachineList machine_list;
-volatile void* front_machine = NULL;
+volatile void* front_machine = nullptr;
 
 
 void runMachinesForSound()
@@ -175,26 +175,26 @@ Machine::Machine(MachineController* parent, Model model, isa_id id)
 	model(model),
 	model_info(&zx_info[model]),
 	cpu_options(),				// s.u.
-	break_ptr(NULL),
+	break_ptr(nullptr),
 	audio_in_enabled(yes),		// default. Child class and MachineController will override
 	is_power_on(no),
 	is_suspended(no),			// must be initialized before memory
-	rzx_file(NULL),
-	overlay_rzx_play(NULL),
-	overlay_rzx_record(NULL),
+	rzx_file(nullptr),
+	overlay_rzx_play(nullptr),
+	overlay_rzx_record(nullptr),
 	rom(this,"Internal Rom",model_info->rom_size),
 	ram(this,"Internal Ram",model_info->ram_size),
-	cpu(NULL),
-	ula(NULL),
-	mmu(NULL),
-	keyboard(NULL),
-	ay(NULL),
-	joystick(NULL),
-	taperecorder(NULL),
-	fdc(NULL),
-	printer(NULL),
-	crtc(NULL),
-	lastitem(NULL),
+	cpu(nullptr),
+	ula(nullptr),
+	mmu(nullptr),
+	keyboard(nullptr),
+	ay(nullptr),
+	joystick(nullptr),
+	taperecorder(nullptr),
+	fdc(nullptr),
+	printer(nullptr),
+	crtc(nullptr),
+	lastitem(nullptr),
 	total_frames(0),			// information: accumulated frames until now
 	total_cc(0),				// information: accumulated cpu T cycles until now
 	total_buffers(0),			// information: accumulated dsp buffers until now
@@ -269,7 +269,7 @@ Machine::~Machine()
 {
 	xlogIn("~Machine");
 
-	if(this==front_machine) front_machine = NULL;
+	if(this==front_machine) front_machine = nullptr;
 	machine_list.remove(this);
 
 	is_power_on = no;
@@ -342,16 +342,16 @@ void Machine::itemRemoved(Item* item)
 	assert(isMainThread());
 	assert(is_locked());
 
-	if(ay == item)		 ay=NULL;
-	if(keyboard == item) keyboard=NULL;
-	if(joystick == item) joystick=NULL;
-	if(mmu == item)		 mmu=NULL;
-	if(cpu == item)		 cpu=NULL;
-	if(fdc == item)		 fdc=NULL;
-	if(printer == item)  printer=NULL;
-	if(ula == item)		 ula=NULL;
-	if(crtc == item)	 crtc=NULL;
-	if(taperecorder==item) taperecorder=NULL;
+	if(ay == item)		 ay=nullptr;
+	if(keyboard == item) keyboard=nullptr;
+	if(joystick == item) joystick=nullptr;
+	if(mmu == item)		 mmu=nullptr;
+	if(cpu == item)		 cpu=nullptr;
+	if(fdc == item)		 fdc=nullptr;
+	if(printer == item)  printer=nullptr;
+	if(ula == item)		 ula=nullptr;
+	if(crtc == item)	 crtc=nullptr;
+	if(taperecorder==item) taperecorder=nullptr;
 
 	MachineController* mc = NV(controller);
 	mc->itemRemoved(item);
@@ -613,7 +613,7 @@ Item* Machine::addExternalItem(isa_id id)
 	case isa_Zx3kRam:       i = new Zx3kRam(this); break;
 	case isa_Ts1016Ram:     i = new Ts1016Ram(this); break;
 
-	default: showWarning("TODO: dieses Item in Machine::addExternalItem() eintragen"); return NULL;
+	default: showWarning("TODO: dieses Item in Machine::addExternalItem() eintragen"); return nullptr;
 	}
 
 	i->powerOn(cpu->cpuCycle());
@@ -631,7 +631,7 @@ SpectraVideo* Machine::addSpectraVideo( bool f )
 
 	if(f) // attach
 	{
-		crtc->attachToScreen(NULL);
+		crtc->attachToScreen(nullptr);
 		crtc = CrtcPtr(addExternalItem(isa_SpectraVideo));
 		crtc->attachToScreen(controller->getScreen());
 		cpu->setCrtc(crtc);
@@ -645,7 +645,7 @@ SpectraVideo* Machine::addSpectraVideo( bool f )
 		crtc = ula;
 		crtc->attachToScreen(controller->getScreen());
 		cpu->setCrtc(crtc);
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -1074,7 +1074,7 @@ void Machine::clear_break_ptr()
 {
 	break_ptr = cpu_options & cpu_break_x & *cpu->rdPtr(cpu->getRegisters().pc)
 			? cpu->rdPtr(cpu->getRegisters().pc)
-			: NULL;
+			: nullptr;
 }
 
 
@@ -1112,8 +1112,8 @@ c:		cpu->setStackBreakpoint( cpu->getRegisters().sp );
 	// Bis Interrupt abarbeiten, halt bei Interrupt auch wenn Interrupts gesperrt
 	// Halt wenn Breakpoint aktiviert wird ((kann nur ein cpu_break_x genau hier auf pc sein))
 		if(cpu->cpuCycle()>=ula->cpuCycleOfIrptEnd()) runCpuCycles(ula->cpuCycleOfFrameFlyback()-cpu->cpuCycle());
-		if(break_ptr==NULL) runCpuCycles (ula->cpuCycleOfInterrupt()-cpu->cpuCycle());
-		if(break_ptr==NULL) goto s; else break;
+		if(break_ptr==nullptr) runCpuCycles (ula->cpuCycleOfInterrupt()-cpu->cpuCycle());
+		if(break_ptr==nullptr) goto s; else break;
 
 	case PFX_ED:
 	// Blockbefehle komplett abarbeiten:
@@ -1122,7 +1122,7 @@ c:		cpu->setStackBreakpoint( cpu->getRegisters().sp );
 		o = cpu->peek(cpu->getRegisters().pc +1);		// ED Opcode
 	//	if( (o&~0x0b) != LDIR ) goto s;					// kein Blockbefehl  ((Test nicht nötig))
 		do runCpuCycles(1);
-		while( break_ptr==NULL && cpu->getRegisters().pc==pc && cpu->peek(pc)==PFX_ED && cpu->peek(pc+1)==o );
+		while( break_ptr==nullptr && cpu->getRegisters().pc==pc && cpu->peek(pc)==PFX_ED && cpu->peek(pc+1)==o );
 		break;
 
 	default:
@@ -1285,13 +1285,13 @@ void Machine::removeOverlay( Overlay* o)
 void Machine::hide_overlay_play()
 {
 	removeOverlay(overlay_rzx_play);
-	overlay_rzx_play = NULL;
+	overlay_rzx_play = nullptr;
 }
 
 void Machine::hide_overlay_record()
 {
 	removeOverlay(overlay_rzx_record);
-	overlay_rzx_record = NULL;
+	overlay_rzx_record = nullptr;
 }
 
 void Machine::show_overlay_play()
@@ -1402,7 +1402,7 @@ void Machine::rzxOutOfSync(cstr msg, bool red)
 void Machine::rzxDispose()
 {
 	if(!rzx_file) return;
-	delete rzx_file; rzx_file = NULL;
+	delete rzx_file; rzx_file = nullptr;
 
 	hide_overlay_play();
 	hide_overlay_record();
@@ -1490,7 +1490,7 @@ void Machine::rzxStopRecording(cstr msg, bool yellow)
 	assert(rzx_file);
 
 	if(msg) (yellow?showWarning:showInfo)(msg);
-	rzxOutOfSync(NULL);
+	rzxOutOfSync(nullptr);
 }
 
 

@@ -22,7 +22,7 @@ void ShowDeviceProperties ( io_registry_entry_t /* io_object_t */ myDevice )
 	xlogIn("\nShowDeviceProperties");
 
 	kern_return_t			result;
-	CFMutableDictionaryRef	properties = NULL;
+	CFMutableDictionaryRef	properties = nullptr;
 	char					path[512];
 
 	result = IORegistryEntryGetPath ( myDevice, kIOServicePlane, path );
@@ -31,7 +31,7 @@ void ShowDeviceProperties ( io_registry_entry_t /* io_object_t */ myDevice )
 
 // Create a CF dictionary representation of the I/O Registry entry's properties
 	result = IORegistryEntryCreateCFProperties( myDevice, &properties, kCFAllocatorDefault, kNilOptions );
-	if ( (result != KERN_SUCCESS) || properties==NULL )
+	if ( (result != KERN_SUCCESS) || properties==nullptr )
 	{ logline( "IORegistryEntryCreateCFProperties() error = $%X\n", uint(result) ); return; }
 
 // Some common properties of interest:
@@ -117,7 +117,7 @@ void UsbJoystick::connect ( io_object_t dev )
 
 	if( !dev_if )
 	{
-		xlogline( "NewDeviceInterface = NULL" );	// ((not a joystick or error))
+		xlogline( "NewDeviceInterface = nullptr" );	// ((not a joystick or error))
 		return;
 	};
 
@@ -247,7 +247,7 @@ bool UsbJoystick::getCookies()
 // O-Ton Apple: Copy all elements, since we're grabbing most of the elements for this device anyway,
 // and thus, it's faster to iterate them ourselves. When grabbing only one or two elements,
 // a matching dictionary should be passed in here instead of NULL.
-	ioerror = (*dev_if)->copyMatchingElements(dev_if, NULL, &elements);
+	ioerror = (*dev_if)->copyMatchingElements(dev_if, nullptr, &elements);
 	if( ioerror != kIOReturnSuccess )
 	{ logline( "Joystick:getCookies:copyMatchingElements: error = $%X", uint(ioerror) ); return no; }
 	logline( "%i elements", int(CFArrayGetCount(elements)) );
@@ -345,7 +345,7 @@ void findUsbJoysticks()
 
 // Search I/O Registry for matching devices
 	err = IOServiceGetMatchingServices( port, myMatchDictionary, &iter );
-	myMatchDictionary = NULL;		// the dictionary was consumed by IOServiceGetMatchingServices()
+	myMatchDictionary = nullptr;		// the dictionary was consumed by IOServiceGetMatchingServices()
 	if( !iter ) { logline( "findUsbJoysticks:objectIterator = 0" ); return; }
 	assert( err == kIOReturnSuccess );
 

@@ -16,7 +16,7 @@ void MmuZx81::powerOn( /*t=0*/ int32 cc )
 	assert(romdis_in==0);
 
 	uint n = rom.count(); if(n>8 kB) n=8 kB;
-	cpu->mapRom(0,n,&rom[0],NULL,0);
+	cpu->mapRom(0,n,&rom[0],nullptr,0);
 }
 
 
@@ -39,7 +39,7 @@ void MmuZx81::romCS( bool f )
 	if(f) return;		// paged out
 
 	uint n = rom.count(); if(n>8 kB) n=8 kB;
-	cpu->mapRom(0,n,&rom[0],NULL,0);
+	cpu->mapRom(0,n,&rom[0],nullptr,0);
 }
 
 

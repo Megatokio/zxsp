@@ -317,7 +317,7 @@ void RlesData::readFile (cstr /*fpath*/, TapeFile& /*tapeblocks*/) throws
 
 	u8ptr q = data+0;
 	u8ptr e = q+flen;
-	RlesData* rlesdata = NULL;
+	RlesData* rlesdata = nullptr;
 	cstr info;
 	uint32 id,len;
 
@@ -329,7 +329,7 @@ void RlesData::readFile (cstr /*fpath*/, TapeFile& /*tapeblocks*/) throws
 		{
 			rlesdata = new RlesData();
 			tapeblocks.append(rlesdata);
-			info=NULL;
+			info=nullptr;
 		}
 
 		switch(id)
@@ -361,7 +361,7 @@ void RlesData::readFile (cstr /*fpath*/, TapeFile& /*tapeblocks*/) throws
 //				}
 //				rlesdata->buffer.stop();
 //				if(info) rlesdata->setMajorBlockInfo(info);
-//				rlesdata = NULL;
+//				rlesdata = nullptr;
 //				break;
 			}
 		}

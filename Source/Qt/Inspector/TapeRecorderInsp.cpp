@@ -152,21 +152,21 @@ TapeRecorderInsp::TapeRecorderInsp( QWidget* w, MachineController* mc, volatile 
 		int		axis_x1, int axis_x2, int axis_y )
 :
 	Inspector(w,mc,item,hdgr_image_filename),
-	btn_record(NULL),
-	btn_play(NULL),
-	btn_back(NULL),
-	btn_fore(NULL),
-	btn_next(NULL),
-	btn_prev(NULL),
-	btn_eject(NULL),
-	btn_pause(NULL),
+	btn_record(nullptr),
+	btn_play(nullptr),
+	btn_back(nullptr),
+	btn_fore(nullptr),
+	btn_next(nullptr),
+	btn_prev(nullptr),
+	btn_eject(nullptr),
+	btn_pause(nullptr),
 	major_block_info(""),
 	minor_block_info(""),
 	tape_position(0),
 	major_block_info_label(new QLabel(this)),
 	minor_block_info_label(new QLabel(this)),
 	tape_position_label(new QLineEdit(this)),
-	tape_filepath(NULL),
+	tape_filepath(nullptr),
 	cass(BlueBody,head_position),
 	axis_x1(axis_x1),
 	axis_x2(axis_x2),
@@ -659,7 +659,7 @@ void TapeRecorderInsp::fillContextMenu(QMenu* menu)
 
 cstr TapeRecorderInsp::getCustomTitle()
 {
-	return tape_filepath ? filename_from_path(tape_filepath) : NULL;
+	return tape_filepath ? filename_from_path(tape_filepath) : nullptr;
 }
 
 cstr TapeRecorderInsp::get_save_filename(cstr msg) throws
@@ -805,9 +805,9 @@ void TapeRecorderInsp::insert_tape(cstr filepath)
 {
 	assert(!tape_recorder()->isLoaded());
 
-	TapeFile* tapefile = NULL;
+	TapeFile* tapefile = nullptr;
 
-	if(filepath!=NULL)
+	if(filepath!=nullptr)
 	{
 		tapefile = new TapeFile(tape_recorder()->machine_ccps, filepath);
 		xlogline("%s total length = %i sec", filepath, int(tapefile->getTotalPlaytime()));

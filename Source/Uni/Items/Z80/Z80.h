@@ -37,7 +37,7 @@ struct PgInfo
 {
 	CoreByte*	 core_r;			// flags in the high bytes, data in the low byte
 	CoreByte*	 core_w;			// flags in the high bytes, data in the low byte
-	CoreByte*	 core_w2;			// shadow write page. MAY BE NULL!
+	CoreByte*	 core_w2;			// shadow write page. MAY BE nullptr!
 	uint8 const* waitmap_r;
 	uint8 const* waitmap_w;
 	int			 waitmap_r_size;
@@ -135,9 +135,9 @@ public:
 	void		mapRom			(uint16 addr, uint16 size, CoreByte* data, uint8 const* waitmap, int wm_size);
 	void		mapWom			(uint16 addr, uint16 size, CoreByte* data, uint8 const* waitmap, int wm_size);
 	void		mapMem			(uint16 addr, uint16 size, CoreByte* rdata,CoreByte* wdata,const uint8* wm,int wm_size);
-	void		unmapRom		(uint16 addr, uint16 size, uint8 const* waitmap=NULL, int wm_size=0);
-	void		unmapWom		(uint16 addr, uint16 size, uint8 const* waitmap=NULL, int wm_size=0);
-	void		unmapRam		(uint16 addr, uint16 size, uint8 const* waitmap=NULL, int wm_size=0);
+	void		unmapRom		(uint16 addr, uint16 size, uint8 const* waitmap=nullptr, int wm_size=0);
+	void		unmapWom		(uint16 addr, uint16 size, uint8 const* waitmap=nullptr, int wm_size=0);
+	void		unmapRam		(uint16 addr, uint16 size, uint8 const* waitmap=nullptr, int wm_size=0);
 	void		unmapAllMemory	()					{ unmapRam(0,0); unmapWom2(0,0); }
 	void		unmapMemory		(CoreByte *a, uint32 size);
 	void		mapWom2			(uint16 addr, uint16 size, CoreByte* data);

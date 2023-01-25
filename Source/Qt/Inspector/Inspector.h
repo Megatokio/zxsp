@@ -69,7 +69,7 @@ VIR	void	fillContextMenu(QMenu*)		{}
 VIR	void	saveSettings()				{}		// called in Inspector dtor
 VIR	void	adjustSize(QSize&)			{}		// from ToolWindow
 VIR	void	adjustMaxSizeDuringResize()	{}		// from ToolWindow
-VIR	cstr	getCustomTitle()			{ return NULL; } // override if inspector wishes a customized title
+VIR	cstr	getCustomTitle()			{ return nullptr; } // override if inspector wishes a customized title
 VIR	void	updateWidgets()				{}		// called by timer. Timer must be started by subclass ctor.
 
 	static QLineEdit* newLineEdit(cstr text, int min_width=80);

@@ -126,9 +126,9 @@ UlaInsp::UlaInsp( QWidget* w, MachineController* mc, volatile Machine* m )
 
 // Contended Video Ram:
 
-	inputs.checkbox_enable_cpu_waitcycles = NULL;
-	inputs.waitmap_offset = NULL;
-	inputs.waitmap = NULL;
+	inputs.checkbox_enable_cpu_waitcycles = nullptr;
+	inputs.waitmap_offset = nullptr;
+	inputs.waitmap = nullptr;
 	if(ula()->isA(isa_UlaZxsp) && UlaZxspPtr(ula())->hasWaitmap())
 	{
 		values.checkbox_enable_cpu_waitcycles = yes;
@@ -172,17 +172,17 @@ UlaInsp::UlaInsp( QWidget* w, MachineController* mc, volatile Machine* m )
 
 // mmu port 7ffd:
 
-	inputs.port_7ffd = NULL;
-	inputs.port_1ffd = NULL;
-	inputs.page_c000 = NULL;
-	inputs.page_8000 = NULL;
-	inputs.page_4000 = NULL;
-	inputs.page_0000 = NULL;
-	inputs.video_page = NULL;
-	inputs.checkbox_mmu_locked = NULL;
-	inputs.checkbox_ram_only = NULL;
-	inputs.printer_strobe = NULL;
-	inputs.disc_motor = NULL;
+	inputs.port_7ffd = nullptr;
+	inputs.port_1ffd = nullptr;
+	inputs.page_c000 = nullptr;
+	inputs.page_8000 = nullptr;
+	inputs.page_4000 = nullptr;
+	inputs.page_0000 = nullptr;
+	inputs.video_page = nullptr;
+	inputs.checkbox_mmu_locked = nullptr;
+	inputs.checkbox_ram_only = nullptr;
+	inputs.printer_strobe = nullptr;
+	inputs.disc_motor = nullptr;
 
 	bool has_7ffd = mmu->hasPort7ffd();
 	bool has_1ffd = mmu->hasPort1ffd();
@@ -270,7 +270,7 @@ void UlaInsp::updateWidgets()
 	bool f;
 	uint i;
 
-	if(inputs.port_1ffd!=NULL)
+	if(inputs.port_1ffd!=nullptr)
 	{
 		if(values.port_1ffd != mmu->getPort1ffd())
 		{
@@ -297,7 +297,7 @@ void UlaInsp::updateWidgets()
 		}
 	}
 
-	if(inputs.port_7ffd!=NULL)
+	if(inputs.port_7ffd!=nullptr)
 	{
 		if(values.port_7ffd != mmu->getPort7ffd())
 		{

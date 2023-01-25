@@ -63,7 +63,7 @@ computer? As a far as I know, there's no schematics for the Inves, and without t
 
 
 MmuInves::MmuInves ( Machine* m )
-:	MmuZxsp( m, isa_MmuInves,NULL,NULL )
+:	MmuZxsp( m, isa_MmuInves,nullptr,nullptr )
 {
 	xlogIn("new MmuInves");
 }

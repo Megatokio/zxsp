@@ -54,7 +54,7 @@ str Settings::get_str(cstr key, cstr dflt)
 {
 	QVariant r = value(key);
 	if(r.canConvert(QMetaType::QString)) return dupstr(r.toString().toUtf8().data());
-	else return dflt ? dupstr(dflt) : NULL;
+	else return dflt ? dupstr(dflt) : nullptr;
 }
 
 int	Settings::get_int(cstr key, int dflt)

@@ -71,12 +71,12 @@ Screen::Screen (QWidget* owner, isa_id id)
 	render_thread(new RenderThread(this)),
 	id(id),
 	_what(IDLE),
-	_gifmovie_filepath(NULL),
-	_screenshot_filepath(NULL),
+	_gifmovie_filepath(nullptr),
+	_screenshot_filepath(nullptr),
 	frames_hit_percent(100.0f),
 	zoom(calc_zoom()),
 	screen_renderer(newRenderer()),
-	gif_writer(NULL),
+	gif_writer(nullptr),
 	overlays{nullptr,nullptr}
 {
 	xlogIn("new Screen");
@@ -306,7 +306,7 @@ void Screen::do_render_thread()
 				if(gif_writer)
 				try{ gif_writer->stopRecording(); }
 				catch(FileError& e){ showWarning("File error: %s",e.what()); }
-				delete gif_writer; gif_writer = NULL;
+				delete gif_writer; gif_writer = nullptr;
 				continue;
 			}
 
@@ -488,7 +488,7 @@ void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
 	if(_screenshot_filepath)	// --> make a screenshot
 	{
 		cstr path = _screenshot_filepath;
-		_screenshot_filepath = NULL;
+		_screenshot_filepath = nullptr;
 
 		ZxspGifWriter* gif = static_cast<ZxspGifWriter*>(newGifWriter(no));
 		try
@@ -507,7 +507,7 @@ void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
 	{
 		cstr path = _gifmovie_filepath;
 		bool with_border = _gifmovie_with_bordereffects;
-		_gifmovie_filepath = NULL;
+		_gifmovie_filepath = nullptr;
 
 		gif_writer = ZxspGifWriterPtr(newGifWriter(with_border));
 		try
@@ -518,7 +518,7 @@ void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
 		{
 			showWarning("File error: %s",e.what());
 			delete gif_writer;
-			gif_writer = NULL;
+			gif_writer = nullptr;
 		}
 		delete[] path;
 	}
@@ -534,7 +534,7 @@ void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
 		{
 			showWarning("File error: %s",e.what());
 			delete gif_writer;
-			gif_writer = NULL;
+			gif_writer = nullptr;
 		}
 	}
 }

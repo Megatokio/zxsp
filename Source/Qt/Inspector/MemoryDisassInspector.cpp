@@ -87,14 +87,14 @@ public:
 MemoryDisassInspector::MemoryDisassInspector(QWidget*parent, MachineController* mc, volatile IsaObject *item)
 :
 	MemoryInspector(parent,mc,item,Disass),
-	address_view(NULL),
-	hex_view(NULL),
-	disass_view(NULL),
-	widget_edit_mode(NULL),
-	button_breakpoint_r(NULL),
-	button_breakpoint_w(NULL),
-	button_breakpoint_x(NULL),
-	button_edit_mode(NULL),
+	address_view(nullptr),
+	hex_view(nullptr),
+	disass_view(nullptr),
+	widget_edit_mode(nullptr),
+	button_breakpoint_r(nullptr),
+	button_breakpoint_w(nullptr),
+	button_breakpoint_x(nullptr),
+	button_edit_mode(nullptr),
 	displayed_data(MAX_ROWS*4+1),
 	cw(0),rh(0),
 	pc(-1),
@@ -157,7 +157,7 @@ MemoryDisassInspector::MemoryDisassInspector(QWidget*parent, MachineController* 
 // toolbar:
 	const int W = 20;
 	const int H = 18;
-	widget_edit_mode = new QWidget(NULL);
+	widget_edit_mode = new QWidget(nullptr);
 	widget_edit_mode->setFixedSize(3*W,2*H);
 
 	button_edit_mode = new QPushButton("Edit",widget_edit_mode);
@@ -762,7 +762,7 @@ void MemoryDisassInspector::slotSetDataSource(int newdatasource)
 
 	MemoryInspector::slotSetDataSource(newdatasource);
 
-	delete disass; disass=NULL;
+	delete disass; disass=nullptr;
 	switch(data_source)
 	{
 	case AsSeenByCpu:	disass = new AsSeenByCpuDisass(machine->cpu); break;

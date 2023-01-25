@@ -9,7 +9,7 @@
 class Tc2068Joy : public Joy
 {
 public:
-	Tc2068Joy(Machine* m, isa_id id=isa_Tc2068Joy)	:Joy(m,id,internal,NULL,NULL,"J1","J2"){}
+	Tc2068Joy(Machine* m, isa_id id=isa_Tc2068Joy)	:Joy(m,id,internal,nullptr,nullptr,"J1","J2"){}
 
 	// Item interface:
 	void input(Time,int32,uint16,uint8&,uint8&)	{}

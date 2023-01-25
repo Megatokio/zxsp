@@ -372,7 +372,7 @@ static const AsciiToZxkeyMap btzxkbd2zxkey_zxsp =
 
 Keyboard::Keyboard(Machine* m, isa_id id, const AsciiToZxkeyMap cmap, const OskeyToZxkeyMap kmap)
 :
-	Item(m, id, isa_Keyboard, internal, NULL/*o_addr*/, NULL/*i_addr*/),
+	Item(m, id, isa_Keyboard, internal, nullptr/*o_addr*/, nullptr/*i_addr*/),
 	model(m->model),
 	csh(CSH),
 	ssh(SSH),

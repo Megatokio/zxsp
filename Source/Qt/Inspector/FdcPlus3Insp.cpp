@@ -93,7 +93,7 @@ FdcPlus3Insp::FdcPlus3Insp( QWidget*w, MachineController* mc, volatile IsaObject
 	overlay_disk_B_inserted(catstr(appl_rsrc_path,fname_B_inserted)),
 	overlay_led(path_LED),
 	diskstate(NoDisk),
-	current_disk(NULL),
+	current_disk(nullptr),
 	led_on(no)
 {
 	slot = new QWidget(this);
@@ -340,7 +340,7 @@ void FdcPlus3Insp::remove_disk()
 	if(diskstate==Loaded) eject_disk();
 	if(diskstate==Loaded) return;		// eject failed
 
-	delete[] current_disk; current_disk = NULL;
+	delete[] current_disk; current_disk = nullptr;
 	set_disk_state(NoDisk);
 }
 

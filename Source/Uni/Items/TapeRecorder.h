@@ -172,14 +172,14 @@ public:
 	bool	isRewinding     ()	volatile const noexcept	{ return state==rewinding;}	// WIND BACK button down
 	bool	isRecordDown    ()	volatile const noexcept	{ return record_is_down;}	// RECORD button down
 	bool	isPauseDown     ()	volatile const noexcept	{ return pause_is_down; }	// PAUSE button down
-	bool	isLoaded        ()	volatile const noexcept	{ return tapefile!=NULL; }	// Tapefile loaded
+	bool	isLoaded        ()	volatile const noexcept	{ return tapefile!=nullptr; }	// Tapefile loaded
 	bool    isStopped       ()	volatile const noexcept	{ return state==stopped; }	// PLAY, WIND and REWIND all up
 	bool	isNotRecordDown ()	volatile const noexcept	{ return !record_is_down;}	// RECORD button NOT down
 
 // reliable only while locked
 // unreliable access only from main thread (else tapefile might become void)
 	bool	isWriteProtected()	volatile const noexcept	{ return tapefile?tapefile->write_protected:1; } // not loaded or tapefile is write protected
-	cstr	getFilepath     ()	volatile const noexcept	{ return tapefile?tapefile->filepath:NULL; }
+	cstr	getFilepath     ()	volatile const noexcept	{ return tapefile?tapefile->filepath:nullptr; }
 	bool	isModified		()	volatile const noexcept	{ return tapefile?tapefile->modified:no; }
 
 // access only while locked

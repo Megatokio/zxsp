@@ -125,7 +125,7 @@ private:
 	void		enable_audio_in(bool);
 	void		all_keys_up();
 
-	ToolWindow*	new_toolwindow(volatile IsaObject* item = NULL, QAction* showaction = NULL);
+	ToolWindow*	new_toolwindow(volatile IsaObject* item = nullptr, QAction* showaction = nullptr);
 	void		show_inspector(IsaObject*, QAction* showaction, bool force);	// from Item c'tor
 	void		hide_inspector(IsaObject*, bool force);							// from Item d'tor
 	void		toggle_toolwindow(volatile IsaObject*, QAction* actionshow, bool showhide);	// from action

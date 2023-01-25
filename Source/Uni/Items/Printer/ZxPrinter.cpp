@@ -15,7 +15,7 @@
 
 
 #define o_addr  "---- ---- ---- -0--"
-#define i_addr NULL
+#define i_addr nullptr
 
 ZxPrinter::ZxPrinter(Machine*m)
 : Printer(m,isa_ZxPrinter,external,o_addr,i_addr)

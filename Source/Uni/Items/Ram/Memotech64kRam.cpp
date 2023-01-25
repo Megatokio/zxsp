@@ -103,13 +103,13 @@ void Memotech64kRam::map_dip_switched_ram()
 	if(dip_switches&8)			// all-64k-ram
 	{
 		prev()->romCS(true);
-		machine->cpu->mapRam(0x0000,0x4000,&machine->ram[0xC000],NULL,0);
+		machine->cpu->mapRam(0x0000,0x4000,&machine->ram[0xC000],nullptr,0);
 	}
 	else	// 0-8k: rom, 8-12 and 12-16k are ram or empty
 	{
 		prev()->romCS(false);
-		if(dip_switches&4) machine->cpu->mapRam(0x2000,0x1000,&machine->ram[0xe000],NULL,0);    // 8k-12k: Ram
-		if(dip_switches&2) machine->cpu->mapRam(0x3000,0x1000,&machine->ram[0xf000],NULL,0);    // 12k-16k: Ram
+		if(dip_switches&4) machine->cpu->mapRam(0x2000,0x1000,&machine->ram[0xe000],nullptr,0);    // 8k-12k: Ram
+		if(dip_switches&2) machine->cpu->mapRam(0x3000,0x1000,&machine->ram[0xf000],nullptr,0);    // 12k-16k: Ram
 	}
 }
 

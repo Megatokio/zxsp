@@ -548,7 +548,7 @@ IOReturn printerGetIEEEDeviceDescription(IOUSBDeviceInterface** dev_if,
 	request.wLength = 256;
 	request.pData = bu;
 
-	*result = NULL;
+	*result = nullptr;
 	IOReturn err = (*dev_if)->DeviceRequest(dev_if, &request);
 	if(err) return err;
 	uint numBytesReceived = request.wLenDone;
@@ -756,7 +756,7 @@ int testProlific2305device(io_service_t device)
 x:	if(err) r = -1;
 	err = (*dev_if)->USBDeviceClose(dev_if);
 	if(err) { logline("USBDeviceClose: error 0x%08X",uint(err)); r = -1; }
-xx:	//CFRelease(dev_if); dev_if=NULL;	// TODO OR NOT TODO...
+xx:	//CFRelease(dev_if); dev_if=nullptr;	// TODO OR NOT TODO...
 
 	return r;	// 0 = ok
 }
@@ -867,7 +867,7 @@ io_iterator_t newIteratorForMatchingServices(cstr service, int32 vendorID, int32
 		criteria to it and it will match every IOUSBDevice in the system.
 	*/
 	CFMutableDictionaryRef dict = newMatchingDictForService(service);	// Interested in instances of class
-	if(dict==NULL) return 0;											// IOUSBDevice and its subclasses
+	if(dict==nullptr) return 0;											// IOUSBDevice and its subclasses
 
 // fill in matching criteria (if any):
 

@@ -102,7 +102,7 @@ static const cstr walkman_fname[] =
 
 
 TapeRecorder::TapeRecorder(Machine* machine, isa_id id, const cstr audio_names[])
-:   Item(machine, id, isa_TapeRecorder, (Internal)machine->model_info->has_tape_drive,NULL,NULL),
+:   Item(machine, id, isa_TapeRecorder, (Internal)machine->model_info->has_tape_drive,nullptr,nullptr),
 	auto_start_stop_tape(settings.get_bool(key_auto_start_stop_tape,no)),
 	instant_load_tape(settings.get_bool(key_fast_load_tape,no)),
 	machine_ccps(machine->model_info->cpu_cycles_per_second),
@@ -110,7 +110,7 @@ TapeRecorder::TapeRecorder(Machine* machine, isa_id id, const cstr audio_names[]
 	record_is_down(no),
 	pause_is_down(no),
 	stop_position(0.0),
-	tapefile(NULL)
+	tapefile(nullptr)
 {
 	list_id = machine->isA(isa_MachineZxsp) ? RecentZxspTapes
 			: machine->isA(isa_MachineZx81) ? RecentZx81Tapes
@@ -125,7 +125,7 @@ TapeRecorder::TapeRecorder(Machine* machine, isa_id id, const cstr audio_names[]
 
 	for(uint i=0;i<NELEM(sound);i++)		// load sound files:
 	{
-		if(audio_names[i]==NULL) continue;	// dafür gibt es keinen Sound
+		if(audio_names[i]==nullptr) continue;	// dafür gibt es keinen Sound
 
 		for(uint j=0;j<i;j++)				// suche doppelt verwendeten Sound:
 		{
@@ -171,7 +171,7 @@ TapeRecorder::~TapeRecorder()
 	{
 		Sample* s = sound[i]; if(!s) continue;
 		delete[] s;
-		for(uint j=i+1; j<NELEM(sound); j++) if(sound[j]==s) sound[j]=NULL;
+		for(uint j=i+1; j<NELEM(sound); j++) if(sound[j]==s) sound[j]=nullptr;
 	}
 }
 
@@ -340,7 +340,7 @@ void TapeRecorder::audioBufferEnd( Time )
 */
 bool TapeRecorder::can_read_block() noexcept
 {
-	return	tapefile != NULL &&
+	return	tapefile != nullptr &&
 			!record_is_down &&
 			(state==stopped || state==playing);
 }
@@ -414,7 +414,7 @@ O80Data* TapeRecorder::getZx80Block() noexcept
 bool TapeRecorder::can_store_block() noexcept
 {
 	return	state==playing &&
-		//	_tapefile != NULL &&	implied by record_is_down
+		//	_tapefile != nullptr &&	implied by record_is_down
 			record_is_down &&
 			(auto_start_stop_tape || !pause_is_down);
 }
@@ -534,14 +534,14 @@ TapeFile* TapeRecorder::eject()
 
 	stop();
 	TapeFile* tf = tapefile;
-	tapefile = NULL;
+	tapefile = nullptr;
 	play_sound(tf ? sound_open_deck_loaded : sound_open_deck_empty);
 	return tf;
 }
 
 
 /*  Insert tape into the recorder
-	newtapefile may be NULL
+	newtapefile may be nullptr
 	plays the "close lid" sound
 */
 void TapeRecorder::insert( TapeFile* newtapefile )
@@ -564,12 +564,12 @@ void TapeRecorder::insert( cstr filepath )
 {
 	xlogIn("TapeRecorder.insert(filepath)");
 	assert(is_locked());
-	assert(filepath!=NULL);
+	assert(filepath!=nullptr);
 
 	state = stopped;
 
 	delete tapefile;
-	tapefile = NULL;
+	tapefile = nullptr;
 	tapefile = new TapeFile(machine_ccps,filepath);
 }
 
@@ -579,7 +579,7 @@ void TapeRecorder::setFilename( cstr new_filename ) volatile noexcept
 	xlogIn("TapeRecorder.setFilename");
 	assert(isMainThread());
 	assert(isLoaded());
-	assert(new_filename!=NULL);
+	assert(new_filename!=nullptr);
 
 	tapefile->setFilepath(new_filename);
 }

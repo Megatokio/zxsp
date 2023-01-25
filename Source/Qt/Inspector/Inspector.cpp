@@ -86,18 +86,18 @@ Inspector::Inspector(QWidget* w, MachineController* mc, volatile IsaObject *item
 	QWidget(w),
 	controller(mc),
 	object(item),
-	machine( mc==NULL ? NULL : mc->getMachine()),
+	machine( mc==nullptr ? nullptr : mc->getMachine()),
 	background( catstr(appl_rsrc_path,bg_file) ),
 	is_visible(false),
 	timer(new QTimer(this)),
 	contextmenu(new QMenu(this)),
-	toolbar(NULL)
+	toolbar(nullptr)
 {
-	xlogIn("new Inspector for %s",item?item->name:"NULL");
-	assert(machine!=NULL || object==NULL);
+	xlogIn("new Inspector for %s",item?item->name:"nullptr");
+	assert(machine!=nullptr || object==nullptr);
 	this->setFixedSize( background.size() );	// also removes green resize button
-	if(item) connect(NV(item), &IsaObject::destroyed, this, [=]{timer->stop(); object=NULL;});
-	if(machine) connect(NV(machine), &Machine::destroyed, this,[=]{timer->stop(); machine=NULL;});
+	if(item) connect(NV(item), &IsaObject::destroyed, this, [=]{timer->stop(); object=nullptr;});
+	if(machine) connect(NV(machine), &Machine::destroyed, this,[=]{timer->stop(); machine=nullptr;});
 	//QWidget::setEnabled(true);                // enable mouse & kbd events (true=default)
 	setFocusPolicy(Qt::ClickFocus);				// allow clicking "anywhere" to remove focus from input widgets
 
@@ -114,7 +114,7 @@ Inspector::Inspector(QWidget* w, MachineController* mc, volatile IsaObject *item
 Inspector::~Inspector()
 {
 	xlogIn("~Inspector");
-	delete timer; timer=NULL;
+	delete timer; timer=nullptr;
 }
 
 
@@ -130,7 +130,7 @@ void Inspector::paintEvent(QPaintEvent*)	// Qt callback
 //virtual
 bool Inspector::event(QEvent*e)
 {
-	xxlogIn("Inspector[%s]:event: %s",object?object->name:"NULL",QEventTypeStr(e->type()));
+	xxlogIn("Inspector[%s]:event: %s",object?object->name:"nullptr",QEventTypeStr(e->type()));
 	return QWidget::event(e);		// true if processed
 }
 
@@ -186,7 +186,7 @@ Inspector* Inspector::newInspector(QWidget* p, MachineController* mc, volatile I
 	xlogIn("Inspector::newInspector");
 
 // new empty inspector:
-	if(item==NULL) return new Inspector(p,mc,NULL);
+	if(item==nullptr) return new Inspector(p,mc,nullptr);
 
 // new machine inspector:
 	volatile Machine* machine = mc->getMachine();
@@ -298,7 +298,7 @@ Inspector* Inspector::newInspector(QWidget* p, MachineController* mc, volatile I
 	}
 
 	showAlert("TODO: Inspector::newInspector() for: %s",item->name);
-	return new Inspector(p,mc,NULL);
+	return new Inspector(p,mc,nullptr);
 }
 
 
