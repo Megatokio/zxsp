@@ -163,7 +163,7 @@ void Z80::videoFrameEnd( int32 cc )
 		cc_irpt_off -= cc;
 	}
 
-	if(cc_nmi!=0x7fffffff)		// test for nmi
+	if(cc_nmi < 1<<30)			// test for nmi
 	{
 		cc_nmi -= cc;
 	}
@@ -699,24 +699,21 @@ int Z80::run( int32 cc_max, int32 ic_max, uint32 options )
 slow_loop:
 
 // test non-maskable interrupt:
+// the /NMI signal is sampled in the first half of the last clock cycle of an instruction
 // the NMI is edge-triggered and automatically cleared
 
-	if( cc>=cc_nmi ) // timing: 4+1,3,3
+	if (cc >= cc_nmi)	// timing: 4+1,3,3
 	{
-		// NMI starts with a dummy opcode fetch plus 1 cc
-		// /WAIT test in cc+2 => nmiAtCycles() may add wait cycles to cpu_cycle.
-
+		// NMI starts with a dummy opcode fetch
+		// note: /WAIT test in cc+2 => GET_INSTR_FOR_NMI() may add wait cycles.
 		// note: nmiAtCycle() was formerly called with cc+3
 
 		IFF1 = disabled;				// disable maskable irpt. IFF2 is used to restore IFF1 in RETN.
 		PEEK_INSTR(c);
 		if (c == HALT) pc++;
-		r += 1;
-		cpu_cycle = cc;					// nmiAtCycles() may add wait states to cpu_cycle.
-		cc_nmi = machine->nmiAtCycle(cc); // clear or re-trigger nmi.
-		cc = cpu_cycle + 4+1;
+		GET_INSTR_FOR_NMI();
 		PUSH(pc>>8);					// M2: 3 cc: push pch
-		PUSH(pc);						// M3: 3 cc: push pcl
+		PUSH(uint8(pc));				// M3: 3 cc: push pcl
 		pc = 0x0066;					// jump to 0x0066
 	}
 	cc_max = min(cc_max,cc_nmi);
@@ -726,7 +723,7 @@ slow_loop:
 
 // test maskable interrupt:
 // note: the /INT signal is not cleared by int ack
-//		 the /INT signal is sampled once per instruction at the end of instruction, during refresh cycle
+//		 the /INT signal is sampled in the first half of the last clock cycle of an instruction
 //		 if the interrupt is not started until the /INT signal goes away then it is lost!
 
 	if( cc < cc_irpt_on )				// int still ahead?

@@ -150,6 +150,16 @@ do{											\
 	};	ic+=1; cc+=4; pc+=1; r+=1;			\
 }while(0)
 
+// NMI starts with a fake opcode fetch:
+#define	GET_INSTR_FOR_NMI()					\
+do{											\
+	cc_nmi = machine->nmiAtCycle(cc);		\
+	PgInfo& pg = getPage(pc);				\
+	z32 = pg.both_r(pc);					\
+	if (z32&cpu_waitmap) { CC_WAIT_R(cc+2); }	\
+	cc+=5; r+=1;							\
+}while(0)
+
 /*	get next byte (ip++)
 */
 #define	GET_BYTE(RGL)						\

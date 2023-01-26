@@ -172,6 +172,7 @@ case DI:		IFF1=IFF2=disabled;	LOOP;	// 4 T
 case EI:	//	if (IFF1==enabled)	LOOP;	// 4 T		lt. z80-documented.pdf: nach EI niemals Irpt Ackn
 				IFF1=IFF2=enabled;
 				Z80_INFO_EI;
+				if (cc >= cc_nmi) LOOP;		// NMI can start after EI
 				goto loop_ei;	// der nächste befehl wird auf jeden fall noch ausgeführt =>
 								// kein sprung via LOOP nach nxtcmd, weil dort evtl. wg. cc>=ccx Run() verlassen würde
 								// und beim Wiederaufruf zuerst die Interrupts geprüft werden.
