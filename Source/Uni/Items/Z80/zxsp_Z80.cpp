@@ -779,7 +779,7 @@ slow_loop:
 
 			default:					//	only RSTxx and CALL NN are supported
 				TODO();					//  any other opcode is of no real use.
-			};
+			}
 
 		case 1:	//	Mode 1:	RST38
 				//	timing: 7+3+3
@@ -807,7 +807,7 @@ slow_loop:
 
 		default:
 			IERR();					// bogus irpt mode
-		};
+		}
 	}
 	IERR();
 

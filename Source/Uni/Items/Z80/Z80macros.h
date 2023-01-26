@@ -58,23 +58,23 @@
 
 
 #define OUTPUT(A,R)											\
-{															\
+do{															\
 	cpu_cycle = cc+=3; 										\
 	machine->outputAtCycle(cc,A,R);  /* cc of bus cycle */	\
 	cc = cpu_cycle+1; 										\
 	cc_max = min(cc_max,cc_nmi); 							\
-}
+}while(0)
 
 #define INPUT(A,R)			 								\
-{															\
+do{															\
 	cpu_cycle = cc+=3;  									\
 	R = machine->inputAtCycle(cc,A); /* cc of bus cycle */	\
 	cc = cpu_cycle+1;  										\
-}
+}while(0)
 
 
 #define	PEEK(R,A)							\
-{											\
+do{											\
 	PgInfo& pg = getPage(A);				\
 	z32 = pg.both_r(A);						\
 	c = uint8(z32);							\
@@ -87,7 +87,7 @@
 		if(z32&cpu_memmapped_r) { c=machine->readMemMappedPort(cc+2,A,c); }	\
 	};	cc+=3;								\
 	R = c;									\
-}
+}while(0)
 
 /*	write byte to ram:
 	unconditionally write to primary page_w
@@ -95,7 +95,7 @@
 	wait cycles are only added for primary page
 */
 #define	POKE(A,R)							\
-{											\
+do{											\
 	cc += 2;								\
 	PgInfo& pg = getPage(A);				\
 	if((z32 = pg.both_w(A) & options))		\
@@ -119,19 +119,19 @@
 	}										\
 	pg.data_w(A) = R;						\
 	cc+=1;									\
-}
+}while(0)
 
 #define PEEK_INSTR(R)                       \
-{											\
+do{											\
 	PgInfo& pg = getPage(pc);				\
 	z32 = pg.both_r(pc);					\
 	R = uint8(z32);							\
 	if( (z32&options&cpu_crtc_zx81) && (pc&0x8000) )	\
 	{ R = peek(pc&0x7fff); if(~R&0x40) R = NOP; };		\
-}
+}while(0)
 
 #define	GET_INSTR(R)						\
-{											\
+do{											\
 	PgInfo& pg = getPage(pc);				\
 	z32 = pg.both_r(pc);					\
 	R = uint8(z32);							\
@@ -148,12 +148,12 @@
 		if(z32&cpu_waitmap)	{ CC_WAIT_R(cc+2); }															\
 		if(z32&cpu_x_access){ pg.both_r(pc) -= cpu_x_access; }												\
 	};	ic+=1; cc+=4; pc+=1; r+=1;			\
-}
+}while(0)
 
 /*	get next byte (ip++)
 */
 #define	GET_BYTE(RGL)						\
-{											\
+do{											\
 	PgInfo& pg = getPage(pc);				\
 	z32 = pg.both_r(pc);					\
 	RGL uint8(z32);							\
@@ -163,14 +163,14 @@
 		if(z32&cpu_waitmap) { CC_WAIT_R(cc+2); }								\
 		if(z32&cpu_x_access){ pg.both_r(pc) -= cpu_x_access; }					\
 	};	pc+=1;								\
-}
+}while(0)
 
-#define	GET_N(R)		{ GET_BYTE(R=);		  cc+=3; }
-#define	SKIP_N()		{ GET_BYTE((void));	  cc+=3; }
-#define	GET_XYCB_OP(R)	{ GET_BYTE(R=);		  cc+=3; SKIP_2X1CC(pc-1); }
-#define	GET_ED_OP(R)	{ GET_BYTE(R=); r+=1; cc+=4; ic+=1; }				// ic+=1 -> .rzx support
-#define	GET_XY_OP(R)	{ GET_BYTE(R=); r+=1; cc+=4; ic+=1; }				// ic+=1 -> .rzx support
-#define	GET_CB_OP(R)	{ GET_BYTE(R=); r+=1; cc+=4; ic+=1; }				// ic+=1 -> .rzx support
+#define	GET_N(R)		do{ GET_BYTE(R=);		cc+=3; }while(0)
+#define	SKIP_N()		do{ GET_BYTE((void));	cc+=3; }while(0)
+#define	GET_XYCB_OP(R)	do{ GET_BYTE(R=);		cc+=3; SKIP_2X1CC(pc-1); }while(0)
+#define	GET_ED_OP(R)	do{ GET_BYTE(R=); r+=1; cc+=4; ic+=1; }while(0)  // ic+=1 -> .rzx support
+#define	GET_XY_OP(R)	do{ GET_BYTE(R=); r+=1; cc+=4; ic+=1; }while(0)  // ic+=1 -> .rzx support
+#define	GET_CB_OP(R)	do{ GET_BYTE(R=); r+=1; cc+=4; ic+=1; }while(0)  // ic+=1 -> .rzx support
 
 
 /*	1 cc with wait test
@@ -184,7 +184,7 @@
 	XYCB set:	pc:4, pc+1:4, pc+2:3, pc+3:3,2, ix+n:3,1, ix+n:3
 */
 #define	SKIP_1CC(A)							\
-{											\
+do{											\
 	cc += 1;								\
 	if(options&cpu_ula_sinclair)			\
 	{										\
@@ -195,7 +195,7 @@
 			CC_WAIT_R(cc+1);				\
 		}									\
 	}										\
-}
+}while(0)
 
 
 /*	2 cc with wait test
@@ -207,7 +207,7 @@
 	GET_XYCB_OP
 */
 #define	SKIP_2X1CC(A)						\
-{											\
+do{											\
 	cc += 2;								\
 	if(options&cpu_ula_sinclair)			\
 	{										\
@@ -219,7 +219,7 @@
 			CC_WAIT_R(cc+1);				\
 		}									\
 	}										\
-}
+}while(0)
 
 
 /*	4 cc with wait test in all cycles
@@ -227,7 +227,7 @@
 	rrd		pc:4, pc+1:4, hl:3,4*1, hl:3
 */
 #define	SKIP_4X1CC(A)						\
-{											\
+do{											\
 	cc += 4;								\
 	if(options&cpu_ula_sinclair)			\
 	{										\
@@ -241,7 +241,7 @@
 			CC_WAIT_R(cc+1);				\
 		}									\
 	}										\
-}
+}while(0)
 
 
 /*	5 cc with wait test in all cycles
@@ -256,7 +256,7 @@
 	cp a,(ix+d)	pc:4, pc+1:4, pc+2:3, pc+2:1x5, ix+n:3
 */
 #define	SKIP_5X1CC(A)						\
-{											\
+do{											\
 	cc += 5;								\
 	if(options&cpu_ula_sinclair)			\
 	{										\
@@ -271,14 +271,14 @@
 			CC_WAIT_R(cc+1);				\
 		}									\
 	}										\
-}
+}while(0)
 
 
 /*	7 cc with wait test in all cycles
 	ldir	pc:4, pc+1:4, hl:3, de:3,2x1 [de:5x1]
 */
 #define	SKIP_7X1CC(A)						\
-{											\
+do{											\
 	cc += 7;								\
 	if(options&cpu_ula_sinclair)			\
 	{										\
@@ -295,12 +295,12 @@
 			CC_WAIT_R(cc+1);				\
 		}									\
 	}										\
-}
+}while(0)
 
 
-#define	GET_NN(RR)			{ GET_N(RR); uint16 w_nn; GET_N(w_nn); RR += 256*w_nn; }
-#define	POP(R)				{ PEEK(R,SP); SP++; }
-#define	PUSH(R)				{ --SP; POKE(SP,R); }
+#define	GET_NN(RR)			do{ GET_N(RR); uint16 w_nn; GET_N(w_nn); RR += 256*w_nn; }while(0)
+#define	POP(R)				do{ PEEK(R,SP); SP++; }while(0)
+#define	PUSH(R)				do{ --SP; POKE(SP,R); }while(0)
 
 
 // hooks:
