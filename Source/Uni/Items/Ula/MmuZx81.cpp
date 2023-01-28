@@ -14,9 +14,6 @@ void MmuZx81::powerOn( /*t=0*/ int32 cc )
 {
 	MmuZx80::powerOn(cc);
 	assert(romdis_in==0);
-
-	uint n = rom.count(); if(n>8 kB) n=8 kB;
-	cpu->mapRom(0,n,&rom[0],nullptr,0);
 }
 
 
@@ -30,25 +27,24 @@ void MmuZx81::powerOn( /*t=0*/ int32 cc )
 
 	ROM_CS:  1->disable
 */
-void MmuZx81::romCS( bool f )
+void MmuZx81::romCS(bool f)
 {
 	xlogline("MmuZx81.romCS(%i)",f);
 
-	if(f==romdis_in) return;
+	if (f == romdis_in) return;
 	romdis_in = f;
-	if(f) return;		// paged out
+	if (f) return;		// paged out
 
-	uint n = rom.count(); if(n>8 kB) n=8 kB;
-	cpu->mapRom(0,n,&rom[0],nullptr,0);
+	if ((rom[0] & cpu_waitmap) == 0)
+	{
+		for (uint i=0; i<rom.count(); i++) rom[i] |= cpu_waitmap;
+	}
+
+	uint16 rom_size = uint16(rom.count()); if (rom_size > 8 kB) rom_size = 8 kB;
+	uint8* waitmap = UlaZx81Ptr(ula)->getWaitmap();
+	uint16 waitmap_size = UlaZx81Ptr(ula)->waitmap_size;
+	cpu->mapRom(0, rom_size, &rom[0], waitmap, waitmap_size);
 }
-
-
-
-
-
-
-
-
 
 
 

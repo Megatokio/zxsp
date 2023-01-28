@@ -6,28 +6,12 @@
 #include "Machine.h"
 #include "Z80/Z80.h"
 #include "Ula/UlaZx80.h"
-
-
-
-// dummy read page for unmapped cpu address space:
-// no memory, flagged for cpu_crtc_zx81 => ula vram read
-//
-static CoreByte zx80_crtc_nomem[CPU_PAGESIZE];
-
-ON_INIT([]
-{
-	xlogline("init zx80_crtc_nomem");
-	CoreByte *p = zx80_crtc_nomem, *e = p+CPU_PAGESIZE;
-	while(p<e) { *p++ = cpu_crtc_zx81 | 0x00ff; }	// flag + idle bus value
-});
-
-
-// -------------------------------------------------------------------------
+#include "Ula/UlaZx81.h"
 
 
 void MmuZx80::powerOn(int32 cc)
 {
-	xlogIn("MmuZx80:init");
+	xlogIn("MmuZx80:powerOn");
 	Mmu::powerOn(cc);
 	mapMem();
 }
@@ -37,79 +21,92 @@ void MmuZx80::mapMem()
 	//	ram = machine->ram;	// => shared array
 	//	rom = machine->rom;	// => shared array
 
-	cpu->unmapAllMemory();
+	bool is_zx81 = ula->isA(isa_UlaZx81);
+	uint8* waitmap = is_zx81 ? UlaZx81Ptr(ula)->getWaitmap() : nullptr;
+	uint16 waitmap_size = is_zx81 ? UlaZx81Ptr(ula)->waitmap_size : 0;
+	uint32 option = is_zx81 ? cpu_waitmap : 0;		// cpu options without cpu_crtc_zx81
 
-	// 0x0000 - 0x3FFF: ROM
+	// unmap all memory and set waitmap for ZX81:
+	cpu->unmapRom(0,0,waitmap,waitmap_size);
+	cpu->unmapWom(0,0,waitmap,waitmap_size);
+
+	// flag dummy mem pages for cpu opcode patch:
+	assert(NELEM(cpu->noreadpage)==CPU_PAGESIZE);
+	assert(NELEM(cpu->nowritepage)==CPU_PAGESIZE);
+	for (uint i=0; i<CPU_PAGESIZE; i++)
+	{
+		cpu->noreadpage[i] = option | cpu_crtc_zx81 | cpu_floating_bus | 0xFF;
+		cpu->nowritepage[i] = option | cpu_crtc_zx81;
+	}
+
+	// range 0x0000 - 0x3FFF: map ROM
 	switch (rom.count() / (2 kB))
 	{
 	case 2:	// 4 kB: ZX80
 		// A12 must be 0 to select the internal ROM
-		cpu->mapRom(0 kB/*addr*/, 4 kB/*size*/, &rom[0], nullptr, 0);
-		cpu->mapRom(8 kB,         4 kB,         &rom[0], nullptr, 0); // mirror? TODO
+		cpu->mapRom(0 kB/*addr*/, 4 kB/*size*/, &rom[0], waitmap, waitmap_size);
+		cpu->mapRom(8 kB,         4 kB,         &rom[0], waitmap, waitmap_size); // mirror? TODO
 		break;
 
 	case 5:	// 10 kB: TK85
 		// TODO: in which pages do the additional 2k actually show up?
 		// assumed: it is mirrored 4 times.
 		assert (machine->model == tk85);
-		cpu->mapRom(0 kB/*addr*/, 10 kB/*size*/, &rom[0],    nullptr, 0);
-		cpu->mapRom(10 kB,        2 kB,          &rom[8 kB], nullptr, 0); // mirror? TODO
-		cpu->mapRom(12 kB,        2 kB,          &rom[8 kB], nullptr, 0); // mirror? TODO
-		cpu->mapRom(14 kB,        2 kB,          &rom[8 kB], nullptr, 0); // mirror? TODO
+		cpu->mapRom(0 kB/*addr*/, 10 kB/*size*/, &rom[0],    waitmap, waitmap_size);
+		cpu->mapRom(10 kB,        2 kB,          &rom[8 kB], waitmap, waitmap_size); // mirror? TODO
+		cpu->mapRom(12 kB,        2 kB,          &rom[8 kB], waitmap, waitmap_size); // mirror? TODO
+		cpu->mapRom(14 kB,        2 kB,          &rom[8 kB], waitmap, waitmap_size); // mirror? TODO
 		break;
 
 	case 4: // 8 kB: ZX81 et.al.
-		cpu->mapRom(0 kB/*addr*/, 8 kB/*size*/, &rom[0], nullptr, 0);
-		cpu->mapRom(8 kB/*addr*/, 8 kB/*size*/, &rom[0], nullptr, 0); // mirror? TODO
+		cpu->mapRom(0 kB/*addr*/, 8 kB/*size*/, &rom[0], waitmap, waitmap_size);
+		cpu->mapRom(8 kB/*addr*/, 8 kB/*size*/, &rom[0], waitmap, waitmap_size); // mirror? TODO
 		break;
 
 	default:
 		IERR();
 	}
 
-	// 0x8000-0xFFFF: preset unattached memory: cpu_crtc_zx81 = cpu liest NOP statt opcode
-	// TODO: mirror?
-	for( uint32 i = 32 kB; i < 64 kB; i += CPU_PAGESIZE )
-	{
-		cpu->mapRom( uint16(i), CPU_PAGESIZE, zx80_crtc_nomem, nullptr, 0 );
-	}
-
-	// 0x4000 … 0x7FFF: 16 kB RAM
+	// range 0x4000 … 0x7FFF: map RAM
 	//	possible values:
 	//	1k, 2k, 3k, 4k, 8k, ≥16k
 	//	ZX80 internal 1kB: activated if A14==1  (Memory Pack can override CS signal)
 	//	ZX81 internal 1kB: ?
 	//	ZX81 U.S. internal 2kB: ?
-	//	Sinclair 1-3k Ram Pack probably results in mirrors every 4k	TODO
 	uint sz = ram.count();
-	cpu->mapRam( 0x4000, uint16(min(sz,0xC000u)), ram.getData(), nullptr, 0 );
-	if (ram.count() < 0x1000 && ram.count() != 0x400) sz = 0x1000;    // 4 kB
+	cpu->mapRam(16 kB, uint16(min(sz, 48 kB)), ram.getData(), waitmap, waitmap_size);
+	if (sz > machine->model_info->ram_size) sz = max(sz, 4 kB);	// Sinclair 1-3k Ram Pack probably 4k mirrors
 
 	// mirror memory:
-	for (uint i = 0x4000+sz; i < 0x8000; i+= CPU_PAGESIZE)
+	for (uint i = 16 kB + sz; i < 32 kB; i += CPU_PAGESIZE)
 	{
-		cpu->mapMem(uint16(i), CPU_PAGESIZE, cpu->rdPtr(uint16(i-sz)), cpu->wrPtr(uint16(i-sz)), nullptr, 0);
+		cpu->mapMem(uint16(i), CPU_PAGESIZE, cpu->rdPtr(uint16(i-sz)), cpu->wrPtr(uint16(i-sz)), waitmap, waitmap_size);
 	}
-	if (sz <= 0x8000) for (uint32 i=0x4000; i<0x8000; i+= CPU_PAGESIZE)
+	if (sz <= 16 kB) for (uint i = 0; i < 32 kB; i+= CPU_PAGESIZE)
 	{
-		cpu->mapMem(uint16(i+0x8000), CPU_PAGESIZE, cpu->rdPtr(uint16(i)), cpu->wrPtr(uint16(i)), nullptr, 0 );
-	}
-
-	// set cpu_crtc_zx81 flag:
-	// lower 32K: ula patch OFF:
-	for( uint pg=0; pg<CPU_PAGES/2; pg++ )
-	{
-		CoreByte* p = cpu->rdPtr(uint16(pg * CPU_PAGESIZE));
-		for( int i=0; i<CPU_PAGESIZE; i++ ) { p[i] &= ~cpu_crtc_zx81; }
+		cpu->mapMem(uint16(32 kB + i), CPU_PAGESIZE, cpu->rdPtr(uint16(i)), cpu->wrPtr(uint16(i)), waitmap, waitmap_size);
 	}
 
-	// upper 32K: ula patch ON:
-	// due to mirroring the flag may also reappear in the lower 32k.
-	// note: that is why in Z80options.h the Macro GET_INSTR must still test bit 15 of the PC.
-	for (uint pg = CPU_PAGES/2; pg < CPU_PAGES; pg++)
+	// if zx81 then flag all memory for waitmap:
+	if (option)
 	{
-		CoreByte* p = cpu->rdPtr(uint16(pg * CPU_PAGESIZE));
-		for (uint i = 0; i < CPU_PAGESIZE; i++ ) { p[i] |= cpu_crtc_zx81; }
+		for (uint i=0; i<rom->count(); i++)
+		{
+			rom[i] |= option;
+		}
+		for (uint i=0; i<ram->count(); i++)
+		{
+			ram[i] |= option;
+		}
+	}
+
+	// set cpu_crtc_zx81 flag in upper 32K:
+	// due to mirroring the flag may also appear in the lower 32k.
+	// that is why in Z80options.h the Macro GET_INSTR must still test bit 15 of the PC.
+	for (uint page = CPU_PAGES/2; page < CPU_PAGES; page++)
+	{
+		CoreByte* p = cpu->rdPtr(uint16(page * CPU_PAGESIZE));
+		for (uint i = 0; i < CPU_PAGESIZE; i++ ) { p[i] |= option | cpu_crtc_zx81; }
 	}
 }
 
