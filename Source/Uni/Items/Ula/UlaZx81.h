@@ -4,131 +4,94 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "UlaMono.h"
-
+#include "TVDecoderMono.h"
 
 class UlaZx81 : public UlaMono
 {
 public:
 	explicit UlaZx81(Machine*);
-	virtual ~UlaZx81();
+	virtual ~UlaZx81() override;
 
 // Item interface:
-	void	powerOn			(/*t=0*/ int32 cc) override;
-	void	reset			(Time t, int32 cc) override;
-	void	input			(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
-	void	output			(Time t, int32 cc, uint16 addr, uint8 byte) override;
-	//void	audioBufferEnd	(Time t) override;
-	void	videoFrameEnd	(int32 cc) override;
-	void	saveToFile		(FD&) const throws override;
-	void	loadFromFile	(FD&) throws override;
+	virtual void powerOn (/*t=0*/ int32 cc) override;
+	virtual void reset (Time t, int32 cc) override;
+	virtual void input (Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
+	virtual void output (Time t, int32 cc, uint16 addr, uint8 byte) override;
+	virtual void videoFrameEnd (int32 cc) override;
 
-	int32	doFrameFlyback			(int32 cc) override;
-	void	drawVideoBeamIndicator	(int32 cc) override;
+	virtual int32 doFrameFlyback(int32 cc) override;
+	virtual void drawVideoBeamIndicator(int32 cc) override;
 
-	void	setBorderColor			(uint8) override { border_color = 0xFF; /* White. ZX80 has no "border color" */ }
+	virtual void setBorderColor(uint8) override		{ border_color = 0xFF; } // White. ZX81 has no "border color"
 
-	int32	cpuCycleOfInterrupt		() override				{ return 0; }
-	int32	cpuCycleOfIrptEnd		() override				{ return 0; }
-	int32	cpuCycleOfFrameFlyback	() override				{ return cc_per_frame_max; }
+	virtual int32 cpuCycleOfInterrupt() override	{ return 0; }		// ZX81 has no regular timer interrupt
+	virtual int32 cpuCycleOfIrptEnd() override		{ return 0; }
+	virtual int32 cpuCycleOfNextCrtRead() override	{ return 1<<30; }	// ZXSP++ only
 
-	int32	cpuCycleOfNextCrtRead() override				{ return 1<<30; }
-	int32	updateScreenUpToCycle	(int32 cc) override;
-	void	crtcRead				(int32 cc, uint byte) override;
-	int32	nmiAtCycle				(int32 cc_nmi);
-	uint8	interruptAtCycle		(int32, uint16) override;
+	virtual int32 cpuCycleOfFrameFlyback() override;
+	virtual int32 updateScreenUpToCycle(int32 cc) override;
+	virtual void  crtcRead(int32 cc, uint byte) override;
+	virtual uint8 interruptAtCycle(int32, uint16) override;
 
-//	int32	getCurrentFramebufferIndex() override			{ return tv_idx; }
-//	int32	framebufferIndexForCycle(int32 cc) override		{ return tv_idx_for_cc(cc); }
+	int32 nmiAtCycle(int32 cc_nmi);
 
-	void	set60Hz					(bool=1) override;
-	int32	getCcPerFrame			() volatile const override	{ return cc_per_frame; }
-	void	setupTiming() override {}
+	void set60Hz(bool=1) override;
+	int32 getCcPerFrame() volatile const override	{ return cc_per_frame; }
+	void setupTiming() override {}
 
-	void	enableMicOut			(bool f);
+	void enableMicOut(bool f);
 
-
-// ====================== PRIVATE ===========================================================
+	static constexpr uint waitmap_size = 207; // cc
+	uint8* getWaitmap() { return u8ptr(waitmap); }
 
 private:
+	void mic_out(Time, Sample);
 
-	//bool	mic_out_enabled;		// MIC_OUT setting
+	TVDecoderMono tv_decoder;
+	int32 cc_per_frame = 0;
+	uint8 waitmap[waitmap_size];
 
-	bool	tv_sync_state;			// stores current sync state. req. for tv_update()
-	int32	tv_cc_sync;				// cc of last sync state change
-	int32	tv_cc_row_start;		// cc when current row stated: sync_off or self-triggered
-	int32	tv_cc_frame_start;		// cc when frame started: 0 for this frame or cc of next frame after ffb
-	int32	tv_idx;					// fbu[idx] for next byte
-	int32	tv_row;					// current row
+	uint lcntr = 0;				// 3 bit line counter
+	bool nmi_enabled = no;		// state of the NMI_enable flipflop
+	bool sync = no;				// state of the combined sync output
+	bool vsync = no;			// state of the vsync flipflop
+	bool hsync = no;			// state of the hsync generator
+	int32 cc_hsync_next = 16;	// next sheduled toggle
 
-	int		ula_lcntr;				// 3 bit low line counter [0..7] of ula
-	bool	ula_sync_state;			// sync as set by in(FE) / out(FF)
-	bool	ula_nmi_enabled;		// set by out(FD) / out(FE)
-	int32	ula_cc_next_nmi;
+	int32 cc_sync_on = 0;
+	int32 cc_frame_start = 0;
 
-	int32	cc_per_frame;
+	bool vsync_enabled() const { return !nmi_enabled; }
 
-	void	reset					();
-	void	mic_out					( Time, Sample );
+	void set_sync(int32 cc, bool f);
+	void run_hsync(int32 cc);
+	void reset_hsync(int32 cc, int32 dur);
+	void clear_vsync(int32 cc);
+	void set_vsync(int32 cc);
+	void clear_waitmap();
+	void setup_waitmap(int32 cc_nmi);
+	void disable_nmi(int32 cc);
+	void enable_nmi(int32 cc);
 
-// limits:
-	static const int
-		bytes_per_row			= 52,							// in frame_buffer[]
-		bytes_per_row_min		= bytes_per_row - 4,
-		bytes_per_row_max		= bytes_per_row + 4,			// Min( bytes_per_row+4, UlaMono::max_bytes_per_row )
-
-		bytes_per_frame_50		= 3250000/50/4,
-		bytes_per_frame_50_min	= bytes_per_frame_50 - 8 * bytes_per_row,	// ±8 rows
-		bytes_per_frame_50_max	= bytes_per_frame_50 + 8 * bytes_per_row,	// ±8 rows
-
-		bytes_per_frame_60		= 3250000/60/4,
-		bytes_per_frame_60_min	= bytes_per_frame_60 - 8 * bytes_per_row,	// ±8 rows
-		bytes_per_frame_60_max	= bytes_per_frame_60 + 8 * bytes_per_row,	// ±8 rows
-
-		bytes_per_frame_min		= bytes_per_frame_60_min,
-		bytes_per_frame_max		= bytes_per_frame_50_max,
-
-		cc_per_row				= 207,							// ula: nmi and hsync generator
-		cc_per_row_min			= 4* bytes_per_row_min,			// tv: hsync
-		cc_per_row_max			= 4* bytes_per_row_max,			// tv: self-hsync
-
-		cc_per_frame_50			= 4* bytes_per_frame_50,
-		cc_per_frame_50_min		= 4* bytes_per_frame_50_min,
-		cc_per_frame_50_max		= 4* bytes_per_frame_50_max,
-
-		cc_per_frame_60			= 4* bytes_per_frame_60,
-		cc_per_frame_60_min		= 4* bytes_per_frame_60_min,
-		cc_per_frame_60_max		= 4* bytes_per_frame_60_max,
-
-		cc_per_frame_min		= 4* bytes_per_frame_min,		// tv: vsync
-		cc_per_frame_max		= 4* bytes_per_frame_max,		// tv: self-vsync
-
-		cc_for_vsync_min		= cc_per_row * 4;				// tv: vsync: 4 rows min.
-
-// virtual TV set:
-
-// antenna cable interface:
-	void	tv_sync_on				( int32 cc );	// activate sync.	assumes: sync was off
-	void	tv_sync_off				( int32 cc );	// deactivate sync.	assumes: sync was on
-	void	tv_update				( int32 cc );	// update frame buffer up to cycle. self-trigger sync as needed.
-	void	tv_store_byte			( uint8 );		// store one pixel byte now and increment time.
-// internal:
-	void	tv_pad_pixels			( int32, uint8 );
-	void	tv_self_trigger			( int32 );
-	void	tv_do_frame_flyback		( );
-
-	int32	cc_frame_end_min()		{ return tv_cc_frame_start + cc_per_frame_min; } // cc when vsync starts working
-	int32	cc_frame_end_max()		{ return tv_cc_frame_start + cc_per_frame_max; } // cc when vsync will self-trigger
-
-	int32	cc_row_end_min()		{ return tv_cc_row_start + cc_per_row_min; } // cc when hsync starts working
-	int32	cc_row_end_max()		{ return tv_cc_row_start + cc_per_row_max; } // cc when hsync will self-trigger
-
-	int		tv_idx_of_row_start()	{ return tv_row * bytes_per_row; }
-	int		tv_idx_for_cc(int32 cc)	{ return tv_idx_of_row_start() + (cc-tv_cc_row_start)/4; }
-
-// ULA:
-	void	ula_run_counters		( int32 );
-
+	static constexpr int32 cc_per_line		= 207;
+	static constexpr int32 cc_per_frame_50	= 310*207;	// std. ZX81 ROM, measured with zxsp!!!
+	static constexpr int32 cc_per_frame_60	= 262*207;	// std. ZX81 ROM, measured with zxsp!!!
+	static constexpr int32 cc_per_frame_min	= 240*207;
+	static constexpr int32 cc_per_frame_max	= 340*207;
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
