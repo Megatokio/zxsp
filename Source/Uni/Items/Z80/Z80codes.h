@@ -169,13 +169,14 @@ case EXX:		w=BC;BC=BC2;BC2=w;			// 4 T
 case HALT:		pc--; Z80_INFO_HALT; LOOP;	// 4 T  ((executes NOPs))
 case NOP:		LOOP;						// 4 T
 case DI:		IFF1=IFF2=disabled;	LOOP;	// 4 T
-case EI:	//	if (IFF1==enabled)	LOOP;	// 4 T		lt. z80-documented.pdf: nach EI niemals Irpt Ackn
-				IFF1=IFF2=enabled;
+
+case EI:		IFF1 = IFF2 = enabled;		// enable maskable interrupts
 				Z80_INFO_EI;
-				if (cc >= cc_nmi) LOOP;		// NMI can start after EI
-				goto loop_ei;	// der nächste befehl wird auf jeden fall noch ausgeführt =>
-								// kein sprung via LOOP nach nxtcmd, weil dort evtl. wg. cc>=ccx Run() verlassen würde
-								// und beim Wiederaufruf zuerst die Interrupts geprüft werden.
+				// EI does not test for INT after itself => next command must be executed without INT test:
+				//   if cc >= cc_max then loop is exited and reentry of loop will test for INT
+				//   and accept the INT immediately after EI. This must be avoided!
+				if (cc < cc_nmi) goto loop_ei;		// => no jump to LOOP
+				else LOOP;							// but NMI presumably can start after EI
 
 case SCF:		rf|=C_FLAG; rf&=~(N_FLAG+H_FLAG);	LOOP;		// 4 T
 case CCF:		rf^=C_FLAG; rf&=~N_FLAG;			LOOP;		// 4 T
@@ -299,13 +300,13 @@ case JP_C:		if (rf&C_FLAG) goto jp; else goto njp;
 case JP_PE:		if (rf&P_FLAG) goto jp; else goto njp;
 case JP_M:		if (rf&S_FLAG) goto jp; else goto njp;
 case JP_Z:		if (rf&Z_FLAG) goto jp; else goto njp;
-		   njp:	SKIP_N(); SKIP_N(); LOOP;							// timing: pc:4,pc+1:3,pc+2:3
+		   njp:	GET_N(c); GET_N(c); LOOP;							// timing: pc:4,pc+1:3,pc+2:3
 case JP:	jp:	GET_NN(w); pc=w; LOOP;								// timing: pc:4,pc+1:3,pc+2:3
 
 
 case JR:	jr:	GET_N(c); SKIP_5X1CC(pc); pc+=(signed char)c; LOOP;	// timing: pc:4, pc+1:3,5*1
 case JR_Z:		if(rf&Z_FLAG) goto jr;								// timing: pc:4, pc+1:3,[5*1]
-		   njr:	SKIP_N(); LOOP;
+		   njr:	GET_N(c); LOOP;
 case JR_C:		if(rf&C_FLAG) goto jr; else goto njr;				// timing: pc:4, pc+1:3,[5*1]
 case JR_NZ:		if(rf&Z_FLAG) goto njr; else goto jr;				// timing: pc:4, pc+1:3,[5*1]
 case JR_NC:		if(rf&C_FLAG) goto njr; else goto jr;				// timing: pc:4, pc+1:3,[5*1]
@@ -362,7 +363,7 @@ case CALL_C: 	if (rf&C_FLAG) goto call; else goto nocall;
 case CALL_PE:	if (rf&P_FLAG) goto call; else goto nocall;
 case CALL_M: 	if (rf&S_FLAG) goto call; else goto nocall;
 case CALL_Z: 	if (rf&Z_FLAG) goto call; else goto nocall;
-	 nocall:	SKIP_N(); SKIP_N(); LOOP;
+	 nocall:	GET_N(c); GET_N(c); LOOP;
 case CALL:
 	 call:		GET_NN(w); SKIP_1CC(pc-1);							// pc:4, pc+1:3, pc+2:3,1, sp-1:3, sp-2:3
 	 rst:		PUSH(pc>>8); PUSH(pc); pc=w; LOOP;

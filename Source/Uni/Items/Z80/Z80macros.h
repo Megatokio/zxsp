@@ -130,27 +130,60 @@ do{											\
 	{ R = peek(pc&0x7fff); if(~R&0x40) R = NOP; };		\
 }while(0)
 
+/* get the first instruction byte:
+*/
 #define	GET_INSTR(R)						\
 do{											\
 	PgInfo& pg = getPage(pc);				\
 	z32 = pg.both_r(pc);					\
 	R = uint8(z32);							\
-	if((z32 &= options))					\
+	if ((z32 &= options))					\
 	{										\
-		if(z32&cpu_break_x)	{ if(machine->break_ptr==&pg.both_r(pc)) { machine->break_ptr=nullptr; } else	\
-							{ break_addr=pc; result=cpu_exit_x; EXIT; } }									\
-		if(z32&cpu_patch)   { SAVE_REGISTERS; R = machine->handleRomPatch(pc,R); LOAD_REGISTERS;}			\
-		if(z32&cpu_crtc_zx81 && pc&0x8000)																	\
-							{ R = peek(pc&0x7fff);															\
-							  if(~R&0x40) { UlaMonoPtr(crtc)->crtcRead(cc,R); R = NOP; }					\
-							  if(~r&0x40) { cc_irpt_on=cc+2; cc_irpt_off=cc+5; if(IFF1==enabled) cc_max=cc+2; }	\
-							  else        { cc_irpt_on=0x7fffffff; } }										\
-		if(z32&cpu_waitmap)	{ CC_WAIT_R(cc+2); }															\
-		if(z32&cpu_x_access){ pg.both_r(pc) -= cpu_x_access; }												\
-	};	ic+=1; cc+=4; pc+=1; r+=1;			\
+		if (z32 & cpu_break_x)				\
+		{	if (machine->break_ptr == &pg.both_r(pc)) { machine->break_ptr = nullptr; } \
+			else { break_addr = pc; result = cpu_exit_x; EXIT; } \
+		}									\
+		if (z32 & cpu_patch)   { SAVE_REGISTERS; R = machine->handleRomPatch(pc,R); LOAD_REGISTERS; } \
+		if (z32 & cpu_waitmap) { CC_WAIT_R(cc+2); } \
+		if (z32 & cpu_crtc_zx81)			\
+		{	if (pc & 0x8000)				\
+			{	R = peek(pc&0x7fff);		\
+				if (~R & 0x40) { UlaMonoPtr(crtc)->crtcRead(cc,R); R = NOP; } \
+			}								\
+			if (~r&0x40 && IFF1==enabled) { cc_irpt_on=cc+2; cc_irpt_off=cc+5; cc_max=cc; } \
+		}									\
+		if (z32 & cpu_x_access) { pg.both_r(pc) -= cpu_x_access; } \
+	}	ic+=1; cc+=4; pc+=1; r+=1;			\
 }while(0)
 
-// NMI starts with a fake opcode fetch:
+/* get the second instruction byte after ED, CB or XY opcode:
+   note: ic+=1 required for .rzx support
+*/
+#define	GET_INSTR2(R)						\
+do{											\
+	PgInfo& pg = getPage(pc);				\
+	z32 = pg.both_r(pc);					\
+	R = uint8(z32);							\
+	if ((z32 &= options))					\
+	{										\
+		if (z32 & cpu_waitmap) { CC_WAIT_R(cc+2); } \
+		if (z32 & cpu_crtc_zx81)			\
+		{	if (pc & 0x8000)				\
+			{	R = peek(pc&0x7fff);		\
+				if (~R & 0x40) { UlaMonoPtr(crtc)->crtcRead(cc,R); R = NOP; } \
+			}								\
+			if (~r&0x40 && IFF1==enabled) { cc_irpt_on=cc+2; cc_irpt_off=cc+5; cc_max=cc; } \
+		}									\
+		if (z32 & cpu_x_access) { pg.both_r(pc) -= cpu_x_access; } \
+	}	ic+=1; cc+=4; pc+=1; r+=1;			\
+}while(0)
+
+#define	GET_ED_OP(R)	GET_INSTR2(R)
+#define	GET_XY_OP(R)	GET_INSTR2(R)
+#define	GET_CB_OP(R)	GET_INSTR2(R)
+
+/* NMI starts with a fake opcode fetch:
+*/
 #define	GET_INSTR_FOR_NMI()					\
 do{											\
 	cc_nmi = machine->nmiAtCycle(cc);		\
@@ -162,25 +195,20 @@ do{											\
 
 /*	get next byte (ip++)
 */
-#define	GET_BYTE(RGL)						\
+#define	GET_BYTE(R)							\
 do{											\
 	PgInfo& pg = getPage(pc);				\
 	z32 = pg.both_r(pc);					\
-	RGL uint8(z32);							\
+	R = uint8(z32);							\
 	if((z32&=options))						\
 	{										\
-	 /*	if(z32&cpu_break_x) { break_addr=pc; result=cpu_exit_x; ic_max=0; }	*/	\
 		if(z32&cpu_waitmap) { CC_WAIT_R(cc+2); }								\
 		if(z32&cpu_x_access){ pg.both_r(pc) -= cpu_x_access; }					\
-	};	pc+=1;								\
+	};	pc+=1; cc+=3; 						\
 }while(0)
 
-#define	GET_N(R)		do{ GET_BYTE(R=);		cc+=3; }while(0)
-#define	SKIP_N()		do{ GET_BYTE((void));	cc+=3; }while(0)
-#define	GET_XYCB_OP(R)	do{ GET_BYTE(R=);		cc+=3; SKIP_2X1CC(pc-1); }while(0)
-#define	GET_ED_OP(R)	do{ GET_BYTE(R=); r+=1; cc+=4; ic+=1; }while(0)  // ic+=1 -> .rzx support
-#define	GET_XY_OP(R)	do{ GET_BYTE(R=); r+=1; cc+=4; ic+=1; }while(0)  // ic+=1 -> .rzx support
-#define	GET_CB_OP(R)	do{ GET_BYTE(R=); r+=1; cc+=4; ic+=1; }while(0)  // ic+=1 -> .rzx support
+#define	GET_N(R)		do{ GET_BYTE(R); }while(0)
+#define	GET_XYCB_OP(R)	do{ GET_BYTE(R); SKIP_2X1CC(pc-1); }while(0)
 
 
 /*	1 cc with wait test
@@ -320,9 +348,26 @@ do{											\
 #define	Z80_INFO_POP		if(options&cpu_break_sp && SP==stack_breakpoint)	/* called after opcode execution */  \
 							{ break_addr=SP; result=cpu_exit_sp; ic_max=0; }
 
+/* ZX81 has a waitmap for /WAIT during /NMI		*/
+/* but /WAIT is suppressed if /HALT is active.	*/
+/* INT will be triggered when R.bit6 becomes 0	*/
+/* or an NMI may be scheduled.					*/
+/*												*/
+/* TODO: audio buffer overshoot !!!				*/
+/* (but we have 8 samples overshoot buffer ~ 160µs ~ 540cc ~ 2 scanlines) */
+#define	Z80_INFO_HALT		\
+do{							\
+	if (~options & (cpu_waitmap | cpu_crtc_zx81)) LOOP;	\
+	if (cc_nmi >= 1<<30 && IFF1 == disabled) LOOP; \
+	while (cc < cc_nmi && (IFF1 == disabled || cc < cc_irpt_on || cc >= cc_irpt_off)) \
+	{	if (~r & 0x40) { cc_irpt_on  = cc + 2; cc_irpt_off = cc + 5; }	\
+		ic+=1; cc+=4; r+=1;	\
+	}						\
+	cc_max = cc;			\
+}while(0)
+
 #define	Z80_INFO_RETI			/* nop */
 #define	Z80_INFO_RETN			/* nop */
-#define	Z80_INFO_HALT			/* nop */
 #define Z80_INFO_ILLEGAL(CC,PC)	/* nop */
 #define Z80_INFO_RST00			/* nop */
 #define Z80_INFO_RST08			/* nop */
