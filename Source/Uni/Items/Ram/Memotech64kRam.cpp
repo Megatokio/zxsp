@@ -11,6 +11,7 @@
 #include "Machine.h"
 #include "Z80/Z80.h"
 #include "Items/Ula/Mmu.h"
+#include "Items/Ula/UlaZx81.h"
 
 
 /*  To set top of RAM at 64K type:
@@ -100,16 +101,24 @@ void Memotech64kRam::powerOn(int32 cc)
 */
 void Memotech64kRam::map_dip_switched_ram()
 {
+	uint8* waitmap = nullptr;
+	int wm_size = 0;
+	if (auto* ula = dynamic_cast<UlaZx81*>(machine->ula))
+	{
+		waitmap = ula->getWaitmap();
+		wm_size = ula->waitmap_size;
+	}
+
 	if(dip_switches&8)			// all-64k-ram
 	{
 		prev()->romCS(true);
-		machine->cpu->mapRam(0x0000,0x4000,&machine->ram[0xC000],nullptr,0);
+		machine->cpu->mapRam(0x0000,0x4000,&machine->ram[0xC000],waitmap,wm_size);
 	}
 	else	// 0-8k: rom, 8-12 and 12-16k are ram or empty
 	{
 		prev()->romCS(false);
-		if(dip_switches&4) machine->cpu->mapRam(0x2000,0x1000,&machine->ram[0xe000],nullptr,0);    // 8k-12k: Ram
-		if(dip_switches&2) machine->cpu->mapRam(0x3000,0x1000,&machine->ram[0xf000],nullptr,0);    // 12k-16k: Ram
+		if(dip_switches&4) machine->cpu->mapRam(0x2000,0x1000,&machine->ram[0xe000],waitmap,wm_size);    // 8k-12k: Ram
+		if(dip_switches&2) machine->cpu->mapRam(0x3000,0x1000,&machine->ram[0xf000],waitmap,wm_size);    // 12k-16k: Ram
 	}
 }
 
