@@ -188,8 +188,8 @@ do{											\
 do{											\
 	cc_nmi = machine->nmiAtCycle(cc);		\
 	PgInfo& pg = getPage(pc);				\
-	z32 = pg.both_r(pc);					\
-	if (z32&cpu_waitmap) { CC_WAIT_R(cc+2); }	\
+	z32 = pg.both_r(pc) & options;			\
+	if (z32&cpu_waitmap) { CC_WAIT_R(cc+2); } \
 	cc+=5; r+=1;							\
 }while(0)
 
