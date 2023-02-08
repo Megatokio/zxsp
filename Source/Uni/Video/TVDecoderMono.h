@@ -16,8 +16,7 @@
 
 class TVDecoderMono
 {
-	TVDecoderMono(const TVDecoderMono&)=delete;
-	TVDecoderMono& operator=(const TVDecoderMono&)=delete;
+	NO_COPY_MOVE(TVDecoderMono);
 
 	IScreenMono& screen;
 
@@ -27,6 +26,7 @@ class TVDecoderMono
 	const int32 min_bytes_for_vsync;
 	const int32 min_bytes_per_frame;
 	const int32 max_bytes_per_frame;
+	const int32 frame_buffer_size;
 
 	uint8* frame_data;  	// buffer for decoded monochrome video signal
 	uint8* frame_data2; 	// buffer for decoded monochrome video signal
@@ -35,6 +35,8 @@ class TVDecoderMono
 
 	int32 cc_frame_start;	// measured from vsync end
 	int32 cc_line_start;	// measured from hsync end
+	int32 cc_per_frame; 	// duration of last successful frame
+	int32 cc_per_line;		// duration of last successful line
 
 	int32 idx_sync_start;
 	int32 idx_line_start;	// n * max_bytes_per_line
@@ -43,8 +45,16 @@ class TVDecoderMono
 	bool  sync_active;
 	uint8 background_color;
 
+	int	current_line = 0;			// for statistics
+	int first_screen_line = 0;
+	int last_screen_line = 0;
 
 public:
+	int lines_above_screen = 56;	// statistics output for Ula Inspector
+	int lines_in_screen = 192;
+	int lines_below_screen = 62;
+	int lines_per_frame = 310;
+
 	static constexpr uint8 black = 0x00;
 	static constexpr uint8 white = 0xff;
 
@@ -62,6 +72,10 @@ public:
 	int32 doFrameFlyback(int32 cc);	 // and return cc of frame start
 	void shiftCcTimeBase(int32 cc_delta);
 	void drawVideoBeamIndicator(int32 cc);
+	int32 getCcPerLine() volatile const			{ return cc_per_line; }
+	int32 getCcPerFrame() volatile const		{ return cc_per_frame; }
+	int32 getCycleOfFrameStart() volatile const	{ return cc_frame_start; }
+	int32 getCcForFrameEnd() const;
 
 private:
 	void send_frame(int32 cc);

@@ -23,13 +23,14 @@ TVDecoderMono::TVDecoderMono(IScreenMono& screen, int32 cc_per_sec, uint8 backgr
 	min_bytes_for_vsync(max_bytes_per_line * 5/2),
 	min_bytes_per_frame(max_bytes_per_line * min_lines_per_frame), // note for formula: lines in frame[] are
 	max_bytes_per_frame(max_bytes_per_line * max_lines_per_frame), //   always padded to max_bytes_per_line!
+	frame_buffer_size((max_bytes_per_frame / min_bytes_per_line + 1) * (max_bytes_per_line + 1)),
 	frame_data(nullptr),
 	frame_data2(nullptr),
 	frame_size{max_bytes_per_line * 8, max_lines_per_frame},
 	background_color(background_color)
 {
-	frame_data  = new uint8[max_bytes_per_frame];
-	frame_data2 = new uint8[max_bytes_per_frame];
+	frame_data  = new uint8[frame_buffer_size];
+	frame_data2 = new uint8[frame_buffer_size];
 	reset();
 }
 
@@ -43,6 +44,8 @@ void TVDecoderMono::reset()
 {
 	cc_frame_start = 0;
 	cc_line_start  = 0;
+	cc_per_line    = int32(bytes_per_sec*4 * sec_per_scanline);
+	cc_per_frame   = bytes_per_sec*4 / 50;
 	idx_sync_start = 0;
 	idx_line_start = 0;
 	idx = 0;
@@ -51,7 +54,7 @@ void TVDecoderMono::reset()
 
 void TVDecoderMono::clear_screen_up_to(int new_idx, int byte)
 {
-	assert(new_idx >= idx && new_idx <= max_bytes_per_frame);
+	assert(new_idx >= idx && new_idx <= frame_buffer_size);
 
 	memset(frame_data + idx, byte, new_idx - idx);
 	idx = new_idx;
@@ -59,7 +62,8 @@ void TVDecoderMono::clear_screen_up_to(int new_idx, int byte)
 	while (new_idx - idx_line_start >= max_bytes_per_line)
 	{
 		idx_line_start += max_bytes_per_line;
-		cc_line_start  += max_bytes_per_line * 4;
+		cc_line_start  += max_bytes_per_line * 4; // cc_per_line;
+		current_line += 1;
 	}
 }
 
@@ -68,7 +72,7 @@ void TVDecoderMono::clear_screen_up_to(int new_idx)
 	// clear with 'grey' pattern:
 	// the pattern alternates between 0xAA and 0x55 between lines
 
-	assert(new_idx <= max_bytes_per_frame);
+	assert(new_idx <= frame_buffer_size);
 
 	while (idx < new_idx)
 	{
@@ -80,13 +84,25 @@ void TVDecoderMono::clear_screen_up_to(int new_idx)
 
 void TVDecoderMono::send_frame(int32 cc)
 {
+	lines_above_screen = first_screen_line;
+	lines_in_screen    = last_screen_line+1 - first_screen_line;
+	lines_below_screen = current_line - last_screen_line;
+	lines_per_frame    = current_line + 1;
+
 	clear_screen_up_to(max_bytes_per_frame); // grey pattern
 
-	Rect screen_rect{Point{32+40,56},Size{256,192}};
+	int top_row = lines_above_screen;
+	if (top_row<24) top_row = 24; else if (top_row > 56) top_row = 56;
+	Rect screen_rect{Point{40+32,top_row},Size{256,192}};
 
 	bool swapped = screen.sendFrame(frame_data,frame_size,screen_rect);
 	if (swapped) std::swap(frame_data,frame_data2);
 
+	current_line = 0;
+	first_screen_line = 0;
+	last_screen_line = 0;
+
+	cc_per_frame    = cc - cc_frame_start;
 	idx_sync_start  = 0;
 	idx_line_start  = 0;
 	idx             = 0;
@@ -106,11 +122,22 @@ void TVDecoderMono::update_screen_up_to(int new_idx)
 			assert(idx == idx_line_start);
 			send_frame(cc_line_start);
 			new_idx -= max_bytes_per_frame;
-			assert(new_idx <= max_bytes_per_frame);
+			assert(new_idx <= frame_buffer_size);
 		}
 
 		clear_screen_up_to(new_idx, byte);
 	}
+}
+
+int32 TVDecoderMono::getCcForFrameEnd() const
+{
+	// return the estimated time for the end of the current/next frame.
+	// the machine will run up to this cc and probably overshoot by some cc.
+
+	int32 cc = cc_frame_start + cc_per_frame;
+	if (cc < min_bytes_per_frame*4) return min_bytes_per_frame*4;
+	if (cc > max_bytes_per_frame*4) return max_bytes_per_frame*4;
+	return cc;
 }
 
 void TVDecoderMono::updateScreenUpToCycle(int32 cc)
@@ -134,6 +161,8 @@ void TVDecoderMono::syncOn(int32 cc, bool new_state)
 		// hsync:
 		if (idx - idx_line_start >= min_bytes_per_line)
 		{
+			if (current_line == first_screen_line+4)
+				cc_per_line = cc - cc_line_start;
 			clear_screen_up_to(idx_line_start + max_bytes_per_line); // grey pattern
 			cc_line_start = cc;
 		}
@@ -142,7 +171,6 @@ void TVDecoderMono::syncOn(int32 cc, bool new_state)
 		if (idx - idx_sync_start >= min_bytes_for_vsync && idx - idx_frame_start >= min_bytes_per_frame)
 		{
 			send_frame(cc);
-
 		}
 	}
 }
@@ -155,8 +183,11 @@ void TVDecoderMono::storePixelByte(int32 cc, uint8 pixels)
 	if (new_idx != idx || idx >= max_bytes_per_frame)
 		update_screen_up_to(new_idx);
 
-	assert(uint(idx) < uint(max_bytes_per_frame));
+	assert(idx < frame_buffer_size);
 	frame_data[idx++] = pixels ^ ~background_color;
+
+	if (unlikely(first_screen_line == 0)) first_screen_line = current_line;
+	last_screen_line = max(last_screen_line, current_line);
 }
 
 void TVDecoderMono::drawVideoBeamIndicator(int32 cc)
@@ -167,9 +198,27 @@ void TVDecoderMono::drawVideoBeamIndicator(int32 cc)
 
 int32 TVDecoderMono::doFrameFlyback(int32 cc)
 {
+	// handle vertical frame flyback
+	// and return actual duration of last frame.
+	// this will be the offset used to shift cc in shiftCcTimeBase()
+	// which should reset cc_frame_start back to 0.
+
 	updateScreenUpToCycle(cc);
-	assert(cc_frame_start > 0);
-	return cc_frame_start;
+	//assert(cc_frame_start > 0);
+	//return cc_frame_start;
+
+	// have we already seen the next vsync?
+	// then in normal cases cc is only very little higher than cc_frame_start.
+	if (cc_frame_start > 0) // >= min_bytes_per_frame*4)
+	{
+		assert(cc_frame_start <= cc);
+		return cc_frame_start;
+	}
+
+	// we haven't yet seen the next vsync.
+	// either the frame duration varies by more than 3cc or the ZX81 is in fast mode.
+	// return the highest allowed value: cc must not become negative.
+	return cc;
 }
 
 void TVDecoderMono::shiftCcTimeBase(int32 cc_delta)
@@ -178,6 +227,28 @@ void TVDecoderMono::shiftCcTimeBase(int32 cc_delta)
 	cc_frame_start -= cc_delta;
 	cc_line_start  -= cc_delta;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
