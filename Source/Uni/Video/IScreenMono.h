@@ -5,13 +5,14 @@
 #pragma once
 #include "graphics/geometry.h"
 
-
+namespace zxsp
+{
 using coord = int32;
 using Point = geometry::Point<coord>;
 using Size = geometry::Size<coord>;
 using Dist = geometry::Dist<coord>;
 using Rect = geometry::Rect<coord>;
-
+}
 
 class IScreenMono
 {
@@ -23,7 +24,7 @@ public:
 	// all metrics in pixels.
 	// return true  if new buffers must be retained and old buffers may now be reused
 	// return false if new buffers may be reused and old buffers must remain retained
-	virtual bool sendFrame(uint8* frame_data, const Size& frame_size, const Rect& screen) = 0;
+	virtual bool sendFrame(uint8* frame_data, const zxsp::Size& frame_size, const zxsp::Rect& screen) = 0;
 };
 
 

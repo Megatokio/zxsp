@@ -31,7 +31,7 @@ class TVDecoderMono
 	uint8* frame_data;  	// buffer for decoded monochrome video signal
 	uint8* frame_data2; 	// buffer for decoded monochrome video signal
 
-	const Size frame_size;	// width, height of frame data
+	const zxsp::Size frame_size; // width, height of frame data
 
 	int32 cc_frame_start;	// measured from vsync end
 	int32 cc_line_start;	// measured from hsync end

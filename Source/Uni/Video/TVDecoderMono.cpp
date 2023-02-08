@@ -93,7 +93,7 @@ void TVDecoderMono::send_frame(int32 cc)
 
 	int top_row = lines_above_screen;
 	if (top_row<24) top_row = 24; else if (top_row > 56) top_row = 56;
-	Rect screen_rect{Point{40+32,top_row},Size{256,192}};
+	zxsp::Rect screen_rect{zxsp::Point{40+32,top_row},zxsp::Size{256,192}};
 
 	bool swapped = screen.sendFrame(frame_data,frame_size,screen_rect);
 	if (swapped) std::swap(frame_data,frame_data2);
