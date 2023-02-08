@@ -15,7 +15,7 @@ protected:
 	CoreByte* video_ram;			// current video ram
 
 	static constexpr int cc_per_byte = 4;	// ula cycles per 8 pixels
-	int	lines_in_screen = 192;		// lines in active screen area
+	int	lines_in_screen;			// lines in active screen area
 	int	lines_before_screen;
 	int	lines_after_screen;
 	int	lines_per_frame;

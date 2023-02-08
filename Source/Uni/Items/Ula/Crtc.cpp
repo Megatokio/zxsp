@@ -16,11 +16,10 @@ Crtc::Crtc(Machine* m, isa_id id, isa_id grp, Internal i, cstr o_addr, cstr i_ad
 	info(m->model_info),
 	screen(machine->controller->getScreen()),
 	video_ram(machine->ram.getData()),
+	lines_in_screen(info->lines_in_screen),
 	lines_before_screen(info->lines_before_screen),
-	//lines_in_screen(info->lines_in_screen),	// immer 192
 	lines_after_screen(info->lines_after_screen),
 	lines_per_frame(lines_before_screen+lines_in_screen+lines_after_screen),
-	//cc_per_byte(CC_PER_BYTE),					// immer 4
 	cc_per_line(info->cpu_cycles_per_line),
 	border_color(0),
 	is60hz(info->frames_per_second>55)
