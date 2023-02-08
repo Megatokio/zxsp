@@ -55,7 +55,6 @@ UlaZxsp::UlaZxsp (Machine* m, isa_id id, cstr oaddr, cstr iaddr)
 	cc_screen_start(),			// Erster cc für einen CRT Backcall
 	cc_waitmap_end(),			// Ab wann nicht mehr
 	cc_frame_end(),				// Total cpu clocks per Frame
-	bytes_per_octet(2),			// always 2
 	waitmap_size(0),
 	cpu(m->cpu),
 	ram(m->ram),
