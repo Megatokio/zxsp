@@ -138,11 +138,10 @@ WAIT test and related timing
 
 #define o_addr  	"----.----.----.----"		// übliche Adresse: $FF
 #define i_addr		"----.----.----.---0"		// übliche Adresse: $FE
-#define FRAMERATE_BIT	6						// 50/60 Hz Wahlschalter (Lötbrücke)
-#define EAR_IN_BIT		7
-#define EAR_IN_MASK		(1<<7)
+
 // bits 0-4: 5 keys from keyboard (low=pressed), row selected by A8..A15
-// bit  6:   50/60 Hz framerate jumper
+static constexpr uint8 FRAMERATE_MASK = 1<<6;	// 50/60 Hz Wahlschalter (Lötbrücke)
+static constexpr uint8 EAR_IN_MASK    = 1<<7;	// audio input
 
 
 // tweaking:
@@ -165,8 +164,7 @@ UlaZx81::~UlaZx81()
 {}
 
 UlaZx81::UlaZx81(Machine* m) :
-	UlaMono(m, isa_UlaZx81, o_addr, i_addr),
-	tv_decoder(dynamic_cast<IScreenMono&>(*screen), int32(m->model_info->cpu_cycles_per_second))
+	UlaZx80(m, isa_UlaZx81, o_addr, i_addr)
 {
 	m->cpu_options |= cpu_waitmap; // no cpu_ula_sinclair
 }
@@ -174,13 +172,7 @@ UlaZx81::UlaZx81(Machine* m) :
 void UlaZx81::powerOn(int32 cc)
 {
 	xlogIn("UlaZx81:powerOn");
-	UlaMono::powerOn(cc);
-	assert(screen->isA(isa_ScreenMono));
-
-	tv_decoder.reset();
-	set60Hz(is60hz);
-	beeper_volume = 0.0025f;
-	beeper_current_sample = -beeper_volume;
+	UlaZx80::powerOn(cc);
 
 	// note: in a real ZX81 the power-up states of ULA registers may be undetermined!
 	memset(waitmap,0,sizeof(waitmap));
@@ -190,42 +182,6 @@ void UlaZx81::powerOn(int32 cc)
 	hsync = off;
 	sync  = off;
 	cc_hsync_next = cc + 16;
-}
-
-void UlaZx81::reset(Time t, int32 cc)
-{
-	xlogIn("UlaZx81::reset");
-	UlaMono::reset(t,cc);
-
-	// ZX81 ULA does not react to reset
-}
-
-void UlaZx81::enableMicOut(bool f)
-{
-	beeper_volume = f ? 0.05f : 0.0025f;
-	beeper_current_sample = beeper_current_sample > 0.0f ? beeper_volume : -beeper_volume;
-}
-
-inline void UlaZx81::mic_out(Time now, Sample s)
-{
-	Dsp::outputSamples( beeper_current_sample, beeper_last_sample_time, now );
-	beeper_last_sample_time = now;
-	beeper_current_sample = s;
-}
-
-void UlaZx81::set60Hz(bool is_60hz)
-{
-	bool machine_is60hz = machine->model_info->frames_per_second > 55;
-	info = machine_is60hz == is_60hz ? machine->model_info : &zx_info[is_60hz?ts1000:zx81];
-
-	// these will be updated while running anyway:
-	cc_per_line     	= int(info->cpu_cycles_per_line);
-	lines_before_screen = int(info->lines_before_screen);
-	lines_in_screen     = int(info->lines_in_screen);
-	lines_after_screen  = int(info->lines_after_screen);
-	lines_per_frame     = lines_before_screen + lines_in_screen + lines_after_screen;
-
-	Ula::set60Hz(is_60hz);
 }
 
 
@@ -414,8 +370,7 @@ void UlaZx81::output(Time now, int32 cc, uint16 addr, uint8)
 	// on a real ZX81 the audio_out signal is picked from the combined sync signal.
 	// this results in a permanent hissing in the tape recording.
 	// since this is easier to do and unwanted anyway we pick it from the VSYNC only:
-	mic_out(now, -beeper_volume);
-	if (machine->taperecorder->isRecording()) machine->taperecorder->output(cc+1,off);
+	mic_out(now, cc, 0);
 
 	run_hsync(cc+1);
 
@@ -449,10 +404,7 @@ void UlaZx81::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 	// this results in a permanent hissing in the tape recording.
 	// since this is easier to do and unwanted anyway we pick it from the VSYNC only:
 	if (vsync_enabled())
-	{
-		mic_out(now, beeper_volume);
-		if (machine->taperecorder->isRecording()) machine->taperecorder->output(cc+1,on);
-	}
+		mic_out(now, cc, 1);
 
 	run_hsync(cc+1);
 	LOGFRAME(cc+1,"IN_FE ");
@@ -473,29 +425,10 @@ void UlaZx81::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 	byte &= readKeyboard(addr);
 
 	// insert bit D6 from framerate jumper:
-	if (is60hz) byte &= ~0x40;
+	if (is60hz) byte &= ~FRAMERATE_MASK;
 
-	// insert bit D5 from EAR input socket:
-	if(machine->taperecorder->isPlaying())
-	{
-		if (!machine->taperecorder->input(cc+3)) byte &= ~EAR_IN_MASK;
-	}
-	else if (machine->audio_in_enabled)
-	{
-		Sample const threshold = 0.01f;			// to be verified
-		uint32 a = uint32(now*samples_per_second);
-		if (a >= DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING)
-		{
-			assert(int32(a) >= 0);
-			showAlert("Sample input beyond dsp buffer: +%i\n", int(a-DSP_SAMPLES_PER_BUFFER));
-			if (0.0f <= threshold) byte &= ~EAR_IN_MASK;
-		}
-		else
-		{
-			if (Dsp::audio_in_buffer[a] <= threshold) byte &= ~EAR_IN_MASK;
-		}
-	}
-	else byte &= ~EAR_IN_MASK;
+	// insert bit D7 from EAR input socket:
+	if (!mic_in(now,cc)) byte &= ~EAR_IN_MASK;
 }
 
 void UlaZx81::crtcRead(int32 cc, uint opcode)
@@ -563,16 +496,33 @@ uint8 UlaZx81::interruptAtCycle(int32 cc, uint16 /*pc*/)
 int32 UlaZx81::updateScreenUpToCycle(int32 cc)
 {
 	run_hsync(cc);
-	tv_decoder.updateScreenUpToCycle(cc);
 	return 1<<30;	// ZXSP only
 }
 
-int32 UlaZx81::cpuCycleOfFrameFlyback()
-{
-	// return the estimated time for the end of the current/next frame.
-	// the machine will run up to this cc and probably overshoot by some cc.
+//int32 UlaZx81::cpuCycleOfFrameFlyback()
+//{
+//	// return the estimated time for the end of the current/next frame.
+//	// the machine will run up to this cc and probably overshoot by some cc.
 
-	return tv_decoder.getCcForFrameEnd();
+//	return tv_decoder.getCcForFrameEnd();
+//}
+
+void UlaZx81::videoFrameEnd(int32 cc)
+{
+	// shift the cpu cycle based time base by cc:
+	// this should be the time for the previous frame.
+
+	assert(cc > 0);
+	ccf -= cc;
+	cc_hsync_next -= cc;
+
+	if (nmi_enabled)
+	{
+		int32 cc_hsync = hsync ? cc_hsync_next + cc_hsync_period - 16 : cc_hsync_next;
+		setup_waitmap(cc_hsync);
+	}
+
+	tv_decoder.shiftCcTimeBase(cc);
 }
 
 int32 UlaZx81::doFrameFlyback(int32 cc)
@@ -584,34 +534,7 @@ int32 UlaZx81::doFrameFlyback(int32 cc)
 
 	run_hsync(cc);
 	LOGFRAME(cc,"FFB ");
-
-	cc = tv_decoder.doFrameFlyback(cc);
-
-	lines_before_screen = tv_decoder.lines_above_screen;
-	lines_in_screen = tv_decoder.lines_in_screen;
-	lines_after_screen = tv_decoder.lines_below_screen;
-	lines_per_frame = tv_decoder.lines_per_frame;
-	cc_per_line = tv_decoder.getCcPerLine();
-
-	return cc;
-}
-
-void UlaZx81::videoFrameEnd(int32 cc)
-{
-	// shift the cpu cycle based time base by cc:
-	// this should be the time for the previous frame.
-
-	ccf -= cc;
-	assert(cc > 0);
-
-	cc_hsync_next -= cc;
-	tv_decoder.shiftCcTimeBase(cc);
-
-	if (nmi_enabled)
-	{
-		int32 cc_hsync = hsync ? cc_hsync_next + cc_hsync_period - 16 : cc_hsync_next;
-		setup_waitmap(cc_hsync);
-	}
+	return UlaZx80::doFrameFlyback(cc);
 }
 
 void UlaZx81::drawVideoBeamIndicator(int32 cc)

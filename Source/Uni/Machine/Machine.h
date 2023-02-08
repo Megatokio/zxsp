@@ -10,7 +10,7 @@
 #include "StereoSample.h"
 #include "globals.h"
 #include "Ula/Ula.h"
-#include "Ula/UlaMono.h"
+#include "Ula/UlaZx80.h"
 #include "ZxInfo/ZxInfo.h"
 #include "IsaObject.h"
 #include "Z80/Z80.h"

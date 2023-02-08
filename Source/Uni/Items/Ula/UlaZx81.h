@@ -3,10 +3,10 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "UlaMono.h"
-#include "TVDecoderMono.h"
+#include "UlaZx80.h"
 
-class UlaZx81 : public UlaMono
+
+class UlaZx81 : public UlaZx80
 {
 public:
 	explicit UlaZx81(Machine*);
@@ -14,46 +14,25 @@ public:
 
 // Item interface:
 	void powerOn (/*t=0*/ int32 cc) override;
-	void reset (Time t, int32 cc) override;
 	void input (Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
 	void output (Time t, int32 cc, uint16 addr, uint8 byte) override;
 	void videoFrameEnd (int32 cc) override;
-
-	void  markVideoRam() override			{}
 	int32 doFrameFlyback(int32 cc) override;
 	void  drawVideoBeamIndicator(int32 cc) override;
-
-	void setBorderColor(uint8) override		{ border_color = 0xFF; } // White. ZX81 has no "border color"
-	int32 cpuCycleOfInterrupt() override	{ return 1<<30; }	// ZX81 has no regular timer interrupt
-	int32 cpuCycleOfIrptEnd() override		{ return 1<<30; }
-	int32 cpuCycleOfNextCrtRead() override	{ return 1<<30; }	// ZXSP++ only
-
-	int32 cpuCycleOfFrameFlyback() override;
 	int32 updateScreenUpToCycle(int32 cc) override;
 	void  crtcRead(int32 cc, uint byte) override;
 	uint8 interruptAtCycle(int32, uint16) override;
-
 	int32 nmiAtCycle(int32 cc_nmi);
-
-	void  set60Hz(bool=1) override;
-	int32 getCcPerFrame() volatile const override	{ return tv_decoder.getCcPerFrame(); }
-	void  setupTiming() override {}
-
-	void  enableMicOut(bool f);
 
 	static constexpr uint waitmap_size = 207; // cc
 	uint8* getWaitmap() { return u8ptr(waitmap); }
 
 private:
-	void mic_out(Time, Sample);
-
-	TVDecoderMono tv_decoder;
 	uint8 waitmap[waitmap_size];
-
-	uint lcntr = 0;				// 3 bit line counter
+	//uint lcntr = 0;			// 3 bit line counter
 	bool nmi_enabled = no;		// state of the NMI_enable flipflop
 	bool sync = no;				// state of the combined sync output
-	bool vsync = no;			// state of the vsync flipflop
+	//bool vsync = no;			// state of the vsync flipflop
 	bool hsync = no;			// state of the hsync generator
 	int32 cc_hsync_next = 16;	// next sheduled toggle
 	static constexpr int32 cc_hsync_period = 207;

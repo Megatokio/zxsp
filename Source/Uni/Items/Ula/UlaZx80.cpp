@@ -44,25 +44,28 @@
 
 #define o_addr  	"----.----.----.----"		// übliche Adresse: $FF
 #define i_addr		"----.----.----.----"		// übliche Adresse: $FE, but we need to see all IN as well
-#define FRAMERATE_BIT	6						// 50/60 Hz Wahlschalter (Lötbrücke)
-#define EAR_IN_BIT		7
-#define EAR_IN_MASK		(1<<7)
+
 // bits 0-4: 5 keys from keyboard (low=pressed), row selected by A8..A15
-// bit  6:   50/60 Hz framerate jumper
+static constexpr uint8 FRAMERATE_MASK = 1<<6;	// 50/60 Hz Wahlschalter (Lötbrücke)
+static constexpr uint8 EAR_IN_MASK    = 1<<7;	// audio input
 
 
 UlaZx80::~UlaZx80()
 {}
 
-UlaZx80::UlaZx80 (Machine* m) :
-	UlaMono(m,isa_UlaZx80,o_addr,i_addr),
+UlaZx80::UlaZx80(Machine* m, isa_id _id, cstr oaddr, cstr iaddr) :
+	Ula(m,_id,oaddr,iaddr),
 	tv_decoder(dynamic_cast<IScreenMono&>(*screen), int32(m->model_info->cpu_cycles_per_second))
+{}
+
+UlaZx80::UlaZx80 (Machine* m) :
+	UlaZx80(m,isa_UlaZx80,o_addr,i_addr)
 {}
 
 void UlaZx80::powerOn(int32 cc)
 {
 	xlogIn("UlaZx80:powerOn");
-	UlaMono::powerOn(cc);
+	Ula::powerOn(cc);
 	assert(screen->isA(isa_ScreenMono));
 
 	tv_decoder.reset();
@@ -76,7 +79,7 @@ void UlaZx80::powerOn(int32 cc)
 void UlaZx80::reset(Time t, int32 cc)
 {
 	xlogIn("UlaZx80::reset");
-	UlaMono::reset(t,cc);
+	Ula::reset(t,cc);
 }
 
 void UlaZx80::set60Hz(bool is_60hz)
@@ -100,11 +103,39 @@ void UlaZx80::enableMicOut(bool f)
 	beeper_current_sample = beeper_current_sample > 0.0f ? beeper_volume : -beeper_volume;
 }
 
-inline void UlaZx80::mic_out(Time now, Sample s)
+void UlaZx80::mic_out(Time now, int32 cc, bool bit)
 {
 	Dsp::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
 	beeper_last_sample_time = now;
-	beeper_current_sample = s;
+	beeper_current_sample = bit ? beeper_volume : -beeper_volume;
+
+	if (machine->taperecorder->isRecording()) machine->taperecorder->output(cc,bit);
+}
+
+bool UlaZx80::mic_in(Time now, int32 cc)
+{
+	constexpr Sample threshold = 0.01f;		// who cares
+
+	if (machine->taperecorder->isPlaying())
+	{
+		return machine->taperecorder->input(cc);
+	}
+
+	if (machine->audio_in_enabled)
+	{
+		uint32 a = uint32(now * samples_per_second);
+		if (unlikely(a >= DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING))
+		{
+			assert(int32(a) >= 0);
+			showAlert("Sample input beyond dsp buffer: +%i\n", int(a-DSP_SAMPLES_PER_BUFFER));
+		}
+		else
+		{
+			return Dsp::audio_in_buffer[a] >= threshold;
+		}
+	}
+
+	return 0 >= threshold;
 }
 
 void UlaZx80::output(Time now, int32 cc, uint16 /*addr*/, uint8 /*byte*/)
@@ -116,9 +147,7 @@ void UlaZx80::output(Time now, int32 cc, uint16 /*addr*/, uint8 /*byte*/)
 		tv_decoder.syncOff(cc+1);
 		vsync = false;
 		assert(lcntr == 0);
-
-		mic_out(now,beeper_volume);
-		if (machine->taperecorder->isRecording()) machine->taperecorder->output(cc,1);
+		mic_out(now,cc,1);
 	}
 }
 
@@ -155,11 +184,8 @@ void UlaZx80::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 		// but /IORQ was activated at cc+1  =>  subtract 2
 		tv_decoder.syncOn(cc-2);
 		vsync = true;
-
 		lcntr = 0;
-
-		mic_out(now,-beeper_volume);
-		if (machine->taperecorder->isRecording()) machine->taperecorder->output(cc,0);
+		mic_out(now,cc,0);
 	}
 
 	mask = 0xff;	// though D5 is not driven. handling of floatingbus byte is only required for ZXSP.
@@ -168,29 +194,10 @@ void UlaZx80::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 	byte &= readKeyboard(addr);
 
 	// insert bit D6 from framerate jumper:
-	if (is60hz) byte &= ~0x40;
+	if (is60hz) byte &= ~FRAMERATE_MASK;
 
-	// insert bit D5 from EAR input socket:
-	if(machine->taperecorder->isPlaying())
-	{
-		if (!machine->taperecorder->input(cc)) byte &= ~EAR_IN_MASK;
-	}
-	else if (machine->audio_in_enabled)
-	{
-		Sample const threshold = 0.01f;			// to be verified
-		uint32 a = uint32(now*samples_per_second);
-		if (a >= DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING)
-		{
-			assert(int32(a) >= 0);
-			showAlert("Sample input beyond dsp buffer: +%i\n", int(a-DSP_SAMPLES_PER_BUFFER));
-			if (0.0f <= threshold) byte &= ~EAR_IN_MASK;
-		}
-		else
-		{
-			if (Dsp::audio_in_buffer[a] <= threshold) byte &= ~EAR_IN_MASK;
-		}
-	}
-	else byte &= ~EAR_IN_MASK;
+	// insert bit D7 from EAR input socket:
+	if (!mic_in(now,cc)) byte &= ~EAR_IN_MASK;
 }
 
 void UlaZx80::crtcRead(int32 cc, uint opcode)
@@ -258,9 +265,8 @@ uint8 UlaZx80::interruptAtCycle(int32 cc, uint16 /*pc*/)
 	return 0xff;	// byte read during INT ACK cycle
 }
 
-int32 UlaZx80::updateScreenUpToCycle(int32 cc)
+int32 UlaZx80::updateScreenUpToCycle(int32)
 {
-	tv_decoder.updateScreenUpToCycle(cc);
 	return 1<<30;	// ZXSP only
 }
 
@@ -302,6 +308,17 @@ void UlaZx80::drawVideoBeamIndicator(int32 cc)
 {
 	tv_decoder.drawVideoBeamIndicator(cc);
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
