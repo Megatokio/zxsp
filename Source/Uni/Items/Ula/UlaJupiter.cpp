@@ -138,52 +138,59 @@
 
 
 
-
 UlaJupiter::~UlaJupiter()
-{}
+{
+	delete[] frame_data;
+	delete[] frame_data2;
+}
 
-
-UlaJupiter::UlaJupiter(Machine* m, uint fps)
-:
-	UlaMono(m,isa_UlaJupiter,o_addr, i_addr)
+UlaJupiter::UlaJupiter(Machine* m, uint fps) :
+	Ula(m,isa_UlaJupiter,o_addr, i_addr),
+	frame_data(nullptr),
+	frame_data2(nullptr)
 {
 	audio_mode = mixed_audio;		// or: read from prefs?
 	border_color = 0x00;			// black
 
-	frame_w	  = 32+8+4+8;			// frame width [bytes] == address offset per scan line
-	screen_w  = 32;					// screen width [bytes]
-	screen_x0 = 0;					// hor. screen offset inside frame scan lines [bytes]
+	const int frame_data_alloc = (max_lines_per_frame+1) * frame_w;
+
+	frame_data  = new uint8[frame_data_alloc];
+	frame_data2 = new uint8[frame_data_alloc];
 
 	set60Hz(fps==60);
 }
 
-void UlaJupiter::set60Hz(bool is60hz)
+void UlaJupiter::set60Hz(bool is_60hz)
 {
 	//				BILD + VOR + SYNC + NACH
 	//	ZEILEN:		24   +  7  +  1   + 7          (50 Hz)
 	//				24   +  4  +  1   + 4          (60 Hz)
 	//	ZEICHEN:	32   +  8  +  4   + 8
 
-	lines_before_screen = is60hz ? 32 : 56;
-	//lines_in_screen  	= 192;
-	lines_after_screen	= is60hz ? 40 : 64;
+	lines_before_screen = is_60hz ? 32 : 56;
+	lines_in_screen  	= 192;
+	lines_after_screen	= is_60hz ? 40 : 64;
 	lines_per_frame		= lines_before_screen + lines_in_screen + lines_after_screen;
-	cc_per_line			= info->cpu_cycles_per_line;
+	cc_per_line			= int(info->cpu_cycles_per_line);
 	lines_per_frame = lines_before_screen + lines_in_screen + lines_after_screen;
 
-	Ula::set60Hz(is60hz);
+	assert(cc_per_line == cc_per_byte * frame_w);
+	assert(lines_per_frame <= max_lines_per_frame);
+
+	Ula::set60Hz(is_60hz);
 }
 
 void UlaJupiter::powerOn(int32 cc)
 {
-	xlogIn("UlaJupiter:init");
-	UlaMono::powerOn(cc);
+	xlogIn("UlaJupiter:powerOn");
+	Ula::powerOn(cc);
+	assert(screen->isA(isa_ScreenMono));
 }
 
 void UlaJupiter::reset ( Time t, int32 cc )
 {
 	xlogIn("UlaJupiter::reset");
-	UlaMono::reset(t,cc);
+	Ula::reset(t,cc);
 }
 
 int32 UlaJupiter::updateScreenUpToCycle ( int32 cc )
@@ -209,9 +216,9 @@ int32 UlaJupiter::doFrameFlyback( int32 /*cc*/ )
 	CoreByte* vram = machine->ram.getData();	// videoram = 1st 1K page (768 bytes = 24*32 char used); bit 7: inverse
 	CoreByte* cram = vram+1024;					// charram  = 2nd 1K page (1K = 128 char * 8 bytes/char )
 
-	uint lines_per_frame = min(uint(this->lines_per_frame), uint(max_rows_per_frame));
+	int lines_per_frame = min(this->lines_per_frame, max_lines_per_frame);
 
-	memset(frame_data, 0x00, frame_w*lines_per_frame);
+	memset(frame_data, 0x00, uint(frame_w * lines_per_frame));
 
 	uint8* z = frame_data + screen_x0 + lines_before_screen * frame_w;	// first byte of screen$ data
 
@@ -324,13 +331,13 @@ void UlaJupiter::input( Time now, int32 cc, uint16 addr, uint8& byte, uint8& mas
 
 void UlaJupiter::saveToFile( FD& fd ) const throws
 {
-	UlaMono::saveToFile(fd);
+	Ula::saveToFile(fd);
 	fd.write(audio_mode);
 }
 
 void UlaJupiter::loadFromFile( FD& fd ) throws
 {
-	UlaMono::loadFromFile(fd);
+	Ula::loadFromFile(fd);
 	fd.read(audio_mode);
 }
 

@@ -59,7 +59,9 @@ void Crtc::attachToScreen( Screen* newscreen)
 	{
 		if(this->isA(isa_UlaZxsp))
 			newscreen->setFlavour(this->isA(isa_UlaTc2048) ? isa_ScreenTc2048 : isa_ScreenZxsp);
-		else if(this->isA(isa_UlaMono))
+		else if(this->isA(isa_UlaJupiter))
+			newscreen->setFlavour(isa_ScreenMono);		// just for safety
+		else if(this->isA(isa_UlaZx80))
 			newscreen->setFlavour(isa_ScreenMono);		// there's no choice for b&w
 		else if(this->isA(isa_SpectraVideo))
 			newscreen->setFlavour(isa_ScreenSpectra);

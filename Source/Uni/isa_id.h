@@ -139,7 +139,7 @@ M_ISA(				isa_UlaTk90x,	isa_UlaZxsp,	"TK90X Ula" ),
 M_ISA(			isa_UlaMono,		isa_Ula,		"UlaMono" ),
 M_ISA(				isa_UlaZx80,	isa_UlaMono,	"ZX80 Ula" ),
 M_ISA(				isa_UlaZx81,	isa_UlaMono,	"ZX81 Ula" ),
-M_ISA(				isa_UlaJupiter,	isa_UlaMono,	"Jupiter ACE Ula" ),
+M_ISA(			isa_UlaJupiter,		isa_Ula,		"Jupiter ACE Ula" ),
 M_ISA(		  isa_SpectraVideo,		isa_Crtc,		"SPECTRA Video Interface" ),
 
 M_ISA(		isa_Joy,				isa_Item,		"Joystick Interface" ),

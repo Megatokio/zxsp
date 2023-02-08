@@ -168,7 +168,7 @@ void Machine::saveZ80(FD &fd ) throws
 	Item*  mgt = findItem(isa_MGT);				if(mgt) showWarning("M.G.T. interface: TODO");	// probably never
 	Model model = this->model==zxsp_i1 && ram.count()>0x4000 ? zxsp_i2 : this->model;
 	head.setZxspModel(model,if1,mgt);
-	if(ula->isA(isa_UlaMono) && ula->is60Hz()) head.im |= 0x04;
+	if (ula->is60Hz() && (ula->isA(isa_UlaZx80) || ula->isA(isa_UlaJupiter))) head.im |= 0x04;
 
 	bool varying_ramsize = head.varyingRamsize();
 	if(varying_ramsize) head.spectator = ram.count()/0x400;
