@@ -173,22 +173,16 @@ UlaZx81::UlaZx81(Machine* m) :
 
 void UlaZx81::powerOn(int32 cc)
 {
-	xlogIn("UlaZx81:init");
+	xlogIn("UlaZx81:powerOn");
 	UlaMono::powerOn(cc);
-
-	// dummy. TODO: eliminate?
-	frame_w		= 52;	// frame width [bytes] == address offset per scan line
-	screen_w	= 32;	// screen width [bytes]
-	screen_x0	= 8;	// hor. screen offset inside frame scan lines [bytes]
+	assert(screen->isA(isa_ScreenMono));
 
 	tv_decoder.reset();
 	set60Hz(is60hz);
 	beeper_volume = 0.0025f;
 	beeper_current_sample = -beeper_volume;
-	//tv_decoder.syncOff(cc);
 
 	// note: in a real ZX81 the power-up states of ULA registers may be undetermined!
-	cc_per_frame = is60Hz() ? cc_per_frame_60 : cc_per_frame_50;
 	memset(waitmap,0,sizeof(waitmap));
 	lcntr = 0;				// 3 bit scanline counter
 	nmi_enabled = false;	// zx81: no default state!
@@ -196,8 +190,6 @@ void UlaZx81::powerOn(int32 cc)
 	hsync = off;
 	sync  = off;
 	cc_hsync_next = cc + 16;
-	cc_sync_on = 0;
-	cc_frame_start = 0;
 }
 
 void UlaZx81::reset(Time t, int32 cc)
@@ -226,11 +218,12 @@ void UlaZx81::set60Hz(bool is_60hz)
 	bool machine_is60hz = machine->model_info->frames_per_second > 55;
 	info = machine_is60hz == is_60hz ? machine->model_info : &zx_info[is_60hz?ts1000:zx81];
 
-	// dummy. TODO: eliminate?
-	Crtc::cc_per_line	= int(info->cpu_cycles_per_line);
+	// these will be updated while running anyway:
+	cc_per_line     	= int(info->cpu_cycles_per_line);
 	lines_before_screen = int(info->lines_before_screen);
+	lines_in_screen     = int(info->lines_in_screen);
 	lines_after_screen  = int(info->lines_after_screen);
-	lines_per_frame = lines_before_screen + lines_in_screen + lines_after_screen;
+	lines_per_frame     = lines_before_screen + lines_in_screen + lines_after_screen;
 
 	Ula::set60Hz(is_60hz);
 }
@@ -290,24 +283,14 @@ void UlaZx81::set_sync(int32 cc, bool f)
 
 	LOGFRAME(cc,"%s", f?"+SYNC ":"-SYNC\n");
 
-	if (f)
+   #ifdef DEBUG
+	if (f == off && cc == tv_decoder.getCycleOfFrameStart())
 	{
-		cc_sync_on = cc;
-	}
-	else if (cc-cc_sync_on >= 1 * cc_per_line)
-	{
-		int32 d = cc - cc_frame_start;
-		cc_frame_start = cc;
-
-		if (d >= cc_per_frame_min && d <= cc_per_frame_max)
-			cc_per_frame = d;
-
-	   #ifdef DEBUG
 		LOGFRAME(cc,"\n------ FRAME END ------\n");
 		frame--; if (frame<0) {fflush(stdout);frame += 500;} if (frame==0) ccf=cc;
 		LOGFRAME(cc,"\n++++++ FRAME START ++++++\n");
-	   #endif
 	}
+   #endif
 }
 
 void UlaZx81::run_hsync(int32 cc)
@@ -330,7 +313,7 @@ void UlaZx81::run_hsync(int32 cc)
 				lcntr = (lcntr+1) & 7;
 			}
 
-		cc_hsync_next += hsync ? 16 : cc_per_line - 16;
+		cc_hsync_next += hsync ? 16 : cc_hsync_period - 16;
 	}
 }
 
@@ -419,7 +402,7 @@ inline void UlaZx81::enable_nmi(int32 cc)
 	nmi_enabled = true;
 	machine->cpu->setNmi(hsync ? cc+NMIPOS : cc_hsync_next+NMIPOS);
 
-	int32 cc_hsync = hsync ? cc_hsync_next - 16 + cc_per_line : cc_hsync_next;
+	int32 cc_hsync = hsync ? cc_hsync_next - 16 + cc_hsync_period : cc_hsync_next;
 	setup_waitmap(cc_hsync);
 }
 
@@ -554,7 +537,7 @@ int32 UlaZx81::nmiAtCycle(int32 cc)
 	run_hsync(cc);
 	LOGFRAME(cc,"NMI ");
 
-	int32 cc_nmi = hsync ? cc_hsync_next - 16 + cc_per_line + NMIPOS : cc_hsync_next + NMIPOS;
+	int32 cc_nmi = hsync ? cc_hsync_next - 16 + cc_hsync_period + NMIPOS : cc_hsync_next + NMIPOS;
 	return cc_nmi;		// re-shedule nmi
 }
 
@@ -589,10 +572,7 @@ int32 UlaZx81::cpuCycleOfFrameFlyback()
 	// return the estimated time for the end of the current/next frame.
 	// the machine will run up to this cc and probably overshoot by some cc.
 
-	int32 cc = cc_frame_start + cc_per_frame;
-	if (cc < cc_per_frame_min) return cc_per_frame_min;
-	if (cc > cc_per_frame_max) return cc_per_frame_max;
-	return cc;
+	return tv_decoder.getCcForFrameEnd();
 }
 
 int32 UlaZx81::doFrameFlyback(int32 cc)
@@ -605,16 +585,14 @@ int32 UlaZx81::doFrameFlyback(int32 cc)
 	run_hsync(cc);
 	LOGFRAME(cc,"FFB ");
 
-	// have we already seen the next vsync?
-	// then in normal cases cc is only very little higher than cc_frame_start.
-	if (cc_frame_start >= cc_per_frame_min)
-	{
-		assert(cc_frame_start <= cc);
-		return cc_frame_start;
-	}
+	cc = tv_decoder.doFrameFlyback(cc);
 
-	// we haven't yet seen the next vsync.
-	// either the frame duration varies by more than 3cc or the ZX81 is in fast mode.
+	lines_before_screen = tv_decoder.lines_above_screen;
+	lines_in_screen = tv_decoder.lines_in_screen;
+	lines_after_screen = tv_decoder.lines_below_screen;
+	lines_per_frame = tv_decoder.lines_per_frame;
+	cc_per_line = tv_decoder.getCcPerLine();
+
 	return cc;
 }
 
@@ -631,13 +609,9 @@ void UlaZx81::videoFrameEnd(int32 cc)
 
 	if (nmi_enabled)
 	{
-		int32 cc_hsync = hsync ? cc_hsync_next + cc_per_line - 16 : cc_hsync_next;
+		int32 cc_hsync = hsync ? cc_hsync_next + cc_hsync_period - 16 : cc_hsync_next;
 		setup_waitmap(cc_hsync);
 	}
-
-	cc_sync_on -= cc;
-	if (cc_frame_start >= -cc_per_frame_max) // if fast mode lasts longer than ~11 minutes this would overflow
-		cc_frame_start -= cc;
 }
 
 void UlaZx81::drawVideoBeamIndicator(int32 cc)
