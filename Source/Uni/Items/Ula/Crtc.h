@@ -14,15 +14,13 @@ protected:
 	Screen* screen;
 	CoreByte* video_ram;			// current video ram
 
-	static const int
-			bytes_per_octet = 2,	// number of bytes stored per pixel octet for the renderer
-			cc_per_byte		= 4,	// ula cycles per pixel block  ((2 bytes == 8 pixel))
-			lines_in_screen = 192;
-
-	int		lines_before_screen;
-	int		lines_after_screen;
-	int		lines_per_frame;
-	int		cc_per_line;
+	static constexpr int cc_per_byte = 4;	// ula cycles per 8 pixels
+	int	lines_in_screen = 192;		// lines in active screen area
+	int	lines_before_screen;
+	int	lines_after_screen;
+	int	lines_per_frame;
+	int columns_in_screen = 32*8;
+	int	cc_per_line;
 
 	uint8	border_color;			// current border color
 	bool	is60hz;
@@ -39,6 +37,7 @@ VIR void	setBorderColor(uint8)				{}
 	int		getLinesInScreen() volatile const	{ return lines_in_screen; }			// nominal
 	int		getLinesAfterScreen() volatile const{ return lines_after_screen; }		// nominal
 	int		getLinesPerFrame() volatile const	{ return lines_per_frame; }
+	int		getColumnsInScreen() volatile const	{ return columns_in_screen; }
 	int		getCcPerByte() volatile const		{ return cc_per_byte; }				// const
 	int		getCcPerLine() volatile const		{ return cc_per_line; }				// nominal
 	int		getBytesPerLine() volatile const	{ return cc_per_line/cc_per_byte; }	// nominal

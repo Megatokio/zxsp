@@ -71,11 +71,11 @@ class UlaInsp : public Inspector
 		//uint32 ula_clock;
 		//uint	cpu_clock_predivider;
 		uint32  cpu_clock;
-		uint    top_rows;
-		uint    screen_rows;
-		uint    bottom_rows;
-		uint    screen_columns;
-		uint    bytes_per_row;
+		int    top_rows;
+		int    screen_rows;
+		int    bottom_rows;
+		int    screen_columns;
+		int    bytes_per_row;
 		uint    cpu_cycles_per_row;
 		float   frames_per_second;
 		uint32  cpu_cycles_per_frame;
