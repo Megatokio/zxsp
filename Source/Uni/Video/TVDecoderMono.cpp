@@ -5,9 +5,8 @@
 #include "Libraries/kio/kio.h"
 #include "TVDecoderMono.h"
 
-
 static constexpr float sec_per_scanline = 64e-6f;
-static constexpr int32 min_lines_per_frame = 240 - 24;
+static constexpr int32 min_lines_per_frame = 262 - 26;
 static constexpr int32 max_lines_per_frame = 312 + 32;
 static constexpr int32 idx_frame_start = 0;	// always 0
 
@@ -91,9 +90,20 @@ void TVDecoderMono::send_frame(int32 cc)
 
 	clear_screen_up_to(max_bytes_per_frame); // grey pattern
 
-	int top_row = lines_above_screen;
-	if (top_row<24) top_row = 24; else if (top_row > 56) top_row = 56;
-	zxsp::Rect screen_rect{zxsp::Point{40+32,top_row},zxsp::Size{256,192}};
+	const int top60 = 32;
+	const int top50 = 56;
+	const int lines60 = 262;
+	const int lines50 = 310;
+
+	static_assert(lines50 == lines60 + 2 * 24, "");
+	static_assert(top50   == top60   + 1 * 24, "");
+
+	int top = lines_per_frame <= lines60 ? top60 :			// min top60
+			  lines_per_frame >= lines50 ? top50 :			// max top50
+			  top60 + ((lines_per_frame - lines60) >> 1);	// or interpolate
+	int lines = 192;
+
+	zxsp::Rect screen_rect{zxsp::Point{40+32,top},zxsp::Size{256,lines}};
 
 	bool swapped = screen.sendFrame(frame_data,frame_size,screen_rect);
 	if (swapped) std::swap(frame_data,frame_data2);
