@@ -6,7 +6,7 @@
 #include "kio/kio.h"
 #include "DspTime.h"
 #include "Uni/Language.h"
-//#include "Uni/IsaObject.h"
+#include "isa_id.h"
 
 
 typedef double	Time;			// time	[s]

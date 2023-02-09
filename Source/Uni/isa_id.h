@@ -16,6 +16,8 @@
 		(many Machine classes are used for multiple models.)
 */
 
+#if !defined(ISA_ID_H) || defined(M_ISA)
+#define ISA_ID_H
 
 #ifndef M_ISA
 enum isa_id
@@ -225,7 +227,7 @@ M_ISA(		isa_CurrahMicroSpeech,	isa_Item,		"Currah µSpeech" ),
 #undef M_ISA_A
 #endif
 
-
+#endif // include guard
 
 
 
