@@ -145,9 +145,13 @@ static constexpr uint8 EAR_IN_MASK    = 1<<7;	// audio input
 
 
 // tweaking:
-#define WAITMAP_POS (+1)						// should be: +1 wg. test position in Z80.run()
-#define NMIPOS (WAITMAP_POS+1)					// waitmap_pos + 1 => max. 13 wait cycles
-#define HSYNC_RESET_POS (NMIPOS+0)				// nmipos + 0 => exact frame timing achieved
+// exact timing achieved for: +1, +2, +2
+// WAITMAP_POS should be +1 because of the test position in INSTR, MEMRQ and IORQ in Z80macros.h
+// NMI_POS is the number of cc before instr end / nmi handling start
+//			if NMI_POS is too early then more than the max. possible 13 wait cycles are encountered.
+//			if NMI_POS is too late then 13 wait cycles are never encountered.
+#define WAITMAP_POS (+1)						// +1 wg. test position in Z80.run()
+#define NMI_POS (+2)							// +2 = waitmap_pos+1 => max. 13 wait cycles
 
 
 // debug:
@@ -175,7 +179,7 @@ void UlaZx81::powerOn(int32 cc)
 	UlaZx80::powerOn(cc);
 
 	// note: in a real ZX81 the power-up states of ULA registers may be undetermined!
-	memset(waitmap,0,sizeof(waitmap));
+	clear_waitmap();
 	lcntr = 0;				// 3 bit scanline counter
 	nmi_enabled = false;	// zx81: no default state!
 	vsync = off;
@@ -206,7 +210,6 @@ void UlaZx81::setup_waitmap(int32 cc_hsync)
 	// - when the HSYNC generator is restarted in interruptAtCycle()
 
 	cc_hsync += waitmap_size;
-	cc_hsync += WAITMAP_POS;
 	assert(cc_hsync >= 0);
 	cc_hsync %= waitmap_size;
 
@@ -291,9 +294,9 @@ inline void UlaZx81::reset_hsync(int32 cc, int32 dur)
 
 	if (nmi_enabled)
 	{
-		setup_waitmap(cc_hsync_next);
-		if (machine->cpu->nmiCycle()-NMIPOS >= cc)			// if not yet triggered
-			machine->cpu->setNmi(cc_hsync_next+NMIPOS);
+		setup_waitmap(cc_hsync_next+WAITMAP_POS);
+		if (machine->cpu->nmiCycle()-NMI_POS >= cc)			// if not yet triggered
+			machine->cpu->setNmi(cc_hsync_next+NMI_POS);
 	}
 }
 
@@ -341,7 +344,7 @@ inline void UlaZx81::disable_nmi(int32 cc)
 	nmi_enabled = false;
 	clear_waitmap();
 
-	if (machine->cpu->nmiCycle()-NMIPOS >= cc)
+	if (machine->cpu->nmiCycle()-NMI_POS >= cc)
 		machine->cpu->clearNmi();
 }
 
@@ -356,10 +359,10 @@ inline void UlaZx81::enable_nmi(int32 cc)
 	LOGFRAME(cc,"NMI_en ");
 
 	nmi_enabled = true;
-	machine->cpu->setNmi(hsync ? cc+NMIPOS : cc_hsync_next+NMIPOS);
+	machine->cpu->setNmi(hsync ? cc+NMI_POS : cc_hsync_next+NMI_POS);
 
 	int32 cc_hsync = hsync ? cc_hsync_next - 16 + cc_hsync_period : cc_hsync_next;
-	setup_waitmap(cc_hsync);
+	setup_waitmap(cc_hsync+WAITMAP_POS);
 }
 
 void UlaZx81::output(Time now, int32 cc, uint16 addr, uint8)
@@ -391,7 +394,7 @@ void UlaZx81::output(Time now, int32 cc, uint16 addr, uint8)
 
 	if (nmi_enabled)		// add waitstates:
 	{
-		int d = waitmap[(cc+3) % int(waitmap_size)];
+		int d = waitmap[uint(cc+2+WAITMAP_POS) % waitmap_size];
 		machine->cpu->cpuCycleRef() += d;
 	}
 }
@@ -416,7 +419,7 @@ void UlaZx81::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 
 	if (nmi_enabled)		// add waitstates
 	{
-		int d = waitmap[(cc+3) % int(waitmap_size)];
+		int d = waitmap[uint(cc+2+WAITMAP_POS) % waitmap_size];
 		machine->cpu->cpuCycleRef() += d;
 		cc += d;
 	}
@@ -472,7 +475,7 @@ int32 UlaZx81::nmiAtCycle(int32 cc)
 	run_hsync(cc);
 	LOGFRAME(cc,"NMI ");
 
-	int32 cc_nmi = hsync ? cc_hsync_next - 16 + cc_hsync_period + NMIPOS : cc_hsync_next + NMIPOS;
+	int32 cc_nmi = hsync ? cc_hsync_next - 16 + cc_hsync_period + NMI_POS : cc_hsync_next + NMI_POS;
 	return cc_nmi;		// re-shedule nmi
 }
 
@@ -489,8 +492,8 @@ uint8 UlaZx81::interruptAtCycle(int32 cc, uint16 /*pc*/)
 	run_hsync(cc); LOGFRAME(cc,"INT ");
    #endif
 
-	run_hsync(cc+HSYNC_RESET_POS);
-	reset_hsync(cc+HSYNC_RESET_POS,2);
+	run_hsync(cc+2);		// HSYNC.reset activated after cc+2
+	reset_hsync(cc+2,2);	// HSYNC.reset active until cc+4
 
 	return 0xff;	// byte read during INT ACK cycle
 }
@@ -521,7 +524,7 @@ void UlaZx81::videoFrameEnd(int32 cc)
 	if (nmi_enabled)
 	{
 		int32 cc_hsync = hsync ? cc_hsync_next + cc_hsync_period - 16 : cc_hsync_next;
-		setup_waitmap(cc_hsync);
+		setup_waitmap(cc_hsync+WAITMAP_POS);
 	}
 
 	tv_decoder.shiftCcTimeBase(cc);
