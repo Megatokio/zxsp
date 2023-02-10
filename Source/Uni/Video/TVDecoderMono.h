@@ -20,13 +20,16 @@ class TVDecoderMono
 
 	IScreenMono& screen;
 
-	const int32 bytes_per_sec;			// from cc_per_sec
-	const int32 min_bytes_per_line;
-	const int32 max_bytes_per_line;
-	const int32 min_bytes_for_vsync;
-	const int32 min_bytes_per_frame;
-	const int32 max_bytes_per_frame;
-	const int32 frame_buffer_size;
+	const int32 cc_per_sec;
+	const int32 typ_cc_per_line;
+	const int32 min_cc_per_line;
+	const int32 max_cc_per_line;
+	const int32 min_cc_for_vsync;
+	const int32 min_cc_per_frame;
+	const int32 max_cc_per_frame;
+	const int32 fb_lines;
+	const int32 fb_bytes_per_line;
+	const int32 fb_cc_per_line;
 
 	uint8* frame_data;  	// buffer for decoded monochrome video signal
 	uint8* frame_data2; 	// buffer for decoded monochrome video signal
@@ -38,12 +41,13 @@ class TVDecoderMono
 	int32 cc_per_frame; 	// duration of last successful frame
 	int32 cc_per_line;		// duration of last successful line
 
-	int32 idx_sync_start;
+	int32 cc_sync_start;
 	int32 idx_line_start;	// n * max_bytes_per_line
-	int32 idx;
+	int32 ccc;
 
 	bool  sync_active;
 	uint8 background_color;
+	uint8 foreground_color;
 
 	int	current_line = 0;			// for statistics
 	int first_screen_line = 0;
@@ -58,12 +62,12 @@ public:
 	static constexpr uint8 black = 0x00;
 	static constexpr uint8 white = 0xff;
 
-	TVDecoderMono(IScreenMono&, int32 cc_per_sec, uint8 background_color=white);
+	TVDecoderMono(IScreenMono&, int32 cc_per_sec, uint8 background_color = white);
 	~TVDecoderMono();
 
 	void reset();				// no need to call
-	void setBackgroundColor(uint8 c) { background_color = c; }
-	int32 getMaxCyclesPerFrame() const noexcept { return max_bytes_per_frame * 4; }
+	void setBackgroundColor(uint8 c) { background_color = c; foreground_color = ~c; }
+	int32 getMaxCyclesPerFrame() const noexcept { return max_cc_per_frame; }
 
 	void syncOn(int32 cc, bool new_state=true);		// Sync activated at cpu cycle cc
 	void syncOff(int32 cc)	{ syncOn(cc,false); }	// Sync deactivated at cpu cycle cc
@@ -78,10 +82,13 @@ public:
 	int32 getCcForFrameEnd() const;
 
 private:
+	void store_pixel_byte(int32,uint8);
+	void clear_bytes(int32, int32, uint8 pattern);
+	void next_line(int32);
+	void clear_line_to_end(int32 cc, uint8 pattern);
+	void clear_screen_to_end();
+	void clear_screen_up_to_cc(int32 new_cc, uint8 byte);
 	void send_frame(int32 cc);
-	void clear_screen_up_to(int new_idx, int byte);
-	void clear_screen_up_to(int new_idx);
-	void update_screen_up_to(int new_idx);
 };
 
 
