@@ -366,6 +366,7 @@ void UlaZx81::output(Time now, int32 cc, uint16 addr, uint8)
 {
 	// handle any OUT(…) instruction
 	// cc = start of machine cycle
+	cc -= 3;
 
 	// on a real ZX81 the audio_out signal is picked from the combined sync signal.
 	// this results in a permanent hissing in the tape recording.
@@ -399,6 +400,7 @@ void UlaZx81::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 {
 	// handle IN(0xFE) instruction
 	// cc = start of machine cycle
+	cc -= 3;
 
 	// on a real ZX81 the audio_out signal is picked from the combined sync signal.
 	// this results in a permanent hissing in the tape recording.
