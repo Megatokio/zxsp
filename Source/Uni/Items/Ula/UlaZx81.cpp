@@ -144,24 +144,12 @@ static constexpr uint8 FRAMERATE_MASK = 1<<6;	// 50/60 Hz Wahlschalter (Lötbrü
 static constexpr uint8 EAR_IN_MASK    = 1<<7;	// audio input
 
 
-// tweaking:
-// exact timing achieved for: +1, +2, +2
 // WAITMAP_POS should be +1 because of the test position in INSTR, MEMRQ and IORQ in Z80macros.h
 // NMI_POS is the number of cc before instr end / nmi handling start
 //			if NMI_POS is too early then more than the max. possible 13 wait cycles are encountered.
 //			if NMI_POS is too late then 13 wait cycles are never encountered.
-#define WAITMAP_POS (+1)						// +1 wg. test position in Z80.run()
-#define NMI_POS (+2)							// +2 = waitmap_pos+1 => max. 13 wait cycles
-
-
-// debug:
-static int frame = 500;
-static int32 ccf = 0;
-#ifdef DEBUG
-#define LOGFRAME(cc,...) do{if(frame==0){if(cc!=ccf){printf("%i ",cc-ccf);ccf=cc;}printf(__VA_ARGS__);}}while(0)
-#else
-#define LOGFRAME(cc,...) do{}while(0)
-#endif
+static constexpr int32 WAITMAP_POS = +1;		// +1 wg. test position in Z80.run()
+static constexpr int32 NMI_POS = +2;			// +2 = waitmap_pos+1 => max. 13 wait cycles
 
 
 UlaZx81::~UlaZx81()
@@ -239,17 +227,6 @@ void UlaZx81::set_sync(int32 cc, bool f)
 
 	sync = f;
 	tv_decoder.syncOn(cc,f);
-
-	LOGFRAME(cc,"%s", f?"+SYNC ":"-SYNC\n");
-
-   #ifdef DEBUG
-	if (f == off && cc == tv_decoder.getCycleOfFrameStart())
-	{
-		LOGFRAME(cc,"\n------ FRAME END ------\n");
-		frame--; if (frame<0) {fflush(stdout);frame += 500;} if (frame==0) ccf=cc;
-		LOGFRAME(cc,"\n++++++ FRAME START ++++++\n");
-	}
-   #endif
 }
 
 void UlaZx81::run_hsync(int32 cc)
@@ -260,17 +237,12 @@ void UlaZx81::run_hsync(int32 cc)
 	{
 		hsync = !hsync;
 
-		LOGFRAME(cc_hsync_next, "%sHSYNC ", hsync?"+":"-");
-
 		if (vsync == off)
 			set_sync(cc_hsync_next, hsync);
 
 		if (vsync == off)		// else vsync => LCNTR.reset
 			if (hsync == on)
-			{
-				LOGFRAME(cc, "L%i>%i ", lcntr, (lcntr+1) & 7);
 				lcntr = (lcntr+1) & 7;
-			}
 
 		cc_hsync_next += hsync ? 16 : cc_hsync_period - 16;
 	}
@@ -284,8 +256,6 @@ inline void UlaZx81::reset_hsync(int32 cc, int32 dur)
 	// => the alignment of the NMI changes => the waitmap needs to be updated
 
 	assert (cc < cc_hsync_next);	// run() must have been called
-
-	LOGFRAME(cc,"HSYNC_reset ");
 
 	hsync = off;
 	set_sync(cc,vsync);
@@ -307,8 +277,6 @@ inline void UlaZx81::clear_vsync(int32 cc)
 
 	assert (cc < cc_hsync_next);	// hsync_run() must have been called
 
-	LOGFRAME(cc,"-VSYNC ");
-
 	vsync = off;
 	set_sync(cc,hsync);
 }
@@ -322,12 +290,8 @@ inline void UlaZx81::set_vsync(int32 cc)
 	assert(cc < cc_hsync_next);	// run_hsync() must have been called
 	assert(vsync_enabled());
 
-	LOGFRAME(cc,"+VSYNC ");
-
 	vsync = on;
 	set_sync(cc,on);
-
-	if (lcntr) LOGFRAME(cc,"L%i>0 ",lcntr);
 	lcntr = 0;
 }
 
@@ -338,8 +302,6 @@ inline void UlaZx81::disable_nmi(int32 cc)
 
 	assert (cc < cc_hsync_next);	// run() must have been called
 	assert (nmi_enabled);
-
-	LOGFRAME(cc,"NMI_dis ");
 
 	nmi_enabled = false;
 	clear_waitmap();
@@ -355,8 +317,6 @@ inline void UlaZx81::enable_nmi(int32 cc)
 
 	assert (cc < cc_hsync_next);	// run() must have been called
 	assert (nmi_enabled == false);
-
-	LOGFRAME(cc,"NMI_en ");
 
 	nmi_enabled = true;
 	machine->cpu->setNmi(hsync ? cc+NMI_POS : cc_hsync_next+NMI_POS);
@@ -377,9 +337,6 @@ void UlaZx81::output(Time now, int32 cc, uint16 addr, uint8)
 	mic_out(now, cc, 0);
 
 	run_hsync(cc+1);
-
-	LOGFRAME(cc+1,"OUT_%02X ",addr&0xff);
-
 	clear_vsync(cc+1);		// vsync off immediately (unlike ZX80)
 
 	if ((addr & 3) == 2)	// A0=0 & A1=1: enable nmi
@@ -412,8 +369,6 @@ void UlaZx81::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 		mic_out(now, cc, 1);
 
 	run_hsync(cc+1);
-	LOGFRAME(cc+1,"IN_FE ");
-
 	if (vsync_enabled())	// set the VSYNC flipflop if VSYNC enabled (== NMI disabled)
 		set_vsync(cc+1);
 
@@ -471,9 +426,7 @@ int32 UlaZx81::nmiAtCycle(int32 cc)
 	// but it needs to be re-scheduled.
 
 	assert(nmi_enabled);
-
 	run_hsync(cc);
-	LOGFRAME(cc,"NMI ");
 
 	int32 cc_nmi = hsync ? cc_hsync_next - 16 + cc_hsync_period + NMI_POS : cc_hsync_next + NMI_POS;
 	return cc_nmi;		// re-shedule nmi
@@ -488,10 +441,6 @@ uint8 UlaZx81::interruptAtCycle(int32 cc, uint16 /*pc*/)
 
 	assert(machine->cpu->interruptStart() == cc-2); // expected start in prev. resfresh cycle
 
-   #ifdef DEBUG
-	run_hsync(cc); LOGFRAME(cc,"INT ");
-   #endif
-
 	run_hsync(cc+2);		// HSYNC.reset activated after cc+2
 	reset_hsync(cc+2,2);	// HSYNC.reset active until cc+4
 
@@ -504,21 +453,12 @@ int32 UlaZx81::updateScreenUpToCycle(int32 cc)
 	return 1<<30;	// ZXSP only
 }
 
-//int32 UlaZx81::cpuCycleOfFrameFlyback()
-//{
-//	// return the estimated time for the end of the current/next frame.
-//	// the machine will run up to this cc and probably overshoot by some cc.
-
-//	return tv_decoder.getCcForFrameEnd();
-//}
-
 void UlaZx81::videoFrameEnd(int32 cc)
 {
 	// shift the cpu cycle based time base by cc:
 	// this should be the time for the previous frame.
 
 	assert(cc > 0);
-	ccf -= cc;
 	cc_hsync_next -= cc;
 
 	if (nmi_enabled)
@@ -538,7 +478,6 @@ int32 UlaZx81::doFrameFlyback(int32 cc)
 	// which should reset cc_frame_start back to 0.
 
 	run_hsync(cc);
-	LOGFRAME(cc,"FFB ");
 	return UlaZx80::doFrameFlyback(cc);
 }
 
