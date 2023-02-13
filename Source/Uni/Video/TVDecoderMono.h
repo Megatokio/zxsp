@@ -20,6 +20,10 @@ class TVDecoderMono
 
 	IScreenMono& screen;
 
+	static constexpr int32 min_lines_per_frame = 262 - 26;
+	static constexpr int32 max_lines_per_frame = 312 + 32;
+	static constexpr int32 idx_frame_start = 0;	// always 0
+
 	const int32 cc_per_sec;
 	const int32 typ_cc_per_line;
 	const int32 min_cc_per_line;
@@ -34,27 +38,35 @@ class TVDecoderMono
 	uint8* frame_data;  	// buffer for decoded monochrome video signal
 	uint8* frame_data2; 	// buffer for decoded monochrome video signal
 
-	const zxsp::Size frame_size; // width, height of frame data
+	uint8 background_color;
+	uint8 foreground_color;
+	bool  sync_active;
+
+	zxsp::Point screen_position{40+32,32};
+	int cc_pixel_offset;	// offset 0 .. 3 to align screen to byte boundary
 
 	int32 cc_frame_start;	// measured from vsync end
 	int32 cc_line_start;	// measured from hsync end
+	int32 cc_sync_start;
 	int32 cc_per_frame; 	// duration of last successful frame
 	int32 cc_per_line;		// duration of last successful line
+	int32 ccc;				// current / last cc
 
-	int32 cc_sync_start;
 	int32 idx_line_start;	// n * max_bytes_per_line
-	int32 ccc;
 
-	bool  sync_active;
-	uint8 background_color;
-	uint8 foreground_color;
+	int	current_line;
+	int first_screen_line;
+	int last_screen_line;
 
-	int	current_line = 0;			// for statistics
-	int first_screen_line = 0;
-	int last_screen_line = 0;
+	// auto positioning:
+	uint8 cc_left[max_lines_per_frame + 1];		// collect data
+	uint8 cc_right[max_lines_per_frame + 1];	// collect data
+	zxsp::Point new_screen_position{40+32,32};
+	int new_cc_pixel_offset = 0;
+	int auto_position_countdown = 0;
 
 public:
-	int lines_above_screen = 56;	// statistics output for Ula Inspector
+	int lines_above_screen = 56;	// for display in Ula Inspector
 	int lines_in_screen = 192;
 	int lines_below_screen = 62;
 	int lines_per_frame = 310;
@@ -82,13 +94,15 @@ public:
 	int32 getCcForFrameEnd() const;
 
 private:
-	void store_pixel_byte(int32,uint8);
-	void clear_bytes(int32, int32, uint8 pattern);
-	void next_line(int32);
-	void clear_line_to_end(int32 cc, uint8 pattern);
-	void clear_screen_to_end();
-	void clear_screen_up_to_cc(int32 new_cc, uint8 byte);
+	void store_pixels(int32 cc, uint8 pixels);
+	void clear_pixels(int32 cca, int32 cce, uint8 color);
+	void next_line(int32 cc);
+	void clear_screen_up_to_cc(int32 cc, uint8 color);
 	void send_frame(int32 cc);
+	void auto_position_screen();
+	void update_right_border_info(int line, int32 cc);
+	void update_left_border_info(int line, int32 cc);
+	void reset_auto_position_data();
 };
 
 
