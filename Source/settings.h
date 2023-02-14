@@ -3,12 +3,11 @@
 
 #define APPL_NAME			"zxsp"
 
-#define APPL_VERSION_H	0
-#define APPL_VERSION_M	9
-#define APPL_VERSION_L	0
-#define STRINGIFY(X) #X
-#define TOSTR(X) STRINGIFY(X)
-#define APPL_VERSION_STR	TOSTR(APPL_VERSION_H) "." TOSTR(APPL_VERSION_M) "." TOSTR(APPL_VERSION_L)
+#define APPL_VERSION_H		0
+#define APPL_VERSION_M		8
+#define APPL_VERSION_L		28
+#define APPL_VERSION_STR	"0.8.28"
+#define APPL_VERSION_BETA	true
 
 #define CUSTOM_ERRORS		"custom_errors.h"
 
