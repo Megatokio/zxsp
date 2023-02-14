@@ -233,7 +233,6 @@ SOURCES +=	\
 	Source/Uni/Items/Ula/UlaInves.cpp \
 	Source/Uni/Items/Ula/UlaZx81.cpp \
 	Source/Uni/Items/Ula/UlaZx80.cpp \
-	Source/Uni/Items/Ula/UlaMono.cpp \
 	Source/Uni/Items/Ula/UlaJupiter.cpp \
 	Source/Uni/Items/Ula/UlaTc2048.cpp \
 	Source/Uni/Items/Ula/Mmu.cpp \
@@ -527,7 +526,6 @@ HEADERS += \
 	Source/Uni/Items/Ula/UlaInves.h \
 	Source/Uni/Items/Ula/UlaZx81.h \
 	Source/Uni/Items/Ula/UlaZx80.h \
-	Source/Uni/Items/Ula/UlaMono.h \
 	Source/Uni/Items/Ula/UlaJupiter.h \
 	Source/Uni/Items/Ula/UlaTc2048.h \
 	Source/Uni/Items/Ula/Mmu.h \

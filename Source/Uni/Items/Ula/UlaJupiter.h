@@ -3,23 +3,30 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "UlaMono.h"
+#include "Ula.h"
 
 
-class UlaJupiter : public UlaMono
+class UlaJupiter : public Ula
 {
 public:
 	enum	AudioMode	{ mic_out_only, speaker_only, mixed_audio };
 
 private:
 	AudioMode audio_mode;
+	static constexpr int frame_w = 32+8+4+8;// frame width [bytes] == address offset per scan line
+	static constexpr int screen_w = 32;		// screen width [bytes]
+	static constexpr int screen_x0 = 0;		// hor. screen offset inside frame scan lines [bytes]
+	static constexpr int max_lines_per_frame = 312; // for frame buffers
+
+	uint8* frame_data;		// frame buffer for decoded monochrome video signal
+	uint8* frame_data2;		// frame buffer for decoded monochrome video signal
 
 public:
 	UlaJupiter(Machine*, uint fps);
-	~UlaJupiter();
+	~UlaJupiter() override;
 
-	void	setAudioMode	(AudioMode m)		{ audio_mode = m; }
-	AudioMode getAudioMode	()					{ return audio_mode; }
+	void setAudioMode(AudioMode m)	{ audio_mode = m; }
+	AudioMode getAudioMode()		{ return audio_mode; }
 
 protected:
 // Item interface:
@@ -46,10 +53,6 @@ protected:
 	int32	cpuCycleOfIrptEnd() override		{ return 8 * cc_per_line; }
 	int32	cpuCycleOfFrameFlyback() override	{ return lines_per_frame * cc_per_line; }
 	void	setupTiming() override				{}
-
-// UlaMono:
-//	int32	getCurrentFramebufferIndex() override		{ return 0; /*z.zt. nur full frames, kein highres update*/ }
-//	int32	framebufferIndexForCycle(int32 cc) override	{ return cc/4; }
 };
 
 

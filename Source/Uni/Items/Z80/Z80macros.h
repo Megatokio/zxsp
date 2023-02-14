@@ -148,7 +148,7 @@ do{											\
 		if (z32 & cpu_crtc_zx81)			\
 		{	if (pc & 0x8000)				\
 			{	R = peek(pc&0x7fff);		\
-				if (~R & 0x40) { UlaMonoPtr(crtc)->crtcRead(cc,R); R = NOP; } \
+				if (~R & 0x40) { UlaZx80Ptr(crtc)->crtcRead(cc,R); R = NOP; } \
 			}								\
 			if (~r&0x40 && IFF1==enabled) { cc_irpt_on=cc+2; cc_irpt_off=cc+5; cc_max=cc; } \
 		}									\
@@ -170,7 +170,7 @@ do{											\
 		if (z32 & cpu_crtc_zx81)			\
 		{	if (pc & 0x8000)				\
 			{	R = peek(pc&0x7fff);		\
-				if (~R & 0x40) { UlaMonoPtr(crtc)->crtcRead(cc,R); R = NOP; } \
+				if (~R & 0x40) { UlaZx80Ptr(crtc)->crtcRead(cc,R); R = NOP; } \
 			}								\
 			if (~r&0x40 && IFF1==enabled) { cc_irpt_on=cc+2; cc_irpt_off=cc+5; cc_max=cc; } \
 		}									\
@@ -188,8 +188,8 @@ do{											\
 do{											\
 	cc_nmi = machine->nmiAtCycle(cc);		\
 	PgInfo& pg = getPage(pc);				\
-	z32 = pg.both_r(pc);					\
-	if (z32&cpu_waitmap) { CC_WAIT_R(cc+2); }	\
+	z32 = pg.both_r(pc) & options;			\
+	if (z32&cpu_waitmap) { CC_WAIT_R(cc+2); } \
 	cc+=5; r+=1;							\
 }while(0)
 

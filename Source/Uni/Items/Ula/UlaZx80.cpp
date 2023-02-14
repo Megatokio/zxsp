@@ -44,52 +44,42 @@
 
 #define o_addr  	"----.----.----.----"		// übliche Adresse: $FF
 #define i_addr		"----.----.----.----"		// übliche Adresse: $FE, but we need to see all IN as well
-#define FRAMERATE_BIT	6						// 50/60 Hz Wahlschalter (Lötbrücke)
-#define EAR_IN_BIT		7
-#define EAR_IN_MASK		(1<<7)
+
 // bits 0-4: 5 keys from keyboard (low=pressed), row selected by A8..A15
-// bit  6:   50/60 Hz framerate jumper
+static constexpr uint8 FRAMERATE_MASK = 1<<6;	// 50/60 Hz Wahlschalter (Lötbrücke)
+static constexpr uint8 EAR_IN_MASK    = 1<<7;	// audio input
 
 
 UlaZx80::~UlaZx80()
 {}
 
-UlaZx80::UlaZx80 (Machine* m) :
-	UlaMono(m,isa_UlaZx80,o_addr,i_addr),
+UlaZx80::UlaZx80(Machine* m, isa_id _id, cstr oaddr, cstr iaddr) :
+	Ula(m,_id,oaddr,iaddr),
 	tv_decoder(dynamic_cast<IScreenMono&>(*screen), int32(m->model_info->cpu_cycles_per_second))
+{}
+
+UlaZx80::UlaZx80 (Machine* m) :
+	UlaZx80(m,isa_UlaZx80,o_addr,i_addr)
 {}
 
 void UlaZx80::powerOn(int32 cc)
 {
-	xlogIn("UlaZx80:init");
-	UlaMono::powerOn(cc);
-
-	// dummy. TODO: eliminate?
-	frame_w		= 52;				// frame width [bytes] == address offset per scan line
-	screen_w	= 32;				// screen width [bytes]
-	screen_x0	= 8;				// hor. screen offset inside frame scan lines [bytes]
+	xlogIn("UlaZx80:powerOn");
+	Ula::powerOn(cc);
+	assert(screen->isA(isa_ScreenMono));
 
 	tv_decoder.reset();
-	reset();
+	set60Hz(is60hz);
+	beeper_volume = 0.0025f;
+	beeper_current_sample = -beeper_volume;
+	lcntr = 0;			// 3 bit scanline counter
+	vsync = off;
 }
 
 void UlaZx80::reset(Time t, int32 cc)
 {
 	xlogIn("UlaZx80::reset");
-	UlaMono::reset(t,cc);
-
-	tv_decoder.syncOff(cc);
-	reset();
-}
-
-void UlaZx80::reset()
-{
-	beeper_volume = 0.0025f;
-	beeper_current_sample = -beeper_volume;
-	current_lcntr = 0;	// 3 bit scanline counter
-	vsync_on = false;
-
-	set60Hz(is60hz);
+	Ula::reset(t,cc);
 }
 
 void UlaZx80::set60Hz(bool is_60hz)
@@ -97,11 +87,12 @@ void UlaZx80::set60Hz(bool is_60hz)
 	bool machine_is60hz = machine->model_info->frames_per_second > 55;
 	info = machine_is60hz == is_60hz ? machine->model_info : &zx_info[is_60hz ? ts1000 : zx80];
 
-	// dummy. TODO: eliminate?
+	// these will be updated while running anyway:
 	cc_per_line			= int(info->cpu_cycles_per_line);
 	lines_before_screen = int(info->lines_before_screen);
+	lines_in_screen     = int(info->lines_in_screen);
 	lines_after_screen  = int(info->lines_after_screen);
-	lines_per_frame = lines_before_screen + lines_in_screen + lines_after_screen;
+	lines_per_frame     = lines_before_screen + lines_in_screen + lines_after_screen;
 
 	Ula::set60Hz(is_60hz);
 }
@@ -112,25 +103,51 @@ void UlaZx80::enableMicOut(bool f)
 	beeper_current_sample = beeper_current_sample > 0.0f ? beeper_volume : -beeper_volume;
 }
 
-inline void UlaZx80::mic_out(Time now, Sample s)
+void UlaZx80::mic_out(Time now, int32 cc, bool bit)
 {
 	Dsp::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
 	beeper_last_sample_time = now;
-	beeper_current_sample = s;
+	beeper_current_sample = bit ? beeper_volume : -beeper_volume;
+
+	if (machine->taperecorder->isRecording()) machine->taperecorder->output(cc,bit);
+}
+
+bool UlaZx80::mic_in(Time now, int32 cc)
+{
+	constexpr Sample threshold = 0.01f;		// who cares
+
+	if (machine->taperecorder->isPlaying())
+	{
+		return machine->taperecorder->input(cc);
+	}
+
+	if (machine->audio_in_enabled)
+	{
+		uint32 a = uint32(now * samples_per_second);
+		if (unlikely(a >= DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING))
+		{
+			assert(int32(a) >= 0);
+			showAlert("Sample input beyond dsp buffer: +%i\n", int(a-DSP_SAMPLES_PER_BUFFER));
+		}
+		else
+		{
+			return Dsp::audio_in_buffer[a] >= threshold;
+		}
+	}
+
+	return 0 >= threshold;
 }
 
 void UlaZx80::output(Time now, int32 cc, uint16 /*addr*/, uint8 /*byte*/)
 {
-	if (vsync_on)
+	if (vsync)
 	{
 		// any out() deactivates the VSYNC signal after this M1 cycle
 		// output() is called at cc = 3 in the i/o cycle => cc+1 for the end
 		tv_decoder.syncOff(cc+1);
-		vsync_on = false;
-		assert(current_lcntr == 0);
-
-		mic_out(now,beeper_volume);
-		if (machine->taperecorder->isRecording()) machine->taperecorder->output(cc,1);
+		vsync = false;
+		assert(lcntr == 0);
+		mic_out(now,cc,1);
 	}
 }
 
@@ -146,32 +163,29 @@ void UlaZx80::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 		// as this is too high frequency for audio we assume that is not intended for audio and ignore it.
 		// else we'd need to assert that we don't step back in time which may kill Dsp::outputSamples()
 
-		if (vsync_on == false)
+		if (vsync == false)
 		{
 			// we'll use the same timing as for INT
 			// we arbitrarily start counting at the estimated start of the IN opcode at cc-3-4
 			tv_decoder.syncOn(cc-3-4+17);
 			tv_decoder.syncOff(cc-3-4+17+20);
-			current_lcntr = (current_lcntr+1) & 7;
+			lcntr = (lcntr+1) & 7;
 		}
 		return;
 	}
 
 	// A0=0:
 
-	if (vsync_on == false)
+	if (vsync == false)
 	{
 		// any in(FE) activates the VSYNC signal and resets the LCNTR of the ULA
 
 		// input() is called at cc = +3 in the i/o cycle
 		// but /IORQ was activated at cc+1  =>  subtract 2
 		tv_decoder.syncOn(cc-2);
-		vsync_on = true;
-
-		current_lcntr = 0;
-
-		mic_out(now,-beeper_volume);
-		if (machine->taperecorder->isRecording()) machine->taperecorder->output(cc,0);
+		vsync = true;
+		lcntr = 0;
+		mic_out(now,cc,0);
 	}
 
 	mask = 0xff;	// though D5 is not driven. handling of floatingbus byte is only required for ZXSP.
@@ -180,29 +194,10 @@ void UlaZx80::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 	byte &= readKeyboard(addr);
 
 	// insert bit D6 from framerate jumper:
-	if (is60hz) byte &= ~0x40;
+	if (is60hz) byte &= ~FRAMERATE_MASK;
 
-	// insert bit D5 from EAR input socket:
-	if(machine->taperecorder->isPlaying())
-	{
-		if (!machine->taperecorder->input(cc)) byte &= ~EAR_IN_MASK;
-	}
-	else if (machine->audio_in_enabled)
-	{
-		Sample const threshold = 0.01f;			// to be verified
-		uint32 a = uint32(now*samples_per_second);
-		if (a >= DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING)
-		{
-			assert(int32(a) >= 0);
-			showAlert("Sample input beyond dsp buffer: +%i\n", int(a-DSP_SAMPLES_PER_BUFFER));
-			if (0.0f <= threshold) byte &= ~EAR_IN_MASK;
-		}
-		else
-		{
-			if (Dsp::audio_in_buffer[a] <= threshold) byte &= ~EAR_IN_MASK;
-		}
-	}
-	else byte &= ~EAR_IN_MASK;
+	// insert bit D7 from EAR input socket:
+	if (!mic_in(now,cc)) byte &= ~EAR_IN_MASK;
 }
 
 void UlaZx80::crtcRead(int32 cc, uint opcode)
@@ -223,11 +218,11 @@ void UlaZx80::crtcRead(int32 cc, uint opcode)
 	// but in case of the 4k ROM A12 must be 0. (handled by memory mapping in MmuZX80)
 	// A13 is probably ignored. (handled by memory mapping in MmuZX80)
 
-	if (unlikely(vsync_on)) return;			// SYNC => BLACK!
+	if (unlikely(vsync)) return;			// SYNC => BLACK!
 
 	Z80* cpu = machine->cpu;
 	uint  ir = cpu->getRegisters().ir;		// i register
-	uchar  b = cpu->peek(uint16((ir&0x3e00) | ((opcode<<3)&0x01f8) | current_lcntr));
+	uchar  b = cpu->peek(uint16((ir&0x3e00) | ((opcode<<3)&0x01f8) | lcntr));
 	tv_decoder.storePixelByte(cc+4, opcode&0x0080 ? b : ~b);
 }
 
@@ -257,30 +252,68 @@ uint8 UlaZx80::interruptAtCycle(int32 cc, uint16 /*pc*/)
 
 	assert (machine->cpu->interruptStart() == cc-2);
 
-	if (vsync_on == false)
+	if (vsync == false)
 	{
 		const int cc_sync_on  = cc + 13 + 4;
 		const int cc_sync_off = cc + 13 + 4 + 20;
 
 		tv_decoder.syncOn(cc_sync_on);
 		tv_decoder.syncOff(cc_sync_off);
-		current_lcntr = (current_lcntr+1) & 7;
+		lcntr = (lcntr+1) & 7;
 	}
 
 	return 0xff;	// byte read during INT ACK cycle
 }
 
-void UlaZx80::saveToFile(FD& fd) const throws
+int32 UlaZx80::updateScreenUpToCycle(int32)
 {
-	UlaMono::saveToFile(fd);
-	TODO();
+	return 1<<30;	// ZXSP only
 }
 
-void UlaZx80::loadFromFile(FD& fd) throws
+int32 UlaZx80::cpuCycleOfFrameFlyback()
 {
-	UlaMono::loadFromFile(fd);
-	TODO();
+	// return the estimated time for the end of the current/next frame.
+	// the machine will run up to this cc and probably overshoot by some cc.
+
+	return tv_decoder.getCcForFrameEnd();
 }
+
+void UlaZx80::videoFrameEnd(int32 cc)
+{
+	// shift the cpu cycle based time base by cc:
+	// this should be the time for the previous frame.
+
+	tv_decoder.shiftCcTimeBase(cc);
+}
+
+int32 UlaZx80::doFrameFlyback(int32 cc)
+{
+	// handle vertical frame flyback
+	// and return actual duration of last frame.
+	// this will be the offset used to shift cc in videoFrameEnd()
+	// which should reset cc_frame_start back to 0.
+
+	cc = tv_decoder.doFrameFlyback(cc);
+
+	lines_before_screen = tv_decoder.lines_above_screen;
+	lines_in_screen = tv_decoder.lines_in_screen;
+	lines_after_screen = tv_decoder.lines_below_screen;
+	lines_per_frame = tv_decoder.lines_per_frame;
+	cc_per_line = tv_decoder.getCcPerLine();
+
+	return cc;
+}
+
+void UlaZx80::drawVideoBeamIndicator(int32 cc)
+{
+	tv_decoder.drawVideoBeamIndicator(cc);
+}
+
+
+
+
+
+
 
 
 

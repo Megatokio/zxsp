@@ -34,7 +34,7 @@ public:
 	ScreenMono& operator=(const ScreenMono&) = delete;
 
 	__deprecated bool ffb_or_vbi(uint8* new_pixels,int frame_w,int frame_h,int scrn_w,int scrn_h,int x0,int y0,uint32 cc);
-	virtual bool sendFrame(uint8* frame_data, const Size& frame_size, const Rect& screen) override;
+	virtual bool sendFrame(uint8* frame_data, const zxsp::Size& frame_size, const zxsp::Rect& screen) override;
 };
 
 

@@ -4,7 +4,6 @@
 
 #include "graphics/gif/GifEncoder.h"
 #include "ScreenMono.h"
-#include "Ula/UlaMono.h"
 #include "globals.h"
 #include "cpp/cppthreads.h"
 #include "MonoRenderer.h"
@@ -50,7 +49,7 @@ bool ScreenMono::ffb_or_vbi( uint8* new_pixels, int frame_w, int frame_h, int sc
 	return ffb_ready;			// true --> retain new data for processing in progress, else still retain old data
 }
 
-bool ScreenMono::sendFrame(uint8* frame_data, const Size& frame_size, const Rect& screen)
+bool ScreenMono::sendFrame(uint8* frame_data, const zxsp::Size& frame_size, const zxsp::Rect& screen)
 {
 	// store data for new FFB and trigger render thread.
 	// they are never deleted by this Screen or RenderThread.

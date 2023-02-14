@@ -90,14 +90,18 @@ Application::Application (int argc, char* argv[]) :
 	QPainter painter( &pm );
 	painter.setPen( Qt::black );
 	QFont font1("Arial",40,QFont::Black,true/*italic*/);
-	//QFont font2("Arial",32,QFont::DemiBold,true/*italic*/);
-	int x=210, y=60;//, x2=x+QFontMetrics(font1).width(APPL_VERSION_STR)+5;
+	int x=210, y=60;
 
 	painter.setFont(font1);
-	painter.drawText( QPoint(x,y), APPL_VERSION_STR );
+	painter.drawText(QPoint(x,y), APPL_VERSION_STR);
 
-//	painter.setFont(font2);
-//	painter.drawText( QPoint(x2,y), appl_pre_version_str );
+	if (APPL_VERSION_BETA)
+	{
+		QFont font2("Arial",32,QFont::DemiBold,true/*italic*/);
+		x += QFontMetrics(font1).width(APPL_VERSION_STR)+5;
+		painter.setFont(font2);
+		painter.drawText(QPoint(x,y), "beta");
+	}
 
 	about_screen = new QSplashScreen(pm,Qt::WindowStaysOnTopHint);
 	about_screen->showMessage(ABOUT_TEXT,Qt::AlignLeft|Qt::AlignBottom);

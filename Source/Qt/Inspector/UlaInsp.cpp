@@ -369,53 +369,60 @@ void UlaInsp::updateWidgets()
 		inputs.cpu_clock_predivider->setText(catstr("1/",tostr(predivider)));
 	}
 
-	if(values.top_rows != uint(ula->getLinesBeforeScreen()))
+	if (values.top_rows != ula->getLinesBeforeScreen())
 	{
 		values.top_rows = ula->getLinesBeforeScreen();
 		inputs.top_rows->setText(tostr(values.top_rows));
 		xlogline("UlaInsp: top_rows = %u", uint(values.top_rows));
 	}
 
-//    if(values.screen_rows)
-//    {
-//    }
-//    if(values.screen_columns)
-//    {
-//    }
+	if (values.screen_rows != ula->getLinesInScreen())
+	{
+		values.screen_rows = ula->getLinesInScreen();
+		inputs.screen_rows->setText(tostr(values.screen_rows));
+		xlogline("UlaInsp: screen_rows = %u", uint(values.screen_rows));
+	}
 
-	if(values.bottom_rows != uint(ula->getLinesAfterScreen()))
+	if(values.screen_columns != ula->getColumnsInScreen())
+	{
+		values.screen_columns = ula->getColumnsInScreen();
+		inputs.screen_columns->setText(tostr(values.screen_columns));
+		xlogline("UlaInsp: screen_columns = %u", uint(values.screen_columns));
+	}
+
+	if (values.bottom_rows != ula->getLinesAfterScreen())
 	{
 		values.bottom_rows = ula->getLinesAfterScreen();
 		inputs.bottom_rows->setText(tostr(values.bottom_rows));
 		xlogline("UlaInsp: bottom_rows = %u", uint(values.bottom_rows));
 	}
 
-	if(values.bytes_per_row != uint(ula->getBytesPerLine()))
+	if (values.bytes_per_row != ula->getBytesPerLine())
 	{
 		values.bytes_per_row = ula->getBytesPerLine();
 		inputs.bytes_per_row->setText(tostr(values.bytes_per_row));
 		xlogline("UlaInsp: bytes_per_row = %u", uint(values.bytes_per_row));
 	}
 
-	if(values.cpu_cycles_per_row != uint(ula->getCcPerLine()))
+	if (values.cpu_cycles_per_row != ula->getCcPerLine())
 	{
 		values.cpu_cycles_per_row = ula->getCcPerLine();
 		inputs.cpu_cycles_per_row->setText(tostr(values.cpu_cycles_per_row));
 		xlogline("UlaInsp: cpu_cycles_per_row = %u", uint(values.cpu_cycles_per_row));
 	}
 
-	if(values.cpu_cycles_per_frame != uint(ula->getCcPerFrame()))
+	if (values.cpu_cycles_per_frame != ula->getCcPerFrame())
 	{
 		values.cpu_cycles_per_frame = ula->getCcPerFrame();
 		inputs.cpu_cycles_per_frame->setText(tostr(values.cpu_cycles_per_frame));
 		xlogline("UlaInsp: cpu_cycles_per_frame = %u", uint(values.cpu_cycles_per_frame));
 	}
 
-	if(values.frames_per_second != (float)values.cpu_clock/ula->getCcPerFrame())
+	if (values.frames_per_second != float(values.cpu_clock)/ula->getCcPerFrame())
 	{
-		values.frames_per_second = (float)values.cpu_clock/ula->getCcPerFrame();
+		values.frames_per_second = float(values.cpu_clock)/ula->getCcPerFrame();
 		char* s = tempstr(15);
-		sprintf ( s, "%.4g", (double)values.frames_per_second );
+		sprintf(s, "%.4g", double(values.frames_per_second));
 		inputs.frames_per_second->setText(s);
 		xlogline("UlaInsp: frames_per_second = %s",s);
 	}

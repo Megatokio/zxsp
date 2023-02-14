@@ -19,7 +19,7 @@ protected:
 	int32		cc_screen_start;		// Erster cc für einen CRT Backcall
 	int32		cc_waitmap_end;			// Ab wann nicht mehr
 	int32		cc_frame_end;			// Total cpu clocks per Frame
-	uint		bytes_per_octet;		// always 2
+	static constexpr uint bytes_per_octet = 2;	// bytes needed to store 8 pixels
 
 	uint		waitmap_size;			// cc
 	uint8		waitmap[256];			// up to (16+32+16)*4 cc
@@ -60,7 +60,7 @@ public:
 
 public:
 	explicit UlaZxsp(Machine*);
-	virtual ~UlaZxsp();
+	virtual ~UlaZxsp() override;
 
 // Item interface:
 	void		powerOn				(/*t=0*/ int32 cc) override;
@@ -96,7 +96,7 @@ public:
 
 // CRTC:
 	cuint8*		getWaitmap				()				{ return waitmap; }
-	int			getWaitmapSize			()				{ return waitmap_size; }
+	int			getWaitmapSize			()				{ return int(waitmap_size); }
 	bool		hasWaitmap				() volatile const { return waitmap_size != 0; }
 	int32		updateScreenUpToCycle	(int32 cc) override;
 	bool		getFlashPhase			()				{ return (current_frame>>4)&1; }
