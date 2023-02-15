@@ -11,22 +11,3 @@ class IcTester : public Item
 public:
 	explicit IcTester(Machine*);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

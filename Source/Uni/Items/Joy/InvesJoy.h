@@ -11,6 +11,3 @@ class InvesJoy : public KempstonJoy
 public:
 	explicit InvesJoy(Machine*);
 };
-
-
-

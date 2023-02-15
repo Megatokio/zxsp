@@ -8,7 +8,5 @@
 class PrinterPlus3Insp : public Inspector
 {
 public:
-	PrinterPlus3Insp( QWidget*, MachineController*, volatile IsaObject* );
+	PrinterPlus3Insp(QWidget*, MachineController*, volatile IsaObject*);
 };
-
-

@@ -6,9 +6,8 @@
 #include "Ay/Ay.h"
 
 
-
-ZonxBoxInsp::ZonxBoxInsp(QWidget*w, MachineController* mc, volatile IsaObject *i)
-: Inspector(w,mc,i,"/Images/zonx.jpg")
+ZonxBoxInsp::ZonxBoxInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
+	Inspector(w, mc, i, "/Images/zonx.jpg")
 {
 	assert(i->isA(isa_ZonxBox) || i->isA(isa_ZonxBox81));
 }

@@ -11,24 +11,21 @@ class QPushButton;
 
 class KempstonMouseInsp : public Inspector
 {
-// widgets:
-	QLineEdit*		display_x;
-	QLineEdit*		display_y;
-	QLineEdit*		display_buttons;
-	QComboBox*		combobox_scale;
-	QPushButton*	button_grab_mouse;
+	// widgets:
+	QLineEdit*	 display_x;
+	QLineEdit*	 display_y;
+	QLineEdit*	 display_buttons;
+	QComboBox*	 combobox_scale;
+	QPushButton* button_grab_mouse;
 
-// widgets state:
-	uint8			old_x, old_y;		// displayed x/y position
-	int				old_buttons;		// displayed button state
-	bool			old_grabbed;
+	// widgets state:
+	uint8 old_x, old_y; // displayed x/y position
+	int	  old_buttons;	// displayed button state
+	bool  old_grabbed;
 
 public:
-	KempstonMouseInsp( QWidget*, MachineController*, volatile IsaObject* );
+	KempstonMouseInsp(QWidget*, MachineController*, volatile IsaObject*);
 
 protected:
-	void			updateWidgets() override;
+	void updateWidgets() override;
 };
-
-
-

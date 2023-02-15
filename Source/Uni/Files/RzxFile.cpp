@@ -2,24 +2,22 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "RzxFile.h"
+#include "RzxBlock.h"
 #include "kio/kio.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "RzxFile.h"
-#include "RzxBlock.h"
 #include <zlib.h>
 
-//#ifndef _MSC_VER
+// #ifndef _MSC_VER
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+  #include <unistd.h>
 #endif
 
-#include "unix/files.h"
 #include "Uni/globals.h"
-#include "unix/files.h"
 #include "kio/TestTimer.h"
-
+#include "unix/files.h"
 
 
 // ============================================================
@@ -125,8 +123,6 @@ Special Cases:
 */
 
 
-
-
 /*	CREATOR
 	state = EndOfFile
 */
@@ -138,7 +134,7 @@ RzxFile::RzxFile()
 
 
 /*	DESTRUCTOR
-*/
+ */
 RzxFile::~RzxFile()
 {
 	xlogIn("~RzxData");
@@ -152,13 +148,13 @@ RzxFile::~RzxFile()
 //
 void RzxFile::init()
 {
-	filename = nullptr;
-	creator_name = nullptr;
+	filename			  = nullptr;
+	creator_name		  = nullptr;
 	creator_major_version = 0;
 	creator_minor_version = 0;
-	rzx_file_version = 0;
+	rzx_file_version	  = 0;
 	blocks.purge();
-	bi = 0; // blocks.count();
+	bi	  = 0; // blocks.count();
 	state = EndOfFile;
 }
 
@@ -169,11 +165,9 @@ void RzxFile::kill()
 {
 	delete[] creator_name;
 	delete[] filename;
-	//for(uint i=0; i<blocks.count(); i++) { blocks[i].kill(); }
-	//blocks.purge();
+	// for(uint i=0; i<blocks.count(); i++) { blocks[i].kill(); }
+	// blocks.purge();
 }
-
-
 
 
 // ===========================================================================
@@ -209,21 +203,21 @@ void RzxFile::purge()
 */
 void RzxFile::rewind()
 {
-	if(bi < blocks.count() && blocks[bi].isaInputRecordingBlock())
-		blocks[bi].compress();
+	if (bi < blocks.count() && blocks[bi].isaInputRecordingBlock()) blocks[bi].compress();
 
 	bi = 0;
 
-	if(blocks.count()==0)
+	if (blocks.count() == 0)
 		state = EndOfFile;
 
-	else if(blocks[0].isaSnapshotBlock())
+	else if (blocks[0].isaSnapshotBlock())
 		state = Snapshot;
 
-	else if(blocks[0].isaInputRecordingBlock())
+	else if (blocks[0].isaInputRecordingBlock())
 		state = OutOfSync;
 
-	else IERR();		// isaMachineSnapshot: TODO
+	else
+		IERR(); // isaMachineSnapshot: TODO
 }
 
 
@@ -235,12 +229,12 @@ void RzxFile::rewind()
 */
 void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // DataError,file_error
 {
-	xlogIn("RzxFile.readFile(%s)",filename);
+	xlogIn("RzxFile.readFile(%s)", filename);
 
 	TT;
 
 	purge();
-	state = OutOfSync;
+	state		   = OutOfSync;
 	this->filename = newcopy(filename);
 
 	//	RZX Headr:
@@ -250,33 +244,33 @@ void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // DataError,fil
 	//	0x06 	-		DWORD		Flags (reserved)
 	//	0x0A 	- 	- 	RZX			blocks sequence
 
-	FD fd(filename);			// throws
+	FD	  fd(filename); // throws
 	uint8 bu[10];
-	fd.read_bytes(bu,10);
-	if(memcmp(bu,"RZX!",4)) throw DataError(wrongfiletype);
+	fd.read_bytes(bu, 10);
+	if (memcmp(bu, "RZX!", 4)) throw DataError(wrongfiletype);
 
-	xlogline("rzx file version = %u.%u",bu[4],bu[5]);
-	rzx_file_version = peek2X(bu+4);				// MSB first
-	if(rzx_file_version > MaxRzxLibraryVersion)
-		throw DataError(wrongfiletype, usingstr("unsupported rzx file version %u.%u", bu[4],bu[5]));
+	xlogline("rzx file version = %u.%u", bu[4], bu[5]);
+	rzx_file_version = peek2X(bu + 4); // MSB first
+	if (rzx_file_version > MaxRzxLibraryVersion)
+		throw DataError(wrongfiletype, usingstr("unsupported rzx file version %u.%u", bu[4], bu[5]));
 
-	uint32 flags = peek4Z(bu+6);
-	if(flags) xlogline("flags = 0x%08X",flags);
+	uint32 flags = peek4Z(bu + 6);
+	if (flags) xlogline("flags = 0x%08X", flags);
 
 	off_t filesize = fd.file_size();
-	if(filesize > 99 MB) throw DataError("file too long");
+	if (filesize > 99 MB) throw DataError("file too long");
 
 
 	// read the blocks:
 
-	for( off_t fileposition = 10; fileposition < filesize; )
+	for (off_t fileposition = 10; fileposition < filesize;)
 	{
 		uint   btyp = fd.read_uint8();
 		uint32 blen = fd.read_uint32_z();
 		fileposition += blen;
-		if(fileposition > filesize) throw DataError("Block 0x%02X exceeds file size", btyp);
+		if (fileposition > filesize) throw DataError("Block 0x%02X exceeds file size", btyp);
 
-		switch(btyp)
+		switch (btyp)
 		{
 		case 0x10:
 			//	0x00 	0x10 	BYTE		Block ID
@@ -288,16 +282,21 @@ void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // DataError,fil
 
 			xlogline("Creator Information Block");
 
-			if(blen < 0x1D) throw DataError("block too short");
+			if (blen < 0x1D) throw DataError("block too short");
 			{
-				str s = newstr(20); fd.read_bytes(s,20);
-				for(int i=20;i && (s[--i]==' '||s[i]==0);) { s[i]=0; }	// SpecEmu pads with spaces up to slen=19
-				delete[] creator_name; creator_name = s;
+				str s = newstr(20);
+				fd.read_bytes(s, 20);
+				for (int i = 20; i && (s[--i] == ' ' || s[i] == 0);)
+				{
+					s[i] = 0;
+				} // SpecEmu pads with spaces up to slen=19
+				delete[] creator_name;
+				creator_name = s;
 			}
 			creator_major_version = fd.read_uint16_z();
 			creator_minor_version = fd.read_uint16_z();
 			xlogline("creator = %s %u.%u", creator_name, creator_major_version, creator_minor_version);
-			if(blen>0x1d) xlogline("custom data = %u bytes", blen-0x1d);
+			if (blen > 0x1d) xlogline("custom data = %u bytes", blen - 0x1d);
 			break;
 
 		case 0x30:
@@ -307,10 +306,10 @@ void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // DataError,fil
 			RzxBlock& block = blocks.grow();
 			try
 			{
-				block.readSnapshotBlock(fd,blen,filename);
-				if(snapshotOnly) return;
+				block.readSnapshotBlock(fd, blen, filename);
+				if (snapshotOnly) return;
 			}
-			catch(AnyError&)
+			catch (AnyError&)
 			{
 				block.kill();
 				blocks.drop();
@@ -326,67 +325,79 @@ void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // DataError,fil
 			RzxBlock& block = blocks.grow();
 			try
 			{
-				block.readInputRecordingBlock(fd,blen);
-				if(block.num_frames==0)
+				block.readInputRecordingBlock(fd, blen);
+				if (block.num_frames == 0)
 				{
 					xlogline("warning: empty block");
-					block.kill(); blocks.drop();
+					block.kill();
+					blocks.drop();
 				}
-				else block.compress();
+				else
+					block.compress();
 			}
-			catch(AnyError&)
+			catch (AnyError&)
 			{
 				// if readInputRecordingBlock() throws, then the block is usable but truncated, maybe empty.
-				if(block.num_frames==0) { block.kill(); blocks.drop(); }
-				else block.compress();
+				if (block.num_frames == 0)
+				{
+					block.kill();
+					blocks.drop();
+				}
+				else
+					block.compress();
 				throw;
 			}
 
-			#ifdef XLOG
-				// the playback machine activates the timer interrupt at the start of each rzx frame.
-				// It is believed that timer interrupts end after 48 cc, which limits the value for start_cc.
-				//		(interrupts generated by extensions are not supported by rzx.)
-				// cc can only be arbitrarily high right after loading a snapshot:
-				//		only then the machine will not activate INT unless cc ≤ 48.
-				//		the exact duration of the timer interrupt varies between emulators!
-				//		the "debated" range is approx. from cc=32 to cc=64.
-				//			  depending on model and emulator even longer.
-				//		if interrupts are enabled and recorder and player disagree on whether the timer interrupt
-				//			  is still active, then the machine is immediately OutOfSync right from the start.
-				//		however it is unlikely that a snapshot starts in this range,
-				//			  and if, it may be a .sna file (which always starts with interrupts disabled)
-				//			  or the machine already started interrupt handling and disabled interrupts as well.
-				//		NOTE: zxsp will enable the timer interrupt up to cc ≤ 48.
-				//		DENK: eventually even if future research finds different values for any model.
+#ifdef XLOG
+			// the playback machine activates the timer interrupt at the start of each rzx frame.
+			// It is believed that timer interrupts end after 48 cc, which limits the value for start_cc.
+			//		(interrupts generated by extensions are not supported by rzx.)
+			// cc can only be arbitrarily high right after loading a snapshot:
+			//		only then the machine will not activate INT unless cc ≤ 48.
+			//		the exact duration of the timer interrupt varies between emulators!
+			//		the "debated" range is approx. from cc=32 to cc=64.
+			//			  depending on model and emulator even longer.
+			//		if interrupts are enabled and recorder and player disagree on whether the timer interrupt
+			//			  is still active, then the machine is immediately OutOfSync right from the start.
+			//		however it is unlikely that a snapshot starts in this range,
+			//			  and if, it may be a .sna file (which always starts with interrupts disabled)
+			//			  or the machine already started interrupt handling and disabled interrupts as well.
+			//		NOTE: zxsp will enable the timer interrupt up to cc ≤ 48.
+			//		DENK: eventually even if future research finds different values for any model.
 
-				uint32& cc = block.cc_at_start;
-				if(blocks.count()>2 && blocks[blocks.count()-2].isaInputRecordingBlock())
-				{ if(cc > 48) logline("cc at start too high: %u (reset)", cc); cc = 0; }
-				else
-				{ if(cc>=32 && cc<=64) logline("unclear interrupt state after snapshot. cc = %u", cc); }
-			#endif
+			uint32& cc = block.cc_at_start;
+			if (blocks.count() > 2 && blocks[blocks.count() - 2].isaInputRecordingBlock())
+			{
+				if (cc > 48) logline("cc at start too high: %u (reset)", cc);
+				cc = 0;
+			}
+			else
+			{
+				if (cc >= 32 && cc <= 64) logline("unclear interrupt state after snapshot. cc = %u", cc);
+			}
+#endif
 			break;
 		}
 
 		default:
-			xlogline("Unhandled Block 0x%02X, blen = %u (ignored)",bu[0],blen);
-			fd.seek_fpos(fileposition);		// note: does not throw eof
+			xlogline("Unhandled Block 0x%02X, blen = %u (ignored)", bu[0], blen);
+			fd.seek_fpos(fileposition); // note: does not throw eof
 			continue;
 		}
 
-		if(fd.file_position() == fileposition) continue;
-		if(fd.file_position() > fileposition) throw DataError("block data exceeds block length");
+		if (fd.file_position() == fileposition) continue;
+		if (fd.file_position() > fileposition) throw DataError("block data exceeds block length");
 		xlogline("%u unused bytes at end of block", fileposition - fd.file_position());
 		fd.seek_fpos(fileposition);
 	}
 
-	if(blocks.count()==0) throw DataError("file contains no data");	// no Block 0x30 or 0x80
-	if(blocks[0].isaInputRecordingBlock()) throw DataError("file has no initial snapshot");
+	if (blocks.count() == 0) throw DataError("file contains no data"); // no Block 0x30 or 0x80
+	if (blocks[0].isaInputRecordingBlock()) throw DataError("file has no initial snapshot");
 
-	//bi = 0;
-	state = Snapshot;	// position = Snapshotfile Block
+	// bi = 0;
+	state = Snapshot; // position = Snapshotfile Block
 
-	TTest(1e-3,"RzxFile:readFile()");
+	TTest(1e-3, "RzxFile:readFile()");
 }
 
 
@@ -401,27 +412,25 @@ void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // DataError,fil
 */
 void RzxFile::writeFile(cstr filename) throws
 {
-	FD fd(filename,'w');
+	FD fd(filename, 'w');
 
 	//	RZX Headr:
-	fd.write_bytes("RZX!",4);					// "RZX!"
-	fd.write_uint16_x(OurRzxLibraryVersion);	// major+minor file version (major byte first!)
-	fd.write_uint32_z(0);						// flags
+	fd.write_bytes("RZX!", 4);				 // "RZX!"
+	fd.write_uint16_x(OurRzxLibraryVersion); // major+minor file version (major byte first!)
+	fd.write_uint32_z(0);					 // flags
 
 	// Creator Information Block:
-	fd.write_char(0x10);						// block ID
-	fd.write_uint32_z(29);						// block length: 29 = min. length => no custom data
-	char crea[20]; strncpy(crea,APPL_NAME,20);
-	fd.write_bytes(crea,20);					// char[20] creator name
-	fd.write_uint16_z(APPL_VERSION_H*256+APPL_VERSION_M);
-	fd.write_uint16_z(APPL_VERSION_L);			// uint16[2] creator version
-	//fd.write_bytes(nullptr,0);					// no custom data
+	fd.write_char(0x10);   // block ID
+	fd.write_uint32_z(29); // block length: 29 = min. length => no custom data
+	char crea[20];
+	strncpy(crea, APPL_NAME, 20);
+	fd.write_bytes(crea, 20); // char[20] creator name
+	fd.write_uint16_z(APPL_VERSION_H * 256 + APPL_VERSION_M);
+	fd.write_uint16_z(APPL_VERSION_L); // uint16[2] creator version
+	// fd.write_bytes(nullptr,0);					// no custom data
 
 	// the blocks:
-	for(uint i=0; i<blocks.count(); i++)
-	{
-		blocks[i].write(fd);
-	}
+	for (uint i = 0; i < blocks.count(); i++) { blocks[i].write(fd); }
 }
 
 
@@ -432,7 +441,7 @@ void RzxFile::writeFile(cstr filename) throws
 int RzxFile::getIcount()
 {
 	assert(isPlaying());
-	assert(bi<blocks.count());
+	assert(bi < blocks.count());
 	assert(blocks[bi].isaInputRecordingBlock());
 	assert(blocks[bi].state != RzxBlock::Compressed);
 
@@ -447,7 +456,7 @@ int RzxFile::getIcount()
 int32 RzxFile::getStartCC()
 {
 	assert(isPlaying());
-	assert(bi<blocks.count());
+	assert(bi < blocks.count());
 	assert(blocks[bi].isaInputRecordingBlock());
 
 	return blocks[bi].startCC();
@@ -461,25 +470,33 @@ int32 RzxFile::getStartCC()
 cstr RzxFile::getSnapshot()
 {
 	assert(isSnapshot());
-	assert(bi<blocks.count());
+	assert(bi < blocks.count());
 	assert(blocks[bi].isaSnapshotBlock());
 
-a:	cstr fn = blocks[bi++].snapshot_filename;
+a:
+	cstr fn = blocks[bi++].snapshot_filename;
 
-b:	if(bi==blocks.count())
+b:
+	if (bi == blocks.count())
 		state = EndOfFile;
 
-	else if(blocks[bi].isaInputRecordingBlock())
+	else if (blocks[bi].isaInputRecordingBlock())
 	{
 		int icount = blocks[bi].uncompress();
-		if(icount<0) { blocks[bi].compress(); goto b; }		// EndOfBlock -> empty Block!
-		else state = Playing;
+		if (icount < 0)
+		{
+			blocks[bi].compress();
+			goto b;
+		} // EndOfBlock -> empty Block!
+		else
+			state = Playing;
 	}
 
-	else if(blocks[bi].isaSnapshotBlock())
-		goto a;		// hm hm..
+	else if (blocks[bi].isaSnapshotBlock())
+		goto a; // hm hm..
 
-	else TODO();	// isaMachineSnapshot
+	else
+		TODO(); // isaMachineSnapshot
 
 	return fn;
 }
@@ -493,12 +510,17 @@ b:	if(bi==blocks.count())
 void RzxFile::storeSnapshot(cstr fname)
 {
 	assert(isEndOfFile());
-	assert(bi == blocks.count() || (bi == blocks.count()-1 && blocks[bi].isaIRB() && blocks[bi].isEndOfBlock()));
+	assert(bi == blocks.count() || (bi == blocks.count() - 1 && blocks[bi].isaIRB() && blocks[bi].isEndOfBlock()));
 
-	if(bi < blocks.count())
+	if (bi < blocks.count())
 	{
-		if(blocks[bi].num_frames) blocks[bi++].compress();
-		else { blocks[bi].kill(); blocks.drop(); }
+		if (blocks[bi].num_frames)
+			blocks[bi++].compress();
+		else
+		{
+			blocks[bi].kill();
+			blocks.drop();
+		}
 	}
 
 	RzxBlock& block = blocks.grow();
@@ -516,13 +538,18 @@ void RzxFile::storeSnapshot(cstr fname)
 void RzxFile::startBlock(int32 cc)
 {
 	assert(isEndOfFile());
-	assert(bi>0);
-	assert(bi == blocks.count() || (bi == blocks.count()-1 && blocks[bi].isaIRB() && blocks[bi].isEndOfBlock()));
+	assert(bi > 0);
+	assert(bi == blocks.count() || (bi == blocks.count() - 1 && blocks[bi].isaIRB() && blocks[bi].isEndOfBlock()));
 
-	if(bi < blocks.count())
+	if (bi < blocks.count())
 	{
-		if(blocks[bi].num_frames) blocks[bi++].compress();
-		else { blocks[bi].kill(); blocks.drop(); }
+		if (blocks[bi].num_frames)
+			blocks[bi++].compress();
+		else
+		{
+			blocks[bi].kill();
+			blocks.drop();
+		}
 	}
 
 	RzxBlock& block = blocks.grow();
@@ -541,12 +568,12 @@ void RzxFile::startBlock(int32 cc)
 void RzxFile::startFrame(int32 cc)
 {
 	assert(isEndOfFile());
-	assert(bi>0);
-	assert(bi == blocks.count() || (bi == blocks.count()-1 && blocks[bi].isaIRB() && blocks[bi].isEndOfBlock()));
+	assert(bi > 0);
+	assert(bi == blocks.count() || (bi == blocks.count() - 1 && blocks[bi].isaIRB() && blocks[bi].isEndOfBlock()));
 
-	if( bi == blocks.count()			// z.Zt. kein Block in Arbeit
-		|| blocks[bi].num_frames > 1000	// time to split
-		|| blocks[bi].ucsize > 50000 )	// time to split
+	if (bi == blocks.count()			// z.Zt. kein Block in Arbeit
+		|| blocks[bi].num_frames > 1000 // time to split
+		|| blocks[bi].ucsize > 50000)	// time to split
 		return startBlock(cc);
 
 	blocks[bi].startFrame(cc);
@@ -561,7 +588,7 @@ void RzxFile::startFrame(int32 cc)
 void RzxFile::endFrame(uint icount)
 {
 	assert(isRecording());
-	assert(bi == blocks.count()-1);
+	assert(bi == blocks.count() - 1);
 
 	blocks[bi].endFrame(icount);
 	state = EndOfFile;
@@ -582,24 +609,24 @@ int RzxFile::nextFrame()
 	assert(isPlaying());
 	assert(bi < blocks.count());
 
-	int icount = blocks[bi].nextFrame();	// -> icount or -1 = EndOfBlock
+	int icount = blocks[bi].nextFrame(); // -> icount or -1 = EndOfBlock
 
-	while(icount == -1)						// EndOfBlock
+	while (icount == -1) // EndOfBlock
 	{
-		if(bi+1 == blocks.count())			// EndOfFile? => don't move!
+		if (bi + 1 == blocks.count()) // EndOfFile? => don't move!
 		{
-			state = Playing;				// EndOfFile
+			state = Playing; // EndOfFile
 			return -1;
 		}
 
 		blocks[bi++].compress();
 
-		if(blocks[bi].isaInputRecordingBlock())
+		if (blocks[bi].isaInputRecordingBlock())
 		{
-			icount = blocks[bi].uncompress();	// -> icount or -1 = EndOfBlock
+			icount = blocks[bi].uncompress(); // -> icount or -1 = EndOfBlock
 		}
 
-		else if(blocks[bi].isaSnapshotBlock())
+		else if (blocks[bi].isaSnapshotBlock())
 		{
 			state = Snapshot;
 			return -1;
@@ -630,7 +657,7 @@ int RzxFile::getInput()
 	assert(isPlaying());
 	assert(bi < blocks.count());
 
-	return blocks[bi].getByte();	// byte or -1 = EndOfFrame = OutOfSync
+	return blocks[bi].getByte(); // byte or -1 = EndOfFrame = OutOfSync
 }
 
 
@@ -670,7 +697,7 @@ void RzxFile::startRecording()
 	assert(bi < blocks.count());
 
 	// remove all blocks behind the current block:
-	while(blocks.count() > bi+1)
+	while (blocks.count() > bi + 1)
 	{
 		blocks.last().kill();
 		blocks.drop();
@@ -683,12 +710,12 @@ void RzxFile::startRecording()
 
 
 /*	PLAYBACK: is the current frame the last frame?
-*/
+ */
 bool RzxFile::isLastFrame() const
 {
 	assert(isPlaying());
 
-	return bi == blocks.count()-1 && blocks[bi].isLastFrame();
+	return bi == blocks.count() - 1 && blocks[bi].isLastFrame();
 }
 
 
@@ -699,8 +726,7 @@ bool RzxFile::isLastFrame() const
 */
 void RzxFile::setOutOfSync()
 {
-	if(bi<blocks.count() && blocks[bi].isaIRB())
-		blocks[bi].compress();
+	if (bi < blocks.count() && blocks[bi].isaIRB()) blocks[bi].compress();
 
 	state = OutOfSync;
 }
@@ -781,10 +807,10 @@ void RzxFile::setOutOfSync()
 void RzxFile::amendFrame(uint icount)
 {
 	assert(isRecording());
-	assert(icount && icount <= 12);	// 48cc = 12*4
+	assert(icount && icount <= 12); // 48cc = 12*4
 
 	// is the previous frame in the previous block?
-	if(blocks[bi].fpos == 0)
+	if (blocks[bi].fpos == 0)
 	{
 		// Da das Rzx-File auch abspielbar ist, wenn wir den aktuellen Frame-Schnippel NICHT an den vorigen
 		// Frame anhängen, und nur num_frames etwas an Aussagekraft verliert, hängen wir den Frame-Schnippel
@@ -801,39 +827,19 @@ void RzxFile::amendFrame(uint icount)
 }
 
 
-//static
+// static
 cstr RzxFile::getFirstSnapshot(cstr filename)
 {
 	RzxFile rzx;
-	try { rzx.readFile(filename,yes); }
-	catch(AnyError&) {}
+	try
+	{
+		rzx.readFile(filename, yes);
+	}
+	catch (AnyError&)
+	{}
 
-	if(rzx.blocks.count() && rzx.blocks.last().isaSnapshotBlock())
+	if (rzx.blocks.count() && rzx.blocks.last().isaSnapshotBlock())
 		return rzx.blocks.last().snapshot_filename;
 	else
 		return nullptr;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

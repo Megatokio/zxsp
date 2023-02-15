@@ -11,21 +11,19 @@ class QMenu;
 
 class ZxIf2Insp : public SinclairJoyInsp
 {
-	QPushButton*	button_insert_eject;
-	QLabel*         label_romfilename;
-	cstr			old_romfilepath;		// 2nd
+	QPushButton* button_insert_eject;
+	QLabel*		 label_romfilename;
+	cstr		 old_romfilepath; // 2nd
 
 public:
-	ZxIf2Insp( QWidget*, MachineController*, volatile IsaObject* );
+	ZxIf2Insp(QWidget*, MachineController*, volatile IsaObject*);
 
-	void	insertRom(cstr filepath);
+	void insertRom(cstr filepath);
 
 protected:
-	void	fillContextMenu(QMenu* menu) override;
-	void	updateWidgets() override;
+	void fillContextMenu(QMenu* menu) override;
+	void updateWidgets() override;
 
 private:
-	void    insert_or_eject_rom();
+	void insert_or_eject_rom();
 };
-
-

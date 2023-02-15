@@ -3,9 +3,9 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "kio/kio.h"
 #include <QFont>
 #include <QLineEdit>
-#include "kio/kio.h"
 
 
 /*	Unterschiede zu QLineEdit:
@@ -32,17 +32,13 @@ class MyLineEdit : public QLineEdit
 	QString oldtext;
 
 public:
-	MyLineEdit( QString, QWidget* parent=nullptr );
+	MyLineEdit(QString, QWidget* parent = nullptr);
 
-	void	setText		(QString);
-	QString	oldText		()				{ return oldtext; }
+	void	setText(QString);
+	QString oldText() { return oldtext; }
 
 protected:
-	void focusInEvent	(QFocusEvent*) override;
-	void focusOutEvent	(QFocusEvent*) override;
-	bool event			(QEvent*) override;
+	void focusInEvent(QFocusEvent*) override;
+	void focusOutEvent(QFocusEvent*) override;
+	bool event(QEvent*) override;
 };
-
-
-
-

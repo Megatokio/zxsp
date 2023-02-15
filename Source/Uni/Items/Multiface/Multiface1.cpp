@@ -3,10 +3,10 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Multiface1.h"
-#include "Memory.h"
-#include "Machine.h"
 #include "Items/Item.h"
 #include "Items/Joy/KempstonJoy.h"
+#include "Machine.h"
+#include "Memory.h"
 #include "Settings.h"
 
 
@@ -90,28 +90,21 @@ Deduced from from Circuit:
 */
 
 
-static cstr o_addr = "----.----.-001.--1-";		//	read Kempston Joystick, page ram+rom if bit7=1
-static cstr i_addr = "----.----.-001.--1-";		//	nmi-taster wieder scharf schalten
+static cstr o_addr = "----.----.-001.--1-"; //	read Kempston Joystick, page ram+rom if bit7=1
+static cstr i_addr = "----.----.-001.--1-"; //	nmi-taster wieder scharf schalten
 
 
-
-Multiface1::Multiface1(Machine* m)
-:
-	Multiface(m,isa_Multiface1,"Roms/mf1.rom",o_addr,i_addr),
-	joystick(nullptr),
-	overlay(nullptr),
-	joystick_enabled(settings.get_bool(key_multiface1_enable_joystick,yes))
+Multiface1::Multiface1(Machine* m) :
+	Multiface(m, isa_Multiface1, "Roms/mf1.rom", o_addr, i_addr), joystick(nullptr), overlay(nullptr),
+	joystick_enabled(settings.get_bool(key_multiface1_enable_joystick, yes))
 {
 	insertJoystick(usb_joystick0);
 }
 
-Multiface1::~Multiface1()
-{
-	machine->removeOverlay(overlay);
-}
+Multiface1::~Multiface1() { machine->removeOverlay(overlay); }
 
 
-void Multiface1::powerOn( /*t=0*/ int32 cc )
+void Multiface1::powerOn(/*t=0*/ int32 cc)
 {
 	Multiface::powerOn(cc);
 	machine->rom[0x0066] |= cpu_patch;
@@ -119,37 +112,47 @@ void Multiface1::powerOn( /*t=0*/ int32 cc )
 }
 
 
-//void Multiface1::reset( Time t, int32 cc )
+// void Multiface1::reset( Time t, int32 cc )
 //{
 //	Multiface::reset(t,cc);
-//}
+// }
 
 
 /*	Input at registered address: 0x1F (only 4 bits decoded)
 	read Kempston Joystick
 	page ram+rom if bit7=1
 */
-void Multiface1::input( Time, int32, uint16 addr, uint8& byte, uint8& mask )
+void Multiface1::input(Time, int32, uint16 addr, uint8& byte, uint8& mask)
 {
 	assert((addr & 0x72) == 0x12);
 
 	// read joystick: %000FUDLR active high
 	// Jumper wirkt laut Schaltplan nur auf Bit 6 und 7!
 	// Laut MF1 Instructions aber auf den ganzen Port. => Schaltplan Fehler?
-	uint8 js_byte = machine==front_machine ? joystick->getState(yes) : 0x00;
-	if(joystick_enabled) { mask  = 0xff; byte  = js_byte; }
-	//else				 { mask |= 0x3f; byte &= js_byte | 0xC0; }		wir glauben mal dem Manual
+	uint8 js_byte = machine == front_machine ? joystick->getState(yes) : 0x00;
+	if (joystick_enabled)
+	{
+		mask = 0xff;
+		byte = js_byte;
+	}
+	// else				 { mask |= 0x3f; byte &= js_byte | 0xC0; }		wir glauben mal dem Manual
 
 	// page memory in/out:
-	if(addr&0x80) { if(!paged_in) page_in(); }
-	else		  { if(paged_in) page_out(); }
+	if (addr & 0x80)
+	{
+		if (!paged_in) page_in();
+	}
+	else
+	{
+		if (paged_in) page_out();
+	}
 }
 
 
 /*	Output at registered address:
 	nmi-taster wieder scharf schalten
 */
-void Multiface1::output( Time, int32, uint16 addr, uint8 )
+void Multiface1::output(Time, int32, uint16 addr, uint8)
 {
 	assert((addr & 0x72) == 0x12);
 	nmi_pending = no;
@@ -161,64 +164,39 @@ void Multiface1::output( Time, int32, uint16 addr, uint8 )
 	rearside ROMCS is ignored by the MF1
 	returns new opcode
 */
-uint8 Multiface1::handleRomPatch( uint16 pc, uint8 o )
+uint8 Multiface1::handleRomPatch(uint16 pc, uint8 o)
 {
-	if((pc|1)!=0x0067 || !nmi_pending) return prev()->handleRomPatch(pc,o);		// not me
+	if ((pc | 1) != 0x0067 || !nmi_pending) return prev()->handleRomPatch(pc, o); // not me
 
-	if(!paged_in) page_in();
+	if (!paged_in) page_in();
 	return rom[pc];
 }
 
 
 /*	press the red button
-*/
+ */
 void Multiface1::triggerNmi()
 {
-	if(nmi_pending) return;
+	if (nmi_pending) return;
 	nmi_pending = yes;
 	machine->cpu->triggerNmi();
 }
 
 
-void Multiface1::saveToFile ( FD& ) const noexcept(false) /*file_error,bad_alloc*/
+void Multiface1::saveToFile(FD&) const noexcept(false) /*file_error,bad_alloc*/ { TODO(); }
+
+void Multiface1::loadFromFile(FD&) noexcept(false) /*file_error,bad_alloc*/ { TODO(); }
+
+
+void Multiface1::insertJoystick(int id) volatile
 {
-	TODO();
-}
+	if (joystick == joysticks[id]) return;
 
-void Multiface1::loadFromFile( FD& ) noexcept(false) /*file_error,bad_alloc*/
-{
-	TODO();
-}
-
-
-
-void Multiface1::insertJoystick( int id ) volatile
-{
-	if(joystick == joysticks[id]) return;
-
-	if(overlay) { machine->removeOverlay(overlay); overlay=nullptr; }
+	if (overlay)
+	{
+		machine->removeOverlay(overlay);
+		overlay = nullptr;
+	}
 	joystick = joysticks[id];
-	if(id!=no_joystick) overlay = machine->addOverlay(joystick,"K",Overlay::TopRight);
+	if (id != no_joystick) overlay = machine->addOverlay(joystick, "K", Overlay::TopRight);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

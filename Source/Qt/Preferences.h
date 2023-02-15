@@ -3,10 +3,10 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include <QWidget>
-#include <QRadioButton>
-#include "kio/kio.h"
 #include "ZxInfo.h"
+#include "kio/kio.h"
+#include <QRadioButton>
+#include <QWidget>
 
 
 class Preferences : public QWidget
@@ -36,17 +36,3 @@ private:
 	void setSnapshotKeyboardMode(int);
 	void setCheckForUpdate(bool);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-

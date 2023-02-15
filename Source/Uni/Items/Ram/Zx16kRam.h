@@ -16,44 +16,26 @@ public:
 	virtual ~Zx16kRam();
 
 protected:
-	Zx16kRam(Machine*,isa_id);
+	Zx16kRam(Machine*, isa_id);
 };
 
 
 class Memotech16kRam : public Zx16kRam
 {
 public:
-	explicit Memotech16kRam(Machine* m)		:Zx16kRam(m,isa_Memotech16kRam){}
+	explicit Memotech16kRam(Machine* m) : Zx16kRam(m, isa_Memotech16kRam) {}
 };
 
 
-class Stonechip16kRam : public Zx16kRam		// TODO: konnte auf 32k erweitert werden.
+class Stonechip16kRam : public Zx16kRam // TODO: konnte auf 32k erweitert werden.
 {
 public:
-	explicit Stonechip16kRam(Machine* m)	:Zx16kRam(m,isa_Stonechip16kRam){}
+	explicit Stonechip16kRam(Machine* m) : Zx16kRam(m, isa_Stonechip16kRam) {}
 };
 
 
-class Ts1016Ram : public Zx16kRam			// Timex Sinclair
+class Ts1016Ram : public Zx16kRam // Timex Sinclair
 {
 public:
-	explicit Ts1016Ram(Machine* m)			:Zx16kRam(m,isa_Ts1016Ram){}
+	explicit Ts1016Ram(Machine* m) : Zx16kRam(m, isa_Ts1016Ram) {}
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

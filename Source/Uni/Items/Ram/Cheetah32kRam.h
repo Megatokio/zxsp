@@ -12,5 +12,3 @@ public:
 	explicit Cheetah32kRam(Machine*);
 	virtual ~Cheetah32kRam();
 };
-
-

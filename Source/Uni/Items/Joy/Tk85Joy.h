@@ -14,6 +14,3 @@ public:
 	// Item interface:
 	void input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
 };
-
-
-

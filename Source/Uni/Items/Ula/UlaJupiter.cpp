@@ -3,12 +3,12 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "UlaJupiter.h"
-#include "Machine.h"
-#include "Z80/Z80.h"
-#include "Qt/Screen/ScreenMono.h"
 #include "Dsp.h"
-#include "ZxInfo.h"
+#include "Machine.h"
+#include "Qt/Screen/ScreenMono.h"
 #include "TapeRecorder.h"
+#include "Z80/Z80.h"
+#include "ZxInfo.h"
 
 
 /*	io adress and bits and mic_out and beeper:
@@ -124,18 +124,17 @@
 ; to read back the information from either address.
 */
 
-#define o_addr		"----.----.----.---0"		// übliche Adresse: $FE
-#define	MIC_OUT_BIT	3
-#define	MIC_OUT_MASK (1<<3)
+#define o_addr		 "----.----.----.---0" // übliche Adresse: $FE
+#define MIC_OUT_BIT	 3
+#define MIC_OUT_MASK (1 << 3)
 // bits 0-4: 5 keys from keyboard (low=pressed), row selected by A8..A15
 // bits 6+7: floating
 
-#define i_addr		"----.----.----.---0"		// übliche Adresse: $FE
+#define i_addr		"----.----.----.---0" // übliche Adresse: $FE
 #define EAR_IN_BIT	5
-#define EAR_IN_MASK	(1<<5)
+#define EAR_IN_MASK (1 << 5)
 // read port: switch off spkr
 // write port: switch on spkr
-
 
 
 UlaJupiter::~UlaJupiter()
@@ -145,19 +144,17 @@ UlaJupiter::~UlaJupiter()
 }
 
 UlaJupiter::UlaJupiter(Machine* m, uint fps) :
-	Ula(m,isa_UlaJupiter,o_addr, i_addr),
-	frame_data(nullptr),
-	frame_data2(nullptr)
+	Ula(m, isa_UlaJupiter, o_addr, i_addr), frame_data(nullptr), frame_data2(nullptr)
 {
-	audio_mode = mixed_audio;		// or: read from prefs?
-	border_color = 0x00;			// black
+	audio_mode	 = mixed_audio; // or: read from prefs?
+	border_color = 0x00;		// black
 
-	const int frame_data_alloc = (max_lines_per_frame+1) * frame_w;
+	const int frame_data_alloc = (max_lines_per_frame + 1) * frame_w;
 
-	frame_data  = new uint8[frame_data_alloc];
+	frame_data	= new uint8[frame_data_alloc];
 	frame_data2 = new uint8[frame_data_alloc];
 
-	set60Hz(fps==60);
+	set60Hz(fps == 60);
 }
 
 void UlaJupiter::set60Hz(bool is_60hz)
@@ -168,11 +165,11 @@ void UlaJupiter::set60Hz(bool is_60hz)
 	//	ZEICHEN:	32   +  8  +  4   + 8
 
 	lines_before_screen = is_60hz ? 32 : 56;
-	lines_in_screen  	= 192;
+	lines_in_screen		= 192;
 	lines_after_screen	= is_60hz ? 40 : 64;
 	lines_per_frame		= lines_before_screen + lines_in_screen + lines_after_screen;
 	cc_per_line			= int(info->cpu_cycles_per_line);
-	lines_per_frame = lines_before_screen + lines_in_screen + lines_after_screen;
+	lines_per_frame		= lines_before_screen + lines_in_screen + lines_after_screen;
 
 	assert(cc_per_line == cc_per_byte * frame_w);
 	assert(lines_per_frame <= max_lines_per_frame);
@@ -187,13 +184,13 @@ void UlaJupiter::powerOn(int32 cc)
 	assert(screen->isA(isa_ScreenMono));
 }
 
-void UlaJupiter::reset ( Time t, int32 cc )
+void UlaJupiter::reset(Time t, int32 cc)
 {
 	xlogIn("UlaJupiter::reset");
-	Ula::reset(t,cc);
+	Ula::reset(t, cc);
 }
 
-int32 UlaJupiter::updateScreenUpToCycle ( int32 cc )
+int32 UlaJupiter::updateScreenUpToCycle(int32 cc)
 {
 	/*	currently cycle-precise vram access is not implemented
 		and updateScreenUpToCycle() and markVideoRam() are nops.
@@ -211,38 +208,38 @@ void UlaJupiter::markVideoRam()
 	return;
 }
 
-int32 UlaJupiter::doFrameFlyback( int32 /*cc*/ )
+int32 UlaJupiter::doFrameFlyback(int32 /*cc*/)
 {
-	CoreByte* vram = machine->ram.getData();	// videoram = 1st 1K page (768 bytes = 24*32 char used); bit 7: inverse
-	CoreByte* cram = vram+1024;					// charram  = 2nd 1K page (1K = 128 char * 8 bytes/char )
+	CoreByte* vram = machine->ram.getData(); // videoram = 1st 1K page (768 bytes = 24*32 char used); bit 7: inverse
+	CoreByte* cram = vram + 1024;			 // charram  = 2nd 1K page (1K = 128 char * 8 bytes/char )
 
 	int lines_per_frame = min(this->lines_per_frame, max_lines_per_frame);
 
 	memset(frame_data, 0x00, uint(frame_w * lines_per_frame));
 
-	uint8* z = frame_data + screen_x0 + lines_before_screen * frame_w;	// first byte of screen$ data
+	uint8* z = frame_data + screen_x0 + lines_before_screen * frame_w; // first byte of screen$ data
 
-	for( int charrow=0; charrow<24; charrow++ )
+	for (int charrow = 0; charrow < 24; charrow++)
 	{
-		for( int y = 0; y<8; y++ )
+		for (int y = 0; y < 8; y++)
 		{
-			for( int x=0; x<32; x++ )
+			for (int x = 0; x < 32; x++)
 			{
-				CoreByte c = vram[charrow*32+x];	// current character  -  note: data byte is in low byte of uint16
-				char   b = cram[(c&0x007F)*8+y];	// current pixel octet from character glyph
-				*z++ = (char(c)>>7) ^ b;
+				CoreByte c = vram[charrow * 32 + x]; // current character  -  note: data byte is in low byte of uint16
+				char	 b = cram[(c & 0x007F) * 8 + y]; // current pixel octet from character glyph
+				*z++	   = (char(c) >> 7) ^ b;
 			}
 			z += frame_w - 32;
 		}
 	}
 
-	machine->cpu->setInterrupt( 0, 8 * cc_per_line );
+	machine->cpu->setInterrupt(0, 8 * cc_per_line);
 
-	bool new_buffer_in_use = ScreenMonoPtr(screen)->ffb_or_vbi(frame_data,frame_w*8,lines_per_frame,screen_w*8,
-												lines_in_screen,screen_x0*8,lines_before_screen,0);
-	if(new_buffer_in_use) std::swap(frame_data,frame_data2);
+	bool new_buffer_in_use = ScreenMonoPtr(screen)->ffb_or_vbi(
+		frame_data, frame_w * 8, lines_per_frame, screen_w * 8, lines_in_screen, screen_x0 * 8, lines_before_screen, 0);
+	if (new_buffer_in_use) std::swap(frame_data, frame_data2);
 
-	return cpuCycleOfFrameFlyback();			// cc_per_frame for last frame
+	return cpuCycleOfFrameFlyback(); // cc_per_frame for last frame
 }
 
 void UlaJupiter::drawVideoBeamIndicator(int32 /*cc*/)
@@ -250,121 +247,95 @@ void UlaJupiter::drawVideoBeamIndicator(int32 /*cc*/)
 	//	TODO();
 }
 
-void UlaJupiter::output( Time now, int32 cc, uint16 addr, uint8 byte )
+void UlaJupiter::output(Time now, int32 cc, uint16 addr, uint8 byte)
 {
-	assert(~addr&0x0001);		// not my address
+	assert(~addr & 0x0001); // not my address
 
-// out($FE) switches on the beeper current
-// bit 3 sets MIC_OUT state
+	// out($FE) switches on the beeper current
+	// bit 3 sets MIC_OUT state
 
-// TAPE:
-	if(machine->taperecorder->isRecording())
+	// TAPE:
+	if (machine->taperecorder->isRecording()) { machine->taperecorder->output(cc, byte & MIC_OUT_MASK); }
+
+	// BEEPER:
+	// switch on beeper current:
+	//		mixed_audio:	toggle audio-out
+	//		speaker_only:	set audio-out to ON
+	//		mic_out_only:	set audio-out acc. to D3
+	Sample new_sample = audio_mode == mixed_audio							? beeper_volume - beeper_current_sample :
+						audio_mode == speaker_only || (byte & MIC_OUT_MASK) ? beeper_current_sample :
+																			  0.0;
+	if (new_sample != beeper_current_sample)
 	{
-		machine->taperecorder->output(cc,byte&MIC_OUT_MASK);
-	}
-
-// BEEPER:
-// switch on beeper current:
-//		mixed_audio:	toggle audio-out
-//		speaker_only:	set audio-out to ON
-//		mic_out_only:	set audio-out acc. to D3
-	Sample new_sample = audio_mode==mixed_audio ? beeper_volume-beeper_current_sample
-					  : audio_mode==speaker_only || (byte&MIC_OUT_MASK) ? beeper_current_sample : 0.0;
-	if( new_sample != beeper_current_sample )
-	{
-		Dsp::outputSamples( beeper_current_sample, beeper_last_sample_time, now );
+		Dsp::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
 		beeper_last_sample_time = now;
-		beeper_current_sample = new_sample;
+		beeper_current_sample	= new_sample;
 	}
 
 	ula_out_byte = byte;
 }
 
-void UlaJupiter::input( Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask )
+void UlaJupiter::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 {
-	assert(~addr&0x0001);		// not my address
+	assert(~addr & 0x0001); // not my address
 
-// in($FE) switches off the beeper current
-// bits 0-4 come from the keyboard
-// bit  5	is the signal from the ear socket
-// bits 6+7 are (probably) always 1
+	// in($FE) switches off the beeper current
+	// bits 0-4 come from the keyboard
+	// bit  5	is the signal from the ear socket
+	// bits 6+7 are (probably) always 1
 	mask = 0xff; // to be verified
 
-	byte &= readKeyboard(addr);	// Ähh.. TODO: wird auch high getrieben?
+	byte &= readKeyboard(addr); // Ähh.. TODO: wird auch high getrieben?
 
-// BEEPER:
-// switch off beeper current:
-//		mic_out_only:	in(FE) does not affect audio-out
-//		speaker_only:	set audio-out to OFF
-//		mixed_audio:	set audio-out to OFF
-	if( beeper_current_sample!=0.0 && audio_mode != mic_out_only )
+	// BEEPER:
+	// switch off beeper current:
+	//		mic_out_only:	in(FE) does not affect audio-out
+	//		speaker_only:	set audio-out to OFF
+	//		mixed_audio:	set audio-out to OFF
+	if (beeper_current_sample != 0.0 && audio_mode != mic_out_only)
 	{
-		Dsp::outputSamples( beeper_current_sample, beeper_last_sample_time, now );
+		Dsp::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
 		beeper_last_sample_time = now;
-		beeper_current_sample = 0.0;
+		beeper_current_sample	= 0.0;
 	}
 
-// insert bit from mic socket
-// signal from EAR input is read into bit 5.
+	// insert bit from mic socket
+	// signal from EAR input is read into bit 5.
 
-	if(machine->taperecorder->isPlaying())
+	if (machine->taperecorder->isPlaying())
 	{
-		if(machine->taperecorder->input(cc)) byte |= EAR_IN_MASK; else byte &= ~EAR_IN_MASK;
+		if (machine->taperecorder->input(cc))
+			byte |= EAR_IN_MASK;
+		else
+			byte &= ~EAR_IN_MASK;
 	}
-	else if(machine->audio_in_enabled)
+	else if (machine->audio_in_enabled)
 	{
-		Sample const threshold = 0.01;		// to be verified
-		uint32 a = uint32(now*samples_per_second);
-		if( a>=DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING )
+		const Sample threshold = 0.01; // to be verified
+		uint32		 a		   = uint32(now * samples_per_second);
+		if (a >= DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING)
 		{
-			assert(int32(a)>=0);
-			showAlert( "Sample input beyond dsp buffer: +%i\n", int(a-DSP_SAMPLES_PER_BUFFER) );
-			if(0.0<threshold) byte &= ~EAR_IN_MASK;
+			assert(int32(a) >= 0);
+			showAlert("Sample input beyond dsp buffer: +%i\n", int(a - DSP_SAMPLES_PER_BUFFER));
+			if (0.0 < threshold) byte &= ~EAR_IN_MASK;
 		}
 		else
 		{
-			if(Dsp::audio_in_buffer[a]<threshold) byte &= ~EAR_IN_MASK;
+			if (Dsp::audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
 		}
 	}
-	else byte &= ~EAR_IN_MASK;
+	else
+		byte &= ~EAR_IN_MASK;
 }
 
-void UlaJupiter::saveToFile( FD& fd ) const throws
+void UlaJupiter::saveToFile(FD& fd) const throws
 {
 	Ula::saveToFile(fd);
 	fd.write(audio_mode);
 }
 
-void UlaJupiter::loadFromFile( FD& fd ) throws
+void UlaJupiter::loadFromFile(FD& fd) throws
 {
 	Ula::loadFromFile(fd);
 	fd.read(audio_mode);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

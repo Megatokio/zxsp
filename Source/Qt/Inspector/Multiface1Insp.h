@@ -12,21 +12,21 @@ class QPushButton;
 
 class Multiface1Insp : public MultifaceInsp
 {
-	QCheckBox*		chkbox_joystick_enabled;
-	QLineEdit*		lineedit_display; uint8 lineedit_state;
-	QComboBox*		joystick_selector;
-	QPushButton*	button_scan_usb;
+	QCheckBox*	 chkbox_joystick_enabled;
+	QLineEdit*	 lineedit_display;
+	uint8		 lineedit_state;
+	QComboBox*	 joystick_selector;
+	QPushButton* button_scan_usb;
 
 public:
-	Multiface1Insp( QWidget*, MachineController*, volatile IsaObject* );
+	Multiface1Insp(QWidget*, MachineController*, volatile IsaObject*);
 
 protected:
-	void			updateWidgets() override;
+	void updateWidgets() override;
 
 private:
-	void			update_joystick_selector();
-	void			find_usb_joysticks();
-	void			joystick_selected();
-	void			enable_joystick(bool);
+	void update_joystick_selector();
+	void find_usb_joysticks();
+	void joystick_selected();
+	void enable_joystick(bool);
 };
-

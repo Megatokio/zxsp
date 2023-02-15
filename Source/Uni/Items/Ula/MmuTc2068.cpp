@@ -2,11 +2,11 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "unix/FD.h"
 #include "MmuTc2068.h"
-#include "Z80/Z80.h"
 #include "Machine.h"
 #include "Ula/UlaZxsp.h"
+#include "Z80/Z80.h"
+#include "unix/FD.h"
 
 
 /*
@@ -49,14 +49,14 @@ port_ff:
 	port_ff.bit7: determines which bank to use: 0=DOCK, 1=EX-ROM.			-> ULA calls selectExrom()
 
 
-! Obwohl aus mehreren Quellen hervorzugehen scheint, dass Port F4 im TC2048 vorhanden ist (und nur auf nicht existente Bänke umschaltet)
-! scheint er nicht vorhanden zu sein: "Basic64-Demo.tzx" funktioniert nur ohne. Es schaltet mutwillig die ROM-Bänke aus und stürzt dann ab.
-! Evtl. lässt sich das Register schreiben und wieder lesen - to be tested.
+! Obwohl aus mehreren Quellen hervorzugehen scheint, dass Port F4 im TC2048 vorhanden ist (und nur auf nicht existente
+Bänke umschaltet) ! scheint er nicht vorhanden zu sein: "Basic64-Demo.tzx" funktioniert nur ohne. Es schaltet mutwillig
+die ROM-Bänke aus und stürzt dann ab. ! Evtl. lässt sich das Register schreiben und wieder lesen - to be tested.
 
 Port_f4 determines which banks are to be paged in with each bit referring to the relevant bank EX-ROM or DOCK.
-The HOME bank is the normal Spectrum memory area. The top 32K is uncontended but the 16K screen area below that is contended.
-EX-ROM and DOCK banks are overlaid on the HOME bank, but paging over the screen area does not change the video ram used by the CRTC.
-This does mean it is possible to set up a screen and page it out.
+The HOME bank is the normal Spectrum memory area. The top 32K is uncontended but the 16K screen area below that is
+contended. EX-ROM and DOCK banks are overlaid on the HOME bank, but paging over the screen area does not change the
+video ram used by the CRTC. This does mean it is possible to set up a screen and page it out.
 
 On a TC2048, BASIC is contained in the 16K ROM area and EX-ROM and DOCK banks are not normally available,
 	while on a TS2068 or a TC2068 part of the BASIC is stored in an 8K ROM in DOCK bank 0
@@ -149,8 +149,7 @@ bank controller registers:
 // to be determined
 //
 #define cc_irpt_on	0
-#define cc_irpt_off	64
-
+#define cc_irpt_off 64
 
 
 // ----------------------------------------------------------
@@ -158,50 +157,42 @@ bank controller registers:
 // ----------------------------------------------------------
 
 
-MmuTc2068::MmuTc2068(Machine*m, isa_id id)
-:
-	MmuTc2048(m, id, o_addr, i_addr),
-	cartridge(nullptr),
-	exrom_selected(no)
+MmuTc2068::MmuTc2068(Machine* m, isa_id id) : MmuTc2048(m, id, o_addr, i_addr), cartridge(nullptr), exrom_selected(no)
 {
-	const_cast<isa_id&>(grp_id) = isa_Fdc;		// => Inspector mit cmd-D und Toolwindow-Position wie +3 FDC
+	const_cast<isa_id&>(grp_id) = isa_Fdc; // => Inspector mit cmd-D und Toolwindow-Position wie +3 FDC
 }
 
 
-MmuTc2068::~MmuTc2068()
-{
-	delete cartridge;
-}
+MmuTc2068::~MmuTc2068() { delete cartridge; }
 
 
-void MmuTc2068::powerOn( int32 cc )
+void MmuTc2068::powerOn(int32 cc)
 {
 	MmuTc2048::powerOn(cc);
 
-	assert(rom.count()==0x6000);		// HOME ROM + EXROM
-	assert(ram.count()==0xC000);
-	assert(ula&&cpu);
+	assert(rom.count() == 0x6000); // HOME ROM + EXROM
+	assert(ram.count() == 0xC000);
+	assert(ula && cpu);
 	assert(ula->isA(isa_UlaTc2048));
 
 	exrom_selected = no;
-	hold = 0;		// ?
-	bna  = 0;		// ?
-	port_FD = 0;	// ?
-	set_port_f4(0,0xff);
+	hold		   = 0; // ?
+	bna			   = 0; // ?
+	port_FD		   = 0; // ?
+	set_port_f4(0, 0xff);
 }
 
 
-void MmuTc2068::reset( Time t, int32 cc )
+void MmuTc2068::reset(Time t, int32 cc)
 {
-	MmuTc2048::reset(t,cc);
+	MmuTc2048::reset(t, cc);
 
 	exrom_selected = no;
-	hold = 0;		// ?
-	bna  = 0;		// ?
-	port_FD = 0;	// ?
-	set_port_f4(0,0xff);
+	hold		   = 0; // ?
+	bna			   = 0; // ?
+	port_FD		   = 0; // ?
+	set_port_f4(0, 0xff);
 }
-
 
 
 // ----------------------------------------------------------
@@ -209,29 +200,29 @@ void MmuTc2068::reset( Time t, int32 cc )
 // ----------------------------------------------------------
 
 
-void MmuTc2068::input( Time, int32 /*cc*/, uint16 addr, uint8& byte, uint8& mask )
+void MmuTc2068::input(Time, int32 /*cc*/, uint16 addr, uint8& byte, uint8& mask)
 {
-	if(addr&0x08)	// port_FC = BDATPT
+	if (addr & 0x08) // port_FC = BDATPT
 	{
-		switch(port_FD&3)	// BCMDPT
+		switch (port_FD & 3) // BCMDPT
 		{
-		case 0:		// read bank status
-			break;	// bit0: no irpt pending, bit2: no memory present (note: there's even a pullup resistor at D2!)
-		case 1:		// --
-			break;	// --
-		case 2:		// read HS low nibble
-			break;	// there's no bank attached => floating bus?
-		case 3:		// read HS high nibble
-			break;	// there's no bank attached => floating bus?
+		case 0:	   // read bank status
+			break; // bit0: no irpt pending, bit2: no memory present (note: there's even a pullup resistor at D2!)
+		case 1:	   // --
+			break; // --
+		case 2:	   // read HS low nibble
+			break; // there's no bank attached => floating bus?
+		case 3:	   // read HS high nibble
+			break; // there's no bank attached => floating bus?
 		}
 		// mask |= 0x0F;	no bank responding => no bits driven
 		xlogline("TC2068: input(FC) = 0xFF");
 	}
-	else			// port_F4
+	else // port_F4
 	{
-		xlogline("TC2068: input(F4) = 0x%02X",uint(port_F4));
+		xlogline("TC2068: input(F4) = 0x%02X", uint(port_F4));
 		byte &= port_F4;
-		mask  = 0xff;
+		mask = 0xff;
 	}
 }
 
@@ -239,83 +230,71 @@ void MmuTc2068::input( Time, int32 /*cc*/, uint16 addr, uint8& byte, uint8& mask
 /*	Beschreibe Register port_F4
 	schaltet zwischen HOME und EXROM/DOCK um
 */
-void MmuTc2068::output( Time, int32, uint16 addr, uint8 byte )
+void MmuTc2068::output(Time, int32, uint16 addr, uint8 byte)
 {
 // out:	1111.0100	F4
 //		1111.1100	FC
 //		1111.1101	FD
 #define o_addr "----.----.1111.-10-"
 
-	switch(addr&0x0F)
+	switch (addr & 0x0F)
 	{
-	case 0x04:	// 0xF4
-	  {
+	case 0x04: // 0xF4
+	{
 		uint8 toggled = byte ^ port_F4;
-		if(toggled) set_port_f4(byte, toggled);
+		if (toggled) set_port_f4(byte, toggled);
 		break;
-	  }
-	case 0x05:	// --
+	}
+	case 0x05: // --
 		break;
-	case 0x0d:	// 0xFD = BCMDPT = bank ctl. register address
+	case 0x0d: // 0xFD = BCMDPT = bank ctl. register address
 		port_FD = byte;
 		break;
-	case 0x0c:	// 0xFC	= BDATPT = bank ctl. data
-	  {
-		switch(port_FD&3)
+	case 0x0c: // 0xFC	= BDATPT = bank ctl. data
+	{
+		switch (port_FD & 3)
 		{
-		case 0:	// write cmd type 1
-			switch(byte&0x0f)
+		case 0: // write cmd type 1
+			switch (byte & 0x0f)
 			{
-			case  7:
-				xlogline("TC2068: reset interrupt flag");
-				break;
-			case 11:
-				xlogline("TC2068: initialization (of bank) done. move to next bank in daisy chain");
-				break;
-			case 13:
-				xlogline("TC2068: start interrupt REG sequence");
-				break;
-			case 14:
-				xlogline("TC2068: reset controller - prepare to initialize");
-				break;
-			default:
-				xlogline("TC2068: ill. type 1 command: 0x$02X", byte&0x0f);
-				break;
+			case 7: xlogline("TC2068: reset interrupt flag"); break;
+			case 11: xlogline("TC2068: initialization (of bank) done. move to next bank in daisy chain"); break;
+			case 13: xlogline("TC2068: start interrupt REG sequence"); break;
+			case 14: xlogline("TC2068: reset controller - prepare to initialize"); break;
+			default: xlogline("TC2068: ill. type 1 command: 0x$02X", byte & 0x0f); break;
 			}
 			break;
-		case 1:	// write cmd type 2
-			switch(byte&0x0f)
+		case 1: // write cmd type 2
+			switch (byte & 0x0f)
 			{
 			case 12:
-				xlogline("TC2068: copy HOLD to HS (bank's page enable register): 0x$02X",uint(hold));
+				xlogline("TC2068: copy HOLD to HS (bank's page enable register): 0x$02X", uint(hold));
 				// hs = hold;	no banks exist => no bank selected => no bank stores this value
 				break;
 			case 13:
-				xlogline("TC2068: copy HOLD to BNA: 0x$02X",uint(hold));
+				xlogline("TC2068: copy HOLD to BNA: 0x$02X", uint(hold));
 				bna = hold;
 				break;
 			case 14:
-				xlogline("TC2068: copy HOLD to ABN (bank's assigned bank number): 0x$02X",uint(hold));
+				xlogline("TC2068: copy HOLD to ABN (bank's assigned bank number): 0x$02X", uint(hold));
 				// abn = hold;	no banks exist => no bank selected => no bank stores this value
 				break;
-			default:
-				xlogline("TC2068: ill. type 2 command: 0x$02X", byte&0x0f);
-				break;
+			default: xlogline("TC2068: ill. type 2 command: 0x$02X", byte & 0x0f); break;
 			}
 			break;
-		case 2:	// write HOLD low nibble
+		case 2: // write HOLD low nibble
 			xlogline("TC2068: write HOLD low nibble");
 			hold &= 0xf0;
-			hold |= byte&0x0f;
-			xlogline("TC2068: write HOLD low nibble (HOLD=0x$02X)",uint(hold));
+			hold |= byte & 0x0f;
+			xlogline("TC2068: write HOLD low nibble (HOLD=0x$02X)", uint(hold));
 			break;
-		case 3:	// write HOLD high nibble
+		case 3: // write HOLD high nibble
 			hold &= 0x0f;
-			hold |= byte<<4;
-			xlogline("TC2068: write HOLD high nibble (HOLD=0x$02X)",uint(hold));
+			hold |= byte << 4;
+			xlogline("TC2068: write HOLD high nibble (HOLD=0x$02X)", uint(hold));
 			break;
 		}
-	  }
+	}
 	}
 }
 
@@ -328,12 +307,12 @@ void MmuTc2068::output( Time, int32, uint16 addr, uint8 byte )
 */
 void MmuTc2068::selectEXROM(bool f)
 {
-	if(exrom_selected == f) return;				// keine Änderung
+	if (exrom_selected == f) return; // keine Änderung
 
-	xlogline("TC2068: select EXROM: %s",f?"on":"off");
+	xlogline("TC2068: select EXROM: %s", f ? "on" : "off");
 
 	exrom_selected = f;
-	if(port_F4) set_port_f4(port_F4, port_F4);
+	if (port_F4) set_port_f4(port_F4, port_F4);
 }
 
 
@@ -342,7 +321,8 @@ void MmuTc2068::selectEXROM(bool f)
 */
 void MmuTc2068::selectBusExpansionUnit(bool f)
 {
-	xlogline("MmuTc2068::selectBusExpansionUnit: %s",f?"disabled":"enabled"); (void)f;
+	xlogline("MmuTc2068::selectBusExpansionUnit: %s", f ? "disabled" : "enabled");
+	(void)f;
 }
 
 
@@ -352,21 +332,23 @@ void MmuTc2068::selectBusExpansionUnit(bool f)
 
 	In general items should not actively unmap their memory as result of incoming ROMCS.
 	Instead they should trust that the sender will map it's rom into the Z80's memory space.
-	While their backside ROMCS is active, items must not page in their memory, just store values written to their registers only.
+	While their backside ROMCS is active, items must not page in their memory, just store values written to their
+   registers only.
 
 	TODO: es ist unklar, auf welche Adressbereiche ROMCS am TC2048/TC2068 wirkt.
 	Die aktuelle Annahme ist, dass ROMDIS nur auf das interne ROM wirkt.
-	Wg. der Art der Implementierung der HOME Bank (sie wird in machine.rom geladen) wirkt es dadurch auch auf HOME Rom und Ram in einem TCC.
+	Wg. der Art der Implementierung der HOME Bank (sie wird in machine.rom geladen) wirkt es dadurch auch auf HOME Rom
+   und Ram in einem TCC.
 
 	ROM_CS:  1->disable
 */
-void MmuTc2068::romCS( bool f )
+void MmuTc2068::romCS(bool f)
 {
-	if(romdis_in==f) return;
+	if (romdis_in == f) return;
 	romdis_in = f;
-	if(f) return;
+	if (f) return;
 
-	set_port_f4(port_F4,0x03);
+	set_port_f4(port_F4, 0x03);
 }
 
 
@@ -381,74 +363,94 @@ void MmuTc2068::set_port_f4(uint8 f4_neu, uint8 toggled)
 
 	port_F4 = f4_neu;
 
-	if(f4_neu==0)			// nur HOME Banks:
+	if (f4_neu == 0) // nur HOME Banks:
 	{
-		if((toggled&3) && !romdis_in)
+		if ((toggled & 3) && !romdis_in)
 		{
 			cpu->unmapWom(0x0000, 0x4000);
 			cpu->mapRom(0x0000, 0x4000, &rom[0x0000], nullptr, 0);
 		}
-		if(toggled&0x0C) cpu->mapRam(0x4000, 0x4000, &ram[0x0000], ula_zxsp->getWaitmap(), ula_zxsp->getWaitmapSize());
-		if(toggled&0xF0) cpu->mapRam(0x8000, 0x8000, &ram[0x4000], nullptr, 0);
+		if (toggled & 0x0C)
+			cpu->mapRam(0x4000, 0x4000, &ram[0x0000], ula_zxsp->getWaitmap(), ula_zxsp->getWaitmapSize());
+		if (toggled & 0xF0) cpu->mapRam(0x8000, 0x8000, &ram[0x4000], nullptr, 0);
 		return;
 	}
 
-	bool f = exrom_selected;
-	MemoryPtr* xmem = 0;					// x = "extern" = EXROM oder DOCK
-	uint8 xmem_r=0, xmem_w=0, home_w=0;		// home = HOME (im Modul!)
+	bool	   f	  = exrom_selected;
+	MemoryPtr* xmem	  = 0;						   // x = "extern" = EXROM oder DOCK
+	uint8	   xmem_r = 0, xmem_w = 0, home_w = 0; // home = HOME (im Modul!)
 
-	if(cartridge)
+	if (cartridge)
 	{
 		xmem   = f ? &cartridge->exrom[0] : &cartridge->dock[0];
-		xmem_r = f ?  cartridge->exrom_r  :  cartridge->dock_r;
-		xmem_w = f ?  cartridge->exrom_w  :  cartridge->dock_w;
-		home_w =	  cartridge->home_w;
+		xmem_r = f ? cartridge->exrom_r : cartridge->dock_r;
+		xmem_w = f ? cartridge->exrom_w : cartridge->dock_w;
+		home_w = cartridge->home_w;
 	}
 
-	for(uint i = romdis_in?2:0; i<8; i++)	// Schleife über 8 Bänke
+	for (uint i = romdis_in ? 2 : 0; i < 8; i++) // Schleife über 8 Bänke
 	{
-		uint mask = 1 << i;		if(~toggled & mask) continue;
+		uint mask = 1 << i;
+		if (~toggled & mask) continue;
 		uint addr = i << 13;
 
-		cuint8* waitmap = mask&0x0C ? ula_zxsp->getWaitmap() : nullptr;
-		uint    mapsize = mask&0x0C ? ula_zxsp->getWaitmapSize() : 0;
+		cuint8* waitmap = mask & 0x0C ? ula_zxsp->getWaitmap() : nullptr;
+		uint	mapsize = mask & 0x0C ? ula_zxsp->getWaitmapSize() : 0;
 
-		if(f4_neu&mask)		// map in EXROM or DOCK
-		{					// alle Bänke können Rom oder Ram enthalten:
+		if (f4_neu & mask) // map in EXROM or DOCK
+		{				   // alle Bänke können Rom oder Ram enthalten:
 
 			// reading:
-			if(xmem_r&mask)	cpu->mapRom(addr,0x2000,xmem[i].getData(),waitmap,mapsize);	// Rom (or ram) in cartridge
-			else if(f&&i==0)cpu->mapRom(addr,0x2000,&rom[0x4000],waitmap,mapsize);		// EXROM: map internal 8k EXROM		TODO: SMAS guide indicates bank #0 only
-			else			goto h;														// map home bank
-			//else			cpu->unmapRom(addr,0x2000);									// no memory here
+			if (xmem_r & mask)
+				cpu->mapRom(addr, 0x2000, xmem[i].getData(), waitmap, mapsize); // Rom (or ram) in cartridge
+			else if (f && i == 0)
+				cpu->mapRom(
+					addr,
+					0x2000,
+					&rom[0x4000],
+					waitmap,
+					mapsize); // EXROM: map internal 8k EXROM		TODO: SMAS guide indicates bank #0 only
+			else
+				goto h; // map home bank
+			// else			cpu->unmapRom(addr,0x2000);									// no memory here
 
 			// writing:
-			if(xmem_w&mask)	cpu->mapWom(addr,0x2000, xmem[i].getData(), waitmap,mapsize);	// Ram				TODO: evtl. write twice
-			else if(i>=2)	cpu->mapWom(addr,0x2000, &ram[addr-0x4000], waitmap,mapsize);	//					TODO: evtl. don't write
-			else			cpu->unmapWom(addr,0x2000);										// Rom
+			if (xmem_w & mask)
+				cpu->mapWom(
+					addr, 0x2000, xmem[i].getData(), waitmap, mapsize); // Ram				TODO: evtl. write twice
+			else if (i >= 2)
+				cpu->mapWom(
+					addr, 0x2000, &ram[addr - 0x4000], waitmap, mapsize); //					TODO: evtl. don't write
+			else
+				cpu->unmapWom(addr, 0x2000); // Rom
 		}
-		else				// HOME bank
-		{					// in den unteren 16K können Ram und Rom liegen
-							// in den restl. 48K darf nichts liegen: Nicht unterstützt.
-							// Ich habe nur 2 Carts. mit Home-Bank gesehen, und die hatten jeweils nur 16K Rom, Rest leer oder Ram (fehlerhafterweise).
+		else // HOME bank
+		{	 // in den unteren 16K können Ram und Rom liegen
+			 // in den restl. 48K darf nichts liegen: Nicht unterstützt.
+			 // Ich habe nur 2 Carts. mit Home-Bank gesehen, und die hatten jeweils nur 16K Rom, Rest leer oder Ram
+			 // (fehlerhafterweise).
 
-h:			if(i<2)			// internal rom address range
-			{				// Im Cartridge könnte hier Ram sein:
-				cpu->mapRom(addr,0x2000,&rom[addr],nullptr,0);					// immer lesbar: entweder aus dem Cartridge oder aus dem internen Rom
-				if(home_w&mask)	cpu->mapWom(addr,0x2000,&rom[addr],nullptr,0);	// auch schreibbar? (also: Ram im Cartridge)
-				else			cpu->unmapWom(addr,0x2000);					// nicht schreibbar
+		h:
+			if (i < 2) // internal rom address range
+			{		   // Im Cartridge könnte hier Ram sein:
+				cpu->mapRom(
+					addr,
+					0x2000,
+					&rom[addr],
+					nullptr,
+					0); // immer lesbar: entweder aus dem Cartridge oder aus dem internen Rom
+				if (home_w & mask)
+					cpu->mapWom(addr, 0x2000, &rom[addr], nullptr, 0); // auch schreibbar? (also: Ram im Cartridge)
+				else
+					cpu->unmapWom(addr, 0x2000); // nicht schreibbar
 			}
-			else			// internal ram address range
-			{				// immer in/aus dem internen Ram!
-				cpu->mapRam(addr,0x2000, &ram[addr-0x4000],waitmap,mapsize);
+			else // internal ram address range
+			{	 // immer in/aus dem internen Ram!
+				cpu->mapRam(addr, 0x2000, &ram[addr - 0x4000], waitmap, mapsize);
 			}
 		}
 	}
 }
-
-
-
-
 
 
 void MmuTc2068::ejectCartridge()
@@ -466,9 +468,5 @@ void MmuTc2068::insertCartridge(cstr filepath)
 	assert(is_locked());
 
 	ejectCartridge();
-	cartridge = new TccRom(machine,filepath);
+	cartridge = new TccRom(machine, filepath);
 }
-
-
-
-

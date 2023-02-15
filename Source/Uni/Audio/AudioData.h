@@ -6,7 +6,7 @@
 #include "TapeData.h"
 #include "TapeFile.h"
 #include "audio/AudioDecoder.h"
-//#include "Templates/Ptr.h"
+// #include "Templates/Ptr.h"
 #include "Templates/RCPtr.h"
 
 
@@ -36,17 +36,17 @@ note:
 
 class AudioData : public TapeData
 {
-	friend CswBuffer::CswBuffer(AudioData const&, uint32);
+	friend CswBuffer::CswBuffer(const AudioData&, uint32);
 
-	Array<Sample>	float_samples;
-	Array<int16>	int16_samples;
-	bool			stereo;					// in buffers, not neccessarily in file
-	uint32			samples_per_second;		// should be sample rate of original data
+	Array<Sample> float_samples;
+	Array<int16>  int16_samples;
+	bool		  stereo;			  // in buffers, not neccessarily in file
+	uint32		  samples_per_second; // should be sample rate of original data
 
-	RCPtr<AudioDecoder> audio_decoder;	// if any, then audio_data may be empty
-	uint32			adc_start_pos;			// in soundfile, samples (soundfile sample rate)
-	uint32			adc_end_pos;			// in soundfile, samples (soundfile sample rate)
-	uint32			adc_num_samples() const { return adc_end_pos - adc_start_pos; }
+	RCPtr<AudioDecoder> audio_decoder; // if any, then audio_data may be empty
+	uint32				adc_start_pos; // in soundfile, samples (soundfile sample rate)
+	uint32				adc_end_pos;   // in soundfile, samples (soundfile sample rate)
+	uint32				adc_num_samples() const { return adc_end_pos - adc_start_pos; }
 
 public:
 	AudioData();
@@ -56,28 +56,6 @@ public:
 	explicit AudioData(AudioDecoder*, uint32 a, uint32 e);
 	virtual ~AudioData();
 
-	static void	readFile(cstr fpath, TapeFile&) throws;
-	static void	writeFile(cstr fpath, TapeFile&) throws;
+	static void readFile(cstr fpath, TapeFile&) throws;
+	static void writeFile(cstr fpath, TapeFile&) throws;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

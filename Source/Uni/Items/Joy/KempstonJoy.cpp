@@ -6,7 +6,6 @@
 #include "Machine.h"
 
 
-
 /*														kio 2007-04-29
 	kempston:	issue 4, 1989
 
@@ -25,36 +24,22 @@
 //    #define B_KEMPSTON                      0x20    /* ---- ---- --0- ---- */
 
 
-//#define  o_addr	nullptr
-//#define  i_addr	"----.----.000-.----"       // Issue 4
+// #define  o_addr	nullptr
+// #define  i_addr	"----.----.000-.----"       // Issue 4
 
 
-
-KempstonJoy::KempstonJoy ( Machine* m, isa_id id, Internal i, cstr i_addr )
-:	Joy(m,id,i,nullptr,i_addr,"K")
+KempstonJoy::KempstonJoy(Machine* m, isa_id id, Internal i, cstr i_addr) : Joy(m, id, i, nullptr, i_addr, "K")
 {
 	xlogIn("new KempstonJoy");
 }
 
 
-KempstonJoy::~KempstonJoy()
-{
-	xlogIn("~KempstonJoy");
-}
+KempstonJoy::~KempstonJoy() { xlogIn("~KempstonJoy"); }
 
 
-void KempstonJoy::input ( Time/*t*/, int32 /*cc*/, uint16 /*addr*/, uint8& byte, uint8& mask )
+void KempstonJoy::input(Time /*t*/, int32 /*cc*/, uint16 /*addr*/, uint8& byte, uint8& mask)
 {
 	// kempston issue 4 data bits:  %000FUDLR  =>  all bits set:  D0-D4 = 0/1 from js;  D5-D7 = 0
 	mask = 0xff;
-	byte &= machine==front_machine ? joy[0]->getState() : 0x00;
+	byte &= machine == front_machine ? joy[0]->getState() : 0x00;
 }
-
-
-
-
-
-
-
-
-

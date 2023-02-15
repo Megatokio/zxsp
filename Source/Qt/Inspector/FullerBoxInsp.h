@@ -8,7 +8,5 @@
 class FullerBoxInsp : public Inspector
 {
 public:
-	FullerBoxInsp( QWidget*, MachineController*, volatile IsaObject* );
+	FullerBoxInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
-
-

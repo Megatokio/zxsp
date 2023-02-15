@@ -8,22 +8,14 @@
 
 struct IoInfo
 {
-	uint32	cc;
-	uint16	addr;
-	uint8	byte;
-	uint8	mask;
+	uint32 cc;
+	uint16 addr;
+	uint8  byte;
+	uint8  mask;
 
-	IoInfo(){}
-	IoInfo(uint32 cc, uint16 addr, uint8 byte, uint8 mask=0xff) :cc(cc),addr(addr),byte(byte),mask(mask){}
+	IoInfo() {}
+	IoInfo(uint32 cc, uint16 addr, uint8 byte, uint8 mask = 0xff) : cc(cc), addr(addr), byte(byte), mask(mask) {}
 };
 
 
 typedef Array<IoInfo> IoArray;
-
-
-
-
-
-
-
-

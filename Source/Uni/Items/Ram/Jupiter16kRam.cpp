@@ -4,8 +4,8 @@
 
 
 #include "Jupiter16kRam.h"
-#include "Machine.h"
 #include "Items/Ula/Mmu.h"
+#include "Machine.h"
 
 
 /*  Jupiter 16k Ram Memory Extension
@@ -16,12 +16,10 @@
 //  c'tor
 //  note: Jupiter Forth will not use full ram unless reset
 //
-Jupiter16kRam::Jupiter16kRam(Machine*m)
-:
-	ExternalRam(m,isa_Jupiter16kRam)
+Jupiter16kRam::Jupiter16kRam(Machine* m) : ExternalRam(m, isa_Jupiter16kRam)
 {
-	machine->ram.grow(19*1024);
-	machine->mmu->mapMem();     // map new memory to cpu & set videoram
+	machine->ram.grow(19 * 1024);
+	machine->mmu->mapMem(); // map new memory to cpu & set videoram
 }
 
 
@@ -32,9 +30,6 @@ Jupiter16kRam::Jupiter16kRam(Machine*m)
 //
 Jupiter16kRam::~Jupiter16kRam()
 {
-	machine->ram.shrink(3*1024);
-	machine->mmu->mapMem();     // map new memory to cpu & to set videoram
+	machine->ram.shrink(3 * 1024);
+	machine->mmu->mapMem(); // map new memory to cpu & to set videoram
 }
-
-
-

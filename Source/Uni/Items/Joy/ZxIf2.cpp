@@ -3,19 +3,20 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "ZxIf2.h"
-#include "unix/FD.h"
 #include "Machine.h"
-#include "Z80/Z80.h"
-#include "globals.h"
 #include "Qt/Settings.h"
 #include "RecentFilesMenu.h"
+#include "Z80/Z80.h"
+#include "globals.h"
+#include "unix/FD.h"
 
 /*
    WoS:
-	The 'left' Sinclair joystick maps the joystick directions and the fire button to the 1 (left), 2 (right), 3 (down), 4 (up) and 5 (fire) keys on the ZX Spectrum keyboard,
-	and can thus be read via port 0xf7fe; see the Port 0xfe section for full details.
-	For any of the joystick interfaces which map to keys, any game offering the appropriate form of joystick control can instead be played with the listed keys.
-	The 'right' Sinclair joystick maps to keys 6 (left), 7 (right), 8 (down), 9 (up) and 0 (fire) and can therefore be read via port 0xeffe.
+	The 'left' Sinclair joystick maps the joystick directions and the fire button to the 1 (left), 2 (right), 3 (down),
+   4 (up) and 5 (fire) keys on the ZX Spectrum keyboard, and can thus be read via port 0xf7fe; see the Port 0xfe section
+   for full details. For any of the joystick interfaces which map to keys, any game offering the appropriate form of
+   joystick control can instead be played with the listed keys. The 'right' Sinclair joystick maps to keys 6 (left), 7
+   (right), 8 (down), 9 (up) and 0 (fire) and can therefore be read via port 0xeffe.
 
 	sinclair1:
 		data byte:	%000FUDRL active low
@@ -45,49 +46,40 @@
 
 /*	TODO:
 	Das ROM ist im MemoryInspector z.Zt. nur mit MemoryInspector::AsSeenByCpu sichtbar.
-	evtl. das Rom an Machine.rom anhängen oder anderweitig für MemoryInspector::AllRom und MemoryInspector::RomPages sichtbarmachen
+	evtl. das Rom an Machine.rom anhängen oder anderweitig für MemoryInspector::AllRom und MemoryInspector::RomPages
+   sichtbarmachen
 */
 
-#define o_addr	nullptr
-#define	i_addr	"----.----.----.---0"
+#define o_addr nullptr
+#define i_addr "----.----.----.---0"
 
 
-ZxIf2::ZxIf2(Machine*m)
-:
-	SinclairJoy( m, isa_ZxIf2, external ),
-	rom(nullptr),
-	filepath(nullptr)
-{
-	xlogIn("new ZxIf2");
-}
+ZxIf2::ZxIf2(Machine* m) : SinclairJoy(m, isa_ZxIf2, external), rom(nullptr), filepath(nullptr) { xlogIn("new ZxIf2"); }
 
 
-ZxIf2::~ZxIf2()
-{
-	ejectRom();
-}
+ZxIf2::~ZxIf2() { ejectRom(); }
 
 
-void ZxIf2::insertRom( cstr path )
+void ZxIf2::insertRom(cstr path)
 {
 	assert(isMainThread());
 	assert(is_locked());
 
 	ejectRom();
 
-	FD fd(path,'r');
+	FD	   fd(path, 'r');
 	uint32 sz = uint32(fd.file_size());
-	if(sz>0x4000) sz=0x4000;
-	rom = new Memory(machine,basename_from_path(path),0x4000);
+	if (sz > 0x4000) sz = 0x4000;
+	rom = new Memory(machine, basename_from_path(path), 0x4000);
 
-	read_mem( fd, rom.getData(), sz );
-	if(sz<=0x2000) memcpy(rom.getData()+0x2000,rom.getData(),0x2000);
+	read_mem(fd, rom.getData(), sz);
+	if (sz <= 0x2000) memcpy(rom.getData() + 0x2000, rom.getData(), 0x2000);
 
 	filepath = newcopy(path);
 	prev()->romCS(true);
-	machine->cpu->mapRom(0/*addr*/,0x4000/*size*/,rom.getData(),nullptr,0);
-	addRecentFile(RecentIf2Roms,path);
-	addRecentFile(RecentFiles,path);
+	machine->cpu->mapRom(0 /*addr*/, 0x4000 /*size*/, rom.getData(), nullptr, 0);
+	addRecentFile(RecentIf2Roms, path);
+	addRecentFile(RecentFiles, path);
 }
 
 
@@ -97,30 +89,20 @@ void ZxIf2::ejectRom()
 	assert(is_locked());
 
 	prev()->romCS(false);
-	delete[] filepath; filepath = nullptr;
-	rom = nullptr;
+	delete[] filepath;
+	filepath = nullptr;
+	rom		 = nullptr;
 }
 
 
-//virtual
+// virtual
 void ZxIf2::powerOn(/*t=0*/ int32 cc)
 {
 	SinclairJoy::powerOn(cc);
 
-	if(rom)
+	if (rom)
 	{
-		machine->cpu->mapRom(0/*addr*/,0x4000,rom.getData(),nullptr,0);
+		machine->cpu->mapRom(0 /*addr*/, 0x4000, rom.getData(), nullptr, 0);
 		prev()->romCS(true);
 	}
 }
-
-
-
-
-
-
-
-
-
-
-

@@ -4,24 +4,23 @@
 
 #include "CurrahMicroSpeechInsp.h"
 #include "CurrahMicroSpeech.h"
+#include "Qt/qt_util.h"
+#include "cpp/cppthreads.h"
+#include <QPainter>
 #include <QRadioButton>
 #include <QTimer>
-#include "Qt/qt_util.h"
-#include <QPainter>
-#include "cpp/cppthreads.h"
 
 
 /*	Allophone names for the AL2 rom:
-*/
-static QString names[128] =
-{
-	"",		 //	pause
-	" ",	 //	pause
-	"  ",	 //	pause
-	"   ",	 //	pause
-	"    ",	 //	pause
+ */
+static QString names[128] = {
+	"",		//	pause
+	" ",	//	pause
+	"  ",	//	pause
+	"   ",	//	pause
+	"    ", //	pause
 
-//	µSpeech		SP0256
+	//	µSpeech		SP0256
 	"(oy)",	 //	oy
 	"(ii)",	 //	ay
 	"e",	 //	eh
@@ -82,13 +81,13 @@ static QString names[128] =
 	"(ll)",	 //	el
 	"(bb)",	 //	bb2
 
-	"",		 //	pause
-	" ",	 //	pause
-	"  ",	 //	pause
-	"   ",	 //	pause
-	"    ",	 //	pause
+	"",		//	pause
+	" ",	//	pause
+	"  ",	//	pause
+	"   ",	//	pause
+	"    ", //	pause
 
-//	µSpeech		SP0256
+	//	µSpeech		SP0256
 	"(OY)",	 //	OY
 	"(II)",	 //	AY
 	"E",	 //	EH
@@ -151,116 +150,112 @@ static QString names[128] =
 };
 
 static uint8 widths[256];
-static bool initialized = no;
+static bool	 initialized = no;
 
 
 // "Monaco",12
 // "Andale Mono",13
 // "Lucida Grande",11
 // "Arial",10
-static QFont scrollfont = QFont("Lucida Grande",11);
+static QFont scrollfont = QFont("Lucida Grande", 11);
 
 #define spacing 2u
 #define max_gap 20u
 
 
-
-CurrahMicroSpeechInsp::CurrahMicroSpeechInsp(QWidget* parent, MachineController* mc, volatile IsaObject *item)
-:
-	Inspector(parent,mc,item,"Images/currah_microspeech.jpg"),
-	rp(0),
-	wp(0),
-	xpos(0),
-	width(0)
+CurrahMicroSpeechInsp::CurrahMicroSpeechInsp(QWidget* parent, MachineController* mc, volatile IsaObject* item) :
+	Inspector(parent, mc, item, "Images/currah_microspeech.jpg"), rp(0), wp(0), xpos(0), width(0)
 {
 	assert(object->isA(isa_CurrahMicroSpeech));
 
-	button_8bit = new QRadioButton("8 Bit",this);
-	button_hifi = new QRadioButton("Hifi",this);
+	button_8bit = new QRadioButton("8 Bit", this);
+	button_hifi = new QRadioButton("Hifi", this);
 
-	button_8bit->move(8,10);
-	button_hifi->move(8,30);
+	button_8bit->move(8, 10);
+	button_hifi->move(8, 30);
 
-//	const QRgb fore = 0xffffffff;
-//	const QRgb back = 0;
-//	setColors(button8bit, fore, back);
-//	setColors(buttonHifi, fore, back);
+	//	const QRgb fore = 0xffffffff;
+	//	const QRgb back = 0;
+	//	setColors(button8bit, fore, back);
+	//	setColors(buttonHifi, fore, back);
 
 	bool hifi = currah_uspeech()->isHifi();
 	button_8bit->setChecked(!hifi);
 	button_hifi->setChecked(hifi);
 
-	connect(button_8bit,&QRadioButton::clicked,this,&CurrahMicroSpeechInsp::set_8bit);
-	connect(button_hifi,&QRadioButton::clicked,this,&CurrahMicroSpeechInsp::set_hifi);
+	connect(button_8bit, &QRadioButton::clicked, this, &CurrahMicroSpeechInsp::set_8bit);
+	connect(button_hifi, &QRadioButton::clicked, this, &CurrahMicroSpeechInsp::set_hifi);
 
-// precalculate print widths of allophone names:
-	if(!initialized)
+	// precalculate print widths of allophone names:
+	if (!initialized)
 	{
 		QPainter painter(this);
 		painter.setFont(scrollfont);
 		QFontMetrics m = painter.fontMetrics();
-		for(uint i=0; i<128; i++) { widths[i] = spacing + m.width(names[i]); }
-		for(uint i=128;i<256;i++) { widths[i] = i-128; }
+		for (uint i = 0; i < 128; i++) { widths[i] = spacing + m.width(names[i]); }
+		for (uint i = 128; i < 256; i++) { widths[i] = i - 128; }
 		initialized = yes;
 	}
 
-	for(uint i=0; i<10; i++) { scroller[wp++] = 0xA0; } width = 320;
+	for (uint i = 0; i < 10; i++) { scroller[wp++] = 0xA0; }
+	width = 320;
 
-	timer->start(1000/60);
+	timer->start(1000 / 60);
 }
 
 
-CurrahMicroSpeechInsp::~CurrahMicroSpeechInsp()
-{}
+CurrahMicroSpeechInsp::~CurrahMicroSpeechInsp() {}
 
 
-//slot
-void CurrahMicroSpeechInsp::set_8bit()
-{
-	currah_uspeech()->setHifi(no);
-}
+// slot
+void CurrahMicroSpeechInsp::set_8bit() { currah_uspeech()->setHifi(no); }
 
-//slot
-void CurrahMicroSpeechInsp::set_hifi()
-{
-	currah_uspeech()->setHifi(yes);
-}
+// slot
+void CurrahMicroSpeechInsp::set_hifi() { currah_uspeech()->setHifi(yes); }
 
 
 void CurrahMicroSpeechInsp::updateWidgets()
 {
 	xxlogIn("CurrahMicroSpeechInspector::update");
-	if(!object) { timer->stop(); return; }
+	if (!object)
+	{
+		timer->stop();
+		return;
+	}
 
-	//list_lock.lock();		not needed: only inspector reads and only device writes to history[]
+	// list_lock.lock();		not needed: only inspector reads and only device writes to history[]
 
-		volatile CurrahMicroSpeech* o = currah_uspeech();
+	volatile CurrahMicroSpeech* o = currah_uspeech();
 
-		// add spoken allophones:
+	// add spoken allophones:
 
-		const uint hmask = NELEM(o->history)-1;
-		const uint smask = NELEM(scroller)-1;
+	const uint hmask = NELEM(o->history) - 1;
+	const uint smask = NELEM(scroller) - 1;
 
-		while(o->lastrp!=o->lastwp)
-		{
-			uint command = o->history[o->lastrp++ & hmask];
-			if(command>0x80+max_gap) command = 0x80+max_gap;
-			scroller[(wp++)&smask] = command;
-			width += widths[command];
-		}
+	while (o->lastrp != o->lastwp)
+	{
+		uint command = o->history[o->lastrp++ & hmask];
+		if (command > 0x80 + max_gap) command = 0x80 + max_gap;
+		scroller[(wp++) & smask] = command;
+		width += widths[command];
+	}
 
-	//list_lock.unlock();
+	// list_lock.unlock();
 
 	// scroll the scroller, if needed:
-	if(xpos+width>320)
+	if (xpos + width > 320)
 	{
-		xpos -= (xpos+width-320+59)/30;
-		int firstwidth = widths[scroller[rp&smask]];
-		if(xpos<=-firstwidth) { rp++; xpos += firstwidth; width-=firstwidth; }
-		update(0,220,320,20);
+		xpos -= (xpos + width - 320 + 59) / 30;
+		int firstwidth = widths[scroller[rp & smask]];
+		if (xpos <= -firstwidth)
+		{
+			rp++;
+			xpos += firstwidth;
+			width -= firstwidth;
+		}
+		update(0, 220, 320, 20);
 	}
 }
-
 
 
 void CurrahMicroSpeechInsp::paintEvent(QPaintEvent* e)
@@ -268,52 +263,23 @@ void CurrahMicroSpeechInsp::paintEvent(QPaintEvent* e)
 	Inspector::paintEvent(e);
 
 	QPainter p(this);
-//	p.setPen(Qt::white);
+	//	p.setPen(Qt::white);
 	p.setFont(scrollfont);
 
-	int ypos = 235;
-	int xpos = this->xpos;
-	const uint mask = NELEM(scroller)-1;
+	int		   ypos = 235;
+	int		   xpos = this->xpos;
+	const uint mask = NELEM(scroller) - 1;
 
-	for(uint i=rp; i<wp; i++)
+	for (uint i = rp; i < wp; i++)
 	{
-		uint a = scroller[i & mask];		// allophone number
+		uint a = scroller[i & mask]; // allophone number
 
-		if(a<128 && xpos<320)				// allophone, not pause
+		if (a < 128 && xpos < 320) // allophone, not pause
 		{
-			p.drawText(xpos,ypos,names[a]);
+			p.drawText(xpos, ypos, names[a]);
 		}
 		xpos += widths[a];
 	}
 
-//	width = xpos - this->xpos;
+	//	width = xpos - this->xpos;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

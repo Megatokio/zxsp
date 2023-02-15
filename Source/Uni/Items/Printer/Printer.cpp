@@ -5,7 +5,6 @@
 
 #include "Printer.h"
 
-Printer::Printer( Machine*m, isa_id id, Internal internal, cstr o_addr, cstr i_addr )
-:
-   Item(m,id,isa_Printer,internal,o_addr,i_addr)
+Printer::Printer(Machine* m, isa_id id, Internal internal, cstr o_addr, cstr i_addr) :
+	Item(m, id, isa_Printer, internal, o_addr, i_addr)
 {}

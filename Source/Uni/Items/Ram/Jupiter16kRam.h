@@ -12,17 +12,3 @@ public:
 	explicit Jupiter16kRam(Machine*);
 	virtual ~Jupiter16kRam();
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-

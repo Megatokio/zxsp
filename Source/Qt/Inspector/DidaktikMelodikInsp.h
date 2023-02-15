@@ -9,23 +9,5 @@
 class DidaktikMelodikInsp : public Inspector
 {
 public:
-	DidaktikMelodikInsp( QWidget*, MachineController*, volatile IsaObject* );
+	DidaktikMelodikInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

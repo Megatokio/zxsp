@@ -11,8 +11,5 @@ class ZxIf1 : public Item
 public:
 	explicit ZxIf1(Machine*);
 
-	bool isRomPagedIn() const	{ return no; }
+	bool isRomPagedIn() const { return no; }
 };
-
-
-

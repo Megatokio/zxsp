@@ -3,8 +3,8 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "kio/kio.h"
 #include "IsaObject.h"
+#include "kio/kio.h"
 
 
 // Helper to be used in ToolWindow as a 'virtual' item:
@@ -13,8 +13,5 @@
 class MemObject : public IsaObject
 {
 public:
-	MemObject(QObject* p, isa_id id) : IsaObject(p,id,id) {}		// note: group == id
+	MemObject(QObject* p, isa_id id) : IsaObject(p, id, id) {} // note: group == id
 };
-
-
-

@@ -16,10 +16,3 @@ public:
 
 	void loadScr(FD&) throws override;
 };
-
-
-
-
-
-
-

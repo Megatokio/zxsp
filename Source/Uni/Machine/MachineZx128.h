@@ -15,6 +15,3 @@ protected:
 public:
 	MachineZx128(MachineController*, Model);
 };
-
-
-

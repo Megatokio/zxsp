@@ -22,7 +22,6 @@
 //    Port: ---- ---- ---0 0--- (More information).
 
 
-
 /* System Variables:
 	Notes   Address Name    Contents
 	X1      23734   FLAGS3  Flags
@@ -64,7 +63,4 @@
 */
 
 
-ZxIf1::ZxIf1(Machine*m)
-: Item(m,isa_ZxIf1,isa_Item,external,nullptr,nullptr)
-{
-}
+ZxIf1::ZxIf1(Machine* m) : Item(m, isa_ZxIf1, isa_Item, external, nullptr, nullptr) {}

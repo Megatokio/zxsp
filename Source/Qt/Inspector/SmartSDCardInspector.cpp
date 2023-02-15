@@ -5,15 +5,7 @@
 
 #include "SmartSDCardInspector.h"
 
-SmartSDCardInspector::SmartSDCardInspector(QWidget* p, MachineController* m, volatile IsaObject* o)
-:
-	Inspector(p,m,o)
-{
+SmartSDCardInspector::SmartSDCardInspector(QWidget* p, MachineController* m, volatile IsaObject* o) : Inspector(p, m, o)
+{}
 
-}
-
-SmartSDCardInspector::~SmartSDCardInspector()
-{
-
-}
-
+SmartSDCardInspector::~SmartSDCardInspector() {}

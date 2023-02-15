@@ -11,7 +11,3 @@ class MachineTs1500 : public MachineZx81
 public:
 	explicit MachineTs1500(MachineController*);
 };
-
-
-
-

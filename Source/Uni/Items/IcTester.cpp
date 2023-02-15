@@ -4,7 +4,4 @@
 
 #include "IcTester.h"
 
-IcTester::IcTester( Machine* m )
-: Item(m, isa_IcTester, isa_Item,external,nullptr,nullptr )
-{
-}
+IcTester::IcTester(Machine* m) : Item(m, isa_IcTester, isa_Item, external, nullptr, nullptr) {}

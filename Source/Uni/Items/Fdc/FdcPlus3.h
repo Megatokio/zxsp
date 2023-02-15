@@ -13,22 +13,19 @@ public:
 
 protected:
 	// Item interface:
-	//void	init			(/*t=0*/ int32 cc) override;
-	//void	reset			(Time, int32 cc) override;
-	void	input			(Time, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
-	void	output			(Time, int32 cc, uint16 addr, uint8 byte) override;
-	//void	audioBufferEnd	(Time) override;
-	//void	videoFrameEnd	(int32 cc) override;
-	//void	saveToFile		(FD&) const throws override;
-	//void	loadFromFile	(FD&) throws override;
+	// void	init			(/*t=0*/ int32 cc) override;
+	// void	reset			(Time, int32 cc) override;
+	void input(Time, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
+	void output(Time, int32 cc, uint16 addr, uint8 byte) override;
+	// void	audioBufferEnd	(Time) override;
+	// void	videoFrameEnd	(int32 cc) override;
+	// void	saveToFile		(FD&) const throws override;
+	// void	loadFromFile	(FD&) throws override;
 
-	void	attachDiskDrive(uint n, FloppyDiskDrive*) override;
-	void	removeDiskDrive(uint n) override;
+	void attachDiskDrive(uint n, FloppyDiskDrive*) override;
+	void removeDiskDrive(uint n) override;
 
 private:
-	bool	is_fault() override			{ return no; }
-	bool	is_2sided() override		{ return drive->is_wprot; }
+	bool is_fault() override { return no; }
+	bool is_2sided() override { return drive->is_wprot; }
 };
-
-
-

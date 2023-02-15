@@ -7,57 +7,31 @@
 // C includes
 
 
-
 #ifdef __cplusplus
 
 // --------------------------
 // C++ includes
 
-#include <QApplication>
-#include <QAction>
-
-#include <QContextMenuEvent>
-
-#include <QDesktopWidget>
-
-#include <QEvent>
-
-#include <QGLWidget>
-
-#include <QImage>
-
-#include <QKeySequence>
-
-#include <QLabel>
-#include <QList>
-
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QMainWindow>
-#include <QMenu>
-
-#include <QPushButton>
-#include <QPainter>
-#include <QPixmap>
-
-#include <QSettings>
-
-#include <QtGui>
-
-#include <QWidget>
+  #include <QAction>
+  #include <QApplication>
+  #include <QContextMenuEvent>
+  #include <QDesktopWidget>
+  #include <QEvent>
+  #include <QGLWidget>
+  #include <QImage>
+  #include <QKeySequence>
+  #include <QLabel>
+  #include <QList>
+  #include <QMainWindow>
+  #include <QMenu>
+  #include <QMenuBar>
+  #include <QMessageBox>
+  #include <QPainter>
+  #include <QPixmap>
+  #include <QPushButton>
+  #include <QSettings>
+  #include <QWidget>
+  #include <QtGui>
 
 
-
-#endif	// __cplusplus
-
-
-
-
-
-
-
-
-
-
-
-
+#endif // __cplusplus

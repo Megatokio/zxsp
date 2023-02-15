@@ -11,15 +11,8 @@
 	1 Joystick port (Kempston)
 */
 
-#define o_addr nullptr	//TODO
-#define i_addr nullptr	//TODO
+#define o_addr nullptr // TODO
+#define i_addr nullptr // TODO
 
 
-OpusDiscovery::OpusDiscovery(Machine*m)
-:Fdc(m,isa_OpusDiscovery,external,o_addr,i_addr)
-{
-}
-
-
-
-
+OpusDiscovery::OpusDiscovery(Machine* m) : Fdc(m, isa_OpusDiscovery, external, o_addr, i_addr) {}

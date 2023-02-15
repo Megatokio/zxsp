@@ -11,6 +11,3 @@ class AmxMouse : public Item
 public:
 	explicit AmxMouse(Machine*);
 };
-
-
-

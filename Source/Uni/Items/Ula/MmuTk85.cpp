@@ -14,7 +14,4 @@
 */
 
 
-
-MmuTk85::MmuTk85(Machine*m)
-:	MmuZx81(m,isa_MmuTk85)
-{}
+MmuTk85::MmuTk85(Machine* m) : MmuZx81(m, isa_MmuTk85) {}

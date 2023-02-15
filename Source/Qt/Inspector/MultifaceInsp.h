@@ -12,32 +12,18 @@ class QLabel;
 class MultifaceInsp : public Inspector
 {
 protected:
-	QRect		buttonbox;
-	QLabel*		label_nmi_pending;
-	QLabel*		label_paged_in;
+	QRect	buttonbox;
+	QLabel* label_nmi_pending;
+	QLabel* label_paged_in;
 
-	static const int l_x=4,l_y=3,l_d=14;
+	static const int l_x = 4, l_y = 3, l_d = 14;
 
 public:
-	MultifaceInsp(QWidget*, MachineController*, volatile IsaObject *, cstr image, const QRect& redbuttonbox);
+	MultifaceInsp(QWidget*, MachineController*, volatile IsaObject*, cstr image, const QRect& redbuttonbox);
 
-	void	pressRedButton();
+	void pressRedButton();
 
 protected:
-	void	mousePressEvent(QMouseEvent*) override;
-	void	updateWidgets() override;
+	void mousePressEvent(QMouseEvent*) override;
+	void updateWidgets() override;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -4,8 +4,6 @@
 
 #include "FullerBoxInsp.h"
 
-FullerBoxInsp::FullerBoxInsp(QWidget*w, MachineController* mc, volatile IsaObject *i )
-:
-	Inspector(w,mc,i,"/Backgrounds/light-150-s.jpg")
-{
-}
+FullerBoxInsp::FullerBoxInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
+	Inspector(w, mc, i, "/Backgrounds/light-150-s.jpg")
+{}

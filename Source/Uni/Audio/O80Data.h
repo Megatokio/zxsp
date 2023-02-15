@@ -3,8 +3,8 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "TapeData.h"
 #include "RlesData.h"
+#include "TapeData.h"
 #include "TapeFile.h"
 
 
@@ -27,17 +27,17 @@
 
 class O80Data : public TapeData
 {
-	friend CswBuffer::CswBuffer(O80Data const&,uint32);
-	friend bool TapeFile::canBeSavedAs( cstr filename, cstr* why );
+	friend CswBuffer::CswBuffer(const O80Data&, uint32);
+	friend bool TapeFile::canBeSavedAs(cstr filename, cstr* why);
 
 protected:
-	Array<uint8>	data;
-	bool			is_zx80;
-	bool			is_zx81;
+	Array<uint8> data;
+	bool		 is_zx80;
+	bool		 is_zx81;
 
 private:
-	void	write_block_to_p81_file(FD&) const throws;
-	void	zx81_read_from_file	(FD&, bool) throws;
+	void write_block_to_p81_file(FD&) const throws;
+	void zx81_read_from_file(FD&, bool) throws;
 
 public:
 	O80Data();
@@ -45,35 +45,20 @@ public:
 	explicit O80Data(const CswBuffer&);
 	explicit O80Data(const TapeData&);
 	explicit O80Data(const O80Data&);
-	explicit O80Data(const TzxData&);		// in TzxData.cpp
+	explicit O80Data(const TzxData&); // in TzxData.cpp
 	virtual ~O80Data();
 
-	virtual cstr calcMajorBlockInfo() const noexcept;	// NULL if n.avail.
-	virtual cstr calcMinorBlockInfo() const noexcept;	// NULL if n.avail.
+	virtual cstr calcMajorBlockInfo() const noexcept; // NULL if n.avail.
+	virtual cstr calcMinorBlockInfo() const noexcept; // NULL if n.avail.
 
-	uint8*			getData()				{ return data.getData(); }
-	uint8 const*	getData()		const	{ return data.getData(); }
-	uint32			count()			const	{ return data.count(); }
+	uint8*		 getData() { return data.getData(); }
+	const uint8* getData() const { return data.getData(); }
+	uint32		 count() const { return data.count(); }
 
-	bool			isZX80()				{ return is_zx80; }
-	bool			isZX81()				{ return is_zx81; }
+	bool isZX80() { return is_zx80; }
+	bool isZX81() { return is_zx81; }
 
 	// read/write to file:
-	static void	readFile(cstr fpath, TapeFile&) throws;
-	static void	writeFile(cstr fpath, TapeFile&) throws;
+	static void readFile(cstr fpath, TapeFile&) throws;
+	static void writeFile(cstr fpath, TapeFile&) throws;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

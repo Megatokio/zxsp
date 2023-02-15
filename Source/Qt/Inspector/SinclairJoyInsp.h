@@ -3,44 +3,16 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include <QObject>
-#include <QLineEdit>
-#include <QComboBox>
 #include "JoyInsp.h"
+#include <QComboBox>
+#include <QLineEdit>
+#include <QObject>
 
 class SinclairJoyInsp : public JoyInsp
 {
 public:
-	SinclairJoyInsp( QWidget*, MachineController*, volatile IsaObject*, cstr img_path );
+	SinclairJoyInsp(QWidget*, MachineController*, volatile IsaObject*, cstr img_path);
 
 protected:
 	void updateWidgets() override;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

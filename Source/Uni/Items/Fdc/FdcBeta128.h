@@ -11,6 +11,3 @@ class FdcBeta128 : public Fdc
 public:
 	explicit FdcBeta128(Machine*);
 };
-
-
-

@@ -11,5 +11,3 @@ class MachineTk85 : public MachineZx81
 public:
 	explicit MachineTk85(MachineController*);
 };
-
-

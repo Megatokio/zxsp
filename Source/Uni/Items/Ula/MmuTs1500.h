@@ -11,6 +11,3 @@ class MmuTs1500 : public MmuZx81
 public:
 	explicit MmuTs1500(Machine*);
 };
-
-
-

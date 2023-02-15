@@ -3,15 +3,14 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include <QMenu>
 #include "kio/kio.h"
+#include <QMenu>
 
 
 /*	List of implemented "recent files" lists:
 	must match static QList<RecentFiles*> recent_files.		<-- !!!
 */
-enum ListId
-{
+enum ListId {
 	RecentFiles,
 	RecentPlus3Disks,
 	RecentZxspTapes,
@@ -27,17 +26,17 @@ enum ListId
 
 class RecentFilesMenu : public QMenu
 {
-//	Q_OBJECT
+	//	Q_OBJECT
 
 	friend class RecentFilesList;
 
 	Q_DISABLE_COPY(RecentFilesMenu)
 
-	ListId	_list_id;
+	ListId					  _list_id;
 	std::function<void(cstr)> _callback;
 
-	void	clear_menu();
-	void	add_file(QString, int oldidx);
+	void clear_menu();
+	void add_file(QString, int oldidx);
 
 public:
 	RecentFilesMenu(ListId, QWidget* owner, std::function<void(cstr)> open_file);
@@ -45,10 +44,6 @@ public:
 };
 
 
-extern void		addRecentFile(ListId, QString fpath);
-extern QString	getRecentFile(ListId, int position=0);
-extern void		clearRecentFiles(ListId);
-
-
-
-
+extern void	   addRecentFile(ListId, QString fpath);
+extern QString getRecentFile(ListId, int position = 0);
+extern void	   clearRecentFiles(ListId);

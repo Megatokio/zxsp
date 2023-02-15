@@ -3,8 +3,8 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "kio/kio.h"
 #include "MachineZx128.h"
+#include "kio/kio.h"
 
 
 class MachinePentagon128 : public MachineZx128
@@ -12,25 +12,3 @@ class MachinePentagon128 : public MachineZx128
 public:
 	explicit MachinePentagon128(MachineController*);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

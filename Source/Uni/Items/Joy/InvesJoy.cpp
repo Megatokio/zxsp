@@ -6,7 +6,6 @@
 #include "Machine.h"
 
 
-
 /*	NOTE: currently this is a Kempston v.4
 	TODO: actual Inves decoding
 														kio 2007-04-29
@@ -25,55 +24,22 @@
 */
 
 
-#define o_addr	nullptr
-#define	i_addr	"----.----.--0-.----"
+#define o_addr nullptr
+#define i_addr "----.----.--0-.----"
 
 
-
-InvesJoy::InvesJoy ( Machine* m )
-:	KempstonJoy(m,isa_InvesJoy,internal,i_addr)
-{
-	xlogIn("new InvesJoy");
-}
+InvesJoy::InvesJoy(Machine* m) : KempstonJoy(m, isa_InvesJoy, internal, i_addr) { xlogIn("new InvesJoy"); }
 
 
-//InvesJoy::~InvesJoy()
+// InvesJoy::~InvesJoy()
 //{
 //	xlogIn("~InvesJoy");
-//}
+// }
 
 
-//void InvesJoy::Input ( Time/*t*/, int32 /*cc*/, uint16 /*addr*/, uint8& byte, uint8& mask )
+// void InvesJoy::Input ( Time/*t*/, int32 /*cc*/, uint16 /*addr*/, uint8& byte, uint8& mask )
 //{
 //	// kempston issue 4 data bits:  %000FUDLR  =>  all bits set:  D0-D4 = 0/1 from js;  D5-D7 = 0
 //	mask = 0xff;
 //	byte = machine==frontMachine ? joystick()->getState() : 0x00;
-//}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// }

@@ -8,7 +8,5 @@
 class GrafPadInsp : public Inspector
 {
 public:
-	GrafPadInsp( QWidget*, MachineController*, volatile IsaObject* );
+	GrafPadInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
-
-

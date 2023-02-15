@@ -3,8 +3,8 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "kio/kio.h"
 #include "Item.h"
+#include "kio/kio.h"
 
 
 class MassStorage : public Item
@@ -15,8 +15,3 @@ protected:
 public:
 	~MassStorage();
 };
-
-
-
-
-

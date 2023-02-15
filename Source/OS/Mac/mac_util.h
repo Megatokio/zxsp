@@ -4,15 +4,15 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "kio/kio.h"
+#include <CoreFoundation/CFBase.h>
 
 
-typedef const struct __CFString * CFStringRef;
+typedef const struct __CFString* CFStringRef;
 
 extern str toStr(CFStringRef);
 
 static_assert(_sizeof_pointer == _sizeof_long, "pointer size is assumed to be long");
 typedef unsigned long CFTypeID;
-
 
 
 extern CFTypeID type_dict;
@@ -22,7 +22,6 @@ extern CFTypeID type_number;
 extern CFTypeID type_data;
 extern CFTypeID type_date;
 extern CFTypeID type_bool;
-
 
 
 /*	Helper class that automates reference counting for CFTypes.
@@ -36,68 +35,61 @@ extern CFTypeID type_bool;
 	either retain it or use constructFromGet(). One exception to this rule is the
 	HIThemeGet*Shape functions, which in reality are "Copy" functions.
 */
-template <typename T>
+template<typename T>
 class QCFType
 {
 protected:
-	T		type;
-	void	retain		()							{ if(type) CFRetain(type); }
-	void	release		()							{ if(type) CFRelease(type); }
+	T	 type;
+	void retain()
+	{
+		if (type) CFRetain(type);
+	}
+	void release()
+	{
+		if (type) CFRelease(type);
+	}
 
 public:
-			QCFType		()							: type(nullptr) {}
-			QCFType		(const T& q)				: type(q) {}
-			QCFType		(const QCFType& q)			: type(q.type) { retain(); }
-			~QCFType	()							{ release(); }
-	QCFType	operator=	(const QCFType& q)			{ q.retain(); release(); type = q.type; return *this; }
+	QCFType() : type(nullptr) {}
+	QCFType(const T& q) : type(q) {}
+	QCFType(const QCFType& q) : type(q.type) { retain(); }
+	~QCFType() { release(); }
+	QCFType operator=(const QCFType& q)
+	{
+		q.retain();
+		release();
+		type = q.type;
+		return *this;
+	}
 
-			operator T	()							{ return type; }
-	T*		operator&	()							{ return &type; }
+	   operator T() { return type; }
+	T* operator&() { return &type; }
 
-	bool	isNull		()	const					{ return type==nullptr; }
-	bool	isNotNull	()	const					{ return type!=nullptr; }
+	bool isNull() const { return type == nullptr; }
+	bool isNotNull() const { return type != nullptr; }
 
-	template <typename X> X as ()	const			{ return reinterpret_cast<X>(type); }
+	template<typename X>
+	X as() const
+	{
+		return reinterpret_cast<X>(type);
+	}
 
-	static QCFType constructFromGet(const T& q)		{ CFRetain(q); return QCFType<T>(q); }
+	static QCFType constructFromGet(const T& q)
+	{
+		CFRetain(q);
+		return QCFType<T>(q);
+	}
 };
-
 
 
 class QCFString : public QCFType<CFStringRef>
 {
 public:
 	QCFString(cstr str);
-	QCFString()										{}
-	QCFString(const CFStringRef str)				: QCFType(str) {}
-	QCFString(const QCFType<CFStringRef>& q)		: QCFType(q) {}
+	QCFString() {}
+	QCFString(const CFStringRef str) : QCFType(str) {}
+	QCFString(const QCFType<CFStringRef>& q) : QCFType(q) {}
 
-	operator str() const							{ return toStr(type); }
-	operator CFStringRef() const					{ return type; }
+	operator str() const { return toStr(type); }
+	operator CFStringRef() const { return type; }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

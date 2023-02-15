@@ -11,6 +11,3 @@ class MachineInves : public MachineZxsp
 public:
 	explicit MachineInves(MachineController*);
 };
-
-
-

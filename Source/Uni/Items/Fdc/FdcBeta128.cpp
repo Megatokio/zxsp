@@ -7,7 +7,7 @@
 
 
 /*	up to 4 Disk drives (KDOS)
-*/
+ */
 
 
 //  WoS:            http://www.worldofspectrum.org/faq/reference/ports.htm
@@ -19,15 +19,8 @@
 //    #define P_TRDOS_SYSTEM                  0xff    /* System */
 
 
-static cstr o_addr = nullptr;//TODO
-static cstr i_addr = nullptr;//TODO
+static cstr o_addr = nullptr; // TODO
+static cstr i_addr = nullptr; // TODO
 
 
-FdcBeta128::FdcBeta128(Machine*m)
-:    Fdc(m,isa_FdcBeta128,external,o_addr,i_addr)
-{
-}
-
-
-
-
+FdcBeta128::FdcBeta128(Machine* m) : Fdc(m, isa_FdcBeta128, external, o_addr, i_addr) {}

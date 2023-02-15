@@ -3,39 +3,38 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "MachineZx80.h"
-#include "ZxInfo.h"
-#include "Z80/Z80.h"
-#include "unix/FD.h"
-#include "TapeRecorder.h"
-#include "MachineController.h"
-#include "Items/Ram/Memotech64kRam.h"
-#include "Items/Ram/Zx3kRam.h"
-#include "Items/Ram/Zx16kRam.h"
 #include "Audio/O80Data.h"
+#include "Items/Ram/Memotech64kRam.h"
+#include "Items/Ram/Zx16kRam.h"
+#include "Items/Ram/Zx3kRam.h"
+#include "MachineController.h"
 #include "Settings.h"
+#include "TapeRecorder.h"
+#include "Z80/Z80.h"
+#include "ZxInfo.h"
+#include "unix/FD.h"
 
 
 // how much space must be left free in addition to the program loaded?
 // note: a ZX80 tape file does not contain the screen file
 //
-#define MIN_FREE	(24*33+32)		// full screen + edit line + some spare bytes...
+#define MIN_FREE (24 * 33 + 32) // full screen + edit line + some spare bytes...
 
 
-MachineZx80::MachineZx80(MachineController* parent, Model model, isa_id id)
-:
-	Machine(parent,model,id)
+MachineZx80::MachineZx80(MachineController* parent, Model model, isa_id id) : Machine(parent, model, id)
 {
-	cpu			= new Z80(this);
-	ula			= new UlaZx80(this); ula->set60Hz(settings.get_bool(key_framerate_zx80_60hz,false));
-	mmu			= new MmuZx80(this);
-	keyboard	= new KeyboardZx80(this);
-	//ay		=
-	//joystick	=
-	//fdc		=
-	//printer	=
+	cpu = new Z80(this);
+	ula = new UlaZx80(this);
+	ula->set60Hz(settings.get_bool(key_framerate_zx80_60hz, false));
+	mmu		 = new MmuZx80(this);
+	keyboard = new KeyboardZx80(this);
+	// ay		=
+	// joystick	=
+	// fdc		=
+	// printer	=
 	taperecorder = new TS2020(this);
 
-	audio_in_enabled = no;	// default. MachineController will override if flag set in settings
+	audio_in_enabled = no; // default. MachineController will override if flag set in settings
 }
 
 bool MachineZx80::handleSaveTapePatch()
@@ -46,28 +45,28 @@ bool MachineZx80::handleSaveTapePatch()
 
 	xlogIn("MachineZx80:handleSaveTapePatch");
 
-// test whether the tape recorder can record a block:
-	if(!taperecorder->can_store_block()) return 0;		 // not handled
+	// test whether the tape recorder can record a block:
+	if (!taperecorder->can_store_block()) return 0; // not handled
 
-// set registers:
-	cpu->getRegisters().pc = 0x0283;	// MAIN_EXEC
+	// set registers:
+	cpu->getRegisters().pc = 0x0283; // MAIN_EXEC
 
 	uint dataend = cpu->peek2(0x400A);
 	uint datalen = dataend - 0x4000;
 
-// sanity test:
-	if(datalen<0x28 || datalen>ram.count())
+	// sanity test:
+	if (datalen < 0x28 || datalen > ram.count())
 	{
 		showWarning("Illegal sysvar E_LINE ($400A): %u\nThe programme was NOT saved!", uint(dataend));
-		return 1;		// handled
+		return 1; // handled
 	}
 
-// store data
+	// store data
 	Array<uint8> buffer(datalen);
-	cpu->copyRamToBuffer(0x4000,&buffer[0],datalen);
-	taperecorder->storeBlock(new O80Data(std::move(buffer),no/*!zx81*/));
+	cpu->copyRamToBuffer(0x4000, &buffer[0], datalen);
+	taperecorder->storeBlock(new O80Data(std::move(buffer), no /*!zx81*/));
 
-	return 1;   // handled
+	return 1; // handled
 }
 
 bool MachineZx80::handleLoadTapePatch()
@@ -78,35 +77,42 @@ bool MachineZx80::handleLoadTapePatch()
 
 	xlogIn("MachineZx80:handleLoadTapePatch");
 
-// test whether the tape recorder can read a block:
-	if(!taperecorder->can_read_block()) return 0;		 // not handled
+	// test whether the tape recorder can read a block:
+	if (!taperecorder->can_read_block()) return 0; // not handled
 
-// get data from tape:
+	// get data from tape:
 	O80Data* bu = taperecorder->getZx80Block();
-	if(!bu) return 0;					// end of file	=> 0 = not handled
+	if (!bu) return 0; // end of file	=> 0 = not handled
 	assert(bu->trust_level >= TapeData::conversion_success);
-	uint32 sz = bu->count(); uint8* data = bu->getData();
-	assert(sz>0);
+	uint32 sz	= bu->count();
+	uint8* data = bu->getData();
+	assert(sz > 0);
 
-// store data in ram:
-	uint len = sz<11 ? sz : min( sz, max(0x400Au, uint(peek2Z(data+0x0A)))-0x4000u );
-	cpu->copyBufferToRam(data,0x4000,len);
+	// store data in ram:
+	uint len = sz < 11 ? sz : min(sz, max(0x400Au, uint(peek2Z(data + 0x0A))) - 0x4000u);
+	cpu->copyBufferToRam(data, 0x4000, len);
 
-// set registers:
-	cpu->getRegisters().pc = 0x0283;	// pc: MAIN_EXEC
+	// set registers:
+	cpu->getRegisters().pc = 0x0283; // pc: MAIN_EXEC
 
-// show possible issues:
-	if(bu->isZX81())						 showWarning("Programme is for a ZX81");
-	else if(len<0x28)						 showWarning("Data corrupted: data is too short: len < sysvars");
-	else if(0x4000+len<cpu->peek2(0x400A))	 showWarning("Data corrupted: data is too short: len < ($400A)-$4000");
-	else if(len>ram.count()-25/*min.screen*/)showWarning("Programme did not fit in ram.\nProgramme size = %u bytes",uint(len));
-	//else if(len>ram.count()-MIN_FREE)		 showWarning("Programme uses almost all ram and may require more ram to run.");
-	else if(0x4000+len>cpu->getRegisters().sp) showInfo("Note: The machine stack was overwritten by the data");
+	// show possible issues:
+	if (bu->isZX81())
+		showWarning("Programme is for a ZX81");
+	else if (len < 0x28)
+		showWarning("Data corrupted: data is too short: len < sysvars");
+	else if (0x4000 + len < cpu->peek2(0x400A))
+		showWarning("Data corrupted: data is too short: len < ($400A)-$4000");
+	else if (len > ram.count() - 25 /*min.screen*/)
+		showWarning("Programme did not fit in ram.\nProgramme size = %u bytes", uint(len));
+	// else if(len>ram.count()-MIN_FREE)		 showWarning("Programme uses almost all ram and may require more ram to
+	// run.");
+	else if (0x4000 + len > cpu->getRegisters().sp)
+		showInfo("Note: The machine stack was overwritten by the data");
 
-	return 1;							// handled
+	return 1; // handled
 }
 
-void MachineZx80::saveO80(FD &fd) throws
+void MachineZx80::saveO80(FD& fd) throws
 {
 	// save a SNAPSHOT: save a ZX80 .o or .80 file:
 	// data contains all ram from $4000 to ($400A)		(sysvar E_LINE)
@@ -119,13 +125,13 @@ void MachineZx80::saveO80(FD &fd) throws
 
 	xlogIn("MachineZx80:saveO80(fd)");
 
-	uint16 len = cpu->peek2(0x400A)-0x4000u;
+	uint16 len = cpu->peek2(0x400A) - 0x4000u;
 	uint8  bu[len];
-	cpu->copyRamToBuffer(0x4000,bu,len);
-	fd.write_bytes(bu,len);
+	cpu->copyRamToBuffer(0x4000, bu, len);
+	fd.write_bytes(bu, len);
 }
 
-void MachineZx80::loadO80(FD &fd) noexcept(false) /*file_error,data_error*/
+void MachineZx80::loadO80(FD& fd) noexcept(false) /*file_error,data_error*/
 {
 	// load a SNAPSHOT: load a ZX80 .o or .80 file:
 	// loads data into ram from address $4000 to ($400A)		(sysvar E_LINE)
@@ -142,25 +148,28 @@ void MachineZx80::loadO80(FD &fd) noexcept(false) /*file_error,data_error*/
 
 	assert(is_locked());
 
-// get actual data size:
+	// get actual data size:
 	uint len = fd.file_size();
-	if(len>=11)
+	if (len >= 11)
 	{
 		fd.seek_fpos(10);
-		len = min( len, max(0x400Au, uint(fd.read_uint16_z()))-0x4000u );
+		len = min(len, max(0x400Au, uint(fd.read_uint16_z())) - 0x4000u);
 		fd.rewind_file();
 	}
 
-// attach external ram if required
-// note: MachineController must update the menu entries!
+	// attach external ram if required
+	// note: MachineController must update the menu entries!
 	uint req_len = len + MIN_FREE;
-	if(req_len>ram.count())
+	if (req_len > ram.count())
 	{
 		delete findIsaItem(isa_ExternalRam);
 
-		if(req_len>16 kB)     new Memotech64kRam(this);		// note: required a small HW patch to work with the ZX80
-		else if(req_len>4 kB) new Zx16kRam(this);
-		else				  new Zx3kRam(this,(req_len-1)/0x4000*0x4000); // 1 .. 3 kB
+		if (req_len > 16 kB)
+			new Memotech64kRam(this); // note: required a small HW patch to work with the ZX80
+		else if (req_len > 4 kB)
+			new Zx16kRam(this);
+		else
+			new Zx3kRam(this, (req_len - 1) / 0x4000 * 0x4000); // 1 .. 3 kB
 	}
 
 	// we need to power on the machine but it must not runForSound()
@@ -168,24 +177,27 @@ void MachineZx80::loadO80(FD &fd) noexcept(false) /*file_error,data_error*/
 	_suspend();
 	_power_on();
 
-// set registers:
+	// set registers:
 	Z80Regs& regs = cpu->getRegisters();
-	regs.pc = 0x0283;				// MAIN_EXEC
-	regs.sp = 0x4000+min(ram.count(),0xC000u);
-			  cpu->push2(0x3f82);	// TODO: what is 3f82? ((823f??)) seems to be never used for ret.
-	regs.iy = 0x4000;               // must be 4000
-	regs.im = 1;                    // must be 1
-	regs.i  = 0x0e;                 // must be (character set)
+	regs.pc		  = 0x0283; // MAIN_EXEC
+	regs.sp		  = 0x4000 + min(ram.count(), 0xC000u);
+	cpu->push2(0x3f82); // TODO: what is 3f82? ((823f??)) seems to be never used for ret.
+	regs.iy = 0x4000;	// must be 4000
+	regs.im = 1;		// must be 1
+	regs.i	= 0x0e;		// must be (character set)
 
-// load data:
+	// load data:
 	uint8 data[len];
-	fd.read_bytes(data,len);
-	cpu->copyBufferToRam(data,0x4000,len);
+	fd.read_bytes(data, len);
+	cpu->copyBufferToRam(data, 0x4000, len);
 
-// show possible issues:
-	if(len<0x28)							showWarning("Data corrupted: data is too short: len < sysvars");
-	else if(0x4000+len<cpu->peek2(0x400A))	showWarning("Data corrupted: data is too short: len < ($400A)-$4000");
-	else if(0x4000+len>cpu->getRegisters().sp) showInfo("Note: The machine stack was overwritten by the data");
+	// show possible issues:
+	if (len < 0x28)
+		showWarning("Data corrupted: data is too short: len < sysvars");
+	else if (0x4000 + len < cpu->peek2(0x400A))
+		showWarning("Data corrupted: data is too short: len < ($400A)-$4000");
+	else if (0x4000 + len > cpu->getRegisters().sp)
+		showInfo("Note: The machine stack was overwritten by the data");
 }
 
 
@@ -223,7 +235,8 @@ Registers after successful loading:
 
 	regs.pc = 0x0283;       	// MAIN_EXEC
 	regs.sp = 0x4000+ramsize;
-	cpu->push2(0x3f82);         // TODO: what is 3f82? seems to be never used for ret.  PROBABLY $823f (screen refresh) ?
+	cpu->push2(0x3f82);         // TODO: what is 3f82? seems to be never used for ret.  PROBABLY $823f (screen refresh)
+?
 
 	regs.af = 0x3583;
 	regs.bc = 0x0035;           //	overwritten in $0747 CLS
@@ -243,15 +256,3 @@ Registers after successful loading:
 	regs.iff1 =                 // must be (A6 in refresh cycle triggers interrupt)
 	regs.iff2 = disabled;
 */
-
-
-
-
-
-
-
-
-
-
-
-

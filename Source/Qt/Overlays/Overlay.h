@@ -9,7 +9,6 @@
 class MachineController;
 #include "IsaObject.h"
 #include <QPixmap>
-#include "IsaObject.h"
 class Screen;
 #include <QFont>
 #include <QPen>
@@ -28,70 +27,67 @@ M(		isa_OverlaySingleStep,	isa_Overlay,		"SingleStep Overlay" ),
 class Overlay : public IsaObject
 {
 public:
-	enum Position
-	{
+	enum Position {
 		Default = 0,
 
 		Left   = 1,
 		Center = 2,
 		Right  = 3,
 
-		Top    = 1*8,
-		Middle = 2*8,
-		Bottom = 3*8,
+		Top	   = 1 * 8,
+		Middle = 2 * 8,
+		Bottom = 3 * 8,
 
-		TopLeft		= Top|Left,
-		TopCenter	= Top|Center,
-		TopRight	= Top|Right,
+		TopLeft	  = Top | Left,
+		TopCenter = Top | Center,
+		TopRight  = Top | Right,
 
-		MiddleLeft	= Left|Middle,
-		MiddleRight	= Right|Middle,
+		MiddleLeft	= Left | Middle,
+		MiddleRight = Right | Middle,
 
-		BottomLeft	= Bottom|Left,
-		BottomCenter= Bottom|Center,
-		BottomRight = Bottom|Right,
+		BottomLeft	 = Bottom | Left,
+		BottomCenter = Bottom | Center,
+		BottomRight	 = Bottom | Right,
 
-		BelowAll	= Bottom,			// at bottom, full width, below BottomCenter
+		BelowAll = Bottom, // at bottom, full width, below BottomCenter
 	};
 
-	Screen*		screen;
-	Position	position;
-	int			x,y,w,h;
-	int			zoom;
+	Screen*	 screen;
+	Position position;
+	int		 x, y, w, h;
+	int		 zoom;
 
 
 protected:
-				Overlay(Screen*, isa_id, Position);
+	Overlay(Screen*, isa_id, Position);
 
 public:
-				~Overlay(){}
+	~Overlay() {}
 
-virtual	void		setZoom		(int);
-virtual	void		draw		(QPainter&) = 0;
+	virtual void setZoom(int);
+	virtual void draw(QPainter&) = 0;
 };
-
-
 
 
 class OverlayPlay : public Overlay
 {
 public:
-	QPixmap		background;
+	QPixmap background;
 
 public:
-	explicit	OverlayPlay	(Screen*, Position=TopLeft);
-	void		draw		(QPainter&)	override;
+	explicit OverlayPlay(Screen*, Position = TopLeft);
+	void draw(QPainter&) override;
 };
 
 
 class OverlayRecord : public Overlay
 {
 public:
-	QPixmap		background;
+	QPixmap background;
 
 public:
-	explicit	OverlayRecord (Screen*, Position=TopLeft);
-	void		draw		  (QPainter&)	override;
+	explicit OverlayRecord(Screen*, Position = TopLeft);
+	void draw(QPainter&) override;
 };
 
 
@@ -99,54 +95,18 @@ class OverlayJoystick : public Overlay
 {
 public:
 	Joystick* joystick;
-	cstr	idf;	// 1 or 2 char identifier
+	cstr	  idf; // 1 or 2 char identifier
 
-	QPen	shadow_pen;		// pen & font: subject to zoom scaling!
-	QPen	hilite_pen;
-	QPen	line_pen;
-	QPen	text_pen;
-	QFont	text_font;
-	QPolygon arrowL,arrowR,arrowU,arrowD;
-	QRect	fire;
+	QPen	 shadow_pen; // pen & font: subject to zoom scaling!
+	QPen	 hilite_pen;
+	QPen	 line_pen;
+	QPen	 text_pen;
+	QFont	 text_font;
+	QPolygon arrowL, arrowR, arrowU, arrowD;
+	QRect	 fire;
 
 public:
-	explicit	OverlayJoystick	(Screen*, Joystick*, cstr idf, Position);
-	void		draw			(QPainter&)	override;
-	void		setZoom			(int) override;
+	explicit OverlayJoystick(Screen*, Joystick*, cstr idf, Position);
+	void draw(QPainter&) override;
+	void setZoom(int) override;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

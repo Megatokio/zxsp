@@ -3,9 +3,9 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Multiface128.h"
-#include "Memory.h"
-#include "Machine.h"
 #include "Items/Item.h"
+#include "Machine.h"
+#include "Memory.h"
 
 
 /*
@@ -56,84 +56,84 @@ Multiface 128 acc. to v36 circuit as reverse engineered by velesoft:
 			blendet den Speicher des MF128 ein
 */
 
-static cstr o_addr = "----.----.----.----";		// any address!
+static cstr o_addr = "----.----.----.----"; // any address!
 static cstr i_addr = "----.----.-011.-1--";
 
 
-Multiface128::Multiface128(Machine* m)
-:
-	Multiface(m,isa_Multiface128,"Roms/mf128.rom",o_addr,i_addr),
-	mf_enabled(),
-	videopage()
+Multiface128::Multiface128(Machine* m) :
+	Multiface(m, isa_Multiface128, "Roms/mf128.rom", o_addr, i_addr), mf_enabled(), videopage()
 {}
 
 
-void Multiface128::powerOn( /*t=0*/ int32 cc )
+void Multiface128::powerOn(/*t=0*/ int32 cc)
 {
-	assert(machine->rom.count()==0x8000 ||	// ZX Spectrum+ 128K
-			  machine->rom.count()==0x4000);	// ZX Spectrum
+	assert(
+		machine->rom.count() == 0x8000 || // ZX Spectrum+ 128K
+		machine->rom.count() == 0x4000);  // ZX Spectrum
 
 	Multiface::powerOn(cc);
 	mf_enabled = no;
-	//videopage_bit = 0;		not reset
+	// videopage_bit = 0;		not reset
 
-	for(uint i=0;i<machine->rom.count();i+=0x4000)
+	for (uint i = 0; i < machine->rom.count(); i += 0x4000)
 	{
 		machine->rom[i + 0x0066] |= cpu_patch;
 		machine->rom[i + 0x0067] |= cpu_patch;
 	}
 }
 
-void Multiface128::reset( Time t, int32 cc )
+void Multiface128::reset(Time t, int32 cc)
 {
-	Multiface::reset(t,cc);
+	Multiface::reset(t, cc);
 	mf_enabled = no;
-	//videopage_bit = 0;		not reset
+	// videopage_bit = 0;		not reset
 }
 
 
 /*	Input at registered address: %-011-1--
 	page ram+rom if bit7=1
 */
-void Multiface128::input( Time, int32, uint16 addr, uint8& byte, uint8& mask )
+void Multiface128::input(Time, int32, uint16 addr, uint8& byte, uint8& mask)
 {
 	assert((addr & 0b01110100) == 0b00110100);
 
-	if(mf_enabled)
+	if (mf_enabled)
 	{
-		if(addr&0x80) { if(!paged_in) page_in(); }
-		else		  { if(paged_in) page_out(); }
+		if (addr & 0x80)
+		{
+			if (!paged_in) page_in();
+		}
+		else
+		{
+			if (paged_in) page_out();
+		}
 
 		byte &= videopage | 0x7F;
 		mask |= 0x80;
 	}
 	else
 	{
-		if(paged_in) page_out();
+		if (paged_in) page_out();
 	}
 }
-
-
-
-
 
 
 /*	Output:
 	store videobit
 	nmi-taster wieder scharf schalten
 */
-void Multiface128::output( Time, int32, uint16 addr, uint8 byte )
+void Multiface128::output(Time, int32, uint16 addr, uint8 byte)
 {
-	if((addr&0x8002) == 0)		// Mmu address: $7FFD
+	if ((addr & 0x8002) == 0) // Mmu address: $7FFD
 	{
-		videopage = byte<<4;
+		videopage = byte << 4;
 		return;
 	}
 
-	if((addr&0x74) == 0x34)		// enable NMI button, if A7=0 deactivate/hide MF128
+	if ((addr & 0x74) == 0x34) // enable NMI button, if A7=0 deactivate/hide MF128
 	{
 		nmi_pending = no;
-		if((addr&0x80)==0) mf_enabled = no;
+		if ((addr & 0x80) == 0) mf_enabled = no;
 	}
 }
 
@@ -149,59 +149,29 @@ void Multiface128::output( Time, int32, uint16 addr, uint8 byte )
 		therefore disabling the button is done in pushNmiButton(), not here.
 	returns new opcode
 */
-uint8 Multiface128::handleRomPatch( uint16 pc, uint8 o )
+uint8 Multiface128::handleRomPatch(uint16 pc, uint8 o)
 {
-	if( (pc|1)!=0x0067 || !nmi_pending )	// not NMI address or NMI not triggered by me
-		return prev()->handleRomPatch(pc,o);
+	if ((pc | 1) != 0x0067 || !nmi_pending) // not NMI address or NMI not triggered by me
+		return prev()->handleRomPatch(pc, o);
 
-	assert(mf_enabled);		// nmi_pending should imply mf_enabled
+	assert(mf_enabled); // nmi_pending should imply mf_enabled
 
-	if(!paged_in) page_in();
+	if (!paged_in) page_in();
 	return rom[pc];
 }
 
 
 /*	press the red button
-*/
+ */
 void Multiface128::triggerNmi()
 {
-	if(nmi_pending) return;
+	if (nmi_pending) return;
 	nmi_pending = yes;
-	mf_enabled = yes;
+	mf_enabled	= yes;
 	machine->cpu->triggerNmi();
 }
 
 
-void Multiface128::saveToFile ( FD& ) const noexcept(false) /*file_error,bad_alloc*/
-{
-	TODO();
-}
+void Multiface128::saveToFile(FD&) const noexcept(false) /*file_error,bad_alloc*/ { TODO(); }
 
-void Multiface128::loadFromFile( FD& ) noexcept(false) /*file_error,bad_alloc*/
-{
-	TODO();
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void Multiface128::loadFromFile(FD&) noexcept(false) /*file_error,bad_alloc*/ { TODO(); }

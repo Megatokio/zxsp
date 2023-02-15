@@ -2,8 +2,8 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "kio/kio.h"
 #include "mac_util.h"
+#include "kio/kio.h"
 #include <CoreFoundation/CoreFoundation.h>
 
 
@@ -15,9 +15,9 @@ CFTypeID type_data;
 CFTypeID type_date;
 CFTypeID type_bool;
 
-void init_CFTypeIDs()	// statische Initialisierer funktionieren nicht!
+void init_CFTypeIDs() // statische Initialisierer funktionieren nicht!
 {
-	type_dict   = CFDictionaryGetTypeID();
+	type_dict	= CFDictionaryGetTypeID();
 	type_array	= CFArrayGetTypeID();
 	type_string = CFStringGetTypeID();
 	type_number = CFNumberGetTypeID();
@@ -29,24 +29,30 @@ void init_CFTypeIDs()	// statische Initialisierer funktionieren nicht!
 ON_INIT(init_CFTypeIDs);
 
 
-
 /*	helper: convert CFStringRef to str
 	CFStringRef may be NULL
 	returns str in tempmem or NULL
 */
 str toStr(CFStringRef cfstr)
 {
-	if(cfstr==nullptr) return nullptr;
+	if (cfstr == nullptr) return nullptr;
 	uint32 cfstrlen = CFStringGetLength(cfstr);
 
-	cstr s = CFStringGetCStringPtr(cfstr,kCFStringEncodingUTF8);
-	if(s) return dupstr(s);
+	cstr s = CFStringGetCStringPtr(cfstr, kCFStringEncodingUTF8);
+	if (s) return dupstr(s);
 
-	for(uint n=1; n<=5; n++)
+	for (uint n = 1; n <= 5; n++)
 	{
-		char* z = new char[cfstrlen*n+10];
-		bool ok = CFStringGetCString(cfstr, z, cfstrlen*n+10, kCFStringEncodingUTF8);
-		if(ok) { str s = dupstr(z); delete[] z; return s; }	else delete[] z;
+		char* z	 = new char[cfstrlen * n + 10];
+		bool  ok = CFStringGetCString(cfstr, z, cfstrlen * n + 10, kCFStringEncodingUTF8);
+		if (ok)
+		{
+			str s = dupstr(z);
+			delete[] z;
+			return s;
+		}
+		else
+			delete[] z;
 	}
 
 	logline("ERROR: convert CFStringRef to c-string failed");
@@ -54,23 +60,6 @@ str toStr(CFStringRef cfstr)
 }
 
 
-
-QCFString::QCFString(cstr str)
-:
-	QCFType<CFStringRef>(CFStringCreateWithCString(nullptr/*allocator*/, str, kCFStringEncodingUTF8))
+QCFString::QCFString(cstr str) :
+	QCFType<CFStringRef>(CFStringCreateWithCString(nullptr /*allocator*/, str, kCFStringEncodingUTF8))
 {}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

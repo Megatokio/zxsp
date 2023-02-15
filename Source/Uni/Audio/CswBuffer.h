@@ -99,118 +99,108 @@ class CswBuffer
 	friend class TapeFileDataBlock;
 	friend class TapeRecorder;
 
-	uint16*		data;           // buffer
-	uint32      max;            // allocated size
-	uint32      end;            // used size
-	CC          cc_end;         // total samples up to 'end'
-	uint32		ccps;			// ccps = (nominelle) CPU-Clock der laufenden Maschine
+	uint16* data;	// buffer
+	uint32	max;	// allocated size
+	uint32	end;	// used size
+	CC		cc_end; // total samples up to 'end'
+	uint32	ccps;	// ccps = (nominelle) CPU-Clock der laufenden Maschine
 
-	bool        recording;
+	bool recording;
 
-	mutable uint32 pos;			// current index in 'data'
-	mutable CC	 cc_pos;		// total samples up to 'pos' (excl.)
-	mutable bool phase;			// current phase
-	mutable CC	 cc_offset;		// current CC offset inside current sample
+	mutable uint32 pos;		  // current index in 'data'
+	mutable CC	   cc_pos;	  // total samples up to 'pos' (excl.)
+	mutable bool   phase;	  // current phase
+	mutable CC	   cc_offset; // current CC offset inside current sample
 
-	void        skip            () const noexcept;
-	void        rskip           () const noexcept;
-	void        grow            (uint32) throws/*bad alloc*/;
+	void skip() const noexcept;
+	void rskip() const noexcept;
+	void grow(uint32) throws /*bad alloc*/;
 
 public:
-	~CswBuffer() noexcept		{ delete[] data; }
+	~CswBuffer() noexcept { delete[] data; }
 	CswBuffer(uint32 ccps, bool phase0, int foo);
-	CswBuffer(TapData const&, uint32 ccps);		// implemented in TapData.cpp
-	CswBuffer(TzxData const&, uint32 ccps);		// implemented in TzxData.cpp
-	CswBuffer(O80Data const&, uint32 ccps);		// implemented in O80Data.cpp
-	CswBuffer(RlesData const&, uint32 ccps);	// implemented in RlesData.cpp
-	CswBuffer(AudioData const&, uint32 ccps);	// implemented in AudioData.cpp
-	CswBuffer(TapeData const&, uint32 ccps);
-	CswBuffer(CswBuffer const&, uint32 ccps);
-	CswBuffer(int16 const* samples, uint32 count, uint32 sps, uint32 ccps);
-	CswBuffer(const CswBuffer&) = delete;
-	CswBuffer&	operator=(const CswBuffer&) = delete;
+	CswBuffer(const TapData&, uint32 ccps);	  // implemented in TapData.cpp
+	CswBuffer(const TzxData&, uint32 ccps);	  // implemented in TzxData.cpp
+	CswBuffer(const O80Data&, uint32 ccps);	  // implemented in O80Data.cpp
+	CswBuffer(const RlesData&, uint32 ccps);  // implemented in RlesData.cpp
+	CswBuffer(const AudioData&, uint32 ccps); // implemented in AudioData.cpp
+	CswBuffer(const TapeData&, uint32 ccps);
+	CswBuffer(const CswBuffer&, uint32 ccps);
+	CswBuffer(const int16* samples, uint32 count, uint32 sps, uint32 ccps);
+	CswBuffer(const CswBuffer&)			   = delete;
+	CswBuffer& operator=(const CswBuffer&) = delete;
 
-	void        growBuffer      (uint32)        throws/*bad alloc*/;
-	void		purge           ()				noexcept;
-	void        shrinkToFit     ()              noexcept;
+	void growBuffer(uint32) throws /*bad alloc*/;
+	void purge() noexcept;
+	void shrinkToFit() noexcept;
 
-	uint32		ccPerSecond		()				const noexcept	{ return ccps; }
+	uint32 ccPerSecond() const noexcept { return ccps; }
 
-	bool		isAtStart       ()              const noexcept	{ return cc_pos+cc_offset==0; }
-	bool		isAtEnd         ()              const noexcept	{ return pos>=end; }
-	void		seekStart       ()				const noexcept;
-	void		seekEnd         ()				const noexcept;
-	CC          seekCc			(CC)            const noexcept;
-	void		seekPos			(uint32)		const noexcept;
-	Time		seekTime		(Time t)		const noexcept	{ seekCc(t*ccps); return t; }
+	bool isAtStart() const noexcept { return cc_pos + cc_offset == 0; }
+	bool isAtEnd() const noexcept { return pos >= end; }
+	void seekStart() const noexcept;
+	void seekEnd() const noexcept;
+	CC	 seekCc(CC) const noexcept;
+	void seekPos(uint32) const noexcept;
+	Time seekTime(Time t) const noexcept
+	{
+		seekCc(t * ccps);
+		return t;
+	}
 
-	CC          getTotalCc		()              const noexcept	{ return cc_end; }
-	Time        getTotalTime	()              const noexcept	{ return Time(cc_end)/ccps; }
-	uint32      getTotalPulses  ()              const noexcept	{ return end; }
-	uint32		getCurrentPos	()				const noexcept	{ return pos; }
-	CC          getCurrentCc    ()              const noexcept	{ return cc_pos+cc_offset; }
-	Time		getCurrentTime	()				const noexcept	{ return Time(cc_pos+cc_offset)/ccps; }
-	bool		getCurrentPhase ()              const noexcept	{ return phase; }
-	bool        getPhase0       ()              const noexcept	{ return (pos&1)^phase; }
-	bool        getFinalPhase   ()              const noexcept	{ return ((end-pos)&1)^phase; }
-	uint16*&    getData         ()              noexcept		{ return data; }
-	cu16ptr     getData         ()              const noexcept	{ return data; }
-	void		invertPolarity	()				noexcept		{ phase^=1; }	// polarity of entire buffer!
-	CswBuffer*	normalize		()				noexcept;
-	bool		is_normalized	()				const noexcept;
-	bool		isSilenceOrNoise()				const noexcept;
+	CC		   getTotalCc() const noexcept { return cc_end; }
+	Time	   getTotalTime() const noexcept { return Time(cc_end) / ccps; }
+	uint32	   getTotalPulses() const noexcept { return end; }
+	uint32	   getCurrentPos() const noexcept { return pos; }
+	CC		   getCurrentCc() const noexcept { return cc_pos + cc_offset; }
+	Time	   getCurrentTime() const noexcept { return Time(cc_pos + cc_offset) / ccps; }
+	bool	   getCurrentPhase() const noexcept { return phase; }
+	bool	   getPhase0() const noexcept { return (pos & 1) ^ phase; }
+	bool	   getFinalPhase() const noexcept { return ((end - pos) & 1) ^ phase; }
+	uint16*&   getData() noexcept { return data; }
+	cu16ptr	   getData() const noexcept { return data; }
+	void	   invertPolarity() noexcept { phase ^= 1; } // polarity of entire buffer!
+	CswBuffer* normalize() noexcept;
+	bool	   is_normalized() const noexcept;
+	bool	   isSilenceOrNoise() const noexcept;
 
-	void	splitAtCurrentPos(CswBuffer&);
-	void	addToAudioBuffer(StereoSample*, uint count, double samples_per_second,
-							 double& zpos, uint32& qpos , double& qoffs, Sample volume=0.32f);	// 0.32 ~ -10dB
+	void splitAtCurrentPos(CswBuffer&);
+	void addToAudioBuffer(
+		StereoSample*,
+		uint	count,
+		double	samples_per_second,
+		double& zpos,
+		uint32& qpos,
+		double& qoffs,
+		Sample	volume = 0.32f); // 0.32 ~ -10dB
 
-// read / write with CPU input / output:
+	// read / write with CPU input / output:
 
-	bool        isRecording     ()              const noexcept   { return recording; }
-	bool        isPlaying       ()              const noexcept   { return !recording; }
-	bool        inputCc			(CC)            const noexcept;
-	void        outputCc		(CC, bool)      throws/*bad alloc*/;
-	void        stopRecording   (CC)			throws/*bad alloc*/;
-	void        startRecording  (CC)            noexcept;
-	bool        inputTime		(Time)			const noexcept;
-	void        outputTime		(Time, bool)	throws/*bad alloc*/;
+	bool isRecording() const noexcept { return recording; }
+	bool isPlaying() const noexcept { return !recording; }
+	bool inputCc(CC) const noexcept;
+	void outputCc(CC, bool) throws /*bad alloc*/;
+	void stopRecording(CC) throws /*bad alloc*/;
+	void startRecording(CC) noexcept;
+	bool inputTime(Time) const noexcept;
+	void outputTime(Time, bool) throws /*bad alloc*/;
 
 
-// read / write pulses:
-// for TapeData conversion
+	// read / write pulses:
+	// for TapeData conversion
 
-	CC          readPulse       ()              const noexcept;
-	void		putbackPulse	()				const noexcept;
-	void		skipSilence		(uint N=7)		const noexcept;
-	void        setPhase        (bool)          throws/*bad alloc*/;
-	void        writePulseCc    (CC)            throws/*bad alloc*/;
-	void        appendToPulseCc	(CC)            throws/*bad alloc*/;
-	void        writePulseCc    (CC, bool)      throws/*bad alloc*/;
-	void        writePulse	    (Time s)		throws/*bad alloc*/	{ writePulseCc(CC(s*ccps+0.5)); }
-	void        writePulse	    (Time s, bool p)throws/*bad alloc*/	{ writePulseCc(CC(s*ccps+0.5),p); }
-	void        appendToPulse	(Time s)		throws/*bad alloc*/	{ appendToPulseCc(CC(s*ccps+0.5)); }
+	CC	 readPulse() const noexcept;
+	void putbackPulse() const noexcept;
+	void skipSilence(uint N = 7) const noexcept;
+	void setPhase(bool) throws /*bad alloc*/;
+	void writePulseCc(CC) throws /*bad alloc*/;
+	void appendToPulseCc(CC) throws /*bad alloc*/;
+	void writePulseCc(CC, bool) throws /*bad alloc*/;
+	void writePulse(Time s) throws /*bad alloc*/ { writePulseCc(CC(s * ccps + 0.5)); }
+	void writePulse(Time s, bool p) throws /*bad alloc*/ { writePulseCc(CC(s * ccps + 0.5), p); }
+	void appendToPulse(Time s) throws /*bad alloc*/ { appendToPulseCc(CC(s * ccps + 0.5)); }
 
-	void		writePureTone   (uint32 num_pulses, Time seconds_per_pulse);
-	void		writePureData   (cu8ptr bu, uint32 total_bits, Time bit0, Time bit1);
-	void		writeTzxPause   (Time);
+	void writePureTone(uint32 num_pulses, Time seconds_per_pulse);
+	void writePureData(cu8ptr bu, uint32 total_bits, Time bit0, Time bit1);
+	void writeTzxPause(Time);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

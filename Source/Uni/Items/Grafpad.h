@@ -9,8 +9,5 @@
 class GrafPad : public Item
 {
 public:
-	explicit GrafPad(Machine*m);
+	explicit GrafPad(Machine* m);
 };
-
-
-

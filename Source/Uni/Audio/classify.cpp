@@ -1,14 +1,14 @@
-#define SAFE	3
-#define	LOG 	1
+#define SAFE 3
+#define LOG	 1
 
 #include "AudioData.h"
-#include "TapeFileDataBlock.h"
-#include "globals.h"
-#include "DspTime.h"
-#include "audio/AudioDecoder.h"
-#include "StereoSample.h"
-#include "TzxData.h"
 #include "CswBuffer.h"
+#include "DspTime.h"
+#include "StereoSample.h"
+#include "TapeFileDataBlock.h"
+#include "TzxData.h"
+#include "audio/AudioDecoder.h"
+#include "globals.h"
 
 
 #if 0

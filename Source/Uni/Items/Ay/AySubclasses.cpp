@@ -4,8 +4,8 @@
 
 
 #include "AySubclasses.h"
-#include "Machine.h"
 #include "Joy/Joy.h"
+#include "Machine.h"
 #include "Ula/MmuTc2068.h"
 
 
@@ -13,15 +13,12 @@
 // ZX Spectrum 128k:
 // ------------------------------------------------------------------------
 
-#define zx128s "11--.----.----.--0-"		// ? select: üblicher Port: 0xfffd
-#define zx128w "10--.----.----.--0-"		// ? write:  üblicher Port: 0xbffd
-#define zx128r "11--.----.----.--0-"		// ? read:   üblicher Port: 0xfffd
+#define zx128s "11--.----.----.--0-" // ? select: üblicher Port: 0xfffd
+#define zx128w "10--.----.----.--0-" // ? write:  üblicher Port: 0xbffd
+#define zx128r "11--.----.----.--0-" // ? read:   üblicher Port: 0xfffd
 
 
-AyForZx128::AyForZx128(Machine* m)
-:	Ay(m, zx128s, zx128w, zx128r, m->model_info->ay_cycles_per_second, Ay::mono)
-{}
-
+AyForZx128::AyForZx128(Machine* m) : Ay(m, zx128s, zx128w, zx128r, m->model_info->ay_cycles_per_second, Ay::mono) {}
 
 
 // ------------------------------------------------------------------------
@@ -57,13 +54,12 @@ AyForZx128::AyForZx128(Machine* m)
 		bit 9:		1 = left joystick
 */
 
-#define tc2068s "----.----.1111.0101"		// ? select: üblicher Port: 0xF5
-#define tc2068w "----.----.1111.0110"		// ? write:  üblicher Port: 0xF6
-#define tc2068r "----.----.1111.0110"		// ? read:   üblicher Port: 0xF6
+#define tc2068s "----.----.1111.0101" // ? select: üblicher Port: 0xF5
+#define tc2068w "----.----.1111.0110" // ? write:  üblicher Port: 0xF6
+#define tc2068r "----.----.1111.0110" // ? read:   üblicher Port: 0xF6
 
 
-AyForTc2068::AyForTc2068(Machine*m)
-:	Ay(m,tc2068s,tc2068w,tc2068r,m->model_info->ay_cycles_per_second,Ay::mono)
+AyForTc2068::AyForTc2068(Machine* m) : Ay(m, tc2068s, tc2068w, tc2068r, m->model_info->ay_cycles_per_second, Ay::mono)
 {}
 
 
@@ -71,8 +67,8 @@ AyForTc2068::AyForTc2068(Machine*m)
 //
 uint8 AyForTc2068::ayByteForJoystickByte(uint8 joy)
 {
-//	return ~( (joy&0x10)+((joy&8)>>3)+((joy&4)>>1)+((joy&2)<<1)+((joy&1)<<3) );
-	return ~( ((joy&0x10)<<3)+((joy&8)>>3)+((joy&4)>>1)+((joy&2)<<1)+((joy&1)<<3) );
+	//	return ~( (joy&0x10)+((joy&8)>>3)+((joy&4)>>1)+((joy&2)<<1)+((joy&1)<<3) );
+	return ~(((joy & 0x10) << 3) + ((joy & 8) >> 3) + ((joy & 4) >> 1) + ((joy & 2) << 1) + ((joy & 1) << 3));
 }
 
 // callback from getRegister(): needs input value at port A pins:
@@ -80,9 +76,9 @@ uint8 AyForTc2068::ayByteForJoystickByte(uint8 joy)
 uint8 AyForTc2068::getInputValueAtPortA(Time, uint16 addr)
 {
 	uint8 byte = 0xff;
-	if(machine!=front_machine) return byte;
-	if(addr&0x200) byte &= ayByteForJoystickByte(machine->joystick->joy[0]->getState()); // left
-	if(addr&0x100) byte &= ayByteForJoystickByte(machine->joystick->joy[1]->getState()); // right
+	if (machine != front_machine) return byte;
+	if (addr & 0x200) byte &= ayByteForJoystickByte(machine->joystick->joy[0]->getState()); // left
+	if (addr & 0x100) byte &= ayByteForJoystickByte(machine->joystick->joy[1]->getState()); // right
 	return byte;
 }
 
@@ -91,13 +87,12 @@ uint8 AyForTc2068::getInputValueAtPortA(Time, uint16 addr)
 void AyForTc2068::portAOutputValueChanged(Time, uint8 newbyte)
 {
 	uint8 oldbyte = getOutputValueAtPortA();
-	if((oldbyte^newbyte) & (1<<5))
+	if ((oldbyte ^ newbyte) & (1 << 5))
 	{
-		bool f = (oldbyte>>5)&1;	// old=1 <=> new=0 <=> enabled=1
+		bool f = (oldbyte >> 5) & 1; // old=1 <=> new=0 <=> enabled=1
 		MmuTc2068Ptr(machine->mmu)->selectBusExpansionUnit(f);
 	}
 }
-
 
 
 // ------------------------------------------------------------------------
@@ -105,15 +100,13 @@ void AyForTc2068::portAOutputValueChanged(Time, uint8 newbyte)
 // uses same port as ZX Spectrum 128K
 // ------------------------------------------------------------------------
 
-#define ms "11--.----.----.--0-"		// ? select: üblicher Port: 0xfffd
-#define mw "10--.----.----.--0-"		// ? write:  üblicher Port: 0xbffd
-#define mr "11--.----.----.--0-"		// ? read:   üblicher Port: 0xfffd
+#define ms "11--.----.----.--0-" // ? select: üblicher Port: 0xfffd
+#define mw "10--.----.----.--0-" // ? write:  üblicher Port: 0xbffd
+#define mr "11--.----.----.--0-" // ? read:   üblicher Port: 0xfffd
 
 
-DidaktikMelodik::DidaktikMelodik(Machine* m)
-:    Ay(m,isa_DidaktikMelodik,external,ms,mw,mr,1750000, Ay::acb_stereo)
+DidaktikMelodik::DidaktikMelodik(Machine* m) : Ay(m, isa_DidaktikMelodik, external, ms, mw, mr, 1750000, Ay::acb_stereo)
 {}
-
 
 
 // ------------------------------------------------------------------------
@@ -121,15 +114,13 @@ DidaktikMelodik::DidaktikMelodik(Machine* m)
 // uses same port as ZX Spectrum 128K
 // ------------------------------------------------------------------------
 
-#define zs "11--.----.----.--0-"		// ? select: üblicher Port: 0xfffd
-#define zw "10--.----.----.--0-"		// ? write:  üblicher Port: 0xbffd
-#define zr "11--.----.----.--0-"		// ? read:   üblicher Port: 0xfffd
+#define zs "11--.----.----.--0-" // ? select: üblicher Port: 0xfffd
+#define zw "10--.----.----.--0-" // ? write:  üblicher Port: 0xbffd
+#define zr "11--.----.----.--0-" // ? read:   üblicher Port: 0xfffd
 
 
-ZaxonAyMagic::ZaxonAyMagic(Machine* m)
-:    Ay(m,isa_ZaxonAyMagic,external,zs,zw,zr,1750000, Ay::acb_stereo/*TODO*/)
+ZaxonAyMagic::ZaxonAyMagic(Machine* m) : Ay(m, isa_ZaxonAyMagic, external, zs, zw, zr, 1750000, Ay::acb_stereo /*TODO*/)
 {}
-
 
 
 // ------------------------------------------------------------
@@ -214,24 +205,6 @@ ZaxonAyMagic::ZaxonAyMagic(Machine* m)
 #define w82 "----.----.0--1.1111"
 #define r82 nullptr
 
-ZonxBox81::ZonxBox81( Machine*m )
-: Ay( m,isa_ZonxBox81,external, s81, w81, r81, m->cpu_clock/2, Ay::mono )
-{}
+ZonxBox81::ZonxBox81(Machine* m) : Ay(m, isa_ZonxBox81, external, s81, w81, r81, m->cpu_clock / 2, Ay::mono) {}
 
-ZonxBox::ZonxBox( Machine*m )
-: Ay( m,isa_ZonxBox,external, s82, w82, r82, m->cpu_clock/2, Ay::mono )
-{}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ZonxBox::ZonxBox(Machine* m) : Ay(m, isa_ZonxBox, external, s82, w82, r82, m->cpu_clock / 2, Ay::mono) {}

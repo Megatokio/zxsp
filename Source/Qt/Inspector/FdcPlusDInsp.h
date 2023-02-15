@@ -3,14 +3,12 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include <QObject>
 #include "JoyInsp.h"
+#include <QObject>
 
 
 class FdcPlusDInsp : public Inspector
 {
 public:
-	FdcPlusDInsp( QWidget*, MachineController*, volatile IsaObject* );
+	FdcPlusDInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
-
-

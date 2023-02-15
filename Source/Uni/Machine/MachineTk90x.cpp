@@ -4,28 +4,26 @@
 
 
 #include "MachineTk90x.h"
+#include "Joy/SinclairJoy.h"
+#include "Keyboard.h"
 #include "MachineZxsp.h"
 #include "Settings.h"
 #include "TapeRecorder.h"
-#include "Keyboard.h"
-#include "Joy/SinclairJoy.h"
 
 
-MachineTk90x::MachineTk90x(MachineController*m)
-:
-	MachineZxsp(m,tk90x,isa_MachineTk90x)
+MachineTk90x::MachineTk90x(MachineController* m) : MachineZxsp(m, tk90x, isa_MachineTk90x)
 {
-	cpu			= new Z80(this);
-	ula			= new UlaTk90x(this); ula->set60Hz(settings.get_bool(key_framerate_tk90x_60hz,false));
-	mmu			= new MmuZxsp(this);
-	keyboard	= new KeyboardZxsp(this,isa_KbdTk90x);
-	//ay		=
-	joystick	= new Tk90xJoy(this);
-	//fdc		=
-	//printer	=
+	cpu = new Z80(this);
+	ula = new UlaTk90x(this);
+	ula->set60Hz(settings.get_bool(key_framerate_tk90x_60hz, false));
+	mmu		 = new MmuZxsp(this);
+	keyboard = new KeyboardZxsp(this, isa_KbdTk90x);
+	// ay		=
+	joystick = new Tk90xJoy(this);
+	// fdc		=
+	// printer	=
 	taperecorder = new TS2020(this);
 }
-
 
 
 /*	TODO

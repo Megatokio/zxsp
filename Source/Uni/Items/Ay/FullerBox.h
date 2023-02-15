@@ -11,20 +11,3 @@ class FullerBox : public Ay
 public:
 	explicit FullerBox(Machine*);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -33,34 +33,31 @@
 */
 
 #include "UlaZx80.h"
-#include "Machine.h"
-#include "Z80/Z80.h"
-#include "Qt/Screen/ScreenMono.h"
 #include "Dsp.h"
-#include "ZxInfo.h"
 #include "Keyboard.h"
+#include "Machine.h"
+#include "Qt/Screen/ScreenMono.h"
 #include "TapeRecorder.h"
+#include "Z80/Z80.h"
+#include "ZxInfo.h"
 
 
-#define o_addr  	"----.----.----.----"		// übliche Adresse: $FF
-#define i_addr		"----.----.----.----"		// übliche Adresse: $FE, but we need to see all IN as well
+#define o_addr "----.----.----.----" // übliche Adresse: $FF
+#define i_addr "----.----.----.----" // übliche Adresse: $FE, but we need to see all IN as well
 
 // bits 0-4: 5 keys from keyboard (low=pressed), row selected by A8..A15
-static constexpr uint8 FRAMERATE_MASK = 1<<6;	// 50/60 Hz Wahlschalter (Lötbrücke)
-static constexpr uint8 EAR_IN_MASK    = 1<<7;	// audio input
+static constexpr uint8 FRAMERATE_MASK = 1 << 6; // 50/60 Hz Wahlschalter (Lötbrücke)
+static constexpr uint8 EAR_IN_MASK	  = 1 << 7; // audio input
 
 
-UlaZx80::~UlaZx80()
-{}
+UlaZx80::~UlaZx80() {}
 
 UlaZx80::UlaZx80(Machine* m, isa_id _id, cstr oaddr, cstr iaddr) :
-	Ula(m,_id,oaddr,iaddr),
+	Ula(m, _id, oaddr, iaddr),
 	tv_decoder(dynamic_cast<IScreenMono&>(*screen), int32(m->model_info->cpu_cycles_per_second))
 {}
 
-UlaZx80::UlaZx80 (Machine* m) :
-	UlaZx80(m,isa_UlaZx80,o_addr,i_addr)
-{}
+UlaZx80::UlaZx80(Machine* m) : UlaZx80(m, isa_UlaZx80, o_addr, i_addr) {}
 
 void UlaZx80::powerOn(int32 cc)
 {
@@ -70,36 +67,36 @@ void UlaZx80::powerOn(int32 cc)
 
 	tv_decoder.reset();
 	set60Hz(is60hz);
-	beeper_volume = 0.0025f;
+	beeper_volume		  = 0.0025f;
 	beeper_current_sample = -beeper_volume;
-	lcntr = 0;			// 3 bit scanline counter
-	vsync = off;
+	lcntr				  = 0; // 3 bit scanline counter
+	vsync				  = off;
 }
 
 void UlaZx80::reset(Time t, int32 cc)
 {
 	xlogIn("UlaZx80::reset");
-	Ula::reset(t,cc);
+	Ula::reset(t, cc);
 }
 
 void UlaZx80::set60Hz(bool is_60hz)
 {
 	bool machine_is60hz = machine->model_info->frames_per_second > 55;
-	info = machine_is60hz == is_60hz ? machine->model_info : &zx_info[is_60hz ? ts1000 : zx80];
+	info				= machine_is60hz == is_60hz ? machine->model_info : &zx_info[is_60hz ? ts1000 : zx80];
 
 	// these will be updated while running anyway:
 	cc_per_line			= int(info->cpu_cycles_per_line);
 	lines_before_screen = int(info->lines_before_screen);
-	lines_in_screen     = int(info->lines_in_screen);
-	lines_after_screen  = int(info->lines_after_screen);
-	lines_per_frame     = lines_before_screen + lines_in_screen + lines_after_screen;
+	lines_in_screen		= int(info->lines_in_screen);
+	lines_after_screen	= int(info->lines_after_screen);
+	lines_per_frame		= lines_before_screen + lines_in_screen + lines_after_screen;
 
 	Ula::set60Hz(is_60hz);
 }
 
 void UlaZx80::enableMicOut(bool f)
 {
-	beeper_volume = f ? 0.05f : 0.0025f;
+	beeper_volume		  = f ? 0.05f : 0.0025f;
 	beeper_current_sample = beeper_current_sample > 0.0f ? beeper_volume : -beeper_volume;
 }
 
@@ -107,32 +104,26 @@ void UlaZx80::mic_out(Time now, int32 cc, bool bit)
 {
 	Dsp::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
 	beeper_last_sample_time = now;
-	beeper_current_sample = bit ? beeper_volume : -beeper_volume;
+	beeper_current_sample	= bit ? beeper_volume : -beeper_volume;
 
-	if (machine->taperecorder->isRecording()) machine->taperecorder->output(cc,bit);
+	if (machine->taperecorder->isRecording()) machine->taperecorder->output(cc, bit);
 }
 
 bool UlaZx80::mic_in(Time now, int32 cc)
 {
-	constexpr Sample threshold = 0.01f;		// who cares
+	constexpr Sample threshold = 0.01f; // who cares
 
-	if (machine->taperecorder->isPlaying())
-	{
-		return machine->taperecorder->input(cc);
-	}
+	if (machine->taperecorder->isPlaying()) { return machine->taperecorder->input(cc); }
 
 	if (machine->audio_in_enabled)
 	{
 		uint32 a = uint32(now * samples_per_second);
-		if (unlikely(a >= DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING))
+		if (unlikely(a >= DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING))
 		{
 			assert(int32(a) >= 0);
-			showAlert("Sample input beyond dsp buffer: +%i\n", int(a-DSP_SAMPLES_PER_BUFFER));
+			showAlert("Sample input beyond dsp buffer: +%i\n", int(a - DSP_SAMPLES_PER_BUFFER));
 		}
-		else
-		{
-			return Dsp::audio_in_buffer[a] >= threshold;
-		}
+		else { return Dsp::audio_in_buffer[a] >= threshold; }
 	}
 
 	return 0 >= threshold;
@@ -144,10 +135,10 @@ void UlaZx80::output(Time now, int32 cc, uint16 /*addr*/, uint8 /*byte*/)
 	{
 		// any out() deactivates the VSYNC signal after this M1 cycle
 		// output() is called at cc = 3 in the i/o cycle => cc+1 for the end
-		tv_decoder.syncOff(cc+1);
+		tv_decoder.syncOff(cc + 1);
 		vsync = false;
 		assert(lcntr == 0);
-		mic_out(now,cc,1);
+		mic_out(now, cc, 1);
 	}
 }
 
@@ -167,9 +158,9 @@ void UlaZx80::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 		{
 			// we'll use the same timing as for INT
 			// we arbitrarily start counting at the estimated start of the IN opcode at cc-3-4
-			tv_decoder.syncOn(cc-3-4+17);
-			tv_decoder.syncOff(cc-3-4+17+20);
-			lcntr = (lcntr+1) & 7;
+			tv_decoder.syncOn(cc - 3 - 4 + 17);
+			tv_decoder.syncOff(cc - 3 - 4 + 17 + 20);
+			lcntr = (lcntr + 1) & 7;
 		}
 		return;
 	}
@@ -182,13 +173,13 @@ void UlaZx80::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 
 		// input() is called at cc = +3 in the i/o cycle
 		// but /IORQ was activated at cc+1  =>  subtract 2
-		tv_decoder.syncOn(cc-2);
+		tv_decoder.syncOn(cc - 2);
 		vsync = true;
 		lcntr = 0;
-		mic_out(now,cc,0);
+		mic_out(now, cc, 0);
 	}
 
-	mask = 0xff;	// though D5 is not driven. handling of floatingbus byte is only required for ZXSP.
+	mask = 0xff; // though D5 is not driven. handling of floatingbus byte is only required for ZXSP.
 
 	// insert bits from keyboard:
 	byte &= readKeyboard(addr);
@@ -197,7 +188,7 @@ void UlaZx80::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 	if (is60hz) byte &= ~FRAMERATE_MASK;
 
 	// insert bit D7 from EAR input socket:
-	if (!mic_in(now,cc)) byte &= ~EAR_IN_MASK;
+	if (!mic_in(now, cc)) byte &= ~EAR_IN_MASK;
 }
 
 void UlaZx80::crtcRead(int32 cc, uint opcode)
@@ -218,12 +209,12 @@ void UlaZx80::crtcRead(int32 cc, uint opcode)
 	// but in case of the 4k ROM A12 must be 0. (handled by memory mapping in MmuZX80)
 	// A13 is probably ignored. (handled by memory mapping in MmuZX80)
 
-	if (unlikely(vsync)) return;			// SYNC => BLACK!
+	if (unlikely(vsync)) return; // SYNC => BLACK!
 
-	Z80* cpu = machine->cpu;
-	uint  ir = cpu->getRegisters().ir;		// i register
-	uchar  b = cpu->peek(uint16((ir&0x3e00) | ((opcode<<3)&0x01f8) | lcntr));
-	tv_decoder.storePixelByte(cc+4, opcode&0x0080 ? b : ~b);
+	Z80*  cpu = machine->cpu;
+	uint  ir  = cpu->getRegisters().ir; // i register
+	uchar b	  = cpu->peek(uint16((ir & 0x3e00) | ((opcode << 3) & 0x01f8) | lcntr));
+	tv_decoder.storePixelByte(cc + 4, opcode & 0x0080 ? b : ~b);
 }
 
 uint8 UlaZx80::interruptAtCycle(int32 cc, uint16 /*pc*/)
@@ -250,7 +241,7 @@ uint8 UlaZx80::interruptAtCycle(int32 cc, uint16 /*pc*/)
 		10cc  POP HL  or  POP DE if jumped
 	*/
 
-	assert (machine->cpu->interruptStart() == cc-2);
+	assert(machine->cpu->interruptStart() == cc - 2);
 
 	if (vsync == false)
 	{
@@ -259,15 +250,15 @@ uint8 UlaZx80::interruptAtCycle(int32 cc, uint16 /*pc*/)
 
 		tv_decoder.syncOn(cc_sync_on);
 		tv_decoder.syncOff(cc_sync_off);
-		lcntr = (lcntr+1) & 7;
+		lcntr = (lcntr + 1) & 7;
 	}
 
-	return 0xff;	// byte read during INT ACK cycle
+	return 0xff; // byte read during INT ACK cycle
 }
 
 int32 UlaZx80::updateScreenUpToCycle(int32)
 {
-	return 1<<30;	// ZXSP only
+	return 1 << 30; // ZXSP only
 }
 
 int32 UlaZx80::cpuCycleOfFrameFlyback()
@@ -296,46 +287,12 @@ int32 UlaZx80::doFrameFlyback(int32 cc)
 	cc = tv_decoder.doFrameFlyback(cc);
 
 	lines_before_screen = tv_decoder.lines_above_screen;
-	lines_in_screen = tv_decoder.lines_in_screen;
-	lines_after_screen = tv_decoder.lines_below_screen;
-	lines_per_frame = tv_decoder.lines_per_frame;
-	cc_per_line = tv_decoder.getCcPerLine();
+	lines_in_screen		= tv_decoder.lines_in_screen;
+	lines_after_screen	= tv_decoder.lines_below_screen;
+	lines_per_frame		= tv_decoder.lines_per_frame;
+	cc_per_line			= tv_decoder.getCcPerLine();
 
 	return cc;
 }
 
-void UlaZx80::drawVideoBeamIndicator(int32 cc)
-{
-	tv_decoder.drawVideoBeamIndicator(cc);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void UlaZx80::drawVideoBeamIndicator(int32 cc) { tv_decoder.drawVideoBeamIndicator(cc); }

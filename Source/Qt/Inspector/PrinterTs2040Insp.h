@@ -8,7 +8,5 @@
 class PrinterTs2040Insp : public Inspector
 {
 public:
-	PrinterTs2040Insp( QWidget*, MachineController*, volatile IsaObject* );
+	PrinterTs2040Insp(QWidget*, MachineController*, volatile IsaObject*);
 };
-
-

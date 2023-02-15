@@ -13,11 +13,8 @@
 */
 
 
-#define o_addr nullptr	//TODO
-#define i_addr nullptr	//TODO
+#define o_addr nullptr // TODO
+#define i_addr nullptr // TODO
 
 
-Disciple::Disciple(Machine*m)
-:Fdc(m,isa_Disciple,external,o_addr,i_addr)
-{
-}
+Disciple::Disciple(Machine* m) : Fdc(m, isa_Disciple, external, o_addr, i_addr) {}

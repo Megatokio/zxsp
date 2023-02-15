@@ -8,7 +8,5 @@
 class PrinterAercoInsp : public Inspector
 {
 public:
-	PrinterAercoInsp( QWidget*, MachineController*, volatile IsaObject* );
+	PrinterAercoInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
-
-

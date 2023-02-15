@@ -3,47 +3,38 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "MySimpleToggleButton.h"
-#include <QPainter>
-#include <QWidget>
-#include <QPixmap>
 #include <QImage>
+#include <QPainter>
+#include <QPixmap>
+#include <QWidget>
 
 
 MySimpleToggleButton::MySimpleToggleButton(
-				QWidget* parent, int x, int y,
-				cstr filepath_up, cstr filepath_down, bool sticky)
-:
+	QWidget* parent, int x, int y, cstr filepath_up, cstr filepath_down, bool sticky) :
 	QWidget(parent),
-	image_up(QImage(filepath_up)),
-	image_down(QImage(filepath_down)),
-	state(up),
-	sticky(sticky)
+	image_up(QImage(filepath_up)), image_down(QImage(filepath_down)), state(up), sticky(sticky)
 {
 	setFixedSize(image_up.size());
-	move(x,y);
+	move(x, y);
 	setCursor(Qt::PointingHandCursor);
 }
 
 
 MySimpleToggleButton::MySimpleToggleButton(
-				QWidget* parent, int x, int y,
-				cstr basepath, cstr ppath_up, cstr ppath_down, bool sticky)
-:
+	QWidget* parent, int x, int y, cstr basepath, cstr ppath_up, cstr ppath_down, bool sticky) :
 	QWidget(parent),
-	image_up(QImage(catstr(basepath,ppath_up))),
-	image_down(QImage(catstr(basepath,ppath_down))),
-	state(up),
+	image_up(QImage(catstr(basepath, ppath_up))), image_down(QImage(catstr(basepath, ppath_down))), state(up),
 	sticky(sticky)
 {
 	setFixedSize(image_up.size());
-	move(x,y);
+	move(x, y);
 	setCursor(Qt::PointingHandCursor);
 }
 
 
 void MySimpleToggleButton::setDown(bool f)
 {
-	if(state!=f)
+	if (state != f)
 	{
 		state = f;
 		update();
@@ -52,36 +43,36 @@ void MySimpleToggleButton::setDown(bool f)
 
 void MySimpleToggleButton::click()
 {
-	if(state==down && sticky) return;
+	if (state == down && sticky) return;
 	state = !state;
 	update();
 	emit toggled(state);
 }
 
 
-//virtual
+// virtual
 void MySimpleToggleButton::paintEvent(QPaintEvent*)
 {
 	xlogIn("MySimpleToggleButton:paintEvent");
 
 	QPainter p(this);
-	p.drawImage(rect(),state==down?image_down:image_up);
+	p.drawImage(rect(), state == down ? image_down : image_up);
 }
 
 
-//virtual
+// virtual
 void MySimpleToggleButton::mousePressEvent(QMouseEvent*)
 {
-//	QWidget::mousePressEvent(e);
+	//	QWidget::mousePressEvent(e);
 }
 
 
-//virtual
+// virtual
 void MySimpleToggleButton::mouseReleaseEvent(QMouseEvent*)
 {
 	click();
-//	if(state==down && sticky) return;
-//	state = !state;
-//	update();
-//	emit toggled(state);
+	//	if(state==down && sticky) return;
+	//	state = !state;
+	//	update();
+	//	emit toggled(state);
 }

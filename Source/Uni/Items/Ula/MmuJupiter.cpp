@@ -4,9 +4,8 @@
 
 #include "MmuJupiter.h"
 #include "Machine.h"
-#include "Z80/Z80.h"
 #include "Ula/UlaJupiter.h"
-
+#include "Z80/Z80.h"
 
 
 /*
@@ -54,11 +53,7 @@
 */
 
 
-MmuJupiter::MmuJupiter ( Machine* m )
-:	Mmu( m, isa_MmuJupiter,nullptr,nullptr )
-{
-	xlogIn("new MmuJupiter");
-}
+MmuJupiter::MmuJupiter(Machine* m) : Mmu(m, isa_MmuJupiter, nullptr, nullptr) { xlogIn("new MmuJupiter"); }
 
 
 void MmuJupiter::powerOn(int32 cc)
@@ -66,34 +61,21 @@ void MmuJupiter::powerOn(int32 cc)
 	xlogIn("MmuJupiter:init");
 
 	Mmu::powerOn(cc);
-	assert( rom.count() == 8 kB );
-	assert( ram.count() == 3 kB || ram.count() == 19 kB );
+	assert(rom.count() == 8 kB);
+	assert(ram.count() == 3 kB || ram.count() == 19 kB);
 
-	cpu->mapRom( 0x0000, 0x2000, &rom[0x0000], nullptr, 0 );
+	cpu->mapRom(0x0000, 0x2000, &rom[0x0000], nullptr, 0);
 
-	cpu->mapRam( 0x2000, 0x0400, &ram[0x0000], nullptr, 0 );	// vram:  priority:  cpu>crtc
-	cpu->mapRam( 0x2400, 0x0400, &ram[0x0000], nullptr, 0 );	// copy:  priority:  crtc>cpu
+	cpu->mapRam(0x2000, 0x0400, &ram[0x0000], nullptr, 0); // vram:  priority:  cpu>crtc
+	cpu->mapRam(0x2400, 0x0400, &ram[0x0000], nullptr, 0); // copy:  priority:  crtc>cpu
 
-	cpu->mapWom( 0x2800, 0x0400, &ram[0x0400], nullptr, 0 );	// cram: write-only
-	cpu->mapWom( 0x2C00, 0x0400, &ram[0x0400], nullptr, 0 );	// copy
+	cpu->mapWom(0x2800, 0x0400, &ram[0x0400], nullptr, 0); // cram: write-only
+	cpu->mapWom(0x2C00, 0x0400, &ram[0x0400], nullptr, 0); // copy
 
-	cpu->mapRam( 0x3000, 0x0400, &ram[0x0800], nullptr, 0 );	// ram
-	cpu->mapRam( 0x3400, 0x0400, &ram[0x0800], nullptr, 0 );	// copy
-	cpu->mapRam( 0x3800, 0x0400, &ram[0x0800], nullptr, 0 );	// copy
-	cpu->mapRam( 0x3C00, 0x0400, &ram[0x0800], nullptr, 0 );	// copy     <-- actually used by forth
+	cpu->mapRam(0x3000, 0x0400, &ram[0x0800], nullptr, 0); // ram
+	cpu->mapRam(0x3400, 0x0400, &ram[0x0800], nullptr, 0); // copy
+	cpu->mapRam(0x3800, 0x0400, &ram[0x0800], nullptr, 0); // copy
+	cpu->mapRam(0x3C00, 0x0400, &ram[0x0800], nullptr, 0); // copy     <-- actually used by forth
 
-	if(ram.count() == 19 kB) cpu->mapRam( 0x4000, 16 kB, &ram[0x0C00], nullptr, 0 );	// ram extension
+	if (ram.count() == 19 kB) cpu->mapRam(0x4000, 16 kB, &ram[0x0C00], nullptr, 0); // ram extension
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

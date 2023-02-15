@@ -11,10 +11,8 @@ class Multiface128Insp : public MultifaceInsp
 	QLabel* label_visibility;
 
 public:
-	Multiface128Insp( QWidget*, MachineController*, volatile IsaObject* );
+	Multiface128Insp(QWidget*, MachineController*, volatile IsaObject*);
 
 protected:
-	void	updateWidgets() override;
+	void updateWidgets() override;
 };
-
-

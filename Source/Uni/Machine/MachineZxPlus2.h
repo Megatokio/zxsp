@@ -9,8 +9,5 @@
 class MachineZxPlus2 : public MachineZx128
 {
 public:
-	MachineZxPlus2( MachineController*, Model );
+	MachineZxPlus2(MachineController*, Model);
 };
-
-
-

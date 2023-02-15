@@ -3,62 +3,32 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include <QLineEdit>
-#include <QComboBox>
 #include "Inspector.h"
+#include <QComboBox>
+#include <QLineEdit>
 
 class AyInsp : public Inspector
 {
-	QLineEdit	*clock, *pitch_a,*pitch_b,*pitch_c,*mixer,
-				*vol_a,*vol_b,*vol_c,*pitch_n,*pitch_e,
-				*shape_e, *port_a, *port_b;
+	QLineEdit *clock, *pitch_a, *pitch_b, *pitch_c, *mixer, *vol_a, *vol_b, *vol_c, *pitch_n, *pitch_e, *shape_e,
+		*port_a, *port_b;
 
-	QComboBox	*stereo;
+	QComboBox* stereo;
 
 	struct
 	{
-		Frequency	clock;
-		int			stereo;
-		uint8		regs[16];
+		Frequency clock;
+		int		  stereo;
+		uint8	  regs[16];
 	} value;
 
 public:
-	AyInsp( QWidget*, MachineController*, volatile IsaObject* );
+	AyInsp(QWidget*, MachineController*, volatile IsaObject*);
 
 protected:
-	void		updateWidgets() override;
+	void updateWidgets() override;
 
 private:
-	QLineEdit*	new_led(cstr);
-	void		set_register(uint,uint);
-	void		handle_return_in_led(QLineEdit*);
+	QLineEdit* new_led(cstr);
+	void	   set_register(uint, uint);
+	void	   handle_return_in_led(QLineEdit*);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

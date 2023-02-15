@@ -11,6 +11,3 @@ class FdcD80 : public Fdc
 public:
 	explicit FdcD80(Machine*);
 };
-
-
-

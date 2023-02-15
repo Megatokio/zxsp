@@ -126,37 +126,35 @@ WAIT test and related timing
 */
 
 #include "UlaZx81.h"
-#include "Machine.h"
-#include "Z80/Z80.h"
-#include "Qt/Screen/ScreenMono.h"
 #include "Dsp.h"
-#include "ZxInfo.h"
 #include "Keyboard.h"
+#include "Machine.h"
+#include "Qt/Screen/ScreenMono.h"
 #include "TapeRecorder.h"
+#include "Z80/Z80.h"
+#include "ZxInfo.h"
 #include <functional>
 
 
-#define o_addr  	"----.----.----.----"		// übliche Adresse: $FF
-#define i_addr		"----.----.----.---0"		// übliche Adresse: $FE
+#define o_addr "----.----.----.----" // übliche Adresse: $FF
+#define i_addr "----.----.----.---0" // übliche Adresse: $FE
 
 // bits 0-4: 5 keys from keyboard (low=pressed), row selected by A8..A15
-static constexpr uint8 FRAMERATE_MASK = 1<<6;	// 50/60 Hz Wahlschalter (Lötbrücke)
-static constexpr uint8 EAR_IN_MASK    = 1<<7;	// audio input
+static constexpr uint8 FRAMERATE_MASK = 1 << 6; // 50/60 Hz Wahlschalter (Lötbrücke)
+static constexpr uint8 EAR_IN_MASK	  = 1 << 7; // audio input
 
 
 // WAITMAP_POS should be +1 because of the test position in INSTR, MEMRQ and IORQ in Z80macros.h
 // NMI_POS is the number of cc before instr end / nmi handling start
 //			if NMI_POS is too early then more than the max. possible 13 wait cycles are encountered.
 //			if NMI_POS is too late then 13 wait cycles are never encountered.
-static constexpr int32 WAITMAP_POS = +1;		// +1 wg. test position in Z80.run()
-static constexpr int32 NMI_POS = +2;			// +2 = waitmap_pos+1 => max. 13 wait cycles
+static constexpr int32 WAITMAP_POS = +1; // +1 wg. test position in Z80.run()
+static constexpr int32 NMI_POS	   = +2; // +2 = waitmap_pos+1 => max. 13 wait cycles
 
 
-UlaZx81::~UlaZx81()
-{}
+UlaZx81::~UlaZx81() {}
 
-UlaZx81::UlaZx81(Machine* m) :
-	UlaZx80(m, isa_UlaZx81, o_addr, i_addr)
+UlaZx81::UlaZx81(Machine* m) : UlaZx80(m, isa_UlaZx81, o_addr, i_addr)
 {
 	m->cpu_options |= cpu_waitmap; // no cpu_ula_sinclair
 }
@@ -168,11 +166,11 @@ void UlaZx81::powerOn(int32 cc)
 
 	// note: in a real ZX81 the power-up states of ULA registers may be undetermined!
 	clear_waitmap();
-	lcntr = 0;				// 3 bit scanline counter
-	nmi_enabled = false;	// zx81: no default state!
-	vsync = off;
-	hsync = off;
-	sync  = off;
+	lcntr		  = 0;	   // 3 bit scanline counter
+	nmi_enabled	  = false; // zx81: no default state!
+	vsync		  = off;
+	hsync		  = off;
+	sync		  = off;
 	cc_hsync_next = cc + 16;
 }
 
@@ -181,10 +179,7 @@ void UlaZx81::powerOn(int32 cc)
 //					HSYNC, VSYNC and NMI timing
 // -------------------------------------------------------------
 
-inline void UlaZx81::clear_waitmap()
-{
-	memset(waitmap, 0, waitmap_size);
-}
+inline void UlaZx81::clear_waitmap() { memset(waitmap, 0, waitmap_size); }
 
 void UlaZx81::setup_waitmap(int32 cc_hsync)
 {
@@ -201,20 +196,14 @@ void UlaZx81::setup_waitmap(int32 cc_hsync)
 	assert(cc_hsync >= 0);
 	cc_hsync %= waitmap_size;
 
-	if (waitmap[cc_hsync] == 16)	// quick test whether it is already set as required
+	if (waitmap[cc_hsync] == 16) // quick test whether it is already set as required
 		return;
-	clear_waitmap();				// clear old wait positions
+	clear_waitmap(); // clear old wait positions
 
 	// circularly fill in 16cc delay for the first cc of the NMI pulse to 1cc for the last:
 	int i = 0;
-	for (; i < min(int(waitmap_size)-cc_hsync,16); i++)
-	{
-		waitmap[cc_hsync+i] = uint8(16 - i);
-	}
-	for (; i < 16; i++)
-	{
-		waitmap[cc_hsync-int(waitmap_size)+i] = uint8(16 - i);
-	}
+	for (; i < min(int(waitmap_size) - cc_hsync, 16); i++) { waitmap[cc_hsync + i] = uint8(16 - i); }
+	for (; i < 16; i++) { waitmap[cc_hsync - int(waitmap_size) + i] = uint8(16 - i); }
 }
 
 void UlaZx81::set_sync(int32 cc, bool f)
@@ -226,7 +215,7 @@ void UlaZx81::set_sync(int32 cc, bool f)
 	if (f == sync) return;
 
 	sync = f;
-	tv_decoder.syncOn(cc,f);
+	tv_decoder.syncOn(cc, f);
 }
 
 void UlaZx81::run_hsync(int32 cc)
@@ -237,12 +226,10 @@ void UlaZx81::run_hsync(int32 cc)
 	{
 		hsync = !hsync;
 
-		if (vsync == off)
-			set_sync(cc_hsync_next, hsync);
+		if (vsync == off) set_sync(cc_hsync_next, hsync);
 
-		if (vsync == off)		// else vsync => LCNTR.reset
-			if (hsync == on)
-				lcntr = (lcntr+1) & 7;
+		if (vsync == off) // else vsync => LCNTR.reset
+			if (hsync == on) lcntr = (lcntr + 1) & 7;
 
 		cc_hsync_next += hsync ? 16 : cc_hsync_period - 16;
 	}
@@ -255,18 +242,18 @@ inline void UlaZx81::reset_hsync(int32 cc, int32 dur)
 	// the HSYNC counter is kept in reset while the INTACK signal is active.
 	// => the alignment of the NMI changes => the waitmap needs to be updated
 
-	assert (cc < cc_hsync_next);	// run() must have been called
+	assert(cc < cc_hsync_next); // run() must have been called
 
 	hsync = off;
-	set_sync(cc,vsync);
+	set_sync(cc, vsync);
 
 	cc_hsync_next = cc + dur + 16;
 
 	if (nmi_enabled)
 	{
-		setup_waitmap(cc_hsync_next+WAITMAP_POS);
-		if (machine->cpu->nmiCycle()-NMI_POS >= cc)			// if not yet triggered
-			machine->cpu->setNmi(cc_hsync_next+NMI_POS);
+		setup_waitmap(cc_hsync_next + WAITMAP_POS);
+		if (machine->cpu->nmiCycle() - NMI_POS >= cc) // if not yet triggered
+			machine->cpu->setNmi(cc_hsync_next + NMI_POS);
 	}
 }
 
@@ -275,10 +262,10 @@ inline void UlaZx81::clear_vsync(int32 cc)
 	// reset the VSYNC flipflop.
 	// the reset input is activated by any OUTPUT cycle of the cpu.
 
-	assert (cc < cc_hsync_next);	// hsync_run() must have been called
+	assert(cc < cc_hsync_next); // hsync_run() must have been called
 
 	vsync = off;
-	set_sync(cc,hsync);
+	set_sync(cc, hsync);
 }
 
 inline void UlaZx81::set_vsync(int32 cc)
@@ -287,11 +274,11 @@ inline void UlaZx81::set_vsync(int32 cc)
 	// the set input is activated by INPUT(0xFE) if vsync enabled (== nmi disabled).
 	// lcntr is kept in reset while the vsync ff is set.
 
-	assert(cc < cc_hsync_next);	// run_hsync() must have been called
+	assert(cc < cc_hsync_next); // run_hsync() must have been called
 	assert(vsync_enabled());
 
 	vsync = on;
-	set_sync(cc,on);
+	set_sync(cc, on);
 	lcntr = 0;
 }
 
@@ -300,14 +287,13 @@ inline void UlaZx81::disable_nmi(int32 cc)
 	// reset the NMI_enable flipflop.
 	// the reset input is activated by OUTPUT(0xFD)
 
-	assert (cc < cc_hsync_next);	// run() must have been called
-	assert (nmi_enabled);
+	assert(cc < cc_hsync_next); // run() must have been called
+	assert(nmi_enabled);
 
 	nmi_enabled = false;
 	clear_waitmap();
 
-	if (machine->cpu->nmiCycle()-NMI_POS >= cc)
-		machine->cpu->clearNmi();
+	if (machine->cpu->nmiCycle() - NMI_POS >= cc) machine->cpu->clearNmi();
 }
 
 inline void UlaZx81::enable_nmi(int32 cc)
@@ -315,14 +301,14 @@ inline void UlaZx81::enable_nmi(int32 cc)
 	// set the NMI_enable flipflop.
 	// the set input is activated by OUTPUT(0xFE)
 
-	assert (cc < cc_hsync_next);	// run() must have been called
-	assert (nmi_enabled == false);
+	assert(cc < cc_hsync_next); // run() must have been called
+	assert(nmi_enabled == false);
 
 	nmi_enabled = true;
-	machine->cpu->setNmi(hsync ? cc+NMI_POS : cc_hsync_next+NMI_POS);
+	machine->cpu->setNmi(hsync ? cc + NMI_POS : cc_hsync_next + NMI_POS);
 
 	int32 cc_hsync = hsync ? cc_hsync_next - 16 + cc_hsync_period : cc_hsync_next;
-	setup_waitmap(cc_hsync+WAITMAP_POS);
+	setup_waitmap(cc_hsync + WAITMAP_POS);
 }
 
 void UlaZx81::output(Time now, int32 cc, uint16 addr, uint8)
@@ -336,22 +322,22 @@ void UlaZx81::output(Time now, int32 cc, uint16 addr, uint8)
 	// since this is easier to do and unwanted anyway we pick it from the VSYNC only:
 	mic_out(now, cc, 0);
 
-	run_hsync(cc+1);
-	clear_vsync(cc+1);		// vsync off immediately (unlike ZX80)
+	run_hsync(cc + 1);
+	clear_vsync(cc + 1); // vsync off immediately (unlike ZX80)
 
-	if ((addr & 3) == 2)	// A0=0 & A1=1: enable nmi
+	if ((addr & 3) == 2) // A0=0 & A1=1: enable nmi
 	{
-		if (!nmi_enabled) enable_nmi(cc+1);
+		if (!nmi_enabled) enable_nmi(cc + 1);
 	}
 
-	if ((addr & 3) == 1)	// A1=0 & A0=1: disable nmi
+	if ((addr & 3) == 1) // A1=0 & A0=1: disable nmi
 	{
-		if (nmi_enabled) disable_nmi(cc+1);
+		if (nmi_enabled) disable_nmi(cc + 1);
 	}
 
-	if (nmi_enabled)		// add waitstates:
+	if (nmi_enabled) // add waitstates:
 	{
-		int d = waitmap[uint(cc+2+WAITMAP_POS) % waitmap_size];
+		int d = waitmap[uint(cc + 2 + WAITMAP_POS) % waitmap_size];
 		machine->cpu->cpuCycleRef() += d;
 	}
 }
@@ -365,21 +351,20 @@ void UlaZx81::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 	// on a real ZX81 the audio_out signal is picked from the combined sync signal.
 	// this results in a permanent hissing in the tape recording.
 	// since this is easier to do and unwanted anyway we pick it from the VSYNC only:
-	if (vsync_enabled())
-		mic_out(now, cc, 1);
+	if (vsync_enabled()) mic_out(now, cc, 1);
 
-	run_hsync(cc+1);
-	if (vsync_enabled())	// set the VSYNC flipflop if VSYNC enabled (== NMI disabled)
-		set_vsync(cc+1);
+	run_hsync(cc + 1);
+	if (vsync_enabled()) // set the VSYNC flipflop if VSYNC enabled (== NMI disabled)
+		set_vsync(cc + 1);
 
-	if (nmi_enabled)		// add waitstates
+	if (nmi_enabled) // add waitstates
 	{
-		int d = waitmap[uint(cc+2+WAITMAP_POS) % waitmap_size];
+		int d = waitmap[uint(cc + 2 + WAITMAP_POS) % waitmap_size];
 		machine->cpu->cpuCycleRef() += d;
 		cc += d;
 	}
 
-	mask = 0xff;  // handling of floating bus byte is only required for ZXSP.
+	mask = 0xff; // handling of floating bus byte is only required for ZXSP.
 
 	// insert bits from keyboard:
 	byte &= readKeyboard(addr);
@@ -388,7 +373,7 @@ void UlaZx81::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 	if (is60hz) byte &= ~FRAMERATE_MASK;
 
 	// insert bit D7 from EAR input socket:
-	if (!mic_in(now,cc)) byte &= ~EAR_IN_MASK;
+	if (!mic_in(now, cc)) byte &= ~EAR_IN_MASK;
 }
 
 void UlaZx81::crtcRead(int32 cc, uint opcode)
@@ -409,14 +394,13 @@ void UlaZx81::crtcRead(int32 cc, uint opcode)
 	// in case of the ZX80 4k ROM A12 must be 0. (handled by memory mapping in MmuZX80)
 	// A13 is probably ignored. (handled by memory mapping in MmuZX80)
 
-	run_hsync(cc+4);
-	if (sync == on)
-		return;		// SYNC => BLACK!
+	run_hsync(cc + 4);
+	if (sync == on) return; // SYNC => BLACK!
 
-	Z80* cpu = machine->cpu;
-	uint  ir = cpu->getRegisters().ir;			// i register
-	uchar  b = cpu->peek(uint16((ir&0x3e00) | ((opcode<<3)&0x01f8) | lcntr));
-	tv_decoder.storePixelByte(cc+4, opcode&0x0080 ? b : ~b);
+	Z80*  cpu = machine->cpu;
+	uint  ir  = cpu->getRegisters().ir; // i register
+	uchar b	  = cpu->peek(uint16((ir & 0x3e00) | ((opcode << 3) & 0x01f8) | lcntr));
+	tv_decoder.storePixelByte(cc + 4, opcode & 0x0080 ? b : ~b);
 }
 
 int32 UlaZx81::nmiAtCycle(int32 cc)
@@ -429,7 +413,7 @@ int32 UlaZx81::nmiAtCycle(int32 cc)
 	run_hsync(cc);
 
 	int32 cc_nmi = hsync ? cc_hsync_next - 16 + cc_hsync_period + NMI_POS : cc_hsync_next + NMI_POS;
-	return cc_nmi;		// re-shedule nmi
+	return cc_nmi; // re-shedule nmi
 }
 
 uint8 UlaZx81::interruptAtCycle(int32 cc, uint16 /*pc*/)
@@ -439,18 +423,18 @@ uint8 UlaZx81::interruptAtCycle(int32 cc, uint16 /*pc*/)
 	// /IORQ goes low at cc + 2.5 and high again at cc + 4
 	// for the duration of INTACK the HSYNC counter is held in reset.
 
-	assert(machine->cpu->interruptStart() == cc-2); // expected start in prev. resfresh cycle
+	assert(machine->cpu->interruptStart() == cc - 2); // expected start in prev. resfresh cycle
 
-	run_hsync(cc+2);		// HSYNC.reset activated after cc+2
-	reset_hsync(cc+2,2);	// HSYNC.reset active until cc+4
+	run_hsync(cc + 2);		// HSYNC.reset activated after cc+2
+	reset_hsync(cc + 2, 2); // HSYNC.reset active until cc+4
 
-	return 0xff;	// byte read during INT ACK cycle
+	return 0xff; // byte read during INT ACK cycle
 }
 
 int32 UlaZx81::updateScreenUpToCycle(int32 cc)
 {
 	run_hsync(cc);
-	return 1<<30;	// ZXSP only
+	return 1 << 30; // ZXSP only
 }
 
 void UlaZx81::videoFrameEnd(int32 cc)
@@ -464,7 +448,7 @@ void UlaZx81::videoFrameEnd(int32 cc)
 	if (nmi_enabled)
 	{
 		int32 cc_hsync = hsync ? cc_hsync_next + cc_hsync_period - 16 : cc_hsync_next;
-		setup_waitmap(cc_hsync+WAITMAP_POS);
+		setup_waitmap(cc_hsync + WAITMAP_POS);
 	}
 
 	tv_decoder.shiftCcTimeBase(cc);
@@ -486,47 +470,3 @@ void UlaZx81::drawVideoBeamIndicator(int32 cc)
 	run_hsync(cc);
 	tv_decoder.drawVideoBeamIndicator(cc);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

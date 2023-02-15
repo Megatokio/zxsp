@@ -3,18 +3,17 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 
-#include "kio/kio.h"
 #include "MyLineEdit.h"
+#include "kio/kio.h"
 #include <QEvent>
 #include <QFont>
 #include <QKeyEvent>
 
 
-QFont monaco12("Monaco",12);
+QFont monaco12("Monaco", 12);
 
 
-MyLineEdit::MyLineEdit(QString s, QWidget *parent)
-: QLineEdit(s,parent)
+MyLineEdit::MyLineEdit(QString s, QWidget* parent) : QLineEdit(s, parent)
 {
 	setAlignment(Qt::AlignHCenter);
 	setFrame(0);
@@ -22,27 +21,39 @@ MyLineEdit::MyLineEdit(QString s, QWidget *parent)
 	setFont(monaco12);
 }
 
-void MyLineEdit::focusInEvent ( QFocusEvent * event )
+void MyLineEdit::focusInEvent(QFocusEvent* event)
 {
 	oldtext = text();
 	QLineEdit::focusInEvent(event);
 }
 
-void MyLineEdit::focusOutEvent ( QFocusEvent * event )
+void MyLineEdit::focusOutEvent(QFocusEvent* event)
 {
 	setText(oldtext);
 	QLineEdit::focusOutEvent(event);
 }
 
-bool MyLineEdit::event(QEvent*e)
+bool MyLineEdit::event(QEvent* e)
 {
-	if(e->type()==QEvent::KeyPress)
+	if (e->type() == QEvent::KeyPress)
 	{
 		QKeyEvent* ke = (QKeyEvent*)e;
-		if(ke->key()==Qt::Key_Enter)  { emit returnPressed(); return 1; }
-		if(ke->key()==Qt::Key_Return) { emit returnPressed(); return 1; }
-		if(ke->key()==Qt::Key_Escape) { clearFocus(); return 1; }
-		if(ke->key()==Qt::Key_Tab)    { emit returnPressed(); }
+		if (ke->key() == Qt::Key_Enter)
+		{
+			emit returnPressed();
+			return 1;
+		}
+		if (ke->key() == Qt::Key_Return)
+		{
+			emit returnPressed();
+			return 1;
+		}
+		if (ke->key() == Qt::Key_Escape)
+		{
+			clearFocus();
+			return 1;
+		}
+		if (ke->key() == Qt::Key_Tab) { emit returnPressed(); }
 	}
 	return QLineEdit::event(e);
 }
@@ -50,14 +61,5 @@ bool MyLineEdit::event(QEvent*e)
 void MyLineEdit::setText(QString s)
 {
 	oldtext = s;
-	if(!hasFocus()) QLineEdit::setText(s);
+	if (!hasFocus()) QLineEdit::setText(s);
 }
-
-
-
-
-
-
-
-
-

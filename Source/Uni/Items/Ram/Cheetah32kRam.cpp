@@ -4,9 +4,8 @@
 
 
 #include "Cheetah32kRam.h"
-#include "Machine.h"
 #include "Items/Ula/Mmu.h"
-
+#include "Machine.h"
 
 
 /*  Cheetah 32k rampack
@@ -18,12 +17,10 @@
 //  c'tor
 //  note: specci Basic will not use full ram unless reset
 //
-Cheetah32kRam::Cheetah32kRam(Machine*m)
-:
-	ExternalRam(m,isa_Cheetah32kRam)
+Cheetah32kRam::Cheetah32kRam(Machine* m) : ExternalRam(m, isa_Cheetah32kRam)
 {
-	machine->ram.grow(48*1024);
-	machine->mmu->mapMem();     // map new memory to cpu & set videoram
+	machine->ram.grow(48 * 1024);
+	machine->mmu->mapMem(); // map new memory to cpu & set videoram
 }
 
 
@@ -35,8 +32,5 @@ Cheetah32kRam::Cheetah32kRam(Machine*m)
 Cheetah32kRam::~Cheetah32kRam()
 {
 	machine->ram.shrink(machine->model_info->ram_size);
-	machine->mmu->mapMem();     // map new memory to cpu & to set videoram
+	machine->mmu->mapMem(); // map new memory to cpu & to set videoram
 }
-
-
-

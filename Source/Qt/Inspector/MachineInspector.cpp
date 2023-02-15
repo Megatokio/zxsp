@@ -3,14 +3,10 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 
-#include "Machine.h"
 #include "MachineInspector.h"
+#include "Machine.h"
 
 
-MachineInspector::MachineInspector( QWidget* p, MachineController* mc, volatile Machine* m )
-:
-	Inspector(p,mc,m,catstr("Images/",m->model_info->image_filename))
+MachineInspector::MachineInspector(QWidget* p, MachineController* mc, volatile Machine* m) :
+	Inspector(p, mc, m, catstr("Images/", m->model_info->image_filename))
 {}
-
-
-

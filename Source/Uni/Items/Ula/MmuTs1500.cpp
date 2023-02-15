@@ -6,7 +6,4 @@
 #include "MmuTs1500.h"
 
 
-
-MmuTs1500::MmuTs1500(Machine *m)
-:MmuZx81(m,isa_MmuTs1500)
-{}
+MmuTs1500::MmuTs1500(Machine* m) : MmuZx81(m, isa_MmuTs1500) {}

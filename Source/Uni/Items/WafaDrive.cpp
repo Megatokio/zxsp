@@ -12,11 +12,8 @@
 */
 
 
-#define o_addr nullptr	//TODO
-#define i_addr nullptr	//TODO
+#define o_addr nullptr // TODO
+#define i_addr nullptr // TODO
 
 
-WafaDrive::WafaDrive(Machine*m)
-:Item(m,isa_WafaDrive,isa_Item,external,o_addr,i_addr)
-{
-}
+WafaDrive::WafaDrive(Machine* m) : Item(m, isa_WafaDrive, isa_Item, external, o_addr, i_addr) {}

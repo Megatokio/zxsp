@@ -13,6 +13,3 @@ public:
 
 	void insertCartridge(cstr fpath);
 };
-
-
-

@@ -8,7 +8,5 @@
 class MachineInspector : public Inspector
 {
 public:
-	MachineInspector( QWidget*, MachineController*, volatile Machine* );
+	MachineInspector(QWidget*, MachineController*, volatile Machine*);
 };
-
-

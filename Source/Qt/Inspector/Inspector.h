@@ -3,12 +3,12 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include <QLineEdit>
-#include "zxsp_types.h"
 #include "IsaObject.h"
-#include <QToolBar>
 #include "Templates/RCPtr.h"
 #include "kio/peekpoke.h"
+#include "zxsp_types.h"
+#include <QLineEdit>
+#include <QToolBar>
 #define VIR virtual
 
 class Inspector : public QWidget
@@ -18,68 +18,63 @@ class Inspector : public QWidget
 	friend class ToolWindow;
 
 protected:
-	MachineController* controller;
-	volatile IsaObject*  object;
+	MachineController*	controller;
+	volatile IsaObject* object;
 	volatile Machine*	machine;
-	QPixmap		background;
-	bool		is_visible;
-	QTimer*		timer;
-	QMenu*		contextmenu;
-	QToolBar*	toolbar;
+	QPixmap				background;
+	bool				is_visible;
+	QTimer*				timer;
+	QMenu*				contextmenu;
+	QToolBar*			toolbar;
 
-	volatile Item*				item()				{ return ItemPtr(object); }
-	volatile Ula*				ula()				{ return UlaPtr(object); }
-	volatile Keyboard*			kbd()				{ return KeyboardPtr(object); }
-	volatile Z80*				cpu()				{ return Z80Ptr(object); }
-	volatile Joy*				joy()				{ return JoyPtr(object); }
-	volatile Ay*				ay()				{ return AyPtr(object); }
-	volatile ZxIf2*				zxif2()				{ return ZxIf2Ptr(object); }
-	volatile Zx3kRam*			zx3kram()			{ return Zx3kRamPtr(object); }
-	volatile IcTester*			ic_tester()			{ return IcTesterPtr(object); }
-	volatile Memotech64kRam*	memotech64kram()	{ return Memotech64kRamPtr(object); }
-	volatile KempstonMouse*		mif()				{ return KempstonMousePtr(object); }
-	volatile TapeRecorder*		tape_recorder()		{ return TapeRecorderPtr(object); }
-	volatile SpectraVideo*		spectra()			{ return SpectraVideoPtr(object); }
-	volatile MmuTc2068*			dock()				{ return MmuTc2068Ptr(object); }
-	volatile DivIDE*			divide()			{ return DivIDEPtr(object); }
-	volatile CurrahMicroSpeech* currah_uspeech()	{ return CurrahMicroSpeechPtr(object); }
-	volatile Multiface*			multiface()			{ return MultifacePtr(object); }
-	volatile Multiface1*		multiface1()		{ return Multiface1Ptr(object); }
-	volatile Multiface128*		multiface128()		{ return Multiface128Ptr(object); }
-	volatile Multiface3*		multiface3()		{ return Multiface3Ptr(object); }
+	volatile Item*				item() { return ItemPtr(object); }
+	volatile Ula*				ula() { return UlaPtr(object); }
+	volatile Keyboard*			kbd() { return KeyboardPtr(object); }
+	volatile Z80*				cpu() { return Z80Ptr(object); }
+	volatile Joy*				joy() { return JoyPtr(object); }
+	volatile Ay*				ay() { return AyPtr(object); }
+	volatile ZxIf2*				zxif2() { return ZxIf2Ptr(object); }
+	volatile Zx3kRam*			zx3kram() { return Zx3kRamPtr(object); }
+	volatile IcTester*			ic_tester() { return IcTesterPtr(object); }
+	volatile Memotech64kRam*	memotech64kram() { return Memotech64kRamPtr(object); }
+	volatile KempstonMouse*		mif() { return KempstonMousePtr(object); }
+	volatile TapeRecorder*		tape_recorder() { return TapeRecorderPtr(object); }
+	volatile SpectraVideo*		spectra() { return SpectraVideoPtr(object); }
+	volatile MmuTc2068*			dock() { return MmuTc2068Ptr(object); }
+	volatile DivIDE*			divide() { return DivIDEPtr(object); }
+	volatile CurrahMicroSpeech* currah_uspeech() { return CurrahMicroSpeechPtr(object); }
+	volatile Multiface*			multiface() { return MultifacePtr(object); }
+	volatile Multiface1*		multiface1() { return Multiface1Ptr(object); }
+	volatile Multiface128*		multiface128() { return Multiface128Ptr(object); }
+	volatile Multiface3*		multiface3() { return Multiface3Ptr(object); }
 
 public:
 	// Inspector Factory:
 	static Inspector* newInspector(QWidget*, MachineController*, volatile IsaObject*);
-	Inspector(const Inspector&) = delete;
+	Inspector(const Inspector&)			   = delete;
 	Inspector& operator=(const Inspector&) = delete;
 	~Inspector() override;
 
 protected:
 	Inspector(QWidget*, MachineController*, volatile IsaObject*, cstr bgr = "/Backgrounds/light-grey-75.jpg");
 
-	void	paintEvent(QPaintEvent*) override;
-	void	mousePressEvent(QMouseEvent*) override;
-	bool	event(QEvent*) override;
-	void	contextMenuEvent(QContextMenuEvent*) override;
-	void	showEvent(QShowEvent*) override		{ is_visible = true; }
-	void	hideEvent(QHideEvent*) override		{ is_visible = false; }
+	void paintEvent(QPaintEvent*) override;
+	void mousePressEvent(QMouseEvent*) override;
+	bool event(QEvent*) override;
+	void contextMenuEvent(QContextMenuEvent*) override;
+	void showEvent(QShowEvent*) override { is_visible = true; }
+	void hideEvent(QHideEvent*) override { is_visible = false; }
 
-VIR	void	fillContextMenu(QMenu*)		{}
-VIR	void	saveSettings()				{}		// called in Inspector dtor
-VIR	void	adjustSize(QSize&)			{}		// from ToolWindow
-VIR	void	adjustMaxSizeDuringResize()	{}		// from ToolWindow
-VIR	cstr	getCustomTitle()			{ return nullptr; } // override if inspector wishes a customized title
-VIR	void	updateWidgets()				{}		// called by timer. Timer must be started by subclass ctor.
+	VIR void fillContextMenu(QMenu*) {}
+	VIR void saveSettings() {}					  // called in Inspector dtor
+	VIR void adjustSize(QSize&) {}				  // from ToolWindow
+	VIR void adjustMaxSizeDuringResize() {}		  // from ToolWindow
+	VIR cstr getCustomTitle() { return nullptr; } // override if inspector wishes a customized title
+	VIR void updateWidgets() {}					  // called by timer. Timer must be started by subclass ctor.
 
-	static QLineEdit* newLineEdit(cstr text, int min_width=80);
+	static QLineEdit* newLineEdit(cstr text, int min_width = 80);
 
 signals:
-	void	signalSizeConstraintsChanged();		// -> min, max, fix size, size incr, shrinktofit
-	void	updateCustomTitle();				// customized title changed (--> getCustomTitle())
+	void signalSizeConstraintsChanged(); // -> min, max, fix size, size incr, shrinktofit
+	void updateCustomTitle();			 // customized title changed (--> getCustomTitle())
 };
-
-
-
-
-

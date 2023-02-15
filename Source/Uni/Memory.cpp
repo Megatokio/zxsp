@@ -7,11 +7,11 @@
 */
 
 #include "Memory.h"
-#include "cpp/cppthreads.h"
 #include "Machine.h"
+#include "cpp/cppthreads.h"
 
 
-#define MAXSIZE	0x100000u	// 1 MB
+#define MAXSIZE 0x100000u // 1 MB
 
 
 /*	Speicher für Ram oder Rom in einer Maschine.
@@ -23,16 +23,11 @@
 */
 
 
-
 /*	Creator for initially present memory
 	e.g. built-in ram and rom
 */
-Memory::Memory(Machine* machine, cstr name, uint size) noexcept
-:
-	_cnt(0),
-	data(min(size,MAXSIZE)),
-	name(newcopy(name)),
-	machine(machine)
+Memory::Memory(Machine* machine, cstr name, uint size) noexcept :
+	_cnt(0), data(min(size, MAXSIZE)), name(newcopy(name)), machine(machine)
 {
 	assert(isMainThread());
 	assert(machine != nullptr);
@@ -49,7 +44,7 @@ Memory::~Memory()
 	assert(machine->is_locked());
 	assert(_cnt == 0);
 
-	if(machine->cpu) machine->cpu->unmapMemory(data.getData(),data.count());
+	if (machine->cpu) machine->cpu->unmapMemory(data.getData(), data.count());
 	machine->memoryRemoved(this);
 	delete[] name;
 }
@@ -59,14 +54,14 @@ Memory::~Memory()
 	shrinks only, does nothing if new count ≥ old count
 	unmaps all memory from cpu because memory is reallocated in this.data[].
 */
-void Memory::shrink(uint new_cnt) noexcept	// shrinks only
+void Memory::shrink(uint new_cnt) noexcept // shrinks only
 {
 	assert(isMainThread());
 	assert(machine->is_locked());
 
-	if(new_cnt >= data.count()) return;
+	if (new_cnt >= data.count()) return;
 
-	if(machine->cpu) machine->cpu->unmapMemory(data.getData(),data.count());
+	if (machine->cpu) machine->cpu->unmapMemory(data.getData(), data.count());
 	data.shrink(new_cnt);
 	machine->memoryModified(this);
 }
@@ -82,33 +77,9 @@ void Memory::grow(uint new_cnt) noexcept
 	assert(machine->is_locked());
 	assert(new_cnt <= MAXSIZE);
 
-	if(new_cnt <= data.count()) return;
+	if (new_cnt <= data.count()) return;
 
-	if(machine->cpu) machine->cpu->unmapMemory(data.getData(),data.count());
+	if (machine->cpu) machine->cpu->unmapMemory(data.getData(), data.count());
 	data.grow(new_cnt);
 	machine->memoryModified(this);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

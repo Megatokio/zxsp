@@ -3,18 +3,15 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "Fdc/FdcPlus3.h"
 #include "MachineZxPlus2a.h"
 #include "ZxInfo/info.h"
-#include "Fdc/FdcPlus3.h"
 
 
 class MachineZxPlus3 : public MachineZxPlus2a
 {
 public:
-	MachineZxPlus3( MachineController*, Model );
+	MachineZxPlus3(MachineController*, Model);
 
-	void insertDisk( cstr fpath, char side='A' );
+	void insertDisk(cstr fpath, char side = 'A');
 };
-
-
-

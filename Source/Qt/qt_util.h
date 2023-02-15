@@ -3,15 +3,12 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "kio/kio.h"
 #include <QRgb>
 #include <QWidget>
-#include "kio/kio.h"
 
 
-extern void setColors   (QWidget* widget, QRgb foregroundcolor, QRgb backgroundcolor = 0/*transparent*/);
+extern void setColors(QWidget* widget, QRgb foregroundcolor, QRgb backgroundcolor = 0 /*transparent*/);
 
 extern cstr selectLoadFile(QWidget* parent, cstr headline, cstr filefilterstr);
 extern cstr selectSaveFile(QWidget* parent, cstr headline, cstr filefilterstr);
-
-
-

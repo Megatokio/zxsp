@@ -13,11 +13,8 @@
 //    #define P_GRAFPAD_Y                     0xff7f  /* Pen position Y coordinate   */
 
 
-static cstr o_addr=0;
-static cstr i_addr=0;
+static cstr o_addr = 0;
+static cstr i_addr = 0;
 
 
-GrafPad::GrafPad(Machine *m) :
-	Item(m,isa_GrafPad,isa_Item,external,o_addr,i_addr)
-{
-}
+GrafPad::GrafPad(Machine* m) : Item(m, isa_GrafPad, isa_Item, external, o_addr, i_addr) {}

@@ -3,15 +3,15 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 
-#include <QSettings>
-#include <QVariant>
-#include "Memory.h"
-#include "Qt/Settings.h"
 #include "Memotech64kRam.h"
-#include "Machine.h"
-#include "Z80/Z80.h"
 #include "Items/Ula/Mmu.h"
 #include "Items/Ula/UlaZx81.h"
+#include "Machine.h"
+#include "Memory.h"
+#include "Qt/Settings.h"
+#include "Z80/Z80.h"
+#include <QSettings>
+#include <QVariant>
 
 
 /*  To set top of RAM at 64K type:
@@ -41,13 +41,12 @@
 */
 
 
-Memotech64kRam::Memotech64kRam(Machine*m)
-:   ExternalRam(m,isa_Memotech64kRam)
+Memotech64kRam::Memotech64kRam(Machine* m) : ExternalRam(m, isa_Memotech64kRam)
 {
 	machine->ram.grow(64 kB);
-	dip_switches = settings.get_int(key_memotech64k_dip_switches,0x06);
+	dip_switches = settings.get_int(key_memotech64k_dip_switches, 0x06);
 
-	machine->mmu->mapMem();     // map new memory to cpu & to set videoram
+	machine->mmu->mapMem(); // map new memory to cpu & to set videoram
 	map_dip_switched_ram();
 }
 
@@ -57,7 +56,7 @@ Memotech64kRam::~Memotech64kRam()
 	machine->ram.shrink(machine->model_info->ram_size);
 
 	prev()->romCS(false);
-	machine->mmu->mapMem();     // map new memory to cpu & to set videoram
+	machine->mmu->mapMem(); // map new memory to cpu & to set videoram
 }
 
 
@@ -71,10 +70,10 @@ void Memotech64kRam::setDipSwitches(uint sw)
 {
 	assert(is_locked());
 
-	if(sw==dip_switches) return;
+	if (sw == dip_switches) return;
 	dip_switches = sw;
 
-	settings.setValue(key_memotech64k_dip_switches,dip_switches);
+	settings.setValue(key_memotech64k_dip_switches, dip_switches);
 
 	map_dip_switched_ram();
 }
@@ -88,7 +87,7 @@ void Memotech64kRam::setDipSwitches(uint sw)
 	Note: wenn im Bereich 8k .. 16k ROM ist, wird es hier durch RAM übersteuert.
 		  In der realen Maschine hätten wir hier einen Bus-Konflikt.
 */
-//virtual
+// virtual
 void Memotech64kRam::powerOn(int32 cc)
 {
 	ExternalRam::powerOn(cc);
@@ -96,40 +95,29 @@ void Memotech64kRam::powerOn(int32 cc)
 }
 
 
-
 /*	map ram in range 0-8k and 8-16k
-*/
+ */
 void Memotech64kRam::map_dip_switched_ram()
 {
 	uint8* waitmap = nullptr;
-	int wm_size = 0;
+	int	   wm_size = 0;
 	if (auto* ula = dynamic_cast<UlaZx81*>(machine->ula))
 	{
 		waitmap = ula->getWaitmap();
 		wm_size = ula->waitmap_size;
 	}
 
-	if(dip_switches&8)			// all-64k-ram
+	if (dip_switches & 8) // all-64k-ram
 	{
 		prev()->romCS(true);
-		machine->cpu->mapRam(0x0000,0x4000,&machine->ram[0xC000],waitmap,wm_size);
+		machine->cpu->mapRam(0x0000, 0x4000, &machine->ram[0xC000], waitmap, wm_size);
 	}
-	else	// 0-8k: rom, 8-12 and 12-16k are ram or empty
+	else // 0-8k: rom, 8-12 and 12-16k are ram or empty
 	{
 		prev()->romCS(false);
-		if(dip_switches&4) machine->cpu->mapRam(0x2000,0x1000,&machine->ram[0xe000],waitmap,wm_size);    // 8k-12k: Ram
-		if(dip_switches&2) machine->cpu->mapRam(0x3000,0x1000,&machine->ram[0xf000],waitmap,wm_size);    // 12k-16k: Ram
+		if (dip_switches & 4)
+			machine->cpu->mapRam(0x2000, 0x1000, &machine->ram[0xe000], waitmap, wm_size); // 8k-12k: Ram
+		if (dip_switches & 2)
+			machine->cpu->mapRam(0x3000, 0x1000, &machine->ram[0xf000], waitmap, wm_size); // 12k-16k: Ram
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-

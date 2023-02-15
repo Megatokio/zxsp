@@ -18,11 +18,11 @@ class AyForTc2068 : public Ay
 public:
 	explicit AyForTc2068(Machine*);
 
-static uint8 ayByteForJoystickByte(uint8 joy);
+	static uint8 ayByteForJoystickByte(uint8 joy);
 
 protected:
-	void	portAOutputValueChanged(Time, uint8);	// notification from setRegister(…) for attached hardware
-	uint8	getInputValueAtPortA(Time, uint16);		// callback from Ay::input(…) to get values of port pins
+	void  portAOutputValueChanged(Time, uint8); // notification from setRegister(…) for attached hardware
+	uint8 getInputValueAtPortA(Time, uint16);	// callback from Ay::input(…) to get values of port pins
 };
 
 
@@ -52,20 +52,3 @@ class ZonxBox81 : public Ay
 public:
 	explicit ZonxBox81(Machine*);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

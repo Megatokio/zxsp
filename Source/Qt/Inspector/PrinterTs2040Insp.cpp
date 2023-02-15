@@ -5,8 +5,4 @@
 
 #include "PrinterTs2040Insp.h"
 
-PrinterTs2040Insp::PrinterTs2040Insp(QWidget*w, MachineController* mc, volatile IsaObject *i )
-:
-	Inspector(w,mc,i)
-{
-}
+PrinterTs2040Insp::PrinterTs2040Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) : Inspector(w, mc, i) {}

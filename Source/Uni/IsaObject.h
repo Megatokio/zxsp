@@ -3,43 +3,48 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include <QObject>
+#include "helpers.h"
+#include "isa_id.h"
 #include "kio/kio.h"
 #include "zxsp_types.h"
-#include "isa_id.h"
-#include "helpers.h"
+#include <QObject>
 class FD;
 
 
-extern isa_id	isa_pid[];		// parent id of id
-extern cstr		isa_names[];	// (default) item names
+extern isa_id isa_pid[];   // parent id of id
+extern cstr	  isa_names[]; // (default) item names
 
 
 class IsaObject : public QObject
 {
 public:
-	const isa_id  id;		// precise isa_id for this item
-	const isa_id  grp_id;	// major base class of this item, e.g. isa_Joy or isa_Ula
-	cstr		  name;
+	const isa_id id;	 // precise isa_id for this item
+	const isa_id grp_id; // major base class of this item, e.g. isa_Joy or isa_Ula
+	cstr		 name;
 
 protected:
-	IsaObject(QObject* p, isa_id id, isa_id grp) :QObject(p),id(id),grp_id(grp),name(isa_names[id]){}
-	IsaObject(QObject* p, const IsaObject& q)	 :QObject(p),id(q.id),grp_id(q.grp_id),name(q.name){}
-	IsaObject(const IsaObject& q)				 :QObject(q.parent()),id(q.id),grp_id(q.grp_id),name(q.name){}
-	IsaObject(const IsaObject&& q)				 :QObject(q.parent()),id(q.id),grp_id(q.grp_id),name(q.name){}
+	IsaObject(QObject* p, isa_id id, isa_id grp) : QObject(p), id(id), grp_id(grp), name(isa_names[id]) {}
+	IsaObject(QObject* p, const IsaObject& q) : QObject(p), id(q.id), grp_id(q.grp_id), name(q.name) {}
+	IsaObject(const IsaObject& q) : QObject(q.parent()), id(q.id), grp_id(q.grp_id), name(q.name) {}
+	IsaObject(const IsaObject&& q) : QObject(q.parent()), id(q.id), grp_id(q.grp_id), name(q.name) {}
 
-	IsaObject&	operator= (const IsaObject& q)	= delete;
-	IsaObject&	operator= (const IsaObject&& q)	= delete;
+	IsaObject& operator=(const IsaObject& q)  = delete;
+	IsaObject& operator=(const IsaObject&& q) = delete;
 
 public:
 	virtual ~IsaObject() {}
 
-	bool		isA		(isa_id i) volatile const	{isa_id j=id; while(j&&j!=i) { j=isa_pid[j]; } return i==j;}
-	isa_id		isaId	() volatile const			{return id;}
-	isa_id      grpId	() volatile const			{return grp_id;}
+	bool isA(isa_id i) const volatile
+	{
+		isa_id j = id;
+		while (j && j != i) { j = isa_pid[j]; }
+		return i == j;
+	}
+	isa_id isaId() const volatile { return id; }
+	isa_id grpId() const volatile { return grp_id; }
 
-virtual void	saveToFile  (FD&) const throws;
-virtual void	loadFromFile(FD&) throws;
+	virtual void saveToFile(FD&) const throws;
+	virtual void loadFromFile(FD&) throws;
 };
 
 
@@ -47,22 +52,30 @@ virtual void	loadFromFile(FD&) throws;
 
 // define safe casting procs:			e.g. Item* ItemPtr(object)
 
-#define DEFPTR(ITEM)	\
-inline ITEM* ITEM ## Ptr(IsaObject*o) {					\
-	assert(!o||o->isA(isa_ ## ITEM));					\
-	return reinterpret_cast<ITEM*>(o); }				\
-\
-inline const ITEM* ITEM ## Ptr(const IsaObject*o) {		\
-	assert(!o||o->isA(isa_ ## ITEM));					\
-	return reinterpret_cast<const ITEM*>(o); }			\
-\
-inline volatile ITEM* ITEM ## Ptr(volatile IsaObject* o) { \
-	assert(!o||o->isA(isa_ ## ITEM));					\
-	return reinterpret_cast<volatile ITEM*>(o); }		\
-\
-inline volatile const ITEM* ITEM ## Ptr(volatile const IsaObject* o) { \
-	assert(!o||o->isA(isa_ ## ITEM));					\
-	return reinterpret_cast<volatile const ITEM*>(o); }	\
+#define DEFPTR(ITEM)                                                                                                   \
+  inline ITEM* ITEM##Ptr(IsaObject* o)                                                                                 \
+  {                                                                                                                    \
+	assert(!o || o->isA(isa_##ITEM));                                                                                  \
+	return reinterpret_cast<ITEM*>(o);                                                                                 \
+  }                                                                                                                    \
+                                                                                                                       \
+  inline const ITEM* ITEM##Ptr(const IsaObject* o)                                                                     \
+  {                                                                                                                    \
+	assert(!o || o->isA(isa_##ITEM));                                                                                  \
+	return reinterpret_cast<const ITEM*>(o);                                                                           \
+  }                                                                                                                    \
+                                                                                                                       \
+  inline volatile ITEM* ITEM##Ptr(volatile IsaObject* o)                                                               \
+  {                                                                                                                    \
+	assert(!o || o->isA(isa_##ITEM));                                                                                  \
+	return reinterpret_cast<volatile ITEM*>(o);                                                                        \
+  }                                                                                                                    \
+                                                                                                                       \
+  inline volatile const ITEM* ITEM##Ptr(volatile const IsaObject* o)                                                   \
+  {                                                                                                                    \
+	assert(!o || o->isA(isa_##ITEM));                                                                                  \
+	return reinterpret_cast<volatile const ITEM*>(o);                                                                  \
+  }
 
 DEFPTR(Machine)
 DEFPTR(MachineZx80)
@@ -113,16 +126,3 @@ DEFPTR(Multiface128)
 DEFPTR(Multiface3)
 DEFPTR(MachineTc2068)
 DEFPTR(MachineZxPlus3)
-
-
-
-
-
-
-
-
-
-
-
-
-

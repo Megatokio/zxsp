@@ -11,6 +11,3 @@ class Tc2048Joy : public KempstonJoy
 public:
 	explicit Tc2048Joy(Machine*);
 };
-
-
-

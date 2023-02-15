@@ -93,22 +93,18 @@ static cstr i_addr = "----.----.-011.1111";
 static cstr o_addr = "----.----.--11.11-1";
 
 
-
-Multiface3::Multiface3(Machine* m)
-:
-	Multiface(m,isa_Multiface3,"Roms/mf3.rom",o_addr,i_addr),
-	mf_enabled(),
-	all_ram()
+Multiface3::Multiface3(Machine* m) :
+	Multiface(m, isa_Multiface3, "Roms/mf3.rom", o_addr, i_addr), mf_enabled(), all_ram()
 {}
 
 
-void Multiface3::powerOn( /*t=0*/ int32 cc )
+void Multiface3::powerOn(/*t=0*/ int32 cc)
 {
-	assert(machine->rom.count()==0x10000);
+	assert(machine->rom.count() == 0x10000);
 
 	Multiface::powerOn(cc);
 	mf_enabled = no;
-	all_ram = no;
+	all_ram	   = no;
 	// register4x4[] has no reset input
 
 	machine->rom[0x0066] |= cpu_patch;
@@ -118,11 +114,11 @@ void Multiface3::powerOn( /*t=0*/ int32 cc )
 }
 
 
-void Multiface3::reset( Time t, int32 cc )
+void Multiface3::reset(Time t, int32 cc)
 {
-	Multiface::reset(t,cc);
+	Multiface::reset(t, cc);
 	mf_enabled = no;
-	all_ram = no;
+	all_ram	   = no;
 	// register4x4[] has no reset input
 }
 
@@ -131,21 +127,27 @@ void Multiface3::reset( Time t, int32 cc )
 	page ram+rom if bit7=0
 	read 4x4bit register
 */
-void Multiface3::input( Time, int32, uint16 addr, uint8& byte, uint8& mask )
+void Multiface3::input(Time, int32, uint16 addr, uint8& byte, uint8& mask)
 {
 	assert((addr & 0b01111111) == 0b00111111);
 
-	if(mf_enabled)
+	if (mf_enabled)
 	{
-		if(addr&0x80) { if(paged_in) page_out(); }
-		else		  { if(!paged_in) page_in(); }
+		if (addr & 0x80)
+		{
+			if (paged_in) page_out();
+		}
+		else
+		{
+			if (!paged_in) page_in();
+		}
 
-		byte &= register4x4[(addr>>13)&3] | 0xf0;
+		byte &= register4x4[(addr >> 13) & 3] | 0xf0;
 		mask |= 0x0F;
 	}
 	else
 	{
-		if(paged_in) page_out();
+		if (paged_in) page_out();
 	}
 }
 
@@ -155,19 +157,19 @@ void Multiface3::input( Time, int32, uint16 addr, uint8& byte, uint8& mask )
 	set all_ram flag
 	re-engage nmi button
 */
-void Multiface3::output( Time, int32, uint16 addr, uint8 byte )
+void Multiface3::output(Time, int32, uint16 addr, uint8 byte)
 {
-	if( (addr & 0x90FF) == 0x10fd )		// Mmu address: $1FFD or $7FFD
+	if ((addr & 0x90FF) == 0x10fd) // Mmu address: $1FFD or $7FFD
 	{
-		if( (addr & 0x6000) == 0 ) all_ram = byte&1;
-		register4x4[(addr>>13)&3] = byte;
+		if ((addr & 0x6000) == 0) all_ram = byte & 1;
+		register4x4[(addr >> 13) & 3] = byte;
 		return;
 	}
 
-	if( (addr&0x7F) == 0x3F)	// enable NMI button, if A7=0 deactivate/hide MF128
+	if ((addr & 0x7F) == 0x3F) // enable NMI button, if A7=0 deactivate/hide MF128
 	{
 		nmi_pending = no;
-		if( (addr&0xFF) == 0x3F) mf_enabled = no;
+		if ((addr & 0xFF) == 0x3F) mf_enabled = no;
 	}
 }
 
@@ -183,56 +185,28 @@ void Multiface3::output( Time, int32, uint16 addr, uint8 byte )
 		therefore disabling the button is done in pushNmiButton(), not here.
 	returns new opcode
 */
-uint8 Multiface3::handleRomPatch( uint16 pc, uint8 o )
+uint8 Multiface3::handleRomPatch(uint16 pc, uint8 o)
 {
-	if( pc!=0x0066 || !nmi_pending )	// not NMI address or NMI not triggered by me
-		return prev()->handleRomPatch(pc,o);
+	if (pc != 0x0066 || !nmi_pending) // not NMI address or NMI not triggered by me
+		return prev()->handleRomPatch(pc, o);
 
-	assert(mf_enabled);		// nmi_pending should imply mf_enabled
+	assert(mf_enabled); // nmi_pending should imply mf_enabled
 
-	if(all_ram) return o;
-	if(!paged_in) page_in();
+	if (all_ram) return o;
+	if (!paged_in) page_in();
 	return rom[pc];
 }
 
 void Multiface3::triggerNmi()
 {
-	if(nmi_pending || all_ram) return;
+	if (nmi_pending || all_ram) return;
 
 	nmi_pending = yes;
-	mf_enabled = yes;
+	mf_enabled	= yes;
 	machine->cpu->triggerNmi();
 }
 
 
-void Multiface3::saveToFile ( FD& ) const noexcept(false) /*file_error,bad_alloc*/
-{
-	TODO();
-}
+void Multiface3::saveToFile(FD&) const noexcept(false) /*file_error,bad_alloc*/ { TODO(); }
 
-void Multiface3::loadFromFile( FD& ) noexcept(false) /*file_error,bad_alloc*/
-{
-	TODO();
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void Multiface3::loadFromFile(FD&) noexcept(false) /*file_error,bad_alloc*/ { TODO(); }

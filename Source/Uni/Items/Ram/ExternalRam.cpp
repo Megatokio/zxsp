@@ -6,20 +6,4 @@
 #include "Item.h"
 
 
-ExternalRam::ExternalRam(Machine*m, isa_id id)
-:
-	Item(m,id,isa_ExternalRam,external,nullptr,nullptr)
-{}
-
-
-
-
-
-
-
-
-
-
-
-
-
+ExternalRam::ExternalRam(Machine* m, isa_id id) : Item(m, id, isa_ExternalRam, external, nullptr, nullptr) {}

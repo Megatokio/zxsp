@@ -9,8 +9,5 @@
 class DktronicsDualJoyInsp : public JoyInsp
 {
 public:
-	DktronicsDualJoyInsp( QWidget*, MachineController*, volatile IsaObject* );
+	DktronicsDualJoyInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
-
-
-

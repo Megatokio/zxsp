@@ -17,8 +17,3 @@ protected:
 public:
 	explicit MachineJupiter(MachineController*);
 };
-
-
-
-
-

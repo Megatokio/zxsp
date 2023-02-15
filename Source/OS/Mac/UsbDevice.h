@@ -4,12 +4,12 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "mac_util.h"
-//#include <IOKit/hid/IOHIDLib.h>
+#include <IOKit/hid/IOHIDLib.h>
 #include <IOKit/usb/IOUSBLib.h>
 
 
-typedef struct __CFDictionary * CFMutableDictionaryRef;
-typedef const struct __CFDictionary * CFDictionaryRef;
+typedef struct __CFDictionary*		 CFMutableDictionaryRef;
+typedef const struct __CFDictionary* CFDictionaryRef;
 
 
 // IOUSBInterfaceInterface		// 10.0
@@ -26,25 +26,23 @@ typedef const struct __CFDictionary * CFDictionaryRef;
 // IOHIDDeviceInterface122		// 10.3
 
 
-
 // for compatibility with OS X 10.6:
-typedef IOUSBInterfaceInterface300	MyUSBInterfaceInterface;
-typedef IOUSBDeviceInterface320		MyUSBDeviceInterface;
-typedef IOHIDDeviceInterface122		MyHIDDeviceInterface;
+typedef IOUSBInterfaceInterface300 MyUSBInterfaceInterface;
+typedef IOUSBDeviceInterface320	   MyUSBDeviceInterface;
+typedef IOHIDDeviceInterface122	   MyHIDDeviceInterface;
 
 
+extern CFTypeRef usbSearchProperty(io_registry_entry_t, QCFString property_key, uint recursive);
+extern cstr		 usbSearchStringProperty(io_registry_entry_t, QCFString property_key, uint recursive);
+extern uint16	 usbSearchShortIntProperty(io_registry_entry_t, QCFString property_key, uint recursive, bool* ok);
 
-extern CFTypeRef	usbSearchProperty		(io_registry_entry_t, QCFString property_key, uint recursive);
-extern cstr			usbSearchStringProperty(io_registry_entry_t, QCFString property_key, uint recursive);
-extern uint16		usbSearchShortIntProperty(io_registry_entry_t, QCFString property_key, uint recursive, bool *ok);
+extern CFMutableDictionaryRef newMatchingDictForService(cstr service);
+extern void					  add(CFMutableDictionaryRef, cstr key, int32 value);
+extern void					  add(CFMutableDictionaryRef, cstr key, cstr value);
+extern io_iterator_t		  newIteratorForMatchingServices(CFDictionaryRef matchingDict);
 
-extern CFMutableDictionaryRef	newMatchingDictForService(cstr service);
-extern void						add(CFMutableDictionaryRef, cstr key, int32 value);
-extern void						add(CFMutableDictionaryRef, cstr key, cstr value);
-extern io_iterator_t			newIteratorForMatchingServices(CFDictionaryRef matchingDict);
-
-extern MyUSBDeviceInterface**	newUSBDeviceInterfaceForDevice(io_service_t device);
-extern MyHIDDeviceInterface**	newHIDDeviceInterfaceForService(io_service_t device);
+extern MyUSBDeviceInterface**	 newUSBDeviceInterfaceForDevice(io_service_t device);
+extern MyHIDDeviceInterface**	 newHIDDeviceInterfaceForService(io_service_t device);
 extern MyUSBInterfaceInterface** newUSBInterfaceInterfaceForInterface(io_service_t interface);
 
 
@@ -59,13 +57,3 @@ public:
 	UsbDevice();
 	~UsbDevice();
 };
-
-
-
-
-
-
-
-
-
-

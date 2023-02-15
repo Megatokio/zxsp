@@ -4,8 +4,6 @@
 
 #include "ZxPrinterInsp.h"
 
-ZxPrinterInsp::ZxPrinterInsp(QWidget*w, MachineController* mc, volatile IsaObject *i )
-:
-	Inspector(w,mc,i,"/Backgrounds/light-150-s.jpg")
-{
-}
+ZxPrinterInsp::ZxPrinterInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
+	Inspector(w, mc, i, "/Backgrounds/light-150-s.jpg")
+{}

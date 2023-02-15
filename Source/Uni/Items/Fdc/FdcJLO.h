@@ -11,6 +11,3 @@ class FdcJLO : public Fdc
 public:
 	explicit FdcJLO(Machine*);
 };
-
-
-

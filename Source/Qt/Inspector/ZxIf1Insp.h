@@ -8,11 +8,5 @@
 class ZxIf1Insp : public Inspector
 {
 public:
-	ZxIf1Insp( QWidget*, MachineController*, volatile IsaObject* );
+	ZxIf1Insp(QWidget*, MachineController*, volatile IsaObject*);
 };
-
-
-
-
-
-

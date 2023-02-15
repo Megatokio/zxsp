@@ -8,12 +8,5 @@
 class ZxPrinterInsp : public Inspector
 {
 public:
-	ZxPrinterInsp(QWidget*, MachineController *mc, volatile IsaObject* );
+	ZxPrinterInsp(QWidget*, MachineController* mc, volatile IsaObject*);
 };
-
-
-
-
-
-
-

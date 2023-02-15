@@ -2,12 +2,11 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "UsbJoystick.h"
+#include "UsbDevice.h"
 #include <IOKit/IOCFPlugIn.h>
 #include <IOKit/hid/IOHIDLib.h>
 #include <IOKit/hid/IOHIDUsageTables.h>
-#include "UsbJoystick.h"
-#include "UsbDevice.h"
-
 
 
 /* ----	Print Device Properties -------------
@@ -16,31 +15,33 @@
 		for the supplied device.
 		warning: prints really a lot!
 */
-static
-void ShowDeviceProperties ( io_registry_entry_t /* io_object_t */ myDevice )
+static void ShowDeviceProperties(io_registry_entry_t /* io_object_t */ myDevice)
 {
 	xlogIn("\nShowDeviceProperties");
 
-	kern_return_t			result;
-	CFMutableDictionaryRef	properties = nullptr;
-	char					path[512];
+	kern_return_t		   result;
+	CFMutableDictionaryRef properties = nullptr;
+	char				   path[512];
 
-	result = IORegistryEntryGetPath ( myDevice, kIOServicePlane, path );
-	if( result == KERN_SUCCESS ) { logline( "path = \"%s\"\n", path ); }
-	else						 { logline( "IORegistryEntryGetPath() error = $%X\n", uint(result) ); }
+	result = IORegistryEntryGetPath(myDevice, kIOServicePlane, path);
+	if (result == KERN_SUCCESS) { logline("path = \"%s\"\n", path); }
+	else { logline("IORegistryEntryGetPath() error = $%X\n", uint(result)); }
 
-// Create a CF dictionary representation of the I/O Registry entry's properties
-	result = IORegistryEntryCreateCFProperties( myDevice, &properties, kCFAllocatorDefault, kNilOptions );
-	if ( (result != KERN_SUCCESS) || properties==nullptr )
-	{ logline( "IORegistryEntryCreateCFProperties() error = $%X\n", uint(result) ); return; }
+	// Create a CF dictionary representation of the I/O Registry entry's properties
+	result = IORegistryEntryCreateCFProperties(myDevice, &properties, kCFAllocatorDefault, kNilOptions);
+	if ((result != KERN_SUCCESS) || properties == nullptr)
+	{
+		logline("IORegistryEntryCreateCFProperties() error = $%X\n", uint(result));
+		return;
+	}
 
-// Some common properties of interest:
-//	kIOHIDTransportKey, kIOHIDVendorIDKey, kIOHIDProductIDKey, kIOHIDVersionNumberKey,
-//	kIOHIDManufacturerKey, kIOHIDProductKey, kIOHIDSerialNumberKey, kIOHIDLocationIDKey,
-//	kIOHIDPrimaryUsageKey, kIOHIDPrimaryUsagePageKey, kIOHIDElementKey.
-	CFShow( properties );
+	// Some common properties of interest:
+	//	kIOHIDTransportKey, kIOHIDVendorIDKey, kIOHIDProductIDKey, kIOHIDVersionNumberKey,
+	//	kIOHIDManufacturerKey, kIOHIDProductKey, kIOHIDSerialNumberKey, kIOHIDLocationIDKey,
+	//	kIOHIDPrimaryUsageKey, kIOHIDPrimaryUsagePageKey, kIOHIDElementKey.
+	CFShow(properties);
 
-	CFRelease( properties );
+	CFRelease(properties);
 	logNl();
 }
 
@@ -50,8 +51,8 @@ void ShowDeviceProperties ( io_registry_entry_t /* io_object_t */ myDevice )
 //		struct IOHIDDeviceInterface122 is the extended
 //		IOHIDDeviceInterface since OSX 10.3
 //*/
-//static
-//IOHIDDeviceInterface122** NewDeviceInterface ( io_object_t device )
+// static
+// IOHIDDeviceInterface122** NewDeviceInterface ( io_object_t device )
 //{
 //	xlogIn("NewDeviceInterface");
 
@@ -67,9 +68,9 @@ void ShowDeviceProperties ( io_registry_entry_t /* io_object_t */ myDevice )
 //	uint32	err   = ok;
 
 //// Create a plugin interface
-//	err = IOCreatePlugInInterfaceForService ( device, kIOHIDDeviceUserClientTypeID, kIOCFPlugInInterfaceID, &plugin_if, &score );
-//	if( err != kIOReturnSuccess ) { logline( "NewDeviceInterface:IOCreatePlugInInterface: error = $%lX\n", err ); return NULL; }
-//	assert( plugin_if && *plugin_if );
+//	err = IOCreatePlugInInterfaceForService ( device, kIOHIDDeviceUserClientTypeID, kIOCFPlugInInterfaceID, &plugin_if,
+//&score ); 	if( err != kIOReturnSuccess ) { logline( "NewDeviceInterface:IOCreatePlugInInterface: error = $%lX\n", err
+//); return NULL; } 	assert( plugin_if && *plugin_if );
 
 //// Create the device interface
 //	err = (*plugin_if)->QueryInterface ( plugin_if, CFUUIDGetUUIDBytes( kIOHIDDeviceInterfaceID ), (void**)&dev_if );
@@ -82,13 +83,10 @@ void ShowDeviceProperties ( io_registry_entry_t /* io_object_t */ myDevice )
 //}
 
 
-
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
-UsbJoystick::UsbJoystick()
-:	Joystick(isa_UsbJoystick)
+UsbJoystick::UsbJoystick() : Joystick(isa_UsbJoystick)
 {
 	xlogIn("new UsbJoystick");
 	dev_if = 0;
@@ -107,49 +105,66 @@ UsbJoystick::~UsbJoystick()
 		verify that's it a joystick
 		if no joystick, close device interface
 */
-void UsbJoystick::connect ( io_object_t dev )
+void UsbJoystick::connect(io_object_t dev)
 {
 	xlogIn("UsbJoystick:Connect");
-	if(XXLOG) ShowDeviceProperties(dev); 		// <-- very longish!
+	if (XXLOG) ShowDeviceProperties(dev); // <-- very longish!
 
 	PLocker z(lock);
-	dev_if = newHIDDeviceInterfaceForService( dev );
+	dev_if = newHIDDeviceInterfaceForService(dev);
 
-	if( !dev_if )
+	if (!dev_if)
 	{
-		xlogline( "NewDeviceInterface = nullptr" );	// ((not a joystick or error))
+		xlogline("NewDeviceInterface = nullptr"); // ((not a joystick or error))
 		return;
 	};
 
-	if( getCookies() )
+	if (getCookies())
 	{
 		bool err = no;
-		if( !x_axis )			 { xlogline( "the device has no x axis."); err=yes; }
-		if( !y_axis )			 { xlogline( "the device has no y axis."); err=yes; }
-		if( buttons.count()==0 ) { xlogline( "the device has no button."); err=yes; }
-		if( !err )
+		if (!x_axis)
 		{
-			IOReturn ioerror = (*dev_if)->open(dev_if,0);
-			if( ioerror==kIOReturnSuccess ) { logline("joystick!\n"); return; }	// ok
-			logline( "UsbJoystick:Connect:open(dev_if) failed: error = $%X\n", uint(ioerror) );
+			xlogline("the device has no x axis.");
+			err = yes;
+		}
+		if (!y_axis)
+		{
+			xlogline("the device has no y axis.");
+			err = yes;
+		}
+		if (buttons.count() == 0)
+		{
+			xlogline("the device has no button.");
+			err = yes;
+		}
+		if (!err)
+		{
+			IOReturn ioerror = (*dev_if)->open(dev_if, 0);
+			if (ioerror == kIOReturnSuccess)
+			{
+				logline("joystick!\n");
+				return;
+			} // ok
+			logline("UsbJoystick:Connect:open(dev_if) failed: error = $%X\n", uint(ioerror));
 		}
 	}
-	else 	xlogline( "this is no joystick!\n");
+	else
+		xlogline("this is no joystick!\n");
 
-// error:
+	// error:
 	(*dev_if)->Release(dev_if);
 	dev_if = 0;
 }
 
 
 /* ----	close device interface to USB device ----
-*/
+ */
 void UsbJoystick::disconnect()
 {
 	xlogIn("UsbJoystick:Disconnect");
 
 	PLocker z(lock);
-	if( dev_if )
+	if (dev_if)
 	{
 		(*dev_if)->close(dev_if);
 		(*dev_if)->Release(dev_if);
@@ -163,13 +178,13 @@ void UsbJoystick::disconnect()
 */
 uint8 UsbJoystick::getState(bool mark_active) volatile
 {
-	xxlogIn( "UsbJoystick:getState" );
+	xxlogIn("UsbJoystick:getState");
 
 	// already polled in this dsp callback?
-	if(last_time == system_time) return state;
+	if (last_time == system_time) return state;
 
 	// mark joystick active?
-	if(mark_active) last_time = system_time;
+	if (mark_active) last_time = system_time;
 
 	// get new state:
 	PLocker z(lock);
@@ -179,40 +194,41 @@ uint8 UsbJoystick::getState(bool mark_active) volatile
 
 uint8 UsbJoystick::get_state() const
 {
-	if( !dev_if ) return 0;
+	if (!dev_if) return 0;
 
-	HRESULT/*SInt32*/	herror;
-	IOHIDEventStruct	hidEvent;
-	int x,y,b1=0;
+	HRESULT /*SInt32*/ herror;
+	IOHIDEventStruct   hidEvent;
+	int				   x, y, b1 = 0;
 
 	cstr what = "x-axis";
-	herror = (*dev_if)->getElementValue( dev_if, x_axis, &hidEvent );
+	herror	  = (*dev_if)->getElementValue(dev_if, x_axis, &hidEvent);
 	if (herror) goto xx;
-	x = hidEvent.value;		// seen values: 	min=0  ..  dflt=127..130  ..  max=255
+	x = hidEvent.value; // seen values: 	min=0  ..  dflt=127..130  ..  max=255
 
-	what = "y-axis";
-	herror = (*dev_if)->getElementValue( dev_if, y_axis, &hidEvent );
+	what   = "y-axis";
+	herror = (*dev_if)->getElementValue(dev_if, y_axis, &hidEvent);
 	if (herror) goto xx;
 	y = hidEvent.value;
 
 	what = "buttons";
-	for(uint i=0; i<buttons.count() && !b1; i++)
+	for (uint i = 0; i < buttons.count() && !b1; i++)
 	{
-		if(buttons[i]==0) continue;
-		herror = (*dev_if)->getElementValue( dev_if, buttons[i], &hidEvent );
+		if (buttons[i] == 0) continue;
+		herror = (*dev_if)->getElementValue(dev_if, buttons[i], &hidEvent);
 		if (herror) goto xx;
 		b1 = hidEvent.value;
 	}
 
-	xxlogline( "x-axis = %i; y-axis = %i; button1 = %i", int(x), int(y), int(b1) );
+	xxlogline("x-axis = %i; y-axis = %i; button1 = %i", int(x), int(y), int(b1));
 
-	static uint8 xval[] = { button_left_mask, 0, 0, button_right_mask };
-	static uint8 yval[] = { button_up_mask,   0, 0, button_down_mask  };
+	static uint8 xval[] = {button_left_mask, 0, 0, button_right_mask};
+	static uint8 yval[] = {button_up_mask, 0, 0, button_down_mask};
 
-	return	( b1 ? button1_mask : 0 ) | xval[x>>6] | yval[y>>6];
+	return (b1 ? button1_mask : 0) | xval[x >> 6] | yval[y >> 6];
 
 // error:
-xx:	logline( "UsbJoystick:getState:getElementValue:%s: error = $%X\n", what, uint(herror) );
+xx:
+	logline("UsbJoystick:getState:getElementValue:%s: error = $%X\n", what, uint(herror));
 	(*dev_if)->close(dev_if);
 	(*dev_if)->Release(dev_if);
 	dev_if = 0;
@@ -228,85 +244,105 @@ xx:	logline( "UsbJoystick:getState:getElementValue:%s: error = $%X\n", what, uin
 */
 bool UsbJoystick::getCookies()
 {
-	CFTypeRef			object;
-	int32				number;
-	IOHIDElementCookie	cookie;
-	int32				usage;
-	int32				usagePage;
-	CFArrayRef			elements;
-	CFDictionaryRef		element;
-	IOReturn			ioerror;
+	CFTypeRef		   object;
+	int32			   number;
+	IOHIDElementCookie cookie;
+	int32			   usage;
+	int32			   usagePage;
+	CFArrayRef		   elements;
+	CFDictionaryRef	   element;
+	IOReturn		   ioerror;
 
 	x_axis = y_axis = 0;
 	buttons.purge();
-	if( !dev_if ) return no;
+	if (!dev_if) return no;
 	bool is_joystick = no;
 
-	logIn( "Joystick:getCookies" );
+	logIn("Joystick:getCookies");
 
-// O-Ton Apple: Copy all elements, since we're grabbing most of the elements for this device anyway,
-// and thus, it's faster to iterate them ourselves. When grabbing only one or two elements,
-// a matching dictionary should be passed in here instead of NULL.
+	// O-Ton Apple: Copy all elements, since we're grabbing most of the elements for this device anyway,
+	// and thus, it's faster to iterate them ourselves. When grabbing only one or two elements,
+	// a matching dictionary should be passed in here instead of NULL.
 	ioerror = (*dev_if)->copyMatchingElements(dev_if, nullptr, &elements);
-	if( ioerror != kIOReturnSuccess )
-	{ logline( "Joystick:getCookies:copyMatchingElements: error = $%X", uint(ioerror) ); return no; }
-	logline( "%i elements", int(CFArrayGetCount(elements)) );
+	if (ioerror != kIOReturnSuccess)
+	{
+		logline("Joystick:getCookies:copyMatchingElements: error = $%X", uint(ioerror));
+		return no;
+	}
+	logline("%i elements", int(CFArrayGetCount(elements)));
 
-// Loop over elements:
-	for ( CFIndex i=0; i<CFArrayGetCount(elements); i++ )
+	// Loop over elements:
+	for (CFIndex i = 0; i < CFArrayGetCount(elements); i++)
 	{
 		element = (CFDictionaryRef)CFArrayGetValueAtIndex(elements, i);
-		//logline("\nElement #%i:",int(i));CFShow(element);logNl();
+		// logline("\nElement #%i:",int(i));CFShow(element);logNl();
 
-	// Get usage page
-		object = CFDictionaryGetValue( element, CFSTR(kIOHIDElementUsagePageKey) );
-		if( object==0 || CFGetTypeID(object) != CFNumberGetTypeID() ) continue;
-		if( !CFNumberGetValue((CFNumberRef) object, kCFNumberLongType, &number) ) continue;
+		// Get usage page
+		object = CFDictionaryGetValue(element, CFSTR(kIOHIDElementUsagePageKey));
+		if (object == 0 || CFGetTypeID(object) != CFNumberGetTypeID()) continue;
+		if (!CFNumberGetValue((CFNumberRef)object, kCFNumberLongType, &number)) continue;
 		usagePage = number;
-		if( usagePage!=kHIDPage_GenericDesktop && usagePage!=kHIDPage_Button ) continue;
+		if (usagePage != kHIDPage_GenericDesktop && usagePage != kHIDPage_Button) continue;
 
-	// Get usage
-		object = CFDictionaryGetValue( element, CFSTR(kIOHIDElementUsageKey) );
-		if( object==0 || CFGetTypeID(object) != CFNumberGetTypeID() ) continue;
-		if( !CFNumberGetValue((CFNumberRef) object, kCFNumberLongType, &number) ) continue;
+		// Get usage
+		object = CFDictionaryGetValue(element, CFSTR(kIOHIDElementUsageKey));
+		if (object == 0 || CFGetTypeID(object) != CFNumberGetTypeID()) continue;
+		if (!CFNumberGetValue((CFNumberRef)object, kCFNumberLongType, &number)) continue;
 		usage = number;
 
-	// Get cookie
-		object = CFDictionaryGetValue( element, CFSTR(kIOHIDElementCookieKey) );
-		if( object==0 || CFGetTypeID(object) != CFNumberGetTypeID() ) continue;
-		if( !CFNumberGetValue((CFNumberRef) object, kCFNumberLongType, &number) ) continue;
-		cookie = (IOHIDElementCookie) number;
+		// Get cookie
+		object = CFDictionaryGetValue(element, CFSTR(kIOHIDElementCookieKey));
+		if (object == 0 || CFGetTypeID(object) != CFNumberGetTypeID()) continue;
+		if (!CFNumberGetValue((CFNumberRef)object, kCFNumberLongType, &number)) continue;
+		cookie = (IOHIDElementCookie)number;
 
-	// Check for x and y axis and application
-		log( "usagePage = $%04X, usage = $%02X, cookie=$%08X  ", uint(usagePage), uint(usage), uint(cookie) );
-		if( usagePage == kHIDPage_GenericDesktop /* 1 */ )
+		// Check for x and y axis and application
+		log("usagePage = $%04X, usage = $%02X, cookie=$%08X  ", uint(usagePage), uint(usage), uint(cookie));
+		if (usagePage == kHIDPage_GenericDesktop /* 1 */)
 		{
-			switch( usage )
+			switch (usage)
 			{
-			case kHIDUsage_GD_Pointer:	/* 1 */ 		logline( "pointer device" );		break;
-			case kHIDUsage_GD_Mouse:	/* 2 */ 		logline( "mouse" );					return no;
-			case kHIDUsage_GD_Joystick:	/* 4 */ 		logline( "joystick" ); is_joystick=yes; break;
-			case kHIDUsage_GD_GamePad:	/* 5 */ 		logline( "game pad" ); is_joystick=yes; break;
-			case kHIDUsage_GD_Keyboard:	/* 6 */ 		logline( "keyboard" );				return no;
-			case kHIDUsage_GD_Keypad:	/* 7 */ 		logline( "keypad" );				return no;
-			case kHIDUsage_GD_MultiAxisController:/*8*/	logline( "multi-axis controller" ); is_joystick = yes; break;
-			case kHIDUsage_GD_X:		/* $30 */ 		logline( "x-axis" ); x_axis = cookie; break;
-			case kHIDUsage_GD_Y:		/* $31 */		logline( "y-axis" ); y_axis = cookie; break;
-			default:									logNl(); break;
+			case kHIDUsage_GD_Pointer: /* 1 */ logline("pointer device"); break;
+			case kHIDUsage_GD_Mouse: /* 2 */ logline("mouse"); return no;
+			case kHIDUsage_GD_Joystick: /* 4 */
+				logline("joystick");
+				is_joystick = yes;
+				break;
+			case kHIDUsage_GD_GamePad: /* 5 */
+				logline("game pad");
+				is_joystick = yes;
+				break;
+			case kHIDUsage_GD_Keyboard: /* 6 */ logline("keyboard"); return no;
+			case kHIDUsage_GD_Keypad: /* 7 */ logline("keypad"); return no;
+			case kHIDUsage_GD_MultiAxisController: /*8*/
+				logline("multi-axis controller");
+				is_joystick = yes;
+				break;
+			case kHIDUsage_GD_X: /* $30 */
+				logline("x-axis");
+				x_axis = cookie;
+				break;
+			case kHIDUsage_GD_Y: /* $31 */
+				logline("y-axis");
+				y_axis = cookie;
+				break;
+			default: logNl(); break;
 			}
 		}
-	// Check for buttons
-		else if( usagePage == kHIDPage_Button /* 9 */ )
+		// Check for buttons
+		else if (usagePage == kHIDPage_Button /* 9 */)
 		{
-			if(usage>=1&&usage<=12)		// note: buttons are numbered starting with N = 1
+			if (usage >= 1 && usage <= 12) // note: buttons are numbered starting with N = 1
 			{
 				buttons.grow(usage);
-				buttons[usage-1] = cookie;
+				buttons[usage - 1] = cookie;
 				log("button %i\n", int(usage));
 			}
-			else logNl();
+			else
+				logNl();
 		}
-		else logNl();
+		else
+			logNl();
 	}
 	return is_joystick;
 }
@@ -318,82 +354,54 @@ bool UsbJoystick::getCookies()
 //
 
 /* ----	Search the IO registry for all HID devices ----
-*/
+ */
 void findUsbJoysticks()
 {
 	xxlogNl();
 	xlogIn("findUsbJoysticks");
 
-// create and disconnect all usb joysticks
-	for( int i=0; i<num_usb; i++ )
+	// create and disconnect all usb joysticks
+	for (int i = 0; i < num_usb; i++)
 	{
 		Joystick*& joy = joysticks[i];
-		if(joy) reinterpret_cast<UsbJoystick*>(joy)->disconnect();	// disconnect existing
-		else  joy = new UsbJoystick();
+		if (joy)
+			reinterpret_cast<UsbJoystick*>(joy)->disconnect(); // disconnect existing
+		else
+			joy = new UsbJoystick();
 	}
 
-// data we need:
-	const mach_port_t port  = kIOMasterPortDefault;	// or from IOMasterPort()
-	IOReturn		  err	= kIOReturnSuccess;
-	io_object_t		  dev   = 0;
-	io_iterator_t     iter	= 0;
+	// data we need:
+	const mach_port_t port = kIOMasterPortDefault; // or from IOMasterPort()
+	IOReturn		  err  = kIOReturnSuccess;
+	io_object_t		  dev  = 0;
+	io_iterator_t	  iter = 0;
 
-// What do we search?
-// Create a matching dictionary to search the I/O Registry by class name for all HID class devices
-	CFMutableDictionaryRef myMatchDictionary = IOServiceMatching( kIOHIDDeviceKey );
-	//CFShow(myMatchDictionary);
+	// What do we search?
+	// Create a matching dictionary to search the I/O Registry by class name for all HID class devices
+	CFMutableDictionaryRef myMatchDictionary = IOServiceMatching(kIOHIDDeviceKey);
+	// CFShow(myMatchDictionary);
 
-// Search I/O Registry for matching devices
-	err = IOServiceGetMatchingServices( port, myMatchDictionary, &iter );
-	myMatchDictionary = nullptr;		// the dictionary was consumed by IOServiceGetMatchingServices()
-	if( !iter ) { logline( "findUsbJoysticks:objectIterator = 0" ); return; }
-	assert( err == kIOReturnSuccess );
-
-// Loop over all devices found:
-	int joys=0,devs=0;
-	while(( dev=IOIteratorNext(iter) ))
+	// Search I/O Registry for matching devices
+	err				  = IOServiceGetMatchingServices(port, myMatchDictionary, &iter);
+	myMatchDictionary = nullptr; // the dictionary was consumed by IOServiceGetMatchingServices()
+	if (!iter)
 	{
-		if(joys==max_joy) break;			// out of slots
-		usbJoystick(joys)->connect(dev);
-		if( usbJoystick(joys)->isConnected() ) { joys++; } devs++;
+		logline("findUsbJoysticks:objectIterator = 0");
+		return;
 	}
-	logline("\nfound %i HID device%s, thereof %i joystick%s\n",devs,devs==1?"":"s",joys,joys==1?"":"s");
+	assert(err == kIOReturnSuccess);
 
-// Release iterator. Don't need to release iterator objects.
-	IOObjectRelease( iter );
+	// Loop over all devices found:
+	int joys = 0, devs = 0;
+	while ((dev = IOIteratorNext(iter)))
+	{
+		if (joys == max_joy) break; // out of slots
+		usbJoystick(joys)->connect(dev);
+		if (usbJoystick(joys)->isConnected()) { joys++; }
+		devs++;
+	}
+	logline("\nfound %i HID device%s, thereof %i joystick%s\n", devs, devs == 1 ? "" : "s", joys, joys == 1 ? "" : "s");
+
+	// Release iterator. Don't need to release iterator objects.
+	IOObjectRelease(iter);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

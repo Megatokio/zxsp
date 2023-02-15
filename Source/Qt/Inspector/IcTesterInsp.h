@@ -8,34 +8,5 @@
 class IcTesterInsp : public Inspector
 {
 public:
-	IcTesterInsp( QWidget*, MachineController*, volatile IsaObject* );
+	IcTesterInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

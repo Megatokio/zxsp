@@ -12,17 +12,5 @@ public:
 	explicit MmuJupiter(Machine*);
 
 	// Item interface:
-	void	powerOn(/*t=0*/ int32 cc) override;
+	void powerOn(/*t=0*/ int32 cc) override;
 };
-
-
-
-
-
-
-
-
-
-
-
-

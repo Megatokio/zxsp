@@ -3,10 +3,10 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include <QSplashScreen>
-#include <QApplication>
-#include "kio/kio.h"
 #include "globals.h"
+#include "kio/kio.h"
+#include <QApplication>
+#include <QSplashScreen>
 
 
 class Application : public QApplication
@@ -14,28 +14,21 @@ class Application : public QApplication
 	Q_OBJECT
 	Q_DISABLE_COPY(Application)
 
-	static QString		  filepath;					// during 'open file'
+	static QString		  filepath; // during 'open file'
 	static bool			  is_active_application;
 	static QSplashScreen* about_screen;
 
 public:
-
-	Application(int,char**);
+	Application(int, char**);
 	~Application();
 
-	static bool	isActiveApplication()			{ return is_active_application; }
-	static void	showPreferences();
-	static void	showAbout()						{ about_screen->show(); }
+	static bool isActiveApplication() { return is_active_application; }
+	static void showPreferences();
+	static void showAbout() { about_screen->show(); }
 
-	//void		commitData(QSessionManager&)	{}
-	//void		saveState(QSessionManager&)		{}
+	// void		commitData(QSessionManager&)	{}
+	// void		saveState(QSessionManager&)		{}
 
 private:
-virtual bool    event(QEvent*e);
-
+	virtual bool event(QEvent* e);
 };
-
-
-
-
-

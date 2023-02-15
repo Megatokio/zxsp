@@ -8,7 +8,6 @@
 #include "Qt/Screen/Screen.h"
 
 
-
 /*	acc. to schematics on k1.spdns.de:
 
 		$FBDF	%----.-011.--0-.----	x coord
@@ -35,17 +34,12 @@
 //	Buttons: IN 64223 [255 = None], [254 = Left], [253 = Right], [252 = Both]
 
 
+#define o_addr nullptr
+#define i_addr "----.--1-.--0-.----"
 
-#define o_addr	nullptr
-#define	i_addr	"----.--1-.--0-.----"
 
-
-KempstonMouse::KempstonMouse(Machine*m)
-:
-	Item(m,isa_KempstonMouse,isa_Mouse,external,o_addr,i_addr),
-	scale(2),
-	x(0),
-	y(0)
+KempstonMouse::KempstonMouse(Machine* m) :
+	Item(m, isa_KempstonMouse, isa_Mouse, external, o_addr, i_addr), scale(2), x(0), y(0)
 {
 	xlogIn("new KempstonMouse");
 }
@@ -58,38 +52,35 @@ KempstonMouse::~KempstonMouse()
 }
 
 
-void KempstonMouse::powerOn( int32 cc )
+void KempstonMouse::powerOn(int32 cc)
 {
 	Item::powerOn(cc);
 
-//	if(machine->controller->isFullScreen())		//	da müssen wir erst wieder die rechte Maustaste abfangen
-//		mouse->grab(machine->controller);		//	außerdem bräuchten wir wohl einen Menüeintrag für "Grab Mouse"
-}												//	wobei grabMouse(QWidget*) nur *über* dem Grabber-Widget funktioniert...
+	//	if(machine->controller->isFullScreen())		//	da müssen wir erst wieder die rechte Maustaste abfangen
+	//		mouse->grab(machine->controller);		//	außerdem bräuchten wir wohl einen Menüeintrag für "Grab Mouse"
+} //	wobei grabMouse(QWidget*) nur *über* dem Grabber-Widget funktioniert...
 
 
-void KempstonMouse::input( Time, int32, uint16 address, uint8& byte, uint8& mask )
+void KempstonMouse::input(Time, int32, uint16 address, uint8& byte, uint8& mask)
 {
-	switch( (address>>8)&7 )
+	switch ((address >> 8) & 7)
 	{
-	case 6:	// read buttons:
-	case 2:	// note: A10 not decoded for buttons
+	case 6: // read buttons:
+	case 2: // note: A10 not decoded for buttons
 		byte &= getButtons();
-		mask |= 3;				// 2-button version
+		mask |= 3; // 2-button version
 		return;
 
-	case 3:	// read x-axis:
+	case 3: // read x-axis:
 		byte &= getXPos();
-		mask  = 0xff;			// all bits driven
+		mask = 0xff; // all bits driven
 		return;
 
-	case 7:	// read y-axis:
+	case 7: // read y-axis:
 		byte &= getYPos();
-		mask  = 0xff;			// all bits driven
+		mask = 0xff; // all bits driven
 		return;
 
-	default:
-		return;
+	default: return;
 	}
 }
-
-

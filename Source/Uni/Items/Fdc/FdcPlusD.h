@@ -11,6 +11,3 @@ class FdcPlusD : public Fdc
 public:
 	explicit FdcPlusD(Machine*);
 };
-
-
-

@@ -4,63 +4,52 @@
 
 
 #include "Ula128k.h"
-#include "Z80/Z80options.h"
-#include "Z80/Z80.h"
 #include "Machine/Machine.h"
+#include "Z80/Z80.h"
+#include "Z80/Z80options.h"
 
 
 // o_addr_128	=	"0---.----.----.--0-"		// üblicher Port: 0x7ffd
 // o_addr_48k	=	"----.----.----.---0"		// übliche Adresse: $FE     BESTÄTIGT
-#define o_addr		"----.----.----.----"
-#define i_addr		"----.----.----.---0"
+#define o_addr "----.----.----.----"
+#define i_addr "----.----.----.---0"
 
 
-Ula128k::Ula128k(Machine*m)
-:
-	UlaZxsp(m,isa_Ula128k,o_addr,i_addr)
-{}
+Ula128k::Ula128k(Machine* m) : UlaZxsp(m, isa_Ula128k, o_addr, i_addr) {}
 
 
-Ula128k::Ula128k(Machine*m, isa_id id, cstr oaddr, cstr iaddr)
-:
-	UlaZxsp(m,id,oaddr,iaddr),
-	port_7ffd(0)
-{}
+Ula128k::Ula128k(Machine* m, isa_id id, cstr oaddr, cstr iaddr) : UlaZxsp(m, id, oaddr, iaddr), port_7ffd(0) {}
 
 
 void Ula128k::powerOn(/*t=0*/ int32 cc)
 {
 	port_7ffd = 0;
 	UlaZxsp::powerOn(cc);
-	//markVideoRam();
+	// markVideoRam();
 }
 
 
-void Ula128k::reset( Time t, int32 cc )
+void Ula128k::reset(Time t, int32 cc)
 {
 	port_7ffd = 0;
-	UlaZxsp::reset(t,cc);
+	UlaZxsp::reset(t, cc);
 	markVideoRam();
 }
 
 
-
-void Ula128k::output( Time t, int32 cc, uint16 addr, uint8 byte )
+void Ula128k::output(Time t, int32 cc, uint16 addr, uint8 byte)
 {
-	if(~addr&1)
-	{
-		UlaZxsp::output(t,cc,addr,byte);
-	}
+	if (~addr & 1) { UlaZxsp::output(t, cc, addr, byte); }
 	else
 	{
 		// test for video page change:
 		// o_addr_128 = "0---.----.----.--0-"	// üblicher Port: 0x7ffd
 
-		if(addr & 0x8002) return;				// not the MMU port
-		if(mmu_is_locked()) return;				// mmu port disabled
-		if((byte^port_7ffd) & 0x08)				// video page changed?
+		if (addr & 0x8002) return;	   // not the MMU port
+		if (mmu_is_locked()) return;   // mmu port disabled
+		if ((byte ^ port_7ffd) & 0x08) // video page changed?
 		{
-			if(cc >= ccx) updateScreenUpToCycle(cc);
+			if (cc >= ccx) updateScreenUpToCycle(cc);
 			port_7ffd = byte;
 			markVideoRam();
 		}
@@ -71,7 +60,7 @@ void Ula128k::output( Time t, int32 cc, uint16 addr, uint8 byte )
 /*	callback from Mmu128k::setPort7FFD()
 	update video ram page
 */
-void Ula128k::setPort7ffd( uint8 byte )
+void Ula128k::setPort7ffd(uint8 byte)
 {
 	port_7ffd = byte;
 	markVideoRam();
@@ -80,24 +69,29 @@ void Ula128k::setPort7ffd( uint8 byte )
 
 void Ula128k::markVideoRam()
 {
-	#define SET(A,SZ)	if(~*A & cpu_crtc) for( CoreByte *j=A, *e=A+SZ; j<e; j++ ) *j |= cpu_crtc;
-	#define RES(A,SZ)	if( *A & cpu_crtc) for( CoreByte *j=A, *e=A+SZ; j<e; j++ ) *j &= uint32(~cpu_crtc);
+#define SET(A, SZ)                                                                                                     \
+  if (~*A & cpu_crtc)                                                                                                  \
+	for (CoreByte* j = A, *e = A + SZ; j < e; j++) *j |= cpu_crtc;
+#define RES(A, SZ)                                                                                                     \
+  if (*A & cpu_crtc)                                                                                                   \
+	for (CoreByte* j = A, *e = A + SZ; j < e; j++) *j &= uint32(~cpu_crtc);
 
-	uint page = port_7ffd&0x08 ? 7 : 5;
+	uint page = port_7ffd & 0x08 ? 7 : 5;
 
-	CoreByte* v = video_ram = &ram[page*0x4000];
-	if(screen) { SET(v,6912); } else { RES(v,6912); }
-	//if((v[0] & cpu_crtc)==0) for( uint32 j=0, e=6912; j<e; j++ ) v[j] |= cpu_crtc;
+	CoreByte* v = video_ram = &ram[page * 0x4000];
+	if (screen) { SET(v, 6912); }
+	else { RES(v, 6912); }
+	// if((v[0] & cpu_crtc)==0) for( uint32 j=0, e=6912; j<e; j++ ) v[j] |= cpu_crtc;
 
-	CoreByte* w = &ram[(5+7-page)*0x4000];
-	RES(w,6912);
-	//if((w[0] & cpu_crtc)!=0) for( uint32 j=0, e=6912; j<e; j++ ) w[j] &= ~cpu_crtc;
+	CoreByte* w = &ram[(5 + 7 - page) * 0x4000];
+	RES(w, 6912);
+	// if((w[0] & cpu_crtc)!=0) for( uint32 j=0, e=6912; j<e; j++ ) w[j] &= ~cpu_crtc;
 }
 
 
-int32 Ula128k::addWaitCycles( int32 cc, uint16 addr ) volatile const
+int32 Ula128k::addWaitCycles(int32 cc, uint16 addr) const volatile
 {
-	if(cc<cc_waitmap_start || cc>=cc_waitmap_end)  return cc;	// not in screen
+	if (cc < cc_waitmap_start || cc >= cc_waitmap_end) return cc; // not in screen
 
 	/*	waitstates for any i/o:
 		• waitstates are added for contended memory access
@@ -119,41 +113,25 @@ int32 Ula128k::addWaitCycles( int32 cc, uint16 addr ) volatile const
 	// pages 0 and 2 never contended
 	// page 1 always contended
 	// page 3 only if screen paged in
-	bool contended = (addr&0x4000) && ( (~addr&0x8000) || (port_7ffd&5)==5 );
+	bool contended = (addr & 0x4000) && ((~addr & 0x8000) || (port_7ffd & 5) == 5);
 
-	if(addr & 0x0001)	// ULA not accessed:
+	if (addr & 0x0001) // ULA not accessed:
 	{
-		if(contended)
+		if (contended)
 		{
 			// access to address which looks like a screen memory access:
-			cc += waitmap[(cc-1)%cc_per_line];		// -1 .. +2   --> vgl. BorderBarGenerator
-			cc += waitmap[(cc+0)%cc_per_line];
-			cc += waitmap[(cc+1)%cc_per_line];
-			cc += waitmap[(cc+2)%cc_per_line];
+			cc += waitmap[(cc - 1) % cc_per_line]; // -1 .. +2   --> vgl. BorderBarGenerator
+			cc += waitmap[(cc + 0) % cc_per_line];
+			cc += waitmap[(cc + 1) % cc_per_line];
+			cc += waitmap[(cc + 2) % cc_per_line];
 			cpu->setCpuCycle(cc);
 		}
 	}
-	else	// ULA accessed:
+	else // ULA accessed:
 	{
-		if(contended) cc += waitmap[(cc-1)%cc_per_line];
-		cc += waitmap[(cc+0)%cc_per_line];
+		if (contended) cc += waitmap[(cc - 1) % cc_per_line];
+		cc += waitmap[(cc + 0) % cc_per_line];
 		cpu->setCpuCycle(cc);
 	}
 	return cc;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

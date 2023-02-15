@@ -2,10 +2,10 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include <QtGui>
-#include <ApplicationServices/ApplicationServices.h>
 #include "Mouse.h"
 #include "globals.h"
+#include <ApplicationServices/ApplicationServices.h>
+#include <QtGui>
 
 
 // global instance
@@ -22,15 +22,10 @@ static void _ungrab()
 }
 
 
-Mouse::Mouse()
-:
-	grabber(nullptr),
-	mouse_tracker_timer(new QTimer(this)),
-	dx(0),
-	dy(0)
+Mouse::Mouse() : grabber(nullptr), mouse_tracker_timer(new QTimer(this)), dx(0), dy(0)
 {
 	xlogIn("new Mouse");
-	assert(this==&mouse);
+	assert(this == &mouse);
 
 	connect(mouse_tracker_timer, &QTimer::timeout, this, &Mouse::mouse_tracker);
 
@@ -44,14 +39,14 @@ Mouse::~Mouse()
 	ungrab();
 }
 
-void Mouse::grab( QWidget* w )
+void Mouse::grab(QWidget* w)
 {
-	if(grabber) ungrab();
+	if (grabber) ungrab();
 	grabber = w;
 
 	connect(w, &QWidget::destroyed, this, &Mouse::ungrab);
 
-	mouse_tracker_timer->start(1000/100);
+	mouse_tracker_timer->start(1000 / 100);
 
 	w->setFocus();
 	w->grabMouse();
@@ -62,7 +57,7 @@ void Mouse::grab( QWidget* w )
 
 void Mouse::ungrab()
 {
-	if(!grabber) return;
+	if (!grabber) return;
 	mouse_tracker_timer->stop();
 	grabber->releaseMouse();
 	CGAssociateMouseAndMouseCursorPosition(yes);
@@ -73,30 +68,14 @@ void Mouse::ungrab()
 
 void Mouse::mouse_tracker()
 {
-	if(QApplication::keyboardModifiers()&Qt::CTRL) { ungrab(); return; }
+	if (QApplication::keyboardModifiers() & Qt::CTRL)
+	{
+		ungrab();
+		return;
+	}
 
 	int32_t dx, dy;
-	CGGetLastMouseDelta( &dx, &dy );			// mouse movement since last mouseMoved event
+	CGGetLastMouseDelta(&dx, &dy); // mouse movement since last mouseMoved event
 	this->dx += dx;
 	this->dy -= dy;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

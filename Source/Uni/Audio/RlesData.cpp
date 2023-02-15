@@ -60,39 +60,26 @@ Notes:
 
 	Beim Speichern von time_akku ändert sich die Laufzeit wegen der Sampleraten-Anpassung.
 	Damit ändert sich in dem Moment die exakte aktuelle Position und Gesamtspiellänge.
-	Nach Schreiben eines n-Sample-Puffers mit Write() erhöht sich die aktuelle Position deshalb nicht exakt um n Samples!
+	Nach Schreiben eines n-Sample-Puffers mit Write() erhöht sich die aktuelle Position deshalb nicht exakt um n
+Samples!
 */
 
-#include <zlib.h>
-#include <math.h>
-#include "StereoSample.h"
-#include "TapeFile.h"
-#include "TapeFileDataBlock.h"
 #include "RlesData.h"
-#include "TapData.h"
-#include "TzxData.h"
-#include "O80Data.h"
 #include "AudioData.h"
 #include "Dsp.h"
+#include "O80Data.h"
+#include "StereoSample.h"
+#include "TapData.h"
+#include "TapeFile.h"
+#include "TapeFileDataBlock.h"
 #include "TapeRecorder.h"
+#include "TzxData.h"
 #include "globals.h"
-
-
-
-
-
-
+#include <math.h>
+#include <zlib.h>
 
 
 //					disfunct
-
-
-
-
-
-
-
-
 
 
 /* ---- ZX Spectrum tape loader timing ----
@@ -114,54 +101,43 @@ lt. RamSoft "ZX Spectrum Loaders Guide":
 		1-Bit	   1710 cpu cycles  ~ 1023 Hz
 		Pilot	   2168 cpu cycles  ~  807 Hz
 */
-//Frequency const	cc_per_second	= 3500000.0;	// cpu cycles per second
-//uint32 const	cc_pilot	= 2168;				// cpu cycles per pilot pulse
-//uint32 const	cc_bit0	=  855;				// cpu cycles per 0-bit pulse
-//uint32 const	cc_bit1	= 1710;				// cpu cycles per 1-bit pulse
-//uint32 const	cc_sync1	=  667;				// cpu cycles for 1st sync pulse
-//uint32 const	cc_sync2	=  735;				// cpu cycles for 2nd sync pulse
-//Time  const	secs_per_pilot	= cc_pilot / cc_per_second;		// duration of one pulse
-//Time  const secs_per_sync1	= cc_sync1 / cc_per_second;		// duration of one pulse
-//Time  const secs_per_sync2	= cc_sync2 / cc_per_second;		// duration of one pulse
-//Time  const secs_per_bit0	= cc_bit0 / cc_per_second;		// duration of one pulse
-//Time  const secs_per_bit1	= cc_bit1 / cc_per_second;		// duration of one pulse
-
+// Frequency const	cc_per_second	= 3500000.0;	// cpu cycles per second
+// uint32 const	cc_pilot	= 2168;				// cpu cycles per pilot pulse
+// uint32 const	cc_bit0	=  855;				// cpu cycles per 0-bit pulse
+// uint32 const	cc_bit1	= 1710;				// cpu cycles per 1-bit pulse
+// uint32 const	cc_sync1	=  667;				// cpu cycles for 1st sync pulse
+// uint32 const	cc_sync2	=  735;				// cpu cycles for 2nd sync pulse
+// Time  const	secs_per_pilot	= cc_pilot / cc_per_second;		// duration of one pulse
+// Time  const secs_per_sync1	= cc_sync1 / cc_per_second;		// duration of one pulse
+// Time  const secs_per_sync2	= cc_sync2 / cc_per_second;		// duration of one pulse
+// Time  const secs_per_bit0	= cc_bit0 / cc_per_second;		// duration of one pulse
+// Time  const secs_per_bit1	= cc_bit1 / cc_per_second;		// duration of one pulse
 
 
 // ################################################################################
 
 
+RlesData::RlesData() : TapeData(isa_RlesData) {}
 
-RlesData::RlesData()
-: TapeData(isa_RlesData)
-{}
+RlesData::~RlesData() {}
 
-RlesData::~RlesData()
-{
-}
-
-RlesData::RlesData( TapeData const& q ) noexcept(false) // data_error
-:
+RlesData::RlesData(const TapeData& q) noexcept(false) // data_error
+	:
 	TapeData(isa_RlesData)
 {
-	switch( q.isaId() )
+	switch (q.isaId())
 	{
-		case isa_TapData:	new(this) RlesData(static_cast<TapData const&>(q)); break;
-		case isa_TzxData:	new(this) RlesData(static_cast<TzxData const&>(q)); break;
-		case isa_O80Data:	new(this) RlesData(static_cast<O80Data const&>(q)); break;
-		case isa_RlesData:	new(this) RlesData(static_cast<RlesData const&>(q)); break;
-		case isa_AudioData: new(this) RlesData(static_cast<AudioData const&>(q)); break;
-		default:            IERR();
+	case isa_TapData: new (this) RlesData(static_cast<const TapData&>(q)); break;
+	case isa_TzxData: new (this) RlesData(static_cast<const TzxData&>(q)); break;
+	case isa_O80Data: new (this) RlesData(static_cast<const O80Data&>(q)); break;
+	case isa_RlesData: new (this) RlesData(static_cast<const RlesData&>(q)); break;
+	case isa_AudioData: new (this) RlesData(static_cast<const AudioData&>(q)); break;
+	default: IERR();
 	}
 }
 
 
-CswBuffer::CswBuffer(RlesData const& , uint32 ccps)
-:
-	ccps(ccps)
-{
-	TODO();
-}
+CswBuffer::CswBuffer(const RlesData&, uint32 ccps) : ccps(ccps) { TODO(); }
 
 
 // #######################################################################################
@@ -169,45 +145,44 @@ CswBuffer::CswBuffer(RlesData const& , uint32 ccps)
 // #######################################################################################
 
 
-RlesData::RlesData( TzxData const& ) noexcept(false) // data_error
-:
+RlesData::RlesData(const TzxData&) noexcept(false) // data_error
+	:
 	TapeData(isa_RlesData)
 {
 	TODO();
 }
 
-RlesData::RlesData( TapData const& ) noexcept(false) // data_error
-:
+RlesData::RlesData(const TapData&) noexcept(false) // data_error
+	:
 	TapeData(isa_RlesData)
 {
-	TODO();//buffer.startRecordingPulses();
-//	buffer.writeZxspData( q.data.Data(), q.data.Count()*8, 1.000 /*pause*/ );
-//	buffer.stop();
+	TODO(); // buffer.startRecordingPulses();
+			//	buffer.writeZxspData( q.data.Data(), q.data.Count()*8, 1.000 /*pause*/ );
+			//	buffer.stop();
 }
 
-RlesData::RlesData( O80Data const& ) noexcept(false) // data_error
-:
+RlesData::RlesData(const O80Data&) noexcept(false) // data_error
+	:
 	TapeData(isa_RlesData)
 {
-	TODO();//buffer.startRecordingPulses();
-//	buffer.writeZx80Data( q.data.Data(), q.data.Count() );
-//	buffer.stop();
+	TODO(); // buffer.startRecordingPulses();
+			//	buffer.writeZx80Data( q.data.Data(), q.data.Count() );
+			//	buffer.stop();
 }
 
-RlesData::RlesData(class AudioData const& ) noexcept(false) // data_error
-:
-	TapeData(isa_RlesData)
-{
-	TODO();
-}
-
-RlesData::RlesData(RlesData const& ) noexcept(false) // data_error
-:
+RlesData::RlesData(const class AudioData&) noexcept(false) // data_error
+	:
 	TapeData(isa_RlesData)
 {
 	TODO();
 }
 
+RlesData::RlesData(const RlesData&) noexcept(false) // data_error
+	:
+	TapeData(isa_RlesData)
+{
+	TODO();
+}
 
 
 // #######################################################################################
@@ -238,17 +213,16 @@ void RlesData::calcBlockInfos()
 #endif
 
 ////virtual
-//cstr RlesData::getMajorBlockInfo()
+// cstr RlesData::getMajorBlockInfo()
 //{
-//    TODO();
-//}
+//     TODO();
+// }
 
 ////virtual
-//cstr RlesData::getMinorBlockInfo()
+// cstr RlesData::getMinorBlockInfo()
 //{
-//    TODO();
-//}
-
+//     TODO();
+// }
 
 
 // #######################################################################################
@@ -256,21 +230,20 @@ void RlesData::calcBlockInfos()
 // #######################################################################################
 
 
-
-//void RlesData::startPlaying(Time)
+// void RlesData::startPlaying(Time)
 //{
-//    buffer.start(TapeFile::playing|TapeFile::edges);
-//    recording = no;
-//}
+//     buffer.start(TapeFile::playing|TapeFile::edges);
+//     recording = no;
+// }
 
-//void RlesData::startRecording(Time)
+// void RlesData::startRecording(Time)
 //{
-//    assert(!recording);
-//    purge();
-//    buffer.grow(1 MB);
-//    buffer.start(TapeFile::recording|TapeFile::edges);
-//    recording = yes;
-//}
+//     assert(!recording);
+//     purge();
+//     buffer.grow(1 MB);
+//     buffer.start(TapeFile::recording|TapeFile::edges);
+//     recording = yes;
+// }
 
 
 /*	; info text for display: (multiple, optional)
@@ -290,7 +263,7 @@ void RlesData::calcBlockInfos()
 		dc.m	"1.0", $00				; major + minor version
 */
 /*static*/
-void RlesData::readFile (cstr /*fpath*/, TapeFile& /*tapeblocks*/) throws
+void RlesData::readFile(cstr /*fpath*/, TapeFile& /*tapeblocks*/) throws
 {
 	TODO();
 #if 0
@@ -371,10 +344,11 @@ void RlesData::readFile (cstr /*fpath*/, TapeFile& /*tapeblocks*/) throws
 
 
 /*static*/
-void RlesData::writeFile (cstr fpath, TapeFile &tapedata ) noexcept(false) // file_error,data_error,bad_alloc
+void RlesData::writeFile(cstr fpath, TapeFile& tapedata) noexcept(false) // file_error,data_error,bad_alloc
 {
-	xlogIn("RlesData::writeFile(%s)",fpath);
-	TODO();(void)tapedata;
+	xlogIn("RlesData::writeFile(%s)", fpath);
+	TODO();
+	(void)tapedata;
 	(void)fpath;
 }
 
@@ -400,24 +374,7 @@ void RlesData::WriteToFile( int fd ) const throws			// .rles file
 #endif
 
 
-//uint32 RlesData::samplesPerSecond()
+// uint32 RlesData::samplesPerSecond()
 //{
 //	return 0;	// TODO
-//}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// }

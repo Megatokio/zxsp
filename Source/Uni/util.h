@@ -8,17 +8,13 @@
 #include <QString>
 
 
-extern cstr		MHzStr      (Frequency);
+extern cstr MHzStr(Frequency);
 
-extern int32	intValue	(cstr);
-extern int32	intValue	(QString);
+extern int32 intValue(cstr);
+extern int32 intValue(QString);
 
-extern double	mhzValue	(cstr);
-extern double	mhzValue	(QString);
-
-
-extern uint16	printablechar(uint8 c);		// unprintable -> middle-dot
+extern double mhzValue(cstr);
+extern double mhzValue(QString);
 
 
-
-
+extern uint16 printablechar(uint8 c); // unprintable -> middle-dot

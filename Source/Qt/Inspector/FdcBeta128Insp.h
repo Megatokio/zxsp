@@ -3,14 +3,12 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include <QObject>
 #include "Inspector.h"
+#include <QObject>
 
 
 class FdcBeta128Insp : public Inspector
 {
 public:
-	FdcBeta128Insp( QWidget*, MachineController*, volatile IsaObject* );
+	FdcBeta128Insp(QWidget*, MachineController*, volatile IsaObject*);
 };
-
-

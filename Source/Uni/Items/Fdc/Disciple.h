@@ -11,5 +11,3 @@ class Disciple : public Fdc
 public:
 	explicit Disciple(Machine*);
 };
-
-

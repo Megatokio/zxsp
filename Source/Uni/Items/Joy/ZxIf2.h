@@ -10,23 +10,24 @@
 
 class ZxIf2 : public SinclairJoy
 {
-	MemoryPtr	rom;
-	cstr        filepath;
+	MemoryPtr rom;
+	cstr	  filepath;
 
 public:
 	explicit ZxIf2(Machine*);
 	virtual ~ZxIf2();
 
-	bool	isLoaded() volatile const		{ assert(isMainThread()); return rom.isnot(nullptr); }
-	cstr	getFilepath() volatile const	{ return filepath; }
-	cstr	getFilename() volatile const	{ return basename_from_path(filepath); }
+	bool isLoaded() const volatile
+	{
+		assert(isMainThread());
+		return rom.isnot(nullptr);
+	}
+	cstr getFilepath() const volatile { return filepath; }
+	cstr getFilename() const volatile { return basename_from_path(filepath); }
 
-	void	insertRom(cstr path);
-	void	ejectRom();
+	void insertRom(cstr path);
+	void ejectRom();
 
-// Item interface:
-	void	powerOn(/*t=0*/ int32 cc) override;
+	// Item interface:
+	void powerOn(/*t=0*/ int32 cc) override;
 };
-
-
-

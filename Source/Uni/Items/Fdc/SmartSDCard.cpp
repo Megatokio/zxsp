@@ -2,12 +2,12 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "kio/kio.h"
 #include "SmartSDCard.h"
-#include "Settings.h"
 #include "Machine.h"
 #include "Memory.h"
+#include "Settings.h"
 #include "Z80/Z80.h"
+#include "kio/kio.h"
 
 /*	Questions:
 
@@ -209,19 +209,19 @@
 
 */
 
-#define _port_flashrom	0xfafb	// 1111.1010.1111.1011		all bits decoded - confirmed
-#define _port_ram		0xfaf3	// 1111.1010.1111.0011		all bits decoded - confirmed
-#define _port_sdcard	0xfaf7	// 1111.1010.1111.0111		all bits decoded - confirmed
-#define _port_joystick	0x001f	// ----.----.0001.1111		8 bits decoded - confirmed
-#define _mem_switchout	0x0072	// ----.----.-111.--1-		bits 6,5,4 and 1 are decoded
+#define _port_flashrom 0xfafb // 1111.1010.1111.1011		all bits decoded - confirmed
+#define _port_ram	   0xfaf3 // 1111.1010.1111.0011		all bits decoded - confirmed
+#define _port_sdcard   0xfaf7 // 1111.1010.1111.0111		all bits decoded - confirmed
+#define _port_joystick 0x001f // ----.----.0001.1111		8 bits decoded - confirmed
+#define _mem_switchout 0x0072 // ----.----.-111.--1-		bits 6,5,4 and 1 are decoded
 
 #define o_addr "1111.1010.1111.--11"
 #define i_addr ""
 
-//#define key_smart_card_joystick_enabled		"settings/smart_card_joystick_enabled"		// bool
-//#define key_smart_card_memory_enabled			"settings/smart_card_memory_enabled"		// bool
-//#define key_smart_card_force_bank_B			"settings/smart_card_force_bank_B"			// bool
-//#define key_smart_card_write_flash_enabled	"settings/smart_card_flash_write_enabled"	// bool
+// #define key_smart_card_joystick_enabled		"settings/smart_card_joystick_enabled"		// bool
+// #define key_smart_card_memory_enabled			"settings/smart_card_memory_enabled"		// bool
+// #define key_smart_card_force_bank_B			"settings/smart_card_force_bank_B"			// bool
+// #define key_smart_card_write_flash_enabled	"settings/smart_card_flash_write_enabled"	// bool
 
 /* ----------------------------------------------------------------------------------
 
@@ -292,10 +292,7 @@
 ---------------------------------------------------------------------------------- */
 
 
-
 static CoreByte flash_dummy_page[CPU_PAGESIZE];
-
-
 
 
 // ================================================================================
@@ -305,16 +302,22 @@ static CoreByte flash_dummy_page[CPU_PAGESIZE];
 
 inline CoreByte* clear_bits_in_page(CoreByte* p, uint32 bitmask)
 {
-	if(*p & bitmask) { bitmask = ~bitmask; for(CoreByte* e = p + CPU_PAGESIZE; p<e; p++) { *p &= bitmask; } }
+	if (*p & bitmask)
+	{
+		bitmask = ~bitmask;
+		for (CoreByte* e = p + CPU_PAGESIZE; p < e; p++) { *p &= bitmask; }
+	}
 	return p;
 }
 
 inline CoreByte* set_bits_in_page(CoreByte* p, uint32 bitmask)
 {
-	if(~*p & bitmask) { for(CoreByte* e = p + CPU_PAGESIZE; p<e; p++) { *p |= bitmask; } }
+	if (~*p & bitmask)
+	{
+		for (CoreByte* e = p + CPU_PAGESIZE; p < e; p++) { *p |= bitmask; }
+	}
 	return p;
 }
-
 
 
 // ================================================================================
@@ -322,23 +325,13 @@ inline CoreByte* set_bits_in_page(CoreByte* p, uint32 bitmask)
 // ================================================================================
 
 
-
-SmartSDCard::SmartSDCard(Machine* m)
-:
-	MassStorage(m,isa_SmartSDCard,external,o_addr,i_addr),
-	ram(m,"SMART card Ram",128 kB),
-	rom(m,"SMART card Flash Ram",256 kB),
-	joystick(nullptr),
-	overlay(nullptr),
-	sd_card(nullptr),
-	sio(nullptr),
-	config(),
-	dip_joystick_enabled(settings.get_bool(key_smart_card_joystick_enabled,yes)),
-	dip_memory_enabled(settings.get_bool(key_smart_card_memory_enabled,yes)),
-	dip_force_bank_B(settings.get_bool(key_smart_card_force_bank_B,no)),
-	dip_flash_write_enabled(settings.get_bool(key_smart_card_write_flash_enabled,no)),
-	flash_state(),
-	flash_dirty(no),
+SmartSDCard::SmartSDCard(Machine* m) :
+	MassStorage(m, isa_SmartSDCard, external, o_addr, i_addr), ram(m, "SMART card Ram", 128 kB),
+	rom(m, "SMART card Flash Ram", 256 kB), joystick(nullptr), overlay(nullptr), sd_card(nullptr), sio(nullptr),
+	config(), dip_joystick_enabled(settings.get_bool(key_smart_card_joystick_enabled, yes)),
+	dip_memory_enabled(settings.get_bool(key_smart_card_memory_enabled, yes)),
+	dip_force_bank_B(settings.get_bool(key_smart_card_force_bank_B, no)),
+	dip_flash_write_enabled(settings.get_bool(key_smart_card_write_flash_enabled, no)), flash_state(), flash_dirty(no),
 	flash_software_id_mode()
 {
 	// init rom:
@@ -346,19 +339,19 @@ SmartSDCard::SmartSDCard(Machine* m)
 	// memory writes will never hit the rom pages, they hit the flash_dummy_page instead. so don't set these patch bit.
 	CoreByte* p = rom.getData();
 	CoreByte* e = p + rom.count();
-	while(p<e) *p++ = 0x000000ff;
-	rom[0] = rom[1] = cpu_memmapped_r | cpu_patch;		// for software ID mode
+	while (p < e) *p++ = 0x000000ff;
+	rom[0] = rom[1] = cpu_memmapped_r | cpu_patch; // for software ID mode
 
-	FD fd(catstr(appl_rsrc_path,"smart_sdcard.rom"));
+	FD	   fd(catstr(appl_rsrc_path, "smart_sdcard.rom"));
 	uint32 flen = fd.file_size();
-	uint8 zbu[flen];
-	fd.read_bytes(zbu,flen);
-	m->cpu->b2c(zbu,rom.getData(),flen);
+	uint8  zbu[flen];
+	fd.read_bytes(zbu, flen);
+	m->cpu->b2c(zbu, rom.getData(), flen);
 
 	// TODO: evtl. load custom rom
 	// TODO: evtl. save/restore $3000 - $3fff
 
-	if(dip_joystick_enabled) insertJoystick(usb_joystick0);
+	if (dip_joystick_enabled) insertJoystick(usb_joystick0);
 }
 
 
@@ -375,8 +368,8 @@ SmartSDCard::~SmartSDCard()
 void SmartSDCard::powerOn(/*t=0*/ int32 cc)
 {
 	MassStorage::powerOn(cc);
-	config = memory_disabled;		// will be enabled by set_rom_config()
-	flash_state = flash_idle;
+	config				   = memory_disabled; // will be enabled by set_rom_config()
+	flash_state			   = flash_idle;
 	flash_software_id_mode = no;
 	machine->cpu_options |= cpu_patch | cpu_memmapped_r | cpu_memmapped_w;
 
@@ -388,19 +381,23 @@ void SmartSDCard::powerOn(/*t=0*/ int32 cc)
 	// potentielle Speicherstellen für Adresse $5555 patchen,
 	// damit beim Beschreiben der Flash Command Handler aufgerufen wird:
 	// Als minimale Page-Size wird 8kB (0x2000) angenommen.
-	for(uint i=0; i<machine->memory.count(); i++)
+	for (uint i = 0; i < machine->memory.count(); i++)
 	{
 		CoreByte* p = machine->memory[i]->getData();
 		CoreByte* e = p + machine->memory[i]->count();
-		while(p<e) { p[0x5555 & 0x1FFF] |= cpu_memmapped_w; p+=0x2000; }
+		while (p < e)
+		{
+			p[0x5555 & 0x1FFF] |= cpu_memmapped_w;
+			p += 0x2000;
+		}
 	}
 
 	// clear the rom page-out trap bits:
 	clear_rom_pageout_bits();
 
 	// init attached devices:
-	if(sio) sio->init();
-	if(sd_card) sd_card->init();
+	if (sio) sio->init();
+	if (sd_card) sd_card->init();
 
 	// spray write2x bit if flash write enabled, else remove it:
 	set_dip_flash_write_enabled(dip_flash_write_enabled);
@@ -412,11 +409,10 @@ void SmartSDCard::powerOn(/*t=0*/ int32 cc)
 
 void SmartSDCard::reset(Time t, int32 cc)
 {
-	MassStorage::reset(t,cc);
-	set_ram_config(t,0);
+	MassStorage::reset(t, cc);
+	set_ram_config(t, 0);
 	set_rom_config(0);
 }
-
 
 
 // ================================================================================
@@ -433,44 +429,44 @@ void SmartSDCard::set_dip_flash_write_enabled(bool f)
 {
 	dip_flash_write_enabled = f;
 
-	if(f)	// enable
+	if (f) // enable
 	{
-//		machine->cpu_options |= cpu_write_2x;
+		//		machine->cpu_options |= cpu_write_2x;
 
 		// cpu.nowritepage[] impfen:
-//		set_bits_in_page(machine->cpu->nowritepage,cpu_write_2x);
+		//		set_bits_in_page(machine->cpu->nowritepage,cpu_write_2x);
 
 		// note: die eigene flash_dummy_page muss nicht gesprayt werden,
 		// weil sie nie als Write Page gemappt wird, sondern nur als Read Page oder als Wom2 Page.
 
 		// Allen Speicher impfen:
-//		for(uint i=0; i<machine->memory.count(); i++)
-//		{
-//			CoreByte* p = machine->memory[i]->getData();
-//			CoreByte* e = p + machine->memory[i]->count();
-//			while(p<e) { *p++ |= cpu_write_2x; }
-//		}
+		//		for(uint i=0; i<machine->memory.count(); i++)
+		//		{
+		//			CoreByte* p = machine->memory[i]->getData();
+		//			CoreByte* e = p + machine->memory[i]->count();
+		//			while(p<e) { *p++ |= cpu_write_2x; }
+		//		}
 
 		// memory enabled  => flash write enabled
-		if(~config&memory_disabled) enable_flash_write();
+		if (~config & memory_disabled) enable_flash_write();
 	}
-	else	// disable
+	else // disable
 	{
-//		machine->cpu_options &= ~cpu_write_2x;
+		//		machine->cpu_options &= ~cpu_write_2x;
 
 		// bits in cpu.nowritepage[] löschen:
-//		clear_bits_in_page(machine->cpu->nowritepage,cpu_write_2x);
+		//		clear_bits_in_page(machine->cpu->nowritepage,cpu_write_2x);
 
 		// Bits im gesamten Speicher wieder löschen:
-//		for(uint i=0; i<machine->memory.count(); i++)
-//		{
-//			CoreByte* p = machine->memory[i]->getData();
-//			CoreByte* e = p + machine->memory[i]->count();
-//			while(p<e) { *p++ &= ~cpu_write_2x; }
-//		}
+		//		for(uint i=0; i<machine->memory.count(); i++)
+		//		{
+		//			CoreByte* p = machine->memory[i]->getData();
+		//			CoreByte* e = p + machine->memory[i]->count();
+		//			while(p<e) { *p++ &= ~cpu_write_2x; }
+		//		}
 
 		// flash write disabled:
-		if(~config&memory_disabled) disable_flash_write();
+		if (~config & memory_disabled) disable_flash_write();
 	}
 }
 
@@ -492,22 +488,22 @@ inline void SmartSDCard::enable_flash_write()
 	assert(~config & memory_disabled);
 
 	// Wom2 muss nur reingemappt werden, wenn wir im command mode sind:
-	if(flash_software_id_mode || flash_state > flash_idle)
+	if (flash_software_id_mode || flash_state > flash_idle)
 	{
-		//darf nicht ausgeschaltet worden sein, weil es sich hier nur verzögert wieder einschalten ließe!:
-		//machine->cpu_options |= cpu_write_2x;
-		machine->cpu->mapDummyWom2Page(0,0,flash_dummy_page);
+		// darf nicht ausgeschaltet worden sein, weil es sich hier nur verzögert wieder einschalten ließe!:
+		// machine->cpu_options |= cpu_write_2x;
+		machine->cpu->mapDummyWom2Page(0, 0, flash_dummy_page);
 	}
 }
 
 inline void SmartSDCard::disable_flash_write()
 {
 	// Wom2 ist nur reingemappt, wenn wir im command mode sind:
-	if(flash_software_id_mode || flash_state > flash_idle)
+	if (flash_software_id_mode || flash_state > flash_idle)
 	{
-		//darf nicht ausgeschaltet werden, weil es sich nur verzögert wieder einschalten lässt!:
-		//machine->cpu_options &= ~cpu_write_2x;
-		machine->cpu->unmapWom2(0,0);
+		// darf nicht ausgeschaltet werden, weil es sich nur verzögert wieder einschalten lässt!:
+		// machine->cpu_options &= ~cpu_write_2x;
+		machine->cpu->unmapWom2(0, 0);
 	}
 }
 
@@ -516,15 +512,15 @@ inline void SmartSDCard::disable_flash_write()
 */
 void SmartSDCard::start_flash_write()
 {
-	if(flash_state==flash_writing) return;		// false call
+	if (flash_state == flash_writing) return; // false call
 
-	flash_state = flash_writing;				// set flag
-	if(!flash_software_id_mode) machine->cpu->unmapWom2(0,0);
+	flash_state = flash_writing; // set flag
+	if (!flash_software_id_mode) machine->cpu->unmapWom2(0, 0);
 
 	flash_dirty = yes;
 
 	// map the patched flash_dummy_page[] for reading for software polling for flash write end:
-	if(memory_enabled()) map_card_memory(0,0x4000);
+	if (memory_enabled()) map_card_memory(0, 0x4000);
 }
 
 /*	finish flash write mode
@@ -532,41 +528,38 @@ void SmartSDCard::start_flash_write()
 */
 void SmartSDCard::finish_flash_write()
 {
-	if(flash_state!=flash_writing) return;		// false call
-	flash_state = flash_idle;					// clear flag
+	if (flash_state != flash_writing) return; // false call
+	flash_state = flash_idle;				  // clear flag
 
 	// unmap the patched flash_dummy_page[] for reading from flash:
-	if(memory_enabled()) map_card_memory(0,0x4000);
+	if (memory_enabled()) map_card_memory(0, 0x4000);
 }
 
 void SmartSDCard::map_card_memory(uint a, uint e)
 {
 	assert(memory_enabled());
 
-	if(config&pageout_armed) clear_rom_pageout_bits(a,e);
+	if (config & pageout_armed) clear_rom_pageout_bits(a, e);
 
-	uint m = config&ram_enabled ? 0x2000 : 0x4000;
+	uint m = config & ram_enabled ? 0x2000 : 0x4000;
 
-	if(a<m)
+	if (a < m)
 	{
-		if(flash_state==flash_writing)
-		{
-			machine->cpu->mapDummyRomPage(a, m-a, flash_dummy_page, nullptr,0);
-		}
+		if (flash_state == flash_writing) { machine->cpu->mapDummyRomPage(a, m - a, flash_dummy_page, nullptr, 0); }
 		else
 		{
-			uint32 romaddr = dip_force_bank_B ? 0x4000 : (config&rompage_bits)<<6;
-			machine->cpu->mapRom(a, m-a, &rom[romaddr+a], nullptr,0);
+			uint32 romaddr = dip_force_bank_B ? 0x4000 : (config & rompage_bits) << 6;
+			machine->cpu->mapRom(a, m - a, &rom[romaddr + a], nullptr, 0);
 		}
 	}
 
-	if(m<e)
+	if (m < e)
 	{
-		uint32 ramaddr = (config&rampage_bits) << 13;
-		machine->cpu->mapRam(m, e-m, &ram[ramaddr], nullptr,0);
+		uint32 ramaddr = (config & rampage_bits) << 13;
+		machine->cpu->mapRam(m, e - m, &ram[ramaddr], nullptr, 0);
 	}
 
-	if(config&pageout_armed) set_rom_pageout_bits(a,e);
+	if (config & pageout_armed) set_rom_pageout_bits(a, e);
 }
 
 
@@ -584,12 +577,12 @@ void SmartSDCard::map_card_memory(uint a, uint e)
 void SmartSDCard::set_rom_pageout_bits(uint a, uint e)
 {
 	Z80* cpu = machine->cpu;
-	for( ;a<e; a+=CPU_PAGESIZE )
+	for (; a < e; a += CPU_PAGESIZE)
 	{
 		CoreByte* pg = cpu->rdPtr(a);
-		if(pg[0x72] & cpu_memmapped_r) continue;	// bits in this page already set (assuming whole page)
+		if (pg[0x72] & cpu_memmapped_r) continue; // bits in this page already set (assuming whole page)
 
-		for(uint i=0; i<CPU_PAGESIZE; i+=0x80)		// loop over groups of 0x80 bytes
+		for (uint i = 0; i < CPU_PAGESIZE; i += 0x80) // loop over groups of 0x80 bytes
 		{
 			CoreByte* m = pg + i;
 			m[0x72] |= cpu_patch | cpu_memmapped_r;
@@ -613,14 +606,14 @@ void SmartSDCard::clear_rom_pageout_bits(uint a, uint e)
 	Z80* cpu = machine->cpu;
 
 	// preserve bits in flash_dummy_page[] which is mapped for reading while flash write is in progress:
-	while(cpu->rdPtr(a) == flash_dummy_page) a += 0x2000;
+	while (cpu->rdPtr(a) == flash_dummy_page) a += 0x2000;
 
-	for( ;a<e; a+=CPU_PAGESIZE )
+	for (; a < e; a += CPU_PAGESIZE)
 	{
 		CoreByte* pg = cpu->rdPtr(a);
-		if(~pg[0x72] & cpu_memmapped_r) continue;	// bits in this page already cleared (assuming whole page)
+		if (~pg[0x72] & cpu_memmapped_r) continue; // bits in this page already cleared (assuming whole page)
 
-		for(uint i=0; i<CPU_PAGESIZE; i+=0x80)		// loop over groups of 0x80 bytes
+		for (uint i = 0; i < CPU_PAGESIZE; i += 0x80) // loop over groups of 0x80 bytes
 		{
 			CoreByte* m = pg + i;
 			m[0x72] &= ~cpu_patch & ~cpu_memmapped_r;
@@ -636,7 +629,6 @@ void SmartSDCard::clear_rom_pageout_bits(uint a, uint e)
 }
 
 
-
 // ================================================================================
 //							input / output / memory patches
 // ================================================================================
@@ -645,23 +637,25 @@ void SmartSDCard::clear_rom_pageout_bits(uint a, uint e)
 void SmartSDCard::input(Time t, int32, uint16 addr, uint8& byte, uint8& mask)
 {
 	// memory config or SD card data:
-	if((addr & 0xfff3) == 0xfaf3)
+	if ((addr & 0xfff3) == 0xfaf3)
 	{
-		switch((addr>>2) & 3)
+		switch ((addr >> 2) & 3)
 		{
-		case 0b00:	// $FAF3: RAM config
+		case 0b00: // $FAF3: RAM config
 			mask = 0xff;
-			if(sio) byte &= (config & ~sio_rx) | sio->input(t)*sio_rx;
-			else	byte &=  config |  sio_rx;			// bit 4 (SIO RX) reads '1' if no SIO fitted
+			if (sio)
+				byte &= (config & ~sio_rx) | sio->input(t) * sio_rx;
+			else
+				byte &= config | sio_rx; // bit 4 (SIO RX) reads '1' if no SIO fitted
 			break;
-		case 0b01:	// $FAF7: SD card data
+		case 0b01: // $FAF7: SD card data
 			mask = 0xff;
 			// reads $FF if not selected, no card, or reading beyond input data:
-			if(sd_card && (config&sdcard_cs)) byte &= sd_card->input();
+			if (sd_card && (config & sdcard_cs)) byte &= sd_card->input();
 			break;
-		case 0b10:	// $FAFB: ROM config
+		case 0b10: // $FAFB: ROM config
 			mask = 0xff;
-			byte &= (config & ~pageout_armed) >> 8;		// bit 6 (PAGEOUT PRESET) always reads 0
+			byte &= (config & ~pageout_armed) >> 8; // bit 6 (PAGEOUT PRESET) always reads 0
 			break;
 		}
 		return;
@@ -670,11 +664,11 @@ void SmartSDCard::input(Time t, int32, uint16 addr, uint8& byte, uint8& mask)
 	// Kempston joystick interface:
 	// bits 7:0 are decoded
 	// TODO: bit 7 = button 2
-	if((addr & 0x00ff)==0x1f && dip_joystick_enabled)
+	if ((addr & 0x00ff) == 0x1f && dip_joystick_enabled)
 	{
 		// Input: %000FUDLR  active high
 		mask = 0xff;
-		byte &= machine==front_machine ? joystick->getState(yes) : 0x00;
+		byte &= machine == front_machine ? joystick->getState(yes) : 0x00;
 		return;
 	}
 }
@@ -682,13 +676,19 @@ void SmartSDCard::input(Time t, int32, uint16 addr, uint8& byte, uint8& mask)
 
 void SmartSDCard::output(Time t, int32, uint16 addr, uint8 byte)
 {
-	if((addr & 0xfff3) == 0xfaf3)
+	if ((addr & 0xfff3) == 0xfaf3)
 	{
-		switch((addr>>2) & 3)
+		switch ((addr >> 2) & 3)
 		{
-		case 0b00: if(byte != uint8(config)) set_ram_config(t,byte); break;			// $FAF3: RAM config
-		case 0b01: if(sd_card && (config&sdcard_cs)) sd_card->output(byte); break;	// $FAF7: SD card data
-		case 0b10: if(byte!=(config>>8)) set_rom_config(byte<<8); break;			// $FAFB: ROM config
+		case 0b00:
+			if (byte != uint8(config)) set_ram_config(t, byte);
+			break; // $FAF3: RAM config
+		case 0b01:
+			if (sd_card && (config & sdcard_cs)) sd_card->output(byte);
+			break; // $FAF7: SD card data
+		case 0b10:
+			if (byte != (config >> 8)) set_rom_config(byte << 8);
+			break; // $FAFB: ROM config
 		}
 	}
 }
@@ -705,26 +705,25 @@ void SmartSDCard::output(Time t, int32, uint16 addr, uint8 byte)
 */
 void SmartSDCard::set_ram_config(Time t, uint new_config)
 {
-	new_config |= (config&0xFF00);
+	new_config |= (config & 0xFF00);
 	uint old_config = config;
-	uint toggled = new_config ^ old_config;		// x = toggled bits
-	config = new_config;
+	uint toggled	= new_config ^ old_config; // x = toggled bits
+	config			= new_config;
 
-	if(toggled & sio_tx)	// RS232 TX bit				(if fitted)
+	if (toggled & sio_tx) // RS232 TX bit				(if fitted)
 	{
-		if(sio) sio->output(t,new_config&sio_tx);
+		if (sio) sio->output(t, new_config & sio_tx);
 	}
 
-	//if(toggled&aux_cs)	// AUX SPI_CS; 1=select		(if fitted)
+	// if(toggled&aux_cs)	// AUX SPI_CS; 1=select		(if fitted)
 	//{}					// not supported
 
-	//if(toggled&cscard_cs)	// SD Card CS; 1 = select
+	// if(toggled&cscard_cs)	// SD Card CS; 1 = select
 	//{}					// handled in input() / output()
 
 	// if ram enabling or selected ram page changed
-	if(memory_enabled() && (toggled & (ram_enabled|rampage_bits))) map_card_memory(0x2000,0x4000);
+	if (memory_enabled() && (toggled & (ram_enabled | rampage_bits))) map_card_memory(0x2000, 0x4000);
 }
-
 
 
 /*	port $FAFB: set rom configuration
@@ -732,12 +731,12 @@ void SmartSDCard::set_ram_config(Time t, uint new_config)
 */
 void SmartSDCard::set_rom_config(uint new_config)
 {
-	new_config |= (config&0x00FF);			// add current ram_config
+	new_config |= (config & 0x00FF); // add current ram_config
 	uint old_config = config;
-	uint toggled = new_config ^ old_config;	// toggled bits
-	config = new_config;
+	uint toggled	= new_config ^ old_config; // toggled bits
+	config			= new_config;
 
-	if(!dip_memory_enabled) return;			// memory disabled by dip switch
+	if (!dip_memory_enabled) return; // memory disabled by dip switch
 
 	// bits 0-3: page
 	// bit  4,5: n.c.
@@ -746,17 +745,17 @@ void SmartSDCard::set_rom_config(uint new_config)
 
 	Z80* cpu = machine->cpu;
 
-	if(new_config & memory_disabled)
+	if (new_config & memory_disabled)
 	{
 		// disable card memory:
 
 		// was enabled? => page out
-		if(toggled & memory_disabled)
+		if (toggled & memory_disabled)
 		{
-			if(old_config & pageout_armed) clear_rom_pageout_bits();
-			if(old_config & ram_enabled) cpu->unmapWom(0x2000, 8 kB);	// unmap ram write page
-			if(dip_flash_write_enabled) disable_flash_write();
-			prev()->romCS(off);			// enable ZX Spectrum rom
+			if (old_config & pageout_armed) clear_rom_pageout_bits();
+			if (old_config & ram_enabled) cpu->unmapWom(0x2000, 8 kB); // unmap ram write page
+			if (dip_flash_write_enabled) disable_flash_write();
+			prev()->romCS(off); // enable ZX Spectrum rom
 		}
 	}
 	else
@@ -764,22 +763,24 @@ void SmartSDCard::set_rom_config(uint new_config)
 		// enable card memory:
 
 		// was disabled? => page in:
-		if(toggled & memory_disabled)
+		if (toggled & memory_disabled)
 		{
-			prev()->romCS(on);			// switch off ZX Spectrum rom
-			if(dip_flash_write_enabled) enable_flash_write();	// flash rom becomes writable
+			prev()->romCS(on);								   // switch off ZX Spectrum rom
+			if (dip_flash_write_enabled) enable_flash_write(); // flash rom becomes writable
 
-			if(new_config & pageout_armed) set_rom_pageout_bits(0x4000);
-			map_card_memory(0,0x4000);
+			if (new_config & pageout_armed) set_rom_pageout_bits(0x4000);
+			map_card_memory(0, 0x4000);
 		}
-		else	// was and remains enabled:
+		else // was and remains enabled:
 		{
-			if(toggled & pageout_armed)
+			if (toggled & pageout_armed)
 			{
-				if(new_config & pageout_armed) set_rom_pageout_bits(0x4000);
-				else						   clear_rom_pageout_bits(0x4000);
+				if (new_config & pageout_armed)
+					set_rom_pageout_bits(0x4000);
+				else
+					clear_rom_pageout_bits(0x4000);
 			}
-			map_card_memory(0,0x4000);
+			map_card_memory(0, 0x4000);
 		}
 	}
 }
@@ -797,43 +798,40 @@ int SmartSDCard::read_memory(int32 cc, uint16 pc, uint8 byte)
 
 	// reading from a rom pageout address?
 	// these bits are only set while the rom page-out mechanism is primed.
-	if((config & pageout_armed) && (pc&0x0072) == 0x0072)
+	if ((config & pageout_armed) && (pc & 0x0072) == 0x0072)
 	{
 		clear_rom_pageout_bits();
-		if(config & ram_enabled) cpu->unmapWom(0x2000, 8 kB);	// unmap ram write page
-		if(dip_flash_write_enabled) disable_flash_write();
-		prev()->romCS(off);							// enable ZX Spectrum rom
-		return *cpu->rdPtr(pc);						// handled
+		if (config & ram_enabled) cpu->unmapWom(0x2000, 8 kB); // unmap ram write page
+		if (dip_flash_write_enabled) disable_flash_write();
+		prev()->romCS(off);		// enable ZX Spectrum rom
+		return *cpu->rdPtr(pc); // handled
 	}
 
 	// reading from flash rom while writing in progress?
 	// then we are reading from the flash_dummy_page[]
-	if(flash_state==flash_writing)
+	if (flash_state == flash_writing)
 	{
 		CoreByte* p = cpu->rdPtr(pc);
-		if(p>=flash_dummy_page && p<flash_dummy_page+CPU_PAGESIZE)
+		if (p >= flash_dummy_page && p < flash_dummy_page + CPU_PAGESIZE)
 		{
-			if(cc >= cc_flash_write_end)
-			{
-				finish_flash_write();
-			}
+			if (cc >= cc_flash_write_end) { finish_flash_write(); }
 			else
 			{
-				byte = flash_byte_written ^ 0x80;	// get byte with inverted D7
-				flash_byte_written ^= 0x40;			// toggle D6
-				return byte;						// handled
+				byte = flash_byte_written ^ 0x80; // get byte with inverted D7
+				flash_byte_written ^= 0x40;		  // toggle D6
+				return byte;					  // handled
 			}
 		}
 	}
 
 	// reading from rom[0:1] in software ID mode?
 	// while software ID mode active, reading from flash[0|1] returns manufacturer|device ID
-	if(flash_software_id_mode && pc<=1)
+	if (flash_software_id_mode && pc <= 1)
 	{
 		// A0=0: SST Manufacturer Code  = BFH
 		// A0=1: SST39SF020 Device Code = B6H
 		CoreByte* p = cpu->rdPtr(pc & ~1);
-		if(p==rom.getData()) return pc ? 0xB6 : 0xBF; // handled
+		if (p == rom.getData()) return pc ? 0xB6 : 0xBF; // handled
 	}
 
 	return -1;
@@ -841,25 +839,24 @@ int SmartSDCard::read_memory(int32 cc, uint16 pc, uint8 byte)
 
 uint8 SmartSDCard::handleRomPatch(uint16 pc, uint8 byte)
 {
-	if(memory_enabled())
+	if (memory_enabled())
 	{
-		int result = read_memory(machine->cpu->cpuCycle(),pc,byte);
-		if(result>=0) return result;
+		int result = read_memory(machine->cpu->cpuCycle(), pc, byte);
+		if (result >= 0) return result;
 	}
-	return prev()->handleRomPatch(pc,byte);			// not me
+	return prev()->handleRomPatch(pc, byte); // not me
 }
 
 
 uint8 SmartSDCard::readMemory(Time t, int32 cc, uint16 addr, uint8 byte)
 {
-	if(memory_enabled())
+	if (memory_enabled())
 	{
-		int result = read_memory(cc,addr,byte);
-		if(result>=0) return result;
+		int result = read_memory(cc, addr, byte);
+		if (result >= 0) return result;
 	}
-	return prev()->readMemory(t,cc,addr,byte);		// not me
+	return prev()->readMemory(t, cc, addr, byte); // not me
 }
-
 
 
 /*	write to memory:
@@ -875,56 +872,78 @@ void SmartSDCard::writeMemory(Time t, int32 cc, uint16 addr, uint8 byte)
 {
 	// test: did this memory write actually hit the Flash Rom?
 	CoreByte* a = machine->cpu->wrPtr(addr);
-	if(a<flash_dummy_page || a>=flash_dummy_page+CPU_PAGESIZE)
-		return prev()->writeMemory(t,cc,addr,byte);		// not me
+	if (a < flash_dummy_page || a >= flash_dummy_page + CPU_PAGESIZE)
+		return prev()->writeMemory(t, cc, addr, byte); // not me
 
 	// write access to flash rom:
 
 	// determine memory address inside flash rom:
-	uint page = (config & rompage_bits) << 6;
-	uint32 address = (addr&0x3fff) + page;
-	addr = address & 0x7FFF;	// bits 14:0
+	uint   page	   = (config & rompage_bits) << 6;
+	uint32 address = (addr & 0x3fff) + page;
+	addr		   = address & 0x7FFF; // bits 14:0
 
-	//TODO: test cc
-//	flash_write_cc = cc;
+	// TODO: test cc
+	//	flash_write_cc = cc;
 
 	// starting at current command stage, proced to next stage:
-	switch(flash_state)
+	switch (flash_state)
 	{
 	case flash_writing:
-		if(cc<cc_flash_write_end) return;		// ignored
+		if (cc < cc_flash_write_end) return; // ignored
 		finish_flash_write();
 		// goto fw_nothing
 
-	case flash_idle:	// expect 1st byte: write($5555),$AA
-		if(byte==0xF0) { flash_software_id_mode = no; break; }	// ok: special case: Software ID exit
-		if(addr!=0x5555 || byte!=0xaa) return;	// wrong
-
-		machine->cpu->mapDummyWom2Page(0,0,flash_dummy_page);
-		flash_state = flash_AA; return;			// ok
-
-	case flash_AA:		// expect 2nd byte: write ($2AAA),$55
-		if(addr!=0x2AAA || byte!=0x55) break;	// wrong
-		flash_state = flash_AA55; return;		// ok
-
-	case flash_AA55:		// expect 3rd byte:
-		if(addr!=0x5555) break;									// error
-		if(byte==0xA0) { flash_state = flash_AA55A0; return; }	// ok: WRITE BYTE
-		if(byte==0x80) { flash_state = flash_AA5580; return; }	// ok: chip|sector erase
-		if(byte==0x90) { flash_software_id_mode = yes; break; }	// ok: Software ID entry
-		if(byte==0xF0) { flash_software_id_mode = no; break; }	// ok: Software ID exit
-		break;													// error
-
-	case flash_AA55A0:			// 4th byte: write byte into flash rom
+	case flash_idle: // expect 1st byte: write($5555),$AA
+		if (byte == 0xF0)
 		{
-			rom[address] = byte;
-			uint max_cc = machine->cpu_clock * 30e-6;			// ~ 105cc
-			int deviation = (int8)(addr ^ byte);				// ± 128
-			cc_flash_write_end = cc + max_cc * (2*128 + deviation) / (3*128);		// 33% .. 99%
-			flash_byte_written = byte;
-			start_flash_write();
+			flash_software_id_mode = no;
+			break;
+		}											// ok: special case: Software ID exit
+		if (addr != 0x5555 || byte != 0xaa) return; // wrong
+
+		machine->cpu->mapDummyWom2Page(0, 0, flash_dummy_page);
+		flash_state = flash_AA;
+		return; // ok
+
+	case flash_AA:								   // expect 2nd byte: write ($2AAA),$55
+		if (addr != 0x2AAA || byte != 0x55) break; // wrong
+		flash_state = flash_AA55;
+		return; // ok
+
+	case flash_AA55:			   // expect 3rd byte:
+		if (addr != 0x5555) break; // error
+		if (byte == 0xA0)
+		{
+			flash_state = flash_AA55A0;
 			return;
-		}
+		} // ok: WRITE BYTE
+		if (byte == 0x80)
+		{
+			flash_state = flash_AA5580;
+			return;
+		} // ok: chip|sector erase
+		if (byte == 0x90)
+		{
+			flash_software_id_mode = yes;
+			break;
+		} // ok: Software ID entry
+		if (byte == 0xF0)
+		{
+			flash_software_id_mode = no;
+			break;
+		}	   // ok: Software ID exit
+		break; // error
+
+	case flash_AA55A0: // 4th byte: write byte into flash rom
+	{
+		rom[address]	   = byte;
+		uint max_cc		   = machine->cpu_clock * 30e-6;					  // ~ 105cc
+		int	 deviation	   = (int8)(addr ^ byte);							  // ± 128
+		cc_flash_write_end = cc + max_cc * (2 * 128 + deviation) / (3 * 128); // 33% .. 99%
+		flash_byte_written = byte;
+		start_flash_write();
+		return;
+	}
 
 		// TODO: timing
 		/*
@@ -945,93 +964,76 @@ void SmartSDCard::writeMemory(Time t, int32 cc, uint16 addr, uint8 byte)
 			alternating 0’s and 1’s, i.e., toggling between 0 and 1. The Toggle Bit will begin with “1”.
 		*/
 
-	case flash_AA5580:			// expect 4th byte:
-		if(addr!=0x5555 || byte!=0xAA) break;	// error
-		flash_state = flash_AA5580AA; return;	// ok
+	case flash_AA5580:							   // expect 4th byte:
+		if (addr != 0x5555 || byte != 0xAA) break; // error
+		flash_state = flash_AA5580AA;
+		return; // ok
 
-	case flash_AA5580AA:		// expect 5th byte:
-		if(addr!=0x2AAA || byte!=0x55) break;	// error
-		flash_state = flash_AA5580AA55;return;	// ok
+	case flash_AA5580AA:						   // expect 5th byte:
+		if (addr != 0x2AAA || byte != 0x55) break; // error
+		flash_state = flash_AA5580AA55;
+		return; // ok
 
-	case flash_AA5580AA55:	// 6th byte
+	case flash_AA5580AA55: // 6th byte
 
-		if(addr==0x5555 && byte==0x10)			// CHIP ERASE ~ 20ms
-		{										// erase the entire memory array to the “1’s” state.
-			a = rom.getData();
+		if (addr == 0x5555 && byte == 0x10) // CHIP ERASE ~ 20ms
+		{									// erase the entire memory array to the “1’s” state.
+			a			= rom.getData();
 			CoreByte* e = a + rom.count();
-			while(a<e) { *a++ |= 0x000000ff; }
-			uint max_cc = machine->cpu_clock * 20e-3;				// ~ 70000cc
-			int deviation = (int8)(addr ^ byte);					// ± 128
-			cc_flash_write_end = cc + max_cc * (0.8 + deviation*0.1/128);
+			while (a < e) { *a++ |= 0x000000ff; }
+			uint max_cc		   = machine->cpu_clock * 20e-3; // ~ 70000cc
+			int	 deviation	   = (int8)(addr ^ byte);		 // ± 128
+			cc_flash_write_end = cc + max_cc * (0.8 + deviation * 0.1 / 128);
 			flash_byte_written = 0xFF;
 			start_flash_write();
 			return;
 		}
 
-		if(byte==0x30)							// 4K SECTOR ERASE ~ 10ms
+		if (byte == 0x30) // 4K SECTOR ERASE ~ 10ms
 		{
-			a = &rom[address & 0x3F000];		// A17:12
+			a			= &rom[address & 0x3F000]; // A17:12
 			CoreByte* e = a + 4 kB;
-			while(a<e) { *a++ |= 0x000000ff; }
-			uint max_cc = machine->cpu_clock * 10e-3;				// ~ 35000cc
-			int deviation = (int8)(addr ^ byte);					// ± 128
-			cc_flash_write_end = cc + max_cc * (0.6 + deviation*0.2/128);
+			while (a < e) { *a++ |= 0x000000ff; }
+			uint max_cc		   = machine->cpu_clock * 10e-3; // ~ 35000cc
+			int	 deviation	   = (int8)(addr ^ byte);		 // ± 128
+			cc_flash_write_end = cc + max_cc * (0.6 + deviation * 0.2 / 128);
 			flash_byte_written = 0xFF;
 			start_flash_write();
 			return;
 		}
 
-		break;	// error
+		break; // error
 	}
 
-	if(!flash_software_id_mode) machine->cpu->unmapWom2(0,0);
+	if (!flash_software_id_mode) machine->cpu->unmapWom2(0, 0);
 	flash_state = flash_idle;
 }
 
 
-void SmartSDCard::videoFrameEnd(int32 cc)
-{
-	cc_flash_write_end -= cc;
-}
+void SmartSDCard::videoFrameEnd(int32 cc) { cc_flash_write_end -= cc; }
 
-//void SmartSDCard::triggerNmi()
+// void SmartSDCard::triggerNmi()
 //{}
 
 
-void SmartSDCard::setMemoryEnabled(bool)
+void SmartSDCard::setMemoryEnabled(bool) {}
+
+void SmartSDCard::setForceBankB(bool) {}
+
+void SmartSDCard::enableFlashWrite(bool) {}
+
+void SmartSDCard::setJoystickEnabled(bool) {}
+
+
+void SmartSDCard::insertJoystick(int id) volatile
 {
+	if (joystick == joysticks[id]) return;
 
-}
-
-void SmartSDCard::setForceBankB(bool)
-{
-
-}
-
-void SmartSDCard::enableFlashWrite(bool)
-{
-
-}
-
-void SmartSDCard::setJoystickEnabled(bool)
-{
-
-}
-
-
-
-void SmartSDCard::insertJoystick( int id ) volatile
-{
-	if(joystick == joysticks[id]) return;
-
-	if(overlay) { machine->removeOverlay(overlay); overlay=nullptr; }
+	if (overlay)
+	{
+		machine->removeOverlay(overlay);
+		overlay = nullptr;
+	}
 	joystick = joysticks[id];
-	if(id!=no_joystick) overlay = machine->addOverlay(joystick,"K",Overlay::TopRight);
+	if (id != no_joystick) overlay = machine->addOverlay(joystick, "K", Overlay::TopRight);
 }
-
-
-
-
-
-
-

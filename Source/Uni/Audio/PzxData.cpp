@@ -2,17 +2,16 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#define SAFE	3
-#define	LOG 	1
+#define SAFE 3
+#define LOG	 1
 
-#include "unix/file_utilities.h"
-#include "unix/tempmem.h"
 #include "PzxData.h"
 #include "TapData.h"
+#include "unix/file_utilities.h"
+#include "unix/tempmem.h"
 
 
-void PzxData::kill()
-{}
+void PzxData::kill() {}
 
 void PzxData::init()
 {
@@ -20,23 +19,23 @@ void PzxData::init()
 	current_position = total_playtime = 0.0;
 }
 
-void PzxData::init( TapeData const& q )
+void PzxData::init(const TapeData& q)
 {
-	switch(q.isaId())
+	switch (q.isaId())
 	{
-	case isa_PzxData:	init( static_cast<PzxData const&>(q) );	 break;
-	case isa_RlesData:	init( static_cast<RlesData const&>(q) ); break;
+	case isa_PzxData: init(static_cast<const PzxData&>(q)); break;
+	case isa_RlesData: init(static_cast<const RlesData&>(q)); break;
 	case isa_MonoData:
 	case isa_StereoData:
-	default:			init( RlesData(q) ); break;
+	default: init(RlesData(q)); break;
 	}
 }
 
-void PzxData::init( PzxData const& q )	// shared data
+void PzxData::init(const PzxData& q) // shared data
 {
-	data = q.data;
+	data			 = q.data;
 	current_position = q.current_position;
-	total_playtime   = q.total_playtime;
+	total_playtime	 = q.total_playtime;
 }
 
 
@@ -53,43 +52,67 @@ void PzxData::purge()
 void PzxData::calcTotalPlaytime()
 {
 	total_playtime = 0.0;
-	cu8ptr q = data.Data();
-	cu8ptr e = q + data.Count();
+	cu8ptr q	   = data.Data();
+	cu8ptr e	   = q + data.Count();
 
-	while(q<e)
+	while (q < e)
 	{
-		uint32 id   = Peek4X(q); q += 4;
-		uint32 blen = Peek4Z(q); q += 4;
-		cu8ptr p   = q;			q += blen;
+		uint32 id = Peek4X(q);
+		q += 4;
+		uint32 blen = Peek4Z(q);
+		q += 4;
+		cu8ptr p = q;
+		q += blen;
 
-		switch(id)
+		switch (id)
 		{
 		case 'DATA':
+		{
+			uint32 bits = Peek4Z(p) & 0x7fffffff;
+			p += 4; // total bits in data
+			uint tail = Peek2Z(p);
+			p += 2; // cc for trailing pulse
+			uint cnt0 = Peek1Z(p);
+			p += 1; // pulses for 0-bits
+			uint cnt1 = Peek1Z(p);
+			p += 1; // pulses for 1-bits
+			Time cc0 = 0.0;
+			while (cnt0--)
 			{
-				uint32   bits = Peek4Z(p) & 0x7fffffff;	p += 4;				// total bits in data
-				uint    tail = Peek2Z(p);	p += 2;							// cc for trailing pulse
-				uint    cnt0 = Peek1Z(p);	p += 1;							// pulses for 0-bits
-				uint    cnt1 = Peek1Z(p);	p += 1;							// pulses for 1-bits
-				Time cc0 = 0.0; while(cnt0--) { cc0 += Peek2Z(p); p+=2; }	// accumulate cc for 0-bits
-				Time cc1 = 0.0; while(cnt1--) { cc1 += Peek2Z(p); p+=2; }	// accumulate cc for 1-bits
-				uint32 b1 = CountBitsL(p,bits);								// count 1-bits
-				total_playtime += ( b1*cc1 + (bits-b1)*cc0 + tail ) / 3500000.0;
-			}	break;
+				cc0 += Peek2Z(p);
+				p += 2;
+			} // accumulate cc for 0-bits
+			Time cc1 = 0.0;
+			while (cnt1--)
+			{
+				cc1 += Peek2Z(p);
+				p += 2;
+			}								 // accumulate cc for 1-bits
+			uint32 b1 = CountBitsL(p, bits); // count 1-bits
+			total_playtime += (b1 * cc1 + (bits - b1) * cc0 + tail) / 3500000.0;
+		}
+		break;
 
 		case 'PULS':
-			while( p<e )
+			while (p < e)
 			{
 				uint32 cnt = 1, dur = Peek2Z(p);
-				if( dur > 0x8000  ) { cnt = dur & 0x7FFF; dur = Peek2Z(p+2);  }
-				if( dur >= 0x8000 ) { dur = ((dur & 0x7FFF)<<16) + Peek2Z(p+4); }
-				total_playtime += float(cnt) * dur/3500000.0;
-			}	break;
+				if (dur > 0x8000)
+				{
+					cnt = dur & 0x7FFF;
+					dur = Peek2Z(p + 2);
+				}
+				if (dur >= 0x8000) { dur = ((dur & 0x7FFF) << 16) + Peek2Z(p + 4); }
+				total_playtime += float(cnt) * dur / 3500000.0;
+			}
+			break;
 
 		case 'PAUS':
-			{
-				uint32 cc = Peek4Z(p) & 0x7fffffff;
-				total_playtime += cc / 3500000.0;
-			}	break;
+		{
+			uint32 cc = Peek4Z(p) & 0x7fffffff;
+			total_playtime += cc / 3500000.0;
+		}
+		break;
 		}
 	}
 }
@@ -98,42 +121,49 @@ void PzxData::calcBlockInfos()
 {
 	u8ptr q = data.Data();
 	u8ptr e = q + data.Count();
-	while(q<e)
+	while (q < e)
 	{
-		uint32 id   = Peek4X(q); q+=4;
-		uint32 blen = Peek4Z(q); q+=4;
-		cu8ptr p   = q;			q += blen;
+		uint32 id = Peek4X(q);
+		q += 4;
+		uint32 blen = Peek4Z(q);
+		q += 4;
+		cu8ptr p = q;
+		q += blen;
 
-		switch(id)
+		switch (id)
 		{
 		case 'BRWS':
-			{
-				setMajorBlockInfo( (cstr)p );
-			}
+		{
+			setMajorBlockInfo((cstr)p);
+		}
 		case 'DATA':
-			{
-				uint32   bits = Peek4Z(p) & 0x7fffffff;	p += 4;	// total bits in data
-											p += 2;				// cc for trailing pulse
-				uint    cnt0 = Peek1Z(p);	p += 1;				// pulses for 0-bits
-				uint    cnt1 = Peek1Z(p);	p += 1;				// pulses for 1-bits
-						p += 2*cnt0 + 2*cnt1;					// skip pulse tables
+		{
+			uint32 bits = Peek4Z(p) & 0x7fffffff;
+			p += 4; // total bits in data
+			p += 2; // cc for trailing pulse
+			uint cnt0 = Peek1Z(p);
+			p += 1; // pulses for 0-bits
+			uint cnt1 = Peek1Z(p);
+			p += 1;					  // pulses for 1-bits
+			p += 2 * cnt0 + 2 * cnt1; // skip pulse tables
 
-				if(cnt0==2&&cnt1==2)
-				{
-					if(!major_block_info) setMajorBlockInfo( TapData::calcMajorBlockInfo(bits/8,p) );
-					setMinorBlockInfo( TapData::calcMinorBlockInfo(bits/8,p) );
-				}
-				else if(cnt0==8&&cnt1==18)
-				{
-					if(!major_block_info) setMajorBlockInfo("ZX80/ZX81 program block");
-					setMinorBlockInfo( usingstr("%i bytes",int(bits/8)) );
-				}
-			}
-		case 'STOP':
+			if (cnt0 == 2 && cnt1 == 2)
 			{
-				int flag = Peek2Z(p);
-				if(!major_block_info) setMajorBlockInfo( flag==0 ? "Stop the tape" : "Stop tape if loading into 48k model");
+				if (!major_block_info) setMajorBlockInfo(TapData::calcMajorBlockInfo(bits / 8, p));
+				setMinorBlockInfo(TapData::calcMinorBlockInfo(bits / 8, p));
 			}
+			else if (cnt0 == 8 && cnt1 == 18)
+			{
+				if (!major_block_info) setMajorBlockInfo("ZX80/ZX81 program block");
+				setMinorBlockInfo(usingstr("%i bytes", int(bits / 8)));
+			}
+		}
+		case 'STOP':
+		{
+			int flag = Peek2Z(p);
+			if (!major_block_info)
+				setMajorBlockInfo(flag == 0 ? "Stop the tape" : "Stop tape if loading into 48k model");
+		}
 		}
 	}
 }
@@ -142,35 +172,34 @@ void PzxData::calcBlockInfos()
 // ############################################################################
 
 
-
-			// PZX header block:
-						//		dc.b	major version number
-						//		dc.b	minor version number
-						//		dc.s	program name
-						//	n*2*dc.s	info  dictionary:
-						//
-						//	Tag        TZX ID   Info
-						//  ---------- ------ - ------------------------
-						//	Publisher  [0x01] - Software house/publisher
-						//	Author     [0x02] - Author(s)
-						//	Year       [0x03] - Year of publication
-						//	Language   [0x04] - Language
-						//	Type       [0x05] - Game/utility type
-						//	Price      [0x06] - Original price
-						//	Protection [0x07] - Protection scheme/loader
-						//	Origin     [0x08] - Origin
-						//	Comment    [0xFF] - Comment(s)
-						//	Some keys, like Author or Comment, may be used more than once.
-						//
+// PZX header block:
+//		dc.b	major version number
+//		dc.b	minor version number
+//		dc.s	program name
+//	n*2*dc.s	info  dictionary:
+//
+//	Tag        TZX ID   Info
+//  ---------- ------ - ------------------------
+//	Publisher  [0x01] - Software house/publisher
+//	Author     [0x02] - Author(s)
+//	Year       [0x03] - Year of publication
+//	Language   [0x04] - Language
+//	Type       [0x05] - Game/utility type
+//	Price      [0x06] - Original price
+//	Protection [0x07] - Protection scheme/loader
+//	Origin     [0x08] - Origin
+//	Comment    [0xFF] - Comment(s)
+//	Some keys, like Author or Comment, may be used more than once.
+//
 
 
 // ############################################################################
 
 
-//void PzxData::WriteToFile( int fd ) const throw(file_error)
+// void PzxData::WriteToFile( int fd ) const throw(file_error)
 //{
 //	write_bytes( fd, data.Data(), data.Size() );
-//}
+// }
 
 
 #if 0
@@ -200,7 +229,7 @@ a:	off_t flen = file_remaining(fd); if(flen<8) return;	// eof
 	q = data.Data()+old_sz+8;			// read pointer
 	e = q+blen;							// end of block data
 
-#define SET_BLEN(N) Poke4Z( data.Data()+old_sz+4, (blen=(N)) )
+  #define SET_BLEN(N) Poke4Z(data.Data() + old_sz + 4, (blen = (N)))
 
 	switch(id)
 	{
@@ -296,29 +325,27 @@ a:	off_t flen = file_remaining(fd); if(flen<8) return;	// eof
 }
 #endif
 
-void PzxData::init( RlesData const& )
-{
-	TODO();
-}
+void PzxData::init(const RlesData&) { TODO(); }
 
 /*static*/
-void PzxData::readFile( cstr fpath, AoP<TapeData>& tapeblocks, MetaData& metadata ) throw(file_error,data_error,bad_alloc)
+void PzxData::readFile(cstr fpath, AoP<TapeData>& tapeblocks, MetaData& metadata) throw(
+	file_error, data_error, bad_alloc)
 {
-	XLogIn("PzxData::readFile(%s)",fpath);
+	XLogIn("PzxData::readFile(%s)", fpath);
 	(void)tapeblocks;
 	(void)metadata;
 	TODO();
 }
 
 /*static*/
-void PzxData::writeFile( cstr fpath, AoP<TapeData>& tapeblocks, MetaData& metadata ) throw(file_error,data_error,bad_alloc)
+void PzxData::writeFile(cstr fpath, AoP<TapeData>& tapeblocks, MetaData& metadata) throw(
+	file_error, data_error, bad_alloc)
 {
-	XLogIn("PzxData::writeFile(%s)",fpath);
+	XLogIn("PzxData::writeFile(%s)", fpath);
 	(void)tapeblocks;
 	(void)metadata;
 	TODO();
 }
-
 
 
 // #######################################################################################
@@ -326,7 +353,7 @@ void PzxData::writeFile( cstr fpath, AoP<TapeData>& tapeblocks, MetaData& metada
 // #######################################################################################
 
 
-void RlesData::init( PzxData const& qq ) throw(data_error)
+void RlesData::init(const PzxData& qq) throw(data_error)
 {
 	init();
 	buffer.startRecordingPulses();
@@ -334,137 +361,155 @@ void RlesData::init( PzxData const& qq ) throw(data_error)
 	cu8ptr qptr = qq.data.Data();
 	cu8ptr qend = qptr + qq.data.Count();
 
-a:	if(qend-qptr<8) { buffer.stop(); return; }	// end of data
-	int32 id   = Peek4X(qptr); qptr+=4;
-	int32 blen = Peek4Z(qptr); qptr+=4;	if( blen>qend-qptr ) throw(data_error("pzx: chunk size exceeds data"));
-	cu8ptr q  = qptr;
-	cu8ptr e  = qptr+=blen;
-
-	switch(id)
+a:
+	if (qend - qptr < 8)
 	{
-		case 'ZXTP':	// old PZX header (draft)
-			XXLogLine("ZXTP block");
-			throw( data_error("pzx: draft version pre 1.0. no longer supported.") );
+		buffer.stop();
+		return;
+	} // end of data
+	int32 id = Peek4X(qptr);
+	qptr += 4;
+	int32 blen = Peek4Z(qptr);
+	qptr += 4;
+	if (blen > qend - qptr) throw(data_error("pzx: chunk size exceeds data"));
+	cu8ptr q = qptr;
+	cu8ptr e = qptr += blen;
 
-		case 'PZXT':	// PZX header block:
-		{				//		dc.b	major version number
-						//		dc.b	minor version number
-						//		dc.s	info  dictionary
-						//
-			XXLogIn("PZXT block");
-			if(blen<2) throw(data_error("pzx: PZXT chunk too short"));
-			uchar vh=*q++;			// major version number
-			uchar vl=*q++;			// minor version number
-			XXLogLine("version %hhu.%hhu", vh,vl );
-			if( vh!=1 ) throw(data_error(usingstr("pzx: version %hhu.%hhu is not supported.",vh,vl)));
-		}	goto a;
+	switch (id)
+	{
+	case 'ZXTP': // old PZX header (draft)
+		XXLogLine("ZXTP block");
+		throw(data_error("pzx: draft version pre 1.0. no longer supported."));
 
-		case 'PULS':	// arbitrary repetitions of pulses
+	case 'PZXT': // PZX header block:
+	{			 //		dc.b	major version number
+				 //		dc.b	minor version number
+				 //		dc.s	info  dictionary
+				 //
+		XXLogIn("PZXT block");
+		if (blen < 2) throw(data_error("pzx: PZXT chunk too short"));
+		uchar vh = *q++; // major version number
+		uchar vl = *q++; // minor version number
+		XXLogLine("version %hhu.%hhu", vh, vl);
+		if (vh != 1) throw(data_error(usingstr("pzx: version %hhu.%hhu is not supported.", vh, vl)));
+	}
+		goto a;
+
+	case 'PULS': // arbitrary repetitions of pulses
+	{
+		XXLogIn("PULS block");
+		buffer.setPhase(0); // first pulse is low
+		while (q < e)
 		{
-			XXLogIn("PULS block");
-			buffer.setPhase(0);		// first pulse is low
-			while( q<e )
-			{
 			// decode duration and repeat count acc. to code sample in specs:
-				uint32 cnt = 1, dur = Peek2Z(q); q+=2;
-				if( dur > 0x8000  ) { cnt = dur & 0x7FFF; dur = Peek2Z(q); q+=2; }
-				if( dur >= 0x8000 ) { dur = ((dur & 0x7FFF)<<16) + Peek2Z(q); q+=2; }
-				if(q>e) { XXLogLine("truncated pulse"); goto a; }
-			// store pulses:
-				if(dur!=0) { while(cnt--) { buffer.writeCC(dur); } }
-				else if(cnt&1) buffer.write(0);		// if cnt==1 and dur==0 then toggle phase
-			}
-		}	goto a;
-
-		case 'DATA':
-		{
-			XXLogIn("DATA block");
-			uint32   bits = Peek4Z(q);	q += 4;		// total bits in data
-			bool    initial_phase = (int32)bits<0; bits &= 0x7fffffff;
-			uint    tail = Peek2Z(q);	q += 2;		// trailing pulse
-			uint    cnt0 = Peek1Z(q);	q += 1;		// pulses for bit==0
-			uint    cnt1 = Peek1Z(q);	q += 1;		// pulses for bit==1
-		#if defined(_LITTLE_ENDIAN)
-			uint16*	dur0 = (uint16*)q;	q += 2*cnt0;// table of pulse durations for bit 0
-			uint16*	dur1 = (uint16*)q;	q += 2*cnt1;// table of pulse durations for bit 1
-		#elif defined(_BIG_ENDIAN)
-			uint16*	dur0 = tempMem(2*cnt0); for( uint i=0; i<cnt0; i++ ) { dur0[i] = Peek2Z(q); q+=2; }
-			uint16*	dur1 = tempMem(2*cnt1); for( uint i=0; i<cnt1; i++ ) { dur1[i] = Peek2Z(q); q+=2; }
-		#else
-			#error booboo
-		#endif
-
-			if( q + (bits+7)/8 > e ) throw(data_error("pzx: DATA chunk size mismatch"));
-			buffer.setPhase(initial_phase);			// first pulse polarity
-			if( !data_start ) data_start = buffer.getPos();
-
-			while( bits )
+			uint32 cnt = 1, dur = Peek2Z(q);
+			q += 2;
+			if (dur > 0x8000)
 			{
-				uchar byte = *q++;
-				uint32 n = Min(8u,bits); bits -= n;
-				while( n-- )
-				{
-					if((byte>>n)&1) for( uint i=0; i<cnt1; i++ ) { buffer.writeCC(dur1[i]); }
-					else			for( uint i=0; i<cnt0; i++ ) { buffer.writeCC(dur0[i]); }
-				}
+				cnt = dur & 0x7FFF;
+				dur = Peek2Z(q);
+				q += 2;
 			}
-			if(tail) buffer.writeCC(tail);
-		}	goto a;
+			if (dur >= 0x8000)
+			{
+				dur = ((dur & 0x7FFF) << 16) + Peek2Z(q);
+				q += 2;
+			}
+			if (q > e)
+			{
+				XXLogLine("truncated pulse");
+				goto a;
+			}
+			// store pulses:
+			if (dur != 0)
+			{
+				while (cnt--) { buffer.writeCC(dur); }
+			}
+			else if (cnt & 1)
+				buffer.write(0); // if cnt==1 and dur==0 then toggle phase
+		}
+	}
+		goto a;
 
-		case 'PAUS':
+	case 'DATA':
+	{
+		XXLogIn("DATA block");
+		uint32 bits = Peek4Z(q);
+		q += 4; // total bits in data
+		bool initial_phase = (int32)bits < 0;
+		bits &= 0x7fffffff;
+		uint tail = Peek2Z(q);
+		q += 2; // trailing pulse
+		uint cnt0 = Peek1Z(q);
+		q += 1; // pulses for bit==0
+		uint cnt1 = Peek1Z(q);
+		q += 1; // pulses for bit==1
+#if defined(_LITTLE_ENDIAN)
+		uint16* dur0 = (uint16*)q;
+		q += 2 * cnt0; // table of pulse durations for bit 0
+		uint16* dur1 = (uint16*)q;
+		q += 2 * cnt1; // table of pulse durations for bit 1
+#elif defined(_BIG_ENDIAN)
+		uint16* dur0 = tempMem(2 * cnt0);
+		for (uint i = 0; i < cnt0; i++)
 		{
-			XXLogIn("PAUS block");
-			int32 dur = Peek4Z(q); q+=4;
-			bool initial_phase = dur<0; dur &= 0x7fffffff;
-			if( q>e ) throw(data_error("pzx: PAUS chunk too short"));
-			data_end = buffer.getPos();
-			if(dur) buffer.writeCC(dur,initial_phase);
-		}	goto a;
+			dur0[i] = Peek2Z(q);
+			q += 2;
+		}
+		uint16* dur1 = tempMem(2 * cnt1);
+		for (uint i = 0; i < cnt1; i++)
+		{
+			dur1[i] = Peek2Z(q);
+			q += 2;
+		}
+#else
+  #error booboo
+#endif
 
-		case 'BRWS':
-			XXLogLine("BRWS block");
-			goto a;
+		if (q + (bits + 7) / 8 > e) throw(data_error("pzx: DATA chunk size mismatch"));
+		buffer.setPhase(initial_phase); // first pulse polarity
+		if (!data_start) data_start = buffer.getPos();
 
-		case 'STOP':
-			XXLogLine("STOP block");
-			buffer.writeTime(5.0);
-			goto a;
+		while (bits)
+		{
+			uchar  byte = *q++;
+			uint32 n	= Min(8u, bits);
+			bits -= n;
+			while (n--)
+			{
+				if ((byte >> n) & 1)
+					for (uint i = 0; i < cnt1; i++) { buffer.writeCC(dur1[i]); }
+				else
+					for (uint i = 0; i < cnt0; i++) { buffer.writeCC(dur0[i]); }
+			}
+		}
+		if (tail) buffer.writeCC(tail);
+	}
+		goto a;
 
-		default:
-			XXLogLine( "unknown block #$%08lX", id );
-			goto a;
+	case 'PAUS':
+	{
+		XXLogIn("PAUS block");
+		int32 dur = Peek4Z(q);
+		q += 4;
+		bool initial_phase = dur < 0;
+		dur &= 0x7fffffff;
+		if (q > e) throw(data_error("pzx: PAUS chunk too short"));
+		data_end = buffer.getPos();
+		if (dur) buffer.writeCC(dur, initial_phase);
+	}
+		goto a;
 
-	}	// switch(id)
+	case 'BRWS': XXLogLine("BRWS block"); goto a;
 
-	return;				// ok
+	case 'STOP':
+		XXLogLine("STOP block");
+		buffer.writeTime(5.0);
+		goto a;
+
+	default: XXLogLine("unknown block #$%08lX", id); goto a;
+
+	} // switch(id)
+
+	return; // ok
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

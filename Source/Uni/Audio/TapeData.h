@@ -3,10 +3,10 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "zxsp_types.h"
 #include "DspTime.h"
-#include "Templates/Array.h"
 #include "IsaObject.h"
+#include "Templates/Array.h"
+#include "zxsp_types.h"
 
 
 /*	class TapeData
@@ -29,57 +29,75 @@
 class TapeData : public IsaObject
 {
 public:
-	enum TrustLevel
-	{
-		no_data,				// data looked like pause or noise only
-		conversion_failed,		// decoding failed due to wrong pulse pattern
-		truncated_data_error,	// decoding from csw failed at some point
-		checksum_error,			// decoded from csw succeeded, but checksum error
-		decoded_data,			// decoded from csw without errors, checksum ok
-		original_data,			// data from genuine tape file
-		conversion_success = truncated_data_error	// minimum for what may be deemed a "success"
+	enum TrustLevel {
+		no_data,								  // data looked like pause or noise only
+		conversion_failed,						  // decoding failed due to wrong pulse pattern
+		truncated_data_error,					  // decoding from csw failed at some point
+		checksum_error,							  // decoded from csw succeeded, but checksum error
+		decoded_data,							  // decoded from csw without errors, checksum ok
+		original_data,							  // data from genuine tape file
+		conversion_success = truncated_data_error // minimum for what may be deemed a "success"
 	};
-	TrustLevel	trust_level;
+	TrustLevel trust_level;
 
 protected:
-					TapeData			(TapeData const&);
-	TapeData&		operator=			(TapeData const&) = delete;
-	explicit		TapeData			(isa_id, TrustLevel=no_data);
+	TapeData(const TapeData&);
+	TapeData& operator=(const TapeData&) = delete;
+	explicit TapeData(isa_id, TrustLevel = no_data);
 
 public:
-	virtual			~TapeData			();
+	virtual ~TapeData();
 };
 
 
-inline TzxData*     TzxDataPtr(TapeData const*p)    { assert(p->isA(isa_TzxData));    return (TzxData*)p; }
-inline TapData*     TapDataPtr(TapeData const*p)    { assert(p->isA(isa_TapData));    return (TapData*)p; }
-inline O80Data*     O80DataPtr(TapeData const*p)    { assert(p->isA(isa_O80Data));    return (O80Data*)p; }
-inline RlesData*    RlesDataPtr(TapeData const*p)   { assert(p->isA(isa_RlesData));   return (RlesData*)p; }
-inline AudioData*	AudioDataPtr(TapeData const*p)	{ assert(p->isA(isa_AudioData));	 return (AudioData*)p; }
+inline TzxData* TzxDataPtr(const TapeData* p)
+{
+	assert(p->isA(isa_TzxData));
+	return (TzxData*)p;
+}
+inline TapData* TapDataPtr(const TapeData* p)
+{
+	assert(p->isA(isa_TapData));
+	return (TapData*)p;
+}
+inline O80Data* O80DataPtr(const TapeData* p)
+{
+	assert(p->isA(isa_O80Data));
+	return (O80Data*)p;
+}
+inline RlesData* RlesDataPtr(const TapeData* p)
+{
+	assert(p->isA(isa_RlesData));
+	return (RlesData*)p;
+}
+inline AudioData* AudioDataPtr(const TapeData* p)
+{
+	assert(p->isA(isa_AudioData));
+	return (AudioData*)p;
+}
 
-inline TzxData&     TzxDataRef(TapeData const&p)    { assert(p.isA(isa_TzxData));    return (TzxData&)p; }
-inline TapData&     TapDataRef(TapeData const&p)    { assert(p.isA(isa_TapData));    return (TapData&)p; }
-inline O80Data&     O80DataRef(TapeData const&p)    { assert(p.isA(isa_O80Data));    return (O80Data&)p; }
-inline RlesData&    RlesDataRef(TapeData const&p)   { assert(p.isA(isa_RlesData));   return (RlesData&)p; }
-inline AudioData&	AudioDataRef(TapeData const&p)	{ assert(p.isA(isa_AudioData));  return (AudioData&)p; }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+inline TzxData& TzxDataRef(const TapeData& p)
+{
+	assert(p.isA(isa_TzxData));
+	return (TzxData&)p;
+}
+inline TapData& TapDataRef(const TapeData& p)
+{
+	assert(p.isA(isa_TapData));
+	return (TapData&)p;
+}
+inline O80Data& O80DataRef(const TapeData& p)
+{
+	assert(p.isA(isa_O80Data));
+	return (O80Data&)p;
+}
+inline RlesData& RlesDataRef(const TapeData& p)
+{
+	assert(p.isA(isa_RlesData));
+	return (RlesData&)p;
+}
+inline AudioData& AudioDataRef(const TapeData& p)
+{
+	assert(p.isA(isa_AudioData));
+	return (AudioData&)p;
+}

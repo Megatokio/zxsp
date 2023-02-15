@@ -2,11 +2,11 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "unix/FD.h"
 #include "MmuTc2048.h"
-#include "Z80/Z80.h"
 #include "Machine.h"
 #include "Ula/UlaZxsp.h"
+#include "Z80/Z80.h"
+#include "unix/FD.h"
 
 
 /*	Note: all ports fully decoded.
@@ -33,37 +33,30 @@
 // to be determined
 //
 #define cc_irpt_on	0
-#define cc_irpt_off	64
+#define cc_irpt_off 64
 
 
 // ----------------------------------------------------------
 //					creator & init
 // ----------------------------------------------------------
 
-MmuTc2048::MmuTc2048(Machine*m, isa_id id, cstr oaddr, cstr iaddr)
-:	MmuZxsp(m, id, oaddr, iaddr),
-	port_F4(0)
-{}
+MmuTc2048::MmuTc2048(Machine* m, isa_id id, cstr oaddr, cstr iaddr) : MmuZxsp(m, id, oaddr, iaddr), port_F4(0) {}
 
-MmuTc2048::MmuTc2048(Machine*m)
-:	MmuZxsp(m, isa_MmuTc2048, o_addr, i_addr),
-	port_F4(0)
-{}
+MmuTc2048::MmuTc2048(Machine* m) : MmuZxsp(m, isa_MmuTc2048, o_addr, i_addr), port_F4(0) {}
 
 
-void MmuTc2048::powerOn( int32 cc )
+void MmuTc2048::powerOn(int32 cc)
 {
 	MmuZxsp::powerOn(cc);
 	assert(ula->isA(isa_UlaTc2048));
 	port_F4 = 0;
 }
 
-void MmuTc2048::reset( Time t, int32 cc )
+void MmuTc2048::reset(Time t, int32 cc)
 {
-	MmuZxsp::reset(t,cc);
+	MmuZxsp::reset(t, cc);
 	port_F4 = 0;
 }
-
 
 
 // ----------------------------------------------------------
@@ -74,22 +67,13 @@ void MmuTc2048::reset( Time t, int32 cc )
 /*	read port F4
 	assumption: it exists but has no effect. see comment on Basic64-Demo.tzx
 */
-void MmuTc2048::input( Time, int32 /*cc*/, uint16 /*addr*/, uint8& byte, uint8& mask )
+void MmuTc2048::input(Time, int32 /*cc*/, uint16 /*addr*/, uint8& byte, uint8& mask)
 {
 	byte &= port_F4;
-	mask  = 0xff;
+	mask = 0xff;
 }
 
 
 /*	write port F4
-*/
-void MmuTc2048::output( Time, int32, uint16 /*addr*/, uint8 byte )
-{
-	port_F4 = byte;
-}
-
-
-
-
-
-
+ */
+void MmuTc2048::output(Time, int32, uint16 /*addr*/, uint8 byte) { port_F4 = byte; }

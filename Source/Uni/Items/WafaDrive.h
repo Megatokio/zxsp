@@ -3,7 +3,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include"Item.h"
+#include "Item.h"
 
 
 class WafaDrive : public Item
@@ -11,5 +11,3 @@ class WafaDrive : public Item
 public:
 	explicit WafaDrive(Machine*);
 };
-
-

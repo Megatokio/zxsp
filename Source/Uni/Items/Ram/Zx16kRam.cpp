@@ -3,8 +3,8 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Zx16kRam.h"
-#include "Machine.h"
 #include "Items/Ula/Mmu.h"
+#include "Machine.h"
 
 
 /*  Sinclair ZX 16K RAM Memory Extension
@@ -15,29 +15,25 @@
 */
 
 
-//protected
-Zx16kRam::Zx16kRam(Machine* m,isa_id id)
-:
-   ExternalRam(m,id)
+// protected
+Zx16kRam::Zx16kRam(Machine* m, isa_id id) : ExternalRam(m, id)
 {
 	xlogIn("new Zx16kRam");
 
-	machine->ram.grow(16*1024);
-	machine->mmu->mapMem();     // map new memory to cpu & set videoram
+	machine->ram.grow(16 * 1024);
+	machine->mmu->mapMem(); // map new memory to cpu & set videoram
 }
 
 
 //  c'tor
 //  note: BASIC will not use full ram unless reset
 //
-Zx16kRam::Zx16kRam(Machine*m)
-:
-	ExternalRam(m,isa_Zx16kRam)
+Zx16kRam::Zx16kRam(Machine* m) : ExternalRam(m, isa_Zx16kRam)
 {
 	xlogIn("new Zx16kRam");
 
-	machine->ram.grow(16*1024);
-	machine->mmu->mapMem();     // map new memory to cpu & set videoram
+	machine->ram.grow(16 * 1024);
+	machine->mmu->mapMem(); // map new memory to cpu & set videoram
 }
 
 
@@ -51,9 +47,5 @@ Zx16kRam::~Zx16kRam()
 	xlogIn("~Zx16kRam");
 
 	machine->ram.shrink(machine->model_info->ram_size);
-	machine->mmu->mapMem();     // map new memory to cpu & to set videoram
+	machine->mmu->mapMem(); // map new memory to cpu & to set videoram
 }
-
-
-
-

@@ -9,33 +9,8 @@
 class WalkmanInspector : public TapeRecorderInsp
 {
 public:
-	WalkmanInspector( QWidget*, MachineController*, volatile IsaObject* );
+	WalkmanInspector(QWidget*, MachineController*, volatile IsaObject*);
 
 protected:
-	void	updateWidgets() override;
+	void updateWidgets() override;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

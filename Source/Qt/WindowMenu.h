@@ -18,30 +18,20 @@ class QAction;
 
 class WindowMenu : public QMenu
 {
-	QMainWindow* window;            // owner
-	QAction*	 action;            // item which represents the owner window in this menu
-	QAction*	 separator;         // a separator
+	QMainWindow* window;	// owner
+	QAction*	 action;	// item which represents the owner window in this menu
+	QAction*	 separator; // a separator
 
 	void addWindow(QAction*);
 	void rmWindow(QAction*);
 
 
-// ---- P U B L I C ------------
+	// ---- P U B L I C ------------
 
 public:
-	WindowMenu  (QMainWindow*);
-	~WindowMenu ();
+	WindowMenu(QMainWindow*);
+	~WindowMenu();
 
 	void checkWindows();
 	void setTitle();
-
 };
-
-
-
-
-
-
-
-
-

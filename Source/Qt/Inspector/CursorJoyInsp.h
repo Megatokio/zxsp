@@ -9,7 +9,7 @@
 class CursorJoyInsp : public JoyInsp
 {
 public:
-	CursorJoyInsp( QWidget*, MachineController*, volatile IsaObject*, cstr image );
+	CursorJoyInsp(QWidget*, MachineController*, volatile IsaObject*, cstr image);
 
 protected:
 	void updateWidgets() override;
@@ -19,9 +19,7 @@ protected:
 class ProtekJoyInsp : public CursorJoyInsp
 {
 public:
-	ProtekJoyInsp( QWidget* w, MachineController* mc, volatile IsaObject* j )
-				  : CursorJoyInsp(w,mc,j,"/Images/protek_js_if.jpg"){}
+	ProtekJoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* j) :
+		CursorJoyInsp(w, mc, j, "/Images/protek_js_if.jpg")
+	{}
 };
-
-
-

@@ -4,8 +4,8 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 
-#include "kio/kio.h"
 #include "ConfigDialog.h"
+#include "kio/kio.h"
 class MachineController;
 class QLineEdit;
 class QLabel;
@@ -24,33 +24,29 @@ extern cstr getKeyJoyFnmatchPattern(uint8 keys[5], cstr filename);
 class ConfigureKeyboardJoystickDialog : public ConfigDialog
 {
 public:
-	QLineEdit*	led_filenamepattern;
+	QLineEdit*	  led_filenamepattern;
 	QRadioButton* btn_default_for_all_files;
 	QRadioButton* btn_for_match_pattern;
 	QRadioButton* btn_use_just_now;
-	KbdLed*	led_up;
-	KbdLed*	led_down;
-	KbdLed*	led_left;
-	KbdLed*	led_right;
-	KbdLed*	led_fire;
-	QPushButton* btn_cancel;
-	QPushButton* btn_ok;
+	KbdLed*		  led_up;
+	KbdLed*		  led_down;
+	KbdLed*		  led_left;
+	KbdLed*		  led_right;
+	KbdLed*		  led_fire;
+	QPushButton*  btn_cancel;
+	QPushButton*  btn_ok;
 
-	int		xm,ym;				// center position for joystick graphics
+	int xm, ym; // center position for joystick graphics
 
-	uint8	old_keys[5];		// (RLDUF) Qt keycode to use for keyboard joystick
-	cstr	old_matchpattern;	// the filename pattern, for which the keys were set
-								// note: RLDUF array indexes == %000FUDLR bit numbers
-	uint8	new_keys[5];		// (RLDUF) Qt keycode to use for keyboard joystick
+	uint8 old_keys[5];		// (RLDUF) Qt keycode to use for keyboard joystick
+	cstr  old_matchpattern; // the filename pattern, for which the keys were set
+							// note: RLDUF array indexes == %000FUDLR bit numbers
+	uint8 new_keys[5];		// (RLDUF) Qt keycode to use for keyboard joystick
 
 public:
 	explicit ConfigureKeyboardJoystickDialog(MachineController*);
 	~ConfigureKeyboardJoystickDialog();
 
 protected:
-	void	paintEvent(QPaintEvent*);
+	void paintEvent(QPaintEvent*);
 };
-
-
-
-

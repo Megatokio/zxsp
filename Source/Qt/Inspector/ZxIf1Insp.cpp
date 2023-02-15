@@ -4,8 +4,6 @@
 
 #include "ZxIf1Insp.h"
 
-ZxIf1Insp::ZxIf1Insp(QWidget*w, MachineController* mc, volatile IsaObject *i )
-:
-	Inspector(w,mc,i,"/Backgrounds/light-150-s.jpg")
-{
-}
+ZxIf1Insp::ZxIf1Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
+	Inspector(w, mc, i, "/Backgrounds/light-150-s.jpg")
+{}

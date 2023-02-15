@@ -29,24 +29,5 @@ class ProtekJoy : public CursorJoy
 	// Kio: The PCB contains two 74LS32 quad OR and one 74LS09 quad AND with oK.
 
 public:
-	explicit ProtekJoy(Machine* m)		: CursorJoy(m,isa_ProtekJoy) {}
+	explicit ProtekJoy(Machine* m) : CursorJoy(m, isa_ProtekJoy) {}
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

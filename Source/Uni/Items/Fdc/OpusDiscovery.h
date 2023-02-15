@@ -11,5 +11,3 @@ class OpusDiscovery : public Fdc
 public:
 	explicit OpusDiscovery(Machine*);
 };
-
-
