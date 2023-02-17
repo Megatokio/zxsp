@@ -60,6 +60,7 @@ macx: SOURCES += \
 	Source/OS/Mac/UsbDevice.cpp \
 	Source/OS/Mac/mac_util.cpp \
 	Libraries/audio/AudioDecoder.cpp \
+	Libraries/audio/CAStreamBasicDescription.cpp \
 
 
 unix:!macx: SOURCES += \
@@ -88,7 +89,6 @@ SOURCES +=	\
 	Libraries/kio/TestTimer.cpp \
 	Libraries/audio/audio.cpp \
 	Libraries/audio/WavFile.cpp \
-	Libraries/audio/CAStreamBasicDescription.cpp \
 	Libraries/Z80/goodies/z80_clock_cycles.cpp \
 	Libraries/Z80/goodies/z80_opcode_length.cpp \
 	Libraries/Z80/goodies/z80_disass.cpp \
