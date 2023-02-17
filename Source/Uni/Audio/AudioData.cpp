@@ -249,7 +249,7 @@ AudioData::~AudioData() {}
 /*	Creator from audio file
 	This does not actually read any samples into float_samples[] or int16_samples[]!
 */
-AudioData::AudioData(AudioDecoder* ad, uint32 a, uint32 e) :
+AudioData::AudioData(std::shared_ptr<AudioDecoder> ad, uint32 a, uint32 e) :
 	TapeData(isa_AudioData), stereo(no), samples_per_second(ad->samplesPerSecond()), audio_decoder(ad),
 	adc_start_pos(a), adc_end_pos(e)
 {}
@@ -416,7 +416,7 @@ CswBuffer::CswBuffer(const AudioData& qa, uint32 ccps) :
 			}
 		}
 	}
-	else if (qa.audio_decoder.ptr() && (count = qa.adc_num_samples())) // audiofile exists:
+	else if (qa.audio_decoder && (count = qa.adc_num_samples())) // audiofile exists:
 	{
 		try
 		{
@@ -675,7 +675,7 @@ void AudioData::readFile(cstr fpath, TapeFile& tapeblocks) noexcept(false) // fi
 	assert(tapeblocks.count() == 0);
 
 	// create and open AudioFile:
-	AudioDecoder* decoder = new AudioDecoder();
+	std::shared_ptr<AudioDecoder> decoder {new AudioDecoder()};
 	decoder->open(fpath); // throws
 
 	// read audio data in one giant chunk: (10MB/minute)

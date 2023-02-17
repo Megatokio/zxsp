@@ -43,18 +43,18 @@ class AudioData : public TapeData
 	bool		  stereo;			  // in buffers, not neccessarily in file
 	uint32		  samples_per_second; // should be sample rate of original data
 
-	RCPtr<AudioDecoder> audio_decoder; // if any, then audio_data may be empty
-	uint32				adc_start_pos; // in soundfile, samples (soundfile sample rate)
-	uint32				adc_end_pos;   // in soundfile, samples (soundfile sample rate)
-	uint32				adc_num_samples() const { return adc_end_pos - adc_start_pos; }
+	std::shared_ptr<AudioDecoder> audio_decoder; // if any, then audio_data may be empty
+	uint32						  adc_start_pos; // in soundfile, samples (soundfile sample rate)
+	uint32						  adc_end_pos;	 // in soundfile, samples (soundfile sample rate)
+	uint32						  adc_num_samples() const { return adc_end_pos - adc_start_pos; }
 
 public:
 	AudioData();
 	explicit AudioData(const AudioData&);
 	explicit AudioData(const TapeData&);
 	explicit AudioData(const CswBuffer&, uint32 sps);
-	explicit AudioData(AudioDecoder*, uint32 a, uint32 e);
-	virtual ~AudioData();
+	explicit AudioData(std::shared_ptr<AudioDecoder>, uint32 a, uint32 e);
+	virtual ~AudioData() override;
 
 	static void readFile(cstr fpath, TapeFile&);
 	static void writeFile(cstr fpath, TapeFile&);

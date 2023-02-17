@@ -59,12 +59,19 @@ macx: SOURCES += \
 	Source/OS/Mac/MacMouse.cpp \
 	Source/OS/Mac/UsbDevice.cpp \
 	Source/OS/Mac/mac_util.cpp \
-	Libraries/audio/AudioDecoder.cpp \
-	Libraries/audio/CAStreamBasicDescription.cpp \
+	Libraries/audio/macos/AudioDecoder.cpp \
+	Libraries/audio/macos/CAStreamBasicDescription.cpp \
+
+macx: HEADERS += \
+	Libraries/audio/macos/CADebugMacros.h \
+	Libraries/audio/macos/CAStreamBasicDescription.h \
+	Libraries/audio/macos/CAMath.h \
+	Libraries/audio/macos/CADebugPrintf.h \
 
 
 unix:!macx: SOURCES += \
 	Source/OS/Linux/missing_definitions.cpp \
+	Libraries/audio/Linux/AudioDecoder.cpp \
 
 
 SOURCES += \
@@ -73,6 +80,7 @@ SOURCES += \
 
 
 SOURCES +=	\
+	Libraries/audio/convert_audio.cpp \
 	Libraries/kio/exceptions.cpp \
 	Libraries/cstrings/cstrings.cpp \
 	Libraries/graphics/gif/Colormap.cpp \
@@ -87,7 +95,6 @@ SOURCES +=	\
 	Libraries/unix/files.cpp \
 	Libraries/unix/n-compress.cpp \
 	Libraries/kio/TestTimer.cpp \
-	Libraries/audio/audio.cpp \
 	Libraries/audio/WavFile.cpp \
 	Libraries/Z80/goodies/z80_clock_cycles.cpp \
 	Libraries/Z80/goodies/z80_opcode_length.cpp \
@@ -326,6 +333,7 @@ SOURCES +=	\
 # Library Headers:
 
 HEADERS += \
+	Libraries/audio/convert_audio.h \
 	Libraries/kio/kio.h \
 	Libraries/kio/auto_config.h \
 	Libraries/kio/detect_configuration.h \
@@ -366,11 +374,6 @@ HEADERS += \
 	Libraries/hash/sdbm_hash.h \
 	\
 	Libraries/audio/AudioDecoder.h \
-	Libraries/audio/CADebugMacros.h \
-	Libraries/audio/CAStreamBasicDescription.h \
-	Libraries/audio/CAMath.h \
-	Libraries/audio/CADebugPrintf.h \
-	Libraries/audio/audio.h \
 	Libraries/audio/WavFile.h \
 	\
 	Libraries/Z80/goodies/z80_opcodes.h \
