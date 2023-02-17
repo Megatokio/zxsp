@@ -88,8 +88,6 @@ protected:
 	void output(Time, int32 cc, uint16 addr, uint8 byte) override;
 	void audioBufferEnd(Time) override;
 	// void	videoFrameEnd	(int32 cc);
-	// void	saveToFile		(FD&) const throws override;
-	// void	loadFromFile	(FD&) throws override;
 	uint8 handleRomPatch(uint16, uint8) override;
 	void  romCS(bool f) override;
 

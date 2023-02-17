@@ -327,15 +327,3 @@ void UlaJupiter::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask
 	else
 		byte &= ~EAR_IN_MASK;
 }
-
-void UlaJupiter::saveToFile(FD& fd) const throws
-{
-	Ula::saveToFile(fd);
-	fd.write(audio_mode);
-}
-
-void UlaJupiter::loadFromFile(FD& fd) throws
-{
-	Ula::loadFromFile(fd);
-	fd.read(audio_mode);
-}

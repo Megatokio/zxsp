@@ -26,8 +26,6 @@ protected:
 	void output(Time t, int32 cc, uint16 addr, uint8 byte) override;
 	// void	audioBufferEnd	(Time t) override;
 	// void	videoFrameEnd	(int32 cc) override;
-	// void	saveToFile		(FD&) const throws override;
-	// void	loadFromFile	(FD&) throws override;
 
 	bool  hasPortF4() const volatile noexcept override { return yes; } // see note on Basic64-Demo.tzx in *.cpp
 	uint8 getPortF4() const volatile override { return port_F4; }	   // seems to be present but

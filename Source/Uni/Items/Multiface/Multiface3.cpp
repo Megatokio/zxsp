@@ -205,8 +205,3 @@ void Multiface3::triggerNmi()
 	mf_enabled	= yes;
 	machine->cpu->triggerNmi();
 }
-
-
-void Multiface3::saveToFile(FD&) const noexcept(false) /*file_error,bad_alloc*/ { TODO(); }
-
-void Multiface3::loadFromFile(FD&) noexcept(false) /*file_error,bad_alloc*/ { TODO(); }

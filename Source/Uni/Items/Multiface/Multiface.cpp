@@ -56,8 +56,3 @@ void Multiface::page_out()
 	paged_in = no;
 	prev()->romCS(no);
 }
-
-
-void Multiface::saveToFile(FD&) const noexcept(false) /*file_error,bad_alloc*/ { TODO(); }
-
-void Multiface::loadFromFile(FD&) noexcept(false) /*file_error,bad_alloc*/ { TODO(); }

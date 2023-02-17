@@ -43,8 +43,6 @@ public:
 	uint8 handleRomPatch(uint16, uint8) override; // returns new opcode
 	void  audioBufferEnd(Time t) override;
 	// void	videoFrameEnd	(int32 cc) override;
-	void saveToFile(FD&) const throws override;
-	void loadFromFile(FD&) throws override;
 
 	uint8 readMemory(Time t, int32 cc, uint16 addr, uint8 byte) override;  // memory mapped i/o
 	void  writeMemory(Time t, int32 cc, uint16 addr, uint8 byte) override; // memory mapped i/o

@@ -763,10 +763,6 @@ void SpectraVideo::deactivate_hooks()
 }
 
 
-void SpectraVideo::saveToFile(FD&) const noexcept(false) /*file_error,bad_alloc*/ { TODO(); }
-void SpectraVideo::loadFromFile(FD&) noexcept(false) /*file_error,bad_alloc*/ { TODO(); }
-
-
 /*	Map/unmap shadow ram
 
 	note: if new video modes are disabled, then port_7fdf must be 0

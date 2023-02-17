@@ -183,11 +183,6 @@ void Multiface1::triggerNmi()
 }
 
 
-void Multiface1::saveToFile(FD&) const noexcept(false) /*file_error,bad_alloc*/ { TODO(); }
-
-void Multiface1::loadFromFile(FD&) noexcept(false) /*file_error,bad_alloc*/ { TODO(); }
-
-
 void Multiface1::insertJoystick(int id) volatile
 {
 	if (joystick == joysticks[id]) return;

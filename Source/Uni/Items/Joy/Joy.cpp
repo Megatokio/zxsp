@@ -43,26 +43,3 @@ void Joy::insertJoystick(int i, int id)
 	if (id != no_joystick)
 		overlays[i] = machine->addOverlay(joy[i], idf[i], i & 1 ? Overlay::TopLeft : Overlay::TopRight);
 }
-
-
-void Joy::saveToFile(FD& fd) const noexcept(false) /*file_error,bad_alloc*/
-{
-	Item::saveToFile(fd);
-	switch (getNumPorts())
-	{
-	case 3: fd.write_char(getJoystickID(2));
-	case 2: fd.write_char(getJoystickID(1));
-	default: fd.write_char(getJoystickID(0));
-	}
-}
-
-void Joy::loadFromFile(FD& fd) noexcept(false) /*file_error,bad_alloc*/
-{
-	Item::loadFromFile(fd);
-	switch (getNumPorts())
-	{
-	case 3: insertJoystick(2, fd.read_char());
-	case 2: insertJoystick(1, fd.read_char());
-	default: insertJoystick(0, fd.read_char());
-	}
-}

@@ -19,8 +19,6 @@ protected:
 	void output(Time, int32 cc, uint16 addr, uint8 byte) override;
 	// void	audioBufferEnd	(Time) override;
 	// void	videoFrameEnd	(int32 cc) override;
-	// void	saveToFile		(FD&) const throws override;
-	// void	loadFromFile	(FD&) throws override;
 
 	void attachDiskDrive(uint n, FloppyDiskDrive*) override;
 	void removeDiskDrive(uint n) override;

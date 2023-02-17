@@ -32,19 +32,6 @@ void Crtc::reset(Time t, int32 cc)
 }
 
 
-void Crtc::saveToFile(FD& fd) const throws
-{
-	Item::saveToFile(fd);
-	TODO();
-}
-
-void Crtc::loadFromFile(FD& fd) throws
-{
-	Item::loadFromFile(fd);
-	TODO();
-}
-
-
 void Crtc::attachToScreen(Screen* newscreen)
 {
 	if (newscreen) // may be NULL to disconnect from any screen

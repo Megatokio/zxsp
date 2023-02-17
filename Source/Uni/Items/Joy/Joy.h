@@ -42,8 +42,6 @@ protected:
 	// void	output			(Time t, int32 cc, uint16 addr, uint8 byte) override;
 	// void	audioBufferEnd	(Time t) override;
 	// void	videoFrameEnd	(int32 cc) override;
-	void saveToFile(FD&) const throws override;
-	void loadFromFile(FD&) throws override;
 	// uint8	handleRomPatch	(uint16 pc, uint8 o) override;	// returns new opcode
 	// void	triggerNmi		() override;
 	// uint8	readMemory		(Time t, int32 cc, uint16 addr, uint8 byte) override;  // for memory mapped i/o

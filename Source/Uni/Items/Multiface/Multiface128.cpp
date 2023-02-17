@@ -170,8 +170,3 @@ void Multiface128::triggerNmi()
 	mf_enabled	= yes;
 	machine->cpu->triggerNmi();
 }
-
-
-void Multiface128::saveToFile(FD&) const noexcept(false) /*file_error,bad_alloc*/ { TODO(); }
-
-void Multiface128::loadFromFile(FD&) noexcept(false) /*file_error,bad_alloc*/ { TODO(); }

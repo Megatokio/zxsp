@@ -423,8 +423,8 @@ enum {
 	NotWriteable =
 		1 << 1,			// Not writeable:	WRITE DATA, WRITE DELETED DATA or Write ID: Line WProt from FDD was activated
 	MissingAM = 1 << 0, // Missing Address Mark:	 the FDC does not detect the IDAM before 2 index pulses.
-						//							 or the FDC cannot find the DAM or DDAM after the IDAM is found, then bit MD of
-						//ST2 is also set.
+						//							 or the FDC cannot find the DAM or DDAM after the IDAM is found, then bit MD
+						//of ST2 is also set.
 
 	// NEC µPD765 SR2:
 	ControlMark = 1 << 6,	  // READ DATA or SCAN: the FDC encountered a Sector with a DDAM
@@ -894,9 +894,10 @@ void FloppyDisk::write_extended_disk_file(FD& fd) const throws
 				*tip++ = 0; // SR1
 				*tip++ = 0; // SR2
 							//			if(sip[4]&DataError) f.special |= sip[5]&DataErrorInData ? sf_data_crc_wrong :
-				//sf_id_crc_wrong; 			if(sip[4]&MissingAM) f.special |= sip[5]&MissingDAM ? sf_dam_notfound :
-				//sf_idam_notfound; 			if(sip[5]&ControlMark) f.special |= sf_ddam; 			if((sip[4]&0b00000100)!=0)
-				//showInfo("SR1 in sector data has \"NoData\" bit set");	// wie kann das gesetzt sein?
+				// sf_id_crc_wrong; 			if(sip[4]&MissingAM) f.special |= sip[5]&MissingDAM ? sf_dam_notfound :
+				// sf_idam_notfound; 			if(sip[5]&ControlMark) f.special |= sf_ddam;
+				// if((sip[4]&0b00000100)!=0) showInfo("SR1 in sector data has \"NoData\" bit set");	// wie kann das
+				// gesetzt sein?
 				uint ssize = 0x80u << si[i].sector_sz;
 				if (ssize == 0x2000u) ssize = 0x1800u;
 				poke2Z(tip, uint16(ssize));
@@ -913,39 +914,4 @@ void FloppyDisk::write_extended_disk_file(FD& fd) const throws
 				fd.write_bytes(si[i].data, ssize);
 			}
 		}
-}
-
-
-static const uint8 FDD_MAGIC[4] = {182, 32, 34, 201};
-static const uint8 TRACK_MAGIC	= 213;
-enum { MF, MFM, HD, ED };
-
-void FloppyDisk::saveToFile(FD& fd) const throws
-{
-	fd.write_bytes(FDD_MAGIC, 4);
-	fd.write_uint8(0);	 // comments array size					To be defined
-	fd.write_uint8(MFM); // Disk format
-	fd.write_uint8(0);	 // Track format exceptions table size	To be defined
-	fd.write_uint8(0);	 // Sector format exceptions table size	To be defined
-	fd.write_uint8(0);	 // weak bytes table size				To be defined
-	fd.write_uint8(0);	 // unwritable (FF) bytes table size		To be defined
-
-	for (uint s = 0; s < 2; s++) // 2 sides
-	{
-		fd.write_uint8(sides[s].count());			// num tracks
-		for (uint t = 0; t < sides[s].count(); t++) // N tracks
-		{
-			fd.write_uint8(TRACK_MAGIC);
-			fd.write_uint8(254); // uint16 flag (see: write_nstr() in "unix/fd_throw.cpp")
-			fd.write_uint16_z(bytes_per_track);
-			fd.write_bytes(sides[s][t], bytes_per_track);
-			TODO();
-		}
-	}
-}
-
-void FloppyDisk::loadFromFile(FD& fd) throws
-{
-	(void)fd;
-	TODO();
 }

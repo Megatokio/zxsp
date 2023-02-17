@@ -22,8 +22,6 @@ public:
 	// virtual void	output			(Time t, int32 cc, uint16 addr, uint8 byte);
 	// virtual void	audioBufferEnd	(Time t);
 	// virtual void	videoFrameEnd	(int32 cc);
-	// virtual void	saveToFile		(FD& fd)  const         noexcept(false) /*file_error,bad_alloc*/;
-	// virtual void	loadFromFile	(FD& fd)				noexcept(false) /*file_error,bad_alloc*/;
 
 	// MMU Interface:
 	virtual void mapMem() override;

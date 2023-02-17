@@ -815,37 +815,3 @@ void Ay::setClock(Frequency psg_cycles_per_second)
 	envelope.time_for_cycle /= freq_factor;
 	envelope.reload /= freq_factor;
 }
-
-
-void Ay::saveToFile(FD& fd) const noexcept(false) /*file_error,bad_alloc*/
-{
-	Item::saveToFile(fd);
-
-	//	write_data(fd,&select_mask);
-	//	write_data(fd,&select_bits);
-	//	write_data(fd,&write_mask);
-	//	write_data(fd,&write_bits);
-	fd.write(time_for_cycle);
-	fd.write(stereo_mix);
-	fd.write(volume);
-	fd.write(ay_reg_nr);
-	fd.write_data(ay_reg, 16);
-}
-
-void Ay::loadFromFile(FD& fd) noexcept(false) /*file_error,bad_alloc*/
-{
-	Item::loadFromFile(fd);
-
-	//	read_data(fd,&select_mask);
-	//	read_data(fd,&select_bits);
-	//	read_data(fd,&write_mask);
-	//	read_data(fd,&write_bits);
-	fd.read(time_for_cycle);
-	fd.read(stereo_mix);
-	fd.read(volume);
-	fd.read(ay_reg_nr);
-	ay_reg_nr &= 0x0f;
-	uint8 n[16];
-	fd.read_data(n, 16);
-	setRegisters(n);
-}

@@ -218,26 +218,6 @@ void TapeRecorder::videoFrameEnd(int32 cc)
 
 
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-// Misc.:
-
-void TapeRecorder::saveToFile(FD& fd) const noexcept(false) /*file_error,bad_alloc*/
-{
-	assert(isStopped());
-	assert(isLoaded());
-	TODO();
-	(void)fd;
-}
-
-
-void TapeRecorder::loadFromFile(FD& fd) noexcept(false) /*file_error,bad_alloc*/
-{
-	assert(isStopped());
-	TODO();
-	(void)fd;
-}
-
-
-// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 // rom patch handlers:
 
 /*  Handle Auto-Start of Tape:

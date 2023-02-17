@@ -19,6 +19,4 @@ protected:
 	// void	output			( Time t, int32 cc, uint16 addr, uint8 byte ) override;
 	// void	audioBufferEnd	( Time t ) override;
 	// void	videoFrameEnd	( int32 cc ) override;
-	// void	saveToFile		( FD& fd ) const throws override;
-	// void	loadFromFile	( FD& fd ) throws override;
 };

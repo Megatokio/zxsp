@@ -66,9 +66,6 @@ public:
 	explicit FloppyDisk(cstr filepath);
 	~FloppyDisk();
 
-	void saveToFile(FD&) const throws;
-	void loadFromFile(FD&) throws;
-
 	void makeSingleSided();
 	void truncateTracks(uint n);
 	void saveAs(cstr path) throws;

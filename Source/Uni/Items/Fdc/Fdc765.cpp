@@ -70,8 +70,8 @@ enum BitMask {
 	NotWriteable =
 		1 << 1,			// Not writeable:	WRITE DATA, WRITE DELETED DATA or Write ID: Line WProt from FDD was activated
 	MissingAM = 1 << 0, // Missing Address Mark:	 the FDC does not detect the IDAM before 2 index pulses.
-						//							 or the FDC cannot find the DAM or DDAM after the IDAM is found, then bit MD of
-						//ST2 is also set.
+						//							 or the FDC cannot find the DAM or DDAM after the IDAM is found, then bit MD
+						//of ST2 is also set.
 
 	// SR2:
 	ControlMark = 1 << 6,	  // READ DATA or SCAN: the FDC encountered a Sector with a DDAM
@@ -92,8 +92,8 @@ enum BitMask {
 	FddReady  = 1 << 5, // Ready from FDD
 	FddTrack0 = 1 << 4, // Track0 from FDD
 	Fdd2Sided = 1 << 3	// DoubleSided from FDD
-	//	Head			= 1<<2	// selected head
-	//	Unit			= 3<<0	// selected drive
+						//	Head			= 1<<2	// selected head
+						//	Unit			= 3<<0	// selected drive
 };
 
 static const uint8 DAM	= 0xFB; // data address mark
@@ -188,10 +188,6 @@ void Fdc765::audioBufferEnd(Time t)
 	time -= t;
 	Fdc::audioBufferEnd(t);
 }
-
-void Fdc765::saveToFile(FD& /*fd*/) const throws /*file_error,bad_alloc*/ { TODO(); }
-
-void Fdc765::loadFromFile(FD& /*fd*/) throws /*file_error,bad_alloc*/ { TODO(); }
 
 
 // -------------------------------------------------------------------------

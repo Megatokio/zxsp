@@ -50,18 +50,6 @@ void Ula::setBeeperVolume(Sample new_vol)
 	beeper_volume = new_vol;
 }
 
-void Ula::saveToFile(FD& fd) const throws
-{
-	Crtc::saveToFile(fd);
-	TODO();
-}
-
-void Ula::loadFromFile(FD& fd) throws
-{
-	Crtc::loadFromFile(fd);
-	TODO();
-}
-
 uint8 Ula::readKeyboard(uint16 addr)
 {
 	/*	Z80 input: merge in the keys:

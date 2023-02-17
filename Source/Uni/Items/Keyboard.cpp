@@ -279,16 +279,16 @@ static const OskeyToZxkeyMap oskey2zxkey_timex = {
 	x,	 SPC, CSH, x,	x,	  x,	x,	 x,	   // 0x30-0x37:  •  SPC  <  DEL  •  ESC  •   •
 	CSH, x,	  CSH, SSH, CSH2, CSH2, SSH, x,	   // 0x38-0x3F: CSH  •  ALT CTL CSH2ALT2CTL2 •
 											   // x,x,x,x,x,x,x,x,							// 0x40-0x47:  •  [.]  •  [*]  •  [+]
-											// • • x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •
-											// [/][RET] •  [-]  •
-											// x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=] [0] [1] [2] [3]
-											// [4] [5]
-											// x,x,x,x,x,x,x,x,							// 0x58-0x5F: [6] [7]  •  [8] [9]  •
-											// • • x,x,x,x,x,x,x,x,							// 0x60-0x67:
-											// x,x,x,x,x,x,x,x, 							// 0x68-0x6F:
-											// x,x,x,x,x,x,x,x, 							// 0x70-0x77:
-											// x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←   ➞   ↓
-											// ↑ •
+											   // • • x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •
+											   // [/][RET] •  [-]  •
+											   // x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=] [0] [1] [2] [3]
+											   // [4] [5]
+											   // x,x,x,x,x,x,x,x,							// 0x58-0x5F: [6] [7]  •  [8] [9]  •
+											   // • • x,x,x,x,x,x,x,x,							// 0x60-0x67:
+											   // x,x,x,x,x,x,x,x, 							// 0x68-0x6F:
+											   // x,x,x,x,x,x,x,x, 							// 0x70-0x77:
+	// x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←   ➞   ↓
+	// ↑ •
 };
 
 static const AsciiToZxkeyMap ascii2zxkey_zx81 = {
@@ -600,18 +600,6 @@ void Keyboard::powerOn(int32 cc)
 	Item::powerOn(cc);
 	assert(model == machine->model);
 	allKeysUp();
-}
-
-void Keyboard::saveToFile(FD& fd) const throws
-{
-	Item::saveToFile(fd);
-	TODO();
-}
-
-void Keyboard::loadFromFile(FD& fd) throws
-{
-	Item::loadFromFile(fd);
-	TODO();
 }
 
 

@@ -471,18 +471,6 @@ void UlaZxsp::drawVideoBeamIndicator(int32 cc) // called from runForSound()
 	}
 }
 
-void UlaZxsp::saveToFile(FD& fd) const noexcept(false) /*file_error,bad_alloc*/
-{
-	Ula::saveToFile(fd);
-	TODO();
-}
-
-void UlaZxsp::loadFromFile(FD& fd) noexcept(false) /*file_error,bad_alloc*/
-{
-	Ula::loadFromFile(fd);
-	TODO();
-}
-
 
 /*	50 / 60 Hz Umschaltung
 	Diese Funktion passt für 48K Spectrums und TK90x/TK95

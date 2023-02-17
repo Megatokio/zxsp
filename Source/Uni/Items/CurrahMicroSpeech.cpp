@@ -457,6 +457,3 @@ void CurrahMicroSpeech::add_history(uint8 command)
 	history[lastwp & mask] = command + pitch;
 	++lastwp;
 }
-
-void CurrahMicroSpeech::saveToFile(FD&) const noexcept(false) /*file_error,bad_alloc*/ { TODO(); }
-void CurrahMicroSpeech::loadFromFile(FD&) noexcept(false) /*file_error,bad_alloc*/ { TODO(); }

@@ -112,35 +112,6 @@ void Z80::reset_registers()
 }
 
 
-/*	Save to disk:
-	save cpu internal state for later Init()
-	does not save: memory page mapping, waitmaps, options and contents!
-*/
-void Z80::saveToFile(FD& fd) const noexcept(false) /*file_error,bad_alloc*/
-{
-	Item::saveToFile(fd);
-	fd.write(registers);
-	fd.write(cpu_cycle);
-	fd.write(instr_cnt);
-	fd.write(cc_irpt_on);
-	fd.write(cc_irpt_off);
-	fd.write(cc_nmi);
-	fd.write(stack_breakpoint);
-}
-
-void Z80::loadFromFile(FD& fd) noexcept(false) /*file_error,bad_alloc*/
-{
-	Item::loadFromFile(fd);
-	fd.read(registers);
-	fd.read(cpu_cycle);
-	fd.read(instr_cnt);
-	fd.read(cc_irpt_on);
-	fd.read(cc_irpt_off);
-	fd.read(cc_nmi);
-	fd.read(stack_breakpoint);
-}
-
-
 /*	shift cpu T cycle based by cc
 	because video frame completed
 	note: Z80::videoFrameEnd() does NOT call Item::videoFrameEnd() => end calling chain here!

@@ -86,8 +86,6 @@ protected:
 	// void	output			(Time t, int32 cc, uint16 addr, uint8 byte) override;
 	// void	audioBufferEnd	(Time t) override;
 	// void	videoFrameEnd	(int32 cc) override;
-	// void	saveToFile		(FD&) const	throws override;
-	// void	loadFromFile	(FD&) throws override;
 	uint8 handleRomPatch(uint16, uint8 o) override { return o; }		  // returns opcode read
 	uint8 readMemory(Time, int32, uint16, uint8 n) override { return n; } // returns byte read
 	void  writeMemory(Time, int32, uint16, uint8) override {}

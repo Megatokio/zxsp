@@ -6,11 +6,6 @@
 #include "unix/FD.h"
 
 
-/*	magic number for load/save:
- */
-static const uint8 magic = 178;
-
-
 /*	parent ids:
  */
 isa_id isa_pid[] = {
@@ -25,20 +20,3 @@ cstr isa_names[] = {
 #define M_ISA(A, B, C) C
 #include "isa_id.h"
 };
-
-
-// virtual
-void IsaObject::saveToFile(FD& fd) const noexcept(false) /*file_error,bad_alloc*/
-{
-	fd.write_uint8(magic);
-	fd.write_nstr(name);
-}
-
-// virtual
-void IsaObject::loadFromFile(FD& fd) noexcept(false) /*file_error,bad_alloc,data_error*/
-{
-	if (fd.read_uint8() != magic) throw DataError("IsaObject magic corrupted");
-	delete[] name;
-	name = nullptr;
-	name = fd.read_nstr();
-}

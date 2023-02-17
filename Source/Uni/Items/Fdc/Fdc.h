@@ -36,9 +36,7 @@ protected:
 	// void	output			(Time, int32 cc, uint16 addr, uint8 byte) override = 0;
 	void audioBufferEnd(Time) override;
 	// void	videoFrameEnd	(int32 cc);
-	// void	saveToFile		(FD&) const throws override;
-	// void	loadFromFile	(FD&) throws override;
-	// uint8	handleRomPatch	(uint16,uint8) override;
+	// uint8 handleRomPatch	(uint16,uint8) override;
 
 	virtual void  raise_interrupt() { interrupt = on; }	 // to be reimplemented if fdc uses interrupts
 	virtual void  clear_interrupt() { interrupt = off; } // to be reimplemented if fdc uses interrupts

@@ -76,8 +76,6 @@ public:
 	virtual void  writeMemory(Time t, int32 cc, uint16 addr, uint8 byte); // for memory mapped i/o
 	virtual void  audioBufferEnd(Time t);
 	virtual void  videoFrameEnd(int32 cc);
-	virtual void  saveToFile(FD&) const throws;
-	virtual void  loadFromFile(FD&) throws;
 	virtual void  triggerNmi();
 
 	// Behandlung von daisy-chain bus-signalen
@@ -103,8 +101,6 @@ inline void Item::input(Time, int32, uint16, uint8&, uint8&) {}
 inline void Item::output(Time, int32, uint16, uint8) {}
 inline void Item::audioBufferEnd(Time) {}
 inline void Item::videoFrameEnd(int32) {}
-inline void Item::saveToFile(FD&) const throws {}
-inline void Item::loadFromFile(FD&) throws {}
 
 // The generic NMI button in the main menubar was pressed:
 // search for a NMI supproting item to handle it.

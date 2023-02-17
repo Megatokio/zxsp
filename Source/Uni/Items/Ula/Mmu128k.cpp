@@ -55,22 +55,6 @@ void Mmu128k::reset(Time t, int32 cc)
 }
 
 
-void Mmu128k::saveToFile(FD& fd) const noexcept(false) /*file_error,bad_alloc*/
-{
-	Mmu::saveToFile(fd);
-	fd.write_uchar(port_7ffd);
-}
-
-
-void Mmu128k::loadFromFile(FD& fd) noexcept(false) /*file_error,bad_alloc*/
-{
-	xlogIn("Mmu128k::loadFromFile");
-
-	Mmu::loadFromFile(fd);
-	setPort7ffd(fd.read_uchar());
-}
-
-
 /*	page in selected rom
 	assumed: not (yet) locked to 48k
 */

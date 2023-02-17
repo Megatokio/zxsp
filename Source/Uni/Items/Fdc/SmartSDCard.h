@@ -98,8 +98,6 @@ protected:
 	void  writeMemory(Time t, int32 cc, uint16 addr, uint8 byte) override; // for memory mapped i/o
 	// void	audioBufferEnd	(Time t) override;
 	void videoFrameEnd(int32 cc) override;
-	// void	saveToFile		(FD&) const throws override;
-	// void	loadFromFile	(FD&) throws override;
 	// void	triggerNmi		() override;
 	// void	ramCS           (bool active) override;		// ZX80, ZX81
 	// void	romCS           (bool active) override;		// ZX81, ZXSP, ZX128, +2; ROMCS1+ROMCS2: +2A, +3
