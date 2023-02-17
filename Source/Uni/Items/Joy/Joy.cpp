@@ -41,5 +41,5 @@ void Joy::insertJoystick(int i, int id)
 	}
 	joy[i] = joysticks[id];
 	if (id != no_joystick)
-		overlays[i] = machine->addOverlay(joy[i], idf[i], i & 1 ? Overlay::TopLeft : Overlay::TopRight);
+		overlays[i] = machine->addOverlay(joy[i], idf[i], i & 1 ? gui::Overlay::TopLeft : gui::Overlay::TopRight);
 }

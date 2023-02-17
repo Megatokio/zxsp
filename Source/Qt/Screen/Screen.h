@@ -14,6 +14,9 @@ struct IoInfo;
 // typedef uint32	RgbaColor;			// RGBA
 
 
+namespace gui
+{
+
 #define H_BORDER_MAX 64 // in 32 column mode
 #define V_BORDER_MAX 48
 
@@ -177,3 +180,5 @@ public:
 
 DEFSPTR(ScreenMono)
 DEFSPTR(ScreenZxsp)
+
+} // namespace gui

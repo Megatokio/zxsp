@@ -10,7 +10,7 @@
 
 class Multiface : public Item
 {
-	friend class MultifaceInsp;
+	friend class gui::MultifaceInsp;
 
 protected:
 	MemoryPtr rom;

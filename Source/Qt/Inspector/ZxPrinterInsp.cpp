@@ -4,6 +4,11 @@
 
 #include "ZxPrinterInsp.h"
 
+namespace gui
+{
+
 ZxPrinterInsp::ZxPrinterInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
 	Inspector(w, mc, i, "/Backgrounds/light-150-s.jpg")
 {}
+
+} // namespace gui

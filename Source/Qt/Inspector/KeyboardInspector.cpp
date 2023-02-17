@@ -13,6 +13,9 @@
 #include <QtGui>
 
 
+namespace gui
+{
+
 enum ZxspKey // Names for specci keys
 {
 	//  These names represent keys on the ZXSP und ZXSP+ keyboard
@@ -865,3 +868,5 @@ bool KeyboardInspector::event(QEvent* e)
 
 	return Inspector::event(e);
 }
+
+} // namespace gui

@@ -20,9 +20,9 @@ except one OUT instruction setting proper video mode after reset.
 */
 
 
-MachineTc2048::MachineTc2048(MachineController* m, Model model, isa_id id) : MachineZxsp(m, model, id) {}
+MachineTc2048::MachineTc2048(gui::MachineController* m, Model model, isa_id id) : MachineZxsp(m, model, id) {}
 
-MachineTc2048::MachineTc2048(MachineController* m) : MachineZxsp(m, tc2048, isa_MachineTc2048)
+MachineTc2048::MachineTc2048(gui::MachineController* m) : MachineZxsp(m, tc2048, isa_MachineTc2048)
 {
 	cpu		 = new Z80(this);					   // must be 1st item
 	ula		 = new UlaTc2048(this, isa_UlaTc2048); // should be 2nd item

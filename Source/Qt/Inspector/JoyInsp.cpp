@@ -13,6 +13,9 @@
 #include <QtGui>
 
 
+namespace gui
+{
+
 JoyInsp::JoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* j, cstr imgpath) : Inspector(w, mc, j, imgpath)
 {
 	assert(object->isA(isa_Joy));
@@ -153,3 +156,5 @@ void JoyInsp::update_joystick_selectors()
 
 	for (int s = 0; s < num_ports; s++) { joystick_selectors[s]->blockSignals(0); }
 }
+
+} // namespace gui

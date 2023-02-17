@@ -11,6 +11,9 @@
 #include <QTimer>
 
 
+namespace gui
+{
+
 MultifaceInsp::MultifaceInsp(
 	QWidget* p, MachineController* mc, volatile IsaObject* o, cstr image, const QRect& btnbox) :
 	Inspector(p, mc, o, image),
@@ -60,3 +63,5 @@ void MultifaceInsp::updateWidgets()
 
 	if (label_paged_in->isVisible() != multiface()->paged_in) { label_paged_in->setVisible(multiface()->paged_in); }
 }
+
+} // namespace gui

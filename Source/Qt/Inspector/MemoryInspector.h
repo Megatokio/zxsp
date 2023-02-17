@@ -13,8 +13,11 @@ class QBoxLayout;
 class QRadioButton;
 class QTextEdit;
 class QComboBox;
-class MyLineEdit;
 
+namespace gui
+{
+
+class MyLineEdit;
 
 extern const QColor paper_color_reg; // gelb
 extern const QColor paper_color_sp;	 // grün
@@ -146,3 +149,5 @@ private:
 	void save_settings();
 	void set_address_from_textedit(); // textedit_baseaddress
 };
+
+} // namespace gui

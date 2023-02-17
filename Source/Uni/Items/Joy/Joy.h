@@ -5,7 +5,6 @@
 
 #include "Item.h"
 #include "Joystick.h" // physical joysticks
-class OverlayJoystick;
 
 
 class Joy : public Item
@@ -13,13 +12,13 @@ class Joy : public Item
 	friend class AyForTc2068;
 
 protected:
-	Joystick*		 joy[3];
-	cstr			 idf[3];
-	OverlayJoystick* overlays[3];
-	uint			 num_ports;
+	Joystick*			  joy[3];
+	cstr				  idf[3];
+	gui::OverlayJoystick* overlays[3];
+	uint				  num_ports;
 
 public:
-	virtual ~Joy();
+	virtual ~Joy() override;
 
 	void insertJoystick(int i, int id);
 	void insertJoystick(int id) { insertJoystick(0, id); }

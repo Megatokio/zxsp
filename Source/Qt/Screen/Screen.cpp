@@ -21,6 +21,9 @@
 #include <QThread>
 
 
+namespace gui
+{
+
 // =========================================================================
 //							Render Thread
 // =========================================================================
@@ -748,3 +751,5 @@ void Screen::removeAllOverlays()
 	memset(overlays, 0, sizeof(overlays));
 	update(); // falls das Passepartout nicht gezeichnet wird
 }
+
+} // namespace gui

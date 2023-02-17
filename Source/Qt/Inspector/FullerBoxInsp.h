@@ -5,8 +5,13 @@
 
 #include "Inspector.h"
 
+namespace gui
+{
+
 class FullerBoxInsp : public Inspector
 {
 public:
 	FullerBoxInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
+
+} // namespace gui

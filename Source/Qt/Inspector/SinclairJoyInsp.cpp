@@ -10,6 +10,9 @@
 #include <QtGui>
 
 
+namespace gui
+{
+
 /*		vstretch	reset
 		joysel0		joysel1
 		display0	display1
@@ -61,3 +64,5 @@ void SinclairJoyInsp::updateWidgets()		  // ZX Spectrum +2
 		lineedit_display[1]->setText(binstr(newstate, "%000LRDUF", "%--------"));
 	}
 }
+
+} // namespace gui

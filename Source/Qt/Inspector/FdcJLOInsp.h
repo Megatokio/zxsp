@@ -7,8 +7,13 @@
 #include <QObject>
 
 
+namespace gui
+{
+
 class FdcJLOInsp : public Inspector
 {
 public:
 	FdcJLOInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
+
+} // namespace gui

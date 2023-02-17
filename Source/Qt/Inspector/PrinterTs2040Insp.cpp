@@ -5,4 +5,9 @@
 
 #include "PrinterTs2040Insp.h"
 
+namespace gui
+{
+
 PrinterTs2040Insp::PrinterTs2040Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) : Inspector(w, mc, i) {}
+
+} // namespace gui

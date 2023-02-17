@@ -5,8 +5,13 @@
 
 #include "JoyInsp.h"
 
+namespace gui
+{
+
 class InvesJoyInsp : public JoyInsp
 {
 public:
 	InvesJoyInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
+
+} // namespace gui

@@ -5,7 +5,12 @@
 
 #include "SmartSDCardInspector.h"
 
+namespace gui
+{
+
 SmartSDCardInspector::SmartSDCardInspector(QWidget* p, MachineController* m, volatile IsaObject* o) : Inspector(p, m, o)
 {}
 
 SmartSDCardInspector::~SmartSDCardInspector() {}
+
+} // namespace gui

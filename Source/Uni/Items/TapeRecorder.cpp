@@ -96,21 +96,21 @@ static const cstr walkman_fname[] = {
 
 TapeRecorder::TapeRecorder(Machine* machine, isa_id id, const cstr audio_names[]) :
 	Item(machine, id, isa_TapeRecorder, (Internal)machine->model_info->has_tape_drive, nullptr, nullptr),
-	auto_start_stop_tape(settings.get_bool(key_auto_start_stop_tape, no)),
-	instant_load_tape(settings.get_bool(key_fast_load_tape, no)),
+	auto_start_stop_tape(gui::settings.get_bool(key_auto_start_stop_tape, no)),
+	instant_load_tape(gui::settings.get_bool(key_fast_load_tape, no)),
 	machine_ccps(machine->model_info->cpu_cycles_per_second), state(stopped), record_is_down(no), pause_is_down(no),
 	stop_position(0.0), tapefile(nullptr)
 {
-	list_id = machine->isA(isa_MachineZxsp)	   ? RecentZxspTapes :
-			  machine->isA(isa_MachineZx81)	   ? RecentZx81Tapes :
-			  machine->isA(isa_MachineZx80)	   ? RecentZx80Tapes :
-			  machine->isA(isa_MachineJupiter) ? RecentJupiterTapes :
-												 RecentFiles;
+	list_id = machine->isA(isa_MachineZxsp)	   ? gui::RecentZxspTapes :
+			  machine->isA(isa_MachineZx81)	   ? gui::RecentZx81Tapes :
+			  machine->isA(isa_MachineZx80)	   ? gui::RecentZx80Tapes :
+			  machine->isA(isa_MachineJupiter) ? gui::RecentJupiterTapes :
+												 gui::RecentFiles;
 
-	if (list_id == RecentFiles)
+	if (list_id == gui::RecentFiles)
 	{
 		showWarning("TapeRecorder: unknown machine");
-		list_id = RecentZxspTapes;
+		list_id = gui::RecentZxspTapes;
 	}
 
 	// sounds:

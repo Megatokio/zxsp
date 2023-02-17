@@ -5,4 +5,9 @@
 
 #include "FdcJLOInsp.h"
 
+namespace gui
+{
+
 FdcJLOInsp::FdcJLOInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) : Inspector(w, mc, i) {}
+
+} // namespace gui

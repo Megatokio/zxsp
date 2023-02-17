@@ -7,8 +7,13 @@
 #include <QObject>
 
 
+namespace gui
+{
+
 class FdcBeta128Insp : public Inspector
 {
 public:
 	FdcBeta128Insp(QWidget*, MachineController*, volatile IsaObject*);
 };
+
+} // namespace gui

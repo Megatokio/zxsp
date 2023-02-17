@@ -10,6 +10,9 @@
 #include <QLineEdit>
 #include <QToolBar>
 
+namespace gui
+{
+
 class Inspector : public QWidget
 {
 	Q_OBJECT
@@ -77,3 +80,5 @@ signals:
 	void signalSizeConstraintsChanged(); // -> min, max, fix size, size incr, shrinktofit
 	void updateCustomTitle();			 // customized title changed (--> getCustomTitle())
 };
+
+} // namespace gui

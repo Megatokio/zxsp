@@ -13,7 +13,7 @@
 #include "Ula/Ula128k.h"
 
 
-MachineZxPlus2::MachineZxPlus2(MachineController* m, Model model) : MachineZx128(m, model, isa_MachineZxPlus2)
+MachineZxPlus2::MachineZxPlus2(gui::MachineController* m, Model model) : MachineZx128(m, model, isa_MachineZxPlus2)
 {
 	assert(model == zxplus2 || model == zxplus2_span || model == zxplus2_frz);
 

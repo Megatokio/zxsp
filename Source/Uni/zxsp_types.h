@@ -34,9 +34,6 @@ enum KbdMode {	// preferred keyboard translation:		((Kbd.h))
 };
 
 
-class Application;
-class WindowMenu;
-class ZxItemsMenu;
 class TempMemPool;
 
 // physical joysticks: usb/kbd-emu/none:
@@ -66,17 +63,7 @@ class AudioData;
 class RlesData;
 class CswBuffer;
 
-class MachineController;
 class Memory;
-
-class Screen;
-class ScreenMono;
-class ScreenZxsp;
-
-class ToolWindowController;
-class ToolWindow;
-class Inspector;
-class Lenslok;
 
 class IsaObject;
 class Renderer;
@@ -182,6 +169,27 @@ class SpectraVideo;
 class DivIDE;
 class CurrahMicroSpeech;
 
+namespace gui
+{
+class Application;
+class WindowMenu;
+class ZxItemsMenu;
+class Overlay;
+class OverlayJoystick;
+class OverlayRecord;
+class OverlayPlay;
+
+class MachineController;
+
+class Screen;
+class ScreenMono;
+class ScreenZxsp;
+
+class ToolWindowController;
+class ToolWindow;
+class Lenslok;
+
+class Inspector;
 class UlaInsp;
 class JoyInsp;
 class TapeRecorderInsp;
@@ -229,3 +237,4 @@ class Memotech64kRamInsp;
 class MemoryInspector;
 class SpectraVideoInspector;
 class DivIDEInspector;
+} // namespace gui

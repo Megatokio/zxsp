@@ -13,6 +13,10 @@
 #include <QRect>
 #include <QTimer>
 
+
+namespace gui
+{
+
 enum CassBody { BlueBody };			 // available cassette bodies
 enum HeadPos { head_up, head_down }; // magnetic head position
 
@@ -182,3 +186,5 @@ class Plus2aTapeRecorderInsp : public PlusTapeRecorderInsp
 public:
 	Plus2aTapeRecorderInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
+
+} // namespace gui

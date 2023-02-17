@@ -12,7 +12,7 @@
 #include "Ula/UlaInves.h"
 
 
-MachineInves::MachineInves(MachineController* m) : MachineZxsp(m, inves, isa_MachineInves)
+MachineInves::MachineInves(gui::MachineController* m) : MachineZxsp(m, inves, isa_MachineInves)
 {
 	cpu		 = new Z80(this);	   // must be 1st item
 	ula		 = new UlaInves(this); // should be 2nd item

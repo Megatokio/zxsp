@@ -7,7 +7,6 @@
 #include "MassStorage.h"
 #include "Memory.h"
 #include "Z80/Z80.h"
-class OverlayJoystick;
 
 
 class Sio
@@ -44,10 +43,10 @@ class SmartSDCard : public MassStorage
 	MemoryPtr ram;
 	MemoryPtr rom;
 
-	Joystick*		 joystick;
-	OverlayJoystick* overlay;
-	SDCard*			 sd_card;
-	Sio*			 sio;
+	Joystick*			  joystick;
+	gui::OverlayJoystick* overlay;
+	SDCard*				  sd_card;
+	Sio*				  sio;
 
 	// i/o registers:
 	// ram_config = config & 0x00FF
@@ -75,7 +74,7 @@ class SmartSDCard : public MassStorage
 
 public:
 	explicit SmartSDCard(Machine* m);
-	virtual ~SmartSDCard();
+	virtual ~SmartSDCard() override;
 
 	// DIP switches:
 	void setMemoryEnabled(bool);

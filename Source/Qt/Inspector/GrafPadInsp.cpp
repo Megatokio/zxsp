@@ -5,4 +5,9 @@
 
 #include "GrafPadInsp.h"
 
+namespace gui
+{
+
 GrafPadInsp::GrafPadInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) : Inspector(w, mc, i) {}
+
+} // namespace gui

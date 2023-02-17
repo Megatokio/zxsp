@@ -6,6 +6,9 @@
 #include "JoyInsp.h"
 
 
+namespace gui
+{
+
 class CursorJoyInsp : public JoyInsp
 {
 public:
@@ -23,3 +26,5 @@ public:
 		CursorJoyInsp(w, mc, j, "/Images/protek_js_if.jpg")
 	{}
 };
+
+} // namespace gui

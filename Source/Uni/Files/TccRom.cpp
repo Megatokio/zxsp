@@ -219,8 +219,8 @@ TccRom::TccRom(Machine* machine, cstr path) :
 		}
 		if (hash32 && id == TccUnknown) logline("Tcc Rom Cartridge \"%s\" with unknown hash: %08X", path, hash32);
 
-		addRecentFile(RecentTccRoms, path);
-		addRecentFile(RecentFiles, path);
+		addRecentFile(gui::RecentTccRoms, path);
+		addRecentFile(gui::RecentFiles, path);
 	}
 	catch (AnyError& e)
 	{
@@ -266,8 +266,8 @@ void TccRom::saveAs(cstr filepath)
 		save_as(filepath);
 		delete[] fpath;
 		fpath = newcopy(filepath);
-		addRecentFile(RecentTccRoms, filepath);
-		addRecentFile(RecentFiles, filepath);
+		addRecentFile(gui::RecentTccRoms, filepath);
+		addRecentFile(gui::RecentFiles, filepath);
 	}
 	catch (FileError e)
 	{

@@ -7,6 +7,9 @@
 #include <QComboBox>
 #include <QLineEdit>
 
+namespace gui
+{
+
 class AyInsp : public Inspector
 {
 	QLineEdit *clock, *pitch_a, *pitch_b, *pitch_c, *mixer, *vol_a, *vol_b, *vol_c, *pitch_n, *pitch_e, *shape_e,
@@ -32,3 +35,5 @@ private:
 	void	   set_register(uint, uint);
 	void	   handle_return_in_led(QLineEdit*);
 };
+
+} // namespace gui

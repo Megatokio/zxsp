@@ -7,8 +7,11 @@
 #include "MemoryInspector.h"
 #include "Templates/Array.h"
 class QComboBox;
-class GWidgetRGB;
 
+
+namespace gui
+{
+class GWidgetRGB;
 
 class MemoryAccessInspector : public MemoryInspector
 {
@@ -69,3 +72,5 @@ private:
 	void slotSetPixelSize(int);	  // combobox_pixelzoom
 	void slotSetBytesPerRow(int); // combobox_bytes_per_row
 };
+
+} // namespace gui

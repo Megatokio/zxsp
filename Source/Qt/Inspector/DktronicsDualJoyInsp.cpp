@@ -8,6 +8,9 @@
 #include <QGridLayout>
 #include <QPushButton>
 
+namespace gui
+{
+
 DktronicsDualJoyInsp::DktronicsDualJoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* item) :
 	JoyInsp(w, mc, item, "/Images/dktronics_dual_js_if.jpg")
 {
@@ -28,3 +31,5 @@ DktronicsDualJoyInsp::DktronicsDualJoyInsp(QWidget* w, MachineController* mc, vo
 	g->addWidget(button_scan_usb, 3, 0, Qt::AlignHCenter | Qt::AlignVCenter);
 	g->addWidget(button_set_keys, 3, 1, Qt::AlignHCenter | Qt::AlignVCenter);
 }
+
+} // namespace gui

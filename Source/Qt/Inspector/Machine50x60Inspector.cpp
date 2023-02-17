@@ -15,6 +15,10 @@
 #include <QButtonGroup>
 #include <QSettings>
 
+
+namespace gui
+{
+
 /*	Inspector for Machine
 	includes 50/60 Hz switching
 */
@@ -59,3 +63,5 @@ Machine50x60Inspector::Machine50x60Inspector(QWidget* p, MachineController* mc, 
 	connect(action_50hz, &QAction::toggled, btn_50hz, &QAbstractButton::setChecked);
 	connect(action_60hz, &QAction::toggled, btn_60hz, &QAbstractButton::setChecked);
 }
+
+} // namespace gui

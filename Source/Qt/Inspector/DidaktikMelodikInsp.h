@@ -6,8 +6,13 @@
 #include "Inspector.h"
 
 
+namespace gui
+{
+
 class DidaktikMelodikInsp : public Inspector
 {
 public:
 	DidaktikMelodikInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
+
+} // namespace gui

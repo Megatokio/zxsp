@@ -20,6 +20,9 @@
 #include <QVariant>
 
 
+namespace gui
+{
+
 static uint dipsw[5] = {8, 4, 2, 6, 1}; // {0b1000,0b0100,0b0010,0b0110,0b0001};
 
 
@@ -58,3 +61,5 @@ Memotech64kRamInsp::Memotech64kRamInsp(QWidget* p, MachineController* mc, volati
 	setColors(l, 0xcccccc);
 	l->move(10, 145);
 }
+
+} // namespace gui

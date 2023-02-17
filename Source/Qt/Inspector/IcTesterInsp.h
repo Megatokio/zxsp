@@ -5,8 +5,13 @@
 
 #include "Inspector.h"
 
+namespace gui
+{
+
 class IcTesterInsp : public Inspector
 {
 public:
 	IcTesterInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
+
+} // namespace gui

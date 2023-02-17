@@ -8,6 +8,9 @@
 #include <QRegion>
 
 
+namespace gui
+{
+
 class KeyboardInspector : public Inspector
 {
 	Model  model;
@@ -76,3 +79,5 @@ class Tk95KbdInsp : public KeyboardInspector
 public:
 	Tk95KbdInsp(QWidget* p, MachineController* m, volatile IsaObject* i) : KeyboardInspector(p, m, i) {}
 };
+
+} // namespace gui

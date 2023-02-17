@@ -10,6 +10,9 @@
 #include <QMenu>
 #include <QTimer>
 
+namespace gui
+{
+class MachineController;
 
 class ToolWindow : public QMainWindow
 {
@@ -48,6 +51,8 @@ private:
 	ToolWindow(MachineController*, volatile IsaObject* item, QAction* showaction);
 
 public:
-	~ToolWindow();
+	~ToolWindow() override;
 	void fillContextMenu(QMenu*);
 };
+
+} // namespace gui

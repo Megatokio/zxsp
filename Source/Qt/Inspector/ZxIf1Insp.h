@@ -5,8 +5,13 @@
 
 #include "Inspector.h"
 
+namespace gui
+{
+
 class ZxIf1Insp : public Inspector
 {
 public:
 	ZxIf1Insp(QWidget*, MachineController*, volatile IsaObject*);
 };
+
+} // namespace gui

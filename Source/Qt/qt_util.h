@@ -8,7 +8,12 @@
 #include <QWidget>
 
 
+namespace gui
+{
+
 extern void setColors(QWidget* widget, QRgb foregroundcolor, QRgb backgroundcolor = 0 /*transparent*/);
 
 extern cstr selectLoadFile(QWidget* parent, cstr headline, cstr filefilterstr);
 extern cstr selectSaveFile(QWidget* parent, cstr headline, cstr filefilterstr);
+
+} // namespace gui

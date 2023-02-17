@@ -18,6 +18,9 @@
 #include <QtGui>
 
 
+namespace gui
+{
+
 ZxIf2Insp::ZxIf2Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
 	SinclairJoyInsp(w, mc, i, "/Images/zxif2.jpg"), old_romfilepath(nullptr)
 {
@@ -140,3 +143,5 @@ void ZxIf2Insp::insertRom(cstr filepath)
 	NV(zxif2())->insertRom(filepath);
 	if (f) machine->powerOn();
 }
+
+} // namespace gui

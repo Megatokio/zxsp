@@ -7,6 +7,9 @@
 #include <QLabel>
 
 
+namespace gui
+{
+
 Multiface3Insp::Multiface3Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
 	MultifaceInsp(w, mc, i, "Images/multiface3.jpg", QRect(234, 22, 30, 30)) // red button		x y w h
 {
@@ -29,3 +32,5 @@ void Multiface3Insp::updateWidgets()
 
 	if (label_ramonly->isVisible() != multiface3()->all_ram) { label_ramonly->setVisible(multiface3()->all_ram); }
 }
+
+} // namespace gui

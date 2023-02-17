@@ -19,6 +19,9 @@
 #include <QVBoxLayout>
 
 
+namespace gui
+{
+
 WalkmanInspector::WalkmanInspector(QWidget* parent, MachineController* mc, volatile IsaObject* item) :
 	TapeRecorderInsp(
 		parent,
@@ -100,3 +103,5 @@ void WalkmanInspector::updateWidgets()
 		emit updateCustomTitle();
 	}
 }
+
+} // namespace gui

@@ -9,6 +9,9 @@ class QLabel;
 class QMenu;
 
 
+namespace gui
+{
+
 class ZxIf2Insp : public SinclairJoyInsp
 {
 	QPushButton* button_insert_eject;
@@ -27,3 +30,5 @@ protected:
 private:
 	void insert_or_eject_rom();
 };
+
+} // namespace gui

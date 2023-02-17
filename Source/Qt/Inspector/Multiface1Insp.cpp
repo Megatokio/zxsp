@@ -12,6 +12,9 @@
 #include <QPushButton>
 
 
+namespace gui
+{
+
 Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
 	MultifaceInsp(w, mc, i, "Images/multiface1.jpg", QRect(224, 20, 30, 30)) // red button		x y w h
 {
@@ -142,3 +145,5 @@ void Multiface1Insp::update_joystick_selector()
 	}
 	if (i == joystick_selector->count()) { joystick_selector->setCurrentIndex(i - 1); }
 }
+
+} // namespace gui

@@ -9,5 +9,5 @@
 class MachineTk95 : public MachineZxsp
 {
 public:
-	explicit MachineTk95(MachineController*);
+	explicit MachineTk95(gui::MachineController*);
 };

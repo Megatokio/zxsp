@@ -7,6 +7,9 @@
 #include <QMainWindow>
 
 
+namespace gui
+{
+
 static uint			windows	   = 0;
 static uint			maxwindows = 0;
 static WindowMenu** windowlist = 0;
@@ -81,3 +84,5 @@ void WindowMenu::checkWindows()
 
 
 void WindowMenu::setTitle() { action->setText(window->windowTitle()); }
+
+} // namespace gui

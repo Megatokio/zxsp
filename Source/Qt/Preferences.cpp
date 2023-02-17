@@ -15,6 +15,9 @@
 #include <QRadioButton>
 
 
+namespace gui
+{
+
 #define key_saved_session			  "settings/saved_session"			   /* QString  … filepath */
 #define key_audio_playthrough_damping "settings/audio_playthrough_damping" /* int */
 
@@ -308,3 +311,5 @@ void Preferences::setCheckForUpdate(bool f)
 	settings.setValue(key_check_for_update, f);
 	settings.setValue(key_check_update_timestamp, now()); // when check again
 }
+
+} // namespace gui

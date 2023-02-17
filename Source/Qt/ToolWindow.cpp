@@ -30,6 +30,9 @@
 #include <QVector>
 
 
+namespace gui
+{
+
 // -------------------------------------------------------
 //			c'tor, d'tor etc.
 // -------------------------------------------------------
@@ -314,3 +317,5 @@ void ToolWindow::contextMenuEvent(QContextMenuEvent* e)
 	contextmenu.popup(e->globalPos());
 	e->accept();
 }
+
+} // namespace gui

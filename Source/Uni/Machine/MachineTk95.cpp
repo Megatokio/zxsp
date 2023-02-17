@@ -27,11 +27,11 @@ kio: so i believe this TK90X info also applies:
 	and NTSC (60 Hz) as used in USA and many other countries.
 */
 
-MachineTk95::MachineTk95(MachineController* m) : MachineZxsp(m, tk95, isa_MachineTk95)
+MachineTk95::MachineTk95(gui::MachineController* m) : MachineZxsp(m, tk95, isa_MachineTk95)
 {
 	cpu = new Z80(this);
 	ula = new UlaTk90x(this);
-	ula->set60Hz(settings.get_bool(key_framerate_tk95_60hz, false));
+	ula->set60Hz(gui::settings.get_bool(key_framerate_tk95_60hz, false));
 	mmu		 = new MmuZxsp(this);
 	keyboard = new KeyboardZxsp(this, isa_KbdTk95);
 	// ay		=

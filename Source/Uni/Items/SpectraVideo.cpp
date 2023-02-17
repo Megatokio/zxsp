@@ -170,10 +170,10 @@ SpectraVideo::~SpectraVideo()
 
 	ejectRom();
 
-	settings.setValue(key_spectra_enable_if1_rom_hooks, if1_rom_hooks_enabled);
-	settings.setValue(key_spectra_enable_rs232, rs232_enabled);
-	settings.setValue(key_spectra_enable_joystick, joystick_enabled);
-	settings.setValue(key_spectra_enable_new_video_modes, new_video_modes_enabled);
+	gui::settings.setValue(key_spectra_enable_if1_rom_hooks, if1_rom_hooks_enabled);
+	gui::settings.setValue(key_spectra_enable_rs232, rs232_enabled);
+	gui::settings.setValue(key_spectra_enable_joystick, joystick_enabled);
+	gui::settings.setValue(key_spectra_enable_new_video_modes, new_video_modes_enabled);
 
 	delete[] attr_pixel;
 	delete[] alt_attr_pixel;
@@ -188,7 +188,7 @@ SpectraVideo::~SpectraVideo()
 
 SpectraVideo::SpectraVideo(Machine* m) :
 	Crtc(m, isa_SpectraVideo, isa_SpectraVideo, external, o_addr, i_addr), has_port_7ffd(machine->mmu->hasPort7ffd()),
-	new_video_modes_enabled(settings.get_bool(key_spectra_enable_new_video_modes, true)),
+	new_video_modes_enabled(gui::settings.get_bool(key_spectra_enable_new_video_modes, true)),
 	// port_7fdf(0),
 	// port_7ffd(0),
 	// shadowram_ever_used(no),
@@ -196,10 +196,10 @@ SpectraVideo::SpectraVideo(Machine* m) :
 	// port_254(0),
 	// port_239(0),
 	// port_247(0),
-	rs232_enabled(settings.get_bool(key_spectra_enable_rs232, false)),
-	joystick_enabled(settings.get_bool(key_spectra_enable_joystick, false)),
-	if1_rom_hooks_enabled(settings.get_bool(key_spectra_enable_if1_rom_hooks, false)), rom(nullptr), filepath(nullptr),
-	own_romdis_state(false),
+	rs232_enabled(gui::settings.get_bool(key_spectra_enable_rs232, false)),
+	joystick_enabled(gui::settings.get_bool(key_spectra_enable_joystick, false)),
+	if1_rom_hooks_enabled(gui::settings.get_bool(key_spectra_enable_if1_rom_hooks, false)), rom(nullptr),
+	filepath(nullptr), own_romdis_state(false),
 	// current_frame(0),
 	// ccx(0),
 	attr_pixel(new uint8[32 * 24 * 8 * BYTES_PER_OCTET]),	  // transfer buffers -> screen
@@ -661,8 +661,8 @@ void SpectraVideo::insertRom(cstr path)
 	filepath = newcopy(path);
 
 	init_rom();
-	addRecentFile(RecentIf2Roms, path);
-	addRecentFile(RecentFiles, path);
+	addRecentFile(gui::RecentIf2Roms, path);
+	addRecentFile(gui::RecentFiles, path);
 }
 
 void SpectraVideo::ejectRom()
@@ -885,5 +885,5 @@ void SpectraVideo::insertJoystick(int id) volatile
 		overlay = nullptr;
 	}
 	joystick = joysticks[id];
-	if (id != no_joystick) overlay = machine->addOverlay(joystick, "K", Overlay::TopRight);
+	if (id != no_joystick) overlay = machine->addOverlay(joystick, "K", gui::Overlay::TopRight);
 }

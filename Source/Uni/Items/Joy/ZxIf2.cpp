@@ -78,8 +78,8 @@ void ZxIf2::insertRom(cstr path)
 	filepath = newcopy(path);
 	prev()->romCS(true);
 	machine->cpu->mapRom(0 /*addr*/, 0x4000 /*size*/, rom.getData(), nullptr, 0);
-	addRecentFile(RecentIf2Roms, path);
-	addRecentFile(RecentFiles, path);
+	addRecentFile(gui::RecentIf2Roms, path);
+	addRecentFile(gui::RecentFiles, path);
 }
 
 

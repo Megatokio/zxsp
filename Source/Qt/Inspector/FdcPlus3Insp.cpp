@@ -22,6 +22,9 @@
 #include <QTimer>
 
 
+namespace gui
+{
+
 // overlay images:
 static const int x_overlay = 36;
 static const int y_overlay = 110; // l/o ecke von oben
@@ -480,3 +483,5 @@ void FdcPlus3Insp::insert_disk(cstr filepath)
 	// failed: keep old state
 	// setState(current_disk ? Ejected : NoDisk);
 }
+
+} // namespace gui

@@ -6,8 +6,13 @@
 #include "JoyInsp.h"
 
 
+namespace gui
+{
+
 class DktronicsDualJoyInsp : public JoyInsp
 {
 public:
 	DktronicsDualJoyInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
+
+} // namespace gui

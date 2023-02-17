@@ -5,8 +5,13 @@
 
 #include "Inspector.h"
 
+namespace gui
+{
+
 class GrafPadInsp : public Inspector
 {
 public:
 	GrafPadInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
+
+} // namespace gui

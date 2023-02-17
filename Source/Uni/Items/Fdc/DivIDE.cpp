@@ -34,7 +34,7 @@ const uint CONMEM_bit_mask = 1 << 7; // bit in DivIDE ctl reg
 
 DivIDE::DivIDE(Machine* machine) :
 	MassStorage(machine, isa_DivIDE, external, o_addr, i_addr), rom(machine, "DivIDE Rom", 8 kB),
-	ram(machine, "DivIDE Ram", settings.get_int(key_divide_ram_size, 32 kB)), cf_card(nullptr),
+	ram(machine, "DivIDE Ram", gui::settings.get_int(key_divide_ram_size, 32 kB)), cf_card(nullptr),
 	ide_data_latch_state(random() & 1), control_register(0), // All bits are reset to '0' after power-on.
 	jumper_E(true),											 // write protect eeprom, enable auto-paging
 	jumper_A(
@@ -46,7 +46,7 @@ DivIDE::DivIDE(Machine* machine) :
 	xlogIn("new DivIDE");
 
 	// load DivIDE rom:
-	cstr fpath = settings.get_cstr(key_divide_rom_file);
+	cstr fpath = gui::settings.get_cstr(key_divide_rom_file);
 	if (fpath)
 	{
 		try
@@ -56,7 +56,7 @@ DivIDE::DivIDE(Machine* machine) :
 		catch (FileError& e)
 		{
 			showWarning("I could not load the recent Rom:\n%s\nI'll load " DEFAULT_ROM_NAME " instead.", e.what());
-			settings.remove(key_divide_rom_file); // sonst krakeelt der beim nächsten mal wieder
+			gui::settings.remove(key_divide_rom_file); // sonst krakeelt der beim nächsten mal wieder
 			assert(romfilepath == nullptr);
 		};
 	}
@@ -74,7 +74,7 @@ DivIDE::DivIDE(Machine* machine) :
 	}
 
 	// load diskfile:
-	fpath = settings.get_cstr(key_divide_disk_file);
+	fpath = gui::settings.get_cstr(key_divide_disk_file);
 	if (fpath) insertDisk(fpath);
 }
 
@@ -437,7 +437,7 @@ int DivIDE::insertRom(cstr path, bool silent)
 		read_mem(fd, rom.getData(), 8 kB); // throws
 		delete[] romfilepath;
 		romfilepath = newcopy(path);
-		settings.setValue(key_divide_rom_file, path);
+		gui::settings.setValue(key_divide_rom_file, path);
 		applyRomPatches();
 		return ok;
 	}
@@ -463,7 +463,7 @@ void DivIDE::insertDisk(cstr path)
 	if (cf_card) ejectDisk();
 	cf_card = new IdeCFCard(path); // master
 
-	if (cf_card->isLoaded()) { settings.setValue(key_divide_disk_file, path); }
+	if (cf_card->isLoaded()) { gui::settings.setValue(key_divide_disk_file, path); }
 	else
 	{
 		// open file failed!

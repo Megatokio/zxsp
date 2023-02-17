@@ -7,8 +7,13 @@
 #include <QObject>
 
 
+namespace gui
+{
+
 class FdcPlusDInsp : public Inspector
 {
 public:
 	FdcPlusDInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
+
+} // namespace gui

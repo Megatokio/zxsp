@@ -7,8 +7,11 @@
 #include <QBrush>
 #include <QPen>
 #include <QWidget>
-class MachineController;
 class QTimer;
+
+
+namespace gui
+{
 
 
 class ConfigDialog : public QWidget
@@ -55,7 +58,7 @@ private:
 public:
 	ConfigDialog(QWidget* mc, int w, int h, uint style = DefaultStyle);
 	ConfigDialog(QWidget* mc, QWidget* the_widget, uint style = DefaultStyle);
-	virtual ~ConfigDialog();
+	virtual ~ConfigDialog() override;
 
 protected:
 	void paintEvent(QPaintEvent*) override;
@@ -67,7 +70,6 @@ protected:
 	void keyReleaseEvent(QKeyEvent*) override;
 };
 
-
 extern void showDialog(QWidget*, cstr title, cstr text, uint style);
 extern void showInfoDialog(QWidget*, cstr title, cstr text);
 extern void showWarningDialog(QWidget*, cstr title, cstr text);
@@ -75,3 +77,5 @@ extern void showAlertDialog(QWidget*, cstr title, cstr text);
 extern void showAlert(cstr msg, ...);
 extern void showWarning(cstr msg, ...);
 extern void showInfo(cstr msg, ...);
+
+} // namespace gui

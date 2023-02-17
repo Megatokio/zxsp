@@ -13,7 +13,7 @@
 
 Model bestModelForFile(cstr fpath)
 {
-	Model default_model = settings.get_Model(key_startup_model, zxsp_i3);
+	Model default_model = gui::settings.get_Model(key_startup_model, zxsp_i3);
 	if (!fpath) return default_model;
 	Language language = zx_info[default_model].language;
 	cstr	 ext	  = lowerstr(extension_from_path(fpath));

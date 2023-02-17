@@ -5,8 +5,13 @@
 
 #include "JoyInsp.h"
 
+namespace gui
+{
+
 class Tc2048JoyInsp : public JoyInsp
 {
 public:
 	Tc2048JoyInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
+
+} // namespace gui

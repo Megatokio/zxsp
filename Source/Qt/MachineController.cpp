@@ -71,6 +71,9 @@
 #include <QtGui>
 
 
+namespace gui
+{
+
 MachineController* front_machine_controller = nullptr;
 
 
@@ -2238,3 +2241,5 @@ void MachineController::hide_inspector(IsaObject* item, bool force)
 		}
 	}
 }
+
+} // namespace gui

@@ -58,7 +58,7 @@ void MmuZxsp::mapMem()
 		cpu->unmapRam(0xC000, 0x4000);
 
 	//	UlaZxspPtr(ula)->setVideoRam(ram.Data());	Stört sich mit SPECTRA interface. Sollte hier eh überflüssig sein,
-	//da die Ula ja auch ein init() kriegt.
+	// da die Ula ja auch ein init() kriegt.
 }
 
 

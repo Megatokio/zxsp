@@ -5,14 +5,16 @@
 
 #include "MemoryInspector.h"
 #include "Templates/Array.h"
-#include "kio/kio.h"
 class Machine;
-class MemoryInspector;
-class SimpleTerminal;
 class QPushButton;
 class QLineEdit;
-class CoreByteDisassembler;
 
+
+namespace gui
+{
+class MemoryInspector;
+class SimpleTerminal;
+class CoreByteDisassembler;
 
 struct DisassData
 {
@@ -121,3 +123,5 @@ private:
 	int	  width_for_disass_cols(int n);
 	void  slotFocusChanged(bool);
 };
+
+} // namespace gui

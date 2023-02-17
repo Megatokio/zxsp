@@ -32,7 +32,7 @@ void Crtc::reset(Time t, int32 cc)
 }
 
 
-void Crtc::attachToScreen(Screen* newscreen)
+void Crtc::attachToScreen(gui::Screen* newscreen)
 {
 	if (newscreen) // may be NULL to disconnect from any screen
 	{

@@ -10,7 +10,7 @@
 #include "Ula/MmuTs1500.h"
 
 
-MachineTs1500::MachineTs1500(MachineController* m) : MachineZx81(m, isa_MachineTs1500, ts1500)
+MachineTs1500::MachineTs1500(gui::MachineController* m) : MachineZx81(m, isa_MachineTs1500, ts1500)
 {
 	cpu		 = new Z80(this);	  // must be 1st item
 	ula		 = new UlaZx81(this); // should be 2nd item

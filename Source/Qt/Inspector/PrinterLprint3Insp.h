@@ -5,8 +5,13 @@
 
 #include "Inspector.h"
 
+namespace gui
+{
+
 class PrinterLprint3Insp : public Inspector
 {
 public:
 	PrinterLprint3Insp(QWidget*, MachineController*, volatile IsaObject*);
 };
+
+} // namespace gui

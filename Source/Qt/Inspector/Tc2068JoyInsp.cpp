@@ -10,6 +10,9 @@
 #include <QPushButton>
 
 
+namespace gui
+{
+
 Tc2068JoyInsp::Tc2068JoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* j, cstr img_path) :
 	JoyInsp(w, mc, j, img_path)
 {
@@ -45,3 +48,5 @@ void Tc2068JoyInsp::updateWidgets()
 		lineedit_state[i] = newstate;
 	}
 }
+
+} // namespace gui

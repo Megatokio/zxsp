@@ -9,6 +9,9 @@
 class QPushButton;
 
 
+namespace gui
+{
+
 class TccDockInspector : public Inspector
 {
 	bool		 u;
@@ -54,3 +57,5 @@ private:
 	void remove_cartridge();		  // ""
 	void insert_again();			  // ""
 };
+
+} // namespace gui

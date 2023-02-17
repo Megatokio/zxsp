@@ -16,6 +16,9 @@
 #include <QWidget>
 
 
+namespace gui
+{
+
 // offset mouse pointer hotspot -> 'feeled' hotspot
 #define mouse_x_offset -1
 #define mouse_y_offset -3
@@ -394,3 +397,5 @@ void MemoryGraphInspector::updateTooltip()
 
 	QToolTip::showText(gpos, usingstr("$%04X: $%02X", data.baseaddress + offset, byte), graphics_view, QRect());
 }
+
+} // namespace gui

@@ -5,8 +5,13 @@
 
 #include "Inspector.h"
 
+namespace gui
+{
+
 class PrinterAercoInsp : public Inspector
 {
 public:
 	PrinterAercoInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
+
+} // namespace gui

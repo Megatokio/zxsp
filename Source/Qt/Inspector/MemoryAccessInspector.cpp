@@ -29,6 +29,9 @@
 #include <Templates/Array.h>
 
 
+namespace gui
+{
+
 // offset mouse pointer hotspot -> 'feeled' hotspot
 #define mouse_x_offset -2
 #define mouse_y_offset -2
@@ -647,3 +650,5 @@ void MemoryAccessInspector::updateTooltip()
 
 	QToolTip::showText(gpos, usingstr("$%04X: $%02X", data.baseaddress + offset, byte), graphics_view, QRect());
 }
+
+} // namespace gui

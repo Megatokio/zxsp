@@ -20,6 +20,9 @@
 #include <fnmatch.h>
 
 
+namespace gui
+{
+
 // =================================================
 //			map of key caps for os key codes
 // =================================================
@@ -592,3 +595,5 @@ void ConfigureKeyboardJoystickDialog::paintEvent(QPaintEvent* e)
 	p.drawLine(xm - 3 * 16, ym + 3 * 16, xm - 4 * 16, ym + 3 * 16);
 	p.drawEllipse(xm - 16, ym - 16, 2 * 16, 2 * 16);
 }
+
+} // namespace gui

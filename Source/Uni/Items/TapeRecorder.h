@@ -60,13 +60,13 @@
 
 class TapeRecorder : public Item
 {
-	friend class TapeRecorderInsp;
-	friend class WalkmanInspector;
+	friend class gui::TapeRecorderInsp;
+	friend class gui::WalkmanInspector;
 
 public:
 	bool		 auto_start_stop_tape; // switch			read/write should be safe from any thread
 	bool		 instant_load_tape;	   // switch			read/write should be safe from any thread
-	ListId		 list_id;			   // recent files		const
+	gui::ListId	 list_id;			   // recent files		const
 	const uint32 machine_ccps;		   // cpu cycles per second
 
 private:

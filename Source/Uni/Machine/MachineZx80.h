@@ -17,7 +17,7 @@ protected:
 	bool handleLoadTapePatch() override;
 
 public:
-	explicit MachineZx80(MachineController*, Model = zx80, isa_id id = isa_MachineZx80);
+	explicit MachineZx80(gui::MachineController*, Model = zx80, isa_id id = isa_MachineZx80);
 
 	void loadO80(FD&) override;
 	void saveO80(FD&) override;

@@ -21,11 +21,11 @@
 #define MIN_FREE (24 * 33 + 32) // full screen + edit line + some spare bytes...
 
 
-MachineZx80::MachineZx80(MachineController* parent, Model model, isa_id id) : Machine(parent, model, id)
+MachineZx80::MachineZx80(gui::MachineController* parent, Model model, isa_id id) : Machine(parent, model, id)
 {
 	cpu = new Z80(this);
 	ula = new UlaZx80(this);
-	ula->set60Hz(settings.get_bool(key_framerate_zx80_60hz, false));
+	ula->set60Hz(gui::settings.get_bool(key_framerate_zx80_60hz, false));
 	mmu		 = new MmuZx80(this);
 	keyboard = new KeyboardZx80(this);
 	// ay		=
@@ -57,7 +57,7 @@ bool MachineZx80::handleSaveTapePatch()
 	// sanity test:
 	if (datalen < 0x28 || datalen > ram.count())
 	{
-		showWarning("Illegal sysvar E_LINE ($400A): %u\nThe programme was NOT saved!", uint(dataend));
+		gui::showWarning("Illegal sysvar E_LINE ($400A): %u\nThe programme was NOT saved!", uint(dataend));
 		return 1; // handled
 	}
 

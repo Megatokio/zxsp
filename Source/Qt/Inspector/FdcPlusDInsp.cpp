@@ -5,4 +5,9 @@
 
 #include "FdcPlusDInsp.h"
 
+namespace gui
+{
+
 FdcPlusDInsp::FdcPlusDInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) : Inspector(w, mc, i) {}
+
+} // namespace gui

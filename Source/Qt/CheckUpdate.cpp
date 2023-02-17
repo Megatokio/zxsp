@@ -18,6 +18,9 @@
 #include <QStringList>
 
 
+namespace gui
+{
+
 static char check_update_url[] = "http://zxsp.de/cgi-bin/zxsp-check-update.cgi?version=";
 
 
@@ -155,3 +158,5 @@ void CheckUpdate::slot_finished()
 x:
 	deleteLater(); // self-destruct
 }
+
+} // namespace gui

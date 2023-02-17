@@ -10,6 +10,9 @@
 #include <QPushButton>
 
 
+namespace gui
+{
+
 Tc2048JoyInsp::Tc2048JoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* j) :
 	JoyInsp(w, mc, j, "/Images/tc2048_sideview.jpg")
 {
@@ -31,3 +34,5 @@ Tc2048JoyInsp::Tc2048JoyInsp(QWidget* w, MachineController* mc, volatile IsaObje
 	g->addWidget(lineedit_display[0], 2, 1);
 	g->addWidget(button_scan_usb, 2, 2, Qt::AlignHCenter | Qt::AlignVCenter);
 }
+
+} // namespace gui

@@ -25,6 +25,9 @@
 #include <QWidget>
 
 
+namespace gui
+{
+
 /*	The "MemoryBytesInspector"
 
 	This widget displays 3 TextEdit fields (SimpleTerminal fields)
@@ -1126,3 +1129,5 @@ void MemoryHexInspector::slotFocusChanged(bool f)
 			show_ascii_cursor(f);
 	}
 }
+
+} // namespace gui

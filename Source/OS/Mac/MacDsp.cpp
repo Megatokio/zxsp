@@ -654,7 +654,7 @@ void startCoreAudio(bool input_enabled) //, int playthrough_mode)
 	}
 	catch (AnyError& e)
 	{
-		if (settings.get_bool(key_warn_if_audio_in_fails, yes))
+		if (gui::settings.get_bool(key_warn_if_audio_in_fails, yes))
 		{
 			xlogline("Dsp: Audio input setup failed:");
 			xlogline(status ? "Dsp: %s: error = %ld." : "Dsp: %s.", e.what(), status);

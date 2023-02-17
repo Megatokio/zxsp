@@ -5,9 +5,14 @@
 
 #include "Inspector.h"
 
+namespace gui
+{
+
 class SmartSDCardInspector : public Inspector
 {
 public:
 	SmartSDCardInspector(QWidget* p, MachineController* m, volatile IsaObject* o);
 	~SmartSDCardInspector();
 };
+
+} // namespace gui

@@ -6,6 +6,9 @@
 #include "Inspector.h"
 
 
+namespace gui
+{
+
 class DivIDEInspector : public Inspector
 {
 	QPixmap overlay_jumper_E;
@@ -60,3 +63,5 @@ private:
 	void set_ram_32k();
 	void set_ram_512k();
 };
+
+} // namespace gui

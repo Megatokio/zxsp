@@ -7,16 +7,15 @@
 #include "Memory.h"
 #include "Multiface.h"
 #include "Templates/Array.h"
-class OverlayJoystick;
 
 
 class Multiface1 : public Multiface
 {
-	friend class Multiface1Insp;
+	friend class gui::Multiface1Insp;
 
-	Joystick*		 joystick;
-	OverlayJoystick* overlay;
-	bool			 joystick_enabled;
+	Joystick*			  joystick;
+	gui::OverlayJoystick* overlay;
+	bool				  joystick_enabled;
 
 public:
 	explicit Multiface1(Machine*);

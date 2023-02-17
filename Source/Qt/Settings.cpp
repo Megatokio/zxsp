@@ -11,6 +11,9 @@
 #include <QStringList>
 
 
+namespace gui
+{
+
 //  Vault for all program settings:
 Settings settings;
 
@@ -130,3 +133,5 @@ void Settings::set_StrArray(cstr key, StrArray& sa)
 	for (uint i = 0; i < sa.count(); i++) { qsl << sa[i]; }
 	setValue(key, qsl);
 }
+
+} // namespace gui

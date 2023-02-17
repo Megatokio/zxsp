@@ -9,6 +9,9 @@ class QComboBox;
 class QPushButton;
 
 
+namespace gui
+{
+
 class KempstonMouseInsp : public Inspector
 {
 	// widgets:
@@ -29,3 +32,5 @@ public:
 protected:
 	void updateWidgets() override;
 };
+
+} // namespace gui

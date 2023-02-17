@@ -21,6 +21,9 @@
 #include <QTimer>
 
 
+namespace gui
+{
+
 #define l60	 45 // most left column line edits
 #define r20	 15
 #define r60	 48
@@ -531,3 +534,5 @@ void UlaInsp::updateWidgets()
 		inputs.frames_hit->setText(catstr(tostr(values.frames_hit), "%"));
 	}
 }
+
+} // namespace gui

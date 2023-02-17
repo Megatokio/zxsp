@@ -21,7 +21,7 @@ Zx3kRam::Zx3kRam(Machine* m, uint sz) : ExternalRam(m, isa_Zx3kRam)
 {
 	xlogIn("new Zx3kRam");
 
-	size = sz ? sz : settings.get_uint(key_zx3k_ramsize, 3 kB); // set in setRamSize()
+	size = sz ? sz : gui::settings.get_uint(key_zx3k_ramsize, 3 kB); // set in setRamSize()
 
 	machine->ram.grow(1 kB + size);
 	machine->mmu->mapMem(); // map new memory to cpu & set videoram
@@ -55,7 +55,7 @@ void Zx3kRam::setRamSize(uint sz)
 
 	if (sz == size) return;
 
-	settings.setValue(key_zx3k_ramsize, sz);
+	gui::settings.setValue(key_zx3k_ramsize, sz);
 
 	if (sz < size) machine->ram.shrink(1 kB + sz);
 	if (sz > size) machine->ram.grow(1 kB + sz);

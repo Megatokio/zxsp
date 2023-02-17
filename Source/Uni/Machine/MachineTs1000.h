@@ -9,5 +9,5 @@
 class MachineTs1000 : public MachineZx81
 {
 public:
-	explicit MachineTs1000(MachineController*);
+	explicit MachineTs1000(gui::MachineController*);
 };

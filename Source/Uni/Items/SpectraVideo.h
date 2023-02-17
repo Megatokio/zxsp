@@ -8,7 +8,6 @@
 #include "Ula/Crtc.h"
 #include "unix/files.h"
 #include <QObject>
-class OverlayJoystick;
 
 
 class SpectraVideo : public Crtc
@@ -21,16 +20,16 @@ public:
 	bool	  shadowram_ever_used;
 	MemoryPtr shadowram;
 
-	Joystick*		 joystick; // Joystick
-	OverlayJoystick* overlay;
-	uint			 port_254;				// border
-	uint8			 port_239;				// RS232
-	uint8			 port_247;				// RS232
-	bool			 rs232_enabled;			// RS232
-	bool			 joystick_enabled;		// Joystick
-	bool			 if1_rom_hooks_enabled; // ROM
-	MemoryPtr		 rom;
-	cstr			 filepath;
+	Joystick*			  joystick; // Joystick
+	gui::OverlayJoystick* overlay;
+	uint				  port_254;				 // border
+	uint8				  port_239;				 // RS232
+	uint8				  port_247;				 // RS232
+	bool				  rs232_enabled;		 // RS232
+	bool				  joystick_enabled;		 // Joystick
+	bool				  if1_rom_hooks_enabled; // ROM
+	MemoryPtr			  rom;
+	cstr				  filepath;
 	// bool		romdis_in;				// rear-side input state		--> Item
 	bool own_romdis_state; // own state
 

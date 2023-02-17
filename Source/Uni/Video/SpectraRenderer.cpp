@@ -161,8 +161,8 @@ void SpectraRenderer::drawScreen(
 							{
 								color1 = enhanced_rgba_colors[attr1 & 0x3F]; // fullcell: pen; halfcell: penR
 								color2 = enhanced_rgba_colors[attr2 & 0x3F]; // fullcell: pap; halfcell: penL
-								//															  halfcell: pap=black  ((future: papL and papR may
-								//be black or white))
+								//															  halfcell: pap=black  ((future: papL and papR
+								//may be black or white))
 
 								if (video_mode & HALFCELLMODE)
 								{
@@ -431,8 +431,8 @@ void SpectraGifWriter::drawScreen(
 							{
 								color1 = attr1 & 0x3F; // fullcell: pen; halfcell: penR
 								color2 = attr2 & 0x3F; // fullcell: pap; halfcell: penL
-								//										  halfcell: pap=black  ((future: papL and papR may be black
-								//or white))
+								//										  halfcell: pap=black  ((future: papL and papR may be
+								//black or white))
 
 								if (video_mode & HALFCELLMODE)
 								{

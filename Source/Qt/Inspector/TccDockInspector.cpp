@@ -18,6 +18,9 @@
 #include <QTimer>
 
 
+namespace gui
+{
+
 // Positionen & Dimensionen für Unipolbrit 2086:
 static QRect box_slot_u(92, 94, 138, 100);				 // Slot => "Insert Cartridge"
 static QRect box_top_module_inserted_u(86, 89, 150, 62); // Cartridge Oberseite
@@ -361,3 +364,5 @@ void TccDockInspector::save_as()
 		if (f) machine->resume();
 	}
 }
+
+} // namespace gui

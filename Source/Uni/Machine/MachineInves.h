@@ -9,5 +9,5 @@
 class MachineInves : public MachineZxsp
 {
 public:
-	explicit MachineInves(MachineController*);
+	explicit MachineInves(gui::MachineController*);
 };

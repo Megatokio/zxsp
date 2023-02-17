@@ -9,6 +9,9 @@
 #include <QLabel>
 #include <QPushButton>
 
+namespace gui
+{
+
 Tk85JoyInsp::Tk85JoyInsp(QWidget* p, MachineController* mc, volatile IsaObject* j) :
 	JoyInsp(p, mc, j, "/Images/tk85_joy.jpg")
 {
@@ -30,3 +33,5 @@ Tk85JoyInsp::Tk85JoyInsp(QWidget* p, MachineController* mc, volatile IsaObject* 
 	g->addWidget(lineedit_display[0], 2, 1);
 	g->addWidget(button_scan_usb, 2, 2, Qt::AlignHCenter | Qt::AlignVCenter);
 }
+
+} // namespace gui

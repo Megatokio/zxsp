@@ -8,7 +8,7 @@
 
 class Multiface3 : public Multiface
 {
-	friend class Multiface3Insp;
+	friend class gui::Multiface3Insp;
 
 	bool  mf_enabled; // camouflage FF
 	bool  all_ram;	  // port 1FFD.bit0

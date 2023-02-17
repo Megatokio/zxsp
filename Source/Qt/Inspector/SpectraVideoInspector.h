@@ -11,6 +11,9 @@ class QComboBox;
 class QLabel;
 
 
+namespace gui
+{
+
 class SpectraVideoInspector : public Inspector
 {
 	QCheckBox*	 checkbox_if1_rom_hooks;
@@ -47,3 +50,5 @@ private:
 	void enable_new_displaymodes(bool);
 	void insert_or_eject_rom();
 };
+
+} // namespace gui

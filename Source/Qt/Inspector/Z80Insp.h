@@ -10,6 +10,9 @@
 #include <QLineEdit>
 
 
+namespace gui
+{
+
 class Z80Insp : public Inspector
 {
 	union
@@ -45,3 +48,5 @@ private:
 	void		set_nmi(bool);
 	void		set_interrupt(bool);
 };
+
+} // namespace gui

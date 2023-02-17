@@ -8,6 +8,9 @@
 #include <QLineEdit>
 #include <QObject>
 
+namespace gui
+{
+
 class SinclairJoyInsp : public JoyInsp
 {
 public:
@@ -16,3 +19,5 @@ public:
 protected:
 	void updateWidgets() override;
 };
+
+} // namespace gui

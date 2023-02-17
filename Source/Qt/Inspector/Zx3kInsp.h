@@ -6,6 +6,9 @@
 #include "Inspector.h"
 class QRadioButton;
 
+namespace gui
+{
+
 class Zx3kInsp : public Inspector
 {
 	QRadioButton* button1k;
@@ -18,3 +21,5 @@ public:
 private:
 	void set_ram_size(uint);
 };
+
+} // namespace gui

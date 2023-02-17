@@ -5,10 +5,13 @@
 #include "DivIDEInspector.h"
 #include "Fdc/DivIDE.h"
 #include "Machine/Machine.h"
+#include "MachineController.h"
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
 #include "RecentFilesMenu.h"
+#include "Templates/NVPtr.h"
 #include "globals.h"
+#include "unix/n-compress.h"
 #include <QMenu>
 #include <QPaintEvent>
 #include <QPainter>
@@ -16,10 +19,10 @@
 #include <QRect>
 #include <QTimer>
 #include <QWidget>
-// #include <zlib.h>
-#include "MachineController.h"
-#include "Templates/NVPtr.h"
 
+
+namespace gui
+{
 
 static QRect box_nmi_button(269 + 4, 61 - 2, 19, 11 + 10);
 static QRect box_module(71, 2, 188, 85);
@@ -366,9 +369,6 @@ void DivIDEInspector::set_ram_512k()
 }
 
 
-extern void decompress(cstr qfilepath, cstr zfilepath);
-
-
 void DivIDEInspector::insert_new_disk(cstr basename)
 {
 	static cstr filter	  = "Hard Disc images (*.img *.dmg *.iso);;All Files (*)";
@@ -414,3 +414,5 @@ cstr DivIDEInspector::getCustomTitle()
 
 	return divide()->getRomFilepath() ? catstr(item()->name, ": ", divide()->getRomFilename()) : nullptr;
 }
+
+} // namespace gui

@@ -13,9 +13,9 @@
 #include "Z80/Z80opcodes.h"
 
 
-MachineZxsp::MachineZxsp(MachineController* m, Model model, isa_id id) : Machine(m, model, id) {}
+MachineZxsp::MachineZxsp(gui::MachineController* m, Model model, isa_id id) : Machine(m, model, id) {}
 
-MachineZxsp::MachineZxsp(MachineController* m, Model model) : Machine(m, model, isa_MachineZxsp)
+MachineZxsp::MachineZxsp(gui::MachineController* m, Model model) : Machine(m, model, isa_MachineZxsp)
 {
 	assert(model == zxsp_i1 || model == zxsp_i2 || model == zxsp_i3 || model == zxplus);
 

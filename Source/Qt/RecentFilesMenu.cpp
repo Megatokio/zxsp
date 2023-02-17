@@ -9,6 +9,9 @@
 #include <QSettings>
 
 
+namespace gui
+{
+
 /*	Max. files per list:
  */
 #define MAX_ENTRIES 20
@@ -187,3 +190,5 @@ void RecentFilesMenu::add_file(QString fpath, int oldidx)
 
 	while (actions().count() > MAX_ENTRIES + 2) removeAction(actions().at(MAX_ENTRIES));
 }
+
+} // namespace gui

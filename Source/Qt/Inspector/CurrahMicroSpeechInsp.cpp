@@ -11,6 +11,9 @@
 #include <QTimer>
 
 
+namespace gui
+{
+
 /*	Allophone names for the AL2 rom:
  */
 static QString names[128] = {
@@ -283,3 +286,5 @@ void CurrahMicroSpeechInsp::paintEvent(QPaintEvent* e)
 
 	//	width = xpos - this->xpos;
 }
+
+} // namespace gui

@@ -15,6 +15,9 @@
 #include <QtGui>
 
 
+namespace gui
+{
+
 KempstonMouseInsp::KempstonMouseInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
 	Inspector(w, mc, i, "/Images/kempston_mouse_if.jpg"), display_x(newLineEdit("0", 32)),
 	display_y(newLineEdit("0", 32)), display_buttons(newLineEdit("%------11", 100)), combobox_scale(new QComboBox()),
@@ -117,3 +120,5 @@ void KempstonMouseInsp::updateWidgets()
 		combobox_scale->setCurrentIndex(mif()->getScale() - 1);
 	}
 }
+
+} // namespace gui

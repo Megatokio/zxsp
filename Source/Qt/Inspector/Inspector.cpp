@@ -65,6 +65,9 @@
 #include <QTimer>
 
 
+namespace gui
+{
+
 QLineEdit* Inspector::newLineEdit(cstr text, int min_width)
 {
 	QLineEdit* te = new QLineEdit(text);
@@ -299,3 +302,5 @@ Inspector* Inspector::newInspector(QWidget* p, MachineController* mc, volatile I
 	showAlert("TODO: Inspector::newInspector() for: %s", item->name);
 	return new Inspector(p, mc, nullptr);
 }
+
+} // namespace gui

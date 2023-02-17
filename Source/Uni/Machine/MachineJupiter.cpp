@@ -21,10 +21,10 @@
 #define C_FLAG 0x01
 
 
-MachineJupiter::MachineJupiter(MachineController* m) : Machine(m, jupiter, isa_MachineJupiter)
+MachineJupiter::MachineJupiter(gui::MachineController* m) : Machine(m, jupiter, isa_MachineJupiter)
 {
 	cpu		 = new Z80(this);
-	ula		 = new UlaJupiter(this, settings.get_bool(key_framerate_jupiter_60hz, false) ? 60 : 50);
+	ula		 = new UlaJupiter(this, gui::settings.get_bool(key_framerate_jupiter_60hz, false) ? 60 : 50);
 	mmu		 = new MmuJupiter(this);
 	keyboard = new KeyboardJupiter(this);
 	// ay		=

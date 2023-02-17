@@ -48,13 +48,17 @@ class MyProxyStyle : public QProxyStyle
 #endif
 
 
+cstr appl_path		= nullptr; // set by main()
+cstr appl_rsrc_path = nullptr; // set by main()
+
+
+namespace gui
+{
+
 // ==========================================================
 // global data
 //
 Application* appl = nullptr;
-
-cstr appl_path		= nullptr; // set by main()
-cstr appl_rsrc_path = nullptr; // set by main()
 
 QString		   Application::filepath;
 bool		   Application::is_active_application;
@@ -188,6 +192,24 @@ bool cmdKeyDown()
 	return QGuiApplication::keyboardModifiers() & Qt::ControlModifier;
 #endif
 }
+
+
+void Application::showPreferences()
+{
+	xlogIn("Application:showPreferences");
+
+	QWidget*	 parent		 = nullptr; // front_machine_controller;
+	QMainWindow* window		 = new QMainWindow(parent, Qt::Tool);
+	QWidget*	 preferences = new Preferences(nullptr);
+	window->setCentralWidget(preferences);
+	window->setWindowTitle("zxsp Settings");
+	preferences->setFocus();
+	window->setAttribute(Qt::WA_DeleteOnClose, 1);
+	window->setFocusPolicy(Qt::StrongFocus);
+	window->show();
+}
+
+} // namespace gui
 
 
 // ==========================================================
@@ -326,8 +348,8 @@ int main(int argc, char* argv[])
 	logNl();
 
 	// *DOIT*
-	TempMemPool t; // new flushable pool, preserving some temp strings from above
-	Application app(argc, argv);
+	TempMemPool		 t; // new flushable pool, preserving some temp strings from above
+	gui::Application app(argc, argv);
 	std::setlocale(LC_ALL, "en_US"); // decimal POINT!  ((bestimmt kann man Application selbst tweaken…))
 
 #if QT_VERSION >= 0x050000 && QT_VERSION < 0x050300
@@ -343,20 +365,4 @@ int main(int argc, char* argv[])
 		logline("\nzxsp: Unhandled exception:\n%s (%i)\n", e.what(), e.error());
 		return 112; // error
 	}
-}
-
-
-void Application::showPreferences()
-{
-	xlogIn("Application:showPreferences");
-
-	QWidget*	 parent		 = nullptr; // front_machine_controller;
-	QMainWindow* window		 = new QMainWindow(parent, Qt::Tool);
-	QWidget*	 preferences = new Preferences(nullptr);
-	window->setCentralWidget(preferences);
-	window->setWindowTitle("zxsp Settings");
-	preferences->setFocus();
-	window->setAttribute(Qt::WA_DeleteOnClose, 1);
-	window->setFocusPolicy(Qt::StrongFocus);
-	window->show();
 }

@@ -5,4 +5,9 @@
 
 #include "PrinterAercoInsp.h"
 
+namespace gui
+{
+
 PrinterAercoInsp::PrinterAercoInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) : Inspector(w, mc, i) {}
+
+} // namespace gui

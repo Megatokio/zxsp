@@ -10,6 +10,9 @@
 #include <QPushButton>
 
 
+namespace gui
+{
+
 CursorJoyInsp::CursorJoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* item, cstr backgroundimage) :
 	JoyInsp(w, mc, item, backgroundimage)
 {
@@ -71,3 +74,5 @@ void CursorJoyInsp::updateWidgets()
 		lineedit_display[0]->setText(binstr(mybyte, "%-----:-----", "&L----:DUR-F"));
 	}
 }
+
+} // namespace gui

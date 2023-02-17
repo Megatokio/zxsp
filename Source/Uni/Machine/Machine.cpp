@@ -178,7 +178,7 @@ void runMachinesForSound()
 	the machine is not powered on.
 	the machine is not suspended.
 */
-Machine::Machine(MachineController* parent, Model model, isa_id id) :
+Machine::Machine(gui::MachineController* parent, Model model, isa_id id) :
 	IsaObject(parent, id, isa_Machine), _lock(),								  //_lock(PLock::recursive),
 	controller(parent), model(model), model_info(&zx_info[model]), cpu_options(), // s.u.
 	break_ptr(nullptr), audio_in_enabled(yes), // default. Child class and MachineController will override
@@ -307,7 +307,7 @@ void Machine::memoryModified(Memory* m, uint how)
 	assert(isMainThread());
 	assert(is_locked());
 
-	MachineController* mc = NV(controller);
+	gui::MachineController* mc = NV(controller);
 	mc->memoryModified(m, how);
 }
 
@@ -329,7 +329,7 @@ void Machine::itemAdded(Item* item)
 	if (item->isA(isa_Crtc)) crtc = CrtcPtr(item);
 	if (item->isA(isa_TapeRecorder)) taperecorder = TapeRecorderPtr(item);
 
-	MachineController* mc = NV(controller);
+	gui::MachineController* mc = NV(controller);
 	mc->itemAdded(item);
 }
 
@@ -351,7 +351,7 @@ void Machine::itemRemoved(Item* item)
 	if (crtc == item) crtc = nullptr;
 	if (taperecorder == item) taperecorder = nullptr;
 
-	MachineController* mc = NV(controller);
+	gui::MachineController* mc = NV(controller);
 	mc->itemRemoved(item);
 }
 
@@ -1252,11 +1252,11 @@ void Machine::set60Hz(bool is60hz)
 
 	switch (uint(model))
 	{
-	case zx80: settings.setValue(key_framerate_zx80_60hz, is60hz); break;
-	case jupiter: settings.setValue(key_framerate_jupiter_60hz, is60hz); break;
-	case tk85: settings.setValue(key_framerate_tk85_60hz, is60hz); break;
-	case tk90x: settings.setValue(key_framerate_tk90x_60hz, is60hz); break;
-	case tk95: settings.setValue(key_framerate_tk95_60hz, is60hz); break;
+	case zx80: gui::settings.setValue(key_framerate_zx80_60hz, is60hz); break;
+	case jupiter: gui::settings.setValue(key_framerate_jupiter_60hz, is60hz); break;
+	case tk85: gui::settings.setValue(key_framerate_tk85_60hz, is60hz); break;
+	case tk90x: gui::settings.setValue(key_framerate_tk90x_60hz, is60hz); break;
+	case tk95: gui::settings.setValue(key_framerate_tk95_60hz, is60hz); break;
 	}
 
 	setSpeedFromCpuClock(model_info->cpu_cycles_per_second);
@@ -1344,14 +1344,14 @@ void Machine::drawVideoBeamIndicator()
 }
 
 
-OverlayJoystick* Machine::addOverlay(Joystick* joy, cstr idf, Overlay::Position pos)
+gui::OverlayJoystick* Machine::addOverlay(Joystick* joy, cstr idf, gui::Overlay::Position pos)
 {
-	OverlayJoystick* o = new OverlayJoystick(controller->getScreen(), joy, idf, pos);
+	gui::OverlayJoystick* o = new gui::OverlayJoystick(controller->getScreen(), joy, idf, pos);
 	controller->getScreen()->addOverlay(o);
 	return o;
 }
 
-void Machine::removeOverlay(Overlay* o)
+void Machine::removeOverlay(gui::Overlay* o)
 {
 	if (o) controller->getScreen()->removeOverlay(o);
 }
@@ -1373,7 +1373,7 @@ void Machine::show_overlay_play()
 {
 	hide_overlay_record();
 	if (overlay_rzx_play) return;
-	overlay_rzx_play = new OverlayPlay(controller->getScreen());
+	overlay_rzx_play = new gui::OverlayPlay(controller->getScreen());
 	controller->getScreen()->addOverlay(overlay_rzx_play);
 }
 
@@ -1381,7 +1381,7 @@ void Machine::show_overlay_record()
 {
 	hide_overlay_play();
 	if (overlay_rzx_record) return;
-	overlay_rzx_record = new OverlayRecord(controller->getScreen());
+	overlay_rzx_record = new gui::OverlayRecord(controller->getScreen());
 	controller->getScreen()->addOverlay(overlay_rzx_record);
 }
 

@@ -286,8 +286,8 @@ void FloppyDiskDrive::insertDisk(FloppyDisk* d, bool side_B)
 	sound_insert_index = 0;				   // start sound
 	sound_eject_index  = sound_eject_size; // stop it (if running)
 
-	addRecentFile(RecentPlus3Disks, d->filepath); // TODO: andere Disk drives
-	addRecentFile(RecentFiles, d->filepath);
+	addRecentFile(gui::RecentPlus3Disks, d->filepath); // TODO: andere Disk drives
+	addRecentFile(gui::RecentFiles, d->filepath);
 }
 
 void FloppyDiskDrive::insertDisk(cstr filepath, bool side_B)
@@ -305,8 +305,8 @@ void FloppyDiskDrive::insertDisk(cstr filepath, bool side_B)
 	sound_insert_index = 0;				   // start sound
 	sound_eject_index  = sound_eject_size; // stop it (if running)
 
-	addRecentFile(RecentPlus3Disks, filepath); // TODO: andere Disk drives
-	addRecentFile(RecentFiles, filepath);
+	addRecentFile(gui::RecentPlus3Disks, filepath); // TODO: andere Disk drives
+	addRecentFile(gui::RecentFiles, filepath);
 }
 
 void FloppyDiskDrive::ejectDisk()

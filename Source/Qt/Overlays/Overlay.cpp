@@ -15,6 +15,9 @@
 #include <QPen>
 
 
+namespace gui
+{
+
 Overlay::Overlay(Screen* scr, isa_id id, Position p) :
 	IsaObject(scr, id, isa_Overlay), screen(scr), position(p), x(0), y(0), w(0), h(0), zoom(scr->getZoom())
 {}
@@ -149,3 +152,5 @@ void OverlayJoystick::draw(QPainter& p)
 		p.drawText(x, y + zoom * 9, idf);
 	}
 }
+
+} // namespace gui

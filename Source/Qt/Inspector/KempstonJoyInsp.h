@@ -6,8 +6,13 @@
 #include "JoyInsp.h"
 #include <QObject>
 
+namespace gui
+{
+
 class KempstonJoyInsp : public JoyInsp
 {
 public:
 	KempstonJoyInsp(QWidget*, MachineController*, volatile IsaObject*);
 };
+
+} // namespace gui

@@ -10,6 +10,9 @@
 #include <functional>
 
 
+namespace gui
+{
+
 class MySimpleToggleButton : public QWidget
 {
 	Q_OBJECT
@@ -40,3 +43,5 @@ protected:
 signals:
 	void toggled(bool);
 };
+
+} // namespace gui

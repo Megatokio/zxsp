@@ -6,6 +6,9 @@
 #include "MultifaceInsp.h"
 
 
+namespace gui
+{
+
 class Multiface128Insp : public MultifaceInsp
 {
 	QLabel* label_visibility;
@@ -16,3 +19,5 @@ public:
 protected:
 	void updateWidgets() override;
 };
+
+} // namespace gui

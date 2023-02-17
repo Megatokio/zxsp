@@ -12,6 +12,9 @@ class StrArray;
 class QAction;
 
 
+namespace gui
+{
+
 /*	the global instance:
  */
 extern class Settings settings;
@@ -107,7 +110,7 @@ public:
 	QAction* action_gifAnimateBorder;
 
 	Settings();
-	~Settings();
+	~Settings() override;
 
 	cstr	get_cstr(cstr key, cstr dflt = nullptr); // also takes care of putting the result in temp men...
 	str		get_str(cstr key, cstr dflt = nullptr);	 // also takes care of putting the result in temp men...
@@ -126,3 +129,5 @@ public:
 private:
 	void setGifAnimateBorder(bool);
 };
+
+} // namespace gui

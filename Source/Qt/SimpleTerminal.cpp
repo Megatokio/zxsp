@@ -12,6 +12,9 @@
 #include <QRect>
 
 
+namespace gui
+{
+
 /*	TODO
 
 	Cursor Blob
@@ -569,3 +572,5 @@ void SimpleTerminal::resize_canvas(int w, int h)
 		set_colors();			// get reset by begin()
 	}
 }
+
+} // namespace gui

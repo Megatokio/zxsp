@@ -5,12 +5,15 @@
 
 #include "MemoryInspector.h"
 #include "SimpleTerminal.h"
-class MyScrollBar;
 class QBoxLayout;
 class QWidget;
 class QPushButton;
-class GWidget;
 
+
+namespace gui
+{
+class MyScrollBar;
+class GWidget;
 
 class MemoryGraphInspector : public MemoryInspector
 {
@@ -52,3 +55,5 @@ private:
 	void slotSet32BytesPerRow();
 	// void	setScrollPosition(int) override;	// scrollbar
 };
+
+} // namespace gui

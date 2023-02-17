@@ -17,9 +17,12 @@
 #include <QRect>
 #include <QRectF>
 #include <math.h>
-#define y0 _y0 // <math.h>
-#define y1 _y1 // <math.h>
+// #define y0 _y0 // <math.h>
+// #define y1 _y1 // <math.h>
 
+
+namespace gui
+{
 
 /*	7 ZX Spectrum games which used the Lenslok protection system:
  */
@@ -279,9 +282,9 @@ void Lenslok::paintEvent(QPaintEvent*)
 	// integer!
 	//=> Probleme…
 
-	QRect prism_box(::prism_box.translated(geometry().topLeft())); // Lenslok prism box in glob. coord.
-	QRect window_box(controller->geometry());					   // Specci screen box in glob. coord.
-	if (!window_box.intersects(prism_box)) return;				   // Lenslok komplett außerhalb des Specci-Fensters
+	QRect prism_box(gui::prism_box.translated(geometry().topLeft())); // Lenslok prism box in glob. coord.
+	QRect window_box(controller->geometry());						  // Specci screen box in glob. coord.
+	if (!window_box.intersects(prism_box)) return;					  // Lenslok komplett außerhalb des Specci-Fensters
 
 	// Lenslok over Specci window:
 
@@ -302,9 +305,9 @@ void Lenslok::paintEvent(QPaintEvent*)
 
 	for (int i = 0; i < 4; i++)
 	{
-		static int L[] = {::x0, x2, x4, x6};
+		static int L[] = {gui::x0, x2, x4, x6};
 		int		   x0  = L[i];
-		static int R[] = {::x1, x3, x5, x7};
+		static int R[] = {gui::x1, x3, x5, x7};
 		int		   x1  = R[i];
 
 		qreal l = ceil((geometry().x() + x0 - window_box.x()) / hzoom);
@@ -484,3 +487,5 @@ void Lenslok::select_game()
 	game_id = actionAdd->data().toInt();
 	update();
 }
+
+} // namespace gui

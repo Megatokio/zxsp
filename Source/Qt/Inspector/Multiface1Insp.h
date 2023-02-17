@@ -10,6 +10,9 @@ class QComboBox;
 class QPushButton;
 
 
+namespace gui
+{
+
 class Multiface1Insp : public MultifaceInsp
 {
 	QCheckBox*	 chkbox_joystick_enabled;
@@ -30,3 +33,5 @@ private:
 	void joystick_selected();
 	void enable_joystick(bool);
 };
+
+} // namespace gui

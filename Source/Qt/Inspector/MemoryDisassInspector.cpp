@@ -20,6 +20,9 @@
 #include <math.h>
 
 
+namespace gui
+{
+
 // Z80/Z80disass.cpp
 // extern int Z80OpcodeLength ( uint8 op1, uint8 op2 );
 
@@ -1216,3 +1219,5 @@ void MemoryDisassInspector::slotFocusChanged(bool f)
 			show_disass_cursor(f);
 	}
 }
+
+} // namespace gui

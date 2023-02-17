@@ -18,6 +18,9 @@
 #include <QWidget>
 
 
+namespace gui
+{
+
 // helper
 //	 h = bright color component for colors
 //	 l = dark   color component for colors
@@ -303,3 +306,5 @@ void showAlert(cstr msg, ...)
 
 	showAlertDialog(QApplication::activeWindow(), "Alert:", text);
 }
+
+} // namespace gui

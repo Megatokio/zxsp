@@ -13,7 +13,8 @@
 #include "kio/kio.h"
 
 
-MachinePentagon128::MachinePentagon128(MachineController* mc) : MachineZx128(mc, pentagon128, isa_MachinePentagon128)
+MachinePentagon128::MachinePentagon128(gui::MachineController* mc) :
+	MachineZx128(mc, pentagon128, isa_MachinePentagon128)
 {
 	cpu		 = new Z80(this);			 // must be 1st item
 	ula		 = new Ula128k(this);		 // should be 2nd item

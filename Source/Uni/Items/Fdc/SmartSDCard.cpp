@@ -328,11 +328,11 @@ inline CoreByte* set_bits_in_page(CoreByte* p, uint32 bitmask)
 SmartSDCard::SmartSDCard(Machine* m) :
 	MassStorage(m, isa_SmartSDCard, external, o_addr, i_addr), ram(m, "SMART card Ram", 128 kB),
 	rom(m, "SMART card Flash Ram", 256 kB), joystick(nullptr), overlay(nullptr), sd_card(nullptr), sio(nullptr),
-	config(), dip_joystick_enabled(settings.get_bool(key_smart_card_joystick_enabled, yes)),
-	dip_memory_enabled(settings.get_bool(key_smart_card_memory_enabled, yes)),
-	dip_force_bank_B(settings.get_bool(key_smart_card_force_bank_B, no)),
-	dip_flash_write_enabled(settings.get_bool(key_smart_card_write_flash_enabled, no)), flash_state(), flash_dirty(no),
-	flash_software_id_mode()
+	config(), dip_joystick_enabled(gui::settings.get_bool(key_smart_card_joystick_enabled, yes)),
+	dip_memory_enabled(gui::settings.get_bool(key_smart_card_memory_enabled, yes)),
+	dip_force_bank_B(gui::settings.get_bool(key_smart_card_force_bank_B, no)),
+	dip_flash_write_enabled(gui::settings.get_bool(key_smart_card_write_flash_enabled, no)), flash_state(),
+	flash_dirty(no), flash_software_id_mode()
 {
 	// init rom:
 	// read patches will only be needed for rom switch-out system and are only applied if it is armed, not in general.
@@ -1035,5 +1035,5 @@ void SmartSDCard::insertJoystick(int id) volatile
 		overlay = nullptr;
 	}
 	joystick = joysticks[id];
-	if (id != no_joystick) overlay = machine->addOverlay(joystick, "K", Overlay::TopRight);
+	if (id != no_joystick) overlay = machine->addOverlay(joystick, "K", gui::Overlay::TopRight);
 }

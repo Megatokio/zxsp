@@ -9,6 +9,9 @@
 #include <QWidget>
 
 
+namespace gui
+{
+
 MySimpleToggleButton::MySimpleToggleButton(
 	QWidget* parent, int x, int y, cstr filepath_up, cstr filepath_down, bool sticky) :
 	QWidget(parent),
@@ -76,3 +79,5 @@ void MySimpleToggleButton::mouseReleaseEvent(QMouseEvent*)
 	//	update();
 	//	emit toggled(state);
 }
+
+} // namespace gui

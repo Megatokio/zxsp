@@ -5,4 +5,9 @@
 
 #include "FdcD80Insp.h"
 
+namespace gui
+{
+
 FdcD80Insp::FdcD80Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) : Inspector(w, mc, i) {}
+
+} // namespace gui

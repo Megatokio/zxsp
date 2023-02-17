@@ -4,12 +4,16 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Inspector.h"
+class QRadioButton;
 
+
+namespace gui
+{
 
 class CurrahMicroSpeechInsp : public Inspector
 {
-	class QRadioButton* button_8bit;
-	class QRadioButton* button_hifi;
+	QRadioButton* button_8bit;
+	QRadioButton* button_hifi;
 
 	// scroll text:
 	uint8 scroller[64]; // circular buffer
@@ -20,7 +24,7 @@ class CurrahMicroSpeechInsp : public Inspector
 
 public:
 	CurrahMicroSpeechInsp(QWidget*, MachineController*, volatile IsaObject*);
-	~CurrahMicroSpeechInsp();
+	~CurrahMicroSpeechInsp() override;
 
 protected:
 	void paintEvent(QPaintEvent*) override; // Qt
@@ -30,3 +34,5 @@ private:
 	void set_8bit();
 	void set_hifi();
 };
+
+} // namespace gui

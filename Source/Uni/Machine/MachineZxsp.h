@@ -13,13 +13,13 @@
 class MachineZxsp : public Machine
 {
 protected:
-	MachineZxsp(MachineController*, Model, isa_id id);
+	MachineZxsp(gui::MachineController*, Model, isa_id id);
 
 	bool handleSaveTapePatch() override;
 	bool handleLoadTapePatch() override;
 
 public:
-	MachineZxsp(MachineController*, Model);
+	MachineZxsp(gui::MachineController*, Model);
 
 	void loadScr(FD& fd) override;
 	void saveScr(FD& fd) override;

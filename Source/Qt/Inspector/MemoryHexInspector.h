@@ -6,18 +6,19 @@
 #include "MemoryInspector.h"
 #include "Templates/Array.h"
 #include "Z80/Z80.h"
-#include "kio/kio.h"
 #include <QWidget>
-
-class Machine;
-class MemoryInspector;
-class SimpleTerminal;
 class QScrollBar;
 class QPushButton;
 class QLineEdit;
-class MyScrollBar;
 class QCheckBox;
+class Machine;
 
+
+namespace gui
+{
+class MemoryInspector;
+class SimpleTerminal;
+class MyScrollBar;
 
 class MemoryHexInspector : public MemoryInspector
 {
@@ -124,3 +125,5 @@ private:
 	void setBreakpoint(CoreByte mask, bool f);
 	void save_settings();
 };
+
+} // namespace gui

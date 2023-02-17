@@ -10,5 +10,5 @@
 class MachinePentagon128 : public MachineZx128
 {
 public:
-	explicit MachinePentagon128(MachineController*);
+	explicit MachinePentagon128(gui::MachineController*);
 };

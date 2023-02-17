@@ -11,7 +11,7 @@ class Crtc : public Item
 {
 protected:
 	const ZxInfo* info; // machine info
-	Screen*		  screen;
+	gui::Screen*  screen;
 	CoreByte*	  video_ram; // current video ram
 
 	static constexpr int cc_per_byte = 4; // ula cycles per 8 pixels
@@ -43,7 +43,7 @@ public:
 	int			  getBytesPerLine() const volatile { return cc_per_line / cc_per_byte; } // nominal
 	virtual int32 getCcPerFrame() const volatile { return lines_per_frame * cc_per_line; }
 
-	void		  attachToScreen(Screen*);
+	void		  attachToScreen(gui::Screen*);
 	virtual void  drawVideoBeamIndicator(int32 cc) = 0;
 	virtual int32 doFrameFlyback(int32 cc)		   = 0;
 	virtual int32 cpuCycleOfNextCrtRead()		   = 0;

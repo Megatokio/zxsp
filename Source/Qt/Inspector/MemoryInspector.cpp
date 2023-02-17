@@ -24,6 +24,9 @@
 #include <QTimer>
 
 
+namespace gui
+{
+
 //
 //	MemoryInspector ist die Basis-Klasse für Memory Display Widgets.
 //
@@ -586,3 +589,5 @@ int32 MemoryInspector::pageOffsetForCpuAddress(uint16 addr)
 
 	return p >= page && p < page + data.size ? p - page : -1;
 }
+
+} // namespace gui

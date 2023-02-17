@@ -11,11 +11,11 @@
 #include "Ula/MmuTk85.h"
 
 
-MachineTk85::MachineTk85(MachineController* m) : MachineZx81(m, isa_MachineTk85, tk85)
+MachineTk85::MachineTk85(gui::MachineController* m) : MachineZx81(m, isa_MachineTk85, tk85)
 {
 	cpu = new Z80(this);
 	ula = new UlaZx81(this);
-	ula->set60Hz(settings.get_bool(key_framerate_tk85_60hz, false));
+	ula->set60Hz(gui::settings.get_bool(key_framerate_tk85_60hz, false));
 	mmu		 = new MmuTk85(this);
 	keyboard = new KeyboardZx81(this, isa_KbdTk85);
 	// ay		=

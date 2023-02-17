@@ -14,6 +14,9 @@ class QLineEdit;
 class QLabel;
 
 
+namespace gui
+{
+
 class UlaInsp : public Inspector
 {
 	volatile Mmu* mmu;
@@ -105,3 +108,5 @@ public:
 protected:
 	void updateWidgets() override;
 };
+
+} // namespace gui

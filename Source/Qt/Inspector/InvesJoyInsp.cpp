@@ -11,6 +11,9 @@
 #include <QtGui>
 
 
+namespace gui
+{
+
 InvesJoyInsp::InvesJoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* j) :
 	JoyInsp(w, mc, j, "/Images/inves_joy.jpg")
 {
@@ -32,3 +35,5 @@ InvesJoyInsp::InvesJoyInsp(QWidget* w, MachineController* mc, volatile IsaObject
 	g->addWidget(lineedit_display[0], 2, 1);
 	g->addWidget(button_scan_usb, 2, 2, Qt::AlignHCenter | Qt::AlignVCenter);
 }
+
+} // namespace gui

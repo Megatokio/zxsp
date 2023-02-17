@@ -23,14 +23,14 @@
 class Machine : public IsaObject
 {
 	friend void runMachinesForSound();
-	friend class MachineController;
+	friend class gui::MachineController;
 	friend class Item;
 	friend class Z80;
 
 public:
 	PLock _lock;
 
-	volatile MachineController* controller;
+	volatile gui::MachineController* controller;
 
 	// general info
 	Model		  model;
@@ -46,8 +46,8 @@ private:
 	bool is_suspended;
 
 	class RzxFile* rzx_file; // Rzx Replay and Recording
-	Overlay*	   overlay_rzx_play;
-	Overlay*	   overlay_rzx_record;
+	gui::Overlay*  overlay_rzx_play;
+	gui::Overlay*  overlay_rzx_record;
 	void		   show_overlay_play();
 	void		   show_overlay_record();
 	void		   hide_overlay_play();
@@ -131,7 +131,7 @@ protected:
 	}
 	void rzxOutOfSync(cstr msg, bool alert = no);
 
-	Machine(MachineController*, Model, isa_id);
+	Machine(gui::MachineController*, Model, isa_id);
 
 private:
 	void init_contended_ram();
@@ -211,8 +211,8 @@ public:
 	void itemAdded(Item*);	 // callback from Item c'tor
 	void itemRemoved(Item*); // callback from Item d'tor
 
-	OverlayJoystick* addOverlay(Joystick*, cstr idf, Overlay::Position);
-	void			 removeOverlay(Overlay*);
+	gui::OverlayJoystick* addOverlay(Joystick*, cstr idf, gui::Overlay::Position);
+	void				  removeOverlay(gui::Overlay*);
 
 	// Time & Utilities:
 	int32 current_cc() { return cpu->cpuCycle(); }

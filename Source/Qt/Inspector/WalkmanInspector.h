@@ -6,6 +6,9 @@
 #include "TapeRecorderInsp.h"
 
 
+namespace gui
+{
+
 class WalkmanInspector : public TapeRecorderInsp
 {
 public:
@@ -14,3 +17,5 @@ public:
 protected:
 	void updateWidgets() override;
 };
+
+} // namespace gui

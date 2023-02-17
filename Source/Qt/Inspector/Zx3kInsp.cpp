@@ -17,6 +17,9 @@
 #include <QVariant>
 
 
+namespace gui
+{
+
 Zx3kInsp::Zx3kInsp(QWidget* parent, MachineController* mc, volatile IsaObject* item) :
 	Inspector(parent, mc, item, "/Images/sinclair3k.jpg")
 {
@@ -54,3 +57,5 @@ void Zx3kInsp::set_ram_size(uint newsize)
 	NV(zx3kram())->setRamSize(newsize);
 	machine->powerOn();
 }
+
+} // namespace gui

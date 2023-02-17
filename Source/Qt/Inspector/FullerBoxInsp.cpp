@@ -4,6 +4,11 @@
 
 #include "FullerBoxInsp.h"
 
+namespace gui
+{
+
 FullerBoxInsp::FullerBoxInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
 	Inspector(w, mc, i, "/Backgrounds/light-150-s.jpg")
 {}
+
+} // namespace gui

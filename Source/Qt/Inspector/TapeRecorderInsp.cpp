@@ -17,6 +17,9 @@
 #include <QTextEdit>
 
 
+namespace gui
+{
+
 static const int	   frames_per_rot		   = 36;
 static const int	   ROT_STEP				   = 360 / frames_per_rot;
 static const double	   ACHSENABSTAND_MM		   = 42.5;
@@ -832,3 +835,5 @@ void TapeRecorderInsp::eject_tape()
 	TapeFile* tf = nv_taperecorder()->eject();
 	delete tf;
 }
+
+} // namespace gui

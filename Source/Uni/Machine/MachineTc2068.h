@@ -9,7 +9,7 @@
 class MachineTc2068 : public MachineTc2048
 {
 public:
-	MachineTc2068(MachineController*, Model);
+	MachineTc2068(gui::MachineController*, Model);
 
 	void insertCartridge(cstr fpath);
 };

@@ -9,6 +9,11 @@
 #include "zxsp_types.h"
 #include <QActionGroup>
 #include <QMainWindow>
+
+
+namespace gui
+{
+
 class Overlay;
 class ToolWindow;
 
@@ -138,7 +143,7 @@ public:
 
 public:
 	MachineController(QString filepath);
-	~MachineController();
+	~MachineController() override;
 
 	volatile Machine* getMachine() { return machine; }
 	Screen*			  getScreen() volatile { return screen; } // callback from running machine
@@ -163,3 +168,5 @@ signals:
 	void signal_keymapModified();
 	void signal_memoryModified(Memory*, uint how);
 };
+
+} // namespace gui

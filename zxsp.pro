@@ -339,10 +339,12 @@ HEADERS += \
 	Libraries/kio/TestTimer.h \
 	\
 	Libraries/unix/log.h \
-	Libraries/cpp/cppthreads.h \
 	Libraries/unix/os_utilities.h \
 	Libraries/unix/FD.h \
 	Libraries/unix/files.h \
+	Libraries/unix/n-compress.h \
+	\
+	Libraries/cpp/cppthreads.h \
 	\
 	Libraries/graphics/gif/Colormap.h \
 	Libraries/graphics/gif/Pixelmap.h \

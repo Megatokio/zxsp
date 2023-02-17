@@ -5,8 +5,13 @@
 
 #include "Inspector.h"
 
+namespace gui
+{
+
 class ZonxBoxInsp : public Inspector
 {
 public:
 	ZonxBoxInsp(QWidget*, MachineController* mc, volatile IsaObject*);
 };
+
+} // namespace gui

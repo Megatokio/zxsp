@@ -16,6 +16,9 @@
 #include <QTimer>
 
 
+namespace gui
+{
+
 Z80Insp::Z80Insp(QWidget* window, MachineController* mc, volatile IsaObject* item) :
 	Inspector(window, mc, item, "/Backgrounds/light-150-s.jpg")
 {
@@ -332,3 +335,5 @@ void Z80Insp::set_interrupt(bool checked)
 	else
 		z80->clearInterrupt();
 }
+
+} // namespace gui

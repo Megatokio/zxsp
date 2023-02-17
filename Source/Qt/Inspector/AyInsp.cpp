@@ -13,6 +13,9 @@
 #include <QtGui>
 
 
+namespace gui
+{
+
 static cstr es[] = {
 	"\\＿＿＿",
 	"\\＿＿＿",
@@ -382,3 +385,5 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 		value.clock = n;
 	}
 }
+
+} // namespace gui

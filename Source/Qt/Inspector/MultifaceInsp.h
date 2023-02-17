@@ -9,6 +9,9 @@ class QMouseEvent;
 class QLabel;
 
 
+namespace gui
+{
+
 class MultifaceInsp : public Inspector
 {
 protected:
@@ -27,3 +30,5 @@ protected:
 	void mousePressEvent(QMouseEvent*) override;
 	void updateWidgets() override;
 };
+
+} // namespace gui

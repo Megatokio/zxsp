@@ -6,6 +6,9 @@
 #include "JoyInsp.h"
 #include <QObject>
 
+namespace gui
+{
+
 class Tc2068JoyInsp : public JoyInsp
 {
 public:
@@ -14,3 +17,5 @@ public:
 protected:
 	void updateWidgets() override;
 };
+
+} // namespace gui

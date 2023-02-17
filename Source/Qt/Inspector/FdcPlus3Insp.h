@@ -8,6 +8,9 @@
 #include <QObject>
 
 
+namespace gui
+{
+
 class FdcPlus3Insp : public Inspector
 {
 	volatile FdcPlus3* fdc;
@@ -60,3 +63,5 @@ private:
 	void save_as();
 	void toggle_wprot(bool);
 };
+
+} // namespace gui

@@ -9,6 +9,9 @@
 #include "graphics/gif/GifEncoder.h"
 
 
+namespace gui
+{
+
 // colors & pixels:
 static const uint16 i2r[2] = {0, 0xffff};
 static const uint16 i2g[2] = {0, 0xffff};
@@ -238,3 +241,5 @@ void ScreenMono::paint_screen(bool draw_passepartout)
 
 	doneCurrent();
 }
+
+} // namespace gui

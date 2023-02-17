@@ -7,6 +7,9 @@
 #include <QMenu>
 
 
+namespace gui
+{
+
 /*	List of implemented "recent files" lists:
 	must match static QList<RecentFiles*> recent_files.		<-- !!!
 */
@@ -40,10 +43,12 @@ class RecentFilesMenu : public QMenu
 
 public:
 	RecentFilesMenu(ListId, QWidget* owner, std::function<void(cstr)> open_file);
-	~RecentFilesMenu();
+	~RecentFilesMenu() override;
 };
 
 
 extern void	   addRecentFile(ListId, QString fpath);
 extern QString getRecentFile(ListId, int position = 0);
 extern void	   clearRecentFiles(ListId);
+
+} // namespace gui

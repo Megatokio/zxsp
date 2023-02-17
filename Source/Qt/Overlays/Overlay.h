@@ -3,17 +3,19 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "kio/kio.h"
+#include "IsaObject.h"
+#include <QFont>
 #include <QMainWindow>
 #include <QObject>
-class MachineController;
-#include "IsaObject.h"
-#include <QPixmap>
-class Screen;
-#include <QFont>
 #include <QPen>
+#include <QPixmap>
 #include <QPolygon>
 
+
+namespace gui
+{
+class Screen;
+class MachineController;
 
 /*
 M(		isa_OverlayPlay,		isa_Overlay,		"Overlay \"Play\"" ),
@@ -110,3 +112,5 @@ public:
 	void draw(QPainter&) override;
 	void setZoom(int) override;
 };
+
+} // namespace gui

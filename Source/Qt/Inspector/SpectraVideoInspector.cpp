@@ -20,6 +20,9 @@
 #include <QTimer>
 
 
+namespace gui
+{
+
 SpectraVideoInspector::SpectraVideoInspector(QWidget* w, MachineController* mc, volatile IsaObject* i) :
 	Inspector(w, mc, i, SpectraVideoPtr(i)->isRomInserted() ? "/Images/Spectra_Loaded.jpg" : "/Images/Spectra.jpg"),
 	js_state(0), rom_file(nullptr)
@@ -311,3 +314,5 @@ void SpectraVideoInspector::insertRom(cstr filepath)
 	NV(spectra())->insertRom(filepath);
 	machine->powerOn();
 }
+
+} // namespace gui

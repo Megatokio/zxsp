@@ -8,7 +8,7 @@
 
 class Multiface128 : public Multiface
 {
-	friend class Multiface128Insp;
+	friend class gui::Multiface128Insp;
 
 	bool  mf_enabled;
 	uint8 videopage; // video page bit in port 7FFD
