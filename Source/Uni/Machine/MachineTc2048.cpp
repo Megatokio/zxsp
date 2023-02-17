@@ -35,7 +35,7 @@ MachineTc2048::MachineTc2048(MachineController* m) : MachineZxsp(m, tc2048, isa_
 	taperecorder = new Walkman(this);
 }
 
-void MachineTc2048::loadScr(FD& fd) throws
+void MachineTc2048::loadScr(FD& fd)
 {
 	ula->setPortFF(ula->getPortFF() & 0x3F); // reset video-related bits
 	MachineZxsp::loadScr(fd);

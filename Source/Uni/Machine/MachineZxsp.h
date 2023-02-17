@@ -21,9 +21,9 @@ protected:
 public:
 	MachineZxsp(MachineController*, Model);
 
-	void loadScr(FD& fd) throws override;
-	void saveScr(FD& fd) throws override;
-	void loadSna(FD& fd) throws override;
-	void saveSna(FD& fd) throws override;
-	// void	loadTap         (FD& fd) throws override;
+	void loadScr(FD& fd) override;
+	void saveScr(FD& fd) override;
+	void loadSna(FD& fd) override;
+	void saveSna(FD& fd) override;
+	// void	loadTap         (FD& fd) override;
 };

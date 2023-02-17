@@ -203,7 +203,7 @@ Time TapeFile::getStartOfBlock(uint blk)
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
 
-void TapeFile::readFile(cstr path) throws // file_error,data_error,bad_alloc
+void TapeFile::readFile(cstr path)
 {
 	xlogIn("TapeFile:readFile");
 	assert(mode == stopped);
@@ -246,7 +246,7 @@ void TapeFile::readFile(cstr path) throws // file_error,data_error,bad_alloc
 }
 
 
-void TapeFile::writeFile(cstr path) throws
+void TapeFile::writeFile(cstr path)
 {
 	xlogIn("TapeFile:writeFile");
 	assert(mode == stopped);
@@ -452,8 +452,8 @@ void TapeFile::videoFrameEnd(int32 cc)
 
 
 		//		if( blk_cc_offset/10 > blk_cswbuffer->getCurrentCc() &&	// no output last 90% of this frame (10% ~ timer
-		//interrupt handler max. duration…) 		blk_cswbuffer->getTotalPulses()>200)					// not at start of
-		//block (TODO: better test)
+		// interrupt handler max. duration…) 		blk_cswbuffer->getTotalPulses()>200)					// not at
+		// start of block (TODO: better test)
 		//		{
 		//			// Block-Ende-Erkennung
 		//			// Blöcke schon bei der Aufnahme trennen, damit

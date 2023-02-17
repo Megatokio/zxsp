@@ -38,7 +38,7 @@ public:
 	bool		isRomPagedIn() const volatile { return own_romdis_state; }
 	int /*err*/ insertRom(cstr path, bool silent = no);
 	int /*err*/ insertDefaultRom(bool silent = false) { return insertRom(nullptr, silent); }
-	void		saveRom(FD&) throws;
+	void		saveRom(FD&);
 
 	// Disk handling:
 	bool isDiskInserted() const volatile { return cf_card != nullptr; }

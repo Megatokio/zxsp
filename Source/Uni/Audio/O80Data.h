@@ -36,8 +36,8 @@ protected:
 	bool		 is_zx81;
 
 private:
-	void write_block_to_p81_file(FD&) const throws;
-	void zx81_read_from_file(FD&, bool) throws;
+	void write_block_to_p81_file(FD&) const;
+	void zx81_read_from_file(FD&, bool);
 
 public:
 	O80Data();
@@ -59,6 +59,6 @@ public:
 	bool isZX81() { return is_zx81; }
 
 	// read/write to file:
-	static void readFile(cstr fpath, TapeFile&) throws;
-	static void writeFile(cstr fpath, TapeFile&) throws;
+	static void readFile(cstr fpath, TapeFile&);
+	static void writeFile(cstr fpath, TapeFile&);
 };

@@ -46,8 +46,8 @@ protected:
 private:
 	bool motor_on();
 	bool side_B_up();
-	cstr get_save_filename(cstr msg = "Save +3 disc as…") throws;
-	cstr get_load_filename(cstr msg = "Load +3 disc file…") throws;
+	cstr get_save_filename(cstr msg = "Save +3 disc as…");
+	cstr get_load_filename(cstr msg = "Load +3 disc file…");
 	void set_disk_state(DiskState);
 	void insert_disk();
 	void insert_disk(cstr filepath);

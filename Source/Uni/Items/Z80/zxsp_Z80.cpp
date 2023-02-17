@@ -223,7 +223,7 @@ void Z80::copyBufferToRam(const CoreByte* q, uint16 z, uint16 cnt) noexcept
 	while (cnt);
 }
 
-void Z80::readRamFromFile(FD& fd, uint16 z, uint16 cnt) throws
+void Z80::readRamFromFile(FD& fd, uint16 z, uint16 cnt)
 {
 	uint8  bu[CPU_PAGESIZE];
 	uint16 n = CPU_PAGESIZE - (z & CPU_PAGEMASK);
@@ -239,7 +239,7 @@ void Z80::readRamFromFile(FD& fd, uint16 z, uint16 cnt) throws
 	while (cnt);
 }
 
-void Z80::writeRamToFile(FD& fd, uint16 q, uint16 cnt) throws
+void Z80::writeRamToFile(FD& fd, uint16 q, uint16 cnt)
 {
 	uint8  bu[CPU_PAGESIZE];
 	uint16 n = CPU_PAGESIZE - (q & CPU_PAGEMASK);

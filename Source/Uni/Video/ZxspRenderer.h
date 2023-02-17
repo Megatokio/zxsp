@@ -85,12 +85,12 @@ public:
 		uint8*	attr_pixels,
 		uint	cc_per_scanline,
 		uint32	cc_start_of_screenfile,
-		bool	flashphase) throws;
+		bool	flashphase);
 	void saveScreenshot(
 		cstr	path,
 		IoInfo* ioinfo,
 		uint	ioinfo_count,
 		uint8*	attr_pixels,
 		uint	cc_per_scanline,
-		uint32	cc_start_of_screenfile) throws;
+		uint32	cc_start_of_screenfile);
 };

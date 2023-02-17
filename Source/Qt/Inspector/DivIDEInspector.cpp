@@ -366,7 +366,7 @@ void DivIDEInspector::set_ram_512k()
 }
 
 
-extern void decompress(cstr qfilepath, cstr zfilepath) throws;
+extern void decompress(cstr qfilepath, cstr zfilepath);
 
 
 void DivIDEInspector::insert_new_disk(cstr basename)

@@ -11,8 +11,8 @@ class MachineJupiter : public Machine
 protected:
 	bool handleSaveTapePatch() override;
 	bool handleLoadTapePatch() override;
-	void loadAce(FD&) throws override;
-	void saveAce(FD&) throws override;
+	void loadAce(FD&) override;
+	void saveAce(FD&) override;
 
 public:
 	explicit MachineJupiter(MachineController*);

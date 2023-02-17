@@ -42,6 +42,6 @@ public:
 	virtual ~RlesData();
 	RlesData& operator=(const RlesData&) noexcept(false); // data_error
 
-	static void readFile(cstr fpath, TapeFile&) throws;
-	static void writeFile(cstr fpath, TapeFile&) throws;
+	static void readFile(cstr fpath, TapeFile&);
+	static void writeFile(cstr fpath, TapeFile&);
 };

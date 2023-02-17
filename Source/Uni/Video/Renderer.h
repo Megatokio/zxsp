@@ -88,7 +88,7 @@ protected:					  // values for 32 column mode:
 	cColormap& global_colormap;
 	GifEncoder gif_encoder;
 
-	void write_diff2_to_file() throws;
+	void write_diff2_to_file();
 
 	GifWriter(
 		QObject* p,
@@ -102,6 +102,6 @@ protected:					  // values for 32 column mode:
 		uint frames_per_second);
 
 public:
-	void startRecording(cstr path) throws;
-	void stopRecording() throws;
+	void startRecording(cstr path);
+	void stopRecording();
 };

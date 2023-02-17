@@ -227,7 +227,7 @@ bool MachineZxsp::handleLoadTapePatch()
 	return 1; // handled
 }
 
-void MachineZxsp::saveScr(FD& fd) throws
+void MachineZxsp::saveScr(FD& fd)
 {
 	// save a ZX Spectrum .scr screenshot
 	// this is the standard 6912 byte frame buffer of a ZX Spectrum
@@ -238,7 +238,7 @@ void MachineZxsp::saveScr(FD& fd) throws
 	fd.write_bytes(bu, 6912);
 }
 
-void MachineZxsp::loadScr(FD& fd) throws
+void MachineZxsp::loadScr(FD& fd)
 {
 	uint32 sz = uint32(fd.file_size());
 	if (sz != 6912) showWarning("The .scr Screen file seems to be corrupted");
@@ -261,21 +261,21 @@ void MachineZxsp::loadScr(FD& fd) throws
 
 #define snalen 27
 
-void write_mem(FD& fd, const CoreByte* q, uint32 cnt) throws
+void write_mem(FD& fd, const CoreByte* q, uint32 cnt)
 {
 	std::unique_ptr<uint8[]> bu {new uint8[cnt]};
 	Z80::c2b(q, bu.get(), cnt);
 	fd.write_bytes(bu.get(), cnt);
 }
 
-void read_mem(FD& fd, CoreByte* z, uint32 cnt) throws
+void read_mem(FD& fd, CoreByte* z, uint32 cnt)
 {
 	std::unique_ptr<uint8[]> bu {new uint8[cnt]};
 	fd.read_bytes(bu.get(), cnt);
 	Z80::b2c(bu.get(), z, cnt); // copy data, preserve flags
 }
 
-Model modelForSna(FD& fd) throws
+Model modelForSna(FD& fd)
 {
 	uint32 ramsize = uint32(fd.file_size()) - snalen;
 	return ramsize > 0x4000 ? zxsp_i3 : zxsp_i1;
@@ -286,8 +286,8 @@ struct SnaHead
 	uint8 i, l2, h2, e2, d2, c2, b2, f2, a2, l, h, e, d, c, b, yl, yh, xl, xh, iff, r, f, a, spl, sph, im, brdr;
 
 	void clear() { memset(this, 0, snalen); }
-	void readFromFile(FD& fd) throws { fd.read_bytes(this, snalen); }
-	void writeToFile(FD& fd) throws { fd.write_bytes(this, snalen); }
+	void readFromFile(FD& fd) { fd.read_bytes(this, snalen); }
+	void writeToFile(FD& fd) { fd.write_bytes(this, snalen); }
 
 	void setRegisters(const Z80Regs&); // put regs into SnaHead.   ATTN: push PC!
 	void getRegisters(Z80Regs&);	   // get regs from SnaHead.   ATTN: pop PC!
@@ -374,7 +374,7 @@ void SnaHead::getRegisters(Z80Regs& regs)
 	}
 }
 
-void MachineZxsp::saveSna(FD& fd) throws
+void MachineZxsp::saveSna(FD& fd)
 {
 	// Save snapshot into .sna file
 	// note: .sna files were originally saved from an NMI routine.
@@ -394,7 +394,7 @@ void MachineZxsp::saveSna(FD& fd) throws
 	for (uint32 i = 0; i < ramsize; i += CPU_PAGESIZE) { write_mem(fd, cpu->rdPtr(0x4000 + i), CPU_PAGESIZE); }
 }
 
-void MachineZxsp::loadSna(FD& fd) throws
+void MachineZxsp::loadSna(FD& fd)
 {
 	// Load snapshot from .sna file
 	// throws on error

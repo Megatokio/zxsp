@@ -841,11 +841,11 @@ void TzxBlock18::write(CswBuffer& bu) const
 
 struct SymDef // Helper class: Symbol Definition
 {
-	uint flags; // bits 1…0: starting symbol polarity:
-				//      00: opposite to the current level (make an edge, as usual) - default
-				//      01: same as the current level (no edge - prolongs the previous pulse)
-				//      10: force low level
-				//      11: force high level
+	uint flags;	   // bits 1…0: starting symbol polarity:
+				   //      00: opposite to the current level (make an edge, as usual) - default
+				   //      01: same as the current level (no edge - prolongs the previous pulse)
+				   //      10: force low level
+				   //      11: force high level
 	uint   pulses; // pulses
 	u16ptr data;   // Array of pulse lengths; 0-delimited.  size = max+1
 
@@ -1516,9 +1516,9 @@ struct TzxBlock32 : public TzxBlock
 	uint16 blen;  // length of block (w/o these 2 bytes)
 	uint8  cnt;	  // number of text strings
 	str*   texte; // array of texts
-				//  text[0]=id
-				//  text[1]=len
-				//  text[2++]=text
+				  //  text[0]=id
+				  //  text[1]=len
+				  //  text[2++]=text
 
 	TzxBlock32() : TzxBlock(0x32, no), cnt(0), texte(nullptr) {}
 	~TzxBlock32()
@@ -1788,7 +1788,7 @@ void TzxBlock33::write(FD& fd) const
 	returns nullptr at eof
 */
 // static
-TzxBlock* TzxBlock::read_next(FD& fd) throws // DataError, file_error
+TzxBlock* TzxBlock::read_next(FD& fd)
 {
 	xlogIn("TzxBlock.read_next()");
 
@@ -2148,7 +2148,7 @@ void TzxData::writeFile(cstr fpath, TapeFile& tapeblocks, TzxConversionStyle sty
 	false) // file_error,DataError,bad_alloc
 {
 	xlogIn("TzxData::writeFile(%s)", fpath);
-	FD fd(fpath, 'w'); // throws; may overwrite
+	FD fd(fpath, 'w'); //; may overwrite
 
 	fd.write_bytes("ZXTape!\x1A\x01\x20", 10); // version 1.20 header
 
@@ -2226,7 +2226,7 @@ void TzxData::readFile(cstr fpath, TapeFile& tapeblocks) noexcept(false) // file
 
 	TempMemPool tmp;
 
-	FD fd(fpath, 'r');				 // throws
+	FD fd(fpath, 'r');
 	if (fd.file_size() == 0) return; // empty file => empty tape
 
 	// header:

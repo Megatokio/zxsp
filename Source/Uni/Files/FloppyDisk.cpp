@@ -86,7 +86,7 @@ FloppyDisk::~FloppyDisk()
 	delete[] filepath;
 }
 
-void FloppyDisk::saveAs(cstr path) throws
+void FloppyDisk::saveAs(cstr path)
 {
 	if (path != filepath)
 	{
@@ -96,7 +96,7 @@ void FloppyDisk::saveAs(cstr path) throws
 	saveDisk();
 }
 
-void FloppyDisk::saveDisk() throws
+void FloppyDisk::saveDisk()
 {
 	if (!filepath)
 	{
@@ -423,8 +423,8 @@ enum {
 	NotWriteable =
 		1 << 1,			// Not writeable:	WRITE DATA, WRITE DELETED DATA or Write ID: Line WProt from FDD was activated
 	MissingAM = 1 << 0, // Missing Address Mark:	 the FDC does not detect the IDAM before 2 index pulses.
-						//							 or the FDC cannot find the DAM or DDAM after the IDAM is found, then bit MD
-						//of ST2 is also set.
+						//							 or the FDC cannot find the DAM or DDAM after the IDAM is found, then bit
+						//MD of ST2 is also set.
 
 	// NEC µPD765 SR2:
 	ControlMark = 1 << 6,	  // READ DATA or SCAN: the FDC encountered a Sector with a DDAM
@@ -762,7 +762,7 @@ void FloppyDisk::parse_disk(Array<TrackFormatInfo> trackinfo[2])
 }
 
 
-void FloppyDisk::write_extended_disk_file(FD& fd) const throws
+void FloppyDisk::write_extended_disk_file(FD& fd) const
 {
 	Array<TrackFormatInfo> trackinfo[2];
 

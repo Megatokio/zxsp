@@ -237,7 +237,7 @@ bool MachineJupiter::handleLoadTapePatch()
 	return 1; // handled
 }
 
-static void write_compressed_data(FD& fd, const uint8* q, uint qsize) throws
+static void write_compressed_data(FD& fd, const uint8* q, uint qsize)
 {
 	// write compressed data
 	// compression scheme:
@@ -276,7 +276,7 @@ static void write_compressed_data(FD& fd, const uint8* q, uint qsize) throws
 	fd.write_bytes(bu, z - bu);
 }
 
-static uint read_compressed_data(FD& fd, uint qsize, uint8* z) throws
+static uint read_compressed_data(FD& fd, uint qsize, uint8* z)
 {
 	// read compressed data
 	// supplied destination buffer z[] must be ≥ $1C000 bytes
@@ -384,7 +384,7 @@ void MachineJupiter::loadAce(FD& fd) noexcept(false) /*file_error,data_error*/
 															   // $4000++		  external ram
 }
 
-void MachineJupiter::saveAce(FD& fd) throws
+void MachineJupiter::saveAce(FD& fd)
 {
 	uint8 bu[0x4000];
 	memset(bu, 0, 0x4000);

@@ -152,8 +152,8 @@ private:
 	void set_wprot(bool);
 	int	 reel_diameter_for_seconds(Time);
 	Time delay_to_next_frame_for_animation(int);
-	cstr get_save_filename(cstr msg = "Save tape as…") throws;
-	cstr get_load_filename(cstr msg = "Insert tape file…") throws;
+	cstr get_save_filename(cstr msg = "Save tape as…");
+	cstr get_load_filename(cstr msg = "Insert tape file…");
 };
 
 

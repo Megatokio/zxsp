@@ -19,6 +19,6 @@ protected:
 public:
 	explicit MachineZx80(MachineController*, Model = zx80, isa_id id = isa_MachineZx80);
 
-	void loadO80(FD&) throws override;
-	void saveO80(FD&) throws override;
+	void loadO80(FD&) override;
+	void saveO80(FD&) override;
 };

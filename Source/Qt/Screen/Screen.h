@@ -71,8 +71,8 @@ public:
 	void setFlavour(isa_id);
 	void repaint();
 
-	void saveScreenshot(cstr path) throws;
-	void startRecording(cstr path, bool update_border) throws;
+	void saveScreenshot(cstr path);
+	void startRecording(cstr path, bool update_border);
 	void stopRecording();
 	bool isRecording() const { return _gifmovie_filepath != nullptr; }
 

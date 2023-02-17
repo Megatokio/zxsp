@@ -208,8 +208,8 @@ public:
 	void copyBufferToRam(const CoreByte* q, uint16 z_addr, uint16 _cnt) noexcept;
 	void copyRamToBuffer(uint16 q_addr, CoreByte* z, uint16 _cnt) noexcept;
 
-	void readRamFromFile(FD&, uint16 z_addr, uint16 _cnt) throws;
-	void writeRamToFile(FD&, uint16 q_addr, uint16 _cnt) throws;
+	void readRamFromFile(FD&, uint16 z_addr, uint16 _cnt);
+	void writeRamToFile(FD&, uint16 q_addr, uint16 _cnt);
 
 	// Debugger:
 	void   setStackBreakpoint(uint16 sp) { stack_breakpoint = sp; }

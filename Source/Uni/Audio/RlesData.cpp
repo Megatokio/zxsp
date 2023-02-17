@@ -263,7 +263,7 @@ void RlesData::calcBlockInfos()
 		dc.m	"1.0", $00				; major + minor version
 */
 /*static*/
-void RlesData::readFile(cstr /*fpath*/, TapeFile& /*tapeblocks*/) throws
+void RlesData::readFile(cstr /*fpath*/, TapeFile& /*tapeblocks*/)
 {
 	TODO();
 #if 0
@@ -354,7 +354,7 @@ void RlesData::writeFile(cstr fpath, TapeFile& tapedata) noexcept(false) // file
 
 
 #if 0
-void RlesData::WriteToFile( int fd ) const throws			// .rles file
+void RlesData::WriteToFile( int fd ) const 			// .rles file
 {
 	if(buffer.Size()==0) return;
 

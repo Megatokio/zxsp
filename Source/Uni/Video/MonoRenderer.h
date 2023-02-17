@@ -66,8 +66,7 @@ public:
 	MonoGifWriter(QObject* p, bool update_border, uint frames_per_second = 50);
 
 	void writeFrame(
-		uint8* new_pixels, uint screen_w, uint screen_h, uint frame_h, uint frame_w, uint screen_x0, uint screen_y0)
-		throws;
+		uint8* new_pixels, uint screen_w, uint screen_h, uint frame_h, uint frame_w, uint screen_x0, uint screen_y0);
 	void saveScreenshot(
 		cstr   path,
 		uint8* new_pixels,
@@ -76,7 +75,7 @@ public:
 		uint   frame_h,
 		uint   frame_w,
 		uint   screen_x0,
-		uint   screen_y0) throws;
+		uint   screen_y0);
 	void drawScreen(
 		uint8* new_pixels,
 		uint   q_screen_width,

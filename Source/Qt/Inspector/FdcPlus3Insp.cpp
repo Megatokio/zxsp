@@ -64,14 +64,14 @@ inline bool FdcPlus3Insp::motor_on() { return fdc->isMotorOn(); }
 inline bool FdcPlus3Insp::side_B_up() { return drive->side_B_up; }
 
 // helper
-cstr FdcPlus3Insp::get_save_filename(cstr msg) throws
+cstr FdcPlus3Insp::get_save_filename(cstr msg)
 {
 	static cstr filter = "ZX Spectrum +3 Discs (*.dsk);;All Files (*)";
 	return selectSaveFile(this, msg, filter);
 }
 
 // helper
-cstr FdcPlus3Insp::get_load_filename(cstr msg) throws
+cstr FdcPlus3Insp::get_load_filename(cstr msg)
 {
 	cstr filter = "ZX Spectrum +3 Discs (*.dsk *.disk);;All Files (*)";
 	return selectLoadFile(this, msg, filter);

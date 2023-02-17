@@ -169,7 +169,7 @@ inline void CswBuffer::rskip() const noexcept
 	but new 'max' size must be ≥ current 'end' size
 */
 // private
-void CswBuffer::grow(uint32 n) throws /*bad alloc*/
+void CswBuffer::grow(uint32 n)
 {
 	assert(n >= end);
 
@@ -185,7 +185,7 @@ void CswBuffer::grow(uint32 n) throws /*bad alloc*/
 	does not shrink the buffer
 */
 // public
-void CswBuffer::growBuffer(uint32 n) throws /*bad alloc*/
+void CswBuffer::growBuffer(uint32 n)
 {
 	if (n > max) grow(n);
 }
@@ -316,7 +316,7 @@ bool CswBuffer::inputTime(Time s) const noexcept
 	return phase;
 }
 
-void CswBuffer::outputCc(uint32 cc, bool bit) throws /*bad alloc*/
+void CswBuffer::outputCc(uint32 cc, bool bit)
 {
 	assert(recording);
 	assert(cc >= cc_pos + cc_offset);
@@ -325,7 +325,7 @@ void CswBuffer::outputCc(uint32 cc, bool bit) throws /*bad alloc*/
 	cc_offset = cc - cc_pos;
 }
 
-void CswBuffer::outputTime(Time s, bool bit) throws /*bad alloc*/
+void CswBuffer::outputTime(Time s, bool bit)
 {
 	CC cc = s * ccps;
 
@@ -336,7 +336,7 @@ void CswBuffer::outputTime(Time s, bool bit) throws /*bad alloc*/
 	cc_offset = cc - cc_pos;
 }
 
-void CswBuffer::stopRecording(CC cc) throws /*bad alloc*/
+void CswBuffer::stopRecording(CC cc)
 {
 	assert(recording);
 	assert(cc >= cc_pos + cc_offset);
@@ -402,7 +402,7 @@ void CswBuffer::putbackPulse() const noexcept
 
 /*  append pulse
  */
-void CswBuffer::writePulseCc(uint32 cc) throws /*bad alloc*/
+void CswBuffer::writePulseCc(uint32 cc)
 {
 	while (cc >> 16)
 	{
@@ -424,7 +424,7 @@ void CswBuffer::writePulseCc(uint32 cc) throws /*bad alloc*/
 
 /*  elongate last pulse
  */
-void CswBuffer::appendToPulseCc(uint32 cc) throws /*bad alloc*/
+void CswBuffer::appendToPulseCc(uint32 cc)
 {
 	if (pos == 0)
 		phase = !phase;
@@ -441,7 +441,7 @@ void CswBuffer::appendToPulseCc(uint32 cc) throws /*bad alloc*/
 	else elongate the last pulse.
 	Can be used as first pulse to set starting polarity of this buffer
 */
-void CswBuffer::writePulseCc(uint32 cc, bool bit) throws /*bad alloc*/
+void CswBuffer::writePulseCc(uint32 cc, bool bit)
 {
 	if (bit == phase)
 		writePulseCc(cc); // new pulse
@@ -452,7 +452,7 @@ void CswBuffer::writePulseCc(uint32 cc, bool bit) throws /*bad alloc*/
 /*  set polarity of current phase
 	if polarity is wrong then a 0-pulse is added to toggle polarity
 */
-void CswBuffer::setPhase(bool bit) throws /*bad alloc*/
+void CswBuffer::setPhase(bool bit)
 {
 	if (phase != bit) writePulseCc(0);
 }
@@ -503,7 +503,7 @@ void CswBuffer::writePureData(cu8ptr bu, uint32 total_bits, Time spp_bit0, Time 
 //
 //	kio:  the silence level depends on model!
 //	kio:  => store xlong pulse with opposite level. Play() will reduce level to 0.0. Silence level managed by
-//machine::input(). 	kio:     force next phase level to 'low'. (as required by tzx 'pause' spec.)
+// machine::input(). 	kio:     force next phase level to 'low'. (as required by tzx 'pause' spec.)
 //
 void CswBuffer::writeTzxPause(Time seconds)
 {

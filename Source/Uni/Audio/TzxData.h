@@ -53,6 +53,6 @@ public:
 	cstr getMinorBlockInfo() const noexcept; // NULL if n.avail.
 
 	// static:
-	static void readFile(cstr fpath, TapeFile&) throws;
-	static void writeFile(cstr fpath, TapeFile&, TzxConversionStyle) throws;
+	static void readFile(cstr fpath, TapeFile&);
+	static void writeFile(cstr fpath, TapeFile&, TzxConversionStyle);
 };

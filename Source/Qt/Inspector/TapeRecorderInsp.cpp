@@ -672,7 +672,7 @@ void TapeRecorderInsp::fillContextMenu(QMenu* menu)
 
 cstr TapeRecorderInsp::getCustomTitle() { return tape_filepath ? filename_from_path(tape_filepath) : nullptr; }
 
-cstr TapeRecorderInsp::get_save_filename(cstr msg) throws
+cstr TapeRecorderInsp::get_save_filename(cstr msg)
 {
 	cstr filter = machine->isA(isa_MachineZxsp) ? "ZX Spectrum tapes (*.tap *.tape *.tzx);;"
 												  //				"Audio (*.aiff *.aif *.wav *.mp3);;"
@@ -692,7 +692,7 @@ cstr TapeRecorderInsp::get_save_filename(cstr msg) throws
 	return selectSaveFile(this, msg, filter);
 }
 
-cstr TapeRecorderInsp::get_load_filename(cstr msg) throws
+cstr TapeRecorderInsp::get_load_filename(cstr msg)
 {
 	cstr filter = machine->isA(isa_MachineZxsp)	   ? "ZX Spectrum tapes (*.tap *.tape *.tzx);;"
 													 "Audio (*.aiff *.aif *.wav *.mp3);;"

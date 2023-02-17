@@ -124,7 +124,7 @@
 /*  read a .z80 header
 	reads v1.45, ≥v2.01 header of any size (( ≤ sizeof(Z80Head) ))
 */
-void Z80Head::read(FD& fd) throws
+void Z80Head::read(FD& fd)
 {
 	clear();
 	fd.read_bytes(this, z80v1len);
@@ -152,7 +152,7 @@ void Z80Head::read(FD& fd) throws
 	writes header data as indicated by h2lenh*256+h2lenl
 	if h2lenh==h2lenl==0 then writes header without trailing zeros
 */
-void Z80Head::write(FD& fd) throws
+void Z80Head::write(FD& fd)
 {
 	assert(h2lenh == 0);
 	assert(h2lenl == z80v2len - 2 - z80v1len || h2lenl >= z80v3len - 2 - z80v1len); // other emulators are soo picky…
@@ -453,7 +453,7 @@ void Z80Head::getRegisters(Z80Regs& reg) const
 /*  determine required model for loading this .z80 snapshot.
 	Return unknown_model = Error or not supported.
 */
-Model modelForZ80(FD& fd) throws
+Model modelForZ80(FD& fd)
 {
 	Z80Head head;
 	off_t	p = fd.file_position();

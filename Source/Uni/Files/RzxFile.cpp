@@ -227,7 +227,7 @@ void RzxFile::rewind()
 	throws:	state --> OutOfSync: file empty, snapshot missing, data corrupted or truncated:
 								 after rewind() the file may become playable up to the error position.
 */
-void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // DataError,file_error
+void RzxFile::readFile(cstr filename, bool snapshotOnly) // throws DataError,file_error
 {
 	xlogIn("RzxFile.readFile(%s)", filename);
 
@@ -410,7 +410,7 @@ void RzxFile::readFile(cstr filename, bool snapshotOnly) throws // DataError,fil
 
 	note: if called while recording, then the current frame is not included.
 */
-void RzxFile::writeFile(cstr filename) throws
+void RzxFile::writeFile(cstr filename)
 {
 	FD fd(filename, 'w');
 

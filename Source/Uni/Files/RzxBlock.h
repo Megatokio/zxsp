@@ -116,9 +116,9 @@ struct RzxBlock
 	int	 uncompress() noexcept(false); // data_error
 
 	// read from / write to rzx file:
-	void readInputRecordingBlock(FD&, uint32 blklen) throws;		  // file_error,data_error
-	void readSnapshotBlock(FD&, uint32 blklen, cstr filename) throws; // file_error,data_error
-	void write(FD&) throws;
+	void readInputRecordingBlock(FD&, uint32 blklen);		  // file_error,data_error
+	void readSnapshotBlock(FD&, uint32 blklen, cstr filename); // file_error,data_error
+	void write(FD&);
 
 private:
 	friend class RzxFile;

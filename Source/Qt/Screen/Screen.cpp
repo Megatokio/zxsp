@@ -246,13 +246,13 @@ void Screen::repaint()
 	_wait_repaint_sema.acquire();
 }
 
-void Screen::saveScreenshot(cstr path) throws
+void Screen::saveScreenshot(cstr path)
 {
 	if (_screenshot_filepath) return;
 	_screenshot_filepath = newcopy(path);
 }
 
-void Screen::startRecording(cstr path, bool with_border) throws
+void Screen::startRecording(cstr path, bool with_border)
 {
 	if (_gifmovie_filepath) return;
 	_gifmovie_with_bordereffects = with_border;

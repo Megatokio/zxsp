@@ -206,7 +206,7 @@ public:
 
 protected:
 	// Item interface:
-	void powerOn(/*t=0*/ int32 cc) throws override;
+	void powerOn(/*t=0*/ int32 cc) override;
 	void reset(Time, int32 cc) override;
 	void input(Time, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
 	void output(Time, int32 cc, uint16 addr, uint8 byte) override;

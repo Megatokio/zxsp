@@ -408,7 +408,7 @@ void DivIDE::setJumperE(bool f) // toggle jumper 'E'
 }
 
 
-void DivIDE::saveRom(FD& fd) throws
+void DivIDE::saveRom(FD& fd)
 {
 	assert(rom.count() == 8 kB);
 	write_mem(fd, rom.getData(), 8 kB);

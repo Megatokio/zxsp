@@ -173,14 +173,14 @@ void TccDockInspector::paintEvent(QPaintEvent*) // Qt callback
 
 
 // helper
-cstr TccDockInspector::getSaveFilename() throws
+cstr TccDockInspector::getSaveFilename()
 {
 	static cstr filter = "TCC Cartridges (*.dck);;All Files (*)";
 	return selectSaveFile(this, "Save Cartridge as…", filter);
 }
 
 // helper
-cstr TccDockInspector::getLoadFilename() throws
+cstr TccDockInspector::getLoadFilename()
 {
 	cstr filter = "TCC Cartridge (*.dck);;All Files (*)";
 	return selectLoadFile(this, "Insert Cartridge …", filter);

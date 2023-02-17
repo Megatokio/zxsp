@@ -14,5 +14,5 @@ protected:
 public:
 	explicit MachineTc2048(MachineController*);
 
-	void loadScr(FD&) throws override;
+	void loadScr(FD&) override;
 };

@@ -565,7 +565,7 @@ Ay::~Ay() {}
 /* ----	power-up reset ------------------------------------
 		caveat: other items may not yet be initialized!
 */
-void Ay::powerOn(/*t=0*/ int32 cc) throws /*bad alloc*/
+void Ay::powerOn(/*t=0*/ int32 cc)
 {
 	Item::powerOn(cc);
 	channel_A.reset(0.0);

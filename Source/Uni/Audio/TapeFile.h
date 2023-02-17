@@ -156,8 +156,8 @@ public:
 	//	void		record				( StereoSample const* buffer, int count );
 
 	// load / save file:
-	void writeFile(cstr filepath) throws; // MUST be stopped
-	void readFile(cstr filepath) throws;  // MUST be stopped
+	void writeFile(cstr filepath); // MUST be stopped
+	void readFile(cstr filepath);  // MUST be stopped
 	bool canBeSavedAs(cstr filepath, cstr* why = nullptr);
 
 	Time getTotalPlaytime() const;

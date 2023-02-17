@@ -112,7 +112,7 @@ bool MachineZx80::handleLoadTapePatch()
 	return 1; // handled
 }
 
-void MachineZx80::saveO80(FD& fd) throws
+void MachineZx80::saveO80(FD& fd)
 {
 	// save a SNAPSHOT: save a ZX80 .o or .80 file:
 	// data contains all ram from $4000 to ($400A)		(sysvar E_LINE)

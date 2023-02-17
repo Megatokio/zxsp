@@ -36,8 +36,8 @@ public:
 	TccDockInspector(QWidget*, MachineController*, volatile IsaObject*);
 	~TccDockInspector();
 
-	cstr getSaveFilename() throws;
-	cstr getLoadFilename() throws;
+	cstr getSaveFilename();
+	cstr getLoadFilename();
 
 protected:
 	void paintEvent(QPaintEvent*) override;

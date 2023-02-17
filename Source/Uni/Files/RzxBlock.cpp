@@ -447,7 +447,7 @@ int RzxBlock::nextFrame()
 
 	if (ipos != epos && // normal frame or repeated frame
 		ipos != apos)	// frame with incount == 0
-						//		ipos!=4 )		// frame 0 with incount == 0
+					  //		ipos!=4 )		// frame 0 with incount == 0
 		logline("RzxBlock::nextFrame: ipos!=epos. This may indicate OutOfSync.");
 
 	if (++current_frame == num_frames) // end of block? => don't move!
@@ -544,7 +544,7 @@ void RzxBlock::endFrame(uint icount)
 	{							  // might happen if recording is stopped immediately after a ffb
 		assert(ipos == fpos + 4); // 0 instr can do at most 0 inputs…
 		//		return;						// => don't store a frame BUMMER: may be needed for INT after loading a
-		//snapshot!
+		// snapshot!
 	}
 
 	// store the instruction (r register) count:
@@ -555,8 +555,8 @@ void RzxBlock::endFrame(uint icount)
 
 	//	if( fpos!=0 && cnt <= epos-apos && memcmp(&ucbu[apos],&ucbu[fpos+4],cnt)==0 )
 	//	if( fpos!=0 && (cnt==0 || (cnt == epos-apos && memcmp(&ucbu[apos],&ucbu[fpos+4],cnt)==0)) ) // picky other
-	//emulators… 	if( fpos!=0 && cnt == epos-apos && memcmp(&ucbu[apos],&ucbu[fpos+4],cnt)==0 ) // non-compliant picky
-	//other emulators…
+	// emulators… 	if( fpos!=0 && cnt == epos-apos && memcmp(&ucbu[apos],&ucbu[fpos+4],cnt)==0 ) // non-compliant picky
+	// other emulators…
 	//	{
 	//		// store a repeated frame:
 	//		setInputCount(fpos,0xFFFF);
@@ -753,7 +753,7 @@ void RzxBlock::compress()
 	throw DataError: EndOfFile, uncompression error, error in block or frame data.
 					  the block is usable but truncated at the error position.
 */
-void RzxBlock::readInputRecordingBlock(FD& fd, uint32 blen) throws // file_error,DataError
+void RzxBlock::readInputRecordingBlock(FD& fd, uint32 blen)
 {
 	xlogIn("read Input Recording Block");
 
@@ -842,7 +842,7 @@ void RzxBlock::readInputRecordingBlock(FD& fd, uint32 blen) throws // file_error
 	in:	blen = block length from rzx file
 	if readSnapshot throws, then the snapshot_filename is nullptr.
 */
-void RzxBlock::readSnapshotBlock(FD& fd, uint32 blen, cstr filename) throws // file_error,DataError
+void RzxBlock::readSnapshotBlock(FD& fd, uint32 blen, cstr filename) // throws file_error,DataError
 {
 	//	0x00 	0x30 	BYTE		Snapshot block ID
 	//	0x01 	17+SL 	DWORD		Block length
@@ -956,7 +956,7 @@ void RzxBlock::readSnapshotBlock(FD& fd, uint32 blen, cstr filename) throws // f
 	compressed Input Recording Block
 		if called while recording, then the current frame is not included.
 */
-void RzxBlock::write(FD& fd) throws
+void RzxBlock::write(FD& fd)
 {
 	switch (isa)
 	{

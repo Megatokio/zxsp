@@ -114,7 +114,7 @@ class CswBuffer
 
 	void skip() const noexcept;
 	void rskip() const noexcept;
-	void grow(uint32) throws /*bad alloc*/;
+	void grow(uint32);
 
 public:
 	~CswBuffer() noexcept { delete[] data; }
@@ -130,7 +130,7 @@ public:
 	CswBuffer(const CswBuffer&)			   = delete;
 	CswBuffer& operator=(const CswBuffer&) = delete;
 
-	void growBuffer(uint32) throws /*bad alloc*/;
+	void growBuffer(uint32);
 	void purge() noexcept;
 	void shrinkToFit() noexcept;
 
@@ -179,11 +179,11 @@ public:
 	bool isRecording() const noexcept { return recording; }
 	bool isPlaying() const noexcept { return !recording; }
 	bool inputCc(CC) const noexcept;
-	void outputCc(CC, bool) throws /*bad alloc*/;
-	void stopRecording(CC) throws /*bad alloc*/;
+	void outputCc(CC, bool);
+	void stopRecording(CC);
 	void startRecording(CC) noexcept;
 	bool inputTime(Time) const noexcept;
-	void outputTime(Time, bool) throws /*bad alloc*/;
+	void outputTime(Time, bool);
 
 
 	// read / write pulses:
@@ -192,13 +192,13 @@ public:
 	CC	 readPulse() const noexcept;
 	void putbackPulse() const noexcept;
 	void skipSilence(uint N = 7) const noexcept;
-	void setPhase(bool) throws /*bad alloc*/;
-	void writePulseCc(CC) throws /*bad alloc*/;
-	void appendToPulseCc(CC) throws /*bad alloc*/;
-	void writePulseCc(CC, bool) throws /*bad alloc*/;
-	void writePulse(Time s) throws /*bad alloc*/ { writePulseCc(CC(s * ccps + 0.5)); }
-	void writePulse(Time s, bool p) throws /*bad alloc*/ { writePulseCc(CC(s * ccps + 0.5), p); }
-	void appendToPulse(Time s) throws /*bad alloc*/ { appendToPulseCc(CC(s * ccps + 0.5)); }
+	void setPhase(bool);
+	void writePulseCc(CC);
+	void appendToPulseCc(CC);
+	void writePulseCc(CC, bool);
+	void writePulse(Time s) { writePulseCc(CC(s * ccps + 0.5)); }
+	void writePulse(Time s, bool p) { writePulseCc(CC(s * ccps + 0.5), p); }
+	void appendToPulse(Time s) { appendToPulseCc(CC(s * ccps + 0.5)); }
 
 	void writePureTone(uint32 num_pulses, Time seconds_per_pulse);
 	void writePureData(cu8ptr bu, uint32 total_bits, Time bit0, Time bit1);

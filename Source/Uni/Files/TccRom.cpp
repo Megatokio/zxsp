@@ -93,7 +93,7 @@ uint32 hashes[] = {
 
 
 // helper
-void read_buffer(FD& fd, CoreByte zbu[0x2000], uint64& hash) throws
+void read_buffer(FD& fd, CoreByte zbu[0x2000], uint64& hash)
 {
 	union
 	{
@@ -156,8 +156,8 @@ TccRom::TccRom(Machine* machine, cstr path) :
 				for (int i = 0; i < 8; i++)
 				{
 					if (d & (1 << i)) xxlogline("  reading block");
-					//					if(r&(1<<i)) dock[i].grow(0x2000);						// bank present => allocate
-					//ram
+					//					if(r&(1<<i)) dock[i].grow(0x2000);						// bank present =>
+					//allocate ram
 					if (r & (1 << i))
 						dock[i] = new Memory(
 							machine, usingstr("TCC Dock Bank %i", i), 0x2000);	// bank present => allocate ram
@@ -174,8 +174,8 @@ TccRom::TccRom(Machine* machine, cstr path) :
 				for (int i = 0; i < 8; i++)
 				{
 					if (d & (1 << i)) xxlogline("  reading block");
-					//					if(r&(1<<i)) exrom[i].grow(0x2000);						// bank present => allocate
-					//ram
+					//					if(r&(1<<i)) exrom[i].grow(0x2000);						// bank present =>
+					//allocate ram
 					if (r & (1 << i))
 						exrom[i] = new Memory(
 							machine, usingstr("TCC Exrom bank %i", i), 0x2000);	 // bank present => allocate ram
@@ -276,7 +276,7 @@ void TccRom::saveAs(cstr filepath)
 }
 
 
-void TccRom::save_as(cstr fpath) throws // AnyError
+void TccRom::save_as(cstr fpath)
 {
 	FD fd;
 	fd.open_file_w(fpath);

@@ -138,22 +138,23 @@ private:
 	void load_rom();
 
 	// in Files/*.cpp:
-	virtual void loadAce(FD& fd) throws;		   // MachineJupiter.cpp
-	virtual void saveAce(FD& fd) throws;		   // MachineJupiter.cpp
-	virtual void loadSna(FD& fd) throws;		   // MachineZxsp.cpp
-	virtual void saveSna(FD& fd) throws;		   // MachineZxsp.cpp
-	virtual void loadScr(FD& fd) throws;		   // MachineZxsp.cpp
-	virtual void saveScr(FD& fd) throws;		   // MachineZxsp.cpp
-	virtual void loadO80(FD& fd) throws;		   // MachineZx80.cpp
-	virtual void saveO80(FD& fd) throws;		   // MachineZx80.cpp
-	virtual void loadP81(FD& fd, bool p81) throws; // MachineZx81.cpp
-	virtual void saveP81(FD& fd, bool p81)
-		throws;					 // MachineZx81.cpp
-								 // virtual void		loadTap			(FD& fd) throws;						// MachineZxsp.cpp
-	void loadZ80(FD& fd) throws; // file_z80.cpp
-	void saveZ80(FD& fd) throws; // file_z80.cpp
-	void loadRom(FD& fd) throws;
-	void saveRom(FD& fd) throws;
+	virtual void loadAce(FD& fd);			// MachineJupiter.cpp
+	virtual void saveAce(FD& fd);			// MachineJupiter.cpp
+	virtual void loadSna(FD& fd);			// MachineZxsp.cpp
+	virtual void saveSna(FD& fd);			// MachineZxsp.cpp
+	virtual void loadScr(FD& fd);			// MachineZxsp.cpp
+	virtual void saveScr(FD& fd);			// MachineZxsp.cpp
+	virtual void loadO80(FD& fd);			// MachineZx80.cpp
+	virtual void saveO80(FD& fd);			// MachineZx80.cpp
+	virtual void loadP81(FD& fd, bool p81); // MachineZx81.cpp
+	virtual void saveP81(FD& fd, bool p81); // MachineZx81.cpp
+
+	// virtual void		loadTap			(FD& fd);						// MachineZxsp.cpp
+
+	void loadZ80(FD& fd); // file_z80.cpp
+	void saveZ80(FD& fd); // file_z80.cpp
+	void loadRom(FD& fd);
+	void saveRom(FD& fd);
 
 	void loadZ80_attach_joysticks(uint); // helper
 
@@ -163,7 +164,7 @@ private:
 public:
 	virtual ~Machine();
 
-	void saveAs(cstr filepath) throws;
+	void saveAs(cstr filepath);
 
 	// Components:
 	Item* findItem(isa_id id)

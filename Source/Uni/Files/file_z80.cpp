@@ -34,7 +34,7 @@
 		compression scheme:
 			dc.b $ed, $ed, count, char
 */
-static void write_compressed_page(FD& fd, uint8 flag, const CoreByte* q, uint qsize) throws // file_error,bad_alloc
+static void write_compressed_page(FD& fd, uint8 flag, const CoreByte* q, uint qsize)
 {
 	xlogIn("write_compressed_page(%i)", int(flag));
 
@@ -84,7 +84,7 @@ static void write_compressed_page(FD& fd, uint8 flag, const CoreByte* q, uint qs
 
 /*  read an uncompressed v1.45 block
  */
-static void read_uncompressed_page(FD& fd, CoreByte* z, uint size) throws
+static void read_uncompressed_page(FD& fd, CoreByte* z, uint size)
 {
 	uint8 bu[size];
 	fd.read_bytes(bu, size);
@@ -104,7 +104,7 @@ static void read_uncompressed_page(FD& fd, CoreByte* z, uint size) throws
 			zsize   destination size:    must match decoded data
 		throws on error
 */
-static void read_compressed_page(FD& fd, uint qsize, CoreByte* z, uint zsize) throws
+static void read_compressed_page(FD& fd, uint qsize, CoreByte* z, uint zsize)
 {
 	if (qsize == 0xFFFF && zsize == 0x4000)
 	{
@@ -177,7 +177,7 @@ e:
 
 /*  save .z80 file; version 3.00
  */
-void Machine::saveZ80(FD& fd) throws
+void Machine::saveZ80(FD& fd)
 {
 	xlogIn("Machine:saveZ80");
 

@@ -56,6 +56,6 @@ public:
 	explicit AudioData(AudioDecoder*, uint32 a, uint32 e);
 	virtual ~AudioData();
 
-	static void readFile(cstr fpath, TapeFile&) throws;
-	static void writeFile(cstr fpath, TapeFile&) throws;
+	static void readFile(cstr fpath, TapeFile&);
+	static void writeFile(cstr fpath, TapeFile&);
 };

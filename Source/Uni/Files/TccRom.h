@@ -91,5 +91,5 @@ private:
 	TccRom(const TccRom&)			 = delete;
 	TccRom& operator=(const TccRom&) = delete;
 
-	void save_as(cstr fpath) throws;
+	void save_as(cstr fpath);
 };

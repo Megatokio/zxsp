@@ -109,7 +109,7 @@ CurrahMicroSpeech::~CurrahMicroSpeech() // DESTRUCTOR
 	machine->ula->setBeeperVolume(1.0);
 }
 
-void CurrahMicroSpeech::powerOn(/*t=0*/ int32 cc) throws /*bad alloc*/
+void CurrahMicroSpeech::powerOn(/*t=0*/ int32 cc)
 {
 	//	power-on the device:
 	//	set flags in memory so that our memory mapped i/o is called.

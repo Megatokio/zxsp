@@ -68,8 +68,8 @@ public:
 
 	void makeSingleSided();
 	void truncateTracks(uint n);
-	void saveAs(cstr path) throws;
-	void saveDisk() throws;
+	void saveAs(cstr path);
+	void saveDisk();
 	bool fileIsWritable();
 	bool isModified() { return modified; }
 	bool isWriteProtected() { return writeprotected; }
@@ -95,7 +95,7 @@ private:
 	cstr read_extended_dsk_file(uint8* bu, uint32 sz);
 	void parse_disk(Array<Array<SectorFormatInfo>> trackinfo[]); // !!! ObjArray
 	void parse_track(uint8* track, TrackFormatInfo& sectorinfo) const;
-	void write_extended_disk_file(FD& fd) const throws;
+	void write_extended_disk_file(FD& fd) const;
 };
 
 

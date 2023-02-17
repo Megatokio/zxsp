@@ -60,10 +60,10 @@ public:
 	bool   isJupiter() const { return is_jupiter; }
 	bool   isZxSpectrum() const { return is_zxsp; }
 
-	void writeToFile(FD& fd, bool omit_typebyte) const throws;
-	void readFromFile(FD& fd, bool add_typebyte) throws;
+	void writeToFile(FD& fd, bool omit_typebyte) const;
+	void readFromFile(FD& fd, bool add_typebyte);
 
 	// static:
-	static void readFile(cstr fpath, TapeFile&) throws;
-	static void writeFile(cstr fpath, TapeFile&) throws;
+	static void readFile(cstr fpath, TapeFile&);
+	static void writeFile(cstr fpath, TapeFile&);
 };

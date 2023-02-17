@@ -13,7 +13,7 @@
 #define z80v3len  86
 #define z80maxlen sizeof(Z80Head)
 
-extern Model modelForZ80(FD& fd) throws;
+extern Model modelForZ80(FD& fd);
 
 
 struct Z80Head
@@ -49,8 +49,8 @@ struct Z80Head
 
 	// Member functions:
 	void clear() { memset(this, 0, sizeof(Z80Head)); }
-	void read(FD& fd) throws;
-	void write(FD& fd) throws;
+	void read(FD& fd);
+	void write(FD& fd);
 
 	void setRegisters(const Z80Regs&); // put regs into Z80Head
 	void getRegisters(Z80Regs&) const; // get regs from Z80Head

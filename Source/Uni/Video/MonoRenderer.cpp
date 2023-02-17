@@ -200,7 +200,7 @@ void MonoGifWriter::drawScreen(
 	this is the version for b&w screens
 */
 void MonoGifWriter::writeFrame(
-	uint8* new_pixels, uint screen_w, uint screen_h, uint frame_h, uint frame_w, uint screen_x0, uint screen_y0) throws
+	uint8* new_pixels, uint screen_w, uint screen_h, uint frame_h, uint frame_w, uint screen_x0, uint screen_y0)
 {
 	assert(gif_encoder.imageInProgress());
 	assert(bits && bits2 && diff && diff2);
@@ -242,7 +242,7 @@ void MonoGifWriter::saveScreenshot(
 	uint   frame_h,
 	uint   frame_w,
 	uint   screen_x0,
-	uint   screen_y0) throws
+	uint   screen_y0)
 {
 	assert(!gif_encoder.imageInProgress());
 	assert(!bits); // else we'd need to fix the bbox

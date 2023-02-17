@@ -42,7 +42,7 @@ GifWriter::GifWriter(
 
 
 // helper: write diff2[] to file:
-void GifWriter::write_diff2_to_file() throws
+void GifWriter::write_diff2_to_file()
 {
 	Colormap cmap = global_colormap;
 	diff2->reduceColors(cmap);
@@ -52,7 +52,7 @@ void GifWriter::write_diff2_to_file() throws
 }
 
 
-void GifWriter::startRecording(cstr path) throws
+void GifWriter::startRecording(cstr path)
 {
 	assert(!gif_encoder.imageInProgress());
 	assert(!bits && !bits2 && !diff && !diff2);
@@ -71,7 +71,7 @@ void GifWriter::startRecording(cstr path) throws
 }
 
 
-void GifWriter::stopRecording() throws
+void GifWriter::stopRecording()
 {
 	assert(gif_encoder.imageInProgress());
 

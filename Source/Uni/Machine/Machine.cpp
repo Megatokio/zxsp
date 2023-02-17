@@ -395,24 +395,24 @@ bool Machine::suspend() volatile
 
 
 // 9 x virtual:
-void Machine::loadO80(FD&) throws { showAlert("'.o' and '.80' files can only be loaded into a ZX80"); }
-void Machine::saveO80(FD&) throws { showAlert("'.o' and '.80' files can only be saved from a ZX80"); }
-void Machine::loadP81(FD&, bool) throws { showAlert("'.p' and '.81' files can only be loaded into a ZX81"); }
-void Machine::saveP81(FD&, bool) throws { showAlert("'.p' and '.81' files can only be saved from a ZX81"); }
-void Machine::loadSna(FD&) throws { showAlert("'.sna' files can only be loaded into a 48k Specci"); }
-void Machine::saveSna(FD&) throws { showAlert("'.sna' files can only be saved from a 48k Specci"); }
-void Machine::loadAce(FD&) throws { showAlert("'.ace' files can only be loaded into a Jupiter ACE"); }
-void Machine::saveAce(FD&) throws { showAlert("'.ace' files can only be saved from a Jupiter ACE"); }
-void Machine::loadScr(FD&) throws { showAlert("'.scr' files can only be loaded into a ZX Spectrum"); }
-void Machine::saveScr(FD&) throws { showAlert("'.scr' files can only be saved from a ZX Spectrum"); }
-// void Machine::loadTap(FD&) throws	{ showAlert("'.tap' files can only be loaded into a ZX Spectrum or Jupiter Ace");
+void Machine::loadO80(FD&) { showAlert("'.o' and '.80' files can only be loaded into a ZX80"); }
+void Machine::saveO80(FD&) { showAlert("'.o' and '.80' files can only be saved from a ZX80"); }
+void Machine::loadP81(FD&, bool) { showAlert("'.p' and '.81' files can only be loaded into a ZX81"); }
+void Machine::saveP81(FD&, bool) { showAlert("'.p' and '.81' files can only be saved from a ZX81"); }
+void Machine::loadSna(FD&) { showAlert("'.sna' files can only be loaded into a 48k Specci"); }
+void Machine::saveSna(FD&) { showAlert("'.sna' files can only be saved from a 48k Specci"); }
+void Machine::loadAce(FD&) { showAlert("'.ace' files can only be loaded into a Jupiter ACE"); }
+void Machine::saveAce(FD&) { showAlert("'.ace' files can only be saved from a Jupiter ACE"); }
+void Machine::loadScr(FD&) { showAlert("'.scr' files can only be loaded into a ZX Spectrum"); }
+void Machine::saveScr(FD&) { showAlert("'.scr' files can only be saved from a ZX Spectrum"); }
+// void Machine::loadTap(FD&)	{ showAlert("'.tap' files can only be loaded into a ZX Spectrum or Jupiter Ace");
 // }
 
 
 /*  save ROM:
 	simply dump the rom to a file
 */
-void Machine::saveRom(FD& fd) throws
+void Machine::saveRom(FD& fd)
 {
 	assert(isMainThread() || is_locked());
 
@@ -424,7 +424,7 @@ void Machine::saveRom(FD& fd) throws
 	there must be at least rom.count() bytes available
 	called from MachineController.loadSnapshot()
 */
-void Machine::loadRom(FD& fd) throws /*file_error,data_error*/
+void Machine::loadRom(FD& fd)
 {
 	assert(is_locked());
 
@@ -435,7 +435,7 @@ void Machine::loadRom(FD& fd) throws /*file_error,data_error*/
 	for (uint i = 0; i < rom.count(); i++) rom[i] &= uint32(~cpu_patch);
 }
 
-void Machine::saveAs(cstr filepath) throws
+void Machine::saveAs(cstr filepath)
 {
 	assert(is_locked());
 

@@ -513,7 +513,7 @@ p5:
 /*  write block to .tap file
 	if omit_typebyte then don't write the typebyte at data[0]	(for Jupiter Ace .tap files)
 */
-void TapData::writeToFile(FD& fd, bool omit_typebyte) const throws // file_error,data_error
+void TapData::writeToFile(FD& fd, bool omit_typebyte) const
 {
 	uint32 n = data.count();
 	if (n < 2) return; // too short: min. 2 bytes required for typebyte and checksum => ignore
@@ -532,7 +532,7 @@ void TapData::writeToFile(FD& fd, bool omit_typebyte) const throws // file_error
 		and a data block might accidentially be 26 bytes long as well.
 		So the caller must fix the typebyte.
 */
-void TapData::readFromFile(FD& fd, bool add_typebyte) throws // bad_alloc,file_error
+void TapData::readFromFile(FD& fd, bool add_typebyte)
 {
 	assert(data.count() == 0);
 
@@ -550,7 +550,7 @@ void TapData::readFromFile(FD& fd, bool add_typebyte) throws // bad_alloc,file_e
 	This is probably incompatible with other Jupiter Ace emulators but ok with zxsp.
 */
 // static
-void TapData::writeFile(cstr fpath, TapeFile& data) throws // file_error,data_error,bad_alloc
+void TapData::writeFile(cstr fpath, TapeFile& data)
 {
 	xlogIn("TapData::writeFile(%s)", fpath);
 
@@ -577,7 +577,7 @@ void TapData::writeFile(cstr fpath, TapeFile& data) throws // file_error,data_er
 /*  read data[] from .tap file
 	static
 */
-void TapData::readFile(cstr fpath, TapeFile& data) throws // file_error,data_error,bad_alloc
+void TapData::readFile(cstr fpath, TapeFile& data)
 {
 	xlogIn("TapData::readFile(%s)", fpath);
 	assert(data.count() == 0);
