@@ -276,7 +276,7 @@ void Lenslok::paintEvent(QPaintEvent*)
 	qreal	  hzoom			  = vzoom / screen->getHF();
 
 	//	if(screen->getHF()!=1) return;									// TC2048: hor. Skalierung bei zoom==1|3 nicht
-	//integer!
+	// integer!
 	//=> Probleme…
 
 	QRect prism_box(::prism_box.translated(geometry().topLeft())); // Lenslok prism box in glob. coord.

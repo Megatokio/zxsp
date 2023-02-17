@@ -70,8 +70,8 @@ enum BitMask {
 	NotWriteable =
 		1 << 1,			// Not writeable:	WRITE DATA, WRITE DELETED DATA or Write ID: Line WProt from FDD was activated
 	MissingAM = 1 << 0, // Missing Address Mark:	 the FDC does not detect the IDAM before 2 index pulses.
-						//							 or the FDC cannot find the DAM or DDAM after the IDAM is found, then bit MD
-						//of ST2 is also set.
+						//							 or the FDC cannot find the DAM or DDAM after the IDAM is found, then bit
+						//MD of ST2 is also set.
 
 	// SR2:
 	ControlMark = 1 << 6,	  // READ DATA or SCAN: the FDC encountered a Sector with a DDAM

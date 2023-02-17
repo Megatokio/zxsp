@@ -55,19 +55,19 @@ public:
 	assert(!o || o->isA(isa_##ITEM));                                                                                  \
 	return reinterpret_cast<ITEM*>(o);                                                                                 \
   }                                                                                                                    \
-																													   \
+                                                                                                                       \
   inline const ITEM* ITEM##Ptr(const IsaObject* o)                                                                     \
   {                                                                                                                    \
 	assert(!o || o->isA(isa_##ITEM));                                                                                  \
 	return reinterpret_cast<const ITEM*>(o);                                                                           \
   }                                                                                                                    \
-																													   \
+                                                                                                                       \
   inline volatile ITEM* ITEM##Ptr(volatile IsaObject* o)                                                               \
   {                                                                                                                    \
 	assert(!o || o->isA(isa_##ITEM));                                                                                  \
 	return reinterpret_cast<volatile ITEM*>(o);                                                                        \
   }                                                                                                                    \
-																													   \
+                                                                                                                       \
   inline volatile const ITEM* ITEM##Ptr(volatile const IsaObject* o)                                                   \
   {                                                                                                                    \
 	assert(!o || o->isA(isa_##ITEM));                                                                                  \

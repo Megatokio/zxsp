@@ -637,7 +637,7 @@ a:
 				}
 				//				else	// s0 ≥ 2/3 s1 => für s0 wird die volle Breite angenommen
 				//				{		// das erfasst auch den Fall, dass s1<s0 oder gar s1<0, also ein Puls mit nur 1
-				//Sample 					e0 = 0;
+				// Sample 					e0 = 0;
 				//				}
 			}
 			//			else if(i<count) // nach der Pause folgt ein Puls mit nur noch 1 Sample, dann ist Buffer-Ende

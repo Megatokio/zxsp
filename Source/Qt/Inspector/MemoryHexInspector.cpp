@@ -1044,7 +1044,9 @@ void MemoryHexInspector::keyPressEvent(QKeyEvent* e)
 			//	case Qt::Key_Enter:
 		case Qt::Key_Tab:
 		case Qt::Key_Escape: hex_view->clearFocus(); break;
-		case Qt::Key_Up: hex_edit_offset = max(hex_edit_offset, uint32(bytes_per_row)) - bytes_per_row; goto X; // break;
+		case Qt::Key_Up:
+			hex_edit_offset = max(hex_edit_offset, uint32(bytes_per_row)) - bytes_per_row;
+			goto X;									   // break;
 		case Qt::Key_Left: step_left_in_hex(); goto X; // break;
 		case Qt::Key_Down:
 			hex_edit_offset = min(hex_edit_offset + bytes_per_row, uint32(data.size) - 1);

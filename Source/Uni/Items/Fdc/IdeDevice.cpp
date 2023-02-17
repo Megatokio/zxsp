@@ -601,12 +601,12 @@ void IdeDevice::create_identify_drive_page()
 	//	23-26 	Firmware revision (in ASCII)							GAK&1B0
 	//	27-46 	Model name (in ASCII)									Maxtor 4G160J8
 	//	47		0x8000 + 01h…FFh = Maximum number of sectors that shall be transferred per interrupt on READ/WRITE
-	//MULTIPLE commands 	49		bit field: bit 9: LBA supported							0x2f00
+	// MULTIPLE commands 	49		bit field: bit 9: LBA supported							0x2f00
 	//	53		bit field: bit 0: words 54-58 are valid					0x0007
 	//					   bit 1: words 64-70 are valid.
 	//							  A device that supports PIO mode 3 or above or Multiword DMA mode 1 or above must set
-	//bit 1. 					   bit 2: the device supports Ultra DMA and the values reported in word 88 are valid. 	54		Current number
-	//of cylinders								16383 	55		Current number of heads 16
+	// bit 1. 					   bit 2: the device supports Ultra DMA and the values reported in word 88 are valid. 	54		Current
+	// number of cylinders								16383 	55		Current number of heads 16
 	//	56		Current number of sectors per track						63
 	//	57-58 	Current CHS capacity									16514064		ATA5 pg.110
 	//	60-61 	Default LBA capacity									268435455
@@ -863,8 +863,8 @@ uint8 IdeDevice::readRegister(Time t, uint reg)
 	//										ATA5 pg.50++
 	//	!SEL,		=> ignored.		(if 2 drives)
 	//	 SEL,  BSY	=> Place the contents of the Status register on the data bus.	CmdReg: exit the interrupt pending
-	//state. 	 SEL, !BSY	=> Place the contents of the register on the data bus.			CmdReg: exit the interrupt
-	//pending state.
+	// state. 	 SEL, !BSY	=> Place the contents of the register on the data bus.			CmdReg: exit the interrupt
+	// pending state.
 
 	if (!is_busy()) switch (reg & 7)
 		{
@@ -893,11 +893,11 @@ void IdeDevice::writeRegister(Time t, uint reg, uint8 value)
 
 	//														ATA5 pg.50++
 	//	!SEL,  BSY		 => ignored.
-	//	 SEL,  BSY		 => indeterminate.					CmdReg: if the device supports the DEVICE RESET command, exit the
-	//interrupt pending state.
+	//	 SEL,  BSY		 => indeterminate.					CmdReg: if the device supports the DEVICE RESET command, exit
+	//the interrupt pending state.
 	//
-	//	 SEL, !BSY,  DRQ => ignored.						CmdReg: if the device supports the DEVICE RESET command, exit the
-	//interrupt pending state.
+	//	 SEL, !BSY,  DRQ => ignored.						CmdReg: if the device supports the DEVICE RESET command, exit
+	//the interrupt pending state.
 	//
 	//	!SEL, !BSY		 => Place data into the register.	CmdReg: Do not execute except EXECUTE DEVICE DIAGNOSTICS.
 	//	 SEL, !BSY, !DRQ => Place data into the register.	CmdReg: execute command (exit the interrupt pending State).
@@ -910,8 +910,8 @@ void IdeDevice::writeRegister(Time t, uint reg, uint8 value)
 	}
 
 	// now:
-	//	 SEL, !BSY,  DRQ => ignored.						CmdReg: if the device supports the DEVICE RESET command, exit the
-	//interrupt pending state.
+	//	 SEL, !BSY,  DRQ => ignored.						CmdReg: if the device supports the DEVICE RESET command, exit
+	//the interrupt pending state.
 	//	!SEL, !BSY		 => Place data into the register.	CmdReg: Do not execute except EXECUTE DEVICE DIAGNOSTICS.
 	//	 SEL, !BSY, !DRQ => Place data into the register.	CmdReg: execute command (exit the interrupt pending State).
 
@@ -1124,8 +1124,8 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		return;
 
 		//	case 0x10	// RECALIBRATE:												up to ATA3; obsolete since ATA4
-		//	case 0x1_:	// RECALIBRATE:												up to ATA2; obsolete in ATA3; retired since
-		//ATA4
+		//	case 0x1_:	// RECALIBRATE:												up to ATA2; obsolete in ATA3; retired
+		//since ATA4
 
 	case 0x20: // READ SECTOR(S): PIO-in, MANDATORY, MANDATORY				ATA1++
 		if (is_packet)
@@ -1156,9 +1156,9 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		//	case 0x32:	// WRITE LONG WITH RETRY:									up to ATA3; obsolete since ATA4
 		//	case 0x33:	// WRITE LONG WITHOUT RETRY:								up to ATA3; obsolete since ATA4
 		//	case 0x34:	// WRITE SECTOR(S) EXT: PIO-out, optional, prohibited		obsolete(?) in ATA5; defined in
-		//ATA6++ 	case 0x35:	// WRITE DMA EXT: DMA, optional, prohibited					ATA6++ 	case 0x36:	// WRITE DMA
-		//QUEUED EXT: DMA-queued, optional, prohibited	ATA6++ 	case 0x37:	// SET MAX ADDRESS EXT: no-data, optional,
-		//prohibited		ATA6++
+		// ATA6++ 	case 0x35:	// WRITE DMA EXT: DMA, optional, prohibited					ATA6++ 	case 0x36:	// WRITE
+		// DMA QUEUED EXT: DMA-queued, optional, prohibited	ATA6++ 	case 0x37:	// SET MAX ADDRESS EXT: no-data,
+		// optional, prohibited		ATA6++
 
 	case 0x38: // CFA WRITE SECTORS WITHOUT ERASE, PIO-out, CFA, prohibited ATA4++		ATA5 pg. 75
 			   // TODO: wir könnten die Daten jetzt rein-UNDen...
@@ -1194,12 +1194,12 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		//	case 0x5F:	// TRUSTED SEND DMA: Packet, optional, MANDATORY			ATA8 (draft)
 
 	case 0x70: //	SEEK TRACK:	no-data, MANDATORY, prohibited				up to ATA6, obsolete since ATA7		ATA5
-			   //pg.162 	in: HCS or LBA set
+			   // pg.162 	in: HCS or LBA set
 		if (is_packet) break;
 		return; //	TODO: evtl. könnten wir bei einem HDD berechnete Wartezeiten einbauen.
 
-		//	case 0x7_:	// SEEK TRACK:												up to ATA2; obsolete in ATA3; retired since
-		//ATA4
+		//	case 0x7_:	// SEEK TRACK:												up to ATA2; obsolete in ATA3; retired
+		//since ATA4
 
 	case 0x87: // CFA TRANSLATE SECTOR: PIO-in, CFA, prohibited			ATA4++		ATA5 pg. 71
 		if (!is_cfa) break;
@@ -1219,7 +1219,7 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		return;
 
 	case 0x91: //	INITIALISE DEVICE PARAMETERS:	no-data, MANDATORY, prohibited		up to ATA5, obsolete since ATA6
-			   //ATA5 pg.120
+			   // ATA5 pg.120
 		if (is_packet) break;
 		if (!supports_CHS) break;
 		if (sector_count < 8) break; // abort wg. parameter error
@@ -1229,22 +1229,21 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		return;
 
 		//	case 0x92:	// DOWNLOAD MICROCODE: PIO-out, optional, prohibited		ATA2++
-		//	case 0x94:	// STANDBY IMMEDIATE:		up to ATA3; retired since ATA4  -->  ATA8 pg.394		same function:
-		//0xE0
-		//	case 0x95:	// IDLE IMMEDIATE:			up to ATA3; retired since ATA4  -->  ATA8 pg.394		same function:
-		//0xE1
-		//	case 0x96:	// STANDBY:					up to ATA3; retired since ATA4  -->  ATA8 pg.394		same function:
-		//0xE2
-		//	case 0x97:	// IDLE:					up to ATA3; retired since ATA4  -->  ATA8 pg.394		same function:
-		//0xE3
-		//	case 0x98:	// CHECK POWER MODE:		up to ATA3; retired since ATA4  -->  ATA8 pg.394		same function:
-		//0xE5
-		//	case 0x99:	// SET SLEEP MODE:			up to ATA3; retired since ATA4  -->  ATA8 pg.394		same function:
-		//0xE6 	case 0xA0:	// PACKET: Packet, prohibited, MANDATORY					ATA3++	TODO ATAPI ESXDOS 	case
-		//0xA1:	// IDENTIFY PACKET DEVICE: PIO-in, prohibited, MANDATORY	ATA3++	TODO ATAPI ESXDOS 	case 0xA2:	//
-		//SERVICE: Packet/DMA-queued, optional, optional			ATA3++ 	case 0xB0:	// SMART: no-data, optional,
-		//prohibited						ATA3++ 	case 0xB1:	// CFA DEVICE CONFIGURATION: no-data, CFA, optional
-		//ATA6++ 	case 0xB6:	// NV CACHE: optional, prohibited, optional					ATA8++ (draft)
+		//	case 0x94:	// STANDBY IMMEDIATE:		up to ATA3; retired since ATA4  -->  ATA8 pg.394		same
+		//function: 0xE0 	case 0x95:	// IDLE IMMEDIATE:			up to ATA3; retired since ATA4  -->  ATA8 pg.394
+		//same function: 0xE1
+		//	case 0x96:	// STANDBY:					up to ATA3; retired since ATA4  -->  ATA8 pg.394		same
+		//function: 0xE2
+		//	case 0x97:	// IDLE:					up to ATA3; retired since ATA4  -->  ATA8 pg.394		same
+		//function: 0xE3 	case 0x98:	// CHECK POWER MODE:		up to ATA3; retired since ATA4  -->  ATA8 pg.394
+		//same function: 0xE5 	case 0x99:	// SET SLEEP MODE:			up to ATA3; retired since ATA4  -->  ATA8 pg.394
+		//same function:
+		// 0xE6 	case 0xA0:	// PACKET: Packet, prohibited, MANDATORY					ATA3++	TODO ATAPI ESXDOS
+		// case 0xA1:	// IDENTIFY PACKET DEVICE: PIO-in, prohibited, MANDATORY	ATA3++	TODO ATAPI ESXDOS
+		// case 0xA2:	//
+		// SERVICE: Packet/DMA-queued, optional, optional			ATA3++ 	case 0xB0:	// SMART: no-data, optional,
+		// prohibited						ATA3++ 	case 0xB1:	// CFA DEVICE CONFIGURATION: no-data, CFA, optional
+		// ATA6++ 	case 0xB6:	// NV CACHE: optional, prohibited, optional					ATA8++ (draft)
 
 	case 0xC0: // CFA ERASE SECTORS: no-data, CFA, prohibited				ATA4++		ATA5 pg. 66
 			   // pre-erase 1..256 sectors starting at LBA / CSH
@@ -1407,8 +1406,8 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		return;
 
 	case 0xE7:	// FLUSH CACHE: no-data, MANDATORY, optional				ATA4++
-		return; // we have no caches							TODO: we could wait for write to file on helper thread to
-				// complete
+		return; // we have no caches							TODO: we could wait for write to file on helper thread
+				// to complete
 
 	case 0xE8: // WRITE BUFFER: PIO-out, optional, prohibited				ATA1++
 		if (is_packet) break;
@@ -1482,18 +1481,17 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		case 0x8A: // Disable CFA power mode 1
 			if (!is_cfa) break;
 			return; //	CFA devices may consume up to 500 mA maximum average RMS current for either 3.3V or 5V operation
-					//in Power Mode 1. 	CFA devices revert to Power Mode 1 on hardware or power-on reset. 	CFA devices
-					//revert to Power Mode 1 on software reset except when Set Features disable reverting to power-on
-					//defaults is set. 	Enabling CFA Power Mode 1 does not spin up rotating media devices. 	CFA devices
-					//may consume up to 75 mA maximum average RMS current for 3.3V or 100 mA maximum average RMS current
-					//for 5V operation in Power Mode 0. 	A device in Power Mode 0 shall accept the following commands: 	−
-					//IDENTIFY DEVICE 	− SET FEATURES (function codes 0Ah and 8Ah) 	− STANDBY 	− STANDBY IMMEDIATE 	− SLEEP
-					//	− CHECK POWER MODE
-					//	− EXECUTE DEVICE DIAGNOSTICS
-					//	− CFA REQUEST EXTENDED ERROR
+					// in Power Mode 1. 	CFA devices revert to Power Mode 1 on hardware or power-on reset. 	CFA
+					// devices revert to Power Mode 1 on software reset except when Set Features disable reverting to
+					// power-on defaults is set. 	Enabling CFA Power Mode 1 does not spin up rotating media devices.
+					// CFA devices may consume up to 75 mA maximum average RMS current for 3.3V or 100 mA maximum
+					// average RMS current
+					// for 5V operation in Power Mode 0. 	A device in Power Mode 0 shall accept the following commands:
+					// − IDENTIFY DEVICE 	− SET FEATURES (function codes 0Ah and 8Ah) 	− STANDBY 	− STANDBY
+					// IMMEDIATE 	− SLEEP 	− CHECK POWER MODE 	− EXECUTE DEVICE DIAGNOSTICS 	− CFA REQUEST EXTENDED ERROR
 					//	A device in Power Mode 0 may accept any command that the device is capable of executing within
-					//the Power Mode 0 current restrictions. 	Commands that require more current than specified for Power
-					//Mode 0 shall be rejected with an abort error.
+					// the Power Mode 0 current restrictions. 	Commands that require more current than specified for
+					// Power Mode 0 shall be rejected with an abort error.
 
 		case 0x03: // Set transfer mode based on value in Sector Count register.
 			if (sector_count <= 0x0F)
@@ -1504,15 +1502,14 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		break; // unsupported sub command or unsupported transfer mode
 
 		//	case 0xF1:	// SECURITY SET PASSWORD: PIO-out, optional, optional		ATA3++
-		//	case 0xF2:	// SECURITY UNLOCK: PIO-out, optional, optional				ATA3++	vendor specific up to ATA2; e.g.
-		//similar to 0xE2 (STANDBY) 	case 0xF3:	// SECURITY ERASE PREPARE: no-data, optional, optional		ATA3++
-		//vendor specific up to ATA2; e.g. similar to 0xE3 (IDLE)
-		//	case 0xF4:	// SECURITY ERASE UNIT: PIO-out, optional, optional			ATA3++
-		//	case 0xF5:	// SECURITY FREEZE LOCK: no-data, optional, optional		ATA3++
-		//	case 0xF6:	// SECURITY DISABLE PASSWORD: PIO-out, optional, optional	ATA3++
-		//	case 0xF7:	// vendor specific in all ATA versions						e.g. FORMAT UNIT
-		//	case 0xF8:	// READ NATIVE MAX ADDRESS: no-data, optional, optional		ATA4++
-		//	case 0xF9:	// SET MAX ADDRESS: no-data, optional, optional				ATA4++
+		//	case 0xF2:	// SECURITY UNLOCK: PIO-out, optional, optional				ATA3++	vendor specific up to ATA2;
+		//e.g. similar to 0xE2 (STANDBY) 	case 0xF3:	// SECURITY ERASE PREPARE: no-data, optional, optional
+		// ATA3++ vendor specific up to ATA2; e.g. similar to 0xE3 (IDLE) 	case 0xF4:	// SECURITY ERASE UNIT: PIO-out,
+		//optional, optional			ATA3++ 	case 0xF5:	// SECURITY FREEZE LOCK: no-data, optional, optional
+		//ATA3++ 	case 0xF6:	// SECURITY DISABLE PASSWORD: PIO-out, optional, optional	ATA3++ 	case 0xF7:	// vendor
+		//specific in all ATA versions						e.g. FORMAT UNIT 	case 0xF8:	// READ NATIVE MAX ADDRESS:
+		//no-data, optional, optional		ATA4++ 	case 0xF9:	// SET MAX ADDRESS: no-data, optional, optional
+		//ATA4++
 
 	default: break; // command error / TODO
 	}

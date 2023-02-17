@@ -344,8 +344,8 @@ void xxx()
 		};
 
 
-	default: // ix/iy prefix has no effect on operation:
-			 // => prefix worked like a NOP:
+	default:							  // ix/iy prefix has no effect on operation:
+										  // => prefix worked like a NOP:
 		Z80_INFO_ILLEGAL(cc - 8, pc - 2); // weird illegal
 		cc -= 4;						  // undo cc+=4
 		r--;							  // undo r++

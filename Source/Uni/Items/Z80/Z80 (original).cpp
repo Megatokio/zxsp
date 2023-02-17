@@ -576,10 +576,11 @@ slow_loop:
 	// the NMI is edge-triggered and automatically cleared
 
 	if (cc >= cc_nmi)
-	{								// 11 T cycles, probably: M1:5T, M2:3T, M3:3T
-		if (peek(pc) == HALT) pc++; // TODO: HALT and NMI
-									//	IFF2 = IFF1;					// save current irpt enable bit
-		IFF1 = disabled;			// disable irpt, preserve IFF2
+	{ // 11 T cycles, probably: M1:5T, M2:3T, M3:3T
+		if (peek(pc) == HALT)
+			pc++;		 // TODO: HALT and NMI
+						 //	IFF2 = IFF1;					// save current irpt enable bit
+		IFF1 = disabled; // disable irpt, preserve IFF2
 		r += 1;
 		cc += 5;			  // M1: 5 T: interrupt acknowledge cycle
 		Z80_INFO_NMI(cc - 2); // clear or re-trigger nmi (in macro)

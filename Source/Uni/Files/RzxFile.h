@@ -103,10 +103,10 @@ public:
 	void purge();		 // alle Daten löschen.			any time
 	void rewind();		 // Datei zurückspulen.			any time
 
-	void readFile(cstr filename, bool snapshotOnly = no);		   // data_error,file_error		// any time
-	void writeFile(cstr filename);								   // any time
+	void readFile(cstr filename, bool snapshotOnly = no);			// data_error,file_error		// any time
+	void writeFile(cstr filename);									// any time
 	void writeFileUpToBlockAndFrame(cstr filename, uint32, uint32); // TODO
-	void writeFileUpToCurrentPosition(cstr filename);			   // TODO
+	void writeFileUpToCurrentPosition(cstr filename);				// TODO
 
 	cstr  getSnapshot(); // Snapshot Dateipfad lesen		Snapshot -> Playing | EndOfFile
 	int	  nextFrame();	 // nächsten Frame starten		Playing -> Playing

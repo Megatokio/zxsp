@@ -157,7 +157,7 @@ TccRom::TccRom(Machine* machine, cstr path) :
 				{
 					if (d & (1 << i)) xxlogline("  reading block");
 					//					if(r&(1<<i)) dock[i].grow(0x2000);						// bank present =>
-					//allocate ram
+					// allocate ram
 					if (r & (1 << i))
 						dock[i] = new Memory(
 							machine, usingstr("TCC Dock Bank %i", i), 0x2000);	// bank present => allocate ram
@@ -175,7 +175,7 @@ TccRom::TccRom(Machine* machine, cstr path) :
 				{
 					if (d & (1 << i)) xxlogline("  reading block");
 					//					if(r&(1<<i)) exrom[i].grow(0x2000);						// bank present =>
-					//allocate ram
+					// allocate ram
 					if (r & (1 << i))
 						exrom[i] = new Memory(
 							machine, usingstr("TCC Exrom bank %i", i), 0x2000);	 // bank present => allocate ram

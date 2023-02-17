@@ -56,7 +56,8 @@ static const Frequency	   freq = 1700000;	// guessed
 static const Ay::StereoMix mix	= Ay::mono; // there's no indication that it could have had stereo
 
 
-// 	Ay			( Machine*, cstr sel, cstr wr, cstr rd, Frequency psg_clocks_per_second, cstr name="AY-3-8912", isa_id=isa_Ay
+// 	Ay			( Machine*, cstr sel, cstr wr, cstr rd, Frequency psg_clocks_per_second, cstr name="AY-3-8912",
+// isa_id=isa_Ay
 // );
 
 

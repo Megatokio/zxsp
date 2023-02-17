@@ -69,7 +69,8 @@ static void ShowDeviceProperties(io_registry_entry_t /* io_object_t */ myDevice)
 
 //// Create a plugin interface
 //	err = IOCreatePlugInInterfaceForService ( device, kIOHIDDeviceUserClientTypeID, kIOCFPlugInInterfaceID, &plugin_if,
-//&score ); 	if( err != kIOReturnSuccess ) { logline( "NewDeviceInterface:IOCreatePlugInInterface: error = $%lX\n", err
+//&score ); 	if( err != kIOReturnSuccess ) { logline( "NewDeviceInterface:IOCreatePlugInInterface: error = $%lX\n",
+//err
 //); return NULL; } 	assert( plugin_if && *plugin_if );
 
 //// Create the device interface
