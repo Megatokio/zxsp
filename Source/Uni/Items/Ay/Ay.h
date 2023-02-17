@@ -160,12 +160,12 @@ protected:
 
 	// notification for attached hardware:
 	// called on audio thread
-	VIR void portAOutputValueChanged(Time, uint8) {} // \ portXOutputValue() still returns the old value.
-	VIR void portBOutputValueChanged(Time, uint8) {} // / register 14 or 15 was modified or data direction changed.
-													 // callback: get input at port pins:
-													 // called on audio thread
-	VIR uint8 getInputValueAtPortA(Time, uint16) { return 0xff; }
-	VIR uint8 getInputValueAtPortB(Time, uint16) { return 0xff; }
+	virtual void portAOutputValueChanged(Time, uint8) {} // \ portXOutputValue() still returns the old value.
+	virtual void portBOutputValueChanged(Time, uint8) {} // / register 14 or 15 was modified or data direction changed.
+														 // callback: get input at port pins:
+														 // called on audio thread
+	virtual uint8 getInputValueAtPortA(Time, uint16) { return 0xff; }
+	virtual uint8 getInputValueAtPortB(Time, uint16) { return 0xff; }
 
 public:
 	virtual ~Ay() override;

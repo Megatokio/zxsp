@@ -45,15 +45,15 @@ protected:
 	Renderer*  screen_renderer;
 	GifWriter* gif_writer;
 
-	void	   do_render_thread(); // call from render_thread
-	void	   draw_rect(int x, int y, int w, int h, RgbaColor color);
-	VIR void   paint_screen(bool draw_passepartout = yes);
-	GifWriter* newGifWriter(bool update_border);
-	Renderer*  newRenderer();
-	int		   calc_zoom() { return zoom = minmax(1, min(width() / 256, height() / 192), 4); }
+	void		 do_render_thread(); // call from render_thread
+	void		 draw_rect(int x, int y, int w, int h, RgbaColor color);
+	virtual void paint_screen(bool draw_passepartout = yes);
+	GifWriter*	 newGifWriter(bool update_border);
+	Renderer*	 newRenderer();
+	int			 calc_zoom() { return zoom = minmax(1, min(width() / 256, height() / 192), 4); }
 
 protected:
-	VIR void do_ffb_or_vbi() noexcept(false) = 0; // std::exception // call from render_thread
+	virtual void do_ffb_or_vbi() noexcept(false) = 0; // std::exception // call from render_thread
 
 	void paintGL();					 // Qt reimplement
 	void resizeGL(int, int);		 // Qt reimplement
@@ -156,19 +156,19 @@ public:
 	assert(!o || o->isA(isa_##ITEM));                                                                                  \
 	return reinterpret_cast<ITEM*>(o);                                                                                 \
   }                                                                                                                    \
-                                                                                                                       \
+																													   \
   inline const ITEM* ITEM##Ptr(const Screen* o)                                                                        \
   {                                                                                                                    \
 	assert(!o || o->isA(isa_##ITEM));                                                                                  \
 	return reinterpret_cast<const ITEM*>(o);                                                                           \
   }                                                                                                                    \
-                                                                                                                       \
+																													   \
   inline volatile ITEM* ITEM##Ptr(volatile Screen* o)                                                                  \
   {                                                                                                                    \
 	assert(!o || o->isA(isa_##ITEM));                                                                                  \
 	return reinterpret_cast<volatile ITEM*>(o);                                                                        \
   }                                                                                                                    \
-                                                                                                                       \
+																													   \
   inline volatile const ITEM* ITEM##Ptr(volatile const Screen* o)                                                      \
   {                                                                                                                    \
 	assert(!o || o->isA(isa_##ITEM));                                                                                  \

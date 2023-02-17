@@ -104,16 +104,16 @@ protected:
 	int32  cc_up_for_t(Time t) { return int32(ceil(cc_for_t(t))); }
 
 	// machine state
-	void	  clear_break_ptr();
-	uint8	  handleRomPatch(uint16, uint8); // Z80options.h
-	void	  outputAtCycle(int32 cc, uint16, uint8);
-	uchar	  inputAtCycle(int32 cc, uint16);
-	uint8	  interruptAtCycle(int32 cc, uint16 addr) { return ula->interruptAtCycle(cc, addr); }
-	VIR int32 nmiAtCycle(int32 /*cc_nmi*/) { return 0x7FFFFFFF; }
-	VIR bool  handleLoadTapePatch() = 0;
-	VIR bool  handleSaveTapePatch() = 0;
-	uint8	  readMemMappedPort(int32 cc, uint16, uint8);  // for memory mapped i/o
-	void	  writeMemMappedPort(int32 cc, uint16, uint8); // for memory mapped i/o
+	void		  clear_break_ptr();
+	uint8		  handleRomPatch(uint16, uint8); // Z80options.h
+	void		  outputAtCycle(int32 cc, uint16, uint8);
+	uchar		  inputAtCycle(int32 cc, uint16);
+	uint8		  interruptAtCycle(int32 cc, uint16 addr) { return ula->interruptAtCycle(cc, addr); }
+	virtual int32 nmiAtCycle(int32 /*cc_nmi*/) { return 0x7FFFFFFF; }
+	virtual bool  handleLoadTapePatch() = 0;
+	virtual bool  handleSaveTapePatch() = 0;
+	uint8		  readMemMappedPort(int32 cc, uint16, uint8);  // for memory mapped i/o
+	void		  writeMemMappedPort(int32 cc, uint16, uint8); // for memory mapped i/o
 
 	bool rzxIsLoaded() const volatile { return rzx_file != nullptr; }
 	bool rzxIsPlaying() const { return rzx_file != nullptr && rzx_file->isPlaying(); }
@@ -138,18 +138,18 @@ private:
 	void load_rom();
 
 	// in Files/*.cpp:
-	VIR void loadAce(FD& fd) throws;		   // MachineJupiter.cpp
-	VIR void saveAce(FD& fd) throws;		   // MachineJupiter.cpp
-	VIR void loadSna(FD& fd) throws;		   // MachineZxsp.cpp
-	VIR void saveSna(FD& fd) throws;		   // MachineZxsp.cpp
-	VIR void loadScr(FD& fd) throws;		   // MachineZxsp.cpp
-	VIR void saveScr(FD& fd) throws;		   // MachineZxsp.cpp
-	VIR void loadO80(FD& fd) throws;		   // MachineZx80.cpp
-	VIR void saveO80(FD& fd) throws;		   // MachineZx80.cpp
-	VIR void loadP81(FD& fd, bool p81) throws; // MachineZx81.cpp
-	VIR void saveP81(FD& fd, bool p81)
+	virtual void loadAce(FD& fd) throws;		   // MachineJupiter.cpp
+	virtual void saveAce(FD& fd) throws;		   // MachineJupiter.cpp
+	virtual void loadSna(FD& fd) throws;		   // MachineZxsp.cpp
+	virtual void saveSna(FD& fd) throws;		   // MachineZxsp.cpp
+	virtual void loadScr(FD& fd) throws;		   // MachineZxsp.cpp
+	virtual void saveScr(FD& fd) throws;		   // MachineZxsp.cpp
+	virtual void loadO80(FD& fd) throws;		   // MachineZx80.cpp
+	virtual void saveO80(FD& fd) throws;		   // MachineZx80.cpp
+	virtual void loadP81(FD& fd, bool p81) throws; // MachineZx81.cpp
+	virtual void saveP81(FD& fd, bool p81)
 		throws;					 // MachineZx81.cpp
-								 // VIR void		loadTap			(FD& fd) throws;						// MachineZxsp.cpp
+								 // virtual void		loadTap			(FD& fd) throws;						// MachineZxsp.cpp
 	void loadZ80(FD& fd) throws; // file_z80.cpp
 	void saveZ80(FD& fd) throws; // file_z80.cpp
 	void loadRom(FD& fd) throws;

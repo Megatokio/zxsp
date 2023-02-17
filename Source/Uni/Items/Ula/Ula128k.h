@@ -15,7 +15,7 @@ protected:
 public:
 	explicit Ula128k(Machine*);
 
-	VIR void setPort7ffd(uint8);
+	virtual void setPort7ffd(uint8);
 
 protected:
 	Ula128k(Machine*, isa_id, cstr o_addr, cstr i_addr);

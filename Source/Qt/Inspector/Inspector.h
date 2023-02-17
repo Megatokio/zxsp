@@ -9,7 +9,6 @@
 #include "zxsp_types.h"
 #include <QLineEdit>
 #include <QToolBar>
-#define VIR virtual
 
 class Inspector : public QWidget
 {
@@ -65,12 +64,12 @@ protected:
 	void showEvent(QShowEvent*) override { is_visible = true; }
 	void hideEvent(QHideEvent*) override { is_visible = false; }
 
-	VIR void fillContextMenu(QMenu*) {}
-	VIR void saveSettings() {}					  // called in Inspector dtor
-	VIR void adjustSize(QSize&) {}				  // from ToolWindow
-	VIR void adjustMaxSizeDuringResize() {}		  // from ToolWindow
-	VIR cstr getCustomTitle() { return nullptr; } // override if inspector wishes a customized title
-	VIR void updateWidgets() {}					  // called by timer. Timer must be started by subclass ctor.
+	virtual void fillContextMenu(QMenu*) {}
+	virtual void saveSettings() {}					  // called in Inspector dtor
+	virtual void adjustSize(QSize&) {}				  // from ToolWindow
+	virtual void adjustMaxSizeDuringResize() {}		  // from ToolWindow
+	virtual cstr getCustomTitle() { return nullptr; } // override if inspector wishes a customized title
+	virtual void updateWidgets() {}					  // called by timer. Timer must be started by subclass ctor.
 
 	static QLineEdit* newLineEdit(cstr text, int min_width = 80);
 

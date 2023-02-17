@@ -8,8 +8,6 @@
 #include "kio/peekpoke.h"
 #include "zxsp_types.h"
 #include <QObject>
-#define VIR virtual
-#define EXT extern
 
 extern uint16 bitsForSpec(cstr s);
 extern uint16 maskForSpec(cstr s);
@@ -69,25 +67,25 @@ public:
 	void unlock() const volatile;
 
 	// Item interface:
-	VIR void  powerOn(/*t=0*/ int32 cc);
-	VIR void  reset(Time t, int32 cc);
-	VIR void  input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask);
-	VIR void  output(Time t, int32 cc, uint16 addr, uint8 byte);
-	VIR uint8 handleRomPatch(uint16 pc, uint8 o);					  // returns new opcode
-	VIR uint8 readMemory(Time t, int32 cc, uint16 addr, uint8 byte);  // for memory mapped i/o
-	VIR void  writeMemory(Time t, int32 cc, uint16 addr, uint8 byte); // for memory mapped i/o
-	VIR void  audioBufferEnd(Time t);
-	VIR void  videoFrameEnd(int32 cc);
-	VIR void  saveToFile(FD&) const throws;
-	VIR void  loadFromFile(FD&) throws;
-	VIR void  triggerNmi();
+	virtual void  powerOn(/*t=0*/ int32 cc);
+	virtual void  reset(Time t, int32 cc);
+	virtual void  input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask);
+	virtual void  output(Time t, int32 cc, uint16 addr, uint8 byte);
+	virtual uint8 handleRomPatch(uint16 pc, uint8 o);					  // returns new opcode
+	virtual uint8 readMemory(Time t, int32 cc, uint16 addr, uint8 byte);  // for memory mapped i/o
+	virtual void  writeMemory(Time t, int32 cc, uint16 addr, uint8 byte); // for memory mapped i/o
+	virtual void  audioBufferEnd(Time t);
+	virtual void  videoFrameEnd(int32 cc);
+	virtual void  saveToFile(FD&) const throws;
+	virtual void  loadFromFile(FD&) throws;
+	virtual void  triggerNmi();
 
 	// Behandlung von daisy-chain bus-signalen
 	// Default: einfach durchleiten
 	//			dann werden auch ramdis und romdis nicht aktualisiert!
 	//			ein Item das romdis benutzt, muss logischerweise auch romCS() ersetzen.
-	VIR void ramCS(bool active); // RAM_CS:  ZX80, ZX81
-	VIR void romCS(bool active); // ROM_CS:  ZX81, ZXSP, ZX128, +2; ROMCS1+ROMCS2: +2A, +3
+	virtual void ramCS(bool active); // RAM_CS:  ZX80, ZX81
+	virtual void romCS(bool active); // ROM_CS:  ZX81, ZXSP, ZX128, +2; ROMCS1+ROMCS2: +2A, +3
 };
 
 

@@ -118,15 +118,15 @@ protected:
 
 	QComboBox* newComboboxRegister();
 
-	VIR void setScrollOffset(int32);
-	VIR void updateScrollbar();
-	int32	 pageOffsetForCpuAddress(uint16 addr);
+	virtual void setScrollOffset(int32);
+	virtual void updateScrollbar();
+	int32		 pageOffsetForCpuAddress(uint16 addr);
 
-	VIR void slotSetDataSource(int);		  // combobox_datasource
-	VIR void slotSetMemoryPage(int);		  // combobox_memorypage
-	VIR void slotSetScrollPosition(int32);	  // scrollbar
-	VIR void slotSetAddressFromRegister(int); // combobox_register, follow_pc in MemoryDisassInspector
-	VIR void slotMemoryConfigChanged(Memory*, uint how);
+	virtual void slotSetDataSource(int);		  // combobox_datasource
+	virtual void slotSetMemoryPage(int);		  // combobox_memorypage
+	virtual void slotSetScrollPosition(int32);	  // scrollbar
+	virtual void slotSetAddressFromRegister(int); // combobox_register, follow_pc in MemoryDisassInspector
+	virtual void slotMemoryConfigChanged(Memory*, uint how);
 
 	FourBytes* dataReadPtrForOffset(int32 offset);
 	// uint8		peek(uint32 addr)				{ return rdPtr(addr)->data; }

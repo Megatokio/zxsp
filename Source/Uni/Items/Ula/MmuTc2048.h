@@ -14,7 +14,7 @@ protected:
 public:
 	explicit MmuTc2048(Machine*);
 
-	VIR void selectEXROM(bool) {}
+	virtual void selectEXROM(bool) {}
 
 protected:
 	MmuTc2048(Machine*, isa_id, cstr oaddr, cstr iaddr);
@@ -31,6 +31,9 @@ protected:
 
 	bool  hasPortF4() const volatile noexcept override { return yes; } // see note on Basic64-Demo.tzx in *.cpp
 	uint8 getPortF4() const volatile override { return port_F4; }	   // seems to be present but
-	void  setPortF4(uint8 n) override { port_F4 = n; }				   // seems to have no function
-																	   // void	romCS(bool disable) override;
+	void  setPortF4(uint8 n) override
+	{
+		port_F4 = n;
+	} // seems to have no function
+	  // void	romCS(bool disable) override;
 };

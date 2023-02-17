@@ -14,13 +14,13 @@ protected:
 public:
 	explicit Mmu128k(Machine*);
 
-	VIR void setMmuLocked(bool f) { setPort7ffd(f ? port_7ffd | 0x20 : port_7ffd & ~0x20); }
-	VIR uint getPageC000() const volatile noexcept { return port_7ffd & 7; }
-	VIR uint getPage8000() const volatile noexcept { return 2; }
-	VIR uint getPage4000() const volatile noexcept { return 5; }
-	VIR uint getPage0000() const volatile noexcept { return (port_7ffd >> 4) & 1; } // except if ROMDIS
-	uint	 getVideopage() const volatile noexcept { return port_7ffd & 8 ? 7 : 5; }
-	bool	 port7ffdIsLocked() const volatile noexcept { return port_7ffd & 0x20; }
+	virtual void setMmuLocked(bool f) { setPort7ffd(f ? port_7ffd | 0x20 : port_7ffd & ~0x20); }
+	virtual uint getPageC000() const volatile noexcept { return port_7ffd & 7; }
+	virtual uint getPage8000() const volatile noexcept { return 2; }
+	virtual uint getPage4000() const volatile noexcept { return 5; }
+	virtual uint getPage0000() const volatile noexcept { return (port_7ffd >> 4) & 1; } // except if ROMDIS
+	uint		 getVideopage() const volatile noexcept { return port_7ffd & 8 ? 7 : 5; }
+	bool		 port7ffdIsLocked() const volatile noexcept { return port_7ffd & 0x20; }
 
 protected:
 	Mmu128k(Machine*, isa_id, cstr o_addr, cstr i_addr);

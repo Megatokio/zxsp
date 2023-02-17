@@ -54,8 +54,8 @@ public:
 	int		x, y, w; // highlight position
 
 protected:
-	VIR void resizeEvent(QResizeEvent*);
-	VIR void paintEvent(QPaintEvent*);
+	virtual void resizeEvent(QResizeEvent*);
+	virtual void paintEvent(QPaintEvent*);
 
 public:
 	GWidgetRGB(QWidget* parent, int w, int h);

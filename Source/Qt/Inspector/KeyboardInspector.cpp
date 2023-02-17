@@ -11,7 +11,6 @@
 #include "ZxInfo.h"
 #include <QMenu>
 #include <QtGui>
-#undef EXT
 
 
 enum ZxspKey // Names for specci keys

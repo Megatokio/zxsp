@@ -8,7 +8,6 @@
 #include "MachineController.h"
 #include "Ula/Ula.h"
 #include "ZxInfo.h"
-#undef EXT
 
 
 // Modifier key masks for sticky keys on visual keyboard:
@@ -167,16 +166,16 @@ static const OskeyToZxkeyMap oskey2zxkey_zxsp = {
 	x,	 SPC, CSH, x,	x,	 x,	  x,   x,	// 0x30-0x37: TAB SPC  <  DEL  •  ESC  •   •
 	CSH, x,	  CSH, SSH, CSH, CSH, SSH, x,	// 0x38-0x3F: CSH  •  ALT CTL CSH2ALT2CTL2 •
 											// x,x,x,x,x,x,x,x,							// 0x40-0x47:  •  [.]  •  [*]  •  [+]
-										  // •   •
-										  // x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •  [/][RET] •
-										  // [-]  • x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=]
-										  // [0] [1] [2] [3] [4] [5]
-										  // x,x,x,x,x,x,x,x,							// 0x58-0x5F: [6] [7]  •  [8] [9]  •
-										  // •   • x,x,x,x,x,x,x,x,							// 0x60-0x67:
-										  // x,x,x,x,x,x,x,x, 							// 0x68-0x6F:
-										  // x,x,x,x,x,x,x,x, 							// 0x70-0x77:
-										  // x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←   ➞   ↓
-										  // ↑   •
+											// •   •
+											// x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •  [/][RET] •
+											// [-]  • x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=]
+											// [0] [1] [2] [3] [4] [5]
+											// x,x,x,x,x,x,x,x,							// 0x58-0x5F: [6] [7]  •  [8] [9]  •
+											// •   • x,x,x,x,x,x,x,x,							// 0x60-0x67:
+											// x,x,x,x,x,x,x,x, 							// 0x68-0x6F:
+											// x,x,x,x,x,x,x,x, 							// 0x70-0x77:
+											// x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←   ➞   ↓
+											// ↑   •
 };
 
 static const AsciiToZxkeyMap ascii2zxkey_zxplus = {
@@ -228,16 +227,16 @@ static const OskeyToZxkeyMap oskey2zxkey_zxplus = {
 	x,	 SPC, x,   cZ0, x,	  cSPC, x,	  x,   // 0x30-0x37:  •  SPC  <  DEL  •  ESC  •   •
 	CSH, x,	  CSH, SSH, CSH2, CSH2, SSH2, x,   // 0x38-0x3F: CSH  •  ALT CTL CSH2ALT2CTL2 •
 											   // x,x,x,x,x,x,x,x,							// 0x40-0x47:  •  [.]  • [*]
-											 // •  [+]  •   •
-											 // x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •
-											 // [/][RET] •  [-]  •
-											 // x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=] [0]
-											 // [1] [2] [3] [4] [5] x,x,x,x,x,x,x,x,							//
-											 // 0x58-0x5F: [6] [7]  •  [8] [9]  •   •   • x,x,x,x,x,x,x,x,
-											 // // 0x60-0x67: x,x,x,x,x,x,x,x, 							// 0x68-0x6F:
-											 // x,x,x,x,x,x,x,x, 							// 0x70-0x77:
-											 // x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←
-											 // ➞   ↓   ↑   •
+											   // •  [+]  •   •
+											   // x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •
+											   // [/][RET] •  [-]  •
+											   // x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=] [0]
+											   // [1] [2] [3] [4] [5] x,x,x,x,x,x,x,x,							//
+											   // 0x58-0x5F: [6] [7]  •  [8] [9]  •   •   • x,x,x,x,x,x,x,x,
+											   // // 0x60-0x67: x,x,x,x,x,x,x,x, 							// 0x68-0x6F:
+											   // x,x,x,x,x,x,x,x, 							// 0x70-0x77:
+											   // x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←
+											   // ➞   ↓   ↑   •
 };
 
 static const AsciiToZxkeyMap ascii2zxkey_timex = {
@@ -263,34 +262,33 @@ static const AsciiToZxkeyMap ascii2zxkey_timex = {
 	X,		Y,		Z,		F + s,	S + s,	G + s,	A + s,	Z0 + c	// 0x78-0x7F: x y z { | } ~ DEL
 };
 
-static const OskeyToZxkeyMap oskey2zxkey_timex =
-	{
-		// Timex models with 2nd CAPS SHIFT and one composed key: BREAK
-		//
-		// Mac OSX keycode -> ZxspKey key code
-		// physical translation for games
-		// all 41 keys (incl. BREAK) are mapped
-		// other keys are handled by fallback to logical translation
+static const OskeyToZxkeyMap oskey2zxkey_timex = {
+	// Timex models with 2nd CAPS SHIFT and one composed key: BREAK
+	//
+	// Mac OSX keycode -> ZxspKey key code
+	// physical translation for games
+	// all 41 keys (incl. BREAK) are mapped
+	// other keys are handled by fallback to logical translation
 
-		A,	 S,	  D,   F,	H,	  G,	Z,	 X,	   // 0x00-0x07:  a   s   d   f   h   g   z   x
-		C,	 V,	  x,   B,	Q,	  W,	E,	 R,	   // 0x08-0x0F:  c   v   ^   b   q   w   e   r
-		Y,	 T,	  Z1,  Z2,	Z3,	  Z4,	Z6,	 Z5,   // 0x10-0x17:  y   t   1   2   3   4   6   5
-		x,	 Z9,  Z7,  x,	Z8,	  Z0,	x,	 O,	   // 0x18-0x1F:  •   9   7   ß   8   0   •   O
-		U,	 x,	  I,   P,	ENT,  L,	J,	 ENT,  // 0x20-0x27:  u   ü   i   p  RET  l   j   ä
-		K,	 ENT, x,   SSH, CSH2, N,	M,	 cSPC, // 0x28-0x2F:  k   ö   #   ,   -   n   m   .
-		x,	 SPC, CSH, x,	x,	  x,	x,	 x,	   // 0x30-0x37:  •  SPC  <  DEL  •  ESC  •   •
-		CSH, x,	  CSH, SSH, CSH2, CSH2, SSH, x,	   // 0x38-0x3F: CSH  •  ALT CTL CSH2ALT2CTL2 •
-												// x,x,x,x,x,x,x,x,							// 0x40-0x47:  •  [.]  •  [*]  •  [+]  •
-												// • x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •
-												// [/][RET] •  [-]  •
-												// x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=] [0] [1] [2] [3] [4]
-												// [5]
-												// x,x,x,x,x,x,x,x,							// 0x58-0x5F: [6] [7]  •  [8] [9]  •   •
-												// • x,x,x,x,x,x,x,x,							// 0x60-0x67:
-												// x,x,x,x,x,x,x,x, 							// 0x68-0x6F:
-												// x,x,x,x,x,x,x,x, 							// 0x70-0x77:
-												// x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←   ➞   ↓   ↑
-												// •
+	A,	 S,	  D,   F,	H,	  G,	Z,	 X,	   // 0x00-0x07:  a   s   d   f   h   g   z   x
+	C,	 V,	  x,   B,	Q,	  W,	E,	 R,	   // 0x08-0x0F:  c   v   ^   b   q   w   e   r
+	Y,	 T,	  Z1,  Z2,	Z3,	  Z4,	Z6,	 Z5,   // 0x10-0x17:  y   t   1   2   3   4   6   5
+	x,	 Z9,  Z7,  x,	Z8,	  Z0,	x,	 O,	   // 0x18-0x1F:  •   9   7   ß   8   0   •   O
+	U,	 x,	  I,   P,	ENT,  L,	J,	 ENT,  // 0x20-0x27:  u   ü   i   p  RET  l   j   ä
+	K,	 ENT, x,   SSH, CSH2, N,	M,	 cSPC, // 0x28-0x2F:  k   ö   #   ,   -   n   m   .
+	x,	 SPC, CSH, x,	x,	  x,	x,	 x,	   // 0x30-0x37:  •  SPC  <  DEL  •  ESC  •   •
+	CSH, x,	  CSH, SSH, CSH2, CSH2, SSH, x,	   // 0x38-0x3F: CSH  •  ALT CTL CSH2ALT2CTL2 •
+											   // x,x,x,x,x,x,x,x,							// 0x40-0x47:  •  [.]  •  [*]  •  [+]
+											// • • x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •
+											// [/][RET] •  [-]  •
+											// x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=] [0] [1] [2] [3]
+											// [4] [5]
+											// x,x,x,x,x,x,x,x,							// 0x58-0x5F: [6] [7]  •  [8] [9]  •
+											// • • x,x,x,x,x,x,x,x,							// 0x60-0x67:
+											// x,x,x,x,x,x,x,x, 							// 0x68-0x6F:
+											// x,x,x,x,x,x,x,x, 							// 0x70-0x77:
+											// x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←   ➞   ↓
+											// ↑ •
 };
 
 static const AsciiToZxkeyMap ascii2zxkey_zx81 = {
@@ -334,16 +332,16 @@ static const OskeyToZxkeyMap oskey2zxkey_zx81 = {
 	x,	 SPC, CSH, x,	x,	 x,	  x,   x,	// 0x30-0x37:  •  SPC  <  DEL  •  ESC  •   •
 	CSH, x,	  CSH, CSH, CSH, CSH, CSH, x,	// 0x38-0x3F: CSH  •  ALT CTL CSH2ALT2CTL2 •
 											// x,x,x,x,x,x,x,x,							// 0x40-0x47:  •  [.]  •  [*]  •  [+]
-										  // •   •
-										  // x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •  [/][RET] •
-										  // [-]  • x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=]
-										  // [0] [1] [2] [3] [4] [5]
-										  // x,x,x,x,x,x,x,x,							// 0x58-0x5F: [6] [7]  •  [8] [9]  •
-										  // •   • x,x,x,x,x,x,x,x,							// 0x60-0x67:
-										  // x,x,x,x,x,x,x,x, 							// 0x68-0x6F:
-										  // x,x,x,x,x,x,x,x, 							// 0x70-0x77:
-										  // x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←   ➞   ↓
-										  // ↑   •
+											// •   •
+											// x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •  [/][RET] •
+											// [-]  • x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=]
+											// [0] [1] [2] [3] [4] [5]
+											// x,x,x,x,x,x,x,x,							// 0x58-0x5F: [6] [7]  •  [8] [9]  •
+											// •   • x,x,x,x,x,x,x,x,							// 0x60-0x67:
+											// x,x,x,x,x,x,x,x, 							// 0x68-0x6F:
+											// x,x,x,x,x,x,x,x, 							// 0x70-0x77:
+											// x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←   ➞   ↓
+											// ↑   •
 };
 
 static const AsciiToZxkeyMap ascii2zxkey_jupiter = {
@@ -387,38 +385,152 @@ static const OskeyToZxkeyMap oskey2zxkey_jupiter = {
 	x,	 SPC, CSH, x,	x,	 x,	  x,   x,	// 0x30-0x37:  •  SPC  <  DEL  •  ESC  •   •
 	CSH, x,	  CSH, SSH, CSH, CSH, SSH, x,	// 0x38-0x3F: CSH  •  ALT CTL CSH2ALT2CTL2 •
 											// x,x,x,x,x,x,x,x,							// 0x40-0x47:  •  [.]  •  [*]  •  [+]
-										  // •   •
-										  // x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •  [/][RET] •
-										  // [-]  • x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=]
-										  // [0] [1] [2] [3] [4] [5]
-										  // x,x,x,x,x,x,x,x,							// 0x58-0x5F: [6] [7]  •  [8] [9]  •
-										  // •   • x,x,x,x,x,x,x,x,							// 0x60-0x67:
-										  // x,x,x,x,x,x,x,x, 							// 0x68-0x6F:
-										  // x,x,x,x,x,x,x,x, 							// 0x70-0x77:
-										  // x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←   ➞   ↓
-										  // ↑   •
+											// •   •
+											// x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •  [/][RET] •
+											// [-]  • x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=]
+											// [0] [1] [2] [3] [4] [5]
+											// x,x,x,x,x,x,x,x,							// 0x58-0x5F: [6] [7]  •  [8] [9]  •
+											// •   • x,x,x,x,x,x,x,x,							// 0x60-0x67:
+											// x,x,x,x,x,x,x,x, 							// 0x68-0x6F:
+											// x,x,x,x,x,x,x,x, 							// 0x70-0x77:
+											// x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←   ➞   ↓
+											// ↑   •
 };
 
 static const AsciiToZxkeyMap btzxkbd2zxkey_zxsp = {
 	// ascii -> Zxsp key code
 	// physical translation of ascii keycode for game mode on a "Recreated Bluetooth ZX Keyboard"
 
-	x,		 x,		   x,		x,		x,		 x,		 x,		   x,		 x,		   x,	x, x, x, x,
-	x,		 x,		   x,		x,		x,		 x,		 x,		   x,		 x,		   x,	x, x, x, x,
-	x,		 x,		   x,		x,		x,		 SSH,	 x,		   x,		 CSH + up, SPC, x, x, // 0x20-0x27: space !
-																								  // " # $ % & '
-	x,		 x,		   x,		x,		B,		 X,		 B + up,   N,							  // 0x28-0x2F: ()*+,-./
-	J,		 J + up,   K,		K + up, L,		 L + up, ENT,	   ENT + up,					  // 0x30-0x37: 01234567
-	CSH,	 CSH + up, V + up,	V,		Z,		 X + up, Z + up,   N + up,						  // 0x38-0x3F: 89:;<=>?
-	x,		 R,		   R + up,	T,		T + up,	 Y,		 Y + up,   U,							  // 0x40-0x47: @ABCDEFG
-	U + up,	 I,		   I + up,	O,		O + up,	 P,		 P + up,   A,							  // 0x48-0x4F: HIJKLMNO
-	A + up,	 S,		   S + up,	D,		D + up,	 F,		 F + up,   G,							  // 0x50-0x57: PQRSTUVW
-	G + up,	 H,		   H + up,	C,		x,		 C + up, SPC + up, x,							  // 0x58-0x5F: XYZ[\]^_
-	x,		 Z1,	   Z1 + up, Z2,		Z2 + up, Z3,	 Z3 + up,  Z4,							  // 0x60-0x67: `abcdefg
-	Z4 + up, Z5,	   Z5 + up, Z6,		Z6 + up, Z7,	 Z7 + up,  Z8,							  // 0x68-0x6F: hijklmno
-	Z8 + up, Z9,	   Z9 + up, Z0,		Z0 + up, Q,		 Q + up,   W,							  // 0x70-0x77: pqrstuvw
-	W + up,	 E,		   E + up,	M,		x,		 M + up, x,		   x, // 0x78-0x7F: xyz{|}~<del>
-};																	  // table must be filled to end with 'x'
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	x,
+	SSH,
+	x,
+	x,
+	CSH + up,
+	SPC,
+	x,
+	x, // 0x20-0x27: space !
+	   // " # $ % & '
+	x,
+	x,
+	x,
+	x,
+	B,
+	X,
+	B + up,
+	N, // 0x28-0x2F: ()*+,-./
+	J,
+	J + up,
+	K,
+	K + up,
+	L,
+	L + up,
+	ENT,
+	ENT + up, // 0x30-0x37: 01234567
+	CSH,
+	CSH + up,
+	V + up,
+	V,
+	Z,
+	X + up,
+	Z + up,
+	N + up, // 0x38-0x3F: 89:;<=>?
+	x,
+	R,
+	R + up,
+	T,
+	T + up,
+	Y,
+	Y + up,
+	U, // 0x40-0x47: @ABCDEFG
+	U + up,
+	I,
+	I + up,
+	O,
+	O + up,
+	P,
+	P + up,
+	A, // 0x48-0x4F: HIJKLMNO
+	A + up,
+	S,
+	S + up,
+	D,
+	D + up,
+	F,
+	F + up,
+	G, // 0x50-0x57: PQRSTUVW
+	G + up,
+	H,
+	H + up,
+	C,
+	x,
+	C + up,
+	SPC + up,
+	x, // 0x58-0x5F: XYZ[\]^_
+	x,
+	Z1,
+	Z1 + up,
+	Z2,
+	Z2 + up,
+	Z3,
+	Z3 + up,
+	Z4, // 0x60-0x67: `abcdefg
+	Z4 + up,
+	Z5,
+	Z5 + up,
+	Z6,
+	Z6 + up,
+	Z7,
+	Z7 + up,
+	Z8, // 0x68-0x6F: hijklmno
+	Z8 + up,
+	Z9,
+	Z9 + up,
+	Z0,
+	Z0 + up,
+	Q,
+	Q + up,
+	W, // 0x70-0x77: pqrstuvw
+	W + up,
+	E,
+	E + up,
+	M,
+	x,
+	M + up,
+	x,
+	x, // 0x78-0x7F: xyz{|}~<del>
+};	   // table must be filled to end with 'x'
 
 
 // -----------------------------------------------------------

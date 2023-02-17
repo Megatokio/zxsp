@@ -94,11 +94,11 @@ private:
 	bool  scan_satisfied();
 	uint8 SR3();
 
-	VIR bool is_fault() { return drive->is_error; }
-	VIR bool is_2sided() { return drive->is_2sided; }
-	bool	 is_wprot() { return drive->is_wprot; }
-	bool	 is_track0() { return drive->is_track0; }
-	bool	 is_ready() { return drive->is_ready; }
-	bool	 is_atIndex() { return drive->is_atindex; }
-	void	 _init();
+	virtual bool is_fault() { return drive->is_error; }
+	virtual bool is_2sided() { return drive->is_2sided; }
+	bool		 is_wprot() { return drive->is_wprot; }
+	bool		 is_track0() { return drive->is_track0; }
+	bool		 is_ready() { return drive->is_ready; }
+	bool		 is_atIndex() { return drive->is_atindex; }
+	void		 _init();
 };

@@ -44,7 +44,7 @@ static const int MAX_DISASS_COLS = 40;
 class CoreByteDisassembler : public Z80_Disassembler
 {
 public:
-	VIR const CoreByte* pointer(uint32 address) = 0;
+	virtual const CoreByte* pointer(uint32 address) = 0;
 	CoreByte peek_cb(uint32 address) const { return *const_cast<CoreByteDisassembler*>(this)->pointer(address); }
 	uint8	 peek(uint32 address) const { return *const_cast<CoreByteDisassembler*>(this)->pointer(address); }
 };

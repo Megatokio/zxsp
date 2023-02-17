@@ -25,8 +25,8 @@ public:
 protected:
 	Ula(Machine*, isa_id, cstr o_addr, cstr i_addr);
 
-	uint8	 readKeyboard(uint16 addr); // read bits from keyboard matrix
-	VIR void setupTiming() = 0;
+	uint8		 readKeyboard(uint16 addr); // read bits from keyboard matrix
+	virtual void setupTiming() = 0;
 
 public:
 	// Item interface:
@@ -47,14 +47,14 @@ public:
 	void setCcPerLine(int n);
 	void setBytesPerLine(int n);
 
-	VIR uint8 getFloatingBusByte(int32 /*cc*/) { return 0xff; }
-	VIR int32 addWaitCycles(int32 cc, uint16 /*addr*/) const volatile { return cc; }
-	VIR int32 cpuCycleOfInterrupt()	   = 0;
-	VIR int32 cpuCycleOfIrptEnd()	   = 0;
-	VIR int32 cpuCycleOfFrameFlyback() = 0; // when next ffb irpt
-	VIR uint8 interruptAtCycle(int32, uint16) { return 0xff; /*RST_38*/ }
+	virtual uint8 getFloatingBusByte(int32 /*cc*/) { return 0xff; }
+	virtual int32 addWaitCycles(int32 cc, uint16 /*addr*/) const volatile { return cc; }
+	virtual int32 cpuCycleOfInterrupt()	   = 0;
+	virtual int32 cpuCycleOfIrptEnd()	   = 0;
+	virtual int32 cpuCycleOfFrameFlyback() = 0; // when next ffb irpt
+	virtual uint8 interruptAtCycle(int32, uint16) { return 0xff; /*RST_38*/ }
 
-	VIR bool  hasPortFF() const volatile noexcept { return no; }
-	VIR void  setPortFF(uint8) {}
-	VIR uint8 getPortFF() const volatile { return 0xFF; }
+	virtual bool  hasPortFF() const volatile noexcept { return no; }
+	virtual void  setPortFF(uint8) {}
+	virtual uint8 getPortFF() const volatile { return 0xFF; }
 };

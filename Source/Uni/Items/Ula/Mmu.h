@@ -21,7 +21,7 @@ protected:
 	MemoryPtr rom;
 
 public:
-	VIR void mapMem() {} // map memory in models which have expandable memory
+	virtual void mapMem() {} // map memory in models which have expandable memory
 
 	// RAMDIS und ROMDIS behandeln, falls vorhanden:
 	// Hier sind die Dummy-Funktionen, falls ein Gerät das jeweilige Signal nicht hat.
@@ -33,12 +33,13 @@ public:
 	// Note: ramCS() wird z.Zt. gar nicht benutzt, da Ram-Erweiterungen z.Zt. das interne Ram des Computers erweitern.
 	// Note: +3/+2A: statt romCS1 und romCS2 wird romCS benutzt
 	//
-	VIR void ramCS(bool f) override
+	virtual void ramCS(bool f) override
 	{
 		ramdis_in = f;
 		logline("Mmu.ramCS(%i)", f);
 	} // ZX80, ZX81
-	VIR void romCS(bool f) override
+
+	virtual void romCS(bool f) override
 	{
 		romdis_in = f;
 		logline("Mmu.romCS(%i)", f);
@@ -63,23 +64,17 @@ public:
 	   registers only.
 	*/
 
-	VIR bool hasPort7ffd() const volatile noexcept { return no; }
-	VIR void setPort7ffd(uint8)
-	{ /*nop*/
-	}
-	VIR uint8 getPort7ffd() const volatile { return 0xFF; }
+	virtual bool  hasPort7ffd() const volatile noexcept { return no; }
+	virtual void  setPort7ffd(uint8) {} // nop
+	virtual uint8 getPort7ffd() const volatile { return 0xFF; }
 
-	VIR bool hasPort1ffd() const volatile noexcept { return no; }
-	VIR void setPort1ffd(uint8)
-	{ /*nop*/
-	}
-	VIR uint8 getPort1ffd() const volatile { return 0xFF; }
+	virtual bool  hasPort1ffd() const volatile noexcept { return no; }
+	virtual void  setPort1ffd(uint8) {} // nop
+	virtual uint8 getPort1ffd() const volatile { return 0xFF; }
 
-	VIR bool hasPortF4() const volatile noexcept { return no; }
-	VIR void setPortF4(uint8)
-	{ /*nop*/
-	}
-	VIR uint8 getPortF4() const volatile { return 0xFF; }
+	virtual bool  hasPortF4() const volatile noexcept { return no; }
+	virtual void  setPortF4(uint8) {} // nop
+	virtual uint8 getPortF4() const volatile { return 0xFF; }
 
 protected:
 	Mmu(Machine*, isa_id, cstr o_addr, cstr i_addr);

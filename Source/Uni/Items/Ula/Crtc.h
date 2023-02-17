@@ -26,31 +26,31 @@ protected:
 	bool  is60hz;
 
 public:
-	uint8	  getBorderColor() { return border_color; }
-	VIR void  setBorderColor(uint8) {}
-	CoreByte* getVideoRam() { return video_ram; }
+	uint8		 getBorderColor() { return border_color; }
+	virtual void setBorderColor(uint8) {}
+	CoreByte*	 getVideoRam() { return video_ram; }
 
 	bool is60Hz() const volatile { return is60hz; }
 	bool is50Hz() const volatile { return !is60hz; }
 
-	int		  getLinesBeforeScreen() const volatile { return lines_before_screen; } // nominal
-	int		  getLinesInScreen() const volatile { return lines_in_screen; }			// nominal
-	int		  getLinesAfterScreen() const volatile { return lines_after_screen; }	// nominal
-	int		  getLinesPerFrame() const volatile { return lines_per_frame; }
-	int		  getColumnsInScreen() const volatile { return columns_in_screen; }
-	int		  getCcPerByte() const volatile { return cc_per_byte; }					 // const
-	int		  getCcPerLine() const volatile { return cc_per_line; }					 // nominal
-	int		  getBytesPerLine() const volatile { return cc_per_line / cc_per_byte; } // nominal
-	VIR int32 getCcPerFrame() const volatile { return lines_per_frame * cc_per_line; }
+	int			  getLinesBeforeScreen() const volatile { return lines_before_screen; } // nominal
+	int			  getLinesInScreen() const volatile { return lines_in_screen; }			// nominal
+	int			  getLinesAfterScreen() const volatile { return lines_after_screen; }	// nominal
+	int			  getLinesPerFrame() const volatile { return lines_per_frame; }
+	int			  getColumnsInScreen() const volatile { return columns_in_screen; }
+	int			  getCcPerByte() const volatile { return cc_per_byte; }					 // const
+	int			  getCcPerLine() const volatile { return cc_per_line; }					 // nominal
+	int			  getBytesPerLine() const volatile { return cc_per_line / cc_per_byte; } // nominal
+	virtual int32 getCcPerFrame() const volatile { return lines_per_frame * cc_per_line; }
 
-	void	  attachToScreen(Screen*);
-	VIR void  drawVideoBeamIndicator(int32 cc) = 0;
-	VIR int32 doFrameFlyback(int32 cc)		   = 0;
-	VIR int32 cpuCycleOfNextCrtRead()		   = 0;
-	VIR int32 updateScreenUpToCycle(int32 cc)  = 0;
-	VIR void  markVideoRam()				   = 0;
-	VIR void  set60Hz(bool f = 1) { is60hz = f; }
-	void	  set50Hz() { set60Hz(0); }
+	void		  attachToScreen(Screen*);
+	virtual void  drawVideoBeamIndicator(int32 cc) = 0;
+	virtual int32 doFrameFlyback(int32 cc)		   = 0;
+	virtual int32 cpuCycleOfNextCrtRead()		   = 0;
+	virtual int32 updateScreenUpToCycle(int32 cc)  = 0;
+	virtual void  markVideoRam()				   = 0;
+	virtual void  set60Hz(bool f = 1) { is60hz = f; }
+	void		  set50Hz() { set60Hz(0); }
 
 protected:
 	Crtc(Machine*, isa_id, isa_id grp, Internal, cstr o_addr, cstr i_addr);

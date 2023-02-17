@@ -20,10 +20,10 @@ public:
 	FloppyDiskDrive* getDrive(uint n) const volatile { return fdd[n & 3]; }
 	bool			 isMotorOn() const volatile { return motor_on; }
 
-	VIR void setMotor(Time, bool);
-	VIR void initForSnapshot(int32 /*cc*/) {}
-	VIR void attachDiskDrive(uint n, FloppyDiskDrive*);
-	VIR void removeDiskDrive(uint n);
+	virtual void setMotor(Time, bool);
+	virtual void initForSnapshot(int32 /*cc*/) {}
+	virtual void attachDiskDrive(uint n, FloppyDiskDrive*);
+	virtual void removeDiskDrive(uint n);
 
 protected:
 	Fdc(Machine*, isa_id, Internal internal, cstr o_addr, cstr i_addr);
@@ -40,8 +40,8 @@ protected:
 	// void	loadFromFile	(FD&) throws override;
 	// uint8	handleRomPatch	(uint16,uint8) override;
 
-	VIR void  raise_interrupt() { interrupt = on; }	 // to be reimplemented if fdc uses interrupts
-	VIR void  clear_interrupt() { interrupt = off; } // to be reimplemented if fdc uses interrupts
-	VIR void  send_byte_to_dma(uint8) {}			 // to be reimplemented if fdc uses dma
-	VIR uint8 read_byte_from_dma() { return 0xFF; }	 // to be reimplemented if fdc uses dma
+	virtual void  raise_interrupt() { interrupt = on; }	 // to be reimplemented if fdc uses interrupts
+	virtual void  clear_interrupt() { interrupt = off; } // to be reimplemented if fdc uses interrupts
+	virtual void  send_byte_to_dma(uint8) {}			 // to be reimplemented if fdc uses dma
+	virtual uint8 read_byte_from_dma() { return 0xFF; }	 // to be reimplemented if fdc uses dma
 };

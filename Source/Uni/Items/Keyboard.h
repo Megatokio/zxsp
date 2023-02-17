@@ -81,8 +81,8 @@ public:
 	void allKeysUp();
 
 private:
-	VIR void convert_to_matrix(Keymap&) {}
-	void	 update_keymap();
+	virtual void convert_to_matrix(Keymap&) {}
+	void		 update_keymap();
 };
 
 
