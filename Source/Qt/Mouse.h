@@ -21,7 +21,7 @@ public:
 
 public:
 	Mouse();
-	~Mouse();
+	~Mouse() override;
 
 	void	 grab(QWidget*);
 	void	 ungrab();

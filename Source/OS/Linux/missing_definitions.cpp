@@ -16,13 +16,5 @@ void stopCoreAudio() { debugstr("stopCoreAudio\n"); }
 } // namespace Dsp
 
 
-#include "Mouse.h"
-Mouse mouse;
-Mouse::Mouse() : dx(0), dy(0) { debugstr("Mouse\n"); }
-Mouse::~Mouse() { debugstr("~Mouse"); }
-void Mouse::grab(QWidget*) { debugstr("Mouse::grab\n"); }
-void Mouse::ungrab() { debugstr("Mouase::ungrab\n"); }
-
-
 #include "Joystick.h"
 void findUsbJoysticks() { debugstr("findUsbJoysticks"); }

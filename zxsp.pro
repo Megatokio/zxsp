@@ -56,7 +56,6 @@ INCLUDEPATH += \
 macx: SOURCES += \
 	Source/OS/Mac/UsbJoystick.cpp \
 	Source/OS/Mac/MacDsp.cpp \
-	Source/OS/Mac/MacMouse.cpp \
 	Source/OS/Mac/UsbDevice.cpp \
 	Source/OS/Mac/mac_util.cpp \
 	Libraries/audio/macos/AudioDecoder.cpp \
@@ -135,6 +134,7 @@ SOURCES +=	\
 	Source/Qt/MySimpleToggleButton.cpp \
 	Source/Qt/RecentFilesMenu.cpp \
 	Source/Qt/Lenslok.cpp \
+	Source/Qt/Mouse.cpp \
 	\
 	Source/Qt/Screen/Screen.cpp \
 	Source/Qt/Screen/ScreenMono.cpp \
@@ -401,11 +401,10 @@ HEADERS += \
 	zasm/Source/Value.cpp \
 
 
-# zxsp Headers - OS stuff (AudioIO, Joysticks, Mouse):
+# zxsp Headers - OS stuff (AudioIO, Joysticks):
 
 HEADERS += \
 	Source/settings.h \
-	Source/OS/Mouse.h \
 	Source/OS/StereoSample.h \
 	Source/OS/DspTime.h \
 	Source/OS/Dsp.h \
@@ -478,6 +477,7 @@ HEADERS += \
 	Source/Qt/Dialogs/ConfigureKeyboardJoystickDialog.h \
 	Source/Qt/Overlays/Overlay.h \
 	\
+	Source/Qt/Mouse.h \
 	Source/Qt/CheckUpdate.h \
 	Source/Qt/qt_util.h \
 	Source/Qt/Settings.h \
