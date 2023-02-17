@@ -14,7 +14,7 @@
 
    ##################################################################### */
 
-typedef uint32_t uint32;
+using uint32 = uint32_t;
 
 #define CPU_PAGEBITS 10
 

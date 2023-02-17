@@ -6,11 +6,6 @@
 #include "DspTime.h"
 #include "StereoSample.h"
 
-typedef float		 Sample;
-typedef const Sample cSample;
-class StereoSample;
-typedef const StereoSample cStereoSample;
-
 
 namespace Dsp
 {
@@ -44,7 +39,7 @@ inline Sample getOutputVolume() { return audio_output_volume; }
 //			 	playthrough_off
 //		};
 
-extern void outputSamples(cStereoSample&, Time start, Time end);
+extern void outputSamples(const StereoSample&, Time start, Time end);
 extern void outputSamples(Sample, Time start, Time end);
 
 // ---- Utilities ----

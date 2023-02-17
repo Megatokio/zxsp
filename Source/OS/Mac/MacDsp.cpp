@@ -105,8 +105,8 @@ inline void ReadInputData(const AudioBufferList* inInputData)
 		//	for( uint i=2; i<inInputData->mNumberBuffers; i++ ) {}
 
 		// copy audio-in buffers to audio_in_buffer to  (stereo -> stereo):
-		cSample* q0 = (cSample*)inInputData->mBuffers[0].mData;
-		cSample* q1 = (cSample*)inInputData->mBuffers[1].mData;
+		const Sample* q0 = (const Sample*)inInputData->mBuffers[0].mData;
+		const Sample* q1 = (const Sample*)inInputData->mBuffers[1].mData;
 		while (z < e) { *z++ = StereoSample(*q0++, *q1++); }
 	}
 	break;
@@ -120,21 +120,21 @@ inline void ReadInputData(const AudioBufferList* inInputData)
 		{
 		case 1: // mono
 		{
-			cSample* q = (cSample*)inInputData->mBuffers[0].mData;
+			const Sample* q = (const Sample*)inInputData->mBuffers[0].mData;
 			while (z < e) { *z++ = *q++; }
 		}
 		break;
 
 		case 2: // interleaved stereo ((99% of cases))
 		{
-			cStereoSample* q = (cStereoSample*)inInputData->mBuffers[0].mData;
+			const StereoSample* q = (const StereoSample*)inInputData->mBuffers[0].mData;
 			while (z < e) { *z++ = *q++; }
 		}
 		break;
 
 		default: // e.g. 6 channels: dolby 5.1?  l/r channel seem to be buffer[0/1]
 		{
-			cSample* q = (cSample*)inInputData->mBuffers[0].mData;
+			const Sample* q = (const Sample*)inInputData->mBuffers[0].mData;
 			while (z < e)
 			{
 				*z++ = *(StereoSample*)(q);
@@ -194,9 +194,9 @@ inline void WriteOutputData(AudioBufferList* outOutputData)
 		assert(buffers == 1 || channels == 1);
 	})
 
-	cStereoSample* q	  = audio_out_buffer;
-	cStereoSample* e	  = q + DSP_SAMPLES_PER_BUFFER;
-	Sample		   volume = audio_output_volume;
+	const StereoSample* q	   = audio_out_buffer;
+	const StereoSample* e	   = q + DSP_SAMPLES_PER_BUFFER;
+	Sample				volume = audio_output_volume;
 
 	switch (buffers)
 	{
@@ -654,7 +654,7 @@ void startCoreAudio(bool input_enabled) //, int playthrough_mode)
 	}
 	catch (AnyError& e)
 	{
-		if (gui::settings.get_bool(key_warn_if_audio_in_fails, yes))
+		if (gui::settings.get_bool(gui::key_warn_if_audio_in_fails, yes))
 		{
 			xlogline("Dsp: Audio input setup failed:");
 			xlogline(status ? "Dsp: %s: error = %ld." : "Dsp: %s.", e.what(), status);

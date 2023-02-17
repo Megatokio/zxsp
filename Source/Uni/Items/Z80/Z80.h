@@ -42,7 +42,7 @@ struct FourBytes
 #endif
 
 
-typedef uint32 CoreByte;
+using CoreByte = uint32;
 
 
 struct PgInfo

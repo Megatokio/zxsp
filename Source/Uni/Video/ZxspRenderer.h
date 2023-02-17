@@ -67,7 +67,7 @@ public:
 		cc_h_border			   = h_border / pixel_per_cc;	  // 32  -> 64 pixel
 
 protected:
-	ZxspGifWriter(QObject* p, isa_id id, cColormap&, bool update_border, uint frames_per_second);
+	ZxspGifWriter(QObject* p, isa_id id, const Colormap&, bool update_border, uint frames_per_second);
 
 public:
 	ZxspGifWriter(QObject* p, bool update_border, uint frames_per_second = 50);

@@ -190,7 +190,7 @@ void Tc2048Renderer::drawScreen(
 // ================================================================================
 
 
-typedef uint8 GifColor;
+using GifColor = uint8;
 
 /* global ZX Spectrum color table:
 		8 x normal brightness
@@ -198,11 +198,11 @@ typedef uint8 GifColor;
 		1 x 50% grau für TC2048 64 Column-Mode
 */
 const GifColor transp	   = 8;	   // 'bright black' used for transparency
-cComp		   F		   = 0xFF; // "bright": full brightness
-cComp		   H		   = 0xCC; // "normal": reduced brightness: 80%
-cComp		   tc_colors[] = {0, 0, 0, 0, 0, H, H, 0, 0, H, 0, H, 0, H, 0, 0, H, H, H, H, 0, H, H, H, // r,g,b
+const Comp	   F		   = 0xFF; // "bright": full brightness
+const Comp	   H		   = 0xCC; // "normal": reduced brightness: 80%
+const Comp	   tc_colors[] = {0, 0, 0, 0, 0, H, H, 0, 0, H, 0, H, 0, H, 0, 0, H, H, H, H, 0, H, H, H, // r,g,b
 							  0, 0, 0, 0, 0, F, F, 0, 0, F, 0, F, 0, F, 0, 0, F, F, F, F, 0, F, F, F, 128, 128, 128};
-cColormap	   tc2048_colormap(tc_colors, 17, transp);
+const Colormap tc2048_colormap(tc_colors, 17, transp);
 
 
 Tc2048GifWriter::Tc2048GifWriter(QObject* p, bool update_border) :

@@ -98,14 +98,14 @@ void MonoRenderer::drawScreen(
 //		save a screenshot or record movie
 // ================================================================================
 
-typedef uint8 GifColor;
+using GifColor = uint8;
 // const GifColor gifcolor_black  = 0;
 // const GifColor gifcolor_white  = 1;
 const GifColor transp = 2;
 
-cComp	  mono_colors[] = {0, 0, 0, 255, 255, 255, 0, 0, 0};
-cColormap mono_colormap(mono_colors, 2, transp);
-cColormap mono_colormap_with_trans(mono_colors, 3, transp);
+const Comp	   mono_colors[] = {0, 0, 0, 255, 255, 255, 0, 0, 0};
+const Colormap mono_colormap(mono_colors, 2, transp);
+const Colormap mono_colormap_with_trans(mono_colors, 3, transp);
 
 
 MonoGifWriter::MonoGifWriter(QObject* p, bool update_border, uint frames_per_second) :

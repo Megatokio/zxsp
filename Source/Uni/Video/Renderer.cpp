@@ -26,7 +26,7 @@ Renderer::Renderer(
 GifWriter::GifWriter(
 	QObject*   p,
 	isa_id	   id,
-	cColormap& colormap,
+	const Colormap& colormap,
 	uint	   screen_width,
 	uint	   screen_height,
 	uint	   h_border,

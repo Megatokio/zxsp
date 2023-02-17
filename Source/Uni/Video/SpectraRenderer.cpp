@@ -161,8 +161,8 @@ void SpectraRenderer::drawScreen(
 							{
 								color1 = enhanced_rgba_colors[attr1 & 0x3F]; // fullcell: pen; halfcell: penR
 								color2 = enhanced_rgba_colors[attr2 & 0x3F]; // fullcell: pap; halfcell: penL
-								//															  halfcell: pap=black  ((future: papL and papR
-								//may be black or white))
+								//															  halfcell: pap=black  ((future: papL
+								//and papR may be black or white))
 
 								if (video_mode & HALFCELLMODE)
 								{
@@ -282,7 +282,7 @@ void SpectraRenderer::drawScreen(
 #undef COLOR
 #define COLOR(G, R, B) R * 85, G * 85, B * 85
 
-cComp spectra_colors[65 * 3] = // R,G,B,		note: Specci colors are GRB
+const Comp spectra_colors[65 * 3] = // R,G,B,		note: Specci colors are GRB
 	{
 		// G,R,B
 		COLOR(0, 0, 0), COLOR(0, 0, 1), COLOR(0, 0, 2), COLOR(0, 0, 3), COLOR(0, 1, 0), COLOR(0, 1, 1),
@@ -302,9 +302,10 @@ cComp spectra_colors[65 * 3] = // R,G,B,		note: Specci colors are GRB
 		COLOR(3, 3, 0), COLOR(3, 3, 1), COLOR(3, 3, 2), COLOR(3, 3, 3), COLOR(0, 0, 0) // transp
 };
 
-typedef uint8  GifColor;
+using GifColor = uint8;
+
 const GifColor transp = 64;
-cColormap	   spectra_colormap(spectra_colors, 65, transp);
+const Colormap spectra_colormap(spectra_colors, 65, transp);
 
 #define B	 2
 #define R	 8
@@ -431,8 +432,8 @@ void SpectraGifWriter::drawScreen(
 							{
 								color1 = attr1 & 0x3F; // fullcell: pen; halfcell: penR
 								color2 = attr2 & 0x3F; // fullcell: pap; halfcell: penL
-								//										  halfcell: pap=black  ((future: papL and papR may be
-								//black or white))
+								//										  halfcell: pap=black  ((future: papL and papR
+								//may be black or white))
 
 								if (video_mode & HALFCELLMODE)
 								{

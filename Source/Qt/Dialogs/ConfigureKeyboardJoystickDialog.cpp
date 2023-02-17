@@ -27,7 +27,7 @@ namespace gui
 //			map of key caps for os key codes
 // =================================================
 
-typedef char capstr[16];
+using capstr = char[16];
 
 static capstr caps[128] = {
 	"A",	 "S",	  "D",	 "F",	 "H",		"G",	"Z",	"X", // 0x00-0x07: a  s  d  f  h  g  z  x

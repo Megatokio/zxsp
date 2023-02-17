@@ -149,25 +149,26 @@ void ZxspRenderer::drawScreen(
 // ================================================================================
 
 
-typedef uint8 GifColor;
+using GifColor = uint8;
 
 /* global ZX Spectrum color table:
 		8 x normal brightness
 		8 x bright
 */
 const GifColor transp	   = 8;	   // 'bright black' used for transparency
-cComp		   F		   = 0xFF; // "bright": full brightness
-cComp		   H		   = 0xCC; // "normal": reduced brightness: 80%
-cComp		   zx_colors[] = {0, 0, 0, 0, 0, H, H, 0, 0, H, 0, H, 0, H, 0, 0, H, H, H, H, 0, H, H, H, // r,g,b
+const Comp	   F		   = 0xFF; // "bright": full brightness
+const Comp	   H		   = 0xCC; // "normal": reduced brightness: 80%
+const Comp	   zx_colors[] = {0, 0, 0, 0, 0, H, H, 0, 0, H, 0, H, 0, H, 0, 0, H, H, H, H, 0, H, H, H, // r,g,b
 							  0, 0, 0, 0, 0, F, F, 0, 0, F, 0, F, 0, F, 0, 0, F, F, F, F, 0, F, F, F};
-cColormap	   zxsp_colormap(zx_colors, 16, transp);
+const Colormap zxsp_colormap(zx_colors, 16, transp);
 
 
 ZxspGifWriter::ZxspGifWriter(QObject* p, bool update_border, uint frames_per_second) :
 	GifWriter(p, isa_ZxspGifWriter, zxsp_colormap, 256, 192, 32, 24, update_border, frames_per_second)
 {}
 
-ZxspGifWriter::ZxspGifWriter(QObject* p, isa_id id, cColormap& colormap, bool update_border, uint frames_per_second) :
+ZxspGifWriter::ZxspGifWriter(
+	QObject* p, isa_id id, const Colormap& colormap, bool update_border, uint frames_per_second) :
 	GifWriter(p, id, colormap, 256, 192, 32, 24, update_border, frames_per_second)
 {}
 

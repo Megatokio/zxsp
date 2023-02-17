@@ -91,7 +91,7 @@
 */
 
 
-typedef uint32 CC;
+using CC = uint32;
 
 
 class CswBuffer

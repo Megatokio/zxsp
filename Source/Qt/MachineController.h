@@ -149,8 +149,8 @@ public:
 	Screen*			  getScreen() volatile { return screen; } // callback from running machine
 	void			  setScreen(Screen*);
 
-	Model	 getModel() { return model; }
-	cZxInfo* getModelInfo() { return model_info; } // generic model info
+	Model		  getModel() { return model; }
+	const ZxInfo* getModelInfo() { return model_info; } // generic model info
 
 	void			loadSnapshot(cstr);
 	bool			isRzxAutostartRecording() const volatile;

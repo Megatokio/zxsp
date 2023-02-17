@@ -11,7 +11,6 @@
 #include <QMutex>
 #include <QSemaphore>
 struct IoInfo;
-// typedef uint32	RgbaColor;			// RGBA
 
 
 namespace gui

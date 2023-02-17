@@ -8,7 +8,7 @@
 #include "graphics/gif/GifEncoder.h"
 
 
-typedef uint32		   RgbaColor;			 // RGBA for OpenGL
+using RgbaColor = uint32;					 // RGBA for OpenGL
 extern const RgbaColor zxsp_rgba_colors[16]; // RGBA in ZxspRenderer.cpp
 
 const RgbaColor black		   = 0x000000FF;
@@ -85,15 +85,15 @@ protected:					  // values for 32 column mode:
 	uint	  frames_per_second;	 // animation speed
 	uint	  frames_per_flashphase; // for screenshot
 
-	cColormap& global_colormap;
-	GifEncoder gif_encoder;
+	const Colormap& global_colormap;
+	GifEncoder		gif_encoder;
 
 	void write_diff2_to_file();
 
 	GifWriter(
 		QObject* p,
 		isa_id	 id,
-		cColormap&,
+		const Colormap&,
 		uint screen_width,
 		uint screen_height,
 		uint h_border,

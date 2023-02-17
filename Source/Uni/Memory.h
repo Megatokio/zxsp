@@ -13,7 +13,7 @@
 #include "cpp/cppthreads.h"
 #include "kio/kio.h"
 
-typedef uint32 CoreByte; // Z80
+using CoreByte = uint32; // Z80
 class Machine;
 
 

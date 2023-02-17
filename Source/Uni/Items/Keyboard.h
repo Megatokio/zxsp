@@ -13,8 +13,8 @@
 //		kbdlog						// use logical translation (from character code)
 
 
-typedef uint8 AsciiToZxkeyMap[0x80]; // Unicode     -> enum ZxspKey	(mapping 'by meaning')
-typedef uint8 OskeyToZxkeyMap[0x40]; // OSX keycode -> enum ZxspKey	(mapping 'by key position')
+using AsciiToZxkeyMap = uint8[0x80]; // Unicode     -> enum ZxspKey	(mapping 'by meaning')
+using OskeyToZxkeyMap = uint8[0x40]; // OSX keycode -> enum ZxspKey	(mapping 'by key position')
 
 
 enum KbdModifiers // modifier key masks:

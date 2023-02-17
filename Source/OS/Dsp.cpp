@@ -38,7 +38,7 @@ void setOutputVolume(Sample volume)
 	}
 }
 
-void outputSamples(cStereoSample& sample, Time aa /*start [seconds]*/, Time ee /*end [seconds]*/)
+void outputSamples(const StereoSample& sample, Time aa /*start [seconds]*/, Time ee /*end [seconds]*/)
 {
 	// Output sample value to audio_out_buffer[]:
 
