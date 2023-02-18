@@ -110,7 +110,10 @@ private:
 	void	 enable_breakpoints(bool);
 	void	 show_lenslok(bool);
 	void	 add_external_item(isa_id, bool);
-	void	 add_external_ram(isa_id, bool);
+	void	 add_external_ram(isa_id, bool, uint options = 0);
+	void	 addMemotech64kRam(bool);
+	void	 addDivIDE(bool);
+	void	 addZx3kRam(bool);
 	void	 add_spectra_video(bool);
 	void	 set_rzx_recording(bool);
 	void	 set_rzx_autostart_recording(bool);

@@ -8,7 +8,6 @@
 #include "Items/Ram/Zx16kRam.h"
 #include "Items/Ram/Zx3kRam.h"
 #include "MachineController.h"
-#include "Settings.h"
 #include "TapeRecorder.h"
 #include "Z80/Z80.h"
 #include "ZxInfo.h"
@@ -21,11 +20,10 @@
 #define MIN_FREE (24 * 33 + 32) // full screen + edit line + some spare bytes...
 
 
-MachineZx80::MachineZx80(gui::MachineController* parent, Model model, isa_id id) : Machine(parent, model, id)
+MachineZx80::MachineZx80(gui::MachineController* parent, bool is60hz) : Machine(parent, zx80, isa_MachineZx80)
 {
-	cpu = new Z80(this);
-	ula = new UlaZx80(this);
-	ula->set60Hz(gui::settings.get_bool(key_framerate_zx80_60hz, false));
+	cpu		 = new Z80(this);
+	ula		 = new UlaZx80(this, is60hz);
 	mmu		 = new MmuZx80(this);
 	keyboard = new KeyboardZx80(this);
 	// ay		=

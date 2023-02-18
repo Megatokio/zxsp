@@ -53,7 +53,9 @@ Memotech64kRamInsp::Memotech64kRamInsp(QWidget* p, MachineController* mc, volati
 	}
 
 	connect(jumper, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [=](int i) {
-		NVPtr<Memotech64kRam>(memotech64kram())->setDipSwitches(dipsw[i]);
+		uint dip_switches = dipsw[i];
+		NVPtr<Memotech64kRam>(memotech64kram())->setDipSwitches(dip_switches);
+		settings.setValue(key_memotech64k_dip_switches, dip_switches);
 	});
 
 	QLabel* l = new QLabel("POKE 16388,255 : POKE 16389,255 : NEW", this);

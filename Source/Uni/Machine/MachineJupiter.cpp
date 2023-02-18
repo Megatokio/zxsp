@@ -21,10 +21,11 @@
 #define C_FLAG 0x01
 
 
-MachineJupiter::MachineJupiter(gui::MachineController* m) : Machine(m, jupiter, isa_MachineJupiter)
+MachineJupiter::MachineJupiter(gui::MachineController* m, bool is60hz) : Machine(m, jupiter, isa_MachineJupiter)
 {
-	cpu		 = new Z80(this);
-	ula		 = new UlaJupiter(this, gui::settings.get_bool(key_framerate_jupiter_60hz, false) ? 60 : 50);
+	cpu = new Z80(this);
+	//	ula		 = new UlaJupiter(this, gui::settings.get_bool(key_framerate_jupiter_60hz, false) ? 60 : 50);
+	ula		 = new UlaJupiter(this, is60hz);
 	mmu		 = new MmuJupiter(this);
 	keyboard = new KeyboardJupiter(this);
 	// ay		=
@@ -340,7 +341,7 @@ void MachineJupiter::loadAce(FD& fd) noexcept(false) /*file_error,data_error*/
 	}
 	else if (zsize <= 0x6000) // 24k => jupiter 3k with 16k ram extension
 	{
-		if (ram.count() < 19 * 1024) addExternalItem(isa_Jupiter16kRam);
+		if (ram.count() < 19 * 1024) addExternalRam(isa_Jupiter16kRam);
 	}
 	else
 		throw DataError("this snapshot needs more than 16K external ram (TODO)");

@@ -638,23 +638,60 @@ Item* Machine::addExternalItem(isa_id id)
 	case isa_Multiface1: i = new Multiface1(this); break;
 	case isa_Multiface128: i = new Multiface128(this); break;
 	case isa_Multiface3: i = new Multiface3(this); break;
-	case isa_Cheetah32kRam: i = new Cheetah32kRam(this); break;
-	case isa_Jupiter16kRam: i = new Jupiter16kRam(this); break;
 	case isa_SpectraVideo: i = new SpectraVideo(this); break;
-	case isa_DivIDE: i = new DivIDE(this); break;
 	case isa_CurrahMicroSpeech: i = new CurrahMicroSpeech(this); break;
-	case isa_Zx16kRam: i = new Zx16kRam(this); break;
-	case isa_Memotech16kRam: i = new Memotech16kRam(this); break;
-	case isa_Memotech64kRam: i = new Memotech64kRam(this); break;
-	case isa_Stonechip16kRam: i = new Stonechip16kRam(this); break;
-	case isa_Zx3kRam: i = new Zx3kRam(this); break;
-	case isa_Ts1016Ram: i = new Ts1016Ram(this); break;
 
-	default: showWarning("TODO: dieses Item in Machine::addExternalItem() eintragen"); return nullptr;
+	case isa_DivIDE:
+	case isa_Cheetah32kRam:
+	case isa_Jupiter16kRam:
+	case isa_Zx16kRam:
+	case isa_Memotech16kRam:
+	case isa_Memotech64kRam:
+	case isa_Stonechip16kRam:
+	case isa_Zx3kRam:
+	case isa_Ts1016Ram: IERR();
+
+	default: IERR();
 	}
 
 	i->powerOn(cpu->cpuCycle());
 	return i;
+}
+
+ExternalRam* Machine::addExternalRam(isa_id id, uint options)
+{
+	assert(isPowerOff());
+	assert(findIsaItem(isa_ExternalRam) == nullptr);
+
+	switch (id)
+	{
+	case isa_Jupiter16kRam: return new Jupiter16kRam(this);
+	case isa_Zx16kRam: return new Zx16kRam(this);
+	case isa_Stonechip16kRam: return new Stonechip16kRam(this);
+	case isa_Ts1016Ram: return new Ts1016Ram(this);
+	case isa_Memotech16kRam: return new Memotech16kRam(this);
+	case isa_Cheetah32kRam: return new Cheetah32kRam(this);
+
+	case isa_Zx3kRam:
+		if (options != 1 kB && options != 2 kB) options = 3 kB; // safety
+		return new Zx3kRam(this, options);
+
+	case isa_Memotech64kRam:
+		if (!Memotech64kRam::isValidDipSwitches(options)) options = Memotech64kRam::E;
+		return new Memotech64kRam(this, options);
+
+	default: IERR();
+	}
+}
+
+DivIDE* Machine::addDivIDE(uint ramsize, cstr romfile)
+{
+	assert(isPowerOff());
+
+	if (Item* item = findItem(isa_DivIDE))
+		return DivIDEPtr(item);
+	else
+		return new DivIDE(this, ramsize, romfile);
 }
 
 /*	add or remove SpectraVideo interface
@@ -1242,22 +1279,12 @@ void Machine::stepOut()
 	resume();
 }
 
-void Machine::set60Hz(bool is60hz)
+void Machine::set60HzNeu(bool is60hz)
 {
-	/*	set machine to 100% speed and select 50 or 60 Hz setup.
-		50/60Hz selection is stored in preferences.
-		called from speed menu and Machine50x60Inspector  */
+	// set machine to 100% speed and select 50 or 60 Hz setup.
+	// called from speed menu and Machine50x60Inspector
 
 	assert(is_locked());
-
-	switch (uint(model))
-	{
-	case zx80: gui::settings.setValue(key_framerate_zx80_60hz, is60hz); break;
-	case jupiter: gui::settings.setValue(key_framerate_jupiter_60hz, is60hz); break;
-	case tk85: gui::settings.setValue(key_framerate_tk85_60hz, is60hz); break;
-	case tk90x: gui::settings.setValue(key_framerate_tk90x_60hz, is60hz); break;
-	case tk95: gui::settings.setValue(key_framerate_tk95_60hz, is60hz); break;
-	}
 
 	setSpeedFromCpuClock(model_info->cpu_cycles_per_second);
 	ula->set60Hz(is60hz);
@@ -1265,9 +1292,9 @@ void Machine::set60Hz(bool is60hz)
 
 void Machine::setSpeedFromCpuClock(Frequency new_cpu_clock)
 {
-	/*	accelerate or slow down virtual world:
-		set machine speed from cpu clock.
-		called from Z80Inspector  */
+	// accelerate or slow down virtual world:
+	// set machine speed from cpu clock.
+	// called from Z80Inspector
 
 	assert(is_locked());
 

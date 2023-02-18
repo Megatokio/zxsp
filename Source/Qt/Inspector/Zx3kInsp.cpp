@@ -56,6 +56,7 @@ void Zx3kInsp::set_ram_size(uint newsize)
 	machine->powerOff();
 	NV(zx3kram())->setRamSize(newsize);
 	machine->powerOn();
+	settings.setValue(key_zx3k_ramsize, newsize);
 }
 
 } // namespace gui

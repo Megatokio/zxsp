@@ -57,7 +57,7 @@ UlaZx80::UlaZx80(Machine* m, isa_id _id, cstr oaddr, cstr iaddr) :
 	tv_decoder(dynamic_cast<IScreenMono&>(*screen), int32(m->model_info->cpu_cycles_per_second))
 {}
 
-UlaZx80::UlaZx80(Machine* m) : UlaZx80(m, isa_UlaZx80, o_addr, i_addr) {}
+UlaZx80::UlaZx80(Machine* m, bool is60hz) : UlaZx80(m, isa_UlaZx80, o_addr, i_addr) { UlaZx80::set60Hz(is60hz); }
 
 void UlaZx80::powerOn(int32 cc)
 {

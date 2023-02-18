@@ -15,5 +15,5 @@ protected:
 	void saveAce(FD&) override;
 
 public:
-	explicit MachineJupiter(gui::MachineController*);
+	explicit MachineJupiter(gui::MachineController*, bool is60hz = false);
 };

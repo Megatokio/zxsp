@@ -41,11 +41,10 @@
 */
 
 
-Memotech64kRam::Memotech64kRam(Machine* m) : ExternalRam(m, isa_Memotech64kRam)
+Memotech64kRam::Memotech64kRam(Machine* m, uint dip_switches) :
+	ExternalRam(m, isa_Memotech64kRam), dip_switches(dip_switches)
 {
 	machine->ram.grow(64 kB);
-	dip_switches = gui::settings.get_int(key_memotech64k_dip_switches, 0x06);
-
 	machine->mmu->mapMem(); // map new memory to cpu & to set videoram
 	map_dip_switched_ram();
 }
@@ -72,8 +71,6 @@ void Memotech64kRam::setDipSwitches(uint sw)
 
 	if (sw == dip_switches) return;
 	dip_switches = sw;
-
-	gui::settings.setValue(key_memotech64k_dip_switches, dip_switches);
 
 	map_dip_switched_ram();
 }

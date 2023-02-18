@@ -537,9 +537,9 @@ void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 		else
 			delete xram;
 		if (model == jupiter)
-			addExternalItem(isa_Jupiter16kRam);
+			addExternalRam(isa_Jupiter16kRam);
 		else if (model_info->has_zxsp_bus)
-			addExternalItem(isa_Cheetah32kRam);
+			addExternalRam(isa_Cheetah32kRam);
 		else if (model_info->has_zx80_bus)
 		{
 			if (req_ramsize <= 4 kB)

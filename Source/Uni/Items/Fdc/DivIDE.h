@@ -23,22 +23,26 @@ class DivIDE : public MassStorage
 	uint8 control_register;
 	bool  jumper_E;
 	bool  jumper_A;
-	// bool	romdis_in;				// rear-side input state
+	// bool	romdis_in;	   // rear-side input state
 	bool auto_paged_in;	   // auto page-in active?
 	bool own_romdis_state; // own state = auto_paged_in + CONMEM bit
 	cstr romfilepath;
 
 public:
-	explicit DivIDE(Machine*);
-	virtual ~DivIDE();
+	static constexpr cstr default_rom_name = "ESXdos 0.8.5";
+	static constexpr cstr default_rom_path = "Roms/esxdos085.rom";
+	static constexpr cstr default_rom	   = nullptr;
+
+	DivIDE(Machine*, uint ramsize, cstr romfile = default_rom);
+	~DivIDE() override;
 
 	// ROM handling:
-	cstr		getRomFilepath() const volatile { return romfilepath; }
-	cstr		getRomFilename() const volatile { return basename_from_path(romfilepath); }
-	bool		isRomPagedIn() const volatile { return own_romdis_state; }
-	int /*err*/ insertRom(cstr path, bool silent = no);
-	int /*err*/ insertDefaultRom(bool silent = false) { return insertRom(nullptr, silent); }
-	void		saveRom(FD&);
+	cstr		 getRomFilepath() const volatile { return romfilepath; }
+	cstr		 getRomFilename() const volatile { return basename_from_path(romfilepath); }
+	bool		 isRomPagedIn() const volatile { return own_romdis_state; }
+	cstr /*err*/ insertRom(cstr path);
+	cstr /*err*/ insertDefaultRom() { return insertRom(default_rom); }
+	void		 saveRom(FD&);
 
 	// Disk handling:
 	bool isDiskInserted() const volatile { return cf_card != nullptr; }

@@ -3,7 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "RzxFile.h"
-#include "Settings.h"
 #include "Z80Head.h"
 #include "ZxInfo/ZxInfo.h"
 #include "kio/kio.h"
@@ -11,9 +10,8 @@
 #include "zasm/Source/Z80Assembler.h"
 
 
-Model bestModelForFile(cstr fpath)
+Model bestModelForFile(cstr fpath, Model default_model)
 {
-	Model default_model = gui::settings.get_Model(key_startup_model, zxsp_i3);
 	if (!fpath) return default_model;
 	Language language = zx_info[default_model].language;
 	cstr	 ext	  = lowerstr(extension_from_path(fpath));
@@ -98,7 +96,7 @@ Model bestModelForFile(cstr fpath)
 	if (eq(ext, "rzx"))
 	{
 		fpath = RzxFile::getFirstSnapshot(fpath);
-		return fpath ? bestModelForFile(fpath) : default_model;
+		return fpath ? bestModelForFile(fpath, default_model) : default_model;
 	}
 
 	if (eq(ext, ".src") || eq(ext, ".asm") || eq(ext, ".ass") || eq(ext, ".s"))
@@ -119,7 +117,7 @@ Model bestModelForFile(cstr fpath)
 		if (ass.numErrors())
 			return default_model;
 		else
-			return bestModelForFile(ass.targetFilepath());
+			return bestModelForFile(ass.targetFilepath(), default_model);
 	}
 
 	// if(eq(ext,".tzx"))
@@ -131,15 +129,11 @@ Model bestModelForFile(cstr fpath)
 
 dflt_zxsp:
 	return language == spanish	  ? inves :
-		   language == portuguese ? tk95
-									//	 : language==american ? ts2068			TODO
-									:
+		   language == portuguese ? tk95 : // language==american ? ts2068			TODO									
 									zxsp_i3;
 
 dflt_zx81:
 	return language == american	  ? ts1000 :
-		   language == portuguese ? tk85
-									//	 : language==spanish ? zx81
-									:
+		   language == portuguese ? tk85 : // language==spanish ? zx81
 									zx81;
 }

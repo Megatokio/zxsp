@@ -73,8 +73,9 @@ class SmartSDCard : public MassStorage
 	uint8			  flash_byte_written; // byte seen during flash write
 
 public:
-	explicit SmartSDCard(Machine* m);
-	virtual ~SmartSDCard() override;
+	enum Dip { JoystickEnabled = 1, MemoryEnabled = 2, ForceBankB = 4, FlashWriteEnabled = 8 };
+	explicit SmartSDCard(Machine* m, uint dip_switches);
+	~SmartSDCard() override;
 
 	// DIP switches:
 	void setMemoryEnabled(bool);

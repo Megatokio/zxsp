@@ -10,8 +10,8 @@
 class UlaZx80 : public Ula
 {
 public:
-	explicit UlaZx80(Machine*);
-	virtual ~UlaZx80() override;
+	UlaZx80(Machine*, bool is60hz);
+	~UlaZx80() override;
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;

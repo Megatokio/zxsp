@@ -93,16 +93,16 @@ Machine* MachineController::new_machine_for_model(Model model)
 
 	switch (model)
 	{
-	case jupiter: return new MachineJupiter(this);
+	case jupiter: return new MachineJupiter(this, settings.get_bool(key_framerate_jupiter_60hz, false));
 
-	case zx80: return new MachineZx80(this);
+	case zx80: return new MachineZx80(this, settings.get_bool(key_framerate_zx80_60hz, false));
 	case zx81: return new MachineZx81(this);
-	case tk85: return new MachineTk85(this);
+	case tk85: return new MachineTk85(this, settings.get_bool(key_framerate_tk85_60hz, false));
 	case ts1000: return new MachineTs1000(this);
 	case ts1500: return new MachineTs1500(this);
 
-	case tk90x: return new MachineTk90x(this);
-	case tk95: return new MachineTk95(this);
+	case tk90x: return new MachineTk90x(this, settings.get_bool(key_framerate_tk90x_60hz, false));
+	case tk95: return new MachineTk95(this, settings.get_bool(key_framerate_tk95_60hz, false));
 	case inves: return new MachineInves(this);
 	case tc2048: return new MachineTc2048(this);
 
@@ -766,13 +766,20 @@ void MachineController::create_actions()
 	action_addJupiter16kRam		= new_action(NOICON, "Jupiter 16K RAM", NOKEY, ADDRAM(isa_Jupiter16kRam));
 	action_addZx16kRam			= new_action(NOICON, "Sinclair ZX 16K RAM", NOKEY, ADDRAM(isa_Zx16kRam));
 	action_addTs1016Ram			= new_action(NOICON, "Timex Sinclair 1016", NOKEY, ADDRAM(isa_Ts1016Ram));
+	action_addMemotech16kRam	= new_action(NOICON, "MEMOPAK 16k", NOKEY, ADDRAM(isa_Memotech16kRam));
 	action_addStonechip16kRam = new_action(NOICON, "Stonechip 16K Expandable Ram", NOKEY, ADDRAM(isa_Stonechip16kRam));
-	action_addMemotech16kRam  = new_action(NOICON, "MEMOPAK 16k", NOKEY, ADDRAM(isa_Memotech16kRam));
-	action_addMemotech64kRam  = new_action(NOICON, "MEMOPAK 64k", NOKEY, ADDRAM(isa_Memotech64kRam));
-	action_addZx3kRam		  = new_action(NOICON, "Sinclair ZX80 1-3K BYTE RAM PACK", NOKEY, ADDRAM(isa_Zx3kRam));
-	action_addDivIDE		  = new_action(NOICON, "DivIDE 57c CF card interface", NOKEY, ADDRAM(isa_DivIDE));
-	action_addSpectraVideo	  = new_action(
-		   NOICON, "SPECTRA video interface", NOKEY, [=](bool f) { add_spectra_video(f); }, isa_SpectraVideo);
+
+	action_addMemotech64kRam = new_action(
+		NOICON, "MEMOPAK 64k", NOKEY, [this](bool f) { addMemotech64kRam(f); }, isa_Memotech64kRam);
+
+	action_addZx3kRam = new_action(
+		NOICON, "Sinclair ZX80 1-3K BYTE RAM PACK", NOKEY, [this](bool f) { addZx3kRam(f); }, isa_Zx3kRam);
+
+	action_addDivIDE = new_action(
+		NOICON, "DivIDE 57c CF card interface", NOKEY, [this](bool f) { addDivIDE(f); }, isa_DivIDE);
+
+	action_addSpectraVideo = new_action(
+		NOICON, "SPECTRA video interface", NOKEY, [=](bool f) { add_spectra_video(f); }, isa_SpectraVideo);
 
 	action_gifAnimateBorder = settings.action_gifAnimateBorder;
 
@@ -792,10 +799,32 @@ void MachineController::create_actions()
 		new_action(NOICON, "Append snapshots to RZX file", NOKEY, [=](bool f) { set_rzx_append_snapshots(f); });
 
 	action_setSpeed100_50 = new_action(NOICON, "100% 50Hz", Qt::Key_5, [=](bool f) {
-		if (f) nvptr(machine)->set50Hz();
+		if (f)
+		{
+			nvptr(machine)->set50HzNeu();
+			switch (uint(model))
+			{
+			case zx80: gui::settings.setValue(key_framerate_zx80_60hz, false); break;
+			case jupiter: gui::settings.setValue(key_framerate_jupiter_60hz, false); break;
+			case tk85: gui::settings.setValue(key_framerate_tk85_60hz, false); break;
+			case tk90x: gui::settings.setValue(key_framerate_tk90x_60hz, false); break;
+			case tk95: gui::settings.setValue(key_framerate_tk95_60hz, false); break;
+			}
+		}
 	});
 	action_setSpeed100_60 = new_action(NOICON, "100% 60Hz", Qt::Key_6, [=](bool f) {
-		if (f) nvptr(machine)->set60Hz();
+		if (f)
+		{
+			nvptr(machine)->set60HzNeu();
+			switch (uint(model))
+			{
+			case zx80: gui::settings.setValue(key_framerate_zx80_60hz, true); break;
+			case jupiter: gui::settings.setValue(key_framerate_jupiter_60hz, true); break;
+			case tk85: gui::settings.setValue(key_framerate_tk85_60hz, true); break;
+			case tk90x: gui::settings.setValue(key_framerate_tk90x_60hz, true); break;
+			case tk95: gui::settings.setValue(key_framerate_tk95_60hz, true); break;
+			}
+		}
 	});
 	action_setSpeed120	  = new_action(NOICON, "120% 60Hz", Qt::Key_6, [=] { nvptr(machine)->speedupTo60fps(); });
 	action_setSpeed200	  = new_action(NOICON, "200% 60Hz", NOKEY, [=] { nvptr(machine)->setSpeedAnd60fps(2.0); });
@@ -1020,8 +1049,8 @@ MachineController::MachineController(QString filepath) // ---- C O N S T R U C T
 
 	create_mainmenubar();
 
-	Model model = filepath.isEmpty() ? settings.get_Model(key_startup_model, zxsp_i3) :
-									   bestModelForFile(filepath.toUtf8().data());
+	Model model = settings.get_Model(key_startup_model, zxsp_i3);
+	if (!filepath.isEmpty()) model = bestModelForFile(filepath.toUtf8().data(), model);
 
 	uint32 ramsize = 0; // default
 	bool   ay	   = settings.get_bool(key_always_attach_soundchip, yes);
@@ -1809,21 +1838,84 @@ void MachineController::add_external_item(isa_id item_id, bool add)
 	if (f) machine->resume();
 }
 
-void MachineController::add_external_ram(isa_id item_id, bool add)
+void MachineController::add_external_ram(isa_id item_id, bool add, uint options)
 {
-	/*	add or remove ram
-		-> remove currently attached ram, if any
-		-> add or remove ram
-		-> reset machine
-	*/
+	// Add or remove Ram
+	//  -> remove currently attached Ram, if any
+	//  -> add or remove Ram
+	//  -> reset machine
+
 	xlogIn("MachineController:slot_add_external_ram(%i,%s)", item_id, add ? "add" : "remove");
 
 	bool f = machine->powerOff();
 
-	if (add) NV(machine)->removeIsaItem(isa_ExternalRam);
-	add_external_item(item_id, add);
+	NV(machine)->removeIsaItem(isa_ExternalRam);
+	if (add) NV(machine)->addExternalRam(item_id, options);
 
 	if (f) machine->powerOn();
+}
+
+void MachineController::addMultiface1(bool add)
+{
+	bool f = machine->suspend();
+
+	if (add)
+	{
+		m->removeIsaItem(isa_ExternalRam);
+		m->addExternalRam(item_id, options);
+	}
+	else { m->removeItem(item_id); }
+
+	if (f) machine->powerOn();
+}
+
+void MachineController::addMemotech64kRam(bool add)
+{
+	uint dip_switches = settings.get_uint(key_memotech64k_dip_switches, 0x06);
+	add_external_ram(isa_Memotech64kRam, add, dip_switches);
+}
+
+void MachineController::addZx3kRam(bool add)
+{
+	uint ramsize = settings.get_uint(key_zx3k_ramsize, 3 kB);
+	add_external_ram(isa_Zx3kRam, add, ramsize);
+}
+
+void MachineController::addDivIDE(bool add)
+{
+	xlogIn("MachineController:addDivIDE(%i)", add);
+
+	bool f = machine->powerOff();
+
+	if (add)
+	{
+		uint ramsize  = settings.get_uint(key_divide_ram_size, 32 kB);
+		cstr romfile  = settings.get_cstr(key_divide_rom_file);
+		cstr diskfile = settings.get_cstr(key_divide_disk_file);
+
+		DivIDE* divide = NV(machine)->addDivIDE(ramsize, romfile);
+
+		cstr err = nullptr;
+		if (divide->getRomFilepath() == nullptr) // failed to load
+			err = divide->insertRom(romfile);	 // error should repeat
+
+		if (err && romfile)
+		{
+			showWarning("Failed to load %s\n%s\nLoading default Rom instead.", romfile, err);
+			settings.remove(key_divide_rom_file); // suppress error next time
+			err = divide->insertDefaultRom();
+		}
+
+		if (err) showAlert("Failed to load internal Rom\n%s\nRemoving jumper_E", err);
+
+		if (diskfile) divide->insertDisk(diskfile); // shows it's own errors
+	}
+	else
+		NV(machine)->removeItem(isa_DivIDE);
+
+	if (f) machine->powerOn();
+
+	action_addDivIDE->setChecked(add);
 }
 
 void MachineController::add_spectra_video(bool add)

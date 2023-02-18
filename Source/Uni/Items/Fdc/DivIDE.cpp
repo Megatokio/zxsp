@@ -5,7 +5,6 @@
 #include "DivIDE.h"
 #include "IdeDevice.h"
 #include "Machine/Machine.h"
-#include "Qt/Settings.h"
 #include "Z80/Z80.h"
 
 
@@ -15,69 +14,32 @@
 */
 
 
-#define DEFAULT_ROM_PATH catstr(appl_rsrc_path, "Roms/esxdos085.rom")
-#define DEFAULT_ROM_NAME "ESXdos 0.8.5"
-
-
 #define o_addr "---- ---- 1-1- --11"
 #define i_addr "---- ---- 101- --11"
 
-const uint control_register_address = 0b11100011;
-const uint ide_register_address		= 0b10100011;
-const uint register_bits_mask		= 0b00011100; // bits for IDE register address in i/o address
-const uint address_bits_mask		= 0b11100011;
+static constexpr uint control_register_address = 0b11100011;
+static constexpr uint ide_register_address	   = 0b10100011;
+static constexpr uint register_bits_mask	   = 0b00011100; // bits for IDE register address in i/o address
+static constexpr uint address_bits_mask		   = 0b11100011;
 
-const uint DivIDE_bit_mask = 1 << 6; // bit in address which selects between DivIDE ctl reg (1) and IDE reg (0)
-const uint MAPRAM_bit_mask = 1 << 6; // bit in DivIDE ctl reg
-const uint CONMEM_bit_mask = 1 << 7; // bit in DivIDE ctl reg
+static constexpr uint DivIDE_bit_mask = 1 << 6; // bit in address selects between DivIDE ctl reg (1) and IDE reg (0)
+static constexpr uint MAPRAM_bit_mask = 1 << 6; // bit in DivIDE ctl reg
+static constexpr uint CONMEM_bit_mask = 1 << 7; // bit in DivIDE ctl reg
 
 
-DivIDE::DivIDE(Machine* machine) :
+DivIDE::DivIDE(Machine* machine, uint ramsize, cstr romfile) :
 	MassStorage(machine, isa_DivIDE, external, o_addr, i_addr), rom(machine, "DivIDE Rom", 8 kB),
-	ram(machine, "DivIDE Ram", gui::settings.get_int(key_divide_ram_size, 32 kB)), cf_card(nullptr),
-	ide_data_latch_state(random() & 1), control_register(0), // All bits are reset to '0' after power-on.
-	jumper_E(true),											 // write protect eeprom, enable auto-paging
-	jumper_A(
-		machine->isA(isa_MachineZxPlus2a)), // most models, for +2A/+3 it must be set (what happens if jumpered wrong?)
-	auto_paged_in(0),						// state of auto-paging
-	own_romdis_state(0),					// own state
+	ram(machine, "DivIDE Ram", ramsize == 16 kB ? 16 kB : 32 kB), cf_card(nullptr), ide_data_latch_state(random() & 1),
+	control_register(0),						 // All bits are reset to '0' after power-on.
+	jumper_E(),									 // set by insertRom()
+	jumper_A(machine->isA(isa_MachineZxPlus2a)), // for most models off, for +2A/+3 it must be set
+	auto_paged_in(0),							 // state of auto-paging
+	own_romdis_state(0),						 // own state
 	romfilepath(nullptr)
 {
 	xlogIn("new DivIDE");
-
-	// load DivIDE rom:
-	cstr fpath = gui::settings.get_cstr(key_divide_rom_file);
-	if (fpath)
-	{
-		try
-		{
-			insertRom(fpath);
-		}
-		catch (FileError& e)
-		{
-			showWarning("I could not load the recent Rom:\n%s\nI'll load " DEFAULT_ROM_NAME " instead.", e.what());
-			gui::settings.remove(key_divide_rom_file); // sonst krakeelt der beim nächsten mal wieder
-			assert(romfilepath == nullptr);
-		};
-	}
-	if (!romfilepath)
-	{
-		try
-		{
-			insertRom(DEFAULT_ROM_PATH);
-		}
-		catch (FileError& e)
-		{
-			showAlert("I could not find the internal DivIDE rom:\n%s\nI'll remove jumper 'E' for you...", e.what());
-			jumper_E = false;
-		};
-	}
-
-	// load diskfile:
-	fpath = gui::settings.get_cstr(key_divide_disk_file);
-	if (fpath) insertDisk(fpath);
+	insertRom(romfile);
 }
-
 
 DivIDE::~DivIDE()
 {
@@ -93,7 +55,6 @@ DivIDE::~DivIDE()
 	delete[] romfilepath;
 }
 
-
 void DivIDE::powerOn(int32 cc)
 {
 	MassStorage::powerOn(cc);
@@ -108,12 +69,11 @@ void DivIDE::powerOn(int32 cc)
 	if (cf_card) cf_card->reset(0.0);
 }
 
-
-/*	Behandle Änderung am ROMCS-Eingang
-	Note: DivIDE 57c hatte keinen Rearside-Port!
-*/
 void DivIDE::romCS(bool f)
 {
+	// Handle change at rearside ROMCS input
+	// Note: DivIDE 57c has no rearside port!
+
 	if (f == romdis_in) return;
 	romdis_in = f;
 
@@ -148,7 +108,6 @@ void DivIDE::romCS(bool f)
 	}
 }
 
-
 void DivIDE::applyRomPatches()
 {
 	// apply rom patches, regardless whether paging is enabled or not:
@@ -176,17 +135,15 @@ void DivIDE::applyRomPatches()
 	for (uint i = 0x1ff8; i <= 0x1fff; i++) rom[i] |= cpu_patch; // 'off-area'
 }
 
-
-/*	push reset:
-	/reset is not connected to anything on the DivIDE 57c
-	it is connected to IDE /reset
-*/
 void DivIDE::reset(Time t, int32 cc)
 {
+	// push reset:
+	// /reset is not connected to anything on the DivIDE 57c.
+	// it is connected to IDE /reset.
+
 	MassStorage::reset(t, cc);
 	if (cf_card) cf_card->reset(t);
 }
-
 
 void DivIDE::mapMemory()
 {
@@ -248,15 +205,14 @@ void DivIDE::mapMemory()
 	}
 }
 
-
-/*	input from IDE register
-	the DivIDE control register can't be read
-	so any input must be for the IDE registers
-	NOTE: if only 1 drive (master) is attached (which is true for the current implementation)
-		  then it must respond as if selected, except for reading register 7. (ATA5 pg.288)
-*/
 void DivIDE::input(Time t, int32 /*cc*/, uint16 addr, uint8& byte, uint8& mask)
 {
+	// input from IDE register
+	// the DivIDE control register can't be read
+	// so any input must be for the IDE registers
+	// NOTE: if only 1 drive (master) is attached (which is true for the current implementation)
+	//       then it must respond as if selected, except for reading register 7. (ATA5 pg.288)
+
 	assert((addr & address_bits_mask) == ide_register_address);
 
 	mask = 0xff; // data bus is always driven, either by xcver 245 or by latch 573
@@ -286,11 +242,10 @@ void DivIDE::input(Time t, int32 /*cc*/, uint16 addr, uint8& byte, uint8& mask)
 	}
 }
 
-
-/*	output to DivIDE control register or IDE register
- */
 void DivIDE::output(Time t, int32 /*cc*/, uint16 addr, uint8 byte)
 {
+	// output to DivIDE control register or IDE register
+
 	if (addr & DivIDE_bit_mask) // DivIDE control register
 	{
 		assert((addr & address_bits_mask) == control_register_address);
@@ -342,12 +297,11 @@ void DivIDE::output(Time t, int32 /*cc*/, uint16 addr, uint8 byte)
 	}
 }
 
-
-/*	handle rom patch
-	here we control the auto-paging
-*/
 uint8 DivIDE::handleRomPatch(uint16 pc, uint8 opcode)
 {
+	// Handle Rom patch.
+	// Here we control the auto-paging.
+
 	xlogline("DivIDE::handleRomPatch(pc=%i)", int(pc));
 
 	if (jumper_E) // auto-paging enabled
@@ -392,13 +346,12 @@ uint8 DivIDE::handleRomPatch(uint16 pc, uint8 opcode)
 	return prev()->handleRomPatch(pc, opcode);
 }
 
-
-//	insert or remove jumper 'E'
-//	jumper set:	automatic memory paging by executing trigger addresses in rom enabled
-//				DivIDE eeprom write-protected
-//
-void DivIDE::setJumperE(bool f) // toggle jumper 'E'
+void DivIDE::setJumperE(bool f)
 {
+	// insert or remove jumper_E:
+	// jumper set:	enable automatic memory paging by executing trigger addresses in Rom
+	//				write-protect Rom
+
 	if (jumper_E == f) return;
 	jumper_E = f;
 
@@ -406,7 +359,6 @@ void DivIDE::setJumperE(bool f) // toggle jumper 'E'
 
 	mapMemory(); // update paging and rom write protection state
 }
-
 
 void DivIDE::saveRom(FD& fd)
 {
@@ -418,38 +370,34 @@ void DivIDE::saveRom(FD& fd)
 	//	romfilepath = newcopy(path);
 }
 
-
-int DivIDE::insertRom(cstr path, bool silent)
+cstr DivIDE::insertRom(cstr path)
 {
-	if (!path) path = DEFAULT_ROM_PATH;
+	assert(rom.count() == 8 kB);
+
+	if (!path) path = catstr(appl_rsrc_path, default_rom_path);
 
 	try
 	{
-		FD	 fd(path, 'r'); // throws
-		uint sz = fd.file_size();
-		if (sz != 8 kB)
-		{
-			if (!silent) showWarning("Rom size is 8 kByte, but file size is %u", sz);
-			return error;
-		}
+		FD fd(path, 'r'); // throws
 
-		assert(rom.count() == 8 kB);
+		off_t sz = fd.file_size();
+		if (sz != 8 kB) return usingstr("Rom size is 8 kByte, but file size is %lu", sz);
+
 		read_mem(fd, rom.getData(), 8 kB); // throws
 		delete[] romfilepath;
 		romfilepath = newcopy(path);
-		gui::settings.setValue(key_divide_rom_file, path);
 		applyRomPatches();
-		return ok;
+		setJumperE(true);
+		return nullptr; // ok
 	}
 	catch (FileError& e)
 	{
-		if (!silent) showAlert("File %s:\n%s", e.filepath, e.what());
 		delete[] romfilepath;
 		romfilepath = nullptr;
-		return e.error();
+		setJumperE(false);
+		return e.what();
 	}
 }
-
 
 void DivIDE::ejectDisk()
 {
@@ -457,27 +405,19 @@ void DivIDE::ejectDisk()
 	cf_card = nullptr;
 }
 
-
 void DivIDE::insertDisk(cstr path)
 {
+	// note: IdeCFCard shows alerts on error
+
 	if (cf_card) ejectDisk();
-	cf_card = new IdeCFCard(path); // master
-
-	if (cf_card->isLoaded()) { gui::settings.setValue(key_divide_disk_file, path); }
-	else
-	{
-		// open file failed!
-		// note: new IdeDiskDrive() already shows an alert
-		ejectDisk();
-	}
+	cf_card = new IdeCFCard(path);		   // master
+	if (!cf_card->isLoaded()) ejectDisk(); // open file failed!
 }
-
 
 void DivIDE::audioBufferEnd(Time t)
 {
 	if (cf_card) cf_card->audioBufferEnd(t);
 }
-
 
 cstr DivIDE::getDiskFilename() const volatile
 {
@@ -491,14 +431,12 @@ cstr DivIDE::getDiskFilename() const volatile
 		return basename_from_path(fpath);
 }
 
-
 void DivIDE::setDiskWritable(bool f) volatile
 {
 	assert(isMainThread());
 
 	if (cf_card != nullptr) cf_card->setWritable(f);
 }
-
 
 void DivIDE::setRamSize(uint sz)
 {
@@ -507,10 +445,8 @@ void DivIDE::setRamSize(uint sz)
 	if (sz == ram.count()) return;
 
 	bool f = machine->suspend();
-	//	machine->disable_execution();
 	ram.grow(sz);
 	ram.shrink(sz);
 	mapMemory();
-	//	machine->enable_execution();
 	if (f) machine->resume();
 }

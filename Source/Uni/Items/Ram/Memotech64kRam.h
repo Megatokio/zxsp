@@ -11,11 +11,15 @@ class Memotech64kRam : public ExternalRam
 	uint dip_switches; // bits[3…0] == dip switch[1…4]
 
 public:
-	explicit Memotech64kRam(Machine*);
-	virtual ~Memotech64kRam();
+	enum DipSwitches { A = 0x8, B = 0x4, C = 0x2, D = 0x1, E = 0x6 }; // lt. Memopak manual
+
+	Memotech64kRam(Machine*, uint dip_switches = E);
+	~Memotech64kRam() override;
 
 	void setDipSwitches(uint);
 	uint getDipSwitches() const volatile { return dip_switches; }
+
+	static bool isValidDipSwitches(uint sw) { return sw == A || sw == B || sw == C || sw == D || sw == E; }
 
 protected:
 	// Item interface:

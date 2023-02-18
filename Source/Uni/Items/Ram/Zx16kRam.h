@@ -6,14 +6,14 @@
 #include "ExternalRam.h"
 
 
-//  Speicher-Erweiterungen für den Sinclair ZX80 und ZX81
-//  erweitert den ZX81 auf 16k
+//  Memory Extension for the Sinclair ZX80 and ZX81.
+//  Extend memory to 16k
 
 class Zx16kRam : public ExternalRam
 {
 public:
 	explicit Zx16kRam(Machine*);
-	virtual ~Zx16kRam();
+	~Zx16kRam() override;
 
 protected:
 	Zx16kRam(Machine*, isa_id);

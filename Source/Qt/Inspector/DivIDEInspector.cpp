@@ -240,14 +240,21 @@ void DivIDEInspector::fillContextMenu(QMenu* menu)
 //
 void DivIDEInspector::load_rom(cstr filepath)
 {
-	assert(divide()->getRom().count());
+	assert(filepath != nullptr);
 
-	bool f	 = machine->powerOff(); // new DOS needs to set up data
-	int	 err = NV(divide())->insertRom(filepath);
+	bool f = machine->powerOff(); // new DOS needs to set up data
+
+	cstr err = NV(divide())->insertRom(filepath);
+	if (err)
+		showWarning("Failed to load %s\n%s.", filepath, err);
+	else
+	{
+		settings.setValue(key_divide_rom_file, filepath);
+		addRecentFile(RecentDivideRoms, filepath);
+	}
+
 	if (f) machine->powerOn();
 
-	if (!err && filepath) addRecentFile(RecentDivideRoms, filepath);
-	// addRecentFile(RecentFiles,filepath);	// würde später in's interne Rom laden
 	emit updateCustomTitle();
 }
 
@@ -310,7 +317,11 @@ void DivIDEInspector::insert_disk(cstr filepath)
 	NV(divide())->insertDisk(filepath);
 	if (f) machine->powerOn();
 
-	if (divide()->isDiskInserted()) { addRecentFile(RecentDivideDisks, filepath); }
+	if (divide()->isDiskInserted())
+	{
+		addRecentFile(RecentDivideDisks, filepath);
+		settings.setValue(key_divide_disk_file, filepath);
+	}
 }
 
 void DivIDEInspector::insert_disk()

@@ -203,10 +203,12 @@ public:
 	}
 
 	Item*		  addExternalItem(isa_id);
+	ExternalRam*  addExternalRam(isa_id, uint size_or_options = 0);
 	void		  removeItem(Item* item) { delete item; }
 	void		  removeItem(isa_id id) { delete findItem(id); }
 	void		  removeIsaItem(isa_id id) { delete findIsaItem(id); }
 	SpectraVideo* addSpectraVideo(bool add = yes);
+	DivIDE*		  addDivIDE(uint ramsize, cstr romfile);
 
 	void itemAdded(Item*);	 // callback from Item c'tor
 	void itemRemoved(Item*); // callback from Item d'tor
@@ -261,6 +263,6 @@ public:
 	void speedupTo60fps();
 	void setSpeedAnd60fps(double factor);
 
-	void set50Hz() { set60Hz(0); } // 100%, ~50fps, stored in prefs
-	void set60Hz(bool = 1);		   // 100%, ~60fps, stored in prefs
+	void set50HzNeu() { set60HzNeu(0); } // 100%, ~50fps, stored in prefs
+	void set60HzNeu(bool = 1);			 // 100%, ~60fps, stored in prefs
 };

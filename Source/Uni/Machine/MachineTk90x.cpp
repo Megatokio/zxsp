@@ -7,15 +7,13 @@
 #include "Joy/SinclairJoy.h"
 #include "Keyboard.h"
 #include "MachineZxsp.h"
-#include "Settings.h"
 #include "TapeRecorder.h"
 
 
-MachineTk90x::MachineTk90x(gui::MachineController* m) : MachineZxsp(m, tk90x, isa_MachineTk90x)
+MachineTk90x::MachineTk90x(gui::MachineController* m, bool is60hz) : MachineZxsp(m, tk90x, isa_MachineTk90x)
 {
-	cpu = new Z80(this);
-	ula = new UlaTk90x(this);
-	ula->set60Hz(gui::settings.get_bool(key_framerate_tk90x_60hz, false));
+	cpu		 = new Z80(this);
+	ula		 = new UlaTk90x(this, is60hz);
 	mmu		 = new MmuZxsp(this);
 	keyboard = new KeyboardZxsp(this, isa_KbdTk90x);
 	// ay		=

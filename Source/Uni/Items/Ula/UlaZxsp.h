@@ -109,6 +109,6 @@ public:
 class UlaTk90x : public UlaZxsp
 {
 public:
-	UlaTk90x(Machine*);
+	UlaTk90x(Machine*, bool is60hz);
 	void set60Hz(bool = 1) override;
 };

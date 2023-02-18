@@ -143,7 +143,7 @@ UlaJupiter::~UlaJupiter()
 	delete[] frame_data2;
 }
 
-UlaJupiter::UlaJupiter(Machine* m, uint fps) :
+UlaJupiter::UlaJupiter(Machine* m, bool is60hz) :
 	Ula(m, isa_UlaJupiter, o_addr, i_addr), frame_data(nullptr), frame_data2(nullptr)
 {
 	audio_mode	 = mixed_audio; // or: read from prefs?
@@ -154,7 +154,7 @@ UlaJupiter::UlaJupiter(Machine* m, uint fps) :
 	frame_data	= new uint8[frame_data_alloc];
 	frame_data2 = new uint8[frame_data_alloc];
 
-	set60Hz(fps == 60);
+	UlaJupiter::set60Hz(is60hz);
 }
 
 void UlaJupiter::set60Hz(bool is_60hz)

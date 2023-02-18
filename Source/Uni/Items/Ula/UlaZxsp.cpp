@@ -69,7 +69,7 @@ UlaZxsp::UlaZxsp(Machine* m, isa_id id, cstr oaddr, cstr iaddr) :
 UlaZxsp::UlaZxsp(Machine* m) : UlaZxsp(m, isa_UlaZxsp, io_addr, io_addr) {}
 
 
-UlaTk90x::UlaTk90x(Machine* m) : UlaZxsp(m, isa_UlaTk90x, io_addr, io_addr) {}
+UlaTk90x::UlaTk90x(Machine* m, bool is60hz) : UlaZxsp(m, isa_UlaTk90x, io_addr, io_addr) { UlaTk90x::set60Hz(is60hz); }
 
 
 UlaZxsp::~UlaZxsp()
