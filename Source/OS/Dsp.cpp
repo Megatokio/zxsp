@@ -10,7 +10,7 @@
 Time	  system_time		 = 0.0;
 Frequency samples_per_second = 44100;
 
-namespace Dsp
+namespace os
 {
 StereoSample audio_out_buffer[DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING];
 StereoSample audio_in_buffer[DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING];

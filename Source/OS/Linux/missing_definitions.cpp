@@ -5,7 +5,7 @@
 #include "Dsp.h"
 #include "kio/kio.h"
 
-namespace Dsp
+namespace os
 {
 void startCoreAudio(bool input_enabled)
 {

@@ -1508,7 +1508,7 @@ void SP0256::output_filtered(Sample sample, Time ee)
 		sample_at_c2 += d = (sample_at_c1 - sample_at_c2) * ff2;
 		sample_at_c1 -= d;
 		if (fabsf(sample_at_c2) > 2.0f) xxlog("sample>2");
-		Dsp::audio_out_buffer[a] += sample_at_c2 * float(ee - aa);
+		os::audio_out_buffer[a] += sample_at_c2 * float(ee - aa);
 	}
 	else
 	{
@@ -1517,7 +1517,7 @@ void SP0256::output_filtered(Sample sample, Time ee)
 		sample_at_c2 += d = (sample_at_c1 - sample_at_c2) * ff2;
 		sample_at_c1 -= d;
 		if (fabsf(sample_at_c2) > 2.0f) xxlog("sample>2");
-		Dsp::audio_out_buffer[a++] += sample_at_c2 * (1.0f - float(aa - floor(aa)));
+		os::audio_out_buffer[a++] += sample_at_c2 * (1.0f - float(aa - floor(aa)));
 
 		while (a < e)
 		{
@@ -1525,7 +1525,7 @@ void SP0256::output_filtered(Sample sample, Time ee)
 			sample_at_c2 += d = (sample_at_c1 - sample_at_c2) * ff;
 			sample_at_c1 -= d;
 			if (fabsf(sample_at_c2) > 2.0f) xxlog("sample>2");
-			Dsp::audio_out_buffer[a++] += sample_at_c2;
+			os::audio_out_buffer[a++] += sample_at_c2;
 		}
 
 		ff2 = ff * float(ee - floor(ee));
@@ -1533,7 +1533,7 @@ void SP0256::output_filtered(Sample sample, Time ee)
 		sample_at_c2 += d = (sample_at_c1 - sample_at_c2) * ff2;
 		sample_at_c1 -= d;
 		if (fabsf(sample_at_c2) > 2.0f) xxlog("sample>2");
-		Dsp::audio_out_buffer[a] += sample_at_c2 * float(ee - floor(ee));
+		os::audio_out_buffer[a] += sample_at_c2 * float(ee - floor(ee));
 	}
 
 	if (PRINT_STATISTICS && current_opcode < 16)

@@ -36,7 +36,7 @@ void Ula::audioBufferEnd(Time t)
 {
 	if (t > beeper_last_sample_time)
 	{
-		Dsp::outputSamples(beeper_current_sample, beeper_last_sample_time, t);
+		os::outputSamples(beeper_current_sample, beeper_last_sample_time, t);
 		beeper_last_sample_time = t;
 	}
 	beeper_last_sample_time -= t;

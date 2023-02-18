@@ -16,7 +16,7 @@
 // Frequency	samples_per_second	= 44100;
 
 
-namespace Dsp
+namespace os
 {
 
 // ---- core audio interrupt ----

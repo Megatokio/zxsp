@@ -292,7 +292,7 @@ void UlaZxsp::output(Time now, int32 cc, uint16 addr, uint8 byte)
 	// --- BEEPER ---
 	if (x & (MIC_OUT_MASK | EAR_OUT_MASK))
 	{
-		Dsp::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
+		os::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
 		beeper_last_sample_time = now;
 
 		uint bb = byte ^ MIC_OUT_MASK; // mic pin is low active
@@ -360,7 +360,7 @@ void UlaZxsp::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 			}
 			else
 			{
-				if (Dsp::audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
+				if (os::audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
 			}
 		}
 	}

@@ -724,7 +724,7 @@ void Ay::setRegister(Time when, uint regnr, uint8 newvalue)
 		// write samples to dsp
 		if (now > time_of_last_sample)
 		{
-			Dsp::outputSamples(current_value, time_of_last_sample, now);
+			os::outputSamples(current_value, time_of_last_sample, now);
 			time_of_last_sample = now;
 		}
 		switch (stereo_mix)

@@ -7,7 +7,7 @@
 #include "StereoSample.h"
 
 
-namespace Dsp
+namespace os
 {
 extern StereoSample audio_out_buffer[];
 extern StereoSample audio_in_buffer[];
@@ -54,4 +54,4 @@ inline void clearBuffer(StereoSample* bu) // preserves stitching at buffer start
 }
 
 
-} // namespace Dsp
+} // namespace os

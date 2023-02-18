@@ -46,7 +46,7 @@ protected:
 	uint8 state;	 // %000FUDLR
 
 	explicit Joystick(isa_id id) : IsaObject(nullptr, id, isa_Joystick), last_time(0), state(0) {}
-	~Joystick() {}
+	~Joystick() override {}
 
 public:
 	virtual uint8 getState(bool update_last_time = yes) volatile = 0;

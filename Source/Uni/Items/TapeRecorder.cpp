@@ -284,7 +284,7 @@ void TapeRecorder::audioBufferEnd(Time)
 			qi -= zi;
 		}																		 // dest index in audio_out_buffer[]
 		int32 ze = min(uint(DSP_SAMPLES_PER_BUFFER), zi + sound_count[id] - qi); // dest end index
-		while (zi < ze) { Dsp::audio_out_buffer[zi++] += data[qi++]; }			 // copy audio data
+		while (zi < ze) { os::audio_out_buffer[zi++] += data[qi++]; }			 // copy audio data
 
 		active_sound[i].index = qi;
 		if (uint32(qi) >= sound_count[id]) active_sound.remove(i--); // sound finished
@@ -304,7 +304,7 @@ void TapeRecorder::audioBufferEnd(Time)
 		int32 zi = 0; // dest index in audio_out_buffer[]
 	r:
 		int32 ze = min(uint(DSP_SAMPLES_PER_BUFFER), zi + sound_count[id] - qi); // dest end index
-		while (zi < ze) { Dsp::audio_out_buffer[zi++] += data[qi++]; }			 // copy audio data
+		while (zi < ze) { os::audio_out_buffer[zi++] += data[qi++]; }			 // copy audio data
 		if (qi == sound_count[id])
 		{
 			qi = 0;
@@ -436,7 +436,7 @@ void TapeRecorder::play_block()
 	while (block < tapefile->cnt)
 	{
 		CswBuffer* bu = (*tapefile)[block]->cswdata;
-		bu->addToAudioBuffer(Dsp::audio_out_buffer, count, ::samples_per_second, zpos, qpos, qoffs, speaker.volume);
+		bu->addToAudioBuffer(os::audio_out_buffer, count, ::samples_per_second, zpos, qpos, qoffs, speaker.volume);
 		if (zpos == count) return;
 		block++;
 		qpos  = 0;

@@ -214,7 +214,7 @@ void FloppyDiskDrive::audioBufferEnd(Time dt)
 	{
 		for (uint i = 0; i < uint(DSP_SAMPLES_PER_BUFFER); i++)
 		{
-			Dsp::audio_out_buffer[i] += sound_running[sound_running_index++];
+			os::audio_out_buffer[i] += sound_running[sound_running_index++];
 			if (sound_running_index == sound_running_size) sound_running_index = 0;
 		}
 	}
@@ -222,13 +222,13 @@ void FloppyDiskDrive::audioBufferEnd(Time dt)
 	if (sound_insert_index < sound_insert_size)
 	{
 		uint n = min(uint(DSP_SAMPLES_PER_BUFFER), sound_insert_size - sound_insert_index);
-		for (uint i = 0; i < n; i++) { Dsp::audio_out_buffer[i] += sound_insert[sound_insert_index++]; }
+		for (uint i = 0; i < n; i++) { os::audio_out_buffer[i] += sound_insert[sound_insert_index++]; }
 	}
 
 	if (sound_eject_index < sound_eject_size)
 	{
 		uint n = min(uint(DSP_SAMPLES_PER_BUFFER), sound_eject_size - sound_eject_index);
-		for (uint i = 0; i < n; i++) { Dsp::audio_out_buffer[i] += sound_eject[sound_eject_index++]; }
+		for (uint i = 0; i < n; i++) { os::audio_out_buffer[i] += sound_eject[sound_eject_index++]; }
 	}
 
 	for (uint ii = 0; ii < NELEM(sound_step_index); ii++)
@@ -243,7 +243,7 @@ void FloppyDiskDrive::audioBufferEnd(Time dt)
 				ssi = 0;
 			}
 			int e = min(DSP_SAMPLES_PER_BUFFER, i + sound_step_size - ssi);
-			while (i < e) { Dsp::audio_out_buffer[i++] += sound_step[ssi++]; }
+			while (i < e) { os::audio_out_buffer[i++] += sound_step[ssi++]; }
 		}
 	}
 }

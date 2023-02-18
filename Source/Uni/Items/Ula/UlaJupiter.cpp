@@ -267,7 +267,7 @@ void UlaJupiter::output(Time now, int32 cc, uint16 addr, uint8 byte)
 																			  0.0;
 	if (new_sample != beeper_current_sample)
 	{
-		Dsp::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
+		os::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
 		beeper_last_sample_time = now;
 		beeper_current_sample	= new_sample;
 	}
@@ -294,7 +294,7 @@ void UlaJupiter::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask
 	//		mixed_audio:	set audio-out to OFF
 	if (beeper_current_sample != 0.0 && audio_mode != mic_out_only)
 	{
-		Dsp::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
+		os::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
 		beeper_last_sample_time = now;
 		beeper_current_sample	= 0.0;
 	}
@@ -321,7 +321,7 @@ void UlaJupiter::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask
 		}
 		else
 		{
-			if (Dsp::audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
+			if (os::audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
 		}
 	}
 	else
