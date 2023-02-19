@@ -35,12 +35,20 @@
 #include "Keyboard.h"
 #include "Libraries/kio/TestTimer.h"
 #include "MachineController.h"
+#include "MachineInves.h"
 #include "MachineJupiter.h"
+#include "MachinePentagon128.h"
 #include "MachineTc2048.h"
 #include "MachineTc2068.h"
+#include "MachineTk85.h"
+#include "MachineTk90x.h"
+#include "MachineTk95.h"
+#include "MachineTs1000.h"
+#include "MachineTs1500.h"
 #include "MachineZx128.h"
 #include "MachineZx80.h"
 #include "MachineZx81.h"
+#include "MachineZxPlus2.h"
 #include "MachineZxPlus2a.h"
 #include "MachineZxPlus3.h"
 #include "MachineZxsp.h"
@@ -170,7 +178,61 @@ void runMachinesForSound()
 // ########################################################################
 
 
-/*  CREATOR:
+Machine* Machine::newMachine(gui::MachineController* mc, Model model)
+{
+	// create Machine instance for model
+	// the machine is not powered on.
+
+	switch (model)
+	{
+	case jupiter: return new MachineJupiter(mc);
+
+	case zx80: return new MachineZx80(mc);
+	case zx81: return new MachineZx81(mc);
+	case tk85: return new MachineTk85(mc);
+	case ts1000: return new MachineTs1000(mc);
+	case ts1500: return new MachineTs1500(mc);
+
+	case tk90x: return new MachineTk90x(mc);
+	case tk95: return new MachineTk95(mc);
+	case inves: return new MachineInves(mc);
+	case tc2048: return new MachineTc2048(mc);
+
+	case zxsp_i1:
+	case zxsp_i2:
+	case zxsp_i3:
+	case zxplus: return new MachineZxsp(mc, model);
+
+	case zxplus2_span:
+	case zxplus2_frz:
+	case zxplus2: return new MachineZxPlus2(mc, model);
+
+	case zx128_span:
+	case zx128: return new MachineZx128(mc, model);
+
+	case zxplus3_span:
+	case zxplus3: return new MachineZxPlus3(mc, model);
+
+	case zxplus2a_span:
+	case zxplus2a: return new MachineZxPlus2a(mc, model);
+
+	case u2086:
+	case tc2068:
+	case ts2068: return new MachineTc2068(mc, model);
+
+	case pentagon128: return new MachinePentagon128(mc);
+	case zxplus_span: return new MachineZxsp(mc, zxplus); // TODO
+	case scorpion: return new MachineZxsp(mc, zxsp_i3);	  // TODO
+
+	case unknown_model:
+	case num_models:
+	case samcoupe: break;
+	}
+	IERR();
+}
+
+
+/*  Constructor:
 	create the Machine with 'model'
 	Creates Ram and Rom
 	but does not create all other itmes! (CPU, Ula, Mmu, Keyboard, Joysticks and AY sound chip)

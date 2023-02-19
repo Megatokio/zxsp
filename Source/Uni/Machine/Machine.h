@@ -162,7 +162,9 @@ private:
 	// ---- P U B L I C ----------------------------------------------------
 
 public:
-	virtual ~Machine();
+	static Machine* newMachine(gui::MachineController*, Model);
+
+	~Machine() override;
 
 	void saveAs(cstr filepath);
 

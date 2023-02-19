@@ -91,54 +91,21 @@ Machine* MachineController::new_machine_for_model(Model model)
 
 	assert(in_machine_ctor);
 
+	Machine* m = Machine::newMachine(this, model);
+
 	switch (model)
 	{
-	case jupiter: return new MachineJupiter(this, settings.get_bool(key_framerate_jupiter_60hz, false));
-
-	case zx80: return new MachineZx80(this, settings.get_bool(key_framerate_zx80_60hz, false));
-	case zx81: return new MachineZx81(this);
-	case tk85: return new MachineTk85(this, settings.get_bool(key_framerate_tk85_60hz, false));
-	case ts1000: return new MachineTs1000(this);
-	case ts1500: return new MachineTs1500(this);
-
-	case tk90x: return new MachineTk90x(this, settings.get_bool(key_framerate_tk90x_60hz, false));
-	case tk95: return new MachineTk95(this, settings.get_bool(key_framerate_tk95_60hz, false));
-	case inves: return new MachineInves(this);
-	case tc2048: return new MachineTc2048(this);
-
-	case zxsp_i1:
-	case zxsp_i2:
-	case zxsp_i3:
-	case zxplus: return new MachineZxsp(this, model);
-
-	case zxplus2_span:
-	case zxplus2_frz:
-	case zxplus2: return new MachineZxPlus2(this, model);
-
-	case zx128_span:
-	case zx128: return new MachineZx128(this, model);
-
-	case zxplus3_span:
-	case zxplus3: return new MachineZxPlus3(this, model);
-
-	case zxplus2a_span:
-	case zxplus2a: return new MachineZxPlus2a(this, model);
-
-	case u2086:
-	case tc2068:
-	case ts2068: return new MachineTc2068(this, model);
-
-	case pentagon128: return new MachinePentagon128(this);
-
-	case zxplus_span: showAlert("spanisch Sinclair ZX Spectrum+: TODO"); return new MachineZxsp(this, zxplus);
-
-	case scorpion: showAlert("Scorpion: TODO"); return new MachineZxsp(this, zxsp_i3);
-
-	case unknown_model:
-	case num_models:
-	case samcoupe: break;
+	case jupiter: m->set60HzNeu(settings.get_bool(key_framerate_jupiter_60hz, false)); break;
+	case zx80: m->set60HzNeu(settings.get_bool(key_framerate_zx80_60hz, false)); break;
+	case tk85: m->set60HzNeu(settings.get_bool(key_framerate_tk85_60hz, false)); break;
+	case tk90x: m->set60HzNeu(settings.get_bool(key_framerate_tk90x_60hz, false)); break;
+	case tk95: m->set60HzNeu(settings.get_bool(key_framerate_tk95_60hz, false)); break;
+	case zxplus_span: showWarning("spanisch Sinclair ZX Spectrum+: TODO\nusing a Sinclair ZX Spectrum+"); break;
+	case scorpion: showWarning("Scorpion: TODO\nusing a Sinclair ZX Spectrum 48k"); break;
+	default: break;
 	}
-	IERR();
+
+	return m;
 }
 
 Screen* MachineController::new_screen_for_model(Model model)
