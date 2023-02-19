@@ -26,13 +26,13 @@ protected:
 	IsaObject(QObject* p, isa_id id, isa_id grp) : QObject(p), id(id), grp_id(grp), name(isa_names[id]) {}
 	IsaObject(QObject* p, const IsaObject& q) : QObject(p), id(q.id), grp_id(q.grp_id), name(q.name) {}
 	IsaObject(const IsaObject& q) : QObject(q.parent()), id(q.id), grp_id(q.grp_id), name(q.name) {}
-	IsaObject(const IsaObject&& q) : QObject(q.parent()), id(q.id), grp_id(q.grp_id), name(q.name) {}
+	IsaObject(IsaObject&& q) : QObject(q.parent()), id(q.id), grp_id(q.grp_id), name(q.name) {}
 
-	IsaObject& operator=(const IsaObject& q)  = delete;
-	IsaObject& operator=(const IsaObject&& q) = delete;
+	IsaObject& operator=(const IsaObject& q) = delete;
+	IsaObject& operator=(IsaObject&& q)		 = delete;
 
 public:
-	virtual ~IsaObject() {}
+	~IsaObject() override = default;
 
 	bool isA(isa_id i) const volatile
 	{
