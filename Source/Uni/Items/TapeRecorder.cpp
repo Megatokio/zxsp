@@ -94,10 +94,9 @@ static const cstr walkman_fname[] = {
 // C'tor & D'tor:
 
 
-TapeRecorder::TapeRecorder(Machine* machine, isa_id id, const cstr audio_names[]) :
-	Item(machine, id, isa_TapeRecorder, (Internal)machine->model_info->has_tape_drive, nullptr, nullptr),
-	auto_start_stop_tape(gui::settings.get_bool(key_auto_start_stop_tape, no)),
-	instant_load_tape(gui::settings.get_bool(key_fast_load_tape, no)),
+TapeRecorder::TapeRecorder(Machine* machine, isa_id id, const cstr audio_names[], bool auto_start, bool fast_load) :
+	Item(machine, id, isa_TapeRecorder, Internal(machine->model_info->has_tape_drive), nullptr, nullptr),
+	auto_start_stop_tape(auto_start), instant_load_tape(fast_load),
 	machine_ccps(machine->model_info->cpu_cycles_per_second), state(stopped), record_is_down(no), pause_is_down(no),
 	stop_position(0.0), tapefile(nullptr)
 {
@@ -145,13 +144,21 @@ TapeRecorder::TapeRecorder(Machine* machine, isa_id id, const cstr audio_names[]
 }
 
 
-Walkman::Walkman(Machine* machine) : TapeRecorder(machine, isa_Walkman, walkman_fname) {}
+Walkman::Walkman(Machine* machine, bool auto_start, bool fast_load) :
+	TapeRecorder(machine, isa_Walkman, walkman_fname, auto_start, fast_load)
+{}
 
-TS2020::TS2020(Machine* machine) : TapeRecorder(machine, isa_TS2020, ts2020_fname) {}
+TS2020::TS2020(Machine* machine, bool auto_start, bool fast_load) :
+	TapeRecorder(machine, isa_TS2020, ts2020_fname, auto_start, fast_load)
+{}
 
-Plus2TapeRecorder::Plus2TapeRecorder(Machine* machine) : TapeRecorder(machine, isa_Plus2Tapedeck, plus2_fname) {}
+Plus2TapeRecorder::Plus2TapeRecorder(Machine* machine, bool auto_start, bool fast_load) :
+	TapeRecorder(machine, isa_Plus2Tapedeck, plus2_fname, auto_start, fast_load)
+{}
 
-Plus2aTapeRecorder::Plus2aTapeRecorder(Machine* machine) : TapeRecorder(machine, isa_Plus2aTapedeck, plus2_fname) {}
+Plus2aTapeRecorder::Plus2aTapeRecorder(Machine* machine, bool auto_start, bool fast_load) :
+	TapeRecorder(machine, isa_Plus2aTapedeck, plus2_fname, auto_start, fast_load)
+{}
 
 
 TapeRecorder::~TapeRecorder()

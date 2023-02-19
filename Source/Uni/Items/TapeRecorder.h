@@ -154,8 +154,8 @@ private:
 	void  play_block();
 
 public:
-	TapeRecorder(Machine*, isa_id, const cstr audio_names[]);
-	~TapeRecorder();
+	TapeRecorder(Machine*, isa_id, const cstr audio_names[], bool auto_start = yes, bool fast_load = yes);
+	~TapeRecorder() override;
 
 
 	// Item interface:
@@ -205,12 +205,12 @@ public:
 	cstr getMajorBlockInfo() const noexcept
 	{
 		assert(is_locked());
-		return tapefile ? tapefile->getMajorBlockInfo() : 0;
+		return tapefile ? tapefile->getMajorBlockInfo() : nullptr;
 	}
 	cstr getMinorBlockInfo() const noexcept
 	{
 		assert(is_locked());
-		return tapefile ? tapefile->getMinorBlockInfo() : 0;
+		return tapefile ? tapefile->getMinorBlockInfo() : nullptr;
 	}
 
 
@@ -278,26 +278,26 @@ public:
 class Plus2TapeRecorder : public TapeRecorder
 {
 public:
-	Plus2TapeRecorder(Machine*);
+	Plus2TapeRecorder(Machine*, bool auto_start = yes, bool fast_load = yes);
 };
 
 
 class Plus2aTapeRecorder : public TapeRecorder
 {
 public:
-	Plus2aTapeRecorder(Machine*);
+	Plus2aTapeRecorder(Machine*, bool auto_start = yes, bool fast_load = yes);
 };
 
 
 class TS2020 : public TapeRecorder
 {
 public:
-	TS2020(Machine*);
+	TS2020(Machine*, bool auto_start = yes, bool fast_load = yes);
 };
 
 
 class Walkman : public TapeRecorder
 {
 public:
-	Walkman(Machine*);
+	Walkman(Machine*, bool auto_start = yes, bool fast_load = yes);
 };

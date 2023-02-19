@@ -105,6 +105,12 @@ Machine* MachineController::new_machine_for_model(Model model)
 	default: break;
 	}
 
+	bool auto_start = settings.get_bool(key_auto_start_stop_tape, true);
+	bool fast_load	= settings.get_bool(key_fast_load_tape, true);
+
+	m->taperecorder->setAutoStartStopTape(auto_start);
+	m->taperecorder->setInstantLoadTape(fast_load);
+
 	return m;
 }
 
