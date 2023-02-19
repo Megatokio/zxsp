@@ -9,6 +9,8 @@
 
 class Crtc : public Item
 {
+	friend class Machine;
+
 protected:
 	const ZxInfo* info; // machine info
 	gui::Screen*  screen;

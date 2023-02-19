@@ -638,9 +638,9 @@ Item* Machine::addExternalItem(isa_id id)
 	case isa_Multiface1: i = new Multiface1(this); break;
 	case isa_Multiface128: i = new Multiface128(this); break;
 	case isa_Multiface3: i = new Multiface3(this); break;
-	case isa_SpectraVideo: i = new SpectraVideo(this); break;
 	case isa_CurrahMicroSpeech: i = new CurrahMicroSpeech(this); break;
 
+	case isa_SpectraVideo:
 	case isa_DivIDE:
 	case isa_Cheetah32kRam:
 	case isa_Jupiter16kRam:
@@ -654,7 +654,7 @@ Item* Machine::addExternalItem(isa_id id)
 	default: IERR();
 	}
 
-	i->powerOn(cpu->cpuCycle());
+	if (isPowerOn()) i->powerOn(cpu->cpuCycle());
 	return i;
 }
 
@@ -694,23 +694,25 @@ DivIDE* Machine::addDivIDE(uint ramsize, cstr romfile)
 		return new DivIDE(this, ramsize, romfile);
 }
 
-/*	add or remove SpectraVideo interface
-	Spectra is set as crtc in the CPU
-*/
 SpectraVideo* Machine::addSpectraVideo(bool f)
 {
+	// Add or remove SpectraVideo interface
+	// Spectra is set as crtc in the CPU
+
 	assert(isMainThread());
 	assert(is_locked());
 	assert(isA(isa_MachineZxsp));
+	assert(f == !findItem(isa_SpectraVideo));
 
 	if (f) // attach
 	{
 		crtc->attachToScreen(nullptr);
-		crtc = CrtcPtr(addExternalItem(isa_SpectraVideo));
+		crtc = new SpectraVideo(this);
 		crtc->attachToScreen(controller->getScreen());
 		cpu->setCrtc(crtc);
 		Z80::c2c(ula->getVideoRam(), crtc->getVideoRam(), 0x4000);
 		crtc->setBorderColor(ula->getBorderColor());
+		if (isPowerOn()) crtc->powerOn(cpu->cpuCycle());
 		return SpectraVideoPtr(crtc);
 	}
 	else // remove
