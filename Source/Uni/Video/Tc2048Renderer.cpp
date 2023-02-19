@@ -44,13 +44,8 @@
 		64 column mode: high byte = left pixels; low byte = right pixels
 */
 void Tc2048Renderer::drawScreen(
-	IoInfo* ioinfo,
-	uint	ioinfo_count,
-	uint8*	attr_pixels,
-	uint	cc_per_scanline,
-	uint32	cc_start_of_screenfile,
-	bool	flashphase,
-	uint32	cc_vbi)
+	IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
+	bool flashphase, uint32 cc_vbi)
 {
 	assert((cc_start_of_screenfile & 3) == 0);
 
@@ -221,12 +216,8 @@ Tc2048GifWriter::Tc2048GifWriter(QObject* p, bool update_border) :
    50% grau ergibt.
 */
 void Tc2048GifWriter::drawScreen(
-	IoInfo* ioinfo,
-	uint	ioinfo_count,
-	uint8*	attr_pixels,
-	uint	cc_per_scanline,
-	uint32	cc_start_of_screenfile,
-	bool	flashphase)
+	IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
+	bool flashphase)
 {
 	assert((cc_start_of_screenfile & 3) == 0);
 	if (!bits) bits = new Pixelmap(width, height);

@@ -15,7 +15,10 @@ namespace gui
 MySimpleToggleButton::MySimpleToggleButton(
 	QWidget* parent, int x, int y, cstr filepath_up, cstr filepath_down, bool sticky) :
 	QWidget(parent),
-	image_up(QImage(filepath_up)), image_down(QImage(filepath_down)), state(up), sticky(sticky)
+	image_up(QImage(filepath_up)),
+	image_down(QImage(filepath_down)),
+	state(up),
+	sticky(sticky)
 {
 	setFixedSize(image_up.size());
 	move(x, y);
@@ -26,7 +29,9 @@ MySimpleToggleButton::MySimpleToggleButton(
 MySimpleToggleButton::MySimpleToggleButton(
 	QWidget* parent, int x, int y, cstr basepath, cstr ppath_up, cstr ppath_down, bool sticky) :
 	QWidget(parent),
-	image_up(QImage(catstr(basepath, ppath_up))), image_down(QImage(catstr(basepath, ppath_down))), state(up),
+	image_up(QImage(catstr(basepath, ppath_up))),
+	image_down(QImage(catstr(basepath, ppath_down))),
+	state(up),
 	sticky(sticky)
 {
 	setFixedSize(image_up.size());

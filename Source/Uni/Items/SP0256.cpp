@@ -80,22 +80,8 @@ enum {
 };
 
 static const char opcode_names[64][8] = {
-	"SETPAGE",
-	"SETMODE",
-	"LOAD_4 ",
-	"LOAD_C ",
-	"LOAD_2 ",
-	"SETMSBA",
-	"SETMSB6",
-	"LOAD_E ",
-	"LOADALL",
-	"DELTA_9",
-	"SETMSB5",
-	"DELTA_D",
-	"SETMSB3",
-	"JSR    ",
-	"JMP    ",
-	"PAUSE  ",
+	"SETPAGE", "SETMODE", "LOAD_4 ", "LOAD_C ", "LOAD_2 ", "SETMSBA", "SETMSB6", "LOAD_E ",
+	"LOADALL", "DELTA_9", "SETMSB5", "DELTA_D", "SETMSB3", "JSR    ", "JMP    ", "PAUSE  ",
 };
 
 
@@ -217,11 +203,36 @@ inline uint8 X4(uint8 n)
 SP0256::SP0256(cstr romfilepath, bool is_bitswapped, float rc) :
 	rc(rc),											 // filter factor for RC; e.g. RC = 33kΩ * 22nF:
 	ff(1.0 - exp(-(1.0 / samples_per_second) / rc)), // see comments at output_filtered()
-	time_per_sample(312 / 3.12e6), volume(0), amplification(0), hifi(yes), sm_state(0), time(0.0), time_sample_end(0),
-	sample(0), sample_at_c1(0), sample_at_c2(0), current_opcode(0), repeat(0), pitch(0),
-	amplitude(0), c {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, pitch_incr(0),
-	amplitude_incr(0), _c {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, _z {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, _shiftreg(0),
-	_i(0), mode(0), page(0), pc(0), stack(0), command(0), current_command(0), stand_by(0), command_valid(0), byte(0),
+	time_per_sample(312 / 3.12e6),
+	volume(0),
+	amplification(0),
+	hifi(yes),
+	sm_state(0),
+	time(0.0),
+	time_sample_end(0),
+	sample(0),
+	sample_at_c1(0),
+	sample_at_c2(0),
+	current_opcode(0),
+	repeat(0),
+	pitch(0),
+	amplitude(0),
+	c {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	pitch_incr(0),
+	amplitude_incr(0),
+	_c {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	_z {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	_shiftreg(0),
+	_i(0),
+	mode(0),
+	page(0),
+	pc(0),
+	stack(0),
+	command(0),
+	current_command(0),
+	stand_by(0),
+	command_valid(0),
+	byte(0),
 	bits(0)
 {
 	xlogline("new SP0256: romfile = %s", romfilepath);
@@ -254,22 +265,15 @@ SP0256::~SP0256()
 		{
 			Stats& s = allophone_stats[i];
 			logline(
-				"  %s%s: max. %.4f - c1: %.4f - c2: %.4f",
-				al2_allophone_names[i],
-				al2_allophone_names[i][2] ? "" : " ",
-				s.max_sample,
-				s.max_sample_at_c1,
-				s.max_sample_at_c2);
+				"  %s%s: max. %.4f - c1: %.4f - c2: %.4f", al2_allophone_names[i], al2_allophone_names[i][2] ? "" : " ",
+				s.max_sample, s.max_sample_at_c1, s.max_sample_at_c2);
 		}
 		logline("Volume info for micro sequencer opcodes");
 		for (uint i = 0; i < 16; i++)
 		{
 			Stats& s = opcode_stats[i];
 			logline(
-				"  %s: max. %.4f - c1: %.4f - c2: %.4f",
-				opcode_names[i],
-				s.max_sample,
-				s.max_sample_at_c1,
+				"  %s: max. %.4f - c1: %.4f - c2: %.4f", opcode_names[i], s.max_sample, s.max_sample_at_c1,
 				s.max_sample_at_c2);
 		}
 	}
@@ -333,10 +337,8 @@ void SP0256::writeCommand(Time t, uint cmd)
 {
 	if (cmd) // µspeech sendet dauernd cmd = 0 = PA1 => nicht loggen
 	{
-		if (cmd > 63)
-			xlogIn("SP0256::writeCommand %u = illegal entry address!", cmd);
-		else
-			xlogIn("SP0256::writeCommand %u = %s", cmd, al2_allophone_names[cmd]);
+		if (cmd > 63) xlogIn("SP0256::writeCommand %u = illegal entry address!", cmd);
+		else xlogIn("SP0256::writeCommand %u = %s", cmd, al2_allophone_names[cmd]);
 	}
 
 	run_statemachine(t);
@@ -396,10 +398,8 @@ bool SP0256::audioBufferEnd(Time t)
 */
 uint8 SP0256::next8()
 {
-	if (bits < 8)
-		byte += rom[pc++ & 0x7ff] << bits;
-	else
-		bits -= 8;
+	if (bits < 8) byte += rom[pc++ & 0x7ff] << bits;
+	else bits -= 8;
 
 	uint rval = byte;
 	byte	  = byte >> 8;
@@ -1186,17 +1186,17 @@ inline int coeff(uint c) { return c & 0x80 ? coeff_tab[(-c) & 0x7F] : -coeff_tab
 
 
 //	Tricky co-routine macros:
-#define BEGIN                                                                                                          \
-  switch (sm_state)                                                                                                    \
-  {                                                                                                                    \
-  default: IERR();                                                                                                     \
+#define BEGIN       \
+  switch (sm_state) \
+  {                 \
+  default: IERR();  \
   case 0:
-#define WAIT                                                                                                           \
-  do {                                                                                                                 \
-	sm_state = __LINE__;                                                                                               \
-	return;                                                                                                            \
-  case __LINE__:;                                                                                                      \
-  }                                                                                                                    \
+#define WAIT             \
+  do {                   \
+	sm_state = __LINE__; \
+	return;              \
+  case __LINE__:;        \
+  }                      \
   while (0)
 #define FINISH }
 
@@ -1585,11 +1585,7 @@ void SP0256::disassAllophones()
 			}
 
 			repeat += (instr & 15);
-			log("%2u: %s: m=%u, r=%u%s ",
-				current_opcode,
-				opcode_names[current_opcode],
-				mode,
-				repeat,
+			log("%2u: %s: m=%u, r=%u%s ", current_opcode, opcode_names[current_opcode], mode, repeat,
 				repeat > 9 ? "" : " ");
 			repeat = 0;
 

@@ -16,30 +16,15 @@
 namespace gui
 {
 
-static cstr es[] = {
-	"\\＿＿＿",
-	"\\＿＿＿",
-	"\\＿＿＿",
-	"\\＿＿＿",
-	"/＿＿＿",
-	"/＿＿＿",
-	"/＿＿＿",
-	"/＿＿＿",
-	"\\\\\\\\\\\\",
-	"\\＿＿＿",
-	"\\/\\/\\/",
-	"\\￣￣￣",
-	"//////",
-	"/￣￣￣",
-	"/\\/\\/\\",
-	"/＿＿＿"};
+static cstr es[] = {"\\＿＿＿",		"\\＿＿＿", "\\＿＿＿",	 "\\＿＿＿", "/＿＿＿", "/＿＿＿", "/＿＿＿",	"/＿＿＿",
+					"\\\\\\\\\\\\", "\\＿＿＿", "\\/\\/\\/", "\\￣￣￣", "//////",	"/￣￣￣", "/\\/\\/\\", "/＿＿＿"};
 
 static const QFont ff("Monaco" /*"Andale Mono"*/, 12);
 
 
 AyInsp::AyInsp(QWidget* w, MachineController* mc, volatile IsaObject* item) :
-	Inspector(w, mc, item, "/Backgrounds/light-150-s.jpg"), value {
-																0, 0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
+	Inspector(w, mc, item, "/Backgrounds/light-150-s.jpg"),
+	value {0, 0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 {
 	assert(item->isA(isa_Ay));
 
@@ -207,10 +192,8 @@ void AyInsp::set_register(uint r, uint n)
 
 static int32 int_value_for_volume(cstr s)
 {
-	if ((s[0] | 0x20) == 'e')
-		return 16; // envelope
-	else
-		return intValue(s) & 0x0f;
+	if ((s[0] | 0x20) == 'e') return 16; // envelope
+	else return intValue(s) & 0x0f;
 }
 
 static int32 int_value_for_envelope_shape(cstr e)
@@ -376,10 +359,8 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 	if (led == clock)
 	{
 		n = mhzValue(text);
-		if (n > 0)
-			limit(1000000, n, 4000000);
-		else
-			n = ay()->getClock();
+		if (n > 0) limit(1000000, n, 4000000);
+		else n = ay()->getClock();
 		NVPtr<Ay>(ay())->setClock(n);
 		led->setText(MHzStr(n));
 		value.clock = n;

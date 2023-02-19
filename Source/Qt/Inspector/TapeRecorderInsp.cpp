@@ -69,20 +69,16 @@ Plus2aTapeRecorderInsp::Plus2aTapeRecorderInsp(QWidget* p, MachineController* mc
 PlusTapeRecorderInsp::PlusTapeRecorderInsp(
 	QWidget* parent, MachineController* mc, volatile IsaObject* item, cstr hdgr, cstr tray, cstr btn_root) :
 	TapeRecorderInsp(
-		parent,
-		mc,
-		item,
-		QPoint(38, 19),				  // major info pos
-		QPoint(38, 31),				  // minor info pos
-		QPoint(120, 141),			  // tape counter pos
-		hdgr,						  // background image
-		tray,						  // cassette tray image
-		QPoint(21, 0),				  // cassette tray window_pos
-		head_down,					  // head position
-		"Images/tape/axis_plus2.png", // axis image
-		6,							  // axis symmetries
-		89,
-		187,
+		parent, mc, item, QPoint(38, 19), // major info pos
+		QPoint(38, 31),					  // minor info pos
+		QPoint(120, 141),				  // tape counter pos
+		hdgr,							  // background image
+		tray,							  // cassette tray image
+		QPoint(21, 0),					  // cassette tray window_pos
+		head_down,						  // head position
+		"Images/tape/axis_plus2.png",	  // axis image
+		6,								  // axis symmetries
+		89, 187,
 		67) // axis position x1, x2, y
 {
 	xlogIn("new PlusTapeRecorderInsp");
@@ -110,20 +106,16 @@ PlusTapeRecorderInsp::PlusTapeRecorderInsp(
 // TS2020 tape recorder:
 TS2020Inspector::TS2020Inspector(QWidget* parent, MachineController* mc, volatile IsaObject* item) :
 	TapeRecorderInsp(
-		parent,
-		mc,
-		item,
-		QPoint(68, 44),				  // major info pos
-		QPoint(68, 56),				  // minor info pos
-		QPoint(316, 229),			  // tape counter pos
-		"Images/tape/ts2020.jpg",	  // background image
-		"Images/tape/ts2020_lid.png", // cassette tray image
-		QPoint(22, 20),				  // cassette tray position
-		head_down,					  // head position
-		"Images/tape/axis_plus2.png", // axis image
-		6,							  // axis symmetries
-		104,
-		205,
+		parent, mc, item, QPoint(68, 44), // major info pos
+		QPoint(68, 56),					  // minor info pos
+		QPoint(316, 229),				  // tape counter pos
+		"Images/tape/ts2020.jpg",		  // background image
+		"Images/tape/ts2020_lid.png",	  // cassette tray image
+		QPoint(22, 20),					  // cassette tray position
+		head_down,						  // head position
+		"Images/tape/axis_plus2.png",	  // axis image
+		6,								  // axis symmetries
+		104, 205,
 		94) // axis position x1, x2, y
 {
 	xlogIn("new TS2020Inspector");
@@ -151,29 +143,33 @@ TS2020Inspector::TS2020Inspector(QWidget* parent, MachineController* mc, volatil
 
 // tape recorder base class:
 TapeRecorderInsp::TapeRecorderInsp(
-	QWidget*			w,
-	MachineController*	mc,
-	volatile IsaObject* item,
-	QPoint				majorinfopos,
-	QPoint				minorinfopos,
-	QPoint				tapecounterpos,
-	cstr				hdgr_image_filename,
-	cstr				tray_image_filename,
-	QPoint				tray_position,
-	HeadPos				head_position,
-	cstr				axis_image_filename,
-	int					axis_symmetries,
-	int					axis_x1,
-	int					axis_x2,
-	int					axis_y) :
+	QWidget* w, MachineController* mc, volatile IsaObject* item, QPoint majorinfopos, QPoint minorinfopos,
+	QPoint tapecounterpos, cstr hdgr_image_filename, cstr tray_image_filename, QPoint tray_position,
+	HeadPos head_position, cstr axis_image_filename, int axis_symmetries, int axis_x1, int axis_x2, int axis_y) :
 	Inspector(w, mc, item, hdgr_image_filename),
-	btn_record(nullptr), btn_play(nullptr), btn_back(nullptr), btn_fore(nullptr), btn_next(nullptr), btn_prev(nullptr),
-	btn_eject(nullptr), btn_pause(nullptr), major_block_info(""), minor_block_info(""), tape_position(0),
-	major_block_info_label(new QLabel(this)), minor_block_info_label(new QLabel(this)),
-	tape_position_label(new QLineEdit(this)), tape_filepath(nullptr), cass(BlueBody, head_position), axis_x1(axis_x1),
-	axis_x2(axis_x2), axis_y(axis_y),			  // position in tr_image [pixels]
+	btn_record(nullptr),
+	btn_play(nullptr),
+	btn_back(nullptr),
+	btn_fore(nullptr),
+	btn_next(nullptr),
+	btn_prev(nullptr),
+	btn_eject(nullptr),
+	btn_pause(nullptr),
+	major_block_info(""),
+	minor_block_info(""),
+	tape_position(0),
+	major_block_info_label(new QLabel(this)),
+	minor_block_info_label(new QLabel(this)),
+	tape_position_label(new QLineEdit(this)),
+	tape_filepath(nullptr),
+	cass(BlueBody, head_position),
+	axis_x1(axis_x1),
+	axis_x2(axis_x2),
+	axis_y(axis_y),								  // position in tr_image [pixels]
 	ppmm((axis_x2 - axis_x1) / ACHSENABSTAND_MM), // scaling: pixels per mm  ((double))
-	anim_tr_loaded(no), anim_tr_pause(no), anim_tr_state(TapeRecorder::stopped)
+	anim_tr_loaded(no),
+	anim_tr_pause(no),
+	anim_tr_state(TapeRecorder::stopped)
 {
 	xlogIn("new TapeRecorderInsp");
 	assert(item->isA(isa_TapeRecorder));
@@ -579,17 +575,13 @@ void TapeRecorderInsp::updateAnimation()
 	{
 		if (anim_tr_state == TapeRecorder::winding || anim_tr_state == TapeRecorder::playing)
 		{
-			if (cass.head_pos == head_down)
-				next_time_l = now + 1e8;
-			else
-				next_time_r = now + 1e8;
+			if (cass.head_pos == head_down) next_time_l = now + 1e8;
+			else next_time_r = now + 1e8;
 		}
 		else if (anim_tr_state == TapeRecorder::rewinding)
 		{
-			if (cass.head_pos == head_down)
-				next_time_r = now + 1e8;
-			else
-				next_time_l = now + 1e8;
+			if (cass.head_pos == head_down) next_time_r = now + 1e8;
+			else next_time_l = now + 1e8;
 		}
 		else // stopped
 		{

@@ -251,12 +251,7 @@ int32 UlaTc2048::doFrameFlyback(int32)
 	record_ioinfo(cc_frame_end, 0xfe, 0x00);		// for 60Hz models: remainder of screen is black
 	if (ioinfo_count == ioinfo_size) grow_ioinfo(); // required by Renderer
 	bool new_buffers_in_use = ScreenZxspPtr(screen)->ffb_or_vbi(
-		ioinfo,
-		ioinfo_count,
-		attr_pixel,
-		cc_screen_start,
-		cc_per_side_border + 128,
-		getFlashPhase(),
+		ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, getFlashPhase(),
 		90000 /*cc_frame_end*/);
 
 	if (new_buffers_in_use)
@@ -284,11 +279,11 @@ void UlaTc2048::markVideoRam()
 
 	CoreByte* v = video_ram = machine->ram.getData();
 
-#define SET(A, SZ)                                                                                                     \
-  if (~v[A] & cpu_crtc)                                                                                                \
+#define SET(A, SZ)      \
+  if (~v[A] & cpu_crtc) \
 	for (uint32 j = A, e = A + SZ; j < e; j++) v[j] |= cpu_crtc;
-#define RES(A, SZ)                                                                                                     \
-  if (v[A] & cpu_crtc)                                                                                                 \
+#define RES(A, SZ)     \
+  if (v[A] & cpu_crtc) \
 	for (uint32 j = A, e = A + SZ; j < e; j++) v[j] &= uint32(~cpu_crtc);
 
 	if (!screen)

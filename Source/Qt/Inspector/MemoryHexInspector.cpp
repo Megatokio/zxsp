@@ -65,11 +65,34 @@ static const int MAX_ROWS		   = 100;
 
 
 MemoryHexInspector::MemoryHexInspector(QWidget* parent, MachineController* mc, volatile IsaObject* item) :
-	MemoryInspector(parent, mc, item, Bytes), address_view(nullptr), hex_view(nullptr), ascii_view(nullptr),
-	checkbox_words(nullptr), show_words(no), widget_edit_mode(nullptr), button_breakpoint_r(nullptr),
-	button_breakpoint_w(nullptr), button_breakpoint_x(nullptr), ascii_edit_offset(0), hex_edit_offset(0),
-	hex_edit_nibble(0), edit_flashphase(0), edit_flashtime(0), cw(0), rh(0), pc(-1), bc(-1), de(-1), hl(-1), ix(-1),
-	iy(-1), sp(-1), edit_mode(EDITMODE_VIEW), breakpoint_mask(0), first_valid_row(0), last_valid_row(0)
+	MemoryInspector(parent, mc, item, Bytes),
+	address_view(nullptr),
+	hex_view(nullptr),
+	ascii_view(nullptr),
+	checkbox_words(nullptr),
+	show_words(no),
+	widget_edit_mode(nullptr),
+	button_breakpoint_r(nullptr),
+	button_breakpoint_w(nullptr),
+	button_breakpoint_x(nullptr),
+	ascii_edit_offset(0),
+	hex_edit_offset(0),
+	hex_edit_nibble(0),
+	edit_flashphase(0),
+	edit_flashtime(0),
+	cw(0),
+	rh(0),
+	pc(-1),
+	bc(-1),
+	de(-1),
+	hl(-1),
+	ix(-1),
+	iy(-1),
+	sp(-1),
+	edit_mode(EDITMODE_VIEW),
+	breakpoint_mask(0),
+	first_valid_row(0),
+	last_valid_row(0)
 {
 	xlogIn("new MemoryHexInspector");
 
@@ -361,12 +384,9 @@ void MemoryHexInspector::step_left_in_hex()
 	{
 		if ((addr - scroll_offset) & 1) // im high byte?
 		{
-			if (addr >= 3)
-				addr -= 3; // step left => low byte des vorhergehenden wortes
-			else if (addr >= 2)
-				addr -= 2; // sonst high byte des vorhergehenden wortes
-			else
-				hex_edit_nibble ^= 1; // sonst stop
+			if (addr >= 3) addr -= 3;	   // step left => low byte des vorhergehenden wortes
+			else if (addr >= 2) addr -= 2; // sonst high byte des vorhergehenden wortes
+			else hex_edit_nibble ^= 1;	   // sonst stop
 		}
 		else // im low byte
 		{
@@ -377,10 +397,8 @@ void MemoryHexInspector::step_left_in_hex()
 	}
 	else // bytes
 	{
-		if (addr)
-			addr -= 1;
-		else
-			hex_edit_nibble ^= 1;
+		if (addr) addr -= 1;
+		else hex_edit_nibble ^= 1;
 	}
 }
 
@@ -399,20 +417,15 @@ void MemoryHexInspector::step_right_in_hex()
 		}
 		else // im low byte
 		{
-			if (addr + 3 < uint32(data.size))
-				addr += 3; // step right => high byte des nächsten wortes
-			else if (addr + 2 < uint32(data.size))
-				addr += 2; // sonst low byte des nächsten wortes
-			else
-				hex_edit_nibble ^= 1; // sonst stop
+			if (addr + 3 < uint32(data.size)) addr += 3;	  // step right => high byte des nächsten wortes
+			else if (addr + 2 < uint32(data.size)) addr += 2; // sonst low byte des nächsten wortes
+			else hex_edit_nibble ^= 1;						  // sonst stop
 		}
 	}
 	else // bytes
 	{
-		if (addr + 1 < uint32(data.size))
-			addr += 1;
-		else
-			hex_edit_nibble ^= 1;
+		if (addr + 1 < uint32(data.size)) addr += 1;
+		else hex_edit_nibble ^= 1;
 	}
 }
 
@@ -461,10 +474,8 @@ void MemoryHexInspector::show_cursor()
 {
 	edit_flashphase = 1;
 	edit_flashtime	= system_time;
-	if (is_editing_in_hex())
-		show_hex_cursor(1);
-	else if (is_editing_in_ascii())
-		show_ascii_cursor(1);
+	if (is_editing_in_hex()) show_hex_cursor(1);
+	else if (is_editing_in_ascii()) show_ascii_cursor(1);
 }
 
 // remove cursor blob
@@ -474,10 +485,8 @@ void MemoryHexInspector::hide_cursor()
 {
 	if (edit_flashphase)
 	{
-		if (is_editing_in_hex())
-			show_hex_cursor(0);
-		else if (is_editing_in_ascii())
-			show_ascii_cursor(0);
+		if (is_editing_in_hex()) show_hex_cursor(0);
+		else if (is_editing_in_ascii()) show_ascii_cursor(0);
 		edit_flashphase = 0;
 	}
 }
@@ -807,10 +816,8 @@ void MemoryHexInspector::updateWidgets()
 		edit_flashtime += 0.35;
 		edit_flashphase ^= 1;
 	}
-	if (is_editing_in_hex())
-		show_hex_cursor(edit_flashphase);
-	else if (is_editing_in_ascii())
-		show_ascii_cursor(edit_flashphase);
+	if (is_editing_in_hex()) show_hex_cursor(edit_flashphase);
+	else if (is_editing_in_ascii()) show_ascii_cursor(edit_flashphase);
 
 	// tooltip:
 	updateTooltip();
@@ -850,17 +857,13 @@ void MemoryHexInspector::updateTooltip()
 
 		if (show_words)
 		{
-			if (x % 5 == 4)
-				goto X;
-			else
-				x = x / 5 * 2 + (x % 5 < 2);
+			if (x % 5 == 4) goto X;
+			else x = x / 5 * 2 + (x % 5 < 2);
 		}
 		else
 		{
-			if (x % 3 == 2)
-				goto X;
-			else
-				x = x / 3;
+			if (x % 3 == 2) goto X;
+			else x = x / 3;
 		}
 		in_hex = yes;
 	}
@@ -886,20 +889,13 @@ void MemoryHexInspector::updateTooltip()
 																		   machine->ram[data.baseoffset + offset];
 
 		cstr fmt = "$%04X";
-		if (pageOffsetForCpuAddress(pc) == offset)
-			fmt = "pc -> $%04X";
-		else if (pageOffsetForCpuAddress(sp) == offset)
-			fmt = "sp -> $%04X";
-		else if (pageOffsetForCpuAddress(hl) == offset)
-			fmt = "hl -> $%04X";
-		else if (pageOffsetForCpuAddress(de) == offset)
-			fmt = "de -> $%04X";
-		else if (pageOffsetForCpuAddress(ix) == offset)
-			fmt = "ix -> $%04X";
-		else if (pageOffsetForCpuAddress(iy) == offset)
-			fmt = "iy -> $%04X";
-		else if (pageOffsetForCpuAddress(bc) == offset)
-			fmt = "bc -> $%04X";
+		if (pageOffsetForCpuAddress(pc) == offset) fmt = "pc -> $%04X";
+		else if (pageOffsetForCpuAddress(sp) == offset) fmt = "sp -> $%04X";
+		else if (pageOffsetForCpuAddress(hl) == offset) fmt = "hl -> $%04X";
+		else if (pageOffsetForCpuAddress(de) == offset) fmt = "de -> $%04X";
+		else if (pageOffsetForCpuAddress(ix) == offset) fmt = "ix -> $%04X";
+		else if (pageOffsetForCpuAddress(iy) == offset) fmt = "iy -> $%04X";
+		else if (pageOffsetForCpuAddress(bc) == offset) fmt = "bc -> $%04X";
 
 		if (in_hex)
 		{
@@ -982,17 +978,13 @@ void MemoryHexInspector::mousePressEvent(QMouseEvent* e)
 
 		if (show_words)
 		{
-			if (x % 5 == 4)
-				return;
-			else
-				x = x / 5 * 2;
+			if (x % 5 == 4) return;
+			else x = x / 5 * 2;
 		}
 		else
 		{
-			if (x % 3 == 2)
-				return;
-			else
-				x = x / 3;
+			if (x % 3 == 2) return;
+			else x = x / 3;
 		}
 	}
 	else // if(in_ascii)
@@ -1059,10 +1051,8 @@ void MemoryHexInspector::keyPressEvent(QKeyEvent* e)
 			if (is_hex_digit(e->key()))
 			{
 				uint8& byte = dataReadPtrForOffset(hex_edit_offset)->data;
-				if (hex_edit_nibble)
-					byte = (byte & 0xF0) + (hex_digit_value(e->key()));
-				else
-					byte = (byte & 0x0F) + (hex_digit_value(e->key()) << 4);
+				if (hex_edit_nibble) byte = (byte & 0xF0) + (hex_digit_value(e->key()));
+				else byte = (byte & 0x0F) + (hex_digit_value(e->key()) << 4);
 				step_right_in_hex();
 			}
 		X:
@@ -1113,8 +1103,7 @@ void MemoryHexInspector::keyPressEvent(QKeyEvent* e)
 			break;
 		}
 	}
-	else
-		MemoryInspector::keyPressEvent(e);
+	else MemoryInspector::keyPressEvent(e);
 }
 
 void MemoryHexInspector::slotFocusChanged(bool f)
@@ -1123,10 +1112,8 @@ void MemoryHexInspector::slotFocusChanged(bool f)
 
 	if (edit_flashphase)
 	{
-		if (sender == hex_view)
-			show_hex_cursor(f);
-		else if (sender == ascii_view)
-			show_ascii_cursor(f);
+		if (sender == hex_view) show_hex_cursor(f);
+		else if (sender == ascii_view) show_ascii_cursor(f);
 	}
 }
 

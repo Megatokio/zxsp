@@ -35,7 +35,16 @@
 
 
 CswBuffer::CswBuffer(uint32 ccps, bool phase0, int) :
-	data(nullptr), max(0), end(0), cc_end(0), ccps(ccps), recording(no), pos(0), cc_pos(0), phase(phase0), cc_offset(0)
+	data(nullptr),
+	max(0),
+	end(0),
+	cc_end(0),
+	ccps(ccps),
+	recording(no),
+	pos(0),
+	cc_pos(0),
+	phase(phase0),
+	cc_offset(0)
 {}
 
 /*  purge contents:
@@ -78,8 +87,16 @@ CswBuffer::CswBuffer(const TapeData& q, uint32 ccps)
 	may be used to resample
 */
 CswBuffer::CswBuffer(const CswBuffer& q, uint32 ccps) :
-	data(nullptr), max(q.end + 80), // add some extra, e.g. allow appending pause without realloc
-	end(q.end), cc_end(q.cc_end), ccps(ccps), recording(no), pos(0), cc_pos(0), phase(q.getPhase0()), cc_offset(0)
+	data(nullptr),
+	max(q.end + 80), // add some extra, e.g. allow appending pause without realloc
+	end(q.end),
+	cc_end(q.cc_end),
+	ccps(ccps),
+	recording(no),
+	pos(0),
+	cc_pos(0),
+	phase(q.getPhase0()),
+	cc_offset(0)
 {
 	if (ccps == q.ccps) // no resampling
 	{
@@ -293,8 +310,7 @@ bool CswBuffer::inputCc(uint32 cc) const noexcept
 	assert(!recording);
 	assert(cc >= cc_pos + cc_offset);
 
-	if (cc >= cc_end)
-		seekEnd();
+	if (cc >= cc_end) seekEnd();
 	else
 		while (cc >= cc_pos + data[pos]) skip();
 	cc_offset = cc - cc_pos;
@@ -308,8 +324,7 @@ bool CswBuffer::inputTime(Time s) const noexcept
 	assert(!recording);
 	assert(cc >= cc_pos + cc_offset);
 
-	if (cc >= cc_end)
-		seekEnd();
+	if (cc >= cc_end) seekEnd();
 	else
 		while (cc >= cc_pos + data[pos]) skip();
 	cc_offset = cc - cc_pos;
@@ -426,8 +441,7 @@ void CswBuffer::writePulseCc(uint32 cc)
  */
 void CswBuffer::appendToPulseCc(uint32 cc)
 {
-	if (pos == 0)
-		phase = !phase;
+	if (pos == 0) phase = !phase;
 	else
 	{
 		rskip();
@@ -443,10 +457,8 @@ void CswBuffer::appendToPulseCc(uint32 cc)
 */
 void CswBuffer::writePulseCc(uint32 cc, bool bit)
 {
-	if (bit == phase)
-		writePulseCc(cc); // new pulse
-	else
-		appendToPulseCc(cc); // append
+	if (bit == phase) writePulseCc(cc); // new pulse
+	else appendToPulseCc(cc);			// append
 }
 
 /*  set polarity of current phase

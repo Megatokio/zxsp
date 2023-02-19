@@ -40,10 +40,13 @@ static QFont font_label("Geneva", 10);	  // Geneva (weiter), Arial oder Gill San
 
 
 DivIDEInspector::DivIDEInspector(QWidget* o, MachineController* mc, volatile IsaObject* i) :
-	Inspector(o, mc, i, "/Images/divide.jpg"), overlay_jumper_E(":/Icons/divide-j10.png"),
-	overlay_jumper_A(":/Icons/divide-j01.png"), overlay_jumper_EA(":/Icons/divide-j11.png"),
+	Inspector(o, mc, i, "/Images/divide.jpg"),
+	overlay_jumper_E(":/Icons/divide-j10.png"),
+	overlay_jumper_A(":/Icons/divide-j01.png"),
+	overlay_jumper_EA(":/Icons/divide-j11.png"),
 	overlay_module(catstr(appl_rsrc_path, "Images/divide-module.jpg")),
-	overlay_led_green_hi(":/Icons/led-green-highlight.png"), overlay_led_yellow_hi(":/Icons/led-yellow-highlight.png"),
+	overlay_led_green_hi(":/Icons/led-green-highlight.png"),
+	overlay_led_yellow_hi(":/Icons/led-yellow-highlight.png"),
 	overlay_led_red_hi(":/Icons/led-red-highlight.png")
 {
 	assert(i->isA(isa_DivIDE));
@@ -126,10 +129,8 @@ void DivIDEInspector::mousePressEvent(QMouseEvent* e)
 
 	if (box_module.contains(p))
 	{
-		if (divide()->isDiskInserted())
-			eject_disk();
-		else
-			insert_disk();
+		if (divide()->isDiskInserted()) eject_disk();
+		else insert_disk();
 	}
 	if (box_jumper_E.contains(p)) { NVPtr<DivIDE>(divide())->setJumperE(!state.jumper_E); }
 	if (box_nmi_button.contains(p)) { NVPtr<Machine>(machine)->nmi(); }
@@ -245,8 +246,7 @@ void DivIDEInspector::load_rom(cstr filepath)
 	bool f = machine->powerOff(); // new DOS needs to set up data
 
 	cstr err = NV(divide())->insertRom(filepath);
-	if (err)
-		showWarning("Failed to load %s\n%s.", filepath, err);
+	if (err) showWarning("Failed to load %s\n%s.", filepath, err);
 	else
 	{
 		settings.setValue(key_divide_rom_file, filepath);

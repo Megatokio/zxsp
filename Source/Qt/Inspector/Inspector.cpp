@@ -81,9 +81,15 @@ QLineEdit* Inspector::newLineEdit(cstr text, int min_width)
 
 
 Inspector::Inspector(QWidget* w, MachineController* mc, volatile IsaObject* item, cstr bg_file) :
-	QWidget(w), controller(mc), object(item), machine(mc == nullptr ? nullptr : mc->getMachine()),
-	background(catstr(appl_rsrc_path, bg_file)), is_visible(false), timer(new QTimer(this)),
-	contextmenu(new QMenu(this)), toolbar(nullptr)
+	QWidget(w),
+	controller(mc),
+	object(item),
+	machine(mc == nullptr ? nullptr : mc->getMachine()),
+	background(catstr(appl_rsrc_path, bg_file)),
+	is_visible(false),
+	timer(new QTimer(this)),
+	contextmenu(new QMenu(this)),
+	toolbar(nullptr)
 {
 	xlogIn("new Inspector for %s", item ? item->name : "nullptr");
 	assert(machine != nullptr || object == nullptr);
@@ -168,8 +174,7 @@ void Inspector::contextMenuEvent(QContextMenuEvent* e)
 		if (contextmenu->children().count()) contextmenu->addSeparator();
 		toolwindow->fillContextMenu(contextmenu);
 	}
-	else
-		logline("Inspector(%s).contextMenuEvent: parent is not a ToolWindow", this->object->name);
+	else logline("Inspector(%s).contextMenuEvent: parent is not a ToolWindow", this->object->name);
 
 	contextmenu->popup(e->globalPos());
 	e->accept();

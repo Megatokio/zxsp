@@ -69,11 +69,11 @@ void Ula128k::setPort7ffd(uint8 byte)
 
 void Ula128k::markVideoRam()
 {
-#define SET(A, SZ)                                                                                                     \
-  if (~*A & cpu_crtc)                                                                                                  \
+#define SET(A, SZ)    \
+  if (~*A & cpu_crtc) \
 	for (CoreByte* j = A, *e = A + SZ; j < e; j++) *j |= cpu_crtc;
-#define RES(A, SZ)                                                                                                     \
-  if (*A & cpu_crtc)                                                                                                   \
+#define RES(A, SZ)   \
+  if (*A & cpu_crtc) \
 	for (CoreByte* j = A, *e = A + SZ; j < e; j++) *j &= uint32(~cpu_crtc);
 
 	uint page = port_7ffd & 0x08 ? 7 : 5;

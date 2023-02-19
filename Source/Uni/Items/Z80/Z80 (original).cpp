@@ -70,8 +70,8 @@ static uint16 nowritepage[CPU_PAGESIZE];
 
 // conversion table:   A -> Z80-flags with S, Z, V=parity and C=0
 static uint8 zlog_flags[256] = {
-#define FLAGS0(A)                                                                                                      \
-  (A & 0x80) + ((A == 0) << 6) +                                                                                       \
+#define FLAGS0(A)                \
+  (A & 0x80) + ((A == 0) << 6) + \
 	  (((~A + (A >> 1) + (A >> 2) + (A >> 3) + (A >> 4) + (A >> 5) + (A >> 6) + (A >> 7)) & 1) << 2)
 #define FLAGS2(A) FLAGS0(A), FLAGS0((A + 1)), FLAGS0((A + 2)), FLAGS0((A + 3))
 #define FLAGS4(A) FLAGS2(A), FLAGS2((A + 4)), FLAGS2((A + 8)), FLAGS2((A + 12))
@@ -497,29 +497,29 @@ void Z80::unmapMemory(uint16* a, uint32 size)
 
 // ----	jumping -----------------------------------------------------------
 #define LOOP goto nxtcmnd // LOOP to next instruction
-#define POKE_AND_LOOP(W, C)                                                                                            \
-  {                                                                                                                    \
-	w = W;                                                                                                             \
-	c = C;                                                                                                             \
-	goto poke_and_nxtcmd;                                                                                              \
+#define POKE_AND_LOOP(W, C) \
+  {                         \
+	w = W;                  \
+	c = C;                  \
+	goto poke_and_nxtcmd;   \
   }					// POKE(w,c) and goto next instr.
 #define EXIT goto x // exit from cpu
 
 // ----	load and store local variables from/to global registers ------------
-#define LOAD_REGISTERS                                                                                                 \
-  r	 = registers.r;	 /* refresh counter R		*/                                                                          \
-  cc = cpu_cycle;	 /* cpu cycle counter		*/                                                                          \
-  ic = instr_cnt;	 /* cpu instruction counter	*/                                                                     \
-  pc = registers.pc; /* program counter PC		*/                                                                         \
-  ra = registers.a;	 /* register A				*/                                                                               \
+#define LOAD_REGISTERS                             \
+  r	 = registers.r;	 /* refresh counter R		*/      \
+  cc = cpu_cycle;	 /* cpu cycle counter		*/      \
+  ic = instr_cnt;	 /* cpu instruction counter	*/ \
+  pc = registers.pc; /* program counter PC		*/     \
+  ra = registers.a;	 /* register A				*/           \
   rf = registers.f;	 /* register F				*/
 
-#define SAVE_REGISTERS                                                                                                 \
-  registers.r  = (registers.r & 0x80) | (r & 0x7f); /* refresh counter R	*/                                            \
-  cpu_cycle	   = cc;								/* cpu cycle counter	*/                                            \
-  instr_cnt	   = ic;								/* cpu instr. counter	*/                                           \
-  registers.pc = pc;								/* program counter PC	*/                                           \
-  registers.a  = ra;								/* register A			*/                                                 \
+#define SAVE_REGISTERS                                                       \
+  registers.r  = (registers.r & 0x80) | (r & 0x7f); /* refresh counter R	*/  \
+  cpu_cycle	   = cc;								/* cpu cycle counter	*/  \
+  instr_cnt	   = ic;								/* cpu instr. counter	*/ \
+  registers.pc = pc;								/* program counter PC	*/ \
+  registers.a  = ra;								/* register A			*/       \
   registers.f  = rf;								/* register F			*/
 
 

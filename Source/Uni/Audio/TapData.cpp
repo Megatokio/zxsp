@@ -158,8 +158,7 @@ cstr calcMajorTapBlockInfo(const uint8* data, int blen)
 		int8 c = data[i];
 		if (c < 0)
 		{
-			if (is_jupiter)
-				c &= 0x7F;
+			if (is_jupiter) c &= 0x7F;
 			else
 			{
 				d = stpcpy(d, basic_token[c + 128]);
@@ -253,8 +252,14 @@ void calcTapBlockInfos(const uint8* data, int blen, cstr& major, cstr& minor)
 
 
 TapData::TapData(bool is_zxsp, bool is_jupiter) :
-	TapeData(isa_TapData), is_zxsp(is_zxsp), is_jupiter(is_jupiter), pause(0), pilot_pulses(0), csw_pilot(0),
-	csw_data(0), csw_pause(0)
+	TapeData(isa_TapData),
+	is_zxsp(is_zxsp),
+	is_jupiter(is_jupiter),
+	pause(0),
+	pilot_pulses(0),
+	csw_pilot(0),
+	csw_data(0),
+	csw_pause(0)
 {}
 
 
@@ -262,8 +267,15 @@ TapData::~TapData() {}
 
 
 TapData::TapData(const TapData& q) :
-	TapeData(q), data(q.data), is_zxsp(q.is_zxsp), is_jupiter(q.is_jupiter), pause(q.pause),
-	pilot_pulses(q.pilot_pulses), csw_pilot(q.csw_pilot), csw_data(q.csw_data), csw_pause(q.csw_pause)
+	TapeData(q),
+	data(q.data),
+	is_zxsp(q.is_zxsp),
+	is_jupiter(q.is_jupiter),
+	pause(q.pause),
+	pilot_pulses(q.pilot_pulses),
+	csw_pilot(q.csw_pilot),
+	csw_data(q.csw_data),
+	csw_pause(q.csw_pause)
 {}
 
 
@@ -271,8 +283,15 @@ TapData::TapData(const TapData& q) :
 	data in buffer must include blocktype and checksum byte
 */
 TapData::TapData(Array<uint8>& q, uint ppilot, Time pause, bool is_zxsp) :
-	TapeData(isa_TapData, original_data), data(q), is_zxsp(is_zxsp), is_jupiter(!is_zxsp), pause(pause),
-	pilot_pulses(ppilot), csw_pilot(0), csw_data(0), csw_pause(0)
+	TapeData(isa_TapData, original_data),
+	data(q),
+	is_zxsp(is_zxsp),
+	is_jupiter(!is_zxsp),
+	pause(pause),
+	pilot_pulses(ppilot),
+	csw_pilot(0),
+	csw_data(0),
+	csw_pause(0)
 {}
 
 
@@ -347,7 +366,13 @@ TapData::TapData(const CswBuffer& bu) : TapeData(isa_TapData)
 		 e.g. to detect two blocks without gap (-> Jupiter Ace)
 */
 TapData::TapData(const uint16* bu, uint32 sz, uint32 ccps) :
-	TapeData(isa_TapData), is_zxsp(no), is_jupiter(no), pause(0), pilot_pulses(0), csw_pilot(0), csw_data(0),
+	TapeData(isa_TapData),
+	is_zxsp(no),
+	is_jupiter(no),
+	pause(0),
+	pilot_pulses(0),
+	csw_pilot(0),
+	csw_data(0),
 	csw_pause(0)
 {
 	xlogIn("new TapData(CswBuffer&)");
@@ -380,8 +405,8 @@ p1:
 	//	danach wird der Pilotton als gültig anerkannt.
 
 
-#define NEXTPULSE()                                                                                                    \
-  a = b, b = *q++;                                                                                                     \
+#define NEXTPULSE() \
+  a = b, b = *q++;  \
   while (q < e && *q == 0 && ++q < e) { b += *q++; }
 
 	uint32 a;	  // last pulse length
@@ -484,8 +509,7 @@ p5:
 
 	if (!is_zxsp && !is_jupiter && data[0] != 0)
 	{
-		if (sum == 0)
-			is_zxsp = true; // correct checksum for ZX Spectrum
+		if (sum == 0) is_zxsp = true; // correct checksum for ZX Spectrum
 		else if (sum == data[0])
 		{
 			is_jupiter = true;
@@ -599,10 +623,8 @@ void TapData::readFile(cstr fpath, TapeFile& data)
 		TapData* tapdata = new TapData(!is_jupiter, is_jupiter);
 		tapdata->readFromFile(fd, add_typebyte);
 
-		if (add_typebyte)
-			tapdata->data[0] = typebyte;
-		else
-			typebyte = tapdata->data[0];
+		if (add_typebyte) tapdata->data[0] = typebyte;
+		else typebyte = tapdata->data[0];
 
 		bool is_data = is_jupiter ? typebyte != 0 : typebyte & 0x80;
 		// assert(is_data<=1);

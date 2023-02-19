@@ -120,22 +120,12 @@ protected:
 
 protected:
 	TapeRecorderInsp(
-		QWidget*,
-		MachineController*,
-		volatile IsaObject*,
-		QPoint majorinfopos,
-		QPoint minorinfopos,
+		QWidget*, MachineController*, volatile IsaObject*, QPoint majorinfopos, QPoint minorinfopos,
 		QPoint tapecounterpos,
 
-		cstr	hdgr_image_filename,
-		cstr	tray_image_filename,
-		QPoint	tray_position,
+		cstr hdgr_image_filename, cstr tray_image_filename, QPoint tray_position,
 		HeadPos head_position, // head_up, head_down
-		cstr	axis_image_filename,
-		int		axis_symmetries,
-		int		tr_axis_x1,
-		int		tr_axis_x2,
-		int		tr_axis_y);
+		cstr axis_image_filename, int axis_symmetries, int tr_axis_x1, int tr_axis_x2, int tr_axis_y);
 
 	void updateAnimation();
 	void updateWidgets() override;			// timer

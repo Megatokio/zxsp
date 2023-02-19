@@ -323,10 +323,8 @@ void MachineController::loadSnapshot(cstr filename)
 			{
 				if (fsz != machine->rom.count())
 				{
-					if (machine->isA(isa_MachineZx80) && fsz == 8 kB)
-						machine->rom.grow(fsz);
-					else if (machine->isA(isa_MachineZx80) && fsz == 4 kB)
-						machine->rom.shrink(fsz);
+					if (machine->isA(isa_MachineZx80) && fsz == 8 kB) machine->rom.grow(fsz);
+					else if (machine->isA(isa_MachineZx80) && fsz == 4 kB) machine->rom.shrink(fsz);
 					else
 					{
 						if (fsz != zx_info[m].rom_size)
@@ -371,8 +369,7 @@ void MachineController::loadSnapshot(cstr filename)
 						machine = init_machine(m, 0, s, j, r, d); // powered up & suspended
 					}
 
-					if (machine->model_info->canAttachZxIf2())
-						zxif2 = ZxIf2Ptr(machine->addExternalItem(isa_ZxIf2));
+					if (machine->model_info->canAttachZxIf2()) zxif2 = ZxIf2Ptr(machine->addExternalItem(isa_ZxIf2));
 					else if (machine->model_info->canAttachSpectraVideo())
 					{
 						action_addSpectraVideo->setChecked(true);
@@ -489,10 +486,8 @@ void MachineController::loadSnapshot(cstr filename)
 
 		else // unsupported snapshot format:
 		{
-			if (rzx)
-				showWarning("Sorry, your file contains a \"%s\" snapshot. This is not yet supported.", ext);
-			else
-				showAlert("No handler for \"%s\" files in \"loadSnapshot()\"", ext);
+			if (rzx) showWarning("Sorry, your file contains a \"%s\" snapshot. This is not yet supported.", ext);
+			else showAlert("No handler for \"%s\" files in \"loadSnapshot()\"", ext);
 			delete rzx;
 			rzx			 = nullptr;
 			org_filename = nullptr;
@@ -677,35 +672,20 @@ void MachineController::create_actions()
 
 	// fixed show_actions: these are never removed from showActions[] (except in dtor)
 	action_showMachineImage = new_action(
-		NOICON,
-		"Machine image",
-		Qt::Key_I,
-		[=](bool f) { toggle_toolwindow(machine, action_showMachineImage, f); },
+		NOICON, "Machine image", Qt::Key_I, [=](bool f) { toggle_toolwindow(machine, action_showMachineImage, f); },
 		isa_Machine);
 	action_showMemHex = new_action(
-		NOICON,
-		"Memory hexview",
-		Qt::Key_M,
-		[=](bool f) { toggle_toolwindow(mem[0], action_showMemHex, f); },
+		NOICON, "Memory hexview", Qt::Key_M, [=](bool f) { toggle_toolwindow(mem[0], action_showMemHex, f); },
 		isa_MemHex);
 	action_showMemDisass = new_action(
-		NOICON,
-		"Memory disassemble",
-		Qt::Key_M | Qt::SHIFT,
-		[=](bool f) { toggle_toolwindow(mem[1], action_showMemDisass, f); },
-		isa_MemDisass);
+		NOICON, "Memory disassemble", Qt::Key_M | Qt::SHIFT,
+		[=](bool f) { toggle_toolwindow(mem[1], action_showMemDisass, f); }, isa_MemDisass);
 	action_showMemGraphical = new_action(
-		NOICON,
-		"Memory graphical",
-		Qt::Key_M | Qt::ALT,
-		[=](bool f) { toggle_toolwindow(mem[2], action_showMemGraphical, f); },
-		isa_MemGraphical);
+		NOICON, "Memory graphical", Qt::Key_M | Qt::ALT,
+		[=](bool f) { toggle_toolwindow(mem[2], action_showMemGraphical, f); }, isa_MemGraphical);
 	action_showMemAccess = new_action(
-		NOICON,
-		"Memory access",
-		Qt::Key_M | Qt::META,
-		[=](bool f) { toggle_toolwindow(mem[3], action_showMemAccess, f); },
-		isa_MemAccess);
+		NOICON, "Memory access", Qt::Key_M | Qt::META,
+		[=](bool f) { toggle_toolwindow(mem[3], action_showMemAccess, f); }, isa_MemAccess);
 
 	// add external item:
 	action_addKempstonJoy =
@@ -970,10 +950,8 @@ void MachineController::startup_open_toolwindows()
 
 		if (settings.get_bool(key_startup_open_disk_drive, no))
 		{
-			if (machine->fdc)
-				findShowActionForItem(machine->fdc)->setChecked(yes);
-			else if (machine->mmu->isA(isa_MmuTc2068))
-				findShowActionForItem(machine->mmu)->setChecked(yes);
+			if (machine->fdc) findShowActionForItem(machine->fdc)->setChecked(yes);
+			else if (machine->mmu->isA(isa_MmuTc2068)) findShowActionForItem(machine->mmu)->setChecked(yes);
 			else
 			{
 				Item* divide = NV(machine)->findIsaItem(isa_DivIDE);
@@ -1010,9 +988,19 @@ MachineController::~MachineController() // ---- D E S T R U C T O R ----
 MachineController::MachineController(QString filepath) // ---- C O N S T R U C T O R ----
 	:
 	QMainWindow(nullptr),
-	in_ctor(yes), in_dtor(no), in_machine_ctor(no), in_machine_dtor(no), model(unknown_model), model_info(nullptr),
-	filepath(nullptr), machine(nullptr), screen(nullptr), mem {0, 0, 0, 0},
-	lenslok(nullptr), keyjoy_keys {0, 0, 0, 0, 0}, keyjoy_fnmatch_pattern(nullptr)
+	in_ctor(yes),
+	in_dtor(no),
+	in_machine_ctor(no),
+	in_machine_dtor(no),
+	model(unknown_model),
+	model_info(nullptr),
+	filepath(nullptr),
+	machine(nullptr),
+	screen(nullptr),
+	mem {0, 0, 0, 0},
+	lenslok(nullptr),
+	keyjoy_keys {0, 0, 0, 0, 0},
+	keyjoy_fnmatch_pattern(nullptr)
 // actions:			  initialized in create_mbar()
 // model_actiongroup: initialized in create_mbar()
 // menus:			  initialized in create_mbar()
@@ -1071,10 +1059,8 @@ MachineController::MachineController(QString filepath) // ---- C O N S T R U C T
 
 	assert(machine->isPowerOn());
 	assert(machine->isSuspended());
-	if (filepath.isEmpty())
-		machine->resume();
-	else
-		loadSnapshot(filepath.toUtf8().data());
+	if (filepath.isEmpty()) machine->resume();
+	else loadSnapshot(filepath.toUtf8().data());
 
 	in_ctor = no;
 }
@@ -1272,12 +1258,9 @@ Machine* MachineController::init_machine(
 		if (alwaysAddJoy && !machine->joystick) {} // TODO
 		if (alwaysAddRam && machine->ram.count() < 16 kB)
 		{
-			if (model == zx80)
-				action_addZx3kRam->setChecked(true);
-			else if (model == ts1000 || model == ts1500)
-				action_addTs1016Ram->setChecked(true);
-			else
-				action_addZx16kRam->setChecked(true);
+			if (model == zx80) action_addZx3kRam->setChecked(true);
+			else if (model == ts1000 || model == ts1500) action_addTs1016Ram->setChecked(true);
+			else action_addZx16kRam->setChecked(true);
 		}
 
 		action_RzxRecord->setEnabled(no);
@@ -1419,9 +1402,7 @@ void MachineController::save_as()
 		model == jupiter											   ? "Jupiter Ace Snapshots (*.z80 *.ace);;" :
 		machine->isA(isa_MachineZxsp) && machine->ram.count() <= 48 kB ? "ZXSP Snapshots (*.z80 *.sna);;" :
 																		 "ZXSP Snapshots (*.z80);;",
-		"Rom (*.rom);;",
-		model_info->isA(isa_MachineZxsp) ? "Screenshot (*.scr);;" : "",
-		"All Files (*)");
+		"Rom (*.rom);;", model_info->isA(isa_MachineZxsp) ? "Screenshot (*.scr);;" : "", "All Files (*)");
 
 	cstr filepath = selectSaveFile(this, "Save snapshot", filter);
 	if (filepath)
@@ -1784,20 +1765,16 @@ void MachineController::enable_breakpoints(bool f)
 	xlogIn("MachineController:enableBreakpoints(%i)", int(f));
 
 	machine->lock();
-	if (f)
-		machine->cpu_options |= cpu_break_rwx;
-	else
-		machine->cpu_options &= ~cpu_break_rwx;
+	if (f) machine->cpu_options |= cpu_break_rwx;
+	else machine->cpu_options &= ~cpu_break_rwx;
 	machine->unlock();
 }
 
 void MachineController::halt_machine(bool f)
 {
 	xlogIn("MachineController:haltMachine(%i)", int(f));
-	if (f)
-		machine->suspend();
-	else
-		machine->resume();
+	if (f) machine->suspend();
+	else machine->resume();
 	// note: we'll get a callback to machineRunStateChanged()
 }
 
@@ -1807,10 +1784,8 @@ void MachineController::add_external_item(isa_id item_id, bool add)
 
 	bool f = machine->suspend();
 
-	if (add)
-		NV(machine)->addExternalItem(item_id);
-	else
-		NV(machine)->removeItem(item_id);
+	if (add) NV(machine)->addExternalItem(item_id);
+	else NV(machine)->removeItem(item_id);
 
 	if (f) machine->resume();
 }
@@ -1841,8 +1816,7 @@ void MachineController::addMultiface1(bool add)
 		bool joystick_enabled = settings.get_bool(key_multiface1_enable_joystick, yes);
 		NV(machine)->addMultiface1(joystick_enabled);
 	}
-	else
-		NV(machine)->removeItem(isa_Multiface1);
+	else NV(machine)->removeItem(isa_Multiface1);
 
 	if (f) machine->resume();
 }
@@ -1888,8 +1862,7 @@ void MachineController::addDivIDE(bool add)
 
 		if (diskfile) divide->insertDisk(diskfile); // shows it's own errors
 	}
-	else
-		NV(machine)->removeItem(isa_DivIDE);
+	else NV(machine)->removeItem(isa_DivIDE);
 
 	if (f) machine->powerOn();
 
@@ -1914,8 +1887,7 @@ void MachineController::addSpectraVideo(bool add)
 
 		NV(machine)->addSpectraVideo(dip_switches);
 	}
-	else
-		NV(machine)->removeSpectraVideo();
+	else NV(machine)->removeSpectraVideo();
 
 	if (f) machine->powerOn();
 
@@ -1967,10 +1939,8 @@ void MachineController::set_rzx_recording(bool f)
 	// start or stop recording into rzx file
 
 	if (!machine) return;
-	if (f)
-		NVPtr<Machine>(machine)->rzxStartRecording();
-	else
-		NVPtr<Machine>(machine)->rzxStopRecording();
+	if (f) NVPtr<Machine>(machine)->rzxStartRecording();
+	else NVPtr<Machine>(machine)->rzxStopRecording();
 }
 
 

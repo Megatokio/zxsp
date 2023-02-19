@@ -326,16 +326,25 @@ inline CoreByte* set_bits_in_page(CoreByte* p, uint32 bitmask)
 
 
 SmartSDCard::SmartSDCard(Machine* m, uint dip_switches) :
-	MassStorage(m, isa_SmartSDCard, external, o_addr, i_addr), ram(m, "SMART card Ram", 128 kB),
-	rom(m, "SMART card Flash Ram", 256 kB), joystick(nullptr), overlay(nullptr), sd_card(nullptr), sio(nullptr),
+	MassStorage(m, isa_SmartSDCard, external, o_addr, i_addr),
+	ram(m, "SMART card Ram", 128 kB),
+	rom(m, "SMART card Flash Ram", 256 kB),
+	joystick(nullptr),
+	overlay(nullptr),
+	sd_card(nullptr),
+	sio(nullptr),
 	config(),
 	//	dip_joystick_enabled(gui::settings.get_bool(key_smart_card_joystick_enabled, yes)),
 	//	dip_memory_enabled(gui::settings.get_bool(key_smart_card_memory_enabled, yes)),
 	//	dip_force_bank_B(gui::settings.get_bool(key_smart_card_force_bank_B, no)),
 	//	dip_flash_write_enabled(gui::settings.get_bool(key_smart_card_write_flash_enabled, no)), flash_state(),
-	dip_joystick_enabled(dip_switches & Dip::JoystickEnabled), dip_memory_enabled(dip_switches & Dip::MemoryEnabled),
-	dip_force_bank_B(dip_switches & Dip::ForceBankB), dip_flash_write_enabled(dip_switches & Dip::FlashWriteEnabled),
-	flash_state(), flash_dirty(no), flash_software_id_mode()
+	dip_joystick_enabled(dip_switches & Dip::JoystickEnabled),
+	dip_memory_enabled(dip_switches & Dip::MemoryEnabled),
+	dip_force_bank_B(dip_switches & Dip::ForceBankB),
+	dip_flash_write_enabled(dip_switches & Dip::FlashWriteEnabled),
+	flash_state(),
+	flash_dirty(no),
+	flash_software_id_mode()
 {
 	// init rom:
 	// read patches will only be needed for rom switch-out system and are only applied if it is armed, not in general.
@@ -646,10 +655,8 @@ void SmartSDCard::input(Time t, int32, uint16 addr, uint8& byte, uint8& mask)
 		{
 		case 0b00: // $FAF3: RAM config
 			mask = 0xff;
-			if (sio)
-				byte &= (config & ~sio_rx) | sio->input(t) * sio_rx;
-			else
-				byte &= config | sio_rx; // bit 4 (SIO RX) reads '1' if no SIO fitted
+			if (sio) byte &= (config & ~sio_rx) | sio->input(t) * sio_rx;
+			else byte &= config | sio_rx; // bit 4 (SIO RX) reads '1' if no SIO fitted
 			break;
 		case 0b01: // $FAF7: SD card data
 			mask = 0xff;
@@ -778,10 +785,8 @@ void SmartSDCard::set_rom_config(uint new_config)
 		{
 			if (toggled & pageout_armed)
 			{
-				if (new_config & pageout_armed)
-					set_rom_pageout_bits(0x4000);
-				else
-					clear_rom_pageout_bits(0x4000);
+				if (new_config & pageout_armed) set_rom_pageout_bits(0x4000);
+				else clear_rom_pageout_bits(0x4000);
 			}
 			map_card_memory(0, 0x4000);
 		}

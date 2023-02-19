@@ -19,9 +19,16 @@ namespace gui
 {
 
 KempstonMouseInsp::KempstonMouseInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
-	Inspector(w, mc, i, "/Images/kempston_mouse_if.jpg"), display_x(newLineEdit("0", 32)),
-	display_y(newLineEdit("0", 32)), display_buttons(newLineEdit("%------11", 100)), combobox_scale(new QComboBox()),
-	button_grab_mouse(new QPushButton("Grab mouse", this)), old_x(0), old_y(0), old_buttons(0xff), old_grabbed(no)
+	Inspector(w, mc, i, "/Images/kempston_mouse_if.jpg"),
+	display_x(newLineEdit("0", 32)),
+	display_y(newLineEdit("0", 32)),
+	display_buttons(newLineEdit("%------11", 100)),
+	combobox_scale(new QComboBox()),
+	button_grab_mouse(new QPushButton("Grab mouse", this)),
+	old_x(0),
+	old_y(0),
+	old_buttons(0xff),
+	old_grabbed(no)
 {
 	xlogIn("new KempstonMouseInsp");
 	assert(object->isA(isa_KempstonMouse));

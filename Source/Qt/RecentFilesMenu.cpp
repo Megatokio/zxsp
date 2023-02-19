@@ -109,10 +109,8 @@ void addRecentFile(ListId id, QString fpath) { recent_files.at(id)->add_file(fpa
 QString getRecentFile(ListId id, int position)
 {
 	QStringList& list = recent_files.at(id)->fpaths;
-	if (list.count() > position)
-		return list.at(position);
-	else
-		return "";
+	if (list.count() > position) return list.at(position);
+	else return "";
 }
 
 
@@ -129,7 +127,9 @@ QString getRecentFile(ListId id, int position)
 	adds itself to it's RecentFilesList's list of menus
 */
 RecentFilesMenu::RecentFilesMenu(ListId id, QWidget* owner, std::function<void(cstr)> callback) :
-	QMenu(owner), _list_id(id), _callback(callback)
+	QMenu(owner),
+	_list_id(id),
+	_callback(callback)
 {
 	RecentFilesList* mylist = recent_files.at(id);
 

@@ -151,17 +151,17 @@ void Z80Insp::updateWidgets()
 	}
 	volatile Z80* cpu = this->cpu();
 
-#define SetRR(RR)                                                                                                      \
-  if (regs.RR != value.RR)                                                                                             \
-  {                                                                                                                    \
-	value.RR = regs.RR;                                                                                                \
-	RR->setText(catstr("$", hexstr(regs.RR, 4)));                                                                      \
+#define SetRR(RR)                                 \
+  if (regs.RR != value.RR)                        \
+  {                                               \
+	value.RR = regs.RR;                           \
+	RR->setText(catstr("$", hexstr(regs.RR, 4))); \
   }
-#define SetR(RR)                                                                                                       \
-  if (regs.RR != value.RR)                                                                                             \
-  {                                                                                                                    \
-	value.RR = regs.RR;                                                                                                \
-	RR->setText(catstr("$", hexstr(regs.RR, 2)));                                                                      \
+#define SetR(RR)                                  \
+  if (regs.RR != value.RR)                        \
+  {                                               \
+	value.RR = regs.RR;                           \
+	RR->setText(catstr("$", hexstr(regs.RR, 2))); \
   }
 
 	const volatile Z80Regs& regs = cpu->getRegisters();
@@ -226,19 +226,19 @@ void Z80Insp::return_pressed_in_lineedit(MyLineEdit* led)
 	NVPtr<Z80> cpu(this->cpu());
 	Z80Regs&   regs = cpu->getRegisters();
 
-#define setR(REG)                                                                                                      \
-  if (led == REG)                                                                                                      \
-  {                                                                                                                    \
-	value.REG = regs.REG = n;                                                                                          \
-	led->setText(catstr("$", hexstr(n, 2)));                                                                           \
-  }                                                                                                                    \
+#define setR(REG)                            \
+  if (led == REG)                            \
+  {                                          \
+	value.REG = regs.REG = n;                \
+	led->setText(catstr("$", hexstr(n, 2))); \
+  }                                          \
   else
-#define setRR(REG)                                                                                                     \
-  if (led == REG)                                                                                                      \
-  {                                                                                                                    \
-	value.REG = regs.REG = n;                                                                                          \
-	led->setText(catstr("$", hexstr(n, 4)));                                                                           \
-  }                                                                                                                    \
+#define setRR(REG)                           \
+  if (led == REG)                            \
+  {                                          \
+	value.REG = regs.REG = n;                \
+	led->setText(catstr("$", hexstr(n, 4))); \
+  }                                          \
   else
 
 	setR(a) setR(f) setR(a2) setR(f2) setR(i) setR(r) setRR(sp) setRR(pc) setRR(bc) setRR(de) setRR(hl) setRR(ix)
@@ -319,10 +319,8 @@ void Z80Insp::set_interrupt_enable(bool checked) { NVPtr<Z80>(cpu())->getRegiste
 void Z80Insp::set_nmi(bool checked)
 {
 	NVPtr<Z80> z80(cpu());
-	if (checked)
-		z80->triggerNmi();
-	else
-		z80->clearNmi();
+	if (checked) z80->triggerNmi();
+	else z80->clearNmi();
 }
 
 /*	The user toggled the INT checkbox
@@ -330,10 +328,8 @@ void Z80Insp::set_nmi(bool checked)
 void Z80Insp::set_interrupt(bool checked)
 {
 	NVPtr<Z80> z80(cpu());
-	if (checked)
-		z80->raiseInterrupt();
-	else
-		z80->clearInterrupt();
+	if (checked) z80->raiseInterrupt();
+	else z80->clearInterrupt();
 }
 
 } // namespace gui

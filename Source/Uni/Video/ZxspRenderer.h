@@ -37,13 +37,8 @@ public:
 	{}
 
 	virtual void drawScreen(
-		IoInfo* ioinfo,
-		uint	ioinfo_count,
-		uint8*	attr_pixels,
-		uint	cc_per_scanline,
-		uint32	cc_start_of_screenfile,
-		bool	flashphase,
-		uint32	cc);
+		IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
+		bool flashphase, uint32 cc);
 };
 
 
@@ -73,24 +68,12 @@ public:
 	ZxspGifWriter(QObject* p, bool update_border, uint frames_per_second = 50);
 
 	virtual void drawScreen(
-		IoInfo* ioinfo,
-		uint	ioinfo_count,
-		uint8*	attr_pixels,
-		uint	cc_per_scanline,
-		uint32	cc_start_of_screenfile,
-		bool	flashphase);
+		IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
+		bool flashphase);
 	void writeFrame(
-		IoInfo* ioinfo,
-		uint	ioinfo_count,
-		uint8*	attr_pixels,
-		uint	cc_per_scanline,
-		uint32	cc_start_of_screenfile,
-		bool	flashphase);
+		IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
+		bool flashphase);
 	void saveScreenshot(
-		cstr	path,
-		IoInfo* ioinfo,
-		uint	ioinfo_count,
-		uint8*	attr_pixels,
-		uint	cc_per_scanline,
-		uint32	cc_start_of_screenfile);
+		cstr path, IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline,
+		uint32 cc_start_of_screenfile);
 };

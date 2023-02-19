@@ -74,19 +74,26 @@ void Item::linkBehind(Item* p)
 	_prev = p;
 	_next = p ? p->_next : 0;
 	if (_prev) _prev->_next = this;
-	if (_next)
-		_next->_prev = this;
-	else
-		machine->lastitem = this;
+	if (_next) _next->_prev = this;
+	else machine->lastitem = this;
 }
 
 
 #define IOSZ 100
 
 Item::Item(Machine* machine, isa_id id, isa_id grp, Internal internal, cstr o_addr, cstr i_addr) :
-	IsaObject(machine, id, grp), machine(machine), in_mask(0xffff),								  // dflt: no i/o
-	in_bits(0), out_mask(0xffff), out_bits(0), _internal(internal), ioinfo(new IoInfo[IOSZ + 1]), // io info recorder
-	ioinfo_count(0), ioinfo_size(IOSZ), ramdis_in(0), romdis_in(0)
+	IsaObject(machine, id, grp),
+	machine(machine),
+	in_mask(0xffff), // dflt: no i/o
+	in_bits(0),
+	out_mask(0xffff),
+	out_bits(0),
+	_internal(internal),
+	ioinfo(new IoInfo[IOSZ + 1]), // io info recorder
+	ioinfo_count(0),
+	ioinfo_size(IOSZ),
+	ramdis_in(0),
+	romdis_in(0)
 {
 	xlogIn("new Item: %s", name);
 
@@ -95,10 +102,8 @@ Item::Item(Machine* machine, isa_id id, isa_id grp, Internal internal, cstr o_ad
 	_prev	= p;
 	_next	= p ? p->_next : 0;
 	if (_prev) _prev->_next = this;
-	if (_next)
-		_next->_prev = this;
-	else
-		machine->lastitem = this;
+	if (_next) _next->_prev = this;
+	else machine->lastitem = this;
 
 	// io masks:
 	if (i_addr)

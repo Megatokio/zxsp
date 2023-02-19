@@ -24,22 +24,9 @@
 
 const RgbaColor standard_rgba_colors[16] = // RGBA
 	{									   // G R B
-		COLOR(0, 0, 0),
-		COLOR(0, 0, 2),
-		COLOR(0, 2, 0),
-		COLOR(0, 2, 2),
-		COLOR(2, 0, 0),
-		COLOR(2, 0, 2),
-		COLOR(2, 2, 0),
-		COLOR(2, 2, 2),
-		COLOR(0, 0, 0),
-		COLOR(0, 0, 3),
-		COLOR(0, 3, 0),
-		COLOR(0, 3, 3),
-		COLOR(3, 0, 0),
-		COLOR(3, 0, 3),
-		COLOR(3, 3, 0),
-		COLOR(3, 3, 3)};
+		COLOR(0, 0, 0), COLOR(0, 0, 2), COLOR(0, 2, 0), COLOR(0, 2, 2), COLOR(2, 0, 0), COLOR(2, 0, 2),
+		COLOR(2, 2, 0), COLOR(2, 2, 2), COLOR(0, 0, 0), COLOR(0, 0, 3), COLOR(0, 3, 0), COLOR(0, 3, 3),
+		COLOR(3, 0, 0), COLOR(3, 0, 3), COLOR(3, 3, 0), COLOR(3, 3, 3)};
 
 const RgbaColor enhanced_rgba_colors[64] = // RGBA; note: Specci colors are GRB
 	{COLOR(0, 0, 0), COLOR(0, 0, 1), COLOR(0, 0, 2), COLOR(0, 0, 3), COLOR(0, 1, 0), COLOR(0, 1, 1),
@@ -76,13 +63,8 @@ inline RgbaColor rgbaColorForBorderbyte(uint8 b)
 		pro Scanline werden 32 Pärchen (64 Bytes) ausgegeben
 */
 void SpectraRenderer::drawScreen(
-	IoInfo* ioinfo,
-	uint	ioinfo_count,
-	uint8*	attr_pixels,
-	uint	cc_per_scanline,
-	uint32	cc_start_of_screenfile,
-	bool	flashphase,
-	uint32	cc_vbi)
+	IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
+	bool flashphase, uint32 cc_vbi)
 {
 	assert((cc_start_of_screenfile & 3) == 0);
 
@@ -148,13 +130,10 @@ void SpectraRenderer::drawScreen(
 							{
 								if (attr1 & 0x80)
 								{
-									if (attr2 & 0x80)
-										pixels ^= 0xff;
-									else
-										pixels = 0x00;
+									if (attr2 & 0x80) pixels ^= 0xff;
+									else pixels = 0x00;
 								}
-								else if (attr2 & 0x80)
-									pixels = 0xff;
+								else if (attr2 & 0x80) pixels = 0xff;
 							}
 
 							if (video_mode & EXTRA_COLOURS) // 2-byte attr, extra colors
@@ -232,10 +211,8 @@ void SpectraRenderer::drawScreen(
 
 		cc_io = io->cc;
 
-		if (~io->addr & 1)
-			borderbyte = io->byte;
-		else if (io->addr == 0x7FDF)
-			video_mode = io->byte;
+		if (~io->addr & 1) borderbyte = io->byte;
+		else if (io->addr == 0x7FDF) video_mode = io->byte;
 
 		bordercolor = video_mode & ENHANCED_BORDER // enhanced border?
 						  ?
@@ -350,12 +327,8 @@ SpectraGifWriter::SpectraGifWriter(QObject* p, bool update_border, uint frames_p
 
 
 void SpectraGifWriter::drawScreen(
-	IoInfo* ioinfo,
-	uint	ioinfo_count,
-	uint8*	attr_pixels,
-	uint	cc_per_scanline,
-	uint32	cc_start_of_screenfile,
-	bool	flashphase)
+	IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
+	bool flashphase)
 {
 	assert((cc_start_of_screenfile & 3) == 0);
 	if (!bits) bits = new Pixelmap(width, height);
@@ -419,13 +392,10 @@ void SpectraGifWriter::drawScreen(
 							{
 								if (attr1 & 0x80)
 								{
-									if (attr2 & 0x80)
-										pixels ^= 0xff;
-									else
-										pixels = 0x00;
+									if (attr2 & 0x80) pixels ^= 0xff;
+									else pixels = 0x00;
 								}
-								else if (attr2 & 0x80)
-									pixels = 0xff;
+								else if (attr2 & 0x80) pixels = 0xff;
 							}
 
 							if (video_mode & EXTRA_COLOURS) // 2-byte attr, extra colors
@@ -502,10 +472,8 @@ void SpectraGifWriter::drawScreen(
 
 		cc_io = io->cc;
 
-		if (~io->addr & 1)
-			borderbyte = io->byte;
-		else if (io->addr == 0x7FDF)
-			video_mode = io->byte;
+		if (~io->addr & 1) borderbyte = io->byte;
+		else if (io->addr == 0x7FDF) video_mode = io->byte;
 
 		bordercolor = video_mode & ENHANCED_BORDER // enhanced border?
 						  ?

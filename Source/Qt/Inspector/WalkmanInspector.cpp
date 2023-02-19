@@ -24,20 +24,16 @@ namespace gui
 
 WalkmanInspector::WalkmanInspector(QWidget* parent, MachineController* mc, volatile IsaObject* item) :
 	TapeRecorderInsp(
-		parent,
-		mc,
-		item,
-		QPoint(58, 113),				// major info
-		QPoint(58, 124),				// minor info
-		QPoint(120, 141),				// tape counter
-		"Images/tape/walkman_hdgr.jpg", // tr_image
-		"Images/tape/walkman_lid.png",	// tr_window_background_image,
-		QPoint(23, 7),					// tr_window_pos,
-		head_up,						// tr_head_position
-		"Images/tape/axis_plus2.png",	// tr_axis_image,
-		6,								// tr_axis_symmetries,
-		95,
-		193,
+		parent, mc, item, QPoint(58, 113), // major info
+		QPoint(58, 124),				   // minor info
+		QPoint(120, 141),				   // tape counter
+		"Images/tape/walkman_hdgr.jpg",	   // tr_image
+		"Images/tape/walkman_lid.png",	   // tr_window_background_image,
+		QPoint(23, 7),					   // tr_window_pos,
+		head_up,						   // tr_head_position
+		"Images/tape/axis_plus2.png",	   // tr_axis_image,
+		6,								   // tr_axis_symmetries,
+		95, 193,
 		91) // axis_x1, _x2, _y
 {
 	xlogIn("new WalkmanInspector");

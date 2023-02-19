@@ -69,9 +69,17 @@ QGL::NoDeprecatedFunctions	Disables the use of deprecated functionality for Open
 */
 
 Screen::Screen(QWidget* owner, isa_id id) :
-	QGLWidget(QGLFormat(QGL::SingleBuffer), owner), render_thread(new RenderThread(this)), id(id), _what(IDLE),
-	_gifmovie_filepath(nullptr), _screenshot_filepath(nullptr), frames_hit_percent(100.0f), zoom(calc_zoom()),
-	screen_renderer(newRenderer()), gif_writer(nullptr), overlays {nullptr, nullptr}
+	QGLWidget(QGLFormat(QGL::SingleBuffer), owner),
+	render_thread(new RenderThread(this)),
+	id(id),
+	_what(IDLE),
+	_gifmovie_filepath(nullptr),
+	_screenshot_filepath(nullptr),
+	frames_hit_percent(100.0f),
+	zoom(calc_zoom()),
+	screen_renderer(newRenderer()),
+	gif_writer(nullptr),
+	overlays {nullptr, nullptr}
 {
 	xlogIn("new Screen");
 
@@ -191,13 +199,8 @@ void Screen::resizeEvent(QResizeEvent*)
 }
 
 bool ScreenZxsp::ffb_or_vbi(
-	IoInfo* ioinfo,
-	uint	ioinfo_count,
-	uint8*	attr_pixels,
-	uint32	cc_start_of_screenfile,
-	uint	cc_per_scanline,
-	bool	flashphase,
-	uint32	cc)
+	IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint32 cc_start_of_screenfile, uint cc_per_scanline,
+	bool flashphase, uint32 cc)
 {
 	// store data for new FFB and trigger render thread.
 	// the arrays ioinfo[] and attr_pixels[] are managed by the caller.
@@ -436,10 +439,7 @@ void Screen::paint_screen(bool draw_passepartout)
 
 	// note: glDrawPixels(w,h,format,type,data*)
 	glDrawPixels(
-		h_border * 2 * hf + 256 * hf,
-		v_border * 2 + 192,
-		GL_RGBA,
-		GL_UNSIGNED_INT_8_8_8_8,
+		h_border * 2 * hf + 256 * hf, v_border * 2 + 192, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8,
 		screen_renderer->bits + qbx + qby * screen_renderer->width);
 
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
@@ -720,8 +720,7 @@ Overlay* Screen::findOverlay(isa_id id)
 void Screen::showOverlayPlay(bool f)
 {
 	if (!!overlayPlay == f) return;
-	if (f)
-		overlayPlay = new OverlayPlay(this);
+	if (f) overlayPlay = new OverlayPlay(this);
 	else
 	{
 		delete overlayPlay;
@@ -734,8 +733,7 @@ void Screen::showOverlayPlay(bool f)
 void Screen::showOverlayRecord(bool f)
 {
 	if (!!overlayRecord == f) return;
-	if (f)
-		overlayRecord = new OverlayRecord(this);
+	if (f) overlayRecord = new OverlayRecord(this);
 	else
 	{
 		delete overlayRecord;

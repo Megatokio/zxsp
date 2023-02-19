@@ -83,10 +83,14 @@ static uint get_game_id(cstr name);
 
 
 Lenslok::Lenslok(MachineController* mc, cstr name1, cstr name2) :
-	QWidget(mc), controller(mc),
+	QWidget(mc),
+	controller(mc),
 	background_a(catstr(appl_rsrc_path, "Images/Lenslok-1a-100.png"), nullptr, Qt::NoOpaqueDetection),
 	background_b(catstr(appl_rsrc_path, "Images/Lenslok-1b-100.png"), nullptr, Qt::NoOpaqueDetection),
-	background(&background_a), contextmenu(new QMenu(this)), timer(new QTimer(this)), ignore_focusout(no)
+	background(&background_a),
+	contextmenu(new QMenu(this)),
+	timer(new QTimer(this)),
+	ignore_focusout(no)
 {
 	xlogIn("new Lenslok");
 
@@ -414,10 +418,8 @@ void Lenslok::moveEvent(QMoveEvent*)
 */
 void Lenslok::focusOutEvent(QFocusEvent*)
 {
-	if (ignore_focusout)
-		ignore_focusout = false;
-	else
-		deleteLater();
+	if (ignore_focusout) ignore_focusout = false;
+	else deleteLater();
 }
 
 bool Lenslok::event(QEvent* e)

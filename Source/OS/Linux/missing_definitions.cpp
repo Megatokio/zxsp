@@ -13,7 +13,7 @@ void startCoreAudio(bool input_enabled)
 	TODO();
 }
 void stopCoreAudio() { debugstr("stopCoreAudio\n"); }
-} // namespace Dsp
+} // namespace os
 
 
 #include "Joystick.h"

@@ -22,7 +22,8 @@ namespace gui
 {
 
 ZxIf2Insp::ZxIf2Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
-	SinclairJoyInsp(w, mc, i, "/Images/zxif2.jpg"), old_romfilepath(nullptr)
+	SinclairJoyInsp(w, mc, i, "/Images/zxif2.jpg"),
+	old_romfilepath(nullptr)
 {
 	assert(object->isA(isa_ZxIf2));
 

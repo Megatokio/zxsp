@@ -84,12 +84,17 @@ cstr FdcPlus3Insp::get_load_filename(cstr msg)
 /*	CREATOR
  */
 FdcPlus3Insp::FdcPlus3Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
-	Inspector(w, mc, i, "Images/disk/plus3.jpg"), fdc(FdcPlus3Ptr(i)), drive(fdc->getDrive(0)),
+	Inspector(w, mc, i, "Images/disk/plus3.jpg"),
+	fdc(FdcPlus3Ptr(i)),
+	drive(fdc->getDrive(0)),
 	overlay_disk_A_ejected(catstr(appl_rsrc_path, fname_A_ejected)),
 	overlay_disk_A_inserted(catstr(appl_rsrc_path, fname_A_inserted)),
 	overlay_disk_B_ejected(catstr(appl_rsrc_path, fname_B_ejected)),
-	overlay_disk_B_inserted(catstr(appl_rsrc_path, fname_B_inserted)), overlay_led(path_LED), diskstate(NoDisk),
-	current_disk(nullptr), led_on(no)
+	overlay_disk_B_inserted(catstr(appl_rsrc_path, fname_B_inserted)),
+	overlay_led(path_LED),
+	diskstate(NoDisk),
+	current_disk(nullptr),
+	led_on(no)
 {
 	slot = new QWidget(this);
 	slot->setGeometry(box_slot);
@@ -139,8 +144,7 @@ void FdcPlus3Insp::paintEvent(QPaintEvent* e)
 		{
 			p.setFont(font_label);
 			p.drawText(
-				side_B_up() ? box_label_disk_out_side_B : box_label_disk_out_side_A,
-				Qt::AlignTop | Qt::TextSingleLine,
+				side_B_up() ? box_label_disk_out_side_B : box_label_disk_out_side_A, Qt::AlignTop | Qt::TextSingleLine,
 				basename_from_path(current_disk));
 		}
 		break;

@@ -88,13 +88,32 @@ public:
 
 
 MemoryDisassInspector::MemoryDisassInspector(QWidget* parent, MachineController* mc, volatile IsaObject* item) :
-	MemoryInspector(parent, mc, item, Disass), address_view(nullptr), hex_view(nullptr), disass_view(nullptr),
-	widget_edit_mode(nullptr), button_breakpoint_r(nullptr), button_breakpoint_w(nullptr), button_breakpoint_x(nullptr),
-	button_edit_mode(nullptr), displayed_data(MAX_ROWS * 4 + 1), cw(0), rh(0), pc(-1), follow_pc(no),
-	edit_mode(EDITMODE_VIEW), breakpoint_mask(0), edit_flashphase(0), edit_flashtime(0), old_pc(-1),
+	MemoryInspector(parent, mc, item, Disass),
+	address_view(nullptr),
+	hex_view(nullptr),
+	disass_view(nullptr),
+	widget_edit_mode(nullptr),
+	button_breakpoint_r(nullptr),
+	button_breakpoint_w(nullptr),
+	button_breakpoint_x(nullptr),
+	button_edit_mode(nullptr),
+	displayed_data(MAX_ROWS * 4 + 1),
+	cw(0),
+	rh(0),
+	pc(-1),
+	follow_pc(no),
+	edit_mode(EDITMODE_VIEW),
+	breakpoint_mask(0),
+	edit_flashphase(0),
+	edit_flashtime(0),
+	old_pc(-1),
 	old_disass_edit_address(-1),
 	//	disass_edit_string(""),
-	disass_edit_string_valid(no), disass_edit_address(0), disass_edit_col(0), hex_edit_address(0), hex_edit_col(0)
+	disass_edit_string_valid(no),
+	disass_edit_address(0),
+	disass_edit_col(0),
+	hex_edit_address(0),
+	hex_edit_col(0)
 {
 	xlogIn("new MemoryDisassInspector");
 
@@ -249,8 +268,7 @@ inline QColor pen_color_for_corebyte(CoreByte cb)
 		   (~cb & cpu_break_rwx) == 0 ? color_light_grey // all rwx breakpoints: not white for readability
 										:
 										QColor(
-											cb & cpu_break_x ? 180 : 0,
-											cb & cpu_break_w ? 160 : 0,
+											cb & cpu_break_x ? 180 : 0, cb & cpu_break_w ? 160 : 0,
 											cb & cpu_break_r ? 220 : 0); // some breakpoints set
 }
 
@@ -295,10 +313,8 @@ int MemoryDisassInspector::displayed_data_row_for_address(int32 address)
 	while (row_a < row_e)
 	{
 		int row_m = (row_e + row_a + 1) / 2;
-		if (address < displayed_data[row_m].address)
-			row_e = row_m - 1;
-		else
-			row_a = row_m;
+		if (address < displayed_data[row_m].address) row_e = row_m - 1;
+		else row_a = row_m;
 	}
 
 	return row_e;
@@ -432,10 +448,8 @@ void MemoryDisassInspector::hide_cursor()
 {
 	if (edit_flashphase)
 	{
-		if (editing_in_hex())
-			show_hex_cursor(0);
-		else if (editing_in_disass())
-			show_disass_cursor(0);
+		if (editing_in_hex()) show_hex_cursor(0);
+		else if (editing_in_disass()) show_disass_cursor(0);
 	}
 	edit_flashphase = 1;
 	edit_flashtime	= system_time;
@@ -585,8 +599,7 @@ int MemoryDisassInspector::print_row(int row, int32 address)
 		}
 
 		disass_view->printAt(
-			row,
-			0,
+			row, 0,
 			pen_color_for_disass_edit_address ? disass_edit_string.left(disass_view->cols) :
 												disass->disassemble(address));
 		disass_view->clearToEndOfLine();
@@ -964,10 +977,8 @@ void MemoryDisassInspector::updateWidgets()
 		edit_flashtime = max(system_time, edit_flashtime + 0.35);
 		edit_flashphase ^= 1;
 	}
-	if (editing_in_hex())
-		show_hex_cursor(edit_flashphase);
-	else if (editing_in_disass())
-		show_disass_cursor(edit_flashphase);
+	if (editing_in_hex()) show_hex_cursor(edit_flashphase);
+	else if (editing_in_disass()) show_disass_cursor(edit_flashphase);
 }
 
 
@@ -1088,10 +1099,8 @@ void MemoryDisassInspector::keyPressEvent(QKeyEvent* e)
 			goto X;
 		case Qt::Key_Left:
 			step_left_in_hex();
-			if (hex_edit_col)
-				goto X;
-			else
-				break;
+			if (hex_edit_col) goto X;
+			else break;
 		case Qt::Key_Down:
 			hex_edit_address = next_opcode(hex_edit_address);
 			hex_edit_col	 = 0;
@@ -1103,18 +1112,14 @@ void MemoryDisassInspector::keyPressEvent(QKeyEvent* e)
 			goto X;
 		case Qt::Key_Right:
 			step_right_in_hex();
-			if (hex_edit_col)
-				break;
-			else
-				goto X;
+			if (hex_edit_col) break;
+			else goto X;
 		default:
 			if (uint32(hex_edit_address - data.baseaddress) < uint32(data.size) && is_hex_digit(e->key()))
 			{
 				uint8& byte = dataReadPtrForOffset(hex_edit_address)->data;
-				if (hex_edit_col)
-					byte = (byte & 0xF0) + (hex_digit_value(e->key()));
-				else
-					byte = (byte & 0x0F) + (hex_digit_value(e->key()) << 4);
+				if (hex_edit_col) byte = (byte & 0xF0) + (hex_digit_value(e->key()));
+				else byte = (byte & 0x0F) + (hex_digit_value(e->key()) << 4);
 				step_right_in_hex();
 				goto X;
 			}
@@ -1173,8 +1178,7 @@ void MemoryDisassInspector::keyPressEvent(QKeyEvent* e)
 				disass_edit_string_valid = assembles_ok(disass_edit_address, disass_edit_string);
 				disass_edit_col++;
 			}
-			else
-				logline("MemoryDisassInspector::keyPressEvent: %i not handled", e->key());
+			else logline("MemoryDisassInspector::keyPressEvent: %i not handled", e->key());
 		Z:
 			if (old_disass_edit_address == disass_edit_address) old_disass_edit_address = -1;
 			print_row(disass_edit_address);
@@ -1213,10 +1217,8 @@ void MemoryDisassInspector::slotFocusChanged(bool f)
 
 	if (edit_flashphase)
 	{
-		if (sender == hex_view)
-			show_hex_cursor(f);
-		else if (sender == disass_view)
-			show_disass_cursor(f);
+		if (sender == hex_view) show_hex_cursor(f);
+		else if (sender == disass_view) show_disass_cursor(f);
 	}
 }
 

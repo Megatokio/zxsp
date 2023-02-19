@@ -502,9 +502,7 @@ void UlaInsp::updateWidgets()
 			uint b = values.border_color = zxula->getBorderColor();
 			//  inputs.border_color->setAutoFillBackground(true);
 			cstr s = usingstr(
-				"QLineEdit { background-color: rgba(%i,%i,%i); }",
-				b & 2 ? 222 : 22,
-				b & 4 ? 222 : 22,
+				"QLineEdit { background-color: rgba(%i,%i,%i); }", b & 2 ? 222 : 22, b & 4 ? 222 : 22,
 				b & 1 ? 222 : 22);
 			inputs.border_color->setStyleSheet(s);
 			inputs.border_color->setText(tostr(values.border_color));

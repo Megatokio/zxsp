@@ -181,23 +181,33 @@ SpectraVideo::~SpectraVideo()
 
 
 SpectraVideo::SpectraVideo(Machine* m, uint dip_switches) :
-	Crtc(m, isa_SpectraVideo, isa_SpectraVideo, external, o_addr, i_addr), has_port_7ffd(machine->mmu->hasPort7ffd()),
+	Crtc(m, isa_SpectraVideo, isa_SpectraVideo, external, o_addr, i_addr),
+	has_port_7ffd(machine->mmu->hasPort7ffd()),
 	new_video_modes_enabled(dip_switches & EnableNewVideoModes),
 	// port_7fdf(0),
 	// port_7ffd(0),
 	// shadowram_ever_used(no),
-	shadowram(new Memory(m, "SPECTRA Video Ram", 0x8000)), joystick(nullptr), overlay(nullptr),
+	shadowram(new Memory(m, "SPECTRA Video Ram", 0x8000)),
+	joystick(nullptr),
+	overlay(nullptr),
 	// port_254(0),
 	// port_239(0),
 	// port_247(0),
-	rs232_enabled(dip_switches & EnableRs232), joystick_enabled(dip_switches & EnableJoystick),
-	if1_rom_hooks_enabled(dip_switches & EnableIf1RomHooks), rom(nullptr), filepath(nullptr), own_romdis_state(false),
+	rs232_enabled(dip_switches & EnableRs232),
+	joystick_enabled(dip_switches & EnableJoystick),
+	if1_rom_hooks_enabled(dip_switches & EnableIf1RomHooks),
+	rom(nullptr),
+	filepath(nullptr),
+	own_romdis_state(false),
 	// current_frame(0),
 	// ccx(0),
 	attr_pixel(new uint8[32 * 24 * 8 * BYTES_PER_OCTET]),	  // transfer buffers -> screen
 	alt_attr_pixel(new uint8[32 * 24 * 8 * BYTES_PER_OCTET]), // swap buffer
-	alt_ioinfo_size(IOSZ), alt_ioinfo(new IoInfo[IOSZ + 1]), cc_per_side_border(cc_per_line - 32 * cc_per_byte),
-	cc_frame_end(lines_per_frame * cc_per_line), cc_screen_start(lines_before_screen * cc_per_line)
+	alt_ioinfo_size(IOSZ),
+	alt_ioinfo(new IoInfo[IOSZ + 1]),
+	cc_per_side_border(cc_per_line - 32 * cc_per_byte),
+	cc_frame_end(lines_per_frame * cc_per_line),
+	cc_screen_start(lines_before_screen * cc_per_line)
 {
 	assert(machine->isA(isa_MachineZxsp));
 
@@ -536,12 +546,7 @@ int32 SpectraVideo::doFrameFlyback(int32 /*cc*/) // called from runForSound()
 
 		record_ioinfo(cc_frame_end, 0xfe, 0x00); // for 60Hz models: remainder of screen is black
 		bool new_buffers_in_use = ScreenZxspPtr(screen)->ffb_or_vbi(
-			ioinfo,
-			ioinfo_count,
-			attr_pixel,
-			cc_screen_start,
-			cc_per_side_border + 128,
-			get_flash_phase(),
+			ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, get_flash_phase(),
 			90000 /*cc_frame_end*/);
 
 		if (new_buffers_in_use)
@@ -617,10 +622,8 @@ void SpectraVideo::romCS(bool f)
 	if (f == romdis_in) return;
 	romdis_in = f;
 
-	if (!f && rom.ptr())
-		activateRom(); // also emits romCS
-	else
-		prev()->romCS(f || own_romdis_state);
+	if (!f && rom.ptr()) activateRom(); // also emits romCS
+	else prev()->romCS(f || own_romdis_state);
 }
 
 void SpectraVideo::setRS232Enabled(bool f) { rs232_enabled = f; }
@@ -710,8 +713,7 @@ void SpectraVideo::init_rom()
 			activateRom();
 		}
 	}
-	else
-		own_romdis_state = false;
+	else own_romdis_state = false;
 }
 
 void SpectraVideo::activateRom()

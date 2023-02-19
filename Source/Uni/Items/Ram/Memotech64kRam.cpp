@@ -42,7 +42,8 @@
 
 
 Memotech64kRam::Memotech64kRam(Machine* m, uint dip_switches) :
-	ExternalRam(m, isa_Memotech64kRam), dip_switches(dip_switches)
+	ExternalRam(m, isa_Memotech64kRam),
+	dip_switches(dip_switches)
 {
 	machine->ram.grow(64 kB);
 	machine->mmu->mapMem(); // map new memory to cpu & to set videoram

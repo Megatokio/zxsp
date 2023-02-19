@@ -163,13 +163,13 @@ void runMachinesForSound()
 // ########################################################################
 
 
-#define ForAllItems(WHAT)                                                                                              \
-  {                                                                                                                    \
-	Item* p = lastitem;                                                                                                \
-	do {                                                                                                               \
-	  p->WHAT;                                                                                                         \
-	}                                                                                                                  \
-	while ((p = p->prev()));                                                                                           \
+#define ForAllItems(WHAT)    \
+  {                          \
+	Item* p = lastitem;      \
+	do {                     \
+	  p->WHAT;               \
+	}                        \
+	while ((p = p->prev())); \
   }
 
 
@@ -241,14 +241,33 @@ Machine* Machine::newMachine(gui::MachineController* mc, Model model)
 	the machine is not suspended.
 */
 Machine::Machine(gui::MachineController* parent, Model model, isa_id id) :
-	IsaObject(parent, id, isa_Machine), _lock(),								  //_lock(PLock::recursive),
-	controller(parent), model(model), model_info(&zx_info[model]), cpu_options(), // s.u.
-	break_ptr(nullptr), audio_in_enabled(yes), // default. Child class and MachineController will override
-	is_power_on(no), is_suspended(no),		   // must be initialized before memory
-	rzx_file(nullptr), overlay_rzx_play(nullptr), overlay_rzx_record(nullptr),
-	rom(this, "Internal Rom", model_info->rom_size), ram(this, "Internal Ram", model_info->ram_size), cpu(nullptr),
-	ula(nullptr), mmu(nullptr), keyboard(nullptr), ay(nullptr), joystick(nullptr), taperecorder(nullptr), fdc(nullptr),
-	printer(nullptr), crtc(nullptr), lastitem(nullptr), total_frames(0), // information: accumulated frames until now
+	IsaObject(parent, id, isa_Machine),
+	_lock(), //_lock(PLock::recursive),
+	controller(parent),
+	model(model),
+	model_info(&zx_info[model]),
+	cpu_options(), // s.u.
+	break_ptr(nullptr),
+	audio_in_enabled(yes), // default. Child class and MachineController will override
+	is_power_on(no),
+	is_suspended(no), // must be initialized before memory
+	rzx_file(nullptr),
+	overlay_rzx_play(nullptr),
+	overlay_rzx_record(nullptr),
+	rom(this, "Internal Rom", model_info->rom_size),
+	ram(this, "Internal Ram", model_info->ram_size),
+	cpu(nullptr),
+	ula(nullptr),
+	mmu(nullptr),
+	keyboard(nullptr),
+	ay(nullptr),
+	joystick(nullptr),
+	taperecorder(nullptr),
+	fdc(nullptr),
+	printer(nullptr),
+	crtc(nullptr),
+	lastitem(nullptr),
+	total_frames(0),   // information: accumulated frames until now
 	total_cc(0),	   // information: accumulated cpu T cycles until now
 	total_buffers(0),  // information: accumulated dsp buffers until now
 	total_realtime(0), // information: accumulated time[sec] until now
@@ -557,10 +576,8 @@ void Machine::saveAs(cstr filepath)
 
 	if (eq(ext, ".rzx"))
 	{
-		if (rzx_file)
-			rzx_file->writeFile(filepath);
-		else
-			showAlert("No rzx file in place.");
+		if (rzx_file) rzx_file->writeFile(filepath);
+		else showAlert("No rzx file in place.");
 		return;
 	}
 
@@ -764,10 +781,8 @@ DivIDE* Machine::addDivIDE(uint ramsize, cstr romfile)
 {
 	assert(isPowerOff());
 
-	if (Item* item = findItem(isa_DivIDE))
-		return DivIDEPtr(item);
-	else
-		return new DivIDE(this, ramsize, romfile);
+	if (Item* item = findItem(isa_DivIDE)) return DivIDEPtr(item);
+	else return new DivIDE(this, ramsize, romfile);
 }
 
 void Machine::removeSpectraVideo()
@@ -820,30 +835,24 @@ void Machine::installRomPatches(bool f)
 	if (addr)
 	{
 		assert(addr < rom.count());
-		if (f)
-			rom[addr] |= cpu_patch;
-		else
-			rom[addr] &= ~cpu_patch;
+		if (f) rom[addr] |= cpu_patch;
+		else rom[addr] &= ~cpu_patch;
 	}
 
 	addr = model_info->tape_save_routine;
 	if (addr)
 	{
 		assert(addr < rom.count());
-		if (f)
-			rom[addr] |= cpu_patch;
-		else
-			rom[addr] &= ~cpu_patch;
+		if (f) rom[addr] |= cpu_patch;
+		else rom[addr] &= ~cpu_patch;
 	}
 
 	addr = model_info->tape_load_ret_addr;
 	if (addr)
 	{
 		assert(addr < rom.count());
-		if (f)
-			rom[addr] |= cpu_patch;
-		else
-			rom[addr] &= ~cpu_patch;
+		if (f) rom[addr] |= cpu_patch;
+		else rom[addr] &= ~cpu_patch;
 	}
 }
 
@@ -873,10 +882,8 @@ uint8 Machine::handleRomPatch(uint16 pc, uint8 opcode)
 			if (taperecorder->instant_load_tape && handleSaveTapePatch()) return cpu->peek(cpu->getRegisters().pc);
 			if (taperecorder->auto_start_stop_tape) taperecorder->autoStart(cpu->cpuCycle());
 		}
-		if (ula->isA(isa_UlaZx80))
-			UlaZx80Ptr(ula)->enableMicOut(1);
-		else if (ula->isA(isa_UlaZx81))
-			UlaZx81Ptr(ula)->enableMicOut(1);
+		if (ula->isA(isa_UlaZx80)) UlaZx80Ptr(ula)->enableMicOut(1);
+		else if (ula->isA(isa_UlaZx81)) UlaZx81Ptr(ula)->enableMicOut(1);
 	}
 
 	else if (instrptr == rom.getData() + model_info->tape_load_ret_addr)
@@ -885,10 +892,8 @@ uint8 Machine::handleRomPatch(uint16 pc, uint8 opcode)
 		{
 			if (taperecorder->auto_start_stop_tape) taperecorder->autoStop(cpu->cpuCycle());
 		}
-		if (ula->isA(isa_UlaZx80))
-			UlaZx80Ptr(ula)->enableMicOut(0);
-		else if (ula->isA(isa_UlaZx81))
-			UlaZx81Ptr(ula)->enableMicOut(0);
+		if (ula->isA(isa_UlaZx80)) UlaZx80Ptr(ula)->enableMicOut(0);
+		else if (ula->isA(isa_UlaZx81)) UlaZx81Ptr(ula)->enableMicOut(0);
 	}
 
 	return opcode; // maybe handled
@@ -941,8 +946,7 @@ uint8 Machine::inputAtCycle(int32 cc, uint16 addr)
 		if (rzx_file->isPlaying())
 		{
 			int rval = rzx_file->getInput();
-			if (rval >= 0)
-				return rval;
+			if (rval >= 0) return rval;
 			else
 			{
 				// -1 = EndOfFrame = OutOfSync.
@@ -1244,45 +1248,29 @@ void Machine::stepOver()
 	switch (o)
 	{
 	case CALL_NZ:
-		if (f & Z_FLAG)
-			goto s;
-		else
-			goto c;
+		if (f & Z_FLAG) goto s;
+		else goto c;
 	case CALL_Z:
-		if (f & Z_FLAG)
-			goto c;
-		else
-			goto s;
+		if (f & Z_FLAG) goto c;
+		else goto s;
 	case CALL_NC:
-		if (f & C_FLAG)
-			goto s;
-		else
-			goto c;
+		if (f & C_FLAG) goto s;
+		else goto c;
 	case CALL_C:
-		if (f & C_FLAG)
-			goto c;
-		else
-			goto s;
+		if (f & C_FLAG) goto c;
+		else goto s;
 	case CALL_PO:
-		if (f & P_FLAG)
-			goto s;
-		else
-			goto c;
+		if (f & P_FLAG) goto s;
+		else goto c;
 	case CALL_PE:
-		if (f & P_FLAG)
-			goto c;
-		else
-			goto s;
+		if (f & P_FLAG) goto c;
+		else goto s;
 	case CALL_P:
-		if (f & S_FLAG)
-			goto s;
-		else
-			goto c;
+		if (f & S_FLAG) goto s;
+		else goto c;
 	case CALL_M:
-		if (f & S_FLAG)
-			goto c;
-		else
-			goto s;
+		if (f & S_FLAG) goto c;
+		else goto s;
 
 	case RST00:
 	case RST08:
@@ -1304,10 +1292,8 @@ void Machine::stepOver()
 		// Halt wenn Breakpoint aktiviert wird ((kann nur ein cpu_break_x genau hier auf pc sein))
 		if (cpu->cpuCycle() >= ula->cpuCycleOfIrptEnd()) runCpuCycles(ula->cpuCycleOfFrameFlyback() - cpu->cpuCycle());
 		if (break_ptr == nullptr) runCpuCycles(ula->cpuCycleOfInterrupt() - cpu->cpuCycle());
-		if (break_ptr == nullptr)
-			goto s;
-		else
-			break;
+		if (break_ptr == nullptr) goto s;
+		else break;
 
 	case PFX_ED:
 		// Blockbefehle komplett abarbeiten:

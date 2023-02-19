@@ -149,8 +149,7 @@ void UsbJoystick::connect(io_object_t dev)
 			logline("UsbJoystick:Connect:open(dev_if) failed: error = $%X\n", uint(ioerror));
 		}
 	}
-	else
-		xlogline("this is no joystick!\n");
+	else xlogline("this is no joystick!\n");
 
 	// error:
 	(*dev_if)->Release(dev_if);
@@ -339,11 +338,9 @@ bool UsbJoystick::getCookies()
 				buttons[usage - 1] = cookie;
 				log("button %i\n", int(usage));
 			}
-			else
-				logNl();
+			else logNl();
 		}
-		else
-			logNl();
+		else logNl();
 	}
 	return is_joystick;
 }
@@ -365,10 +362,8 @@ void findUsbJoysticks()
 	for (int i = 0; i < num_usb; i++)
 	{
 		Joystick*& joy = joysticks[i];
-		if (joy)
-			reinterpret_cast<UsbJoystick*>(joy)->disconnect(); // disconnect existing
-		else
-			joy = new UsbJoystick();
+		if (joy) reinterpret_cast<UsbJoystick*>(joy)->disconnect(); // disconnect existing
+		else joy = new UsbJoystick();
 	}
 
 	// data we need:

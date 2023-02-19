@@ -19,7 +19,14 @@ namespace gui
 {
 
 Overlay::Overlay(Screen* scr, isa_id id, Position p) :
-	IsaObject(scr, id, isa_Overlay), screen(scr), position(p), x(0), y(0), w(0), h(0), zoom(scr->getZoom())
+	IsaObject(scr, id, isa_Overlay),
+	screen(scr),
+	position(p),
+	x(0),
+	y(0),
+	w(0),
+	h(0),
+	zoom(scr->getZoom())
 {}
 
 
@@ -39,7 +46,8 @@ void Overlay::setZoom(int z)
 
 
 OverlayPlay::OverlayPlay(Screen* s, Position pos) :
-	Overlay(s, isa_OverlayPlay, pos), background(catstr(appl_rsrc_path, "Overlays/play.png"))
+	Overlay(s, isa_OverlayPlay, pos),
+	background(catstr(appl_rsrc_path, "Overlays/play.png"))
 {
 	xlogIn("new OverlayPlay");
 	assert(s);
@@ -59,7 +67,8 @@ void OverlayPlay::draw(QPainter& p) { p.drawPixmap(x, y, w, h, background); }
 
 
 OverlayRecord::OverlayRecord(Screen* s, Position pos) :
-	Overlay(s, isa_OverlayRecord, pos), background(catstr(appl_rsrc_path, "Overlays/record.png"))
+	Overlay(s, isa_OverlayRecord, pos),
+	background(catstr(appl_rsrc_path, "Overlays/record.png"))
 {
 	xlogIn("new OverlayRecord");
 	assert(s);
@@ -89,7 +98,13 @@ QColor text_color(0xccffffff);
 #define SZ 3 // raster size
 
 OverlayJoystick::OverlayJoystick(Screen* s, Joystick* joy, cstr idf, Position pos) :
-	Overlay(s, isa_OverlayJoystick, pos), joystick(joy), idf(idf), arrowL(3), arrowR(3), arrowU(3), arrowD(3)
+	Overlay(s, isa_OverlayJoystick, pos),
+	joystick(joy),
+	idf(idf),
+	arrowL(3),
+	arrowR(3),
+	arrowU(3),
+	arrowD(3)
 {
 	assert(idf);
 	assert(joy != noJoystick);

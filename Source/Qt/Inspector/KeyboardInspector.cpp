@@ -92,7 +92,9 @@ enum ZxspKey // Names for specci keys
 
 
 KeyboardInspector::KeyboardInspector(QWidget* w, MachineController* m, volatile IsaObject* i) :
-	Inspector(w, m, i, catstr("Keyboards/", m->getModelInfo()->kbd_filename)), model(m->getModel()), mousekey(NOKEY),
+	Inspector(w, m, i, catstr("Keyboards/", m->getModelInfo()->kbd_filename)),
+	model(m->getModel()),
+	mousekey(NOKEY),
 	keymap() // all key bits = 1 == up
 {
 	assert(object->isA(isa_Keyboard));
@@ -400,9 +402,7 @@ QRect KeyboardInspector::keyRect(uint8 spec)
 			x = 9 - x;
 		} // right side?  =>  y=0..3  x=5..9
 		const int x0[] = {
-			90 + i,
-			110 + i,
-			100 + i,
+			90 + i, 110 + i, 100 + i,
 			80 + i}; // x-wert für 1. taste einer reihe (bei CSH-Taste: extrapolierte Position)
 		x = 40 * x + x0[y];
 		y = 40 * y + 40 + i;
@@ -738,10 +738,8 @@ void KeyboardInspector::updateWidgets()
 				if (c & (1 << j))
 				{
 					uint8 spec = uint8((i << 4) + j);
-					if (spec == ENT)
-						update(keyRegion(spec));
-					else
-						update(keyRect(spec));
+					if (spec == ENT) update(keyRegion(spec));
+					else update(keyRect(spec));
 				}
 			}
 		}
@@ -790,8 +788,7 @@ void KeyboardInspector::paintEvent(QPaintEvent* e)
 				p.setClipRegion(keyRegion(spec));
 				p.drawRect(p.clipRegion().boundingRect());
 			}
-			else
-				p.drawRect(keyRect(spec));
+			else p.drawRect(keyRect(spec));
 		}
 	}
 }
@@ -813,8 +810,7 @@ void KeyboardInspector::mousePressEvent(QMouseEvent* e)
 			updateWidgets();
 		}
 	}
-	else
-		Inspector::mousePressEvent(e);
+	else Inspector::mousePressEvent(e);
 }
 
 void KeyboardInspector::mouseReleaseEvent(QMouseEvent* e)
@@ -852,8 +848,7 @@ void KeyboardInspector::mouseMoveEvent(QMouseEvent* e)
 		}
 		if (mousekey != old) updateWidgets();
 	}
-	else
-		Inspector::mouseMoveEvent(e);
+	else Inspector::mouseMoveEvent(e);
 }
 
 bool KeyboardInspector::event(QEvent* e)

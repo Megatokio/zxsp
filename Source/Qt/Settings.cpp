@@ -41,28 +41,22 @@ void Settings::setGifAnimateBorder(bool f) { setValue(key_gif_movies_animate_bor
 cstr Settings::get_cstr(cstr key, cstr dflt)
 {
 	QVariant r = value(key);
-	if (r.canConvert(QMetaType::QString))
-		return dupstr(r.toString().toUtf8().data());
-	else
-		return dflt;
+	if (r.canConvert(QMetaType::QString)) return dupstr(r.toString().toUtf8().data());
+	else return dflt;
 }
 
 str Settings::get_str(cstr key, cstr dflt)
 {
 	QVariant r = value(key);
-	if (r.canConvert(QMetaType::QString))
-		return dupstr(r.toString().toUtf8().data());
-	else
-		return dflt ? dupstr(dflt) : nullptr;
+	if (r.canConvert(QMetaType::QString)) return dupstr(r.toString().toUtf8().data());
+	else return dflt ? dupstr(dflt) : nullptr;
 }
 
 int Settings::get_int(cstr key, int dflt)
 {
 	QVariant r = value(key);
-	if (r.canConvert(QMetaType::Int))
-		return r.toInt();
-	else
-		return dflt;
+	if (r.canConvert(QMetaType::Int)) return r.toInt();
+	else return dflt;
 }
 
 Model Settings::get_Model(cstr key, Model dflt)
@@ -85,28 +79,22 @@ KbdMode Settings::get_KbdMode(cstr key, KbdMode dflt)
 uint Settings::get_uint(cstr key, uint dflt)
 {
 	QVariant r = value(key);
-	if (r.canConvert(QMetaType::UInt))
-		return r.toUInt();
-	else
-		return dflt;
+	if (r.canConvert(QMetaType::UInt)) return r.toUInt();
+	else return dflt;
 }
 
 bool Settings::get_bool(cstr key, bool dflt)
 {
 	QVariant r = value(key);
-	if (r.canConvert(QMetaType::Bool))
-		return r.toBool();
-	else
-		return dflt;
+	if (r.canConvert(QMetaType::Bool)) return r.toBool();
+	else return dflt;
 }
 
 double Settings::get_double(cstr key, double dflt)
 {
 	QVariant r = value(key);
-	if (r.canConvert(QMetaType::Double))
-		return r.toDouble();
-	else
-		return dflt;
+	if (r.canConvert(QMetaType::Double)) return r.toDouble();
+	else return dflt;
 }
 
 void Settings::get_QStringList(cstr key, QStringList& qsl)

@@ -38,9 +38,7 @@ JoyInsp::JoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* j, cstr 
 		joystick_selectors[i]->setFocusPolicy(Qt::NoFocus);
 		joystick_selectors[i]->setMinimumWidth(80);
 		connect(
-			joystick_selectors[i],
-			static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-			this,
+			joystick_selectors[i], static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 			&JoyInsp::joystick_selected);
 	}
 

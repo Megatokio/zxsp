@@ -144,7 +144,9 @@ UlaJupiter::~UlaJupiter()
 }
 
 UlaJupiter::UlaJupiter(Machine* m, bool is60hz) :
-	Ula(m, isa_UlaJupiter, o_addr, i_addr), frame_data(nullptr), frame_data2(nullptr)
+	Ula(m, isa_UlaJupiter, o_addr, i_addr),
+	frame_data(nullptr),
+	frame_data2(nullptr)
 {
 	audio_mode	 = mixed_audio; // or: read from prefs?
 	border_color = 0x00;		// black
@@ -304,10 +306,8 @@ void UlaJupiter::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask
 
 	if (machine->taperecorder->isPlaying())
 	{
-		if (machine->taperecorder->input(cc))
-			byte |= EAR_IN_MASK;
-		else
-			byte &= ~EAR_IN_MASK;
+		if (machine->taperecorder->input(cc)) byte |= EAR_IN_MASK;
+		else byte &= ~EAR_IN_MASK;
 	}
 	else if (machine->audio_in_enabled)
 	{
@@ -324,6 +324,5 @@ void UlaJupiter::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask
 			if (os::audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
 		}
 	}
-	else
-		byte &= ~EAR_IN_MASK;
+	else byte &= ~EAR_IN_MASK;
 }

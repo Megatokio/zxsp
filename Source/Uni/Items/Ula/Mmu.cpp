@@ -10,8 +10,11 @@
 /*	creator for use by derived classes:
  */
 Mmu::Mmu(Machine* m, isa_id id, cstr o_addr, cstr i_addr) :
-	Item(m, id, isa_Mmu, internal, o_addr, i_addr), cpu(m->cpu), ula(m->ula), ram(machine->ram), // => shared array
-	rom(machine->rom)																			 // => shared array
+	Item(m, id, isa_Mmu, internal, o_addr, i_addr),
+	cpu(m->cpu),
+	ula(m->ula),
+	ram(machine->ram), // => shared array
+	rom(machine->rom)  // => shared array
 {}
 
 

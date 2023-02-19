@@ -31,13 +31,8 @@ public:
 	{}
 
 	void drawScreen(
-		IoInfo*,
-		uint   ioinfo_count,
-		uint8* attr_pixels,
-		uint   cc_per_scanline,
-		uint32 cc_start_of_screenfile,
-		bool   flashphase,
-		uint32 cc_vbi) override;
+		IoInfo*, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
+		bool flashphase, uint32 cc_vbi) override;
 };
 
 
@@ -52,10 +47,6 @@ public:
 	Tc2048GifWriter(QObject* p, bool update_border);
 
 	void drawScreen(
-		IoInfo*,
-		uint   ioinfo_count,
-		uint8* attr_pixels,
-		uint   cc_per_scanline,
-		uint32 cc_start_of_screenfile,
-		bool   flashphase) override;
+		IoInfo*, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
+		bool flashphase) override;
 };

@@ -109,8 +109,7 @@ MemoryGraphInspector::MemoryGraphInspector(QWidget* parent, MachineController* m
 	setBaseSize(minimumSize());
 	setSizeIncrement(8, 1);
 	xlogline(
-		"new MemoryGraphInsp resized acc. to bpr+rows to %i x %i",
-		width_for_bytes(bytes_per_row),
+		"new MemoryGraphInsp resized acc. to bpr+rows to %i x %i", width_for_bytes(bytes_per_row),
 		height_for_rows(rows));
 	resize(width_for_bytes(bytes_per_row), height_for_rows(rows));
 	assert(width() == width_for_bytes(bytes_per_row));

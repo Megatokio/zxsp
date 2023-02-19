@@ -28,8 +28,11 @@ static constexpr uint CONMEM_bit_mask = 1 << 7; // bit in DivIDE ctl reg
 
 
 DivIDE::DivIDE(Machine* machine, uint ramsize, cstr romfile) :
-	MassStorage(machine, isa_DivIDE, external, o_addr, i_addr), rom(machine, "DivIDE Rom", 8 kB),
-	ram(machine, "DivIDE Ram", ramsize == 16 kB ? 16 kB : 32 kB), cf_card(nullptr), ide_data_latch_state(random() & 1),
+	MassStorage(machine, isa_DivIDE, external, o_addr, i_addr),
+	rom(machine, "DivIDE Rom", 8 kB),
+	ram(machine, "DivIDE Ram", ramsize == 16 kB ? 16 kB : 32 kB),
+	cf_card(nullptr),
+	ide_data_latch_state(random() & 1),
 	control_register(0),						 // All bits are reset to '0' after power-on.
 	jumper_E(),									 // set by insertRom()
 	jumper_A(machine->isA(isa_MachineZxPlus2a)), // for most models off, for +2A/+3 it must be set
@@ -425,10 +428,8 @@ cstr DivIDE::getDiskFilename() const volatile
 
 	if (!cf_card) return nullptr;
 	cstr fpath = cf_card->getFilepath();
-	if (startswith(fpath, "/dev/"))
-		return fpath;
-	else
-		return basename_from_path(fpath);
+	if (startswith(fpath, "/dev/")) return fpath;
+	else return basename_from_path(fpath);
 }
 
 void DivIDE::setDiskWritable(bool f) volatile

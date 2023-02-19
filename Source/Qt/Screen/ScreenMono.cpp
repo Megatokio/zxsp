@@ -211,10 +211,7 @@ void ScreenMono::paint_screen(bool draw_passepartout)
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, mono_screen_renderer->width);
 	// note: glDrawPixels(w,h,format,type,data*)
 	glDrawPixels(
-		h_border * 2 + 256,
-		v_border * 2 + 192,
-		GL_COLOR_INDEX,
-		GL_BITMAP,
+		h_border * 2 + 256, v_border * 2 + 192, GL_COLOR_INDEX, GL_BITMAP,
 		screen_renderer->mono_octets + (qbx + qby * screen_renderer->width) / 8);
 
 	if (draw_passepartout && (v_black | h_black))
@@ -230,8 +227,7 @@ void ScreenMono::paint_screen(bool draw_passepartout)
 
 
 	// flush drawing to screen:
-	if (doubleBuffer())
-		swapBuffers();
+	if (doubleBuffer()) swapBuffers();
 	else
 		glFlush(); // force actual execution of all buffered commands
 				   //	else glFinish();				// also blocks until done

@@ -25,7 +25,8 @@ namespace gui
 
 SpectraVideoInspector::SpectraVideoInspector(QWidget* w, MachineController* mc, volatile IsaObject* i) :
 	Inspector(w, mc, i, SpectraVideoPtr(i)->isRomInserted() ? "/Images/Spectra_Loaded.jpg" : "/Images/Spectra.jpg"),
-	js_state(0), rom_file(nullptr)
+	js_state(0),
+	rom_file(nullptr)
 {
 	assert(object->isA(isa_SpectraVideo));
 	//	ula = UlaSpectraPtr(machine->ula);
@@ -49,9 +50,7 @@ SpectraVideoInspector::SpectraVideoInspector(QWidget* w, MachineController* mc, 
 	js_selector->setFocusPolicy(Qt::NoFocus);
 	js_selector->setFixedWidth(110);
 	connect(
-		js_selector,
-		static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-		this,
+		js_selector, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 		&SpectraVideoInspector::js_selector_selected);
 
 	button_scan_usb = new QPushButton("Scan USB", this);

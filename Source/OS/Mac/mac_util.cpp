@@ -51,8 +51,7 @@ str toStr(CFStringRef cfstr)
 			delete[] z;
 			return s;
 		}
-		else
-			delete[] z;
+		else delete[] z;
 	}
 
 	logline("ERROR: convert CFStringRef to c-string failed");

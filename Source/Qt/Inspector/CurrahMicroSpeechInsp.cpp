@@ -167,7 +167,11 @@ static QFont scrollfont = QFont("Lucida Grande", 11);
 
 
 CurrahMicroSpeechInsp::CurrahMicroSpeechInsp(QWidget* parent, MachineController* mc, volatile IsaObject* item) :
-	Inspector(parent, mc, item, "Images/currah_microspeech.jpg"), rp(0), wp(0), xpos(0), width(0)
+	Inspector(parent, mc, item, "Images/currah_microspeech.jpg"),
+	rp(0),
+	wp(0),
+	xpos(0),
+	width(0)
 {
 	assert(object->isA(isa_CurrahMicroSpeech));
 

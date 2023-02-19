@@ -251,10 +251,8 @@ public:
 	void	  play();			 // push 'play': action depends on pause and record button state
 	void	  togglePlay()
 	{
-		if (isStopped())
-			play();
-		else
-			stop();
+		if (isStopped()) play();
+		else stop();
 	}
 	void		  record();				   // push 'record': just set's the button state
 	TapeRecorder* pause(bool);			   // toggle 'pause': action depends on other button states

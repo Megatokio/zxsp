@@ -91,15 +91,8 @@ protected:					  // values for 32 column mode:
 	void write_diff2_to_file();
 
 	GifWriter(
-		QObject* p,
-		isa_id	 id,
-		const Colormap&,
-		uint screen_width,
-		uint screen_height,
-		uint h_border,
-		uint v_border,
-		bool update_border,
-		uint frames_per_second);
+		QObject* p, isa_id id, const Colormap&, uint screen_width, uint screen_height, uint h_border, uint v_border,
+		bool update_border, uint frames_per_second);
 
 public:
 	void startRecording(cstr path);

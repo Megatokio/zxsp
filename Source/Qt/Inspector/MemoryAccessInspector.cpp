@@ -72,7 +72,9 @@ public:
 	insbes. erst nach Inspector.updateWidgets().
 */
 GWidgetRGB::GWidgetRGB(QWidget* parent, int w, int h) :
-	QWidget(parent), canvas(new QImage(QSize(w, h), QImage::Format_RGB32)), w(1)
+	QWidget(parent),
+	canvas(new QImage(QSize(w, h), QImage::Format_RGB32)),
+	w(1)
 {}
 
 void GWidgetRGB::resizeEvent(QResizeEvent* e)
@@ -101,7 +103,9 @@ void GWidgetRGB::paintEvent(QPaintEvent*)
 
 
 MemoryAccessInspector::MemoryAccessInspector(QWidget* parent, MachineController* mc, volatile IsaObject* item) :
-	MemoryInspector(parent, mc, item, MemAccess), rom_pixels(machine->rom.count()), ram_pixels(machine->ram.count()),
+	MemoryInspector(parent, mc, item, MemAccess),
+	rom_pixels(machine->rom.count()),
+	ram_pixels(machine->ram.count()),
 	decay_mode(settings.get_int(key_memoryview_access_decaymode, modeDecayFast)),
 	pixel_size(settings.get_int(key_memoryview_access_pixelsize, MIN_PIXEL_SIZE))
 {
@@ -503,8 +507,7 @@ void MemoryAccessInspector::updateWidgets()
 		for (int r = min(rows, (0x10000 - scroll_offset) / bytes_per_row); r--;)
 		{
 			CoreByte* p = cpu->rdPtr(scroll_offset + r * bytes_per_row);
-			if (p >= romptr && p < romptr + romsize)
-				pixelrows[r] = rom_pixels.getData() + (p - romptr);
+			if (p >= romptr && p < romptr + romsize) pixelrows[r] = rom_pixels.getData() + (p - romptr);
 			else if (p >= ramptr && p < ramptr + ramsize)
 				pixelrows[r] = ram_pixels.getData() + (p - ramptr); // else unmapped cpu address -> nullptr
 		}

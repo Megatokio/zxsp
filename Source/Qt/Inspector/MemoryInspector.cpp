@@ -49,15 +49,22 @@ const QColor color_light_grey(Qt::lightGray);
 
 
 MemoryInspector::MemoryInspector(QWidget* p, MachineController* mc, volatile IsaObject* i, MIDisplayMode displaymode) :
-	Inspector(p, mc, i), combobox_datasource(nullptr), combobox_memorypage(nullptr), combobox_register(nullptr),
-	lineedit_baseaddress(nullptr), scrollbar(new MyScrollBar(Qt::Vertical, this)),
-	scrollbar_width(scrollbar->sizeHint().width()), needs_aligned_addresses(displaymode == MemAccess),
-	display_mode(displaymode), data_source(settings.get_int(key_memoryview_datasource(displaymode), AsSeenByCpu)),
+	Inspector(p, mc, i),
+	combobox_datasource(nullptr),
+	combobox_memorypage(nullptr),
+	combobox_register(nullptr),
+	lineedit_baseaddress(nullptr),
+	scrollbar(new MyScrollBar(Qt::Vertical, this)),
+	scrollbar_width(scrollbar->sizeHint().width()),
+	needs_aligned_addresses(displaymode == MemAccess),
+	display_mode(displaymode),
+	data_source(settings.get_int(key_memoryview_datasource(displaymode), AsSeenByCpu)),
 	ram_page_idx(settings.get_int(key_memoryview_ram_page(displaymode), 0)),
 	rom_page_idx(settings.get_int(key_memoryview_rom_page(displaymode), 0)),
 	bytes_per_row(settings.get_int(key_memoryview_bytes_per_row(displaymode), 32)), // must be validated by subclass
 	rows(settings.get_int(key_memoryview_rows(displaymode), 8)),					// must be validated by subclass
-	scroll_offset(settings.get_int(key_memoryview_scrollposition(displaymode), 0)), update_all(yes)
+	scroll_offset(settings.get_int(key_memoryview_scrollposition(displaymode), 0)),
+	update_all(yes)
 {
 	xlogIn("new MemoryInspector");
 
@@ -108,9 +115,7 @@ MemoryInspector::MemoryInspector(QWidget* p, MachineController* mc, volatile Isa
 	combobox_datasource->setFocusPolicy(Qt::NoFocus);
 	combobox_datasource->setCurrentIndex(data_source);
 	connect(
-		combobox_datasource,
-		static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-		this,
+		combobox_datasource, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 		&MemoryInspector::slotSetDataSource);
 	toolbar->addWidget(combobox_datasource);
 
@@ -120,9 +125,7 @@ MemoryInspector::MemoryInspector(QWidget* p, MachineController* mc, volatile Isa
 	action_memorypage = toolbar->addWidget(combobox_memorypage);
 	init_combobox_memorypage();
 	connect(
-		combobox_memorypage,
-		static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-		this,
+		combobox_memorypage, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 		&MemoryInspector::slotSetMemoryPage);
 
 	lineedit_baseaddress = new MyLineEdit(usingstr("$%04x", old_baseaddress = data.baseaddress), nullptr);
@@ -180,9 +183,7 @@ QComboBox* MemoryInspector::newComboboxRegister()
 	combobox_register->setFixedSize(50, TOOLBAR_WIDGET_HEIGHT);
 	combobox_register->setFocusPolicy(Qt::NoFocus);
 	connect(
-		combobox_register,
-		static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
-		this,
+		combobox_register, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this,
 		&MemoryInspector::slotSetAddressFromRegister);
 	return combobox_register;
 }
@@ -254,10 +255,8 @@ void MemoryInspector::set_address_from_textedit()
 	xlogIn("MemoryInspector.setAddressFromTextEdit");
 
 	int32 baseaddress = intValue(lineedit_baseaddress->text());
-	if (errno == ok)
-		setScrollOffset(baseaddress - data.baseaddress);
-	else
-		lineedit_baseaddress->setText(lineedit_baseaddress->oldText());
+	if (errno == ok) setScrollOffset(baseaddress - data.baseaddress);
+	else lineedit_baseaddress->setText(lineedit_baseaddress->oldText());
 }
 
 

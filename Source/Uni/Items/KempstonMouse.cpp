@@ -39,7 +39,10 @@
 
 
 KempstonMouse::KempstonMouse(Machine* m) :
-	Item(m, isa_KempstonMouse, isa_Mouse, external, o_addr, i_addr), scale(2), x(0), y(0)
+	Item(m, isa_KempstonMouse, isa_Mouse, external, o_addr, i_addr),
+	scale(2),
+	x(0),
+	y(0)
 {
 	xlogIn("new KempstonMouse");
 }

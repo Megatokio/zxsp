@@ -8,11 +8,14 @@
 
 
 Joy::Joy(Machine* m, isa_id id, Internal internal, cstr o_addr, cstr i_addr, cstr idf1, cstr idf2, cstr idf3) :
-	Item(m, id, isa_Joy, internal, o_addr, i_addr), joy {nullptr, nullptr, nullptr}, idf {idf1, idf2, idf3},
-	overlays {nullptr, nullptr, nullptr}, num_ports(
-											  idf3 ? 3 :
-											  idf2 ? 2 :
-													 1)
+	Item(m, id, isa_Joy, internal, o_addr, i_addr),
+	joy {nullptr, nullptr, nullptr},
+	idf {idf1, idf2, idf3},
+	overlays {nullptr, nullptr, nullptr},
+	num_ports(
+		idf3 ? 3 :
+		idf2 ? 2 :
+			   1)
 {
 	xlogIn("new Joy");
 

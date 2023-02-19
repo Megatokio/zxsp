@@ -77,9 +77,18 @@ ConfigDialog::~ConfigDialog() {}
 
 
 ConfigDialog::ConfigDialog(QWidget* mc, int w, int h, uint style) :
-	QWidget(mc), controller(mc), bg_brush(bg_brush_for_style(style)), upper_rim_pen(upper_rim_pen_for_style(style)),
-	lower_rim_pen(lower_rim_pen_for_style(style)), border_pen(border_pen_for_style(style)), style(style),
-	outer_padding(10), border_width(style & 7), inner_padding(10), w(w), h(h)
+	QWidget(mc),
+	controller(mc),
+	bg_brush(bg_brush_for_style(style)),
+	upper_rim_pen(upper_rim_pen_for_style(style)),
+	lower_rim_pen(lower_rim_pen_for_style(style)),
+	border_pen(border_pen_for_style(style)),
+	style(style),
+	outer_padding(10),
+	border_width(style & 7),
+	inner_padding(10),
+	w(w),
+	h(h)
 {
 	setWindowFlags(
 		windowFlags() | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint |

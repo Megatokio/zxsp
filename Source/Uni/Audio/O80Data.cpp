@@ -109,7 +109,10 @@ O80Data::O80Data(const O80Data& q) : TapeData(q), data(q.data), is_zx80(q.is_zx8
 /*	construct O80Data from existing data
  */
 O80Data::O80Data(Array<uint8> q, bool is_zx81) :
-	TapeData(isa_O80Data, original_data), data(q), is_zx80(!is_zx81), is_zx81(is_zx81)
+	TapeData(isa_O80Data, original_data),
+	data(q),
+	is_zx80(!is_zx81),
+	is_zx81(is_zx81)
 {}
 
 
@@ -223,31 +226,23 @@ start:
 			uint32 zx80_len = peek2Z(&data[0x0A]) - 0x4000;
 			uint32 zx81_len = peek2Z(&data[0x4014 - 0x4009 + namelen]) - 0x4009 + namelen;
 
-			if (zi == zx81_len)
-				is_zx81 = yes;
+			if (zi == zx81_len) is_zx81 = yes;
 			else // Länge passt exakt: das wird's wohl sein
-				if (zi == zx80_len)
-					is_zx80 = yes;
+				if (zi == zx80_len) is_zx80 = yes;
 				else // Länge passt exakt: das wird's wohl sein
 					// sonst Heuristik:
-					if (namelen > 31)
-						is_zx80 = yes;
+					if (namelen > 31) is_zx80 = yes;
 					else // unglaublich langer Name => ZX81 unwahrscheinlich
-						if (zi > 4 kB)
-							is_zx81 = yes;
+						if (zi > 4 kB) is_zx81 = yes;
 						else // > 4kB => ZX80 ist unwahrscheinlich wg. orig. ZX80 Rampack
 							// letzte Idee: wer weniger Bytes zuviel hat:
-							if (zx80_len > zx81_len - namelen + 9)
-								is_zx80 = yes;
-							else
-								is_zx81 = yes;
+							if (zx80_len > zx81_len - namelen + 9) is_zx80 = yes;
+							else is_zx81 = yes;
 		}
 
 		// truncate block at E_LINE:
-		if (is_zx80)
-			zi = peek2Z(&data[0x0A]) - 0x4000;
-		else
-			zi = peek2Z(&data[0x4014 - 0x4009 + namelen]) - 0x4009 + namelen;
+		if (is_zx80) zi = peek2Z(&data[0x0A]) - 0x4000;
+		else zi = peek2Z(&data[0x4014 - 0x4009 + namelen]) - 0x4009 + namelen;
 		data.shrink(zi);
 
 		trust_level = data.last() == 0x80 ? decoded_data : checksum_error; // last byte of VARS != 0x80
@@ -541,7 +536,6 @@ void O80Data::writeFile(cstr fpath, TapeFile& data) noexcept(false) // file_erro
 			}
 			fd.write_bytes(p, n);
 		}
-		else
-			xlogline("error: no suitable block in TapeFile");
+		else xlogline("error: no suitable block in TapeFile");
 	}
 }

@@ -61,7 +61,9 @@ static cstr i_addr = "----.----.-011.-1--";
 
 
 Multiface128::Multiface128(Machine* m) :
-	Multiface(m, isa_Multiface128, "Roms/mf128.rom", o_addr, i_addr), mf_enabled(), videopage()
+	Multiface(m, isa_Multiface128, "Roms/mf128.rom", o_addr, i_addr),
+	mf_enabled(),
+	videopage()
 {}
 
 

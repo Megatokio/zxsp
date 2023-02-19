@@ -32,65 +32,18 @@ enum ZxspKey : uint8 {
 	s  = 0x08, // add symbol shift key
 	up = 0x80, // key-up marker for BtZxKbd
 
-	CSH = 0x00,
-	Z,
-	X,
-	C,
-	V,
-	/*	left bottom row	*/ cZ1,
-	cZ2,
-	cZ3, /*	EDIT, CAPS LOCK, TRUE VIDEO		*/
-	A = 0x10,
-	S,
-	D,
-	F,
-	G,
-	/* 	...				*/ cZ4,
-	cZ5,
-	cZ6, /*	INV.VIDEO, CRSR LEFT, CRSR DOWN	*/
-	Q = 0x20,
-	W,
-	E,
-	R,
-	T,
-	/*	...				*/ cZ7,
-	cZ8,
-	cZ9, /*	CRSR UP, CRSR RIGHT, GRAPHICS	*/
-	Z1 = 0x30,
-	Z2,
-	Z3,
-	Z4,
-	Z5,
-	/* left top row		*/ cZ0,
-	cSPC, /*	DELETE, BREAK,					*/
-	Z0 = 0x40,
-	Z9,
-	Z8,
-	Z7,
-	Z6,
-	/* right top row	*/ sO,
-	sP, /*	; "								*/
-	P = 0x50,
-	O,
-	I,
-	U,
-	Y,
-	/* 	...				*/ sN,
-	sM, /*	, .								*/
-	ENT = 0x60,
-	L,
-	K,
-	J,
-	H,
-	/*	...				*/ CSH2,
-	SSH2,
-	EXT, /*	2nd CSH, 2nd SSH, EXTENDED MODE	*/
-	SPC = 0x70,
-	SSH,
-	M,
-	N,
-	B,
-	/* right bottom row	*/ NOKEY = 0x77
+	// clang-format off
+	
+	CSH = 0x00,	Z,	X,	C,	V,	/*	left bottom row	*/	cZ1, cZ2, cZ3,	/*	EDIT, CAPS LOCK, TRUE VIDEO		*/
+	A = 0x10,	S,	D,	F,	G,	/* 	...				*/ 	cZ4, cZ5, cZ6,	/*	INV.VIDEO, CRSR LEFT, CRSR DOWN	*/
+	Q = 0x20,	W,	E,	R,	T,	/*	...				*/ 	cZ7, cZ8, cZ9,	/*	CRSR UP, CRSR RIGHT, GRAPHICS	*/
+	Z1 = 0x30,	Z2,	Z3,	Z4,	Z5, /* left top row		*/ 	cZ0, cSPC,		/*	DELETE, BREAK,					*/
+	Z0 = 0x40,	Z9,	Z8,	Z7,	Z6,	/* right top row	*/ 	sO, sP,			/*	; "								*/
+	P = 0x50,	O,	I,	U,	Y,	/* 	...				*/ 	sN,	sM,			/*	, .								*/
+	ENT = 0x60,	L,	K,	J,	H,	/*	...				*/	CSH2,SSH2, EXT,	/*	2nd CSH, 2nd SSH, EXTENDED MODE	*/
+	SPC = 0x70,	SSH, M,	N,	B,	/* right bottom row	*/	NOKEY = 0x77
+
+	// clang-format on
 };
 
 static const uint8 decomposed_zxplus[64] = {
@@ -116,7 +69,7 @@ static const uint8 decomposed_zxplus[64] = {
 	Z0,	   Z9,	  Z8, Z7, Z6, s + O,  s + P,   x,		  /*	; "								*/
 	P,	   O,	  I,  U,  Y,  s + N,  s + M,   x,		  /*	, .								*/
 	ENT,   L,	  K,  J,  H,  c + x,  s + x,   c + s + x, /*	2nd CSH, 2nd SSH, EXTENDED MODE	*/
-	SPC,   s + x, M,  N,  B,  x,	  x,	   x		  /*  -x- -x- NOKEY					*/
+	SPC,   s + x, M,  N,  B,  x,	  x,	   x		  /*    -x- -x- NOKEY					*/
 };
 
 static const AsciiToZxkeyMap ascii2zxkey_zxsp = {
@@ -165,17 +118,15 @@ static const OskeyToZxkeyMap oskey2zxkey_zxsp = {
 	K,	 ENT, x,   SSH, x,	 N,	  M,   SPC, // 0x28-0x2F:  k   ö   #   ,   -   n   m   .
 	x,	 SPC, CSH, x,	x,	 x,	  x,   x,	// 0x30-0x37: TAB SPC  <  DEL  •  ESC  •   •
 	CSH, x,	  CSH, SSH, CSH, CSH, SSH, x,	// 0x38-0x3F: CSH  •  ALT CTL CSH2ALT2CTL2 •
-											// x,x,x,x,x,x,x,x,							// 0x40-0x47:  •  [.]  •  [*]  •  [+]
-											// •   •
-											// x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •  [/][RET] •
-											// [-]  • x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=]
-											// [0] [1] [2] [3] [4] [5]
-											// x,x,x,x,x,x,x,x,							// 0x58-0x5F: [6] [7]  •  [8] [9]  •
-											// •   • x,x,x,x,x,x,x,x,							// 0x60-0x67:
-											// x,x,x,x,x,x,x,x, 							// 0x68-0x6F:
-											// x,x,x,x,x,x,x,x, 							// 0x70-0x77:
-											// x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←   ➞   ↓
-											// ↑   •
+
+	// x,x,x,x,x,x,x,x,						// 0x40-0x47:  •  [.]  •  [*]  •  [+] •   •
+	// x,x,x,x,x,x,x,x,						// 0x48-0x4F:  •   •   •  [/][RET] • [-]  •
+	// x,x,x,x,x,x,x,x,						// 0x50-0x57:  •  [=] [0] [1] [2] [3] [4] [5]
+	// x,x,x,x,x,x,x,x,						// 0x58-0x5F: [6] [7]  •  [8] [9]  •
+	// •   • x,x,x,x,x,x,x,x,				// 0x60-0x67:
+	// x,x,x,x,x,x,x,x, 					// 0x68-0x6F:
+	// x,x,x,x,x,x,x,x, 					// 0x70-0x77:
+	// x,x,x,x,x,x,x,x,						// 0x78-0x7F:  •   •   •   ←   ➞   ↓  ↑   •
 };
 
 static const AsciiToZxkeyMap ascii2zxkey_zxplus = {
@@ -226,17 +177,15 @@ static const OskeyToZxkeyMap oskey2zxkey_zxplus = {
 	K,	 ENT, x,   x,	x,	  N,	M,	  x,   // 0x28-0x2F:  k   ö   #   ,   -   n   m   .
 	x,	 SPC, x,   cZ0, x,	  cSPC, x,	  x,   // 0x30-0x37:  •  SPC  <  DEL  •  ESC  •   •
 	CSH, x,	  CSH, SSH, CSH2, CSH2, SSH2, x,   // 0x38-0x3F: CSH  •  ALT CTL CSH2ALT2CTL2 •
-											   // x,x,x,x,x,x,x,x,							// 0x40-0x47:  •  [.]  • [*]
-											   // •  [+]  •   •
-											   // x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •
-											   // [/][RET] •  [-]  •
-											   // x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=] [0]
-											   // [1] [2] [3] [4] [5] x,x,x,x,x,x,x,x,							//
-											   // 0x58-0x5F: [6] [7]  •  [8] [9]  •   •   • x,x,x,x,x,x,x,x,
-											   // // 0x60-0x67: x,x,x,x,x,x,x,x, 							// 0x68-0x6F:
-											   // x,x,x,x,x,x,x,x, 							// 0x70-0x77:
-											   // x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←
-											   // ➞   ↓   ↑   •
+
+	// x,x,x,x,x,x,x,x,							// 0x40-0x47:  •  [.]  • [*] •  [+]  •    •
+	// x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   • [/][RET] •  [-]  •
+	// x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=] [0] [1] [2] [3] [4] [5]
+	// x,x,x,x,x,x,x,x,							// 0x58-0x5F: [6] [7]  •  [8] [9]  •   •   •
+	// x,x,x,x,x,x,x,x,							// 0x60-0x67:
+	// x,x,x,x,x,x,x,x,							// 0x68-0x6F:
+	// x,x,x,x,x,x,x,x, 						// 0x70-0x77:
+	// x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ← ➞   ↓   ↑   •
 };
 
 static const AsciiToZxkeyMap ascii2zxkey_timex = {
@@ -278,17 +227,15 @@ static const OskeyToZxkeyMap oskey2zxkey_timex = {
 	K,	 ENT, x,   SSH, CSH2, N,	M,	 cSPC, // 0x28-0x2F:  k   ö   #   ,   -   n   m   .
 	x,	 SPC, CSH, x,	x,	  x,	x,	 x,	   // 0x30-0x37:  •  SPC  <  DEL  •  ESC  •   •
 	CSH, x,	  CSH, SSH, CSH2, CSH2, SSH, x,	   // 0x38-0x3F: CSH  •  ALT CTL CSH2ALT2CTL2 •
-											   // x,x,x,x,x,x,x,x,							// 0x40-0x47:  •  [.]  •  [*]  •  [+]
-											   // • • x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •
-											   // [/][RET] •  [-]  •
-											   // x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=] [0] [1] [2] [3]
-											   // [4] [5]
-											   // x,x,x,x,x,x,x,x,							// 0x58-0x5F: [6] [7]  •  [8] [9]  •
-											   // • • x,x,x,x,x,x,x,x,							// 0x60-0x67:
-											   // x,x,x,x,x,x,x,x, 							// 0x68-0x6F:
-											   // x,x,x,x,x,x,x,x, 							// 0x70-0x77:
-	// x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←   ➞   ↓
-	// ↑ •
+
+	// x,x,x,x,x,x,x,x,							// 0x40-0x47:  •  [.]  •  [*]  •  [+]  •  •
+	// x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •  [/][RET] •  [-] •
+	// x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=] [0] [1] [2] [3] [4] [5]
+	// x,x,x,x,x,x,x,x,							// 0x58-0x5F: [6] [7]  •  [8] [9]  •   •  •
+	// x,x,x,x,x,x,x,x,							// 0x60-0x67:
+	// x,x,x,x,x,x,x,x, 						// 0x68-0x6F:
+	// x,x,x,x,x,x,x,x, 						// 0x70-0x77:
+	// x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←   ➞   ↓  ↑  •
 };
 
 static const AsciiToZxkeyMap ascii2zxkey_zx81 = {
@@ -331,17 +278,15 @@ static const OskeyToZxkeyMap oskey2zxkey_zx81 = {
 	K,	 ENT, x,   SSH, x,	 N,	  M,   SPC, // 0x28-0x2F:  k   ö   #   ,   -   n   m   .
 	x,	 SPC, CSH, x,	x,	 x,	  x,   x,	// 0x30-0x37:  •  SPC  <  DEL  •  ESC  •   •
 	CSH, x,	  CSH, CSH, CSH, CSH, CSH, x,	// 0x38-0x3F: CSH  •  ALT CTL CSH2ALT2CTL2 •
-											// x,x,x,x,x,x,x,x,							// 0x40-0x47:  •  [.]  •  [*]  •  [+]
-											// •   •
-											// x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •  [/][RET] •
-											// [-]  • x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=]
-											// [0] [1] [2] [3] [4] [5]
-											// x,x,x,x,x,x,x,x,							// 0x58-0x5F: [6] [7]  •  [8] [9]  •
-											// •   • x,x,x,x,x,x,x,x,							// 0x60-0x67:
-											// x,x,x,x,x,x,x,x, 							// 0x68-0x6F:
-											// x,x,x,x,x,x,x,x, 							// 0x70-0x77:
-											// x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←   ➞   ↓
-											// ↑   •
+
+	// x,x,x,x,x,x,x,x,						// 0x40-0x47:  •  [.]  •  [*]  •  [+]  •   •
+	// x,x,x,x,x,x,x,x,						// 0x48-0x4F:  •   •   •  [/][RET] •  [-]  •
+	// x,x,x,x,x,x,x,x,						// 0x50-0x57:  •  [=] [0] [1] [2] [3] [4] [5]
+	// x,x,x,x,x,x,x,x,						// 0x58-0x5F: [6] [7]  •  [8] [9]  •   •   •
+	// x,x,x,x,x,x,x,x,						// 0x60-0x67:
+	// x,x,x,x,x,x,x,x, 					// 0x68-0x6F:
+	// x,x,x,x,x,x,x,x, 					// 0x70-0x77:
+	// x,x,x,x,x,x,x,x,						// 0x78-0x7F:  •   •   •   ←   ➞   ↓   ↑   •
 };
 
 static const AsciiToZxkeyMap ascii2zxkey_jupiter = {
@@ -384,162 +329,56 @@ static const OskeyToZxkeyMap oskey2zxkey_jupiter = {
 	K,	 ENT, x,   SSH, x,	 N,	  M,   SPC, // 0x28-0x2F:  k   ö   #   ,   -   n   m   .
 	x,	 SPC, CSH, x,	x,	 x,	  x,   x,	// 0x30-0x37:  •  SPC  <  DEL  •  ESC  •   •
 	CSH, x,	  CSH, SSH, CSH, CSH, SSH, x,	// 0x38-0x3F: CSH  •  ALT CTL CSH2ALT2CTL2 •
-											// x,x,x,x,x,x,x,x,							// 0x40-0x47:  •  [.]  •  [*]  •  [+]
-											// •   •
-											// x,x,x,x,x,x,x,x,							// 0x48-0x4F:  •   •   •  [/][RET] •
-											// [-]  • x,x,x,x,x,x,x,x,							// 0x50-0x57:  •  [=]
-											// [0] [1] [2] [3] [4] [5]
-											// x,x,x,x,x,x,x,x,							// 0x58-0x5F: [6] [7]  •  [8] [9]  •
-											// •   • x,x,x,x,x,x,x,x,							// 0x60-0x67:
-											// x,x,x,x,x,x,x,x, 							// 0x68-0x6F:
-											// x,x,x,x,x,x,x,x, 							// 0x70-0x77:
-											// x,x,x,x,x,x,x,x,							// 0x78-0x7F:  •   •   •   ←   ➞   ↓
-											// ↑   •
+
+	// x,x,x,x,x,x,x,x,						// 0x40-0x47:  •  [.]  •  [*]  •  [+]  •   •
+	// x,x,x,x,x,x,x,x,						// 0x48-0x4F:  •   •   •  [/][RET] •  [-]  •
+	// x,x,x,x,x,x,x,x,						// 0x50-0x57:  •  [=] [0] [1] [2] [3] [4] [5]
+	// x,x,x,x,x,x,x,x,						// 0x58-0x5F: [6] [7]  •  [8] [9]  •   •   •
+	// x,x,x,x,x,x,x,x,						// 0x60-0x67:
+	// x,x,x,x,x,x,x,x, 					// 0x68-0x6F:
+	// x,x,x,x,x,x,x,x, 					// 0x70-0x77:
+	// x,x,x,x,x,x,x,x,						// 0x78-0x7F:  •   •   •   ←   ➞   ↓   ↑   •
 };
 
 static const AsciiToZxkeyMap btzxkbd2zxkey_zxsp = {
 	// ascii -> Zxsp key code
 	// physical translation of ascii keycode for game mode on a "Recreated Bluetooth ZX Keyboard"
 
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	x,
-	SSH,
-	x,
-	x,
-	CSH + up,
-	SPC,
-	x,
-	x, // 0x20-0x27: space !
-	   // " # $ % & '
-	x,
-	x,
-	x,
-	x,
-	B,
-	X,
-	B + up,
-	N, // 0x28-0x2F: ()*+,-./
-	J,
-	J + up,
-	K,
-	K + up,
-	L,
-	L + up,
-	ENT,
-	ENT + up, // 0x30-0x37: 01234567
-	CSH,
-	CSH + up,
-	V + up,
-	V,
-	Z,
-	X + up,
-	Z + up,
-	N + up, // 0x38-0x3F: 89:;<=>?
-	x,
-	R,
-	R + up,
-	T,
-	T + up,
-	Y,
-	Y + up,
-	U, // 0x40-0x47: @ABCDEFG
-	U + up,
-	I,
-	I + up,
-	O,
-	O + up,
-	P,
-	P + up,
-	A, // 0x48-0x4F: HIJKLMNO
-	A + up,
-	S,
-	S + up,
-	D,
-	D + up,
-	F,
-	F + up,
-	G, // 0x50-0x57: PQRSTUVW
-	G + up,
-	H,
-	H + up,
-	C,
-	x,
-	C + up,
-	SPC + up,
-	x, // 0x58-0x5F: XYZ[\]^_
-	x,
-	Z1,
-	Z1 + up,
-	Z2,
-	Z2 + up,
-	Z3,
-	Z3 + up,
-	Z4, // 0x60-0x67: `abcdefg
-	Z4 + up,
-	Z5,
-	Z5 + up,
-	Z6,
-	Z6 + up,
-	Z7,
-	Z7 + up,
-	Z8, // 0x68-0x6F: hijklmno
-	Z8 + up,
-	Z9,
-	Z9 + up,
-	Z0,
-	Z0 + up,
-	Q,
-	Q + up,
-	W, // 0x70-0x77: pqrstuvw
-	W + up,
-	E,
-	E + up,
-	M,
-	x,
-	M + up,
-	x,
-	x, // 0x78-0x7F: xyz{|}~<del>
-};	   // table must be filled to end with 'x'
+	x,		 x,		   x,		x,		x,		  x,	  x,		x,		  //
+	x,		 x,		   x,		x,		x,		  x,	  x,		x,		  //
+	x,		 x,		   x,		x,		x,		  x,	  x,		x,		  //
+	x,		 x,		   x,		x,		x,		  x,	  x,		x,		  //
+	x,		 SSH,	   x,		x,		CSH + up, SPC,	  x,		x,		  // 0x20-0x27: space ! " # $ % & '
+	x,		 x,		   x,		x,		B,		  X,	  B + up,	N,		  // 0x28-0x2F: ()*+,-./
+	J,		 J + up,   K,		K + up, L,		  L + up, ENT,		ENT + up, // 0x30-0x37: 01234567
+	CSH,	 CSH + up, V + up,	V,		Z,		  X + up, Z + up,	N + up,	  // 0x38-0x3F: 89:;<=>?
+	x,		 R,		   R + up,	T,		T + up,	  Y,	  Y + up,	U,		  // 0x40-0x47: @ABCDEFG
+	U + up,	 I,		   I + up,	O,		O + up,	  P,	  P + up,	A,		  // 0x48-0x4F: HIJKLMNO
+	A + up,	 S,		   S + up,	D,		D + up,	  F,	  F + up,	G,		  // 0x50-0x57: PQRSTUVW
+	G + up,	 H,		   H + up,	C,		x,		  C + up, SPC + up, x,		  // 0x58-0x5F: XYZ[\]^_
+	x,		 Z1,	   Z1 + up, Z2,		Z2 + up,  Z3,	  Z3 + up,	Z4,		  // 0x60-0x67: `abcdefg
+	Z4 + up, Z5,	   Z5 + up, Z6,		Z6 + up,  Z7,	  Z7 + up,	Z8,		  // 0x68-0x6F: hijklmno
+	Z8 + up, Z9,	   Z9 + up, Z0,		Z0 + up,  Q,	  Q + up,	W,		  // 0x70-0x77: pqrstuvw
+	W + up,	 E,		   E + up,	M,		x,		  M + up, x,		x,		  // 0x78-0x7F: xyz{|}~<del>
+
+}; // table must be filled to end with 'x'
 
 
 // -----------------------------------------------------------
-//				Creators
+//				Constructor
 // -----------------------------------------------------------
 
 Keyboard::Keyboard(Machine* m, isa_id id, const AsciiToZxkeyMap cmap, const OskeyToZxkeyMap kmap) :
-	Item(m, id, isa_Keyboard, internal, nullptr /*o_addr*/, nullptr /*i_addr*/), model(m->model), csh(CSH), ssh(SSH),
-	csh2(NOKEY), ssh2(NOKEY), mode(kbdgame), modifiers(0), numkeys(0), stickykeys(0)
+	Item(m, id, isa_Keyboard, internal, nullptr /*o_addr*/, nullptr /*i_addr*/),
+	model(m->model),
+	csh(CSH),
+	ssh(SSH),
+	csh2(NOKEY),
+	ssh2(NOKEY),
+	mode(kbdgame),
+	modifiers(0),
+	numkeys(0),
+	stickykeys(0)
 {
 	memcpy(ascii2zxkey_map, cmap, sizeof(ascii2zxkey_map));
 	memcpy(oskey2zxkey_map, kmap, sizeof(oskey2zxkey_map));
@@ -909,9 +748,7 @@ void Keyboard::keyBtZxKbd(uint16 unicode, uint8 oskeycode, KbdModifiers modifier
 {
 	xlogline(
 		"key down event: '%s', unicode=%u, modifiers=$%04x on BtZxKbd",
-		unicode >= ' ' && unicode <= '~' ? charstr(unicode) : "non-ascii",
-		uint(unicode),
-		uint(modifiers));
+		unicode >= ' ' && unicode <= '~' ? charstr(unicode) : "non-ascii", uint(unicode), uint(modifiers));
 
 	uint8 pkey = unicode < sizeof(btzxkbd2zxkey_zxsp) ? btzxkbd2zxkey_zxsp[unicode] : uint8(NOKEY); // physical
 
@@ -966,9 +803,7 @@ void Keyboard::realKeyUp(uint16 unicode, uint8 oskeycode, KbdModifiers modifiers
 	{
 		xlogline(
 			"key up event: '%s', unicode=%u, modifiers=$%04x on BtZxKbd *** ERROR! ***",
-			unicode >= ' ' && unicode <= '~' ? charstr(unicode) : "non-ascii",
-			uint(unicode),
-			uint(modifiers));
+			unicode >= ' ' && unicode <= '~' ? charstr(unicode) : "non-ascii", uint(unicode), uint(modifiers));
 		return;
 	}
 

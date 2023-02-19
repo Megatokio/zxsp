@@ -10,7 +10,10 @@ static FloppyDiskDrive* no_fdd = new FloppyDiskDrive();
 
 
 Fdc::Fdc(Machine* m, isa_id id, Internal internal, cstr o_addr, cstr i_addr) :
-	MassStorage(m, id, internal, o_addr, i_addr), drive(no_fdd), motor_on(no), interrupt(no)
+	MassStorage(m, id, internal, o_addr, i_addr),
+	drive(no_fdd),
+	motor_on(no),
+	interrupt(no)
 {
 	assert(no_fdd);
 	for (uint i = 0; i < NELEM(fdd); i++) fdd[i] = no_fdd;

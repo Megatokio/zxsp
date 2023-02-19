@@ -24,9 +24,7 @@ Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile IsaOb
 	joystick_selector = new QComboBox(this);
 	joystick_selector->setFocusPolicy(Qt::NoFocus);
 	connect(
-		joystick_selector,
-		static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-		this,
+		joystick_selector, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 		&Multiface1Insp::joystick_selected);
 	update_joystick_selector();
 

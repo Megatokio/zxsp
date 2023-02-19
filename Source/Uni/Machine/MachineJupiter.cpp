@@ -313,10 +313,8 @@ static uint read_compressed_data(FD& fd, uint qsize, uint8* z)
 		};
 	}
 
-	if (q == q_end)
-		throw FileError(fd, endoffile);
-	else
-		throw DataError("decompressed data exceeds maximum size ($E000)");
+	if (q == q_end) throw FileError(fd, endoffile);
+	else throw DataError("decompressed data exceeds maximum size ($E000)");
 }
 
 void MachineJupiter::loadAce(FD& fd) noexcept(false) /*file_error,data_error*/
@@ -343,8 +341,7 @@ void MachineJupiter::loadAce(FD& fd) noexcept(false) /*file_error,data_error*/
 	{
 		if (ram.count() < 19 * 1024) addExternalRam(isa_Jupiter16kRam);
 	}
-	else
-		throw DataError("this snapshot needs more than 16K external ram (TODO)");
+	else throw DataError("this snapshot needs more than 16K external ram (TODO)");
 
 	if (bu[0x130] > 2) throw DataError("invalid interrupt mode (im=%i)", int(bu[0x130]));
 

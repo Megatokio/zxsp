@@ -269,12 +269,8 @@ inline void WriteOutputData(AudioBufferList* outOutputData)
 //	-that's what it's all about-
 //
 static OSStatus audioDeviceIOProc(
-	AudioDeviceID /*inDevice*/,
-	const AudioTimeStamp* /*inNow*/,
-	const AudioBufferList* inInputData,
-	const AudioTimeStamp*  inInputTime,
-	AudioBufferList*	   outOutputData,
-	const AudioTimeStamp*  inOutputTime,
+	AudioDeviceID /*inDevice*/, const AudioTimeStamp* /*inNow*/, const AudioBufferList* inInputData,
+	const AudioTimeStamp* inInputTime, AudioBufferList* outOutputData, const AudioTimeStamp* inOutputTime,
 	void* /*inClientData*/
 )
 {
@@ -291,8 +287,7 @@ static OSStatus audioDeviceIOProc(
 			static float64 lasttime = 0;
 			if (inInputTime->mSampleTime - lasttime != DSP_SAMPLES_PER_BUFFER && lasttime != 0.0)
 				logline(
-					"WARNING audio-in at sample %lu: Δ samples = %lu",
-					(ulong)inInputTime->mSampleTime,
+					"WARNING audio-in at sample %lu: Δ samples = %lu", (ulong)inInputTime->mSampleTime,
 					(ulong)(inInputTime->mSampleTime - lasttime));
 			lasttime = inInputTime->mSampleTime;
 
@@ -302,8 +297,7 @@ static OSStatus audioDeviceIOProc(
 				ReadInputData(inInputData);
 				if (0) HighpassInputBuffer();
 			}
-			else
-				ClearInputBuffer();
+			else ClearInputBuffer();
 		}
 		else // audio-out-only callback for systems with different audio-in and -out device IDs
 		{
@@ -320,8 +314,7 @@ static OSStatus audioDeviceIOProc(
 			static float64 lasttime = 0;
 			if (inOutputTime->mSampleTime - lasttime != DSP_SAMPLES_PER_BUFFER && lasttime != 0.0)
 				logline(
-					"WARNING audio-out at sample %lu: Δ samples = %lu",
-					(ulong)inOutputTime->mSampleTime,
+					"WARNING audio-out at sample %lu: Δ samples = %lu", (ulong)inOutputTime->mSampleTime,
 					(ulong)(inOutputTime->mSampleTime - lasttime));
 			lasttime = inOutputTime->mSampleTime;
 
@@ -356,9 +349,7 @@ static OSStatus audioDeviceIOProc(
 						if (t > max) max = t;
 					}
 					xlogline(
-						"audio-out interrupt: min %.3f msec, max %.3f msec, average %.3f msec",
-						min * 1000,
-						max * 1000,
+						"audio-out interrupt: min %.3f msec, max %.3f msec, average %.3f msec", min * 1000, max * 1000,
 						time);
 				}
 			}
@@ -388,9 +379,7 @@ static OSStatus audioDeviceIOProc(
 						if (t > max) max = t;
 					}
 					xlogline(
-						"audio-in  interrupt: min %.3f msec, max %.3f msec, average %.3f msec",
-						min * 1000,
-						max * 1000,
+						"audio-in  interrupt: min %.3f msec, max %.3f msec, average %.3f msec", min * 1000, max * 1000,
 						time);
 				}
 			}
@@ -473,9 +462,7 @@ void startCoreAudio(bool input_enabled) //, int playthrough_mode)
 		status			  = AudioObjectGetPropertyData(
 			   kAudioObjectSystemObject,
 			   &address, // kio 2012-04-29
-			   0,
-			   nullptr,
-			   &propertySize,
+			   0, nullptr, &propertySize,
 			   &output_device_id); // kio 2012-04-29
 
 		if (status) throw AnyError("GetDefaultOutputDevice");
@@ -568,9 +555,7 @@ void startCoreAudio(bool input_enabled) //, int playthrough_mode)
 		address.mElement  = kAudioObjectPropertyElementMaster;		  // kio 2012-04-29
 
 		status = AudioObjectGetPropertyData(
-			kAudioObjectSystemObject,
-			&address,
-			0,
+			kAudioObjectSystemObject, &address, 0,
 			nullptr, // kio 2012-04-29
 			&propertySize,
 			&input_device_id); // kio 2012-04-29
@@ -704,4 +689,4 @@ void startCoreAudio(bool input_enabled) //, int playthrough_mode)
 //	}
 //}
 
-} // namespace Dsp
+} // namespace os

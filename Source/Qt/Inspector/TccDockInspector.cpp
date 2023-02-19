@@ -46,8 +46,11 @@ static QFont font_label("Arial Black", 9); // Geneva (weiter), Arial oder Gill S
  */
 TccDockInspector::TccDockInspector(QWidget* parent, MachineController* mc, volatile IsaObject* i) :
 	Inspector(parent, mc, i, i->isA(isa_MmuU2086) ? "/Images/u2086/open.jpg" : "/Images/tc2068/open.jpg"),
-	u(i->isA(isa_MmuU2086)), button_insert(new QPushButton("Insert Cartridge", this)), x_overlay(u ? 72 : 73),
-	y_overlay(89), imgdirpath(newcopy(catstr(appl_rsrc_path, "Images/", u ? "u2086/" : "tc2068/"))),
+	u(i->isA(isa_MmuU2086)),
+	button_insert(new QPushButton("Insert Cartridge", this)),
+	x_overlay(u ? 72 : 73),
+	y_overlay(89),
+	imgdirpath(newcopy(catstr(appl_rsrc_path, "Images/", u ? "u2086/" : "tc2068/"))),
 	overlay_zxspemu_ejected(catstr(imgdirpath, "zxspemu_ejected.jpg")),
 	overlay_zxspemu_inserted(catstr(imgdirpath, "zxspemu_inserted.jpg")),
 	overlay_game_ejected(catstr(imgdirpath, "game_ejected.jpg")),
@@ -57,7 +60,9 @@ TccDockInspector::TccDockInspector(QWidget* parent, MachineController* mc, volat
 	//	box_top_module_ejected (u ? box_top_module_ejected_u  : box_top_module_ejected_tc),
 	//	box_front_module_inserted(u ? box_front_module_inserted_u : box_front_module_inserted_tc),
 	//	box_front_module_ejected (u ? box_front_module_ejected_u  : box_front_module_ejected_tc),
-	cartridge_state(Invalid), current_fpath(nullptr), current_id(TccUnknown)
+	cartridge_state(Invalid),
+	current_fpath(nullptr),
+	current_id(TccUnknown)
 {
 	// Bereich des leeren Docks, in das man klicken kann, um ein neues Cartridge zu laden:
 	dock_slot = new QWidget(this);
@@ -152,8 +157,7 @@ void TccDockInspector::paintEvent(QPaintEvent*) // Qt callback
 			p.setFont(font_label);
 			p.setPen(QColor(Qt::white));
 			p.drawText(
-				u ? box_front_label_ejected_u : box_front_label_ejected_tc,
-				Qt::AlignTop | Qt::TextSingleLine,
+				u ? box_front_label_ejected_u : box_front_label_ejected_tc, Qt::AlignTop | Qt::TextSingleLine,
 				basename_from_path(current_fpath));
 		}
 		break;
@@ -164,8 +168,7 @@ void TccDockInspector::paintEvent(QPaintEvent*) // Qt callback
 			p.setFont(font_label);
 			p.setPen(QColor(Qt::white));
 			p.drawText(
-				u ? box_front_label_inserted_u : box_front_label_inserted_tc,
-				Qt::AlignTop | Qt::TextSingleLine,
+				u ? box_front_label_inserted_u : box_front_label_inserted_tc, Qt::AlignTop | Qt::TextSingleLine,
 				basename_from_path(current_fpath));
 		}
 		break;
@@ -258,10 +261,8 @@ void TccDockInspector::insert_or_eject_cartridge()
 {
 	if (dock()->isLoaded()) eject_cartridge();
 
-	if (current_fpath)
-		remove_cartridge();
-	else
-		insert_cartridge();
+	if (current_fpath) remove_cartridge();
+	else insert_cartridge();
 }
 
 

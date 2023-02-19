@@ -213,10 +213,8 @@ void MachineZx81::saveP81(FD& fd, bool p81) noexcept(false) /*file_error,data_er
 	cpu->copyRamToBuffer(0x4009, data + 1, cnt);
 
 	// write to file:
-	if (p81)
-		fd.write_bytes(data, cnt + 1);
-	else
-		fd.write_bytes(data + 1, cnt);
+	if (p81) fd.write_bytes(data, cnt + 1);
+	else fd.write_bytes(data + 1, cnt);
 }
 
 void MachineZx81::loadP81(FD& fd, bool p81) noexcept(false) /*file_error,data_error*/

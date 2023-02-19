@@ -38,7 +38,8 @@ namespace gui
 // -------------------------------------------------------
 
 ToolWindow::ToolWindow(MachineController* mc, volatile IsaObject* item, QAction* showaction) :
-	QMainWindow(mc, Qt::Tool), machine_controller(mc)
+	QMainWindow(mc, Qt::Tool),
+	machine_controller(mc)
 {
 	xlogIn("new ToolWindow");
 
@@ -142,9 +143,7 @@ void ToolWindow::init(volatile IsaObject* object, QAction* showaction)
 	}
 
 	xlogline(
-		"Toolwindow resized acc. to inspector to %i x %i + %i",
-		inspector->width(),
-		inspector->height(),
+		"Toolwindow resized acc. to inspector to %i x %i + %i", inspector->width(), inspector->height(),
 		toolbar_height);
 	setMinimumSize(inspector->minimumSize() + QSize(0, toolbar_height));
 	xlogline("ToolWindow min size = %i x %i", minimumWidth(), minimumHeight());

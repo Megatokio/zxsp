@@ -13,9 +13,9 @@
 
 
 #define uspeech_rom "Roms/µspeech.rom"
-#define sp0256_rom                                                                                                     \
-  "Roms/sp0256-al2.rom" // the bytes in the file are in reversed bit-order,
-						// ie. the "Target" values are unreversed,
+#define sp0256_rom                                                          \
+  "Roms/sp0256-al2.rom" // the bytes in the file are in reversed bit-order, \
+						// ie. the "Target" values are unreversed,          \
 						// all other opcodes and parameters are reversed
 
 /*	uses memory mapped and no i/o ports, but /MREQ is not properly decoded:
@@ -85,8 +85,15 @@ static const float RC = 11e3f * 22e-9f * 0.5f; // 33kΩ * 22nF * 0.5
 CurrahMicroSpeech::CurrahMicroSpeech(Machine* m) // CREATOR
 	:
 	Item(m, isa_CurrahMicroSpeech, isa_CurrahMicroSpeech /*grp*/, external, o_addr, i_addr),
-	sp0256(nullptr), rom(m, "Currah µSpeech Rom", 2 kB), enable_state(no), pitch(0x00), clock(clock_low),
-	current_clock(clock_low), lastrp(0), lastwp(0), pause(0)
+	sp0256(nullptr),
+	rom(m, "Currah µSpeech Rom", 2 kB),
+	enable_state(no),
+	pitch(0x00),
+	clock(clock_low),
+	current_clock(clock_low),
+	lastrp(0),
+	lastwp(0),
+	pause(0)
 {
 	xlogIn("new CurrahMicroSpeech");
 

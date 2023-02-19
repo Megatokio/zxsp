@@ -16,7 +16,10 @@
 	note: ula must be 1st item with i/o  (2nd after cpu)
 */
 Ula::Ula(Machine* m, isa_id id, cstr o_addr, cstr i_addr) :
-	Crtc(m, id, isa_Ula, internal, o_addr, i_addr), ula_out_byte(0), beeper_volume(1.0), beeper_current_sample(0.0),
+	Crtc(m, id, isa_Ula, internal, o_addr, i_addr),
+	ula_out_byte(0),
+	beeper_volume(1.0),
+	beeper_current_sample(0.0),
 	beeper_last_sample_time(0.0)
 {
 	assert(_prev->isA(isa_Z80));

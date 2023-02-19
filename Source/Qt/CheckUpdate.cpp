@@ -37,7 +37,12 @@ void checkUpdate(bool verbose)
 
 
 CheckUpdate::CheckUpdate(QObject* parent, bool verbose) :
-	QObject(parent), verbose(verbose), state(dl_filelist), filename(nullptr), network_manager(nullptr), reply(nullptr),
+	QObject(parent),
+	verbose(verbose),
+	state(dl_filelist),
+	filename(nullptr),
+	network_manager(nullptr),
+	reply(nullptr),
 	request()
 {
 	request.setUrl(QUrl(catstr(check_update_url, APPL_VERSION_STR)));
@@ -64,10 +69,8 @@ void CheckUpdate::slot_finished()
 
 	if (reply->error() != QNetworkReply::NoError)
 	{
-		if (verbose)
-			showWarning("CheckUpdate: error = %s", reply->errorString().toUtf8().data());
-		else
-			xlogline("CheckUpdate: error = %s", reply->errorString().toUtf8().data());
+		if (verbose) showWarning("CheckUpdate: error = %s", reply->errorString().toUtf8().data());
+		else xlogline("CheckUpdate: error = %s", reply->errorString().toUtf8().data());
 		goto x;
 	}
 
@@ -88,20 +91,16 @@ void CheckUpdate::slot_finished()
 		uint httpstatuscode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toUInt();
 		if (httpstatuscode != 200u /*HTTP_RESPONSE_OK*/)
 		{
-			if (verbose)
-				showWarning("CheckUpdate: http status = %u", httpstatuscode);
-			else
-				xlogline("CheckUpdate: http status = %u", httpstatuscode);
+			if (verbose) showWarning("CheckUpdate: http status = %u", httpstatuscode);
+			else xlogline("CheckUpdate: http status = %u", httpstatuscode);
 			goto x;
 		}
 	}
 
 	if (!reply->isReadable())
 	{
-		if (verbose)
-			showWarning("CheckUpdate: reply not readable");
-		else
-			xlogline("CheckUpdate: reply not readable");
+		if (verbose) showWarning("CheckUpdate: reply not readable");
+		else xlogline("CheckUpdate: reply not readable");
 		goto x;
 	}
 
@@ -148,10 +147,8 @@ void CheckUpdate::slot_finished()
 	}
 	catch (AnyError& e)
 	{
-		if (verbose)
-			showWarning("CheckUpdate: %s", e.what());
-		else
-			xlogline("CheckUpdate: %s", e.what());
+		if (verbose) showWarning("CheckUpdate: %s", e.what());
+		else xlogline("CheckUpdate: %s", e.what());
 	}
 
 

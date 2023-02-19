@@ -84,4 +84,4 @@ void outputSamples(Sample sample, Time aa /*start [seconds]*/, Time ee /*end [se
 	while (pa < pe) { *pa++ += sample; }
 }
 
-} // namespace Dsp
+} // namespace os

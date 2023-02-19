@@ -29,14 +29,8 @@ public:
 	{}
 
 	void drawScreen(
-		uint8* new_pixels,
-		uint   q_screen_width,
-		uint   q_screen_height,
-		uint   q_width,
-		uint   q_height,
-		uint   q_h_border,
-		uint   q_v_border,
-		uint32 cc_vbi);
+		uint8* new_pixels, uint q_screen_width, uint q_screen_height, uint q_width, uint q_height, uint q_h_border,
+		uint q_v_border, uint32 cc_vbi);
 };
 
 
@@ -68,20 +62,9 @@ public:
 	void writeFrame(
 		uint8* new_pixels, uint screen_w, uint screen_h, uint frame_h, uint frame_w, uint screen_x0, uint screen_y0);
 	void saveScreenshot(
-		cstr   path,
-		uint8* new_pixels,
-		uint   screen_w,
-		uint   screen_h,
-		uint   frame_h,
-		uint   frame_w,
-		uint   screen_x0,
-		uint   screen_y0);
+		cstr path, uint8* new_pixels, uint screen_w, uint screen_h, uint frame_h, uint frame_w, uint screen_x0,
+		uint screen_y0);
 	void drawScreen(
-		uint8* new_pixels,
-		uint   q_screen_width,
-		uint   q_screen_height,
-		uint   q_width,
-		uint   q_height,
-		uint   q_h_border,
-		uint   q_v_border);
+		uint8* new_pixels, uint q_screen_width, uint q_screen_height, uint q_width, uint q_height, uint q_h_border,
+		uint q_v_border);
 };

@@ -191,12 +191,9 @@ void Machine::saveZ80(FD& fd)
 	Joy* kj = (Joy*)findIsaItem(isa_KempstonJoy);
 	Joy* sj = (Joy*)findIsaItem(isa_SinclairJoy);
 	// Bit 6-7: 0=Cursor/Protek/AGF joystick
-	if (kj)
-		head.im |= 1 << 6; // Bit 6-7: 1=Kempston
-	else if (sj && sj->isConnected(0))
-		head.im |= 3 << 6; //          3=IF2 right JS
-	else if (sj && sj->isConnected(1))
-		head.im |= 2 << 6; //          2=IF2 left JS
+	if (kj) head.im |= 1 << 6;							  // Bit 6-7: 1=Kempston
+	else if (sj && sj->isConnected(0)) head.im |= 3 << 6; //          3=IF2 right JS
+	else if (sj && sj->isConnected(1)) head.im |= 2 << 6; //          2=IF2 left JS
 
 	ZxIf1* if1 = (ZxIf1*)findItem(isa_ZxIf1);
 	if (if1) showWarning("Interface 1: TODO");
@@ -534,20 +531,14 @@ void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 		Item* xram = findIsaItem(isa_ExternalRam);
 		if (xram && !ismainthread)
 			throw DataError("Cannot detach ram extension on background thread"); // can't happen for zxsp models
-		else
-			delete xram;
-		if (model == jupiter)
-			addExternalRam(isa_Jupiter16kRam);
-		else if (model_info->has_zxsp_bus)
-			addExternalRam(isa_Cheetah32kRam);
+		else delete xram;
+		if (model == jupiter) addExternalRam(isa_Jupiter16kRam);
+		else if (model_info->has_zxsp_bus) addExternalRam(isa_Cheetah32kRam);
 		else if (model_info->has_zx80_bus)
 		{
-			if (req_ramsize <= 4 kB)
-				new Zx3kRam(this, req_ramsize - 1 kB);
-			else if (req_ramsize <= 16 kB)
-				new Zx16kRam(this);
-			else
-				new Memotech64kRam(this);
+			if (req_ramsize <= 4 kB) new Zx3kRam(this, req_ramsize - 1 kB);
+			else if (req_ramsize <= 16 kB) new Zx16kRam(this);
+			else new Memotech64kRam(this);
 		}
 		if (ram.count() < req_ramsize)
 			throw DataError("Snapshot: can't find a suitable ram extension to load this file");

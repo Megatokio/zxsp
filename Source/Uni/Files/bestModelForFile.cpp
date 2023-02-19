@@ -30,10 +30,8 @@ Model bestModelForFile(cstr fpath, Model default_model)
 	if (eq(ext, ".sna"))
 	{
 		const uint snalen = 27;
-		if (file_size(fpath) <= 0x4000 + snalen)
-			return zxsp_i1;
-		else
-			goto dflt_zxsp;
+		if (file_size(fpath) <= 0x4000 + snalen) return zxsp_i1;
+		else goto dflt_zxsp;
 	}
 
 	if (eq(ext, ".z80"))
@@ -49,20 +47,16 @@ Model bestModelForFile(cstr fpath, Model default_model)
 
 	if (eq(ext, ".p") || eq(ext, ".81") || eq(ext, ".p81"))
 	{
-		if (zx_info[default_model].isA(isa_MachineZx81))
-			return default_model;
-		else
-			goto dflt_zx81;
+		if (zx_info[default_model].isA(isa_MachineZx81)) return default_model;
+		else goto dflt_zx81;
 	}
 
 	if (eq(ext, ".ace")) { return jupiter; }
 
 	if (eq(ext, ".scr"))
 	{
-		if (zx_info[default_model].isA(isa_MachineZxsp))
-			return default_model;
-		else
-			goto dflt_zxsp;
+		if (zx_info[default_model].isA(isa_MachineZxsp)) return default_model;
+		else goto dflt_zxsp;
 	}
 
 	if (eq(ext, ".rom"))
@@ -76,8 +70,7 @@ Model bestModelForFile(cstr fpath, Model default_model)
 		case 8 kB:
 			if (zx_info[default_model].isA(isa_MachineZx80))
 				return default_model; // note: might be loaded into ZX80 as well
-			else
-				goto dflt_zx81;
+			else goto dflt_zx81;
 		case 16 kB: goto dflt_zxsp;
 		case 32 kB: return language == spanish ? zx128_span : zx128;
 		case 64 kB: return language == spanish ? zxplus3_span : zxplus3;
@@ -87,10 +80,8 @@ Model bestModelForFile(cstr fpath, Model default_model)
 
 	if (eq(ext, ".hdf") || eq(ext, ".img") || eq(ext, ".dmg") || eq(ext, ".iso"))
 	{
-		if (zx_info[default_model].canAttachDivIDE())
-			return default_model;
-		else
-			return language == spanish ? zx128_span : zx128;
+		if (zx_info[default_model].canAttachDivIDE()) return default_model;
+		else return language == spanish ? zx128_span : zx128;
 	}
 
 	if (eq(ext, "rzx"))
@@ -114,10 +105,8 @@ Model bestModelForFile(cstr fpath, Model default_model)
 			'b',	  // deststyle: 0=none, 'b'=binary
 			no);	  // clean?
 
-		if (ass.numErrors())
-			return default_model;
-		else
-			return bestModelForFile(ass.targetFilepath(), default_model);
+		if (ass.numErrors()) return default_model;
+		else return bestModelForFile(ass.targetFilepath(), default_model);
 	}
 
 	// if(eq(ext,".tzx"))

@@ -41,8 +41,14 @@ TapeFileDataBlock::~TapeFileDataBlock()
 
 
 TapeFileDataBlock::TapeFileDataBlock(CswBuffer* p) :
-	cswdata(p), tapedata(nullptr), tapdata(nullptr), o80data(nullptr), tzxdata(nullptr), major_block_info(nullptr),
-	minor_block_info(nullptr), mode(stopped)
+	cswdata(p),
+	tapedata(nullptr),
+	tapdata(nullptr),
+	o80data(nullptr),
+	tzxdata(nullptr),
+	major_block_info(nullptr),
+	minor_block_info(nullptr),
+	mode(stopped)
 {
 	assert(cswdata);
 	calc_block_infos();
@@ -50,18 +56,26 @@ TapeFileDataBlock::TapeFileDataBlock(CswBuffer* p) :
 
 
 TapeFileDataBlock::TapeFileDataBlock(TapeData* q, uint32 ccps) :
-	cswdata(new CswBuffer(*q, ccps)), tapedata(q), tapdata(q->isaId() == isa_TapData ? TapDataPtr(q) : nullptr),
+	cswdata(new CswBuffer(*q, ccps)),
+	tapedata(q),
+	tapdata(q->isaId() == isa_TapData ? TapDataPtr(q) : nullptr),
 	o80data(q->isaId() == isa_O80Data ? O80DataPtr(q) : nullptr),
-	tzxdata(q->isaId() == isa_TzxData ? TzxDataPtr(q) : nullptr), major_block_info(nullptr), minor_block_info(nullptr),
+	tzxdata(q->isaId() == isa_TzxData ? TzxDataPtr(q) : nullptr),
+	major_block_info(nullptr),
+	minor_block_info(nullptr),
 	mode(stopped)
 {
 	calc_block_infos();
 }
 
 TapeFileDataBlock::TapeFileDataBlock(TapeData* q, CswBuffer* csw) :
-	cswdata(csw), tapedata(q), tapdata(q->isaId() == isa_TapData ? TapDataPtr(q) : nullptr),
+	cswdata(csw),
+	tapedata(q),
+	tapdata(q->isaId() == isa_TapData ? TapDataPtr(q) : nullptr),
 	o80data(q->isaId() == isa_O80Data ? O80DataPtr(q) : nullptr),
-	tzxdata(q->isaId() == isa_TzxData ? TzxDataPtr(q) : nullptr), major_block_info(nullptr), minor_block_info(nullptr),
+	tzxdata(q->isaId() == isa_TzxData ? TzxDataPtr(q) : nullptr),
+	major_block_info(nullptr),
+	minor_block_info(nullptr),
 	mode(stopped)
 {
 	assert(cswdata);

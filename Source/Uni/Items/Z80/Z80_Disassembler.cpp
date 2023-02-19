@@ -235,10 +235,8 @@ int Z80_Disassembler::opcodeLength(uint ip) const
 			return len0[op2] - '0' + 1 + (op2 >= 0x34 && op2 <= 0x36); // inc(hl); dec(hl); ld(hl),N: add displacement
 		case 1:
 		case 2:
-			if (((op2 & 0x07) == 6) == ((op2 & 0x0F8) == 0x70))
-				return 2;
-			else
-				return 3;
+			if (((op2 & 0x07) == 6) == ((op2 & 0x0F8) == 0x70)) return 2;
+			else return 3;
 		}
 		if (op2 == 0xcb) return 4;
 		return len3[op2 & 0x3F] - '0' +

@@ -10,9 +10,7 @@ class KempstonJoy : public Joy
 {
 public:
 	explicit KempstonJoy(
-		Machine*,
-		isa_id		= isa_KempstonJoy,
-		Internal	= external,
+		Machine*, isa_id = isa_KempstonJoy, Internal = external,
 		cstr i_addr = "----.----.000-.----" /*Kempston Issue 4*/);
 	virtual ~KempstonJoy();
 

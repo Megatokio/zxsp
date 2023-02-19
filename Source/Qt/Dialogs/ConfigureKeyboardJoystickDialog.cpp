@@ -400,12 +400,18 @@ void KbdFnLed::focusInEvent(QFocusEvent* e)
 
 
 ConfigureKeyboardJoystickDialog::ConfigureKeyboardJoystickDialog(MachineController* mc) :
-	ConfigDialog(mc, WIDTH, HEIGHT, ConfigDialog::DefaultStyle), led_filenamepattern(new KbdFnLed(this)),
+	ConfigDialog(mc, WIDTH, HEIGHT, ConfigDialog::DefaultStyle),
+	led_filenamepattern(new KbdFnLed(this)),
 	btn_default_for_all_files(new QRadioButton("Default for all files", this)),
 	btn_for_match_pattern(new QRadioButton("For file pattern", this)),
-	btn_use_just_now(new QRadioButton("Use just now", this)), led_up(new KbdLed(this, 3)),
-	led_down(new KbdLed(this, 2)), led_left(new KbdLed(this, 1)), led_right(new KbdLed(this, 0)),
-	led_fire(new KbdLed(this, 4)), btn_cancel(new QPushButton("Cancel", this)), btn_ok(new QPushButton("OK", this)),
+	btn_use_just_now(new QRadioButton("Use just now", this)),
+	led_up(new KbdLed(this, 3)),
+	led_down(new KbdLed(this, 2)),
+	led_left(new KbdLed(this, 1)),
+	led_right(new KbdLed(this, 0)),
+	led_fire(new KbdLed(this, 4)),
+	btn_cancel(new QPushButton("Cancel", this)),
+	btn_ok(new QPushButton("OK", this)),
 	old_matchpattern(nullptr)
 {
 	// Layout:
@@ -481,10 +487,8 @@ ConfigureKeyboardJoystickDialog::ConfigureKeyboardJoystickDialog(MachineControll
 
 	if (old_matchpattern == nullptr) // => der User hat bei diesem Snapshot schon mal explizit "just now" angewählt
 		btn_use_just_now->setChecked(true);
-	if (eq(old_matchpattern, "*"))
-		btn_default_for_all_files->setChecked(true);
-	else
-		btn_for_match_pattern->setChecked(true);
+	if (eq(old_matchpattern, "*")) btn_default_for_all_files->setChecked(true);
+	else btn_for_match_pattern->setChecked(true);
 
 	led_up->updateState();
 	led_down->updateState();

@@ -161,10 +161,8 @@ io_iterator_t newIteratorForMatchingServices(CFDictionaryRef matchingDict)
 	if (matchingDict == nullptr) return 0;
 	io_iterator_t iter;
 	kern_return_t err = IOServiceGetMatchingServices(kIOMasterPortDefault, matchingDict, &iter);
-	if (err)
-		return 0;
-	else
-		return iter;
+	if (err) return 0;
+	else return iter;
 }
 
 
@@ -422,16 +420,11 @@ void logValue(CFTypeRef value)
 {
 	CFTypeID tid = CFGetTypeID(value);
 
-	if (tid == type_string)
-		logString(value);
-	else if (tid == type_number)
-		logNumber(value);
-	else if (tid == type_array)
-		logArray(value);
-	else if (tid == type_dict)
-		logDict(value);
-	else
-		logline("todo");
+	if (tid == type_string) logString(value);
+	else if (tid == type_number) logNumber(value);
+	else if (tid == type_array) logArray(value);
+	else if (tid == type_dict) logDict(value);
+	else logline("todo");
 }
 
 
@@ -588,11 +581,8 @@ int testProlific2305pipe(MyUSBDeviceInterface** dev_if, MyUSBInterfaceInterface*
 	}
 
 	logline(
-		"Pipe %d: direction %s, transferType %s, maxPacketSize %d",
-		pipe_idx,
-		usb_pipe_direction_str(direction),
-		usp_pipe_transfertype_str(transferType),
-		maxPacketSize);
+		"Pipe %d: direction %s, transferType %s, maxPacketSize %d", pipe_idx, usb_pipe_direction_str(direction),
+		usp_pipe_transfertype_str(transferType), maxPacketSize);
 
 	err = (*if_if)->GetPipeStatus(if_if, pipe_idx);
 	if (err)
@@ -629,10 +619,8 @@ int testProlific2305pipe(MyUSBDeviceInterface** dev_if, MyUSBInterfaceInterface*
 		if (err) logline("printerGetPortStatus error: 0x%08X", uint(err));
 
 		err = (*if_if)->GetPipeStatus(if_if, pipe_idx);
-		if (err == kIOUSBPipeStalled)
-			logline("pipe status = Stalled");
-		else if (err)
-			logline("GetPipeStatus error: 0x%08X", uint(err));
+		if (err == kIOUSBPipeStalled) logline("pipe status = Stalled");
+		else if (err) logline("GetPipeStatus error: 0x%08X", uint(err));
 
 		logline("bulk write to pipe failed");
 		return -1;
@@ -1005,10 +993,8 @@ void printSomething(io_registry_entry_t interface)
 	{
 		// open interface:
 		err = (*if_if)->USBInterfaceOpen(if_if);
-		if (err)
-			return logline("USBDeviceOpen returned error 0x%08X", uint(err)); // OK
-		else
-			logline("Device OPEN");
+		if (err) return logline("USBDeviceOpen returned error 0x%08X", uint(err)); // OK
+		else logline("Device OPEN");
 
 		// Get the number of endpoints associated with this interface
 		uint8 interfaceNumEndpoints;
@@ -1018,8 +1004,7 @@ void printSomething(io_registry_entry_t interface)
 			logline("GetNumEndpoints returned error 0x%08X", uint(err));
 			goto x;
 		}
-		else
-			logline("interfaceNumEndpoints = %u", interfaceNumEndpoints);
+		else logline("interfaceNumEndpoints = %u", interfaceNumEndpoints);
 
 		// Access each pipe in turn, starting with the pipe at index 1
 		// The pipe at index 0 is the default control pipe and should be
@@ -1065,12 +1050,9 @@ void printSomething(io_registry_entry_t interface)
 			logline("transfer type %s, maxPacketSize %d", message, maxPacketSize);
 
 			err = (*if_if)->GetPipeStatus(if_if, pipeRef);
-			if (err == kIOReturnNoDevice)
-				logline("pipe status = No Device");
-			else if (err == kIOReturnNotOpen)
-				logline("pipe status = Not open");
-			else if (err == kIOUSBPipeStalled)
-				logline("pipe status = Stalled");
+			if (err == kIOReturnNoDevice) logline("pipe status = No Device");
+			else if (err == kIOReturnNotOpen) logline("pipe status = Not open");
+			else if (err == kIOUSBPipeStalled) logline("pipe status = Stalled");
 			else if (err != kIOReturnSuccess)
 			{
 				logline("GetPipeStatus returned error 0x%08X", uint(err));
@@ -1088,12 +1070,9 @@ void printSomething(io_registry_entry_t interface)
 				}
 
 				err = (*if_if)->GetPipeStatus(if_if, pipeRef);
-				if (err == kIOReturnNoDevice)
-					logline("pipe status = No Device");
-				else if (err == kIOReturnNotOpen)
-					logline("pipe status = Not open");
-				else if (err == kIOUSBPipeStalled)
-					logline("pipe status = Stalled");
+				if (err == kIOReturnNoDevice) logline("pipe status = No Device");
+				else if (err == kIOReturnNotOpen) logline("pipe status = Not open");
+				else if (err == kIOUSBPipeStalled) logline("pipe status = Stalled");
 				else if (err != kIOReturnSuccess)
 				{
 					logline("GetPipeStatus returned error 0x%08X", uint(err));
@@ -1111,8 +1090,7 @@ void printSomething(io_registry_entry_t interface)
 				logline("Unable to perform bulk write: 0x%08X", uint(err));
 
 				err = (*if_if)->GetPipeStatus(if_if, pipeRef);
-				if (err == kIOUSBPipeStalled)
-					logline("pipe status = Stalled");
+				if (err == kIOUSBPipeStalled) logline("pipe status = Stalled");
 				else if (err != kIOReturnSuccess)
 				{
 					logline("GetPipeStatus returned error 0x%08X", uint(err));
@@ -1127,10 +1105,8 @@ void printSomething(io_registry_entry_t interface)
 
 x:
 	err = (*if_if)->USBInterfaceClose(if_if);
-	if (err)
-		logline("USBDeviceClose returned error 0x%08X", uint(err)); // OK
-	else
-		logline("Device CLOSED");
+	if (err) logline("USBDeviceClose returned error 0x%08X", uint(err)); // OK
+	else logline("Device CLOSED");
 	(*if_if)->Release(if_if);
 }
 
@@ -1222,8 +1198,8 @@ cstr num_keys[] = {key_VendorID,		   key_ProductID,			key_DeviceClass,		 key_Dev
 				   key_AlternateSetting,   key_NumEndpoints,		key_InterfaceClass,		 key_InterfaceSubclass,
 				   key_InterfaceProtocoll, key_InterfaceStrIdx,		key_ConfigurationValue,	 key_1284DeviceID};
 
-cstr str_keys[] = {
-	key_USBProductName, key_USBVendorName, key_USBSerialNumber, key_CalloutDevice, key_TTYDeviceName, key_ProductName};
+cstr str_keys[] = {key_USBProductName, key_USBVendorName, key_USBSerialNumber,
+				   key_CalloutDevice,  key_TTYDeviceName, key_ProductName};
 
 
 void showUSBDevices()

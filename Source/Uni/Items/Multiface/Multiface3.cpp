@@ -94,7 +94,9 @@ static cstr o_addr = "----.----.--11.11-1";
 
 
 Multiface3::Multiface3(Machine* m) :
-	Multiface(m, isa_Multiface3, "Roms/mf3.rom", o_addr, i_addr), mf_enabled(), all_ram()
+	Multiface(m, isa_Multiface3, "Roms/mf3.rom", o_addr, i_addr),
+	mf_enabled(),
+	all_ram()
 {}
 
 

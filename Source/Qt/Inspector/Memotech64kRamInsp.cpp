@@ -36,12 +36,11 @@ Memotech64kRamInsp::Memotech64kRamInsp(QWidget* p, MachineController* mc, volati
 	jumper->setFocusPolicy(Qt::NoFocus);
 
 	jumper->insertItems(
-		0,
-		QStringList() << "1---:  all 64k Ram"
-					  << "-1--:  8-12k: Ram"
-					  << "--1-:  12-16k: Ram"
-					  << "-11-:  8-16k: Ram"
-					  << "---1:  8-16k: no Ram");
+		0, QStringList() << "1---:  all 64k Ram"
+						 << "-1--:  8-12k: Ram"
+						 << "--1-:  12-16k: Ram"
+						 << "-11-:  8-16k: Ram"
+						 << "---1:  8-16k: no Ram");
 
 	switch (memotech64kram()->getDipSwitches()) // settings.value(key_memotech64k_dip_switches,6/*0b0110*/).toInt())
 	{
