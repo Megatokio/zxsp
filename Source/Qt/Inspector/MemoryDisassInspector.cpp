@@ -1140,7 +1140,10 @@ void MemoryDisassInspector::keyPressEvent(QKeyEvent* e)
 			break;
 
 		case Qt::Key_Return: // enter opcode (if valid) and goto next line:
-		case Qt::Key_Enter: disass_edit_col = 0; assemble_and_store_opcode();
+		case Qt::Key_Enter:
+			disass_edit_col = 0;
+			assemble_and_store_opcode();
+			FALLTHROUGH
 		case Qt::Key_Down:
 			if (next_opcode(disass_edit_address) < data.baseaddress + data.size)
 				disass_edit_address = next_opcode(disass_edit_address);

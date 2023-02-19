@@ -43,7 +43,7 @@ class SP0256
 
 	// microsequencer registers:
 	uint mode; // 2 bit	from SETMODE
-	// uint 	repeat_prefix;	// 2 bit	from SETMODE	(already shifted left 4 bits)
+	// uint repeat_prefix;// 2 bit	from SETMODE	(already shifted left 4 bits)
 	uint page;			  // 4 bit	(already bit-swapped and shifted left 12 bits)
 	uint pc;			  // 16 bit
 	uint stack;			  // 16 bit single level return "stack"

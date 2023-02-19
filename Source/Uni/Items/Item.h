@@ -7,7 +7,6 @@
 #include "IsaObject.h"
 #include "kio/peekpoke.h"
 #include "zxsp_types.h"
-#include <QObject>
 
 extern uint16 bitsForSpec(cstr s);
 extern uint16 maskForSpec(cstr s);
@@ -44,13 +43,13 @@ protected:
 	void grow_ioinfo();
 	void record_ioinfo(int32 cc, uint16 addr, uint8 byte, uint8 mask = 0xff);
 
-	bool event(QEvent* e);
+	bool event(QEvent* e) override;
 
 
 	// ---------------- P U B L I C -------------------
 
 public:
-	virtual ~Item();
+	virtual ~Item() override;
 
 	Item*	 prev() const { return _prev; }
 	Item*	 next() const { return _next; }
@@ -78,10 +77,10 @@ public:
 	virtual void  videoFrameEnd(int32 cc);
 	virtual void  triggerNmi();
 
-	// Behandlung von daisy-chain bus-signalen
-	// Default: einfach durchleiten
-	//			dann werden auch ramdis und romdis nicht aktualisiert!
-	//			ein Item das romdis benutzt, muss logischerweise auch romCS() ersetzen.
+	// Handling of daisy chain bus signals
+	// Default: just forward the signal
+	//			in this case ramdis and romdis are not updated!
+	//			an Item that uses romdis must override romCS().
 	virtual void ramCS(bool active); // RAM_CS:  ZX80, ZX81
 	virtual void romCS(bool active); // ROM_CS:  ZX81, ZXSP, ZX128, +2; ROMCS1+ROMCS2: +2A, +3
 };

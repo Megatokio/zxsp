@@ -187,7 +187,7 @@ start:
 		byte += byte + (n > 13);
 		if (byte & 0x100)
 		{
-			data[zi++] = byte;
+			data[zi++] = uint8(byte);
 			byte	   = 1;
 		}
 		if (cc > cclooo_max) break; // looong pulse too too long => assume end
@@ -288,21 +288,21 @@ start:
 // saved data starts with a program name, 127 char max and last char | 0x80
 // saved progname in file is in ZX81 charset!
 //
-inline int zx81_progname_len(cu8ptr p, int n)
+inline uint zx81_progname_len(cu8ptr p, uint n)
 {
 	if (n > 127) n = 127;
-	for (int i = 0; i < n; i++)
+	for (uint i = 0; i < n; i++)
 	{
 		if (p[i] & 0x80) return i + 1;
 	}
 	return n;
 }
 
-static cstr zx81_progname_str(cu8ptr p, int n)
+static cstr zx81_progname_str(cu8ptr p, uint n)
 {
 	n	  = zx81_progname_len(p, n);
 	str s = tempstr(n);
-	for (int i = 0; i < n; i++) { s[i] = zx81_charset[p[i] & 0x3F]; }
+	for (uint i = 0; i < n; i++) { s[i] = zx81_charset[p[i] & 0x3F]; }
 	return s;
 }
 
@@ -325,10 +325,10 @@ cstr O80Data::calcMajorBlockInfo() const noexcept
  */
 cstr O80Data::calcMinorBlockInfo() const noexcept
 {
-	if (zx81 || zx80)
+	if (is_zx81 || is_zx80)
 	{
 		uint n = data.count();
-		if (zx81) n -= zx81_progname_len(data.getData(), data.count());
+		if (is_zx81) n -= zx81_progname_len(data.getData(), data.count());
 		return usingstr("%u bytes", n);
 	}
 	return nullptr;
@@ -348,7 +348,7 @@ CswBuffer::CswBuffer(const O80Data& o80data, uint32 ccps) : CswBuffer(ccps, 0, 6
 	writePulse(5.0, 0);
 
 	// data
-	double f	   = (double)::ccps / ccps;
+	double f	   = double(::ccps / ccps);
 	uint   zx81lo  = uint(::zx81lo * f + 0.5);
 	uint   zx81hi  = uint(::zx81hi * f + 0.5);
 	uint   zx81ooo = uint(::zx81ooo * f + 0.5);

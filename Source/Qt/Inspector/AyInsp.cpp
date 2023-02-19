@@ -101,7 +101,7 @@ void AyInsp::updateWidgets()
 		timer->stop();
 		return;
 	}
-	volatile Ay*		  ay   = this->ay();
+	const volatile Ay*	  ay   = this->ay();
 	uint8 const volatile* regs = ay->getRegisters();
 
 	if (value.clock != ay->getClock() && !clock->hasFocus())
@@ -125,18 +125,21 @@ void AyInsp::updateWidgets()
 		case 0:
 			if (!pitch_a->hasFocus()) value.regs[1] = regs[1];
 			i++;
+			FALLTHROUGH
 		case 1:
 			if (!pitch_a->hasFocus()) pitch_a->setText(tostr(value.regs[0] + 256 * value.regs[1]));
 			break;
 		case 2:
 			if (!pitch_b->hasFocus()) value.regs[3] = regs[3];
 			i++;
+			FALLTHROUGH
 		case 3:
 			if (!pitch_b->hasFocus()) pitch_b->setText(tostr(value.regs[2] + 256 * value.regs[3]));
 			break;
 		case 4:
 			if (!pitch_c->hasFocus()) value.regs[5] = regs[5];
 			i++;
+			FALLTHROUGH
 		case 5:
 			if (!pitch_c->hasFocus()) pitch_c->setText(tostr(value.regs[4] + 256 * value.regs[5]));
 			break;
@@ -158,6 +161,7 @@ void AyInsp::updateWidgets()
 		case 11:
 			if (!pitch_e->hasFocus()) value.regs[12] = regs[12];
 			i++;
+			FALLTHROUGH
 		case 12:
 			if (!pitch_e->hasFocus()) pitch_e->setText(tostr(value.regs[11] + 256u * value.regs[12]));
 			break;
@@ -184,24 +188,24 @@ QLineEdit* AyInsp::new_led(cstr s)
 	return e;
 }
 
-void AyInsp::set_register(uint r, uint n)
+void AyInsp::set_register(uint r, uint8 n)
 {
 	NVPtr<Ay>(ay())->setRegister(r, n);
 	value.regs[r] = n;
 }
 
-static int32 int_value_for_volume(cstr s)
+static uint8 int_value_for_volume(cstr s)
 {
 	if ((s[0] | 0x20) == 'e') return 16; // envelope
 	else return intValue(s) & 0x0f;
 }
 
-static int32 int_value_for_envelope_shape(cstr e)
+static uint8 int_value_for_envelope_shape(cstr e)
 {
 	//	Bestimme Hüllkurvennummer aus Buchstabengrafik
 	//	Signifikant sind die ersten beiden Buchstaben
 
-	int n = strlen(e);
+	size_t n = strlen(e);
 
 	if (n >= 4)
 	{
@@ -238,8 +242,8 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 	//	must only be called from AyInspector's QLineEdits
 
 	cstr text = led->text().toUtf8().data();
-	int	 n;
-	int	 r;
+	uint n;
+	uint r;
 
 	if (led == pitch_e)
 	{
@@ -247,31 +251,34 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 		r = 11;
 		goto pe;
 	}
+
 	if (led == pitch_b)
 	{
 		r = 2;
 		goto pa;
 	}
+
 	if (led == pitch_c)
 	{
 		r = 4;
 		goto pa;
 	}
+
 	if (led == pitch_a)
 	{
 		r = 0;
 	pa:
 		n = intValue(text) & 0x0fff;
 	pe:
-		set_register(r, n % 256);
+		set_register(r, uint8(n));
 		r++;
-		set_register(r, n / 256);
+		set_register(r, uint16(n) >> 8);
 		led->setText(tostr(n));
 	}
 
 	if (led == pitch_n)
 	{
-		n = intValue(text) & 0x001f;
+		uint8 n = intValue(text) & 0x001f;
 		set_register(6, n);
 		led->setText(tostr(n));
 	}
@@ -290,7 +297,7 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 	{
 		r = 8;
 	va:
-		n = int_value_for_volume(text);
+		uint8 n = int_value_for_volume(text);
 		set_register(r, n);
 		led->setText(n & 0x10 ? "Envelope" : tostr(n));
 	}
@@ -304,23 +311,23 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 	{
 		r = 14;
 	oa:
-		n = intValue(text) & 0x00ff;
+		uint8 n = intValue(text) & 0x00ff;
 		set_register(r, n);
 		led->setText(catstr("$", hexstr(uint(n), 2)));
 	}
 
 	if (led == shape_e)
 	{
-		n = int_value_for_envelope_shape(text);
+		uint8 n = int_value_for_envelope_shape(text);
 		set_register(13, n);
 		led->setText(es[n]);
 	}
 
 	if (led == mixer) // "ooabcABC"
 	{
-		uint n	  = ay()->getRegister(7) | 0x3F;
-		uint len  = strlen(text);
-		uint port = 0x40;
+		uint8 n	   = ay()->getRegister(7) | 0x3F;
+		int	  len  = int(strlen(text));
+		uint  port = 0x40;
 
 		//  scan text for ooabcABC
 		//  abc = enable noise on channel
@@ -334,17 +341,19 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 		for (int i = len - 1; i >= 0; i--)
 		{
 			char c = text[i];
-			if (c == 'A') n &= ~0x01; // '0' == enabled
-			if (c == 'B') n &= ~0x02;
-			if (c == 'C') n &= ~0x04;
-			if (c == 'a') n &= ~0x08;
-			if (c == 'b') n &= ~0x10;
-			if (c == 'c') n &= ~0x20;
+			if (c == 'A') n &= ~0x01u; // '0' == enabled
+			if (c == 'B') n &= ~0x02u;
+			if (c == 'C') n &= ~0x04u;
+			if (c == 'a') n &= ~0x08u;
+			if (c == 'b') n &= ~0x10u;
+			if (c == 'c') n &= ~0x20u;
+
 			if (c == 'i' || c == 'I')
 			{
 				n &= ~port;
 				port *= 2;
 			} // '0' == input
+
 			if (c == 'o' || c == 'O')
 			{
 				n |= port;
@@ -358,8 +367,8 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 
 	if (led == clock)
 	{
-		n = mhzValue(text);
-		if (n > 0) limit(1000000, n, 4000000);
+		Frequency n = mhzValue(text);
+		if (n > 0) limit(1000000.0, n, 4000000.0);
 		else n = ay()->getClock();
 		NVPtr<Ay>(ay())->setClock(n);
 		led->setText(MHzStr(n));

@@ -100,7 +100,11 @@ Application::Application(int argc, char* argv[]) : QApplication(argc, argv)
 	if (APPL_VERSION_BETA)
 	{
 		QFont font2("Arial", 32, QFont::DemiBold, true /*italic*/);
+#if QT_VERSION < 0x050b00
 		x += QFontMetrics(font1).width(APPL_VERSION_STR) + 5;
+#else
+		x += QFontMetrics(font1).horizontalAdvance(APPL_VERSION_STR) + 5;
+#endif
 		painter.setFont(font2);
 		painter.drawText(QPoint(x, y), "beta");
 	}

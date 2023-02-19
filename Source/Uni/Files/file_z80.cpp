@@ -421,6 +421,7 @@ void Machine::loadZ80_attach_joysticks(uint z80head_im)
 
 	case 3: // right (1st) IF2
 		idx = 1;
+		FALLTHROUGH
 	case 2: // left (2nd) IF2
 		j = JoyPtr(findIsaItem(isa_SinclairJoy));
 		if (!j) joystick = j = JoyPtr(addExternalItem(isa_ZxIf2));

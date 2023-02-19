@@ -13,10 +13,9 @@
 
 
 #define uspeech_rom "Roms/µspeech.rom"
-#define sp0256_rom                                                          \
-  "Roms/sp0256-al2.rom" // the bytes in the file are in reversed bit-order, \
-						// ie. the "Target" values are unreversed,          \
-						// all other opcodes and parameters are reversed
+#define sp0256_rom	"Roms/sp0256-al2.rom" // the bytes in the file are in reversed bit-order,
+										  // ie. the "Target" values are unreversed,
+										  // all other opcodes and parameters are reversed
 
 /*	uses memory mapped and no i/o ports, but /MREQ is not properly decoded:
 

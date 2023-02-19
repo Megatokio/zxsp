@@ -75,7 +75,7 @@ MemoryInspector::MemoryInspector(QWidget* p, MachineController* mc, volatile Isa
 
 	switch (data_source)
 	{
-	default: data_source = AsSeenByCpu;
+	default: data_source = AsSeenByCpu; FALLTHROUGH
 	case AsSeenByCpu: data.size = 64 kB; break;
 	case AllRom: data.size = machine->rom.count(); break;
 	case AllRam:
@@ -480,7 +480,7 @@ Page MemoryInspector::ramPage(int i)
 {
 	assert(i >= 0);
 
-	int32 ramsize = machine->ram.count();
+	uint32 ramsize = machine->ram.count();
 
 	if (machine->isA(isa_MachineJupiter)) // Jupiter: 3kB + n*16 kB
 	{
@@ -496,18 +496,18 @@ Page MemoryInspector::ramPage(int i)
 	else if (ramsize >= 64 kB) // paged memory
 	{
 		assert((ramsize & 0x3fff) == 0);
-		if (i < ramsize / 0x4000) return Page(i * 0x4000, i * 0x4000, 0x4000);
+		if (uint(i) < ramsize / 0x4000) return Page(i * 0x4000, i * 0x4000, 0x4000);
 	}
 
 	else if (ramsize >= 16 kB) // ≥ 16 kB: ZX Spectrum or ZX80 etc. with Ram Extension ≥ 16 kB
 	{
 		assert((ramsize & 0x3fff) == 0);
-		if (i < ramsize / 0x4000) return Page(0x4000 + i * 0x4000, i * 0x4000, 0x4000);
+		if (uint(i) < ramsize / 0x4000) return Page(0x4000 + i * 0x4000, i * 0x4000, 0x4000);
 	}
 
 	else // if(ramsize <= 4 kB)		// ZX80 etc. with ≤ 4kB ram: 1 page only
 	{
-		if (i == 0) return Page(0x4000, 0, ramsize);
+		if (i == 0) return Page(0x4000, 0, int(ramsize));
 	}
 
 	return Page();
@@ -520,21 +520,21 @@ Page MemoryInspector::romPage(int i)
 {
 	assert(i >= 0);
 
-	int32 romsize = machine->rom.count();
+	uint32 romsize = machine->rom.count();
 
 	if (romsize <= 16 kB)
 	{
-		if (i == 0) return Page(0, 0, romsize); // 1 page only
+		if (i == 0) return Page(0, 0, int(romsize)); // 1 page only
 	}
 	else if (romsize < 32 kB) // TC2068
 	{
 		if (i == 0) return Page(0, 0, 0x4000);
-		if (i == 1) return Page(0, 0x4000, romsize - 0x4000);
+		if (i == 1) return Page(0, 0x4000, int(romsize) - 0x4000);
 	}
 	else
 	{
 		assert((romsize & 0x3fff) == 0);
-		if (i < romsize / 0x4000) return Page(0, i * 0x4000, 0x4000);
+		if (uint(i) < romsize / 0x4000) return Page(0, i * 0x4000, 0x4000);
 	}
 
 	return Page();

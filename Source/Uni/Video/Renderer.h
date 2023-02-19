@@ -11,23 +11,23 @@
 using RgbaColor = uint32;					 // RGBA for OpenGL
 extern const RgbaColor zxsp_rgba_colors[16]; // RGBA in ZxspRenderer.cpp
 
-const RgbaColor black		   = 0x000000FF;
-const RgbaColor blue		   = 0x0000CCFF;
-const RgbaColor red			   = 0xCC0000FF;
-const RgbaColor magenta		   = 0xCC00CCFF;
-const RgbaColor green		   = 0x00CC00FF;
-const RgbaColor cyan		   = 0x00CCCCFF;
-const RgbaColor yellow		   = 0xCCCC00FF;
-const RgbaColor white		   = 0xCCCCCCFF;
-const RgbaColor bright_black   = 0x000000FF;
-const RgbaColor bright_blue	   = 0x0000FFFF;
-const RgbaColor bright_red	   = 0xFF0000FF;
-const RgbaColor bright_magenta = 0xFF00FFFF;
-const RgbaColor bright_green   = 0x00FF00FF;
-const RgbaColor bright_cyan	   = 0x00FFFFFF;
-const RgbaColor bright_yellow  = 0xFFFF00FF;
-const RgbaColor bright_white   = 0xFFFFFFFF;
-const RgbaColor grey		   = 0x808080FF;
+constexpr RgbaColor black		   = 0x000000FF;
+constexpr RgbaColor blue		   = 0x0000CCFF;
+constexpr RgbaColor red			   = 0xCC0000FF;
+constexpr RgbaColor magenta		   = 0xCC00CCFF;
+constexpr RgbaColor green		   = 0x00CC00FF;
+constexpr RgbaColor cyan		   = 0x00CCCCFF;
+constexpr RgbaColor yellow		   = 0xCCCC00FF;
+constexpr RgbaColor white		   = 0xCCCCCCFF;
+constexpr RgbaColor bright_black   = 0x000000FF;
+constexpr RgbaColor bright_blue	   = 0x0000FFFF;
+constexpr RgbaColor bright_red	   = 0xFF0000FF;
+constexpr RgbaColor bright_magenta = 0xFF00FFFF;
+constexpr RgbaColor bright_green   = 0x00FF00FF;
+constexpr RgbaColor bright_cyan	   = 0x00FFFFFF;
+constexpr RgbaColor bright_yellow  = 0xFFFF00FF;
+constexpr RgbaColor bright_white   = 0xFFFFFFFF;
+constexpr RgbaColor grey		   = 0x808080FF;
 
 
 // ===========================================================
@@ -54,7 +54,7 @@ public:
 		uint8*	   mono_octets;
 	};
 
-	~Renderer() { delete[] bits; }
+	~Renderer() override { delete[] bits; }
 };
 
 

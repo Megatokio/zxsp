@@ -275,7 +275,7 @@ QRect KeyboardInspector::keyRect(uint8 spec)
 	case inves:
 	case zx128:
 	case zx128_span:
-	case pentagon128: f = true;
+	case pentagon128: f = true; FALLTHROUGH
 	case zxplus2:
 	case zxplus2_span:
 	case zxplus2_frz:

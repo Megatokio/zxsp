@@ -60,7 +60,6 @@
 #include "Printer/PrinterPlus3.h"
 #include "Printer/PrinterTs2040.h"
 #include "Printer/ZxPrinter.h"
-#include "Qt/Settings.h"
 #include "Ram/Cheetah32kRam.h"
 #include "Ram/Jupiter16kRam.h"
 #include "Ram/Memotech64kRam.h"
@@ -1566,7 +1565,12 @@ void Machine::rzx_store_snapshot()
 void Machine::rzxOutOfSync(cstr msg, bool red)
 {
 	assert(rzx_file);
-	if (msg) (red ? showAlert : showWarning)(msg);
+
+	if (msg)
+	{
+		if (red) showAlert("%s", msg);
+		else showWarning("%s", msg);
+	}
 
 	rzx_file->setOutOfSync();
 	hide_overlay_play();
@@ -1628,7 +1632,11 @@ void Machine::rzxPlayFile(RzxFile* rzx)
 */
 void Machine::rzxStartRecording(cstr msg, bool yellow)
 {
-	if (msg) (yellow ? showWarning : showInfo)(msg);
+	if (msg)
+	{
+		if (yellow) showWarning("%s", msg);
+		else showInfo("%s", msg);
+	}
 
 	if (!rzx_file) rzx_file = new RzxFile(); // --> EndOfFile
 
@@ -1654,6 +1662,11 @@ void Machine::rzxStopRecording(cstr msg, bool yellow)
 {
 	assert(rzx_file);
 
-	if (msg) (yellow ? showWarning : showInfo)(msg);
+	if (msg)
+	{
+		if (yellow) showWarning("%s", msg);
+		else showInfo("%s", msg);
+	}
+
 	rzxOutOfSync(nullptr);
 }

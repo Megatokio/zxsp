@@ -899,9 +899,9 @@ void SmartSDCard::writeMemory(Time t, int32 cc, uint16 addr, uint8 byte)
 	case flash_writing:
 		if (cc < cc_flash_write_end) return; // ignored
 		finish_flash_write();
-		// goto fw_nothing
+	FALLTHROUGH // goto fw_nothing
 
-	case flash_idle: // expect 1st byte: write($5555),$AA
+		case flash_idle: // expect 1st byte: write($5555),$AA
 		if (byte == 0xF0)
 		{
 			flash_software_id_mode = no;

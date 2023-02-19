@@ -7,11 +7,14 @@
 
 namespace os
 {
+
 void startCoreAudio(bool input_enabled)
 {
+	(void)input_enabled;
 	debugstr("startCoreAudio\n");
 	TODO();
 }
+
 void stopCoreAudio() { debugstr("stopCoreAudio\n"); }
 } // namespace os
 

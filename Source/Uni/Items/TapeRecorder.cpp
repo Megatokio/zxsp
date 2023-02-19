@@ -7,12 +7,9 @@
 #include "Audio/TapeFileDataBlock.h"
 #include "DspTime.h"
 #include "Machine.h"
-#include "Qt/Settings.h"
+#include "RecentFilesMenu.h"
 #include "ZxInfo.h"
 #include "cpp/cppthreads.h"
-#include <QSettings>
-// #include <Templates/SharedArray.h>
-#include "RecentFilesMenu.h"
 #include "globals.h"
 #include "unix/files.h"
 #include <Templates/Array.h>

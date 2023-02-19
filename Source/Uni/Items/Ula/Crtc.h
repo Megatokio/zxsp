@@ -28,7 +28,7 @@ protected:
 	bool  is60hz;
 
 public:
-	uint8		 getBorderColor() { return border_color; }
+	uint8		 getBorderColor() const volatile { return border_color; }
 	virtual void setBorderColor(uint8) {}
 	CoreByte*	 getVideoRam() { return video_ram; }
 

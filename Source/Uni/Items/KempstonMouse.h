@@ -16,7 +16,7 @@ class KempstonMouse : public Item
 
 public:
 	explicit KempstonMouse(Machine*);
-	~KempstonMouse();
+	~KempstonMouse() override;
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
@@ -42,7 +42,7 @@ public:
 			mouse.dx -= dx;
 			x += dx;
 		}
-		return x / scale;
+		return uint8(x / scale);
 	}
 
 	uint8 getYPos()
@@ -53,14 +53,13 @@ public:
 			mouse.dy -= dy;
 			y += dy;
 		}
-		return y / scale;
+		return uint8(y / scale);
 	}
 
 	uint8 getButtons()
 	{
 		return mouse.isGrabbed() && machine == front_machine ?
-				   0xff - (mouse.getLeftButton() << 1) - mouse.getRightButton() // 2-button version
-				   :
+				   0xff - (mouse.getLeftButton() * 2) - mouse.getRightButton() : // 2-button version
 				   0xff;
 	}
 };

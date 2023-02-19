@@ -33,7 +33,7 @@ namespace gui
 
 static QFont ff("Monaco" /*"Andale Mono"*/, 12);
 
-static QLineEdit* new_led(cstr s, uint width)
+static QLineEdit* new_led(cstr s, int width)
 {
 	QLineEdit* e = new QLineEdit(s);
 	e->setAlignment(Qt::AlignHCenter);
@@ -48,8 +48,8 @@ static QLineEdit* new_led(cstr s, uint width)
 UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Machine* m) :
 	Inspector(w, mc, m->ula, "/Backgrounds/light-150-s.jpg")
 {
-	uint width	= 300;
-	uint height = 230;
+	int width  = 300;
+	int height = 230;
 
 	mmu = m->mmu;
 	assert(mmu->isA(isa_Mmu));
@@ -163,7 +163,7 @@ UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Machine* m) :
 
 	// The ULA Byte: Border, Era & Mic:
 
-	values.border_color = -1;
+	values.border_color = 0xff;
 	inputs.border_color = new_led("", l60);
 	values.mic_bit		= 0;
 	inputs.mic_bit		= new_led("0", r20);
@@ -294,15 +294,17 @@ void UlaInsp::updateWidgets()
 		timer->stop();
 		return;
 	}
+
 	if (!mmu)
 	{
 		timer->stop();
 		return;
 	}
 
-	volatile Ula* ula = this->ula();
-	bool		  f;
-	uint		  i;
+	const volatile Ula* ula = this->ula();
+
+	bool f;
+	uint i;
 
 	if (inputs.port_1ffd != nullptr)
 	{
@@ -312,7 +314,7 @@ void UlaInsp::updateWidgets()
 			inputs.port_1ffd->setText(catstr("$", hexstr(values.port_1ffd, 2)));
 		}
 
-		volatile MmuPlus3* mmu = MmuPlus3Ptr(this->mmu);
+		const volatile MmuPlus3* mmu = MmuPlus3Ptr(this->mmu);
 
 		if (inputs.checkbox_ram_only->isChecked() != (f = mmu->isRamOnlyMode()))
 		{
@@ -339,7 +341,7 @@ void UlaInsp::updateWidgets()
 			inputs.port_7ffd->setText(catstr("$", hexstr(values.port_7ffd, 2)));
 		}
 
-		volatile Mmu128k* mmu = Mmu128kPtr(this->mmu);
+		const volatile Mmu128k* mmu = Mmu128kPtr(this->mmu);
 
 		if (values.page_c000 != (i = mmu->getPageC000()))
 		{
@@ -372,13 +374,13 @@ void UlaInsp::updateWidgets()
 		}
 	}
 
-	// if cpu_clock changes then update:
-	// cpu_clock, ula_clock, cpu_clock_predivider and cpu_clock_overdrive
-	//
-	if (values.cpu_clock != machine->cpu_clock)
+	if (uint(values.cpu_clock) != uint(machine->cpu_clock))
 	{
-		uint32	cpu_clock = values.cpu_clock = machine->cpu_clock;
-		float64 overdrive					 = (float64)cpu_clock / machine->model_info->cpu_cycles_per_second;
+		// if cpu_clock changes then update:
+		// cpu_clock, ula_clock, cpu_clock_predivider and cpu_clock_overdrive
+
+		uint32	cpu_clock = values.cpu_clock = uint32(machine->cpu_clock);
+		float64 overdrive					 = float64(cpu_clock) / machine->model_info->cpu_cycles_per_second;
 
 		uint32 predivider = machine->model_info->cpuClockPredivider();
 		for (uint o = uint(overdrive + 0.2); o > 1; o >>= 1)
@@ -467,8 +469,7 @@ void UlaInsp::updateWidgets()
 
 	if (ula->isA(isa_UlaZxsp))
 	{
-		UlaZxsp* zxula = (UlaZxsp*)ula;
-
+		const volatile UlaZxsp* zxula = UlaZxspPtr(ula);
 
 		if (zxula->hasWaitmap())
 		{
@@ -476,7 +477,7 @@ void UlaInsp::updateWidgets()
 			{
 				inputs.checkbox_enable_cpu_waitcycles->setChecked(zxula->hasWaitmap());
 			}
-			if (values.waitmap_offset != uint(zxula->getWaitmapStart()) - zxula->getScreenStart())
+			if (values.waitmap_offset != zxula->getWaitmapStart() - zxula->getScreenStart())
 			{
 				values.waitmap_offset = zxula->getWaitmapStart() - zxula->getScreenStart();
 				inputs.waitmap_offset->setText(tostr(int(values.waitmap_offset)));

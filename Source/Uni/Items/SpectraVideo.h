@@ -7,7 +7,6 @@
 #include "Memory.h"
 #include "Ula/Crtc.h"
 #include "unix/files.h"
-#include <QObject>
 
 
 class SpectraVideo : public Crtc
@@ -30,14 +29,13 @@ public:
 	bool				  if1_rom_hooks_enabled; // ROM
 	MemoryPtr			  rom;
 	cstr				  filepath;
-	// bool		romdis_in;				// rear-side input state		--> Item
+	// bool romdis_in;	   // rear-side input state --> Item
 	bool own_romdis_state; // own state
 
 	// CRTC:
 	int32  current_frame; // counter, used for flash phase
 	int32  ccx;			  // next cc for reading from video ram
 	uint8* attr_pixel;	  // screen attribute and pixel triples
-	// uint		bytes_per_octet;		// triples = 3
 
 	// IoInfo*	ioinfo;					--> Item
 	// uint		ioinfo_count;			""
@@ -45,10 +43,9 @@ public:
 	uint8*	alt_attr_pixel; // alternate data set
 	uint	alt_ioinfo_size;
 	IoInfo* alt_ioinfo;
-	// ScreenZxsp* screen;
-	int cc_per_side_border; // cc_per_line - 32 * cc_per_byte
-	int cc_frame_end;		// lines_per_frame * cc_per_line
-	int cc_screen_start;	// lines_before_screen*cc_per_line
+	int		cc_per_side_border; // cc_per_line - 32 * cc_per_byte
+	int		cc_frame_end;		// lines_per_frame * cc_per_line
+	int		cc_screen_start;	// lines_before_screen*cc_per_line
 
 private:
 	void activate_hooks();

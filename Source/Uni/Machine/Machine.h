@@ -89,16 +89,14 @@ public:
 	double total_realtime; // information: accumulated time[sec] until now
 
 	Frequency cpu_clock; // cpu T cycles per second: cpu speed and conversion cc <-> time
-	// int32			cpu->cc;			// now[cc] = total_cc + cpu->cc
-	double tcc0; // realtime t (biased to total_realtime) at current frame start (cc=0)
+	double	  tcc0;		 // realtime t (biased to total_realtime) at current frame start (cc=0)
 
-	uint  beam_cnt; // für drawVideoBeamIndicator()
+	uint  beam_cnt; // for drawVideoBeamIndicator()
 	int32 beam_cc;	// ""
 
 protected:
-	Time t_for_cc(int32 cc) { return tcc0 + cc / cpu_clock; }
-	Time t_for_cc_lim(int32 cc) { return min(t_for_cc(cc), seconds_per_dsp_buffer_max()); }
-	// int32			cc					()				{ return cpu->cpuCycle(); }
+	Time   t_for_cc(int32 cc) { return tcc0 + cc / cpu_clock; }
+	Time   t_for_cc_lim(int32 cc) { return min(t_for_cc(cc), seconds_per_dsp_buffer_max()); }
 	double cc_for_t(Time t) { return (t - tcc0) * cpu_clock; }
 	int32  cc_dn_for_t(Time t) { return int32(floor(cc_for_t(t))); }
 	int32  cc_up_for_t(Time t) { return int32(ceil(cc_for_t(t))); }
@@ -148,8 +146,7 @@ private:
 	virtual void saveO80(FD& fd);			// MachineZx80.cpp
 	virtual void loadP81(FD& fd, bool p81); // MachineZx81.cpp
 	virtual void saveP81(FD& fd, bool p81); // MachineZx81.cpp
-
-	// virtual void		loadTap			(FD& fd);						// MachineZxsp.cpp
+	// virtual void loadTap(FD& fd);		// MachineZxsp.cpp
 
 	void loadZ80(FD& fd); // file_z80.cpp
 	void saveZ80(FD& fd); // file_z80.cpp
@@ -175,7 +172,7 @@ public:
 		{
 			if (i->isaId() == id) return i;
 		}
-		return 0;
+		return nullptr;
 	}
 	Item* findIsaItem(isa_id id)
 	{
@@ -183,16 +180,15 @@ public:
 		{
 			if (i->isA(id)) return i;
 		}
-		return 0;
+		return nullptr;
 	}
-	// Item const* findIsaItem		(isa_id id) const {return const_cast<Machine*>(this)->findIsaItem(id); }
 	Item* findInternalItem(isa_id id)
 	{
 		for (Item* i = firstItem(); i; i = i->next())
 		{
 			if (i->isA(id) && i->isInternal()) return i;
 		}
-		return 0;
+		return nullptr;
 	}
 	Item*		  lastItem() volatile { return lastitem; }
 	Item*		  firstItem() { return cpu; }

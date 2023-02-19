@@ -32,7 +32,7 @@ protected:
 
 private:
 	QLineEdit* new_led(cstr);
-	void	   set_register(uint, uint);
+	void	   set_register(uint, uint8);
 	void	   handle_return_in_led(QLineEdit*);
 };
 

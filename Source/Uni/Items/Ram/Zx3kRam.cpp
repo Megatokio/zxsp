@@ -6,9 +6,6 @@
 #include "Items/Ula/Mmu.h"
 #include "Machine.h"
 #include "Memory.h"
-#include "Qt/Settings.h"
-#include <QSettings>
-#include <QVariant>
 
 
 // Sinclair ZX 1-3K RAM Memory Extension

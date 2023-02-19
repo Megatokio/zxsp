@@ -13,5 +13,5 @@ protected:
 	MassStorage(Machine* m, isa_id id, Internal internal, cstr o_addr, cstr i_addr);
 
 public:
-	~MassStorage();
+	~MassStorage() override;
 };

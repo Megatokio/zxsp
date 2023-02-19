@@ -24,7 +24,7 @@ void MmuZx80::mapMem()
 	bool   is_zx81		= ula->isA(isa_UlaZx81);
 	uint8* waitmap		= is_zx81 ? UlaZx81Ptr(ula)->getWaitmap() : nullptr;
 	uint16 waitmap_size = is_zx81 ? UlaZx81Ptr(ula)->waitmap_size : 0;
-	uint32 option		= is_zx81 ? cpu_waitmap : 0; // cpu options without cpu_crtc_zx81
+	uint32 option		= is_zx81 ? cpu_waitmap : cpu_options_none; // cpu options without cpu_crtc_zx81
 
 	// unmap all memory and set waitmap for ZX81:
 	cpu->unmapRom(0, 0, waitmap, waitmap_size);

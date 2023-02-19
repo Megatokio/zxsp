@@ -1036,8 +1036,7 @@ MachineController::MachineController(QString filepath) // ---- C O N S T R U C T
 	if (zoom)
 	{
 		if (zoom < 0 || zoom > 4) zoom = 2;
-		QRect main_screen = QApplication::desktop()->availableGeometry(-1 /*MainScreen*/);
-		// QRect main_screen = QApplication::primaryScreen()->availableGeometry();
+		QRect main_screen = QApplication::primaryScreen()->availableGeometry();
 		QRect r(settings.value(catstr(key_mainwindow_position, tostr(zoom)), QRect()).toRect());
 
 		if (!r.topLeft().isNull() && !r.size().isEmpty())

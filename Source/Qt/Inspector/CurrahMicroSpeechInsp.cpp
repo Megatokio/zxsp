@@ -199,8 +199,15 @@ CurrahMicroSpeechInsp::CurrahMicroSpeechInsp(QWidget* parent, MachineController*
 		QPainter painter(this);
 		painter.setFont(scrollfont);
 		QFontMetrics m = painter.fontMetrics();
-		for (uint i = 0; i < 128; i++) { widths[i] = spacing + m.width(names[i]); }
-		for (uint i = 128; i < 256; i++) { widths[i] = i - 128; }
+		for (uint i = 0; i < 128; i++)
+		{
+#if QT_VERSION < 0x050b00
+			widths[i] = spacing + uint8(m.width(names[i]));
+#else
+			widths[i] = spacing + uint8(m.horizontalAdvance(names[i]));
+#endif
+		}
+		for (uint i = 128; i < 256; i++) { widths[i] = uint8(i - 128); }
 		initialized = yes;
 	}
 

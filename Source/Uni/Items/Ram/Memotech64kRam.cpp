@@ -8,10 +8,7 @@
 #include "Items/Ula/UlaZx81.h"
 #include "Machine.h"
 #include "Memory.h"
-#include "Qt/Settings.h"
 #include "Z80/Z80.h"
-#include <QSettings>
-#include <QVariant>
 
 
 /*  To set top of RAM at 64K type:

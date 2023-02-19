@@ -176,18 +176,33 @@ void Z80Head::write(FD& fd)
 */
 void Z80Head::setZxspModel(Model zxmodel, bool if1, bool mgt)
 {
+	// clang-format off
+	
 	switch (zxmodel)
 	{
-	case zxsp_i1: rldiremu |= 0x80; // 16K
-	case zxsp_i2: im |= 4;			// issue2
+	case zxsp_i1:
+		rldiremu |= 0x80; // 16K
+		FALLTHROUGH
+
+	case zxsp_i2:
+		im |= 4; // issue2
+		FALLTHROUGH
+
 	case zxsp_i3:
-		if (0) case zxplus:
-			rldiremu |= 0x20; // plus
+		if (0) 
+
+	case zxplus:
+		rldiremu |= 0x20; // plus
 		model = if1 ? 1 : mgt ? 3 : 0;
 		break;
 
-	case zxplus2: rldiremu |= 0x80; // +2
-	case zx128: model = if1 ? 5 : mgt ? 6 : 4; break;
+	case zxplus2:
+		rldiremu |= 0x80; // +2
+		FALLTHROUGH
+				
+	case zx128: 
+		model = if1 ? 5 : mgt ? 6 : 4; 
+		break;
 
 	case tk85: model = 76; break;	// 60 Hz
 	case ts1000: model = 77; break; // 60 Hz
@@ -195,6 +210,7 @@ void Z80Head::setZxspModel(Model zxmodel, bool if1, bool mgt)
 	case zx80: model = 80; break;
 	case zx81: model = 81; break;
 	case jupiter: model = 83; break;
+		
 	case zxplus_span:
 	case inves: model = 84; break;
 
@@ -210,6 +226,7 @@ void Z80Head::setZxspModel(Model zxmodel, bool if1, bool mgt)
 		model = 7;
 		rldiremu |= 0x80;
 		break;
+		
 	case zxplus2a_span: model = 90; break;
 
 	case tc2048: model = 14; break;
@@ -224,6 +241,8 @@ void Z80Head::setZxspModel(Model zxmodel, bool if1, bool mgt)
 
 	default: TODO();
 	}
+
+	// clang-format on
 }
 
 /*  get zxsp-style model id from header data

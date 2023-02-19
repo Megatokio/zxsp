@@ -7,7 +7,7 @@
 #include "kio/kio.h"
 #include "kio/peekpoke.h"
 
-extern void throw_zlib_error(int err) noexcept(false); // data_error
+extern void throw_zlib_error(int err);
 
 
 // Input Recording Block (IRB), ID=0x80

@@ -279,7 +279,7 @@ void TccRom::saveAs(cstr filepath)
 		addRecentFile(gui::RecentTccRoms, filepath);
 		addRecentFile(gui::RecentFiles, filepath);
 	}
-	catch (FileError e)
+	catch (FileError& e)
 	{
 		showAlert("Writing to file \"%s\" failed:\n%s", filename_from_path(filepath), e.what());
 	}

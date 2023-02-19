@@ -207,12 +207,14 @@ void TccDockInspector::fillContextMenu(QMenu* menu)
 	case RomEjected:
 		menu->addAction("Remove cartridge", this, &TccDockInspector::remove_cartridge);
 		menu->addAction("Insert again", this, &TccDockInspector::insert_again);
+		FALLTHROUGH
 
 	case NoCartridge:
-		menu->addAction("Insert cartridge …", [=] { insert_cartridge(); });
+		menu->addAction("Insert cartridge …", [=]() { insert_cartridge(); });
 		menu->addAction("Recent cartridges …")->setMenu(new RecentFilesMenu(RecentTccRoms, this, [=](cstr fpath) {
 			insert_cartridge(fpath);
 		}));
+		break;
 
 	case Invalid: break;
 	}

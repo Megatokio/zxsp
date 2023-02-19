@@ -79,7 +79,7 @@ private:
 		rewinding
 	} state;			 // << > >> state	access must be locked (except for unreliable read access)
 	bool record_is_down; // record button	access must be locked (except for unreliable read access)
-	bool pause_is_down;	 // pause button		access must be locked (except for unreliable read access)
+	bool pause_is_down;	 // pause button	access must be locked (except for unreliable read access)
 	Time stop_position;	 // wind / rewind	access must be locked
 
 	// tape file:

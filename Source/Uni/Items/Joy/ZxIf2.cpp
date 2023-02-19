@@ -4,7 +4,6 @@
 
 #include "ZxIf2.h"
 #include "Machine.h"
-#include "Qt/Settings.h"
 #include "RecentFilesMenu.h"
 #include "Z80/Z80.h"
 #include "globals.h"

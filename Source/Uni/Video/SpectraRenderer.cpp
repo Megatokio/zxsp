@@ -359,7 +359,7 @@ void SpectraGifWriter::drawScreen(
 	{
 		if (io->cc > cc_start_of_visible_screen)
 		{
-			uint32 cc = min(cc_end_of_visible_screen, io->cc + 3 & ~3) - cc_start_of_visible_screen;
+			uint32 cc = min(cc_end_of_visible_screen, (io->cc + 3) & ~3) - cc_start_of_visible_screen;
 
 			uint end_row = cc / cc_per_scanline;
 			uint end_col = min(uint(width), cc % cc_per_scanline * pixel_per_cc);

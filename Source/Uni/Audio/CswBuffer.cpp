@@ -741,7 +741,7 @@ void CswBuffer::addToAudioBuffer(
 	StereoSample* ss, uint count, double sps, double& zpos, uint32& qpos, double& qoffs, Sample volume)
 {
 	assert(zpos >= 0 && zpos <= count);
-	assert(qpos >= 0 && qpos <= end);
+	assert(qpos <= end);
 	assert(qoffs >= 0 && qoffs <= (qpos < end ? data[qpos] : 0));
 
 	if (qpos >= end) return;
@@ -764,12 +764,12 @@ void CswBuffer::addToAudioBuffer(
 		uint a = uint(ss_a);
 		uint e = uint(ss_e);
 
-		if (a == e) { ss[e] += (ss_e - ss_a) * volume; }
+		if (a == e) { ss[e] += Sample(ss_e - ss_a) * volume; }
 		else
 		{
-			ss[a] += volume * (a + 1 - ss_a);
+			ss[a] += volume * Sample(a + 1 - ss_a);
 			while (++a < e) ss[a] += volume;
-			if (e < count) ss[e] += volume * (ss_e - e);
+			if (e < count) ss[e] += volume * Sample(ss_e - e);
 		}
 
 		if (qoffs) break;		  // --> qpos=current_pulse < end, qoffs=cc_offset_inside_current_pulse, ss_e=count

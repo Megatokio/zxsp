@@ -2167,6 +2167,7 @@ void TzxData::writeFile(cstr fpath, TapeFile& tapeblocks, TzxConversionStyle sty
 
 		case TzxConversionDefault:
 			if (tzxdata) break;
+			FALLTHROUGH
 
 		case TzxConversionIdealize:
 			tzxdata = (tapdata = block->getTapData()) && tapdata->trust_level >= conversion_success ?

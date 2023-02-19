@@ -89,11 +89,11 @@ public:
 	int32 cpuCycleOfIrptEnd() override { return 32; }
 	int32 getCpuCyclesPerFrame() { return cc_frame_end; }
 	int32 getOctetsPerFrame() { return cc_frame_end / cc_per_byte; }
-	int32 getScreenStart() { return cc_screen_start; }
-	int32 getWaitmapStart() { return cc_waitmap_start; }
+	int32 getScreenStart() const volatile { return cc_screen_start; }
+	int32 getWaitmapStart() const volatile { return cc_waitmap_start; }
 	int32 getWaitmapEnd() { return cc_waitmap_end; }
-	int	  getEarOutState() { return ula_out_byte & 0x10; }
-	int	  getMicOutState() { return ula_out_byte & 0x08; }
+	uint8 getEarOutState() const volatile { return ula_out_byte & 0x10; }
+	uint8 getMicOutState() const volatile { return ula_out_byte & 0x08; }
 
 	// CRTC:
 	cuint8* getWaitmap() { return waitmap; }

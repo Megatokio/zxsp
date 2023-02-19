@@ -462,7 +462,7 @@ bool IdeDevice::sector_id_is_valid()
 	else
 	{
 		return sector_number && sector_number <= num_sectors && // note: sector ids start at 1
-			   (cylinder_low + 256 * cylinder_high) < num_cylinders && (drive_head & 0x0f) < num_heads;
+			   uint(cylinder_low + 256 * cylinder_high) < num_cylinders && (drive_head & 0x0f) < num_heads;
 	}
 }
 
