@@ -114,7 +114,8 @@ private:
 	void	 addMemotech64kRam(bool);
 	void	 addDivIDE(bool);
 	void	 addZx3kRam(bool);
-	void	 add_spectra_video(bool);
+	void	 addMultiface1(bool);
+	void	 addSpectraVideo(bool);
 	void	 set_rzx_recording(bool);
 	void	 set_rzx_autostart_recording(bool);
 	void	 set_rzx_append_snapshots(bool);

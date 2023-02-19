@@ -635,11 +635,11 @@ Item* Machine::addExternalItem(isa_id id)
 	case isa_FullerBox: i = new FullerBox(this); break;
 	case isa_GrafPad: i = new GrafPad(this); break;
 	case isa_IcTester: i = new IcTester(this); break;
-	case isa_Multiface1: i = new Multiface1(this); break;
 	case isa_Multiface128: i = new Multiface128(this); break;
 	case isa_Multiface3: i = new Multiface3(this); break;
 	case isa_CurrahMicroSpeech: i = new CurrahMicroSpeech(this); break;
 
+	case isa_Multiface1:
 	case isa_SpectraVideo:
 	case isa_DivIDE:
 	case isa_Cheetah32kRam:
@@ -656,6 +656,20 @@ Item* Machine::addExternalItem(isa_id id)
 
 	if (isPowerOn()) i->powerOn(cpu->cpuCycle());
 	return i;
+}
+
+Multiface1* Machine::addMultiface1(bool joystick_enabled)
+{
+	assert(isMainThread());
+	assert(is_locked());
+
+	Item* item = findItem(isa_Multiface1);
+	if (!item)
+	{
+		item = new Multiface1(this, joystick_enabled);
+		if (isPowerOn()) item->powerOn(cpu->cpuCycle());
+	}
+	return Multiface1Ptr(item);
 }
 
 ExternalRam* Machine::addExternalRam(isa_id id, uint options)
@@ -694,35 +708,42 @@ DivIDE* Machine::addDivIDE(uint ramsize, cstr romfile)
 		return new DivIDE(this, ramsize, romfile);
 }
 
-SpectraVideo* Machine::addSpectraVideo(bool f)
+void Machine::removeSpectraVideo()
 {
-	// Add or remove SpectraVideo interface
-	// Spectra is set as crtc in the CPU
-
 	assert(isMainThread());
 	assert(is_locked());
 	assert(isA(isa_MachineZxsp));
-	assert(f == !findItem(isa_SpectraVideo));
 
-	if (f) // attach
-	{
-		crtc->attachToScreen(nullptr);
-		crtc = new SpectraVideo(this);
-		crtc->attachToScreen(controller->getScreen());
-		cpu->setCrtc(crtc);
-		Z80::c2c(ula->getVideoRam(), crtc->getVideoRam(), 0x4000);
-		crtc->setBorderColor(ula->getBorderColor());
-		if (isPowerOn()) crtc->powerOn(cpu->cpuCycle());
-		return SpectraVideoPtr(crtc);
-	}
-	else // remove
+	if (crtc->isaId() == isa_SpectraVideo)
 	{
 		if (crtc != ula) removeItem(crtc);
 		crtc = ula;
 		crtc->attachToScreen(controller->getScreen());
 		cpu->setCrtc(crtc);
-		return nullptr;
+		if (isPowerOn()) crtc->powerOn(cpu->cpuCycle());
 	}
+}
+
+SpectraVideo* Machine::addSpectraVideo(uint dip_switches)
+{
+	// Add SpectraVideo interface
+	// Spectra is set as crtc in the CPU
+
+	assert(isMainThread());
+	assert(is_locked());
+	assert(isA(isa_MachineZxsp));
+
+	if (crtc->isaId() != isa_SpectraVideo)
+	{
+		crtc->attachToScreen(nullptr);
+		crtc = new SpectraVideo(this, dip_switches);
+		crtc->attachToScreen(controller->getScreen());
+		cpu->setCrtc(crtc);
+		Z80::c2c(ula->getVideoRam(), crtc->getVideoRam(), 0x4000);
+		crtc->setBorderColor(ula->getBorderColor());
+		if (isPowerOn()) crtc->powerOn(cpu->cpuCycle());
+	}
+	return SpectraVideoPtr(crtc);
 }
 
 

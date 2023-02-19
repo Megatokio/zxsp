@@ -119,32 +119,31 @@ SpectraVideoInspector::~SpectraVideoInspector() {}
 
 void SpectraVideoInspector::enable_if1_rom_hooks(bool f)
 {
-	//	checkbox_if1_rom_hooks->setChecked(f);
 	NVPtr<SpectraVideo>(spectra())->setIF1RomHooksEnabled(f);
+	settings.setValue(key_spectra_enable_if1_rom_hooks, f);
 }
 
 void SpectraVideoInspector::enable_rs232(bool f)
 {
-	//	checkbox_rs232->setChecked(f);
 	NVPtr<SpectraVideo>(spectra())->setRS232Enabled(f);
+	settings.setValue(key_spectra_enable_rs232, f);
 }
 
 void SpectraVideoInspector::enable_new_displaymodes(bool f)
 {
-	//	checkbox_new_video_modes->setChecked(f);
 	NVPtr<SpectraVideo>(spectra())->enableNewVideoModes(f);
+	settings.setValue(key_spectra_enable_new_video_modes, f);
 }
 
 void SpectraVideoInspector::enable_joystick(bool f)
 {
-	//	checkbox_joystick->setChecked(f);
 	NVPtr<SpectraVideo>(spectra())->setJoystickEnabled(f);
 	//	js_selector->setEnabled(f);
 	//	js_display->setEnabled(f);
 	//	button_set_keys->setEnabled(f);
 	//	button_scan_usb->setEnabled(f);
+	settings.setValue(key_spectra_enable_joystick, f);
 }
-
 
 void SpectraVideoInspector::find_usb_joysticks()
 {

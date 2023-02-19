@@ -483,7 +483,7 @@ void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 		{
 			xlogline("$c000 bytes uncompressed");
 			read_uncompressed_page(fd, &ram[0], 0xc000);
-		};
+		}
 		return;
 	}
 
@@ -496,7 +496,7 @@ void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 	// attach SPECTRA which has a Kempston joystick port:
 	bool spectra_used	  = head.isVersion300() && (head.rldiremu & 0x08) && isA(isa_MachineZxsp); // else not supported
 	SpectraVideo* spectra = findSpectraVideo();
-	if (spectra_used && !spectra) spectra = addSpectraVideo();
+	if (spectra_used && !spectra) spectra = addSpectraVideo(0); // configured later
 
 	// attach joysticks:
 	if (ismainthread) loadZ80_attach_joysticks(head.im);

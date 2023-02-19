@@ -401,7 +401,11 @@ void MachineController::loadSnapshot(cstr filename)
 					if (machine->model_info->canAttachZxIf2())
 						zxif2 = ZxIf2Ptr(machine->addExternalItem(isa_ZxIf2));
 					else if (machine->model_info->canAttachSpectraVideo())
-						spectra = machine->addSpectraVideo();
+					{
+						action_addSpectraVideo->setChecked(true);
+						spectra = machine->findSpectraVideo();
+						assert(spectra);
+					}
 				}
 
 				if (zxif2) // if attached, use Interface 2
@@ -752,8 +756,8 @@ void MachineController::create_actions()
 	action_addPrinterLprint3 =
 		new_action("printer.gif", "LPrintIII printer interface", NOKEY, ADDITEM(isa_PrinterLprint3));
 	action_addPrinterTs2040 = new_action("printer.gif", "TS2040 printer", NOKEY, ADDITEM(isa_PrinterTs2040));
-	action_addMultiface1 =
-		new_action("nmi_button.gif", "Romantic Robots Multiface ONE", NOKEY, ADDITEM(isa_Multiface1));
+	action_addMultiface1	= new_action(
+		   "nmi_button.gif", "Romantic Robots Multiface ONE", NOKEY, [this](bool f) { addMultiface1(f); }, isa_Multiface1);
 	action_addMultiface128 =
 		new_action("nmi_button.gif", "Romantic Robots Multiface 128", NOKEY, ADDITEM(isa_Multiface128));
 	action_addMultiface3 = new_action("nmi_button.gif", "Romantic Robots Multiface 3", NOKEY, ADDITEM(isa_Multiface3));
@@ -779,7 +783,7 @@ void MachineController::create_actions()
 		NOICON, "DivIDE 57c CF card interface", NOKEY, [this](bool f) { addDivIDE(f); }, isa_DivIDE);
 
 	action_addSpectraVideo = new_action(
-		NOICON, "SPECTRA video interface", NOKEY, [=](bool f) { add_spectra_video(f); }, isa_SpectraVideo);
+		NOICON, "SPECTRA video interface", NOKEY, [=](bool f) { addSpectraVideo(f); }, isa_SpectraVideo);
 
 	action_gifAnimateBorder = settings.action_gifAnimateBorder;
 
@@ -1861,12 +1865,13 @@ void MachineController::addMultiface1(bool add)
 
 	if (add)
 	{
-		m->removeIsaItem(isa_ExternalRam);
-		m->addExternalRam(item_id, options);
+		bool joystick_enabled = settings.get_bool(key_multiface1_enable_joystick, yes);
+		NV(machine)->addMultiface1(joystick_enabled);
 	}
-	else { m->removeItem(item_id); }
+	else
+		NV(machine)->removeItem(isa_Multiface1);
 
-	if (f) machine->powerOn();
+	if (f) machine->resume();
 }
 
 void MachineController::addMemotech64kRam(bool add)
@@ -1918,15 +1923,30 @@ void MachineController::addDivIDE(bool add)
 	action_addDivIDE->setChecked(add);
 }
 
-void MachineController::add_spectra_video(bool add)
+void MachineController::addSpectraVideo(bool add)
 {
-	xlogIn("MachineController:slot_add_spectra_video(%i)", add);
+	xlogIn("MachineController::addSpectraVideo(%i)", add);
 
 	bool f = machine->powerOff();
 
-	NV(machine)->addSpectraVideo(add);
+	if (add)
+	{
+		using Dip = SpectraVideo::DipSwitches;
+
+		uint dip_switches = 0;
+		if (settings.get_bool(key_spectra_enable_if1_rom_hooks, false)) dip_switches |= Dip::EnableIf1RomHooks;
+		if (settings.get_bool(key_spectra_enable_rs232, false)) dip_switches |= Dip::EnableRs232;
+		if (settings.get_bool(key_spectra_enable_joystick, false)) dip_switches |= Dip::EnableJoystick;
+		if (settings.get_bool(key_spectra_enable_new_video_modes, true)) dip_switches |= Dip::EnableNewVideoModes;
+
+		NV(machine)->addSpectraVideo(dip_switches);
+	}
+	else
+		NV(machine)->removeSpectraVideo();
 
 	if (f) machine->powerOn();
+
+	action_addSpectraVideo->setChecked(add);
 }
 
 void MachineController::show_lenslok(bool f)

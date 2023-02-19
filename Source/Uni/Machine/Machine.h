@@ -207,8 +207,10 @@ public:
 	void		  removeItem(Item* item) { delete item; }
 	void		  removeItem(isa_id id) { delete findItem(id); }
 	void		  removeIsaItem(isa_id id) { delete findIsaItem(id); }
-	SpectraVideo* addSpectraVideo(bool add = yes);
+	SpectraVideo* addSpectraVideo(uint dip_switches);
+	void		  removeSpectraVideo();
 	DivIDE*		  addDivIDE(uint ramsize, cstr romfile);
+	Multiface1*	  addMultiface1(bool joystick_enabled);
 
 	void itemAdded(Item*);	 // callback from Item c'tor
 	void itemRemoved(Item*); // callback from Item d'tor

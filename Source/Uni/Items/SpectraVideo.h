@@ -61,8 +61,11 @@ private:
 	void _reset();
 
 public:
-	explicit SpectraVideo(Machine* m);
-	~SpectraVideo();
+	// same as in file .z80:
+	enum DipSwitches { EnableNewVideoModes = 1, EnableRs232 = 2, EnableJoystick = 4, EnableIf1RomHooks = 8 };
+
+	explicit SpectraVideo(Machine* m, uint dip_switches);
+	~SpectraVideo() override;
 
 
 	// Item interface:

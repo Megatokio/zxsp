@@ -18,8 +18,8 @@ class Multiface1 : public Multiface
 	bool				  joystick_enabled;
 
 public:
-	explicit Multiface1(Machine*);
-	virtual ~Multiface1();
+	Multiface1(Machine*, bool enable_joystick);
+	~Multiface1() override;
 
 	void	   insertJoystick(int id) volatile;
 	JoystickID getJoystickID() const volatile { return indexof(joystick); }

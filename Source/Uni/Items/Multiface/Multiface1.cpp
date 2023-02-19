@@ -90,13 +90,13 @@ Deduced from from Circuit:
 */
 
 
-static cstr o_addr = "----.----.-001.--1-"; //	read Kempston Joystick, page ram+rom if bit7=1
-static cstr i_addr = "----.----.-001.--1-"; //	nmi-taster wieder scharf schalten
+static constexpr cstr o_addr = "----.----.-001.--1-"; // read Kempston Joystick, page ram+rom if bit7=1
+static constexpr cstr i_addr = "----.----.-001.--1-"; // nmi-taster wieder scharf schalten
 
 
-Multiface1::Multiface1(Machine* m) :
+Multiface1::Multiface1(Machine* m, bool enable_joystick) :
 	Multiface(m, isa_Multiface1, "Roms/mf1.rom", o_addr, i_addr), joystick(nullptr), overlay(nullptr),
-	joystick_enabled(gui::settings.get_bool(key_multiface1_enable_joystick, yes))
+	joystick_enabled(enable_joystick)
 {
 	insertJoystick(usb_joystick0);
 }
