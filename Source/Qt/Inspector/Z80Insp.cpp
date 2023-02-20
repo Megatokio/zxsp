@@ -151,18 +151,25 @@ void Z80Insp::updateWidgets()
 	}
 	volatile Z80* cpu = this->cpu();
 
-#define SetRR(RR)                                 \
-  if (regs.RR != value.RR)                        \
-  {                                               \
-	value.RR = regs.RR;                           \
-	RR->setText(catstr("$", hexstr(regs.RR, 4))); \
-  }
-#define SetR(RR)                                  \
-  if (regs.RR != value.RR)                        \
-  {                                               \
-	value.RR = regs.RR;                           \
-	RR->setText(catstr("$", hexstr(regs.RR, 2))); \
-  }
+#define SetRR(RR)                                   \
+  do {                                              \
+	if (regs.RR != value.RR)                        \
+	{                                               \
+	  value.RR = regs.RR;                           \
+	  RR->setText(catstr("$", hexstr(regs.RR, 4))); \
+	}                                               \
+  }                                                 \
+  while (0)
+
+#define SetR(RR)                                    \
+  do {                                              \
+	if (regs.RR != value.RR)                        \
+	{                                               \
+	  value.RR = regs.RR;                           \
+	  RR->setText(catstr("$", hexstr(regs.RR, 2))); \
+	}                                               \
+  }                                                 \
+  while (0)
 
 	const volatile Z80Regs& regs = cpu->getRegisters();
 	SetRR(pc);
