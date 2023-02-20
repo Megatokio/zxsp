@@ -43,10 +43,11 @@ class MachineController : public QMainWindow
 	cstr		  filepath;	  // Snapshot file path or nil
 
 	// controlled objects:
-	volatile Machine* machine;
-	Screen*			  screen; // ScreenZxsp* or ScreenMono*
-	IsaObject*		  mem[4];
-	Lenslok*		  lenslok;
+	std::shared_ptr<volatile Machine> machine_sp;
+	volatile Machine*				  machine; // for easy access
+	Screen*							  screen;  // ScreenZxsp* or ScreenMono*
+	IsaObject*						  mem[4];
+	Lenslok*						  lenslok;
 
 	uint8 keyjoy_keys[5];		  // (RLDUF) Qt keycode to use for keyboard joystick up-down-left-right-fire
 	cstr  keyjoy_fnmatch_pattern; // the filename pattern, for which the keys were set
@@ -86,8 +87,8 @@ private:
 
 
 	//	static Model best_model_for_file(cstr filepath);
-	Screen*	 new_screen_for_model(Model);
-	Machine* new_machine_for_model(Model);
+	Screen*					 new_screen_for_model(Model);
+	std::shared_ptr<Machine> new_machine_for_model(Model);
 
 	QAction*
 	new_action(cstr icon, cstr title, const QKeySequence& key, std::function<void(bool)> fu, isa_id id = isa_none);

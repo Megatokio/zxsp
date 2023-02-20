@@ -159,7 +159,7 @@ private:
 	// ---- P U B L I C ----------------------------------------------------
 
 public:
-	static Machine* newMachine(gui::MachineController*, Model);
+	static std::shared_ptr<Machine> newMachine(gui::MachineController*, Model);
 
 	~Machine() override;
 

@@ -81,7 +81,7 @@ MachineController* front_machine_controller = nullptr;
 //			Create & Destroy:
 // ============================================================
 
-Machine* MachineController::new_machine_for_model(Model model)
+std::shared_ptr<Machine> MachineController::new_machine_for_model(Model model)
 {
 	// create Machine instance for model
 	// if ramsize==0 then default ramsize is used.
@@ -91,7 +91,7 @@ Machine* MachineController::new_machine_for_model(Model model)
 
 	assert(in_machine_ctor);
 
-	Machine* m = Machine::newMachine(this, model);
+	std::shared_ptr<Machine> m = Machine::newMachine(this, model);
 
 	switch (model)
 	{
@@ -1094,8 +1094,11 @@ void MachineController::kill_machine()
 		mem[i] = nullptr;
 	}
 	hide_inspector(NV(machine), no);
-	delete machine;
+
+	//delete machine;
+	machine_sp.reset();
 	machine = nullptr;
+
 	delete screen;
 	screen = nullptr;
 	if (XSAFE)
@@ -1169,7 +1172,9 @@ Machine* MachineController::init_machine(
 
 	// Create machine:
 	screen			 = new_screen_for_model(model);
-	Machine* machine = new_machine_for_model(model); // not powered on, not suspended
+	auto machine_sp	 = new_machine_for_model(model); // not powered on, not suspended
+	auto machine	 = machine_sp.get();
+	this->machine_sp = machine_sp;
 	this->machine	 = machine;
 	this->model = model = machine->model;
 	model_info			= machine->model_info;
