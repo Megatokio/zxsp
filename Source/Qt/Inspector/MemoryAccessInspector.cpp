@@ -158,7 +158,9 @@ MemoryAccessInspector::MemoryAccessInspector(QWidget* parent, MachineController*
 					  << "Accumulate");
 	combobox_decaymode->setCurrentIndex(decay_mode);
 	combobox_decaymode->setFocusPolicy(Qt::NoFocus);
-	bool f = connect(combobox_decaymode, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSetDecayMode(int)));
+	connect(
+		combobox_decaymode, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
+		&MemoryAccessInspector::slotSetDecayMode);
 	toolbar->addWidget(combobox_decaymode);
 
 	combobox_pixelzoom = new QComboBox(nullptr);
@@ -169,7 +171,9 @@ MemoryAccessInspector::MemoryAccessInspector(QWidget* parent, MachineController*
 					  << "4x4"); // MIN_PIXEL_SIZE .. MAX_PIXEL_SIZE
 	combobox_pixelzoom->setCurrentIndex(pixel_size - MIN_PIXEL_SIZE);
 	combobox_pixelzoom->setFocusPolicy(Qt::NoFocus);
-	f = f && connect(combobox_pixelzoom, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSetPixelSize(int)));
+	connect(
+		combobox_pixelzoom, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
+		&MemoryAccessInspector::slotSetPixelSize);
 	toolbar->addWidget(combobox_pixelzoom);
 
 	combobox_bytes_per_row = new QComboBox(nullptr);
@@ -182,10 +186,11 @@ MemoryAccessInspector::MemoryAccessInspector(QWidget* parent, MachineController*
 					  << "512"); // MIN_BYTES_PER_ROW .. MAX_BYTES_PER_ROW
 	combobox_bytes_per_row->setCurrentIndex(msbit(bytes_per_row / MIN_BYTES_PER_ROW));
 	combobox_bytes_per_row->setFocusPolicy(Qt::NoFocus);
-	f = f && connect(combobox_bytes_per_row, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSetBytesPerRow(int)));
-	toolbar->addWidget(combobox_bytes_per_row);
+	connect(
+		combobox_bytes_per_row, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
+		&MemoryAccessInspector::slotSetBytesPerRow);
 
-	assert(f);
+	toolbar->addWidget(combobox_bytes_per_row);
 }
 
 
