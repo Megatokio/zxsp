@@ -7,7 +7,6 @@
 #include "isa_id.h"
 #include "kio/kio.h"
 #include "zxsp_types.h"
-#include <QObject>
 class FD;
 
 
@@ -15,7 +14,7 @@ extern isa_id isa_pid[];   // parent id of id
 extern cstr	  isa_names[]; // (default) item names
 
 
-class IsaObject : public QObject
+class IsaObject
 {
 public:
 	const isa_id id;	 // precise isa_id for this item
@@ -23,16 +22,15 @@ public:
 	cstr		 name;
 
 protected:
-	IsaObject(QObject* p, isa_id id, isa_id grp) : QObject(p), id(id), grp_id(grp), name(isa_names[id]) {}
-	IsaObject(QObject* p, const IsaObject& q) : QObject(p), id(q.id), grp_id(q.grp_id), name(q.name) {}
-	IsaObject(const IsaObject& q) : QObject(q.parent()), id(q.id), grp_id(q.grp_id), name(q.name) {}
-	IsaObject(IsaObject&& q) : QObject(q.parent()), id(q.id), grp_id(q.grp_id), name(q.name) {}
+	IsaObject(isa_id id, isa_id grp) : id(id), grp_id(grp), name(isa_names[id]) {}
+	IsaObject(const IsaObject& q) = default;
+	IsaObject(IsaObject&& q)	  = default;
 
 	IsaObject& operator=(const IsaObject& q) = delete;
 	IsaObject& operator=(IsaObject&& q)		 = delete;
 
 public:
-	~IsaObject() override = default;
+	virtual ~IsaObject() = default;
 
 	bool isA(isa_id i) const volatile
 	{

@@ -50,25 +50,25 @@ protected:
 	void		 do_render_thread(); // call from render_thread
 	void		 draw_rect(int x, int y, int w, int h, RgbaColor color);
 	virtual void paint_screen(bool draw_passepartout = yes);
-	GifWriter*	 newGifWriter(bool update_border);
+	GifWriter*	 newGifWriter(bool update_border, uint fps);
 	Renderer*	 newRenderer();
 	int			 calc_zoom() { return zoom = minmax(1, min(width() / 256, height() / 192), 4); }
 
 protected:
 	virtual void do_ffb_or_vbi() noexcept(false) = 0; // std::exception // call from render_thread
 
-	void paintGL();					 // Qt reimplement
-	void resizeGL(int, int);		 // Qt reimplement
-	void paintEvent(QPaintEvent*);	 // Qt reimplement
-	void resizeEvent(QResizeEvent*); // Qt reimplement
-	void initializeGL();			 // Qt reimplement
+	void paintGL() override;				  // Qt reimplement
+	void resizeGL(int, int) override;		  // Qt reimplement
+	void paintEvent(QPaintEvent*) override;	  // Qt reimplement
+	void resizeEvent(QResizeEvent*) override; // Qt reimplement
+	void initializeGL() override;			  // Qt reimplement
 
 	Screen(QWidget* owner, isa_id);
 	Screen(const Screen&)			 = delete;
 	Screen& operator=(const Screen&) = delete;
 
 public:
-	virtual ~Screen();
+	~Screen() override;
 
 	void setFlavour(isa_id);
 	void repaint();

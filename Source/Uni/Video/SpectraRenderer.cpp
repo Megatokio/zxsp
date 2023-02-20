@@ -19,7 +19,7 @@
 #define EXTRA_COLOURS	   0x04
 
 
-#define COLOR(G, R, B) uint32(0xff + ((R)*85 << 24) + ((G)*85 << 16) + ((B)*85 << 8))
+#define COLOR(G, R, B) 0xffu + ((R)*85u << 24) + ((G)*85u << 16) + ((B)*85u << 8)
 
 
 const RgbaColor standard_rgba_colors[16] = // RGBA
@@ -69,7 +69,7 @@ void SpectraRenderer::drawScreen(
 	assert((cc_start_of_screenfile & 3) == 0);
 
 	cc_start_of_screenfile += 4;
-	cc_vbi = (cc_vbi + 3) & ~3;
+	cc_vbi = (cc_vbi + 3) & ~3u;
 
 	uint32 cc_row_flyback			  = cc_per_scanline - cc_screen - 2 * cc_h_border;
 	uint32 cc_start_of_visible_screen = cc_start_of_screenfile - cc_h_border - v_border * cc_per_scanline;
@@ -96,7 +96,7 @@ void SpectraRenderer::drawScreen(
 	{
 		if (io->cc > cc_start_of_visible_screen)
 		{
-			uint32 cc = min(cc_end_of_visible_screen, io->cc + 3 & ~3) - cc_start_of_visible_screen;
+			uint32 cc = min(cc_end_of_visible_screen, (io->cc + 3) & ~3u) - cc_start_of_visible_screen;
 
 			uint end_row = cc / cc_per_scanline;
 			uint end_col = min(uint(width), cc % cc_per_scanline * pixel_per_cc);
@@ -290,7 +290,7 @@ const Colormap spectra_colormap(spectra_colors, 65, transp);
 #define H(C) (C) / 2 * 3
 
 // conversion table: basic color [0..15] -> index in spectra_colors[]
-GifColor basic_colors[16] = {
+static GifColor basic_colors[16] = {
 	0,		   // black
 	B,		   // blue
 	R,		   // red
@@ -317,12 +317,13 @@ GifColor basic_colors[16] = {
 
 inline GifColor gifColorForBorderbyte(uint8 b)
 {
-	return ((b & 128) >> 3) + ((b & 64) >> 4) + ((b & 32) >> 5) + ((b & 4) << 3) + ((b & 2) << 2) + ((b & 1) << 1);
+	return uint8(
+		((b & 128) >> 3) + ((b & 64) >> 4) + ((b & 32) >> 5) + ((b & 4) << 3) + ((b & 2) << 2) + ((b & 1) << 1));
 }
 
 
-SpectraGifWriter::SpectraGifWriter(QObject* p, bool update_border, uint frames_per_second) :
-	ZxspGifWriter(p, isa_SpectraGifWriter, spectra_colormap, update_border, frames_per_second)
+SpectraGifWriter::SpectraGifWriter(bool update_border, uint frames_per_second) :
+	ZxspGifWriter(isa_SpectraGifWriter, spectra_colormap, update_border, frames_per_second)
 {}
 
 
@@ -359,7 +360,7 @@ void SpectraGifWriter::drawScreen(
 	{
 		if (io->cc > cc_start_of_visible_screen)
 		{
-			uint32 cc = min(cc_end_of_visible_screen, (io->cc + 3) & ~3) - cc_start_of_visible_screen;
+			uint32 cc = min(cc_end_of_visible_screen, (io->cc + 3) & ~3u) - cc_start_of_visible_screen;
 
 			uint end_row = cc / cc_per_scanline;
 			uint end_col = min(uint(width), cc % cc_per_scanline * pixel_per_cc);

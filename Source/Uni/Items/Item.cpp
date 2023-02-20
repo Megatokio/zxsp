@@ -82,7 +82,7 @@ void Item::linkBehind(Item* p)
 #define IOSZ 100
 
 Item::Item(Machine* machine, isa_id id, isa_id grp, Internal internal, cstr o_addr, cstr i_addr) :
-	IsaObject(machine, id, grp),
+	IsaObject(id, grp),
 	machine(machine),
 	in_mask(0xffff), // dflt: no i/o
 	in_bits(0),
@@ -147,12 +147,12 @@ void Item::powerOn(int32)
 }
 
 
-bool Item::event(QEvent* e)
-{
-	xlogIn("Item[%s]:event: %s", name, QEventTypeStr(e->type()));
-	return QObject::event(e);
-	//	return 0;	// not processed
-}
+//bool Item::event(QEvent* e)
+//{
+//	xlogIn("Item[%s]:event: %s", name, QEventTypeStr(e->type()));
+//	return QObject::event(e);
+//	//	return 0;	// not processed
+//}
 
 
 /*	grow ioinfo[]

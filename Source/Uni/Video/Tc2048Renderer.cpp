@@ -200,8 +200,8 @@ const Comp	   tc_colors[] = {0, 0, 0, 0, 0, H, H, 0, 0, H, 0, H, 0, H, 0, 0, H, 
 const Colormap tc2048_colormap(tc_colors, 17, transp);
 
 
-Tc2048GifWriter::Tc2048GifWriter(QObject* p, bool update_border) :
-	ZxspGifWriter(p, isa_Tc2048GifWriter, tc2048_colormap, update_border, 50)
+Tc2048GifWriter::Tc2048GifWriter(bool update_border, uint fps) :
+	ZxspGifWriter(isa_Tc2048GifWriter, tc2048_colormap, update_border, fps)
 {}
 
 

@@ -26,8 +26,8 @@ public:
 	// cc_screen	= screen_width/pixel_per_cc,	// 128 -> 256 pixel
 	// cc_h_border  = h_border/pixel_per_cc			// 32  -> 64 pixel
 
-	explicit MonoRenderer(QObject* p, isa_id id = isa_MonoRenderer) :
-		Renderer(p, id, screen_width, screen_height, h_border, v_border, no /*!color*/)
+	explicit MonoRenderer(isa_id id = isa_MonoRenderer) :
+		Renderer(id, screen_width, screen_height, h_border, v_border, no /*!color*/)
 	{}
 
 	void drawScreen(
@@ -58,7 +58,7 @@ protected:
 	// MonoGifWriter(QObject* p, isa_id id, bool update_border, uint frames_per_second);
 
 public:
-	MonoGifWriter(QObject* p, bool update_border, uint frames_per_second = 50);
+	MonoGifWriter(bool update_border, uint frames_per_second);
 
 	void writeFrame(
 		uint8* new_pixels, uint screen_w, uint screen_h, uint frame_h, uint frame_w, uint screen_x0, uint screen_y0);

@@ -15,9 +15,7 @@
 class ZxspRenderer : public Renderer
 {
 protected:
-	ZxspRenderer(QObject* p, isa_id id, uint sw, uint sh, uint bw, uint bh) :
-		Renderer(p, id, sw, sh, bw, bh, yes /*color*/)
-	{}
+	ZxspRenderer(isa_id id, uint sw, uint sh, uint bw, uint bh) : Renderer(id, sw, sh, bw, bh, yes /*color*/) {}
 
 public:
 	static constexpr int h_border	   = 64; // pixel, must be N*8
@@ -32,8 +30,7 @@ public:
 	static constexpr int cc_h_border  = h_border / pixel_per_cc;	 // 32  -> 64 pixel
 
 
-	explicit ZxspRenderer(QObject* p) :
-		Renderer(p, isa_ZxspRenderer, screen_width, screen_height, h_border, v_border, yes /*color*/)
+	explicit ZxspRenderer() : Renderer(isa_ZxspRenderer, screen_width, screen_height, h_border, v_border, yes /*color*/)
 	{}
 
 	virtual void drawScreen(
@@ -62,10 +59,10 @@ public:
 	static constexpr int cc_h_border  = h_border / pixel_per_cc;	 // 32  -> 64 pixel
 
 protected:
-	ZxspGifWriter(QObject* p, isa_id id, const Colormap&, bool update_border, uint frames_per_second);
+	ZxspGifWriter(isa_id id, const Colormap&, bool update_border, uint frames_per_second);
 
 public:
-	ZxspGifWriter(QObject* p, bool update_border, uint frames_per_second = 50);
+	ZxspGifWriter(bool update_border, uint frames_per_second);
 
 	virtual void drawScreen(
 		IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,

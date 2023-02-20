@@ -38,7 +38,7 @@ constexpr RgbaColor grey		   = 0x808080FF;
 class Renderer : public IsaObject
 {
 protected:
-	Renderer(QObject* p, isa_id id, uint screen_width, uint screen_height, uint h_border, uint v_border, bool color);
+	Renderer(isa_id id, uint screen_width, uint screen_height, uint h_border, uint v_border, bool color);
 
 public:
 	uint screen_width;	// = 256
@@ -91,7 +91,7 @@ protected:					  // values for 32 column mode:
 	void write_diff2_to_file();
 
 	GifWriter(
-		QObject* p, isa_id id, const Colormap&, uint screen_width, uint screen_height, uint h_border, uint v_border,
+		isa_id id, const Colormap&, uint screen_width, uint screen_height, uint h_border, uint v_border,
 		bool update_border, uint frames_per_second);
 
 public:

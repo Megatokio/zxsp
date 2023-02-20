@@ -26,9 +26,7 @@ public:
 	static constexpr int cc_screen	  = screen_width / pixel_per_cc; // 128 -> 256 pixel
 	static constexpr int cc_h_border  = h_border / pixel_per_cc;	 // 32  -> 64 pixel
 
-	explicit SpectraRenderer(QObject* p) :
-		ZxspRenderer(p, isa_ZxspRenderer, screen_width, screen_height, h_border, v_border)
-	{}
+	explicit SpectraRenderer() : ZxspRenderer(isa_ZxspRenderer, screen_width, screen_height, h_border, v_border) {}
 
 	void drawScreen(
 		IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
@@ -56,7 +54,7 @@ public:
 	static constexpr int cc_h_border  = h_border / pixel_per_cc;	 // 32  -> 64 pixel
 
 public:
-	SpectraGifWriter(QObject* p, bool update_border, uint frames_per_second = 50);
+	SpectraGifWriter(bool update_border, uint frames_per_second);
 
 	void drawScreen(
 		IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,

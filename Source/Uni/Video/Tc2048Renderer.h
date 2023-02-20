@@ -26,9 +26,7 @@ public:
 	static constexpr int cc_h_border  = h_border / pixel_per_cc;	 // 32  -> 64 pixel
 
 
-	explicit Tc2048Renderer(QObject* p) :
-		ZxspRenderer(p, isa_Tc2048Renderer, screen_width, screen_height, h_border, v_border)
-	{}
+	explicit Tc2048Renderer() : ZxspRenderer(isa_Tc2048Renderer, screen_width, screen_height, h_border, v_border) {}
 
 	void drawScreen(
 		IoInfo*, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
@@ -44,7 +42,7 @@ public:
 class Tc2048GifWriter : public ZxspGifWriter
 {
 public:
-	Tc2048GifWriter(QObject* p, bool update_border);
+	Tc2048GifWriter(bool update_border, uint fps);
 
 	void drawScreen(
 		IoInfo*, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,

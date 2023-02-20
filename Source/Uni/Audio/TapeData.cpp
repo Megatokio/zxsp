@@ -15,7 +15,7 @@
 TapeData::TapeData(const TapeData& q) : IsaObject(q), trust_level(q.trust_level) {}
 
 
-TapeData::TapeData(isa_id id, TrustLevel trustlevel) : IsaObject(nullptr, id, isa_TapeData), trust_level(trustlevel) {}
+TapeData::TapeData(isa_id id, TrustLevel trustlevel) : IsaObject(id, isa_TapeData), trust_level(trustlevel) {}
 
 
 TapeData::~TapeData() {}

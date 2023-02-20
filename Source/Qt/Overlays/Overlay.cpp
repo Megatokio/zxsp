@@ -19,7 +19,7 @@ namespace gui
 {
 
 Overlay::Overlay(Screen* scr, isa_id id, Position p) :
-	IsaObject(scr, id, isa_Overlay),
+	IsaObject(id, isa_Overlay),
 	screen(scr),
 	position(p),
 	x(0),

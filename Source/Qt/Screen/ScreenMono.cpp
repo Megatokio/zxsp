@@ -109,7 +109,7 @@ void ScreenMono::do_ffb_or_vbi() noexcept(false)
 		cstr path			 = _screenshot_filepath;
 		_screenshot_filepath = nullptr;
 
-		MonoGifWriter* gif = new MonoGifWriter(this, no);
+		MonoGifWriter* gif = new MonoGifWriter(no, 50);
 		try
 		{
 			gif->saveScreenshot(path, new_pixels, screen_w, screen_h, frame_w, frame_h, screen_x0, screen_y0);
@@ -128,7 +128,7 @@ void ScreenMono::do_ffb_or_vbi() noexcept(false)
 		bool with_border   = _gifmovie_with_bordereffects;
 		_gifmovie_filepath = nullptr;
 
-		gif_writer = new MonoGifWriter(this, with_border);
+		gif_writer = new MonoGifWriter(with_border, 50);
 		try
 		{
 			gif_writer->startRecording(path);

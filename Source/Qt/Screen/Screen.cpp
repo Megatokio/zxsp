@@ -121,14 +121,14 @@ void Screen::initializeGL()
 	QGLWidget::initializeGL();
 }
 
-GifWriter* Screen::newGifWriter(bool update_border)
+GifWriter* Screen::newGifWriter(bool update_border, uint fps)
 {
 	switch (uint(id))
 	{
-	case isa_ScreenTc2048: return new Tc2048GifWriter(this, update_border);
-	case isa_ScreenZxsp: return new ZxspGifWriter(this, update_border);
-	case isa_ScreenSpectra: return new SpectraGifWriter(this, update_border);
-	case isa_ScreenMono: return new MonoGifWriter(this, update_border);
+	case isa_ScreenTc2048: return new Tc2048GifWriter(update_border, fps);
+	case isa_ScreenZxsp: return new ZxspGifWriter(update_border, fps);
+	case isa_ScreenSpectra: return new SpectraGifWriter(update_border, fps);
+	case isa_ScreenMono: return new MonoGifWriter(update_border, fps);
 	default: IERR();
 	}
 }
@@ -140,10 +140,10 @@ Renderer* Screen::newRenderer()
 
 	switch (uint(id))
 	{
-	case isa_ScreenTc2048: return new Tc2048Renderer(this);
-	case isa_ScreenZxsp: return new ZxspRenderer(this);
-	case isa_ScreenSpectra: return new SpectraRenderer(this);
-	case isa_ScreenMono: return new MonoRenderer(this);
+	case isa_ScreenTc2048: return new Tc2048Renderer();
+	case isa_ScreenZxsp: return new ZxspRenderer();
+	case isa_ScreenSpectra: return new SpectraRenderer();
+	case isa_ScreenMono: return new MonoRenderer();
 	default: IERR();
 	}
 }
@@ -503,7 +503,7 @@ void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
 		cstr path			 = _screenshot_filepath;
 		_screenshot_filepath = nullptr;
 
-		ZxspGifWriter* gif = static_cast<ZxspGifWriter*>(newGifWriter(no));
+		ZxspGifWriter* gif = static_cast<ZxspGifWriter*>(newGifWriter(no, 50));
 		try
 		{
 			gif->saveScreenshot(path, ioinfo, ioinfo_count, attrpixels, cc_per_scanline, cc_start_of_screenfile);
@@ -522,7 +522,7 @@ void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
 		bool with_border   = _gifmovie_with_bordereffects;
 		_gifmovie_filepath = nullptr;
 
-		gif_writer = ZxspGifWriterPtr(newGifWriter(with_border));
+		gif_writer = ZxspGifWriterPtr(newGifWriter(with_border, 50));
 		try
 		{
 			gif_writer->startRecording(path);

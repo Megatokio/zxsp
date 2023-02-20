@@ -98,8 +98,8 @@ const Colormap mono_colormap(mono_colors, 2, transp);
 const Colormap mono_colormap_with_trans(mono_colors, 3, transp);
 
 
-MonoGifWriter::MonoGifWriter(QObject* p, bool update_border, uint frames_per_second) :
-	GifWriter(p, isa_MonoGifWriter, mono_colormap_with_trans, 256, 192, 32, 24, update_border, frames_per_second)
+MonoGifWriter::MonoGifWriter(bool update_border, uint frames_per_second) :
+	GifWriter(isa_MonoGifWriter, mono_colormap_with_trans, 256, 192, 32, 24, update_border, frames_per_second)
 {}
 
 

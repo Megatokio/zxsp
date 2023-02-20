@@ -146,13 +146,12 @@ const Comp	   zx_colors[] = {0, 0, 0, 0, 0, H, H, 0, 0, H, 0, H, 0, H, 0, 0, H, 
 const Colormap zxsp_colormap(zx_colors, 16, transp);
 
 
-ZxspGifWriter::ZxspGifWriter(QObject* p, bool update_border, uint frames_per_second) :
-	GifWriter(p, isa_ZxspGifWriter, zxsp_colormap, 256, 192, 32, 24, update_border, frames_per_second)
+ZxspGifWriter::ZxspGifWriter(bool update_border, uint frames_per_second) :
+	GifWriter(isa_ZxspGifWriter, zxsp_colormap, 256, 192, 32, 24, update_border, frames_per_second)
 {}
 
-ZxspGifWriter::ZxspGifWriter(
-	QObject* p, isa_id id, const Colormap& colormap, bool update_border, uint frames_per_second) :
-	GifWriter(p, id, colormap, 256, 192, 32, 24, update_border, frames_per_second)
+ZxspGifWriter::ZxspGifWriter(isa_id id, const Colormap& colormap, bool update_border, uint frames_per_second) :
+	GifWriter(id, colormap, 256, 192, 32, 24, update_border, frames_per_second)
 {}
 
 

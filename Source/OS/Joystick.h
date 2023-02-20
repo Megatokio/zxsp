@@ -45,7 +45,7 @@ protected:
 	Time  last_time; // for activity monitoring
 	uint8 state;	 // %000FUDLR
 
-	explicit Joystick(isa_id id) : IsaObject(nullptr, id, isa_Joystick), last_time(0), state(0) {}
+	explicit Joystick(isa_id id) : IsaObject(id, isa_Joystick), last_time(0), state(0) {}
 	~Joystick() override {}
 
 public:
@@ -72,7 +72,7 @@ class NoJoystick : public Joystick
 {
 public:
 	NoJoystick() : Joystick(isa_Joystick) {}
-	uint8 getState(bool) volatile { return 0x00; } // no keys pressed
+	uint8 getState(bool) volatile override { return 0x00; } // no keys pressed
 };
 
 
@@ -85,7 +85,7 @@ class KbdJoystick : public Joystick
 public:
 	KbdJoystick() : Joystick(isa_KbdJoystick) {}
 
-	uint8 getState(bool f) volatile
+	uint8 getState(bool f) volatile override
 	{
 		if (f) last_time = system_time;
 		return state;

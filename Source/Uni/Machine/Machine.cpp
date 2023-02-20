@@ -240,7 +240,7 @@ Machine* Machine::newMachine(gui::MachineController* mc, Model model)
 	the machine is not suspended.
 */
 Machine::Machine(gui::MachineController* parent, Model model, isa_id id) :
-	IsaObject(parent, id, isa_Machine),
+	IsaObject(id, isa_Machine),
 	_lock(), //_lock(PLock::recursive),
 	controller(parent),
 	model(model),

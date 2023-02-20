@@ -542,7 +542,7 @@ public:
 	MyAction(cstr icon, cstr label, QObject* p) : QAction(QIcon(catstr(":/Icons/", icon)), label, p) {}
 
 protected:
-	virtual bool event(QEvent* e)
+	virtual bool event(QEvent* e) override
 	{
 		xxlogIn("MyAction:event: %s", QEventTypeStr(e->type()));
 		return QAction::event(e);
@@ -556,7 +556,7 @@ public:
 	MyMenu(cstr title, QWidget* parent) : QMenu(title, parent) {}
 
 protected:
-	virtual bool event(QEvent* e)
+	virtual bool event(QEvent* e) override
 	{
 		xxlogIn("MyMenu:event: %s", QEventTypeStr(e->type()));
 		return QMenu::event(e);
@@ -569,7 +569,7 @@ public:
 	MyMenuBar(QWidget* parent) : QMenuBar(parent) {}
 
 protected:
-	virtual bool event(QEvent* e)
+	virtual bool event(QEvent* e) override
 	{
 		xxlogIn("MyMenuBar:event: %s", QEventTypeStr(e->type()));
 		return QMenuBar::event(e);
@@ -997,7 +997,7 @@ MachineController::MachineController(QString filepath) // ---- C O N S T R U C T
 	filepath(nullptr),
 	machine(nullptr),
 	screen(nullptr),
-	mem {0, 0, 0, 0},
+	mem {nullptr, nullptr, nullptr, nullptr},
 	lenslok(nullptr),
 	keyjoy_keys {0, 0, 0, 0, 0},
 	keyjoy_fnmatch_pattern(nullptr)
@@ -1233,10 +1233,10 @@ Machine* MachineController::init_machine(
 	if (XSAFE)
 		foreach (ToolWindow* toolwindow, tool_windows) { assert(toolwindow->item == nullptr); }
 	show_inspector(machine, action_showMachineImage, no /*!force*/);
-	show_inspector(mem[0] = new MemObject(machine, isa_MemHex), action_showMemHex, no /*!force*/);
-	show_inspector(mem[1] = new MemObject(machine, isa_MemDisass), action_showMemDisass, no /*!force*/);
-	show_inspector(mem[2] = new MemObject(machine, isa_MemGraphical), action_showMemGraphical, no /*!force*/);
-	show_inspector(mem[3] = new MemObject(machine, isa_MemAccess), action_showMemAccess, no /*!force*/);
+	show_inspector(mem[0] = new MemObject(isa_MemHex), action_showMemHex, no /*!force*/);
+	show_inspector(mem[1] = new MemObject(isa_MemDisass), action_showMemDisass, no /*!force*/);
+	show_inspector(mem[2] = new MemObject(isa_MemGraphical), action_showMemGraphical, no /*!force*/);
+	show_inspector(mem[3] = new MemObject(isa_MemAccess), action_showMemAccess, no /*!force*/);
 
 	assert(findShowActionForItem(mem[0]) == action_showMemHex);
 	assert(findShowActionForItem(mem[1]) == action_showMemDisass);

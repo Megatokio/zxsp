@@ -8,9 +8,8 @@
 #include "unix/os_utilities.h"
 
 
-Renderer::Renderer(
-	QObject* p, isa_id id, uint screen_width, uint screen_height, uint h_border, uint v_border, bool color) :
-	IsaObject(p, id, isa_Renderer),
+Renderer::Renderer(isa_id id, uint screen_width, uint screen_height, uint h_border, uint v_border, bool color) :
+	IsaObject(id, isa_Renderer),
 	screen_width(screen_width),
 	screen_height(screen_height),
 	h_border(h_border),
@@ -28,9 +27,9 @@ Renderer::Renderer(
 
 
 GifWriter::GifWriter(
-	QObject* p, isa_id id, const Colormap& colormap, uint screen_width, uint screen_height, uint h_border,
-	uint v_border, bool update_border, uint frames_per_second) :
-	IsaObject(p, id, isa_GifWriter /*grp*/),
+	isa_id id, const Colormap& colormap, uint screen_width, uint screen_height, uint h_border, uint v_border,
+	bool update_border, uint frames_per_second) :
+	IsaObject(id, isa_GifWriter /*grp*/),
 	screen_width(screen_width),
 	screen_height(screen_height),
 	h_border(h_border),

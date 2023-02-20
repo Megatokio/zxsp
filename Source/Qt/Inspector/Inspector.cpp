@@ -94,16 +94,25 @@ Inspector::Inspector(QWidget* w, MachineController* mc, volatile IsaObject* item
 	xlogIn("new Inspector for %s", item ? item->name : "nullptr");
 	assert(machine != nullptr || object == nullptr);
 	this->setFixedSize(background.size()); // also removes green resize button
-	if (item)
-		connect(NV(item), &IsaObject::destroyed, this, [=] {
-			timer->stop();
-			object = nullptr;
-		});
-	if (machine)
-		connect(NV(machine), &Machine::destroyed, this, [=] {
-			timer->stop();
-			machine = nullptr;
-		});
+
+	// TODO
+	// after elimination QObject as a base class of IsaObject
+	// this is no longer possible.
+	// instead use weak pointer
+	// after Machines and Items are produced by factory methods which return shared pointers
+
+	//	if (item)
+	//		connect(NV(item), &IsaObject::destroyed, this, [=] {
+	//			timer->stop();
+	//			object = nullptr;
+	//		});
+
+	//	if (machine)
+	//		connect(NV(machine), &Machine::destroyed, this, [=] {
+	//			timer->stop();
+	//			machine = nullptr;
+	//		});
+
 	// QWidget::setEnabled(true);                // enable mouse & kbd events (true=default)
 	setFocusPolicy(Qt::ClickFocus); // allow clicking "anywhere" to remove focus from input widgets
 
