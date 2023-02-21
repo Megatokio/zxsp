@@ -108,7 +108,7 @@ TccDockInspector::~TccDockInspector()
  */
 void TccDockInspector::updateWidgets()
 {
-	if (!object) return;
+	if (!machine || !object) return;
 
 	CartridgeState new_state = dock()->isLoaded() ? RomInserted : current_fpath ? RomEjected : NoCartridge;
 

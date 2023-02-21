@@ -3,10 +3,13 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "Fdc/DivIDE.h"
 #include "Files/RzxFile.h"
 #include "IsaObject.h"
+#include "Joy/ZxIf2.h"
 #include "Memory.h"
 #include "Overlays/Overlay.h"
+#include "SpectraVideo.h"
 #include "StereoSample.h"
 #include "Templates/RCPtr.h"
 #include "Ula/Ula.h"
@@ -192,8 +195,9 @@ public:
 	}
 	Item*		  lastItem() volatile { return lastitem; }
 	Item*		  firstItem() { return cpu; }
-	ZxIf2*		  findZxIf2() { return ZxIf2Ptr(findIsaItem(isa_ZxIf2)); }
-	SpectraVideo* findSpectraVideo() { return SpectraVideoPtr(findIsaItem(isa_SpectraVideo)); }
+	ZxIf2*		  findZxIf2() { return static_cast<ZxIf2*>(findItem(isa_ZxIf2)); }
+	SpectraVideo* findSpectraVideo() { return static_cast<SpectraVideo*>(findItem(isa_SpectraVideo)); }
+	DivIDE*		  findDivIDE() { return static_cast<DivIDE*>(findItem(isa_DivIDE)); }
 	void		  setCrtc(Crtc* c)
 	{
 		crtc = c;
@@ -203,8 +207,8 @@ public:
 	Item*		  addExternalItem(isa_id);
 	ExternalRam*  addExternalRam(isa_id, uint size_or_options = 0);
 	void		  removeItem(Item* item) { delete item; }
-	void		  removeItem(isa_id id) { delete findItem(id); }
-	void		  removeIsaItem(isa_id id) { delete findIsaItem(id); }
+	void		  removeItem(isa_id id) { removeItem(findItem(id)); }
+	void		  removeIsaItem(isa_id id) { removeItem(findIsaItem(id)); }
 	SpectraVideo* addSpectraVideo(uint dip_switches);
 	void		  removeSpectraVideo();
 	DivIDE*		  addDivIDE(uint ramsize, cstr romfile);

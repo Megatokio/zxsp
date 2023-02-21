@@ -23,6 +23,8 @@ Multiface128Insp::Multiface128Insp(QWidget* w, MachineController* mc, volatile I
 
 void Multiface128Insp::updateWidgets()
 {
+	if (!machine || !object) return;
+
 	MultifaceInsp::updateWidgets();
 
 	if (label_visibility->isVisible() != multiface128()->mf_enabled)

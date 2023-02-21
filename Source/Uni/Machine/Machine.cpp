@@ -347,7 +347,7 @@ Machine::~Machine()
 	machine_list.remove(this);
 
 	is_power_on = no;
-	while (lastitem) delete lastitem; // rückwärts abbauen. QObject d'tor hat unbestimmte Reihenfolge!
+	while (lastitem) removeItem(lastitem); // rückwärts abbauen.
 }
 
 /*	callback from Memory c'tor
@@ -685,37 +685,37 @@ Item* Machine::addExternalItem(isa_id id)
 {
 	assert(isMainThread());
 	assert(is_locked()); // note: complex items / with memory must actually be PowerOff
-	assert(cpu);
+	assert(cpu || isPowerOff());
 
-	Item* i = findItem(id);
-	if (i) return i;
+	Item* item = findItem(id);
+	if (item) return item;
 
 	switch (id)
 	{
-	case isa_KempstonJoy: i = new KempstonJoy(this); break;
-	case isa_ZxIf1: i = new ZxIf1(this); break;
-	case isa_ZxIf2: i = new ZxIf2(this); break;
-	case isa_ZxPrinter: i = new ZxPrinter(this); break;
-	case isa_KempstonMouse: i = new KempstonMouse(this); break;
-	case isa_ZonxBox: i = new ZonxBox(this); break;
-	case isa_ZonxBox81: i = new ZonxBox81(this); break;
-	case isa_DidaktikMelodik: i = new DidaktikMelodik(this); break;
-	case isa_FdcBeta128: i = new FdcBeta128(this); break;
-	case isa_FdcD80: i = new FdcD80(this); break;
-	case isa_FdcJLO: i = new FdcJLO(this); break;
-	case isa_FdcPlusD: i = new FdcPlusD(this); break;
-	case isa_CursorJoy: i = new CursorJoy(this); break;
-	case isa_DktronicsDualJoy: i = new DktronicsDualJoy(this); break;
-	case isa_ProtekJoy: i = new ProtekJoy(this); break;
-	case isa_PrinterAerco: i = new PrinterAerco(this); break;
-	case isa_PrinterLprint3: i = new PrinterLprint3(this); break;
-	case isa_PrinterTs2040: i = new PrinterTs2040(this); break;
-	case isa_FullerBox: i = new FullerBox(this); break;
-	case isa_GrafPad: i = new GrafPad(this); break;
-	case isa_IcTester: i = new IcTester(this); break;
-	case isa_Multiface128: i = new Multiface128(this); break;
-	case isa_Multiface3: i = new Multiface3(this); break;
-	case isa_CurrahMicroSpeech: i = new CurrahMicroSpeech(this); break;
+	case isa_KempstonJoy: item = new KempstonJoy(this); break;
+	case isa_ZxIf1: item = new ZxIf1(this); break;
+	case isa_ZxIf2: item = new ZxIf2(this); break;
+	case isa_ZxPrinter: item = new ZxPrinter(this); break;
+	case isa_KempstonMouse: item = new KempstonMouse(this); break;
+	case isa_ZonxBox: item = new ZonxBox(this); break;
+	case isa_ZonxBox81: item = new ZonxBox81(this); break;
+	case isa_DidaktikMelodik: item = new DidaktikMelodik(this); break;
+	case isa_FdcBeta128: item = new FdcBeta128(this); break;
+	case isa_FdcD80: item = new FdcD80(this); break;
+	case isa_FdcJLO: item = new FdcJLO(this); break;
+	case isa_FdcPlusD: item = new FdcPlusD(this); break;
+	case isa_CursorJoy: item = new CursorJoy(this); break;
+	case isa_DktronicsDualJoy: item = new DktronicsDualJoy(this); break;
+	case isa_ProtekJoy: item = new ProtekJoy(this); break;
+	case isa_PrinterAerco: item = new PrinterAerco(this); break;
+	case isa_PrinterLprint3: item = new PrinterLprint3(this); break;
+	case isa_PrinterTs2040: item = new PrinterTs2040(this); break;
+	case isa_FullerBox: item = new FullerBox(this); break;
+	case isa_GrafPad: item = new GrafPad(this); break;
+	case isa_IcTester: item = new IcTester(this); break;
+	case isa_Multiface128: item = new Multiface128(this); break;
+	case isa_Multiface3: item = new Multiface3(this); break;
+	case isa_CurrahMicroSpeech: item = new CurrahMicroSpeech(this); break;
 
 	case isa_Multiface1:
 	case isa_SpectraVideo:
@@ -732,26 +732,27 @@ Item* Machine::addExternalItem(isa_id id)
 	default: IERR();
 	}
 
-	if (isPowerOn()) i->powerOn(cpu->cpuCycle());
-	return i;
+	if (isPowerOn()) item->powerOn(cpu->cpuCycle());
+	return item;
 }
 
 Multiface1* Machine::addMultiface1(bool joystick_enabled)
 {
 	assert(isMainThread());
 	assert(is_locked());
+	assert(cpu || isPowerOff());
 
-	Item* item = findItem(isa_Multiface1);
-	if (!item)
-	{
-		item = new Multiface1(this, joystick_enabled);
-		if (isPowerOn()) item->powerOn(cpu->cpuCycle());
-	}
-	return Multiface1Ptr(item);
+	if (Item* sp = findItem(isa_Multiface1)) return static_cast<Multiface1*>(sp);
+
+	Multiface1* mf1 = new Multiface1(this, joystick_enabled);
+	if (isPowerOn()) mf1->powerOn(cpu->cpuCycle());
+
+	return mf1;
 }
 
 ExternalRam* Machine::addExternalRam(isa_id id, uint options)
 {
+	assert(isMainThread());
 	assert(isPowerOff());
 	assert(findIsaItem(isa_ExternalRam) == nullptr);
 
@@ -769,7 +770,7 @@ ExternalRam* Machine::addExternalRam(isa_id id, uint options)
 		return new Zx3kRam(this, options);
 
 	case isa_Memotech64kRam:
-		if (!Memotech64kRam::isValidDipSwitches(options)) options = Memotech64kRam::E;
+		if (!Memotech64kRam::isValidDipSwitches(options)) options = Memotech64kRam::DipSwitches::E;
 		return new Memotech64kRam(this, options);
 
 	default: IERR();
@@ -778,9 +779,10 @@ ExternalRam* Machine::addExternalRam(isa_id id, uint options)
 
 DivIDE* Machine::addDivIDE(uint ramsize, cstr romfile)
 {
+	assert(isMainThread());
 	assert(isPowerOff());
 
-	if (Item* item = findItem(isa_DivIDE)) return DivIDEPtr(item);
+	if (Item* i = findItem(isa_DivIDE)) return static_cast<DivIDE*>(i);
 	else return new DivIDE(this, ramsize, romfile);
 }
 
@@ -819,7 +821,7 @@ SpectraVideo* Machine::addSpectraVideo(uint dip_switches)
 		crtc->setBorderColor(ula->getBorderColor());
 		if (isPowerOn()) crtc->powerOn(cpu->cpuCycle());
 	}
-	return SpectraVideoPtr(crtc);
+	return static_cast<SpectraVideo*>(crtc);
 }
 
 

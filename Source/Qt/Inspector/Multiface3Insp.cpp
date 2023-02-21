@@ -26,6 +26,8 @@ Multiface3Insp::Multiface3Insp(QWidget* w, MachineController* mc, volatile IsaOb
 
 void Multiface3Insp::updateWidgets()
 {
+	if (!machine || !object) return;
+
 	MultifaceInsp::updateWidgets();
 
 	if (label_visible->isVisible() != multiface3()->mf_enabled) { label_visible->setVisible(multiface3()->mf_enabled); }

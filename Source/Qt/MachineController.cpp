@@ -369,7 +369,11 @@ void MachineController::loadSnapshot(cstr filename)
 						machine = init_machine(m, 0, s, j, r, d); // powered up & suspended
 					}
 
-					if (machine->model_info->canAttachZxIf2()) zxif2 = ZxIf2Ptr(machine->addExternalItem(isa_ZxIf2));
+					if (machine->model_info->canAttachZxIf2())
+					{
+						machine->addExternalItem(isa_ZxIf2);
+						zxif2 = machine->findZxIf2();
+					}
 					else if (machine->model_info->canAttachSpectraVideo())
 					{
 						action_addSpectraVideo->setChecked(true);

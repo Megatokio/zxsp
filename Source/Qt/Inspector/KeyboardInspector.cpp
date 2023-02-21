@@ -720,10 +720,7 @@ void KeyboardInspector::updateWidgets()
 	// called by timer
 	// and directly after known key state change
 
-	if (!isVisible()) return;
-	if (!kbd()) return;
-
-	Inspector::updateWidgets();
+	if (!machine || !object) return;
 
 	Keymap newkeys = const_cast<Keymap&>(kbd()->keymap);
 	if (newkeys.allrows == keymap.allrows) return;

@@ -14,7 +14,6 @@ public:
 	enum DipSwitches { A = 0x8, B = 0x4, C = 0x2, D = 0x1, E = 0x6 }; // lt. Memopak manual
 
 	Memotech64kRam(Machine*, uint dip_switches = E);
-	~Memotech64kRam() override;
 
 	void setDipSwitches(uint);
 	uint getDipSwitches() const volatile { return dip_switches; }
@@ -22,6 +21,8 @@ public:
 	static bool isValidDipSwitches(uint sw) { return sw == A || sw == B || sw == C || sw == D || sw == E; }
 
 protected:
+	~Memotech64kRam() override;
+
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
 

@@ -74,10 +74,10 @@ void WalkmanInspector::updateWidgets()
 {
 	xlogIn("WalkmanInspector::updateWidgets");
 
-	if (!is_visible) return;
-	if (!object) return;
+	if (!machine || !object) return;
 
-	Inspector::updateWidgets(); // bypass TapeRecorderInsp::updateWidgets()
+	// note: don't not call super class TapeRecorderInsp::updateWidgets()
+
 	updateAnimation();
 
 	volatile TapeRecorder* t = tape_recorder();

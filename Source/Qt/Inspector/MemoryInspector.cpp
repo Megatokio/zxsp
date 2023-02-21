@@ -459,7 +459,6 @@ void MemoryInspector::slotSetMemoryPage(int newpage)
 void MemoryInspector::updateWidgets()
 {
 	xxlogIn("MemoryInspector.updateWidgets");
-
 	if (!machine || !object) return;
 
 	if (old_baseaddress != data.baseaddress + scroll_offset)

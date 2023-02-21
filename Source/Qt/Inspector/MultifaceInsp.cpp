@@ -56,6 +56,8 @@ void MultifaceInsp::pressRedButton() { NVPtr<Multiface>(multiface())->triggerNmi
 
 void MultifaceInsp::updateWidgets()
 {
+	if (!machine || !object) return;
+
 	if (label_nmi_pending->isVisible() != multiface()->nmi_pending)
 	{
 		label_nmi_pending->setVisible(multiface()->nmi_pending);

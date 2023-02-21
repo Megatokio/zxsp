@@ -46,9 +46,10 @@ protected:
 
 	// ---------------- P U B L I C -------------------
 
-public:
+	friend class Machine;
 	virtual ~Item() override;
 
+public:
 	Item*	 prev() const { return _prev; }
 	Item*	 next() const { return _next; }
 	Machine* getMachine() const { return machine; }

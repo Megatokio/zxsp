@@ -30,10 +30,12 @@ public:
 
 public:
 	explicit CurrahMicroSpeech(Machine*);
-	~CurrahMicroSpeech() override;
 
 	void setHifi(bool) volatile; // main thread only
 	bool isHifi() const volatile;
+
+protected:
+	~CurrahMicroSpeech() override;
 
 	// Item interface:
 	void  powerOn(/*t=0*/ int32 cc) override;

@@ -140,11 +140,7 @@ void DivIDEInspector::mousePressEvent(QMouseEvent* e)
 void DivIDEInspector::updateWidgets()
 {
 	xxlogIn("DivIDEInspector:updateWidgets");
-	if (!object)
-	{
-		xlogline("DivIDEInspector.updateWidgets: !item");
-		return;
-	}
+	if (!machine || !object) return;
 
 	// state.jumper_A depends on machine type and machine type is fixed (for the lifetime of this inspector)
 	assert(state.jumper_A == machine->isA(isa_MachineZxPlus2a));
@@ -327,6 +323,7 @@ void DivIDEInspector::insert_disk(cstr filepath)
 void DivIDEInspector::insert_disk()
 {
 	xlogline("DivIDEInspector: slotInsertDisk");
+	assert(machine && object);
 
 	if (divide()->isDiskInserted())
 	{

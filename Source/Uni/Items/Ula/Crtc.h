@@ -56,6 +56,7 @@ public:
 
 protected:
 	Crtc(Machine*, isa_id, isa_id grp, Internal, cstr o_addr, cstr i_addr);
+	~Crtc() override = default;
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;

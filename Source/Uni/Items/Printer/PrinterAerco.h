@@ -6,12 +6,14 @@
 #include "Printer.h"
 
 
-class PrinterAerco : public Printer
+class PrinterAerco final : public Printer
 {
 public:
 	explicit PrinterAerco(Machine*);
 
 protected:
+	~PrinterAerco() override = default;
+
 	// Item interface:
 	// void	powerOn			( /*t=0*/ int32 cc ) override;
 	// void	reset			( Time t, int32 cc ) override;

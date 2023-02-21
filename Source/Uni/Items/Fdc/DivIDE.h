@@ -9,7 +9,7 @@
 #include "unix/files.h"
 
 
-class DivIDE : public MassStorage
+class DivIDE final : public MassStorage
 {
 	MemoryPtr rom;
 	MemoryPtr ram;
@@ -34,7 +34,6 @@ public:
 	static constexpr cstr default_rom	   = nullptr;
 
 	DivIDE(Machine*, uint ramsize, cstr romfile = default_rom);
-	~DivIDE() override;
 
 	// ROM handling:
 	cstr		 getRomFilepath() const volatile { return romfilepath; }
@@ -85,6 +84,8 @@ public:
 	void setDiskWritable(bool) volatile;
 
 protected:
+	~DivIDE() override;
+
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
 	void reset(Time, int32 cc) override;

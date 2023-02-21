@@ -202,7 +202,7 @@ void FdcPlus3Insp::mousePressEvent(QMouseEvent* e)
 */
 void FdcPlus3Insp::updateWidgets()
 {
-	if (!object) return;
+	if (!machine || !object) return;
 
 	// LED animieren:
 	if (led_on != (motor_on() && drive == fdc->getSelectedDrive()))

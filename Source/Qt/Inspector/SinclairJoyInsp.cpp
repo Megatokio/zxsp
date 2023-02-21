@@ -48,7 +48,7 @@ void SinclairJoyInsp::updateWidgets()		  // ZX Spectrum +2
 {											  //	Sinclair 1: %---FUDRL active low oK
 	xlogIn("SinclairJoyInsp::updateWidgets"); //	Sinclair 2: %---LRDUF active low oK
 
-	if (!object) return;
+	if (!machine || !object) return;
 
 	uint8 newstate = joy()->getStateForInspector(0); // Sinclair 1
 	if (newstate != lineedit_state[0])

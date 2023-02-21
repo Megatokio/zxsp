@@ -38,7 +38,7 @@ enum FlashCommandState {
 };
 
 
-class SmartSDCard : public MassStorage
+class SmartSDCard final : public MassStorage
 {
 	MemoryPtr ram;
 	MemoryPtr rom;
@@ -75,7 +75,6 @@ class SmartSDCard : public MassStorage
 public:
 	enum Dip { JoystickEnabled = 1, MemoryEnabled = 2, ForceBankB = 4, FlashWriteEnabled = 8 };
 	explicit SmartSDCard(Machine* m, uint dip_switches);
-	~SmartSDCard() override;
 
 	// DIP switches:
 	void setMemoryEnabled(bool);
@@ -88,6 +87,8 @@ public:
 	JoystickID getJoystickID() const volatile { return indexof(joystick); }
 
 protected:
+	~SmartSDCard() override;
+
 	// Item interface:
 	void  powerOn(/*t=0*/ int32 cc) override;
 	void  reset(Time t, int32 cc) override;

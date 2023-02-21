@@ -335,7 +335,7 @@ void MachineJupiter::loadAce(FD& fd) noexcept(false) /*file_error,data_error*/
 
 	if (zsize == 0x2000) //  8k => jupiter 3k without ram extension
 	{
-		delete findIsaItem(isa_ExternalRam);
+		removeIsaItem(isa_ExternalRam);
 	}
 	else if (zsize <= 0x6000) // 24k => jupiter 3k with 16k ram extension
 	{

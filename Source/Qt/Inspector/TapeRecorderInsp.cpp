@@ -369,10 +369,8 @@ void TapeRecorderInsp::updateWidgets()
 
 	xxlogIn("TapeRecorderInsp::updateWidgets");
 
-	if (!is_visible) return;
-	if (!object) return;
+	if (!machine || !object) return;
 
-	Inspector::updateWidgets(); // nop
 	updateAnimation();
 
 	volatile TapeRecorder* tr = tape_recorder();

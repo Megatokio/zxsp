@@ -78,6 +78,7 @@ public:
 
 protected:
 	Mmu(Machine*, isa_id, cstr o_addr, cstr i_addr);
+	~Mmu() override = default;
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;

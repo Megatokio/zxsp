@@ -79,7 +79,6 @@ QLineEdit* Inspector::newLineEdit(cstr text, int min_width)
 	return te;
 }
 
-
 Inspector::Inspector(QWidget* w, MachineController* mc, volatile IsaObject* item, cstr bg_file) :
 	QWidget(w),
 	controller(mc),
@@ -92,7 +91,9 @@ Inspector::Inspector(QWidget* w, MachineController* mc, volatile IsaObject* item
 	toolbar(nullptr)
 {
 	xlogIn("new Inspector for %s", item ? item->name : "nullptr");
+	assert(mc != nullptr);
 	assert(machine != nullptr || object == nullptr);
+
 	this->setFixedSize(background.size()); // also removes green resize button
 
 	// TODO
@@ -121,10 +122,19 @@ Inspector::Inspector(QWidget* w, MachineController* mc, volatile IsaObject* item
 //	setAttribute(Qt::WA_OpaquePaintEvent,on);   // wir malen alle Pixel. Qt muss nicht vorher löschen.
 #endif
 
-	connect(timer, &QTimer::timeout, this, &Inspector::updateWidgets, Qt::AutoConnection);
-	// timer->start(1000/10);					// done by child class c'tor if needed
-}
+	connect(
+		timer, &QTimer::timeout, this,
+		[this] {
+			if (machine && object)
+			{
+				if (isVisible()) updateWidgets();
+			}
+			else return timer->stop();
+		},
+		Qt::AutoConnection);
 
+	// timer->start(1000/10);	<-- done by child class c'tor if needed
+}
 
 Inspector::~Inspector()
 {
@@ -133,8 +143,6 @@ Inspector::~Inspector()
 	timer = nullptr;
 }
 
-
-// virtual
 void Inspector::paintEvent(QPaintEvent*) // Qt callback
 {
 	xxlogIn("Inspector:paintEvent");
@@ -142,16 +150,12 @@ void Inspector::paintEvent(QPaintEvent*) // Qt callback
 	p.drawPixmap(0, 0, width(), height(), background);
 }
 
-
-// virtual
 bool Inspector::event(QEvent* e)
 {
 	xxlogIn("Inspector[%s]:event: %s", object ? object->name : "nullptr", QEventTypeStr(e->type()));
 	return QWidget::event(e); // true if processed
 }
 
-
-// virtual
 void Inspector::mousePressEvent(QMouseEvent* e)
 {
 	xlogIn("Inspector:mousePressEvent");
@@ -159,16 +163,6 @@ void Inspector::mousePressEvent(QMouseEvent* e)
 	QWidget::mousePressEvent(e);
 }
 
-
-// void Inspector::resizeEvent(QResizeEvent* e)
-//{
-//	xlogIn("Inspector:resizeEvent");
-//	QWidget::resizeEvent(e);
-////	if(e->size() != e->oldSize()) emit sizeChanged();
-//}
-
-
-// virtual
 void Inspector::contextMenuEvent(QContextMenuEvent* e)
 {
 	xlogIn("Inspector:contextMenuEvent");
@@ -193,12 +187,13 @@ void Inspector::contextMenuEvent(QContextMenuEvent* e)
 // ###########################################################################################
 
 
-/*	static Inspector Factory:
- */
 Inspector* Inspector::newInspector(QWidget* p, MachineController* mc, volatile IsaObject* item)
 {
-	assert(isMainThread());
+	// static Inspector Factory:
+
 	xlogIn("Inspector::newInspector");
+	assert(isMainThread());
+	assert(mc != nullptr);
 
 	// new empty inspector:
 	if (item == nullptr) return new Inspector(p, mc, nullptr);

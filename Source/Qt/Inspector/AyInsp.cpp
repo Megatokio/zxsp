@@ -95,12 +95,8 @@ AyInsp::AyInsp(QWidget* w, MachineController* mc, volatile IsaObject* item) :
 void AyInsp::updateWidgets()
 {
 	xxlogIn("AyInsp::update");
+	if (!machine || !object) return;
 
-	if (!object)
-	{
-		timer->stop();
-		return;
-	}
 	const volatile Ay*	  ay   = this->ay();
 	uint8 const volatile* regs = ay->getRegisters();
 

@@ -10,4 +10,7 @@ class GrafPad : public Item
 {
 public:
 	explicit GrafPad(Machine* m);
+
+protected:
+	~GrafPad() override = default;
 };

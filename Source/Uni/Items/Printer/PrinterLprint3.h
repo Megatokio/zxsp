@@ -6,12 +6,14 @@
 #include "Printer.h"
 
 
-class PrinterLprint3 : public Printer
+class PrinterLprint3 final : public Printer
 {
 public:
 	explicit PrinterLprint3(Machine*);
 
 protected:
+	~PrinterLprint3() override = default;
+
 	// Item interface:
 	// void	powerOn			( /*t=0*/ int32 cc ) override;
 	// void	reset			( Time t, int32 cc ) override;

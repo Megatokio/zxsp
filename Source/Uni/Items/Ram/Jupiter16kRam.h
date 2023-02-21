@@ -10,5 +10,7 @@ class Jupiter16kRam : public ExternalRam
 {
 public:
 	explicit Jupiter16kRam(Machine*);
-	virtual ~Jupiter16kRam();
+
+protected:
+	~Jupiter16kRam() override;
 };

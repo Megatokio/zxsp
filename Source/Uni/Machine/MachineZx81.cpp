@@ -252,12 +252,12 @@ void MachineZx81::loadP81(FD& fd, bool p81) noexcept(false) /*file_error,data_er
 	// note: MachineController must update the menu entries!
 	if (len + MIN_FREE_16k > ram.count() && len + MIN_FREE_16k > 16 kB)
 	{
-		delete findIsaItem(isa_ExternalRam);
+		removeIsaItem(isa_ExternalRam);
 		new Memotech64kRam(this);
 	}
 	else if (ram.count() < 16 kB && len + MIN_FREE_4k > ram.count())
 	{
-		delete findIsaItem(isa_ExternalRam);
+		removeIsaItem(isa_ExternalRam);
 		new Zx16kRam(this);
 	}
 

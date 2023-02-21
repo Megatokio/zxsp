@@ -694,7 +694,6 @@ void MemoryHexInspector::updateWidgets()
 {
 	if (!machine || !object || !isVisible()) return;
 
-	assert(machine);
 	assert(first_valid_row >= 0 || update_all);
 	assert(last_valid_row <= rows || update_all);
 	assert(scroll_offset >= 0);

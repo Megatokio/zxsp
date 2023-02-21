@@ -16,4 +16,7 @@ public:
 	// void	setPort7ffd		(uint8) override;
 	int32 addWaitCycles(int32 cc, uint16 addr) const volatile override;
 	uint8 getFloatingBusByte(int32 cc) override;
+
+protected:
+	~UlaPlus3() override = default;
 };

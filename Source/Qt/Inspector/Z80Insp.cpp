@@ -144,11 +144,9 @@ MyLineEdit* Z80Insp::new_led(cstr s)
 void Z80Insp::updateWidgets()
 {
 	xxlogIn("Z80Insp::update");
-	if (!object)
-	{
-		timer->stop();
-		return;
-	}
+
+	if (!machine || !object) return;
+
 	volatile Z80* cpu = this->cpu();
 
 #define SetRR(RR)                                   \

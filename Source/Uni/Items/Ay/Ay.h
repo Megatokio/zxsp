@@ -157,6 +157,7 @@ protected:
 protected:
 	Ay(Machine*, isa_id, Internal, cstr sel, cstr wr, cstr rd, Frequency, StereoMix);
 	Ay(Machine* m, cstr s, cstr w, cstr r, Frequency f, StereoMix x) : Ay(m, isa_InternalAy, internal, s, w, r, f, x) {}
+	~Ay() override;
 
 	// notification for attached hardware:
 	// called on audio thread
@@ -168,8 +169,6 @@ protected:
 	virtual uint8 getInputValueAtPortB(Time, uint16) { return 0xff; }
 
 public:
-	virtual ~Ay() override;
-
 	// set & read register
 	void setRegister(uint r, uint8 n) { setRegister(time_of_last_sample, r, n); }
 	void setRegisters(uint8 n[16])

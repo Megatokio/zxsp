@@ -10,6 +10,7 @@ class SinclairJoy : public Joy
 {
 protected:
 	SinclairJoy(Machine*, isa_id, Internal internal, cstr i_addr = "----.----.----.---0");
+	~SinclairJoy() override = default;
 
 	// Item interface:
 	void input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
@@ -29,28 +30,37 @@ public:
 };
 
 
-class ZxPlus2Joy : public SinclairJoy
+class ZxPlus2Joy final : public SinclairJoy
 {
 public:
 	explicit ZxPlus2Joy(Machine* m) : SinclairJoy(m, isa_ZxPlus2Joy, internal) {}
+
+protected:
+	~ZxPlus2Joy() override = default;
 };
 
 
-class ZxPlus2AJoy : public SinclairJoy
+class ZxPlus2AJoy final : public SinclairJoy
 {
 public:
 	explicit ZxPlus2AJoy(Machine* m) : SinclairJoy(m, isa_ZxPlus2AJoy, internal) {}
+
+protected:
+	~ZxPlus2AJoy() override = default;
 };
 
 
-class ZxPlus3Joy : public SinclairJoy
+class ZxPlus3Joy final : public SinclairJoy
 {
 public:
 	explicit ZxPlus3Joy(Machine* m) : SinclairJoy(m, isa_ZxPlus3Joy, internal) {}
+
+protected:
+	~ZxPlus3Joy() override = default;
 };
 
 
-class Tk90xJoy : public SinclairJoy
+class Tk90xJoy final : public SinclairJoy
 {
 	//	TK90X:
 	//	Anscheinend wurden beide Joysticks über den einen Port herausgeführt:
@@ -59,14 +69,20 @@ class Tk90xJoy : public SinclairJoy
 
 public:
 	explicit Tk90xJoy(Machine* m) : SinclairJoy(m, isa_Tk90xJoy, internal) {}
+
+protected:
+	~Tk90xJoy() override = default;
 };
 
 
-class Tk95Joy : public SinclairJoy
+class Tk95Joy final : public SinclairJoy
 {
 	//	TK95:
 	//	Anscheinend wie TK90X
 
 public:
 	explicit Tk95Joy(Machine* m) : SinclairJoy(m, isa_Tk95Joy, internal) {}
+
+protected:
+	~Tk95Joy() override = default;
 };

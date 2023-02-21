@@ -62,8 +62,9 @@ public:
 	enum DipSwitches { EnableNewVideoModes = 1, EnableRs232 = 2, EnableJoystick = 4, EnableIf1RomHooks = 8 };
 
 	explicit SpectraVideo(Machine* m, uint dip_switches);
-	~SpectraVideo() override;
 
+protected:
+	~SpectraVideo() override;
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
@@ -73,7 +74,7 @@ public:
 	// void	audioBufferEnd	(Time t)override;
 	// void	videoFrameEnd	(int32 cc)override;
 
-
+public:
 	// ROM handling:
 	cstr getRomFilepath() const volatile { return filepath; }
 	cstr getRomFilename() const volatile { return basename_from_path(filepath); }

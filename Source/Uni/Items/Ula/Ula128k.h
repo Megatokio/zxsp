@@ -19,6 +19,7 @@ public:
 
 protected:
 	Ula128k(Machine*, isa_id, cstr o_addr, cstr i_addr);
+	~Ula128k() override = default;
 
 	bool  mmu_is_locked() const volatile noexcept { return port_7ffd & 0x20; }
 	void  output(Time t, int32 cc, uint16 addr, uint8 byte) override;

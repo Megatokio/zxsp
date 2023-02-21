@@ -43,6 +43,7 @@ protected:
 
 protected:
 	UlaZxsp(Machine*, isa_id, cstr oaddr, cstr iaddr);
+	~UlaZxsp() override;
 	void setupTiming() override;
 
 
@@ -58,7 +59,6 @@ public:
 
 public:
 	explicit UlaZxsp(Machine*);
-	virtual ~UlaZxsp() override;
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;

@@ -231,11 +231,7 @@ void CurrahMicroSpeechInsp::set_hifi() { currah_uspeech()->setHifi(yes); }
 void CurrahMicroSpeechInsp::updateWidgets()
 {
 	xxlogIn("CurrahMicroSpeechInspector::update");
-	if (!object)
-	{
-		timer->stop();
-		return;
-	}
+	if (!machine || !object) return;
 
 	// list_lock.lock();		not needed: only inspector reads and only device writes to history[]
 

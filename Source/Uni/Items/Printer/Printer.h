@@ -12,6 +12,8 @@ protected:
 	Printer(Machine*, isa_id, Internal internal, cstr o_addr, cstr i_addr);
 
 protected:
+	~Printer() override = default;
+
 	// Item interface:
 	// void	powerOn			( /*t=0*/ int32 cc ) override;
 	// void	reset			( Time t, int32 cc ) override;

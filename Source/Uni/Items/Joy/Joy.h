@@ -18,8 +18,6 @@ protected:
 	uint				  num_ports;
 
 public:
-	virtual ~Joy() override;
-
 	void insertJoystick(int i, int id);
 	void insertJoystick(int id) { insertJoystick(0, id); }
 
@@ -33,6 +31,7 @@ public:
 
 protected:
 	Joy(Machine*, isa_id, Internal, cstr o_addr, cstr i_addr, cstr idf1, cstr idf2 = nullptr, cstr idf3 = nullptr);
+	~Joy() override;
 
 	// Item interface
 	// void	powerOn			(/*t=0*/ int32 cc) override;

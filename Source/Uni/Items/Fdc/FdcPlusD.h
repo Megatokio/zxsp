@@ -6,8 +6,11 @@
 #include "Fdc.h"
 
 
-class FdcPlusD : public Fdc
+class FdcPlusD final : public Fdc
 {
 public:
 	explicit FdcPlusD(Machine*);
+
+protected:
+	~FdcPlusD() override = default;
 };

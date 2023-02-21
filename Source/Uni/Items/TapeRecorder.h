@@ -153,10 +153,8 @@ private:
 	void  tapefile_record(CC);
 	void  play_block();
 
-public:
-	TapeRecorder(Machine*, isa_id, const cstr audio_names[], bool auto_start = yes, bool fast_load = yes);
+protected:
 	~TapeRecorder() override;
-
 
 	// Item interface:
 	// overloaded methods
@@ -168,6 +166,8 @@ public:
 	void audioBufferEnd(Time t) override;
 	void videoFrameEnd(int32 cc) override;
 
+public:
+	TapeRecorder(Machine*, isa_id, const cstr audio_names[], bool auto_start = yes, bool fast_load = yes);
 
 	// Queries:
 

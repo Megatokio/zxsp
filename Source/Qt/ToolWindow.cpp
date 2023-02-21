@@ -42,6 +42,7 @@ ToolWindow::ToolWindow(MachineController* mc, volatile IsaObject* item, QAction*
 	machine_controller(mc)
 {
 	xlogIn("new ToolWindow");
+	assert(mc != nullptr);
 
 	setAttribute(Qt::WA_DeleteOnClose, 1);
 	setAttribute(Qt::WA_ShowWithoutActivating, 1);

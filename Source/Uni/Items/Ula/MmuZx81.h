@@ -13,6 +13,7 @@ public:
 
 protected:
 	MmuZx81(Machine* m, isa_id id) : MmuZx80(m, id) {}
+	~MmuZx81() override = default;
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;

@@ -13,7 +13,9 @@ protected:
 
 public:
 	MmuZx80(Machine* m) : Mmu(m, isa_MmuZx80, nullptr, nullptr) {}
-	virtual ~MmuZx80() override = default;
+
+protected:
+	~MmuZx80() override = default;
 
 	// Item interface:
 	virtual void powerOn(/*t=0*/ int32 cc) override;
@@ -24,18 +26,16 @@ public:
 	// virtual void	videoFrameEnd	(int32 cc);
 
 	// MMU Interface:
-	virtual void mapMem() override;
+	void mapMem() override;
 
 	// virtual bool	hasPort7ffd		()	volatile const noexcept       { return no; }
 	// virtual bool	hasPort1ffd		()	volatile const noexcept       { return no; }
 	// virtual bool	hasPortF4		()	volatile const noexcept       { return no; }
 
 
-	/*	ramCS: currently not used. Ram extensions simply add to machine.ram.
-	 */
+	// ramCS: currently not used. Ram extensions simply add to machine.ram.
 	// virtual void	ramCS			(bool);
 
-	/*	romCS: this signal was not present on the ZX80
-	 */
+	// romCS: this signal was not present on the ZX80
 	// virtual void	romCS			(bool);
 };

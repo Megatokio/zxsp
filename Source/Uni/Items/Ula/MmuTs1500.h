@@ -10,4 +10,7 @@ class MmuTs1500 : public MmuZx81
 {
 public:
 	explicit MmuTs1500(Machine*);
+
+protected:
+	~MmuTs1500() override = default;
 };

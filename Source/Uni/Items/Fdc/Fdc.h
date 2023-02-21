@@ -27,7 +27,7 @@ public:
 
 protected:
 	Fdc(Machine*, isa_id, Internal internal, cstr o_addr, cstr i_addr);
-	virtual ~Fdc();
+	~Fdc() override;
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;

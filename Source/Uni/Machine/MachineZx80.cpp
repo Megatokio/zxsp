@@ -156,7 +156,7 @@ void MachineZx80::loadO80(FD& fd) noexcept(false) /*file_error,data_error*/
 	uint req_len = len + MIN_FREE;
 	if (req_len > ram.count())
 	{
-		delete findIsaItem(isa_ExternalRam);
+		removeIsaItem(isa_ExternalRam);
 
 		if (req_len > 16 kB) new Memotech64kRam(this); // note: required a small HW patch to work with the ZX80
 		else if (req_len > 4 kB) new Zx16kRam(this);

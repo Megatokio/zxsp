@@ -53,7 +53,7 @@ Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile IsaOb
 void Multiface1Insp::updateWidgets() // Kempston
 {
 	xlogIn("Multiface1Insp::updateWidgets");
-	if (!object) return;
+	if (!machine || !object) return;
 
 	MultifaceInsp::updateWidgets();
 

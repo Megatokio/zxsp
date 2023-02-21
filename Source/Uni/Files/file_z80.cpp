@@ -407,24 +407,24 @@ void Machine::loadZ80_attach_joysticks(uint z80head_im)
 {
 	assert(isMainThread());
 
-	Joy* j;
-	int	 idx = 0;
+	Item* j	  = nullptr;
+	int	  idx = 0;
 
 	switch (z80head_im >> 6)
 	{
 	default: return;
 
 	case 1:
-		j = JoyPtr(findIsaItem(isa_KempstonJoy));
-		if (!j) joystick = j = JoyPtr(addExternalItem(isa_KempstonJoy));
+		j = findIsaItem(isa_KempstonJoy);
+		if (!j) j = addExternalItem(isa_KempstonJoy);
 		break;
 
 	case 3: // right (1st) IF2
 		idx = 1;
 		FALLTHROUGH
 	case 2: // left (2nd) IF2
-		j = JoyPtr(findIsaItem(isa_SinclairJoy));
-		if (!j) joystick = j = JoyPtr(addExternalItem(isa_ZxIf2));
+		j = findIsaItem(isa_SinclairJoy);
+		if (!j) j = addExternalItem(isa_ZxIf2);
 		break;
 	}
 
@@ -432,7 +432,7 @@ void Machine::loadZ80_attach_joysticks(uint z80head_im)
 	{
 		if (joysticks[i] && joysticks[i]->isConnected())
 		{
-			j->insertJoystick(idx, i);
+			static_cast<Joy*>(j)->insertJoystick(idx, i);
 			break;
 		}
 	}
@@ -532,7 +532,7 @@ void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 		Item* xram = findIsaItem(isa_ExternalRam);
 		if (xram && !ismainthread)
 			throw DataError("Cannot detach ram extension on background thread"); // can't happen for zxsp models
-		else delete xram;
+		else removeItem(xram);
 		if (model == jupiter) addExternalRam(isa_Jupiter16kRam);
 		else if (model_info->has_zxsp_bus) addExternalRam(isa_Cheetah32kRam);
 		else if (model_info->has_zx80_bus)

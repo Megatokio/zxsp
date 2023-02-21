@@ -54,6 +54,7 @@ public:
 
 protected:
 	Keyboard(Machine*, isa_id, const AsciiToZxkeyMap, const OskeyToZxkeyMap);
+	~Keyboard() override = default;
 
 public:
 	// Item interface:
@@ -94,6 +95,9 @@ class KeyboardZx81 : public Keyboard
 public:
 	// ZX80, ZX81, TS1000, TS1500, TK85
 	explicit KeyboardZx81(Machine*, isa_id = isa_KbdZx81);
+
+protected:
+	~KeyboardZx81() override = default;
 };
 
 
@@ -101,6 +105,9 @@ class KeyboardZx80 : public KeyboardZx81
 {
 public:
 	explicit KeyboardZx80(Machine*, isa_id = isa_KbdZx80);
+
+protected:
+	~KeyboardZx80() override = default;
 };
 
 
@@ -109,6 +116,9 @@ class KeyboardZxsp : public Keyboard
 public:
 	// ZXSP, TK90X, TK95
 	explicit KeyboardZxsp(Machine*, isa_id = isa_KbdZxsp);
+
+protected:
+	~KeyboardZxsp() override = default;
 };
 
 
@@ -118,7 +128,9 @@ public:
 	// ZXPLUS, Inves, ZX128*, ZXPlus2*, ZXPlus2A*, ZXPlus3*
 	explicit KeyboardZxPlus(Machine*, isa_id = isa_KbdZxPlus);
 
-private:
+protected:
+	~KeyboardZxPlus() override = default;
+
 	void convert_to_matrix(Keymap&) override;
 };
 
@@ -129,7 +141,9 @@ public:
 	// TS2068, TC2068, u2086, TC2048
 	explicit KeyboardTimex(Machine*, isa_id = isa_KbdTimex);
 
-private:
+protected:
+	~KeyboardTimex() override = default;
+
 	void convert_to_matrix(Keymap&) override;
 };
 
@@ -141,5 +155,7 @@ public:
 	explicit KeyboardJupiter(Machine*, isa_id = isa_KbdJupiter);
 
 private:
+	~KeyboardJupiter() override = default;
+
 	void convert_to_matrix(Keymap&) override;
 };

@@ -22,9 +22,10 @@ protected:
 	void page_out();
 
 	Multiface(Machine*, isa_id, cstr rom, cstr o_addr, cstr i_addr);
-	virtual ~Multiface();
 
 protected:
+	virtual ~Multiface();
+
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
 	void reset(Time t, int32 cc) override;

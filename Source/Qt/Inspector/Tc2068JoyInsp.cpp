@@ -38,7 +38,8 @@ Tc2068JoyInsp::Tc2068JoyInsp(QWidget* w, MachineController* mc, volatile IsaObje
 void Tc2068JoyInsp::updateWidgets()
 {
 	xlogIn("Tc2068JoyInsp::updateWidgets");
-	if (!object) return;
+
+	if (!machine || !object) return;
 
 	for (int i = 0; i < num_ports; i++)
 	{

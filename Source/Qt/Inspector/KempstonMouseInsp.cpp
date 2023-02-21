@@ -31,6 +31,7 @@ KempstonMouseInsp::KempstonMouseInsp(QWidget* w, MachineController* mc, volatile
 	old_grabbed(no)
 {
 	xlogIn("new KempstonMouseInsp");
+	assert(machine && object);
 	assert(object->isA(isa_KempstonMouse));
 
 	display_buttons->setMaximumWidth(100);
@@ -77,15 +78,14 @@ KempstonMouseInsp::KempstonMouseInsp(QWidget* w, MachineController* mc, volatile
 	g->addWidget(button_grab_mouse, 2, 5);
 
 	clearFocus();
-	updateWidgets(); // once
+	KempstonMouseInsp::updateWidgets(); // once, assumes class is final
 }
 
 
 void KempstonMouseInsp::updateWidgets()
 {
 	xxlogIn("KempstonMouseInsp:updateWidgets");
-
-	if (!object) return;
+	if (!machine || !object) return;
 
 	uint newx, newy;
 	int	 newbuttons;

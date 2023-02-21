@@ -229,8 +229,9 @@ void SpectraVideoInspector::updateWidgets()
 {
 	xlogIn("SpectraVideoInspector::updateWidgets");
 
-	if (!object) return;
-	volatile SpectraVideo* spectra = Inspector::spectra();
+	if (!machine || !object) return;
+
+	volatile SpectraVideo* spectra = this->spectra();
 
 	uint8 newstate = spectra->joystick->getState(no);
 	if (js_state != newstate)

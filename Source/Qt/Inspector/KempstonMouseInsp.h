@@ -12,7 +12,7 @@ class QPushButton;
 namespace gui
 {
 
-class KempstonMouseInsp : public Inspector
+class KempstonMouseInsp final : public Inspector
 {
 	// widgets:
 	QLineEdit*	 display_x;

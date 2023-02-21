@@ -19,7 +19,7 @@ class MmuTc2068 : public MmuTc2048
 
 public:
 	explicit MmuTc2068(Machine*, isa_id = isa_MmuTc2068);
-	virtual ~MmuTc2068();
+	~MmuTc2068() override;
 
 	void selectBusExpansionUnit(bool);
 

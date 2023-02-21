@@ -10,4 +10,7 @@ class AmxMouse : public Item
 {
 public:
 	explicit AmxMouse(Machine*);
+
+protected:
+	~AmxMouse() override = default;
 };

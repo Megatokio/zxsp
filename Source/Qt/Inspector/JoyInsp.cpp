@@ -88,8 +88,7 @@ void JoyInsp::joystick_selected()
 void JoyInsp::updateWidgets() // Kempston
 {
 	xlogIn("JoyInsp::updateWidgets");
-
-	if (!object) return;
+	if (!machine || !object) return;
 
 	for (int i = 0; i < num_ports; i++)
 	{

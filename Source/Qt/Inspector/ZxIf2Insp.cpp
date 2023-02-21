@@ -91,7 +91,7 @@ void ZxIf2Insp::updateWidgets()
 {
 	xlogIn("ZxIf2Insp::updateWidgets");
 
-	if (!object) return;
+	if (!machine || !object) return;
 
 	SinclairJoyInsp::updateWidgets();
 

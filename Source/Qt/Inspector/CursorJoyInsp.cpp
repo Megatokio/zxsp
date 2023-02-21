@@ -57,8 +57,7 @@ CursorJoyInsp::CursorJoyInsp(QWidget* w, MachineController* mc, volatile IsaObje
 void CursorJoyInsp::updateWidgets()
 {
 	xlogIn("CursorJoyInsp::updateWidgets");
-
-	if (!object) return;
+	if (!machine || !object) return;
 
 	uint8 newstate = joy()->getStateForInspector();
 	if (newstate != lineedit_state[0])

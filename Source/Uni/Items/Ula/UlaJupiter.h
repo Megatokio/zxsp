@@ -23,12 +23,13 @@ private:
 
 public:
 	UlaJupiter(Machine*, bool is60hz);
-	~UlaJupiter() override;
 
 	void	  setAudioMode(AudioMode m) { audio_mode = m; }
 	AudioMode getAudioMode() { return audio_mode; }
 
 protected:
+	~UlaJupiter() override;
+
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
 	void reset(Time t, int32 cc) override;

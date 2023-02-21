@@ -289,17 +289,8 @@ void UlaInsp::updateWidgets()
 {
 	xxlogIn("UlaInsp::updateWidgets");
 
-	if (!object)
-	{
-		timer->stop();
-		return;
-	}
-
-	if (!mmu)
-	{
-		timer->stop();
-		return;
-	}
+	if (!machine || !object) return;
+	if (!mmu) return timer->stop();
 
 	const volatile Ula* ula = this->ula();
 

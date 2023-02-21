@@ -18,6 +18,7 @@ public:
 
 protected:
 	MmuTc2048(Machine*, isa_id, cstr oaddr, cstr iaddr);
+	~MmuTc2048() override = default;
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
