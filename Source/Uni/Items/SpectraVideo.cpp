@@ -231,7 +231,8 @@ void SpectraVideo::powerOn(int32 cc)
 
 void SpectraVideo::setup_timing()
 {
-	UlaZxsp* ula = UlaZxspPtr(machine->ula);
+	UlaZxsp* ula = dynamic_cast<UlaZxsp*>(machine->ula);
+	assert(ula);
 
 	assert(cc_per_byte == 4);						// ula cycles per crtc address increment (= 8 pixels)
 	cc_per_line			= ula->cc_per_line;			// 48k: 224, +128k: 228
@@ -545,7 +546,8 @@ int32 SpectraVideo::doFrameFlyback(int32 /*cc*/) // called from runForSound()
 		ccx = lines_before_screen * cc_per_line; // update_screen_cc
 
 		record_ioinfo(cc_frame_end, 0xfe, 0x00); // for 60Hz models: remainder of screen is black
-		bool new_buffers_in_use = ScreenZxspPtr(screen)->ffb_or_vbi(
+		assert(dynamic_cast<gui::ScreenZxsp*>(screen));
+		bool new_buffers_in_use = static_cast<gui::ScreenZxsp*>(screen)->ffb_or_vbi(
 			ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, get_flash_phase(),
 			90000 /*cc_frame_end*/);
 
@@ -570,7 +572,8 @@ void SpectraVideo::drawVideoBeamIndicator(int32 cc) // called from runForSound()
 	if (screen)
 	{
 		updateScreenUpToCycle(cc);
-		bool new_buffers_in_use = ScreenZxspPtr(screen)->ffb_or_vbi(
+		assert(dynamic_cast<gui::ScreenZxsp*>(screen));
+		bool new_buffers_in_use = static_cast<gui::ScreenZxsp*>(screen)->ffb_or_vbi(
 			ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, get_flash_phase(), cc);
 
 		if (new_buffers_in_use)
@@ -869,7 +872,7 @@ void SpectraVideo::markVideoRam()
 }
 
 
-void SpectraVideo::insertJoystick(int id) volatile
+void SpectraVideo::insertJoystick(int id)
 {
 	if (joystick == joysticks[id]) return;
 

@@ -224,6 +224,7 @@ uint8 Fdc765::SR3()
   {                 \
   default: IERR();  \
   case 0:
+
 #define WAIT             \
   do {                   \
 	sm_state = __LINE__; \
@@ -231,7 +232,9 @@ uint8 Fdc765::SR3()
   case __LINE__:;        \
   }                      \
   while (0)
+
 #define FINISH }
+
 #define GOSUB(PROC)               \
   do {                            \
 	sm_stack[sm_sp++] = __LINE__; \
@@ -239,19 +242,31 @@ uint8 Fdc765::SR3()
   case __LINE__:;                 \
   }                               \
   while (0)
+
 #define RETURN goto ret
 
 #define send_a_byte_to_cpu(BYTE) \
-  MSR  = msrFdcBusy | msrRQR;    \
-  byte = BYTE;                   \
-  while (MSR & msrRQM) WAIT;
+  do {                           \
+	MSR	 = msrFdcBusy | msrRQR;  \
+	byte = BYTE;                 \
+	while (MSR & msrRQM) WAIT;   \
+  }                              \
+  while (0)
+
 #define read_a_byte_from_cpu(BYTE) \
-  MSR = msrFdcBusy | msrRQW;       \
-  while (MSR & msrRQM) WAIT;       \
-  BYTE = byte;
-#define read_byte_from_cpu() \
-  MSR = msrFdcBusy | msrRQW; \
-  while (MSR & msrRQM) WAIT;
+  do {                             \
+	MSR = msrFdcBusy | msrRQW;     \
+	while (MSR & msrRQM) WAIT;     \
+	BYTE = byte;                   \
+  }                                \
+  while (0)
+
+#define read_byte_from_cpu()   \
+  do {                         \
+	MSR = msrFdcBusy | msrRQW; \
+	while (MSR & msrRQM) WAIT; \
+  }                            \
+  while (0)
 
 
 void Fdc765::run_statemachine(Time t)
@@ -263,7 +278,7 @@ aa:
 	SR0		  = 0x00;
 	head	  = 0;
 	unit	  = 0;
-	drive	  = fdd[0];
+	drive	  = fdd[0].get();
 	ready	  = no;
 
 	for (;;)
@@ -336,7 +351,7 @@ aa:
 			head_unit = byte & 7;
 			head	  = head_unit >> 2;
 			unit	  = head_unit & 3;
-			drive	  = fdd[unit];
+			drive	  = fdd[unit].get();
 		}
 
 		// Get TrackID, HeadID, 1st SectorID

@@ -18,7 +18,7 @@ class KeyboardInspector : public Inspector
 	Keymap keymap; // currently displayed keyboard state
 
 public:
-	KeyboardInspector(QWidget*, MachineController*, volatile IsaObject*);
+	KeyboardInspector(QWidget*, MachineController*, volatile Keyboard*);
 
 private:
 	virtual QRect keyRect(uint8);
@@ -44,7 +44,7 @@ class Tk90xKbdInsp : public KeyboardInspector
 	QRect keyRect(uint8) override;
 
 public:
-	Tk90xKbdInsp(QWidget* p, MachineController* m, volatile IsaObject* i) : KeyboardInspector(p, m, i) {}
+	Tk90xKbdInsp(QWidget* p, MachineController* m, volatile Keyboard* i) : KeyboardInspector(p, m, i) {}
 };
 
 
@@ -53,7 +53,7 @@ class Ts1000KbdInsp : public KeyboardInspector
 	QRect keyRect(uint8) override;
 
 public:
-	Ts1000KbdInsp(QWidget* p, MachineController* m, volatile IsaObject* i) : KeyboardInspector(p, m, i) {}
+	Ts1000KbdInsp(QWidget* p, MachineController* m, volatile Keyboard* i) : KeyboardInspector(p, m, i) {}
 };
 
 class Ts1500KbdInsp : public KeyboardInspector
@@ -61,7 +61,7 @@ class Ts1500KbdInsp : public KeyboardInspector
 	QRect keyRect(uint8) override;
 
 public:
-	Ts1500KbdInsp(QWidget* p, MachineController* m, volatile IsaObject* i) : KeyboardInspector(p, m, i) {}
+	Ts1500KbdInsp(QWidget* p, MachineController* m, volatile Keyboard* i) : KeyboardInspector(p, m, i) {}
 };
 
 class Tk85KbdInsp : public KeyboardInspector
@@ -69,7 +69,7 @@ class Tk85KbdInsp : public KeyboardInspector
 	QRect keyRect(uint8) override;
 
 public:
-	Tk85KbdInsp(QWidget* p, MachineController* m, volatile IsaObject* i) : KeyboardInspector(p, m, i) {}
+	Tk85KbdInsp(QWidget* p, MachineController* m, volatile Keyboard* i) : KeyboardInspector(p, m, i) {}
 };
 
 class Tk95KbdInsp : public KeyboardInspector
@@ -77,7 +77,7 @@ class Tk95KbdInsp : public KeyboardInspector
 	QRect keyRect(uint8) override;
 
 public:
-	Tk95KbdInsp(QWidget* p, MachineController* m, volatile IsaObject* i) : KeyboardInspector(p, m, i) {}
+	Tk95KbdInsp(QWidget* p, MachineController* m, volatile Keyboard* i) : KeyboardInspector(p, m, i) {}
 };
 
 } // namespace gui

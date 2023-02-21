@@ -146,8 +146,8 @@ void Z80Insp::updateWidgets()
 	xxlogIn("Z80Insp::update");
 
 	if (!machine || !object) return;
-
-	volatile Z80* cpu = this->cpu();
+	auto* cpu = dynamic_cast<volatile Z80*>(object);
+	if (!cpu) return;
 
 #define SetRR(RR)                                   \
   do {                                              \
@@ -223,35 +223,54 @@ void Z80Insp::updateWidgets()
 void Z80Insp::return_pressed_in_lineedit(MyLineEdit* led)
 {
 	xlogIn("Z80Insp::returnPressed");
+	if (!machine || !object) return;
 
-	// MyLineEdit* led = dynamic_cast<MyLineEdit*>(QObject::sender());
-	cstr   text = led->text().toUtf8().data();
-	uint32 n	= intValue(text);
+	auto* cpu = dynamic_cast<volatile Z80*>(object);
+	if (!cpu) return;
 
-	NVPtr<Z80> cpu(this->cpu());
-	Z80Regs&   regs = cpu->getRegisters();
+	cstr  text = led->text().toUtf8().data();
+	int32 n	   = intValue(text);
 
-#define setR(REG)                            \
-  if (led == REG)                            \
-  {                                          \
-	value.REG = regs.REG = n;                \
-	led->setText(catstr("$", hexstr(n, 2))); \
-  }                                          \
-  else
-#define setRR(REG)                           \
-  if (led == REG)                            \
-  {                                          \
-	value.REG = regs.REG = n;                \
-	led->setText(catstr("$", hexstr(n, 4))); \
-  }                                          \
-  else
+#define setR(REG)                                            \
+  do {                                                       \
+	if (led == REG)                                          \
+	{                                                        \
+	  value.REG = nvptr(cpu)->getRegisters().REG = uint8(n); \
+	  led->setText(catstr("$", hexstr(n, 2)));               \
+	  return;                                                \
+	}                                                        \
+  }                                                          \
+  while (0)
 
-	setR(a) setR(f) setR(a2) setR(f2) setR(i) setR(r) setRR(sp) setRR(pc) setRR(bc) setRR(de) setRR(hl) setRR(ix)
-		setRR(iy) setRR(bc2) setRR(de2) setRR(hl2)
+#define setRR(REG)                                            \
+  do {                                                        \
+	if (led == REG)                                           \
+	{                                                         \
+	  value.REG = nvptr(cpu)->getRegisters().REG = uint16(n); \
+	  led->setText(catstr("$", hexstr(n, 4)));                \
+	  return;                                                 \
+	}                                                         \
+  }                                                           \
+  while (0)
 
-		// else:
+	setR(a);
+	setR(f);
+	setR(a2);
+	setR(f2);
+	setR(i);
+	setR(r);
+	setRR(sp);
+	setRR(pc);
+	setRR(bc);
+	setRR(de);
+	setRR(hl);
+	setRR(ix);
+	setRR(iy);
+	setRR(bc2);
+	setRR(de2);
+	setRR(hl2);
 
-		if (led == flags)
+	if (led == flags)
 	{
 		char* s			= upperstr(text);
 		uint8 new_flags = 0;
@@ -269,30 +288,29 @@ void Z80Insp::return_pressed_in_lineedit(MyLineEdit* led)
 			}
 		}
 
-		value.fstr = regs.f = new_flags;
+		value.fstr = nvptr(cpu)->getRegisters().f = new_flags;
 		led->setText(binstr(value.fstr, "--------", "SZ1H1VNC"));
 	}
 
 	else if (led == im)
 	{
-		if (n <= 2)
+		if (uint(n) <= 2)
 		{
-			value.im = regs.im = n;
+			value.im = nvptr(cpu)->getRegisters().im = uint8(n);
 			led->setText(tostr(n));
 		}
 	}
 
 	else if (led == cc)
 	{
-		Machine* m = cpu->getMachine();
-		if (m->isSuspended())
+		if (machine->isSuspended())
 		{
-			uint32 cc_ffb = m->ula->cpuCycleOfFrameFlyback(); // TODO: ZX80++
+			int32 cc_ffb = NV(machine)->ula->cpuCycleOfFrameFlyback();
 			if (n > cc_ffb) n = cc_ffb;
-			n = (n - cpu->cpuCycle() + cc_ffb) % cc_ffb;
-			if (n) m->runCpuCycles(n);
+			n = (n - NV(cpu)->cpuCycle() + cc_ffb) % cc_ffb;
+			if (n) NV(machine)->runCpuCycles(n);
 
-			value.cc = cpu->cpuCycle();
+			value.cc = NV(cpu)->cpuCycle();
 			cstr s	 = tostr(value.cc);
 			cc->setText(s);
 			cc->QLineEdit::setText(s); // wg. Kbd Fokus wird der Text sonst nicht aktualisiert
@@ -304,37 +322,80 @@ void Z80Insp::return_pressed_in_lineedit(MyLineEdit* led)
 		Frequency v = mhzValue(text);
 		if (v >= 1.0)
 		{
-			Machine* m = cpu->getMachine();
-			m->setSpeedFromCpuClock(v);
-			value.clock = m->cpu_clock;
+			nvptr(machine)->setSpeedFromCpuClock(v);
+			value.clock = machine->cpu_clock;
 			led->setText(MHzStr(value.clock));
 		}
 	}
 }
 
-
-/*	The user toggled the IE checkbox
-	Note: signal 'clicked' is only sent on user action, click() and animateClick();
-	not on other program actions like setDown(), setChecked() or toggle().
-*/
-void Z80Insp::set_interrupt_enable(bool checked) { NVPtr<Z80>(cpu())->getRegisters().iff = checked ? 0x0101 : 0x0000; }
-
-/*	The user toggled the NMI checkbox
- */
-void Z80Insp::set_nmi(bool checked)
+void Z80Insp::set_interrupt_enable(bool checked)
 {
-	NVPtr<Z80> z80(cpu());
-	if (checked) z80->triggerNmi();
-	else z80->clearNmi();
+	// The user toggled the IE checkbox
+	// Note: signal 'clicked' is only sent on user action, click() and animateClick();
+	// not on other program actions like setDown(), setChecked() or toggle().
+
+	auto* cpu = dynamic_cast<volatile Z80*>(object);
+	if (!cpu) return;
+
+	nvptr(cpu)->getRegisters().iff = checked ? 0x0101 : 0x0000;
 }
 
-/*	The user toggled the INT checkbox
- */
+void Z80Insp::set_nmi(bool checked)
+{
+	// The user toggled the NMI checkbox
+
+	auto* cpu = dynamic_cast<volatile Z80*>(object);
+	if (!cpu) return;
+
+	if (checked) nvptr(cpu)->triggerNmi();
+	else nvptr(cpu)->clearNmi();
+}
+
 void Z80Insp::set_interrupt(bool checked)
 {
-	NVPtr<Z80> z80(cpu());
-	if (checked) z80->raiseInterrupt();
-	else z80->clearInterrupt();
+	// The user toggled the INT checkbox
+
+	auto* cpu = dynamic_cast<volatile Z80*>(object);
+	if (!cpu) return;
+
+	if (checked) nvptr(cpu)->raiseInterrupt();
+	else nvptr(cpu)->clearInterrupt();
 }
 
 } // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

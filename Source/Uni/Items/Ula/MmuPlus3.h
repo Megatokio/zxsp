@@ -29,6 +29,8 @@ public:
 	bool isRamOnlyMode() const volatile noexcept { return port_1ffd & 0x01; }
 
 protected:
+	friend class gui::UlaInsp;
+
 	~MmuPlus3() override = default;
 
 	// Item interface:

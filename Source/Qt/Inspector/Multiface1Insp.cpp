@@ -46,7 +46,8 @@ Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile IsaOb
 	lineedit_display->move(223, 212);
 	lineedit_display->setFixedWidth(86);
 
-	enable_joystick(multiface1()->joystick_enabled);
+	auto& mf1 = dynamic_cast<volatile Multiface1&>(*object);
+	enable_joystick(mf1.joystick_enabled);
 }
 
 
@@ -57,11 +58,13 @@ void Multiface1Insp::updateWidgets() // Kempston
 
 	MultifaceInsp::updateWidgets();
 
-	bool f = multiface1()->joystick_enabled;
+	auto& mf1 = dynamic_cast<volatile Multiface1&>(*object);
+
+	bool f = mf1.joystick_enabled;
 	if (chkbox_joystick_enabled->isChecked() != f) enable_joystick(f); // security only
 	if (!f) return;													   // disabled
 
-	uint8 newstate = multiface1()->joystick->getState(no);
+	uint8 newstate = mf1.joystick->getState(no);
 	if (lineedit_state == newstate) return; // no change
 	lineedit_state = newstate;
 
@@ -78,7 +81,8 @@ void Multiface1Insp::updateWidgets() // Kempston
 void Multiface1Insp::enable_joystick(bool f)
 {
 	settings.setValue(key_multiface1_enable_joystick, f);
-	multiface1()->enableJoystick(f);
+	auto& mf1 = dynamic_cast<volatile Multiface1&>(*object);
+	mf1.enableJoystick(f);
 	chkbox_joystick_enabled->setChecked(f);
 	button_scan_usb->setEnabled(f);
 	joystick_selector->setEnabled(f);
@@ -102,8 +106,9 @@ void Multiface1Insp::find_usb_joysticks()
 void Multiface1Insp::joystick_selected()
 {
 	xlogIn("Multiface1Insp::joySelected");
-	int j = joystick_selector->currentIndex();
-	multiface1()->insertJoystick(joystick_selector->itemData(j).toInt());
+	int	  j	  = joystick_selector->currentIndex();
+	auto& mf1 = dynamic_cast<volatile Multiface1&>(*object);
+	mf1.insertJoystick(joystick_selector->itemData(j).toInt());
 }
 
 
@@ -132,7 +137,8 @@ void Multiface1Insp::update_joystick_selector()
 	}
 	joystick_selector->blockSignals(0);
 
-	int id = multiface1()->getJoystickID();
+	auto& mf1 = dynamic_cast<volatile Multiface1&>(*object);
+	int	  id  = mf1.getJoystickID();
 	for (i = 0; i < joystick_selector->count(); i++)
 	{
 		if (joystick_selector->itemData(i).toInt() == id)

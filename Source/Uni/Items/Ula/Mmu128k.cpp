@@ -98,9 +98,11 @@ inline void Mmu128k::page_mem_128k()
 */
 void Mmu128k::setPort7ffd(uint8 byte)
 {
+	assert(dynamic_cast<Ula128k*>(ula));
+
 	port_7ffd = byte;
 	page_mem_128k();
-	Ula128kPtr(ula)->setPort7ffd(byte);
+	static_cast<Ula128k*>(ula)->setPort7ffd(byte);
 }
 
 

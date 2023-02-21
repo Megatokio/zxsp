@@ -23,11 +23,11 @@ class KempstonMouseInsp final : public Inspector
 
 	// widgets state:
 	uint8 old_x, old_y; // displayed x/y position
-	int	  old_buttons;	// displayed button state
+	uint  old_buttons;	// displayed button state
 	bool  old_grabbed;
 
 public:
-	KempstonMouseInsp(QWidget*, MachineController*, volatile IsaObject*);
+	KempstonMouseInsp(QWidget*, MachineController*, volatile KempstonMouse*);
 
 protected:
 	void updateWidgets() override;

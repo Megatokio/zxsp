@@ -19,7 +19,8 @@ Joy::Joy(Machine* m, isa_id id, Internal internal, cstr o_addr, cstr i_addr, cst
 {
 	xlogIn("new Joy");
 
-	// kbd_joystick nur explizit einstecken, wg. "some keys do not react" desaster!
+	// attach kbd_joystick only on explicit request else "some keys do not react" disaster!
+
 	insertJoystick(0, 0);			// usb joystick 0 in port 0
 	if (idf2) insertJoystick(1, 1); // usb joystick 1 in port 1
 	if (idf3) insertJoystick(2, 2); // usb joystick 2 in port 2
@@ -29,11 +30,12 @@ Joy::Joy(Machine* m, isa_id id, Internal internal, cstr o_addr, cstr i_addr, cst
 Joy::~Joy()
 {
 	xlogIn("~Joy");
+
 	for (uint i = 0; i < NELEM(overlays); i++) { machine->removeOverlay(overlays[i]); }
 }
 
 
-void Joy::insertJoystick(int i, int id)
+void Joy::insertJoystick(uint i, int id)
 {
 	if (joy[i] == joysticks[id]) return;
 
@@ -42,6 +44,7 @@ void Joy::insertJoystick(int i, int id)
 		machine->removeOverlay(overlays[i]);
 		overlays[i] = nullptr;
 	}
+
 	joy[i] = joysticks[id];
 	if (id != no_joystick)
 		overlays[i] = machine->addOverlay(joy[i], idf[i], i & 1 ? gui::Overlay::TopLeft : gui::Overlay::TopRight);

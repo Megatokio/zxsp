@@ -22,12 +22,10 @@ static cstr es[] = {"\\＿＿＿",		"\\＿＿＿", "\\＿＿＿",	 "\\＿＿＿"
 static const QFont ff("Monaco" /*"Andale Mono"*/, 12);
 
 
-AyInsp::AyInsp(QWidget* w, MachineController* mc, volatile IsaObject* item) :
-	Inspector(w, mc, item, "/Backgrounds/light-150-s.jpg"),
+AyInsp::AyInsp(QWidget* w, MachineController* mc, volatile Ay* ay) :
+	Inspector(w, mc, ay, "/Backgrounds/light-150-s.jpg"),
 	value {0, 0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 {
-	assert(item->isA(isa_Ay));
-
 	clock	= new_led("0.0 MHz");
 	pitch_a = new_led("0000");
 	pitch_b = new_led("0000");
@@ -47,10 +45,10 @@ AyInsp::AyInsp(QWidget* w, MachineController* mc, volatile IsaObject* item) :
 	stereo->addItem("Mono"); // Reihenfolge muss Ay::StereoMix entsprechen!
 	stereo->addItem("ABC Stereo - Western Europe");
 	stereo->addItem("ACB Stereo - Eastern Europe");
-	value.stereo = ay()->getStereoMix();
+	value.stereo = ay->getStereoMix();
 	stereo->setCurrentIndex(value.stereo);
 	connect(stereo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=](int i) {
-		ay()->setStereoMix(Ay::StereoMix(i));
+		ay->setStereoMix(Ay::StereoMix(i));
 	});
 
 	QGridLayout* g = new QGridLayout(this);
@@ -97,8 +95,8 @@ void AyInsp::updateWidgets()
 	xxlogIn("AyInsp::update");
 	if (!machine || !object) return;
 
-	const volatile Ay*	  ay   = this->ay();
-	uint8 const volatile* regs = ay->getRegisters();
+	const volatile Ay*	  ay   = dynamic_cast<const volatile Ay*>(object);
+	const volatile uint8* regs = ay->getRegisters();
 
 	if (value.clock != ay->getClock() && !clock->hasFocus())
 	{
@@ -184,9 +182,9 @@ QLineEdit* AyInsp::new_led(cstr s)
 	return e;
 }
 
-void AyInsp::set_register(uint r, uint8 n)
+void AyInsp::set_register(volatile Ay* ay, uint r, uint8 n)
 {
-	NVPtr<Ay>(ay())->setRegister(r, n);
+	nvptr(ay)->setRegister(r, n);
 	value.regs[r] = n;
 }
 
@@ -237,6 +235,9 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 	//	Eingabe in einem QLineEdit wurde mit 'Return' beendet:
 	//	must only be called from AyInspector's QLineEdits
 
+	auto* ay = dynamic_cast<volatile Ay*>(object);
+	if (!ay) return;
+
 	cstr text = led->text().toUtf8().data();
 	uint n;
 	uint r;
@@ -248,80 +249,80 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 		goto pe;
 	}
 
-	if (led == pitch_b)
+	else if (led == pitch_b)
 	{
 		r = 2;
 		goto pa;
 	}
 
-	if (led == pitch_c)
+	else if (led == pitch_c)
 	{
 		r = 4;
 		goto pa;
 	}
 
-	if (led == pitch_a)
+	else if (led == pitch_a)
 	{
 		r = 0;
 	pa:
 		n = intValue(text) & 0x0fff;
 	pe:
-		set_register(r, uint8(n));
+		set_register(ay, r, uint8(n));
 		r++;
-		set_register(r, uint16(n) >> 8);
+		set_register(ay, r, uint16(n) >> 8);
 		led->setText(tostr(n));
 	}
 
-	if (led == pitch_n)
+	else if (led == pitch_n)
 	{
 		uint8 n = intValue(text) & 0x001f;
-		set_register(6, n);
+		set_register(ay, 6, n);
 		led->setText(tostr(n));
 	}
 
-	if (led == vol_b)
+	else if (led == vol_b)
 	{
 		r = 9;
 		goto va;
 	}
-	if (led == vol_c)
+	else if (led == vol_c)
 	{
 		r = 10;
 		goto va;
 	}
-	if (led == vol_a)
+	else if (led == vol_a)
 	{
 		r = 8;
 	va:
 		uint8 n = int_value_for_volume(text);
-		set_register(r, n);
+		set_register(ay, r, n);
 		led->setText(n & 0x10 ? "Envelope" : tostr(n));
 	}
 
-	if (led == port_b)
+	else if (led == port_b)
 	{
 		r = 15;
 		goto oa;
 	}
-	if (led == port_a)
+	else if (led == port_a)
 	{
 		r = 14;
 	oa:
 		uint8 n = intValue(text) & 0x00ff;
-		set_register(r, n);
+		set_register(ay, r, n);
 		led->setText(catstr("$", hexstr(uint(n), 2)));
 	}
 
-	if (led == shape_e)
+	else if (led == shape_e)
 	{
 		uint8 n = int_value_for_envelope_shape(text);
-		set_register(13, n);
+		set_register(ay, 13, n);
 		led->setText(es[n]);
 	}
 
-	if (led == mixer) // "ooabcABC"
+	else if (led == mixer) // "ooabcABC"
 	{
-		uint8 n	   = ay()->getRegister(7) | 0x3F;
+		uint8 n	   = ay->getRegister(7) | 0x3F;
 		int	  len  = int(strlen(text));
 		uint  port = 0x40;
 
@@ -357,7 +358,7 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 			}
 		}
 
-		set_register(7, n);
+		set_register(ay, 7, n);
 		led->setText(binstr(n, "iicbaCBA", "oo------"));
 	}
 
@@ -365,11 +366,45 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 	{
 		Frequency n = mhzValue(text);
 		if (n > 0) limit(1000000.0, n, 4000000.0);
-		else n = ay()->getClock();
-		NVPtr<Ay>(ay())->setClock(n);
+		else n = ay->getClock();
+		nvptr(ay)->setClock(n);
 		led->setText(MHzStr(n));
 		value.clock = n;
 	}
 }
 
 } // namespace gui
+
+
+/*
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

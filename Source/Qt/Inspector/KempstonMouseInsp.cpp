@@ -18,8 +18,8 @@
 namespace gui
 {
 
-KempstonMouseInsp::KempstonMouseInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
-	Inspector(w, mc, i, "/Images/kempston_mouse_if.jpg"),
+KempstonMouseInsp::KempstonMouseInsp(QWidget* w, MachineController* mc, volatile KempstonMouse* mif) :
+	Inspector(w, mc, mif, "/Images/kempston_mouse_if.jpg"),
 	display_x(newLineEdit("0", 32)),
 	display_y(newLineEdit("0", 32)),
 	display_buttons(newLineEdit("%------11", 100)),
@@ -44,7 +44,7 @@ KempstonMouseInsp::KempstonMouseInsp(QWidget* w, MachineController* mc, volatile
 					  << "1:4");
 	combobox_scale->setMinimumWidth(80);
 	connect(combobox_scale, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=](int index) {
-		NVPtr<KempstonMouse>(mif())->setScale(index + 1);
+		nvptr(mif)->setScale(index + 1);
 	});
 
 	button_grab_mouse->setMinimumWidth(100);
@@ -87,11 +87,13 @@ void KempstonMouseInsp::updateWidgets()
 	xxlogIn("KempstonMouseInsp:updateWidgets");
 	if (!machine || !object) return;
 
-	uint newx, newy;
-	int	 newbuttons;
+	auto* mif = dynamic_cast<volatile KempstonMouse*>(object);
+	if (!mif) return;
+
+	uint8 newx, newy;
+	uint  newbuttons;
 
 	{
-		NVPtr<KempstonMouse> mif(this->mif());
 		newx	   = mif->getXPos();
 		newy	   = mif->getYPos();
 		newbuttons = mif->getButtons();
@@ -102,6 +104,7 @@ void KempstonMouseInsp::updateWidgets()
 		old_x = newx;
 		display_x->setText(tostr(newx));
 	}
+
 	if (old_y != newy)
 	{
 		old_y = newy;
@@ -122,9 +125,9 @@ void KempstonMouseInsp::updateWidgets()
 		if (!newgrabbed) timer->stop();
 	}
 
-	if (combobox_scale->currentIndex() != mif()->getScale() - 1)
+	if (combobox_scale->currentIndex() != mif->getScale() - 1)
 	{
-		combobox_scale->setCurrentIndex(mif()->getScale() - 1);
+		combobox_scale->setCurrentIndex(mif->getScale() - 1); //
 	}
 }
 

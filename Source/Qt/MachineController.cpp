@@ -224,8 +224,7 @@ void MachineController::loadSnapshot(cstr filename)
 			if (!model_info->canAttachDivIDE())
 				machine = init_machine(zx128, 0, s, j, r, yes); // powered on & suspended
 			action_addDivIDE->setChecked(true);
-			DivIDE* divide = DivIDEPtr(machine->findIsaItem(isa_DivIDE));
-			divide->insertDisk(filename);
+			if (DivIDE* divide = dynamic_cast<DivIDE*>(machine->findIsaItem(isa_DivIDE))) divide->insertDisk(filename);
 
 			set_filepath(org_filename);
 			set_keyboard_mode(settings.get_KbdMode(key_new_snapshot_keyboard_mode, kbdgame));
@@ -474,7 +473,7 @@ void MachineController::loadSnapshot(cstr filename)
 
 			fd.close_file(0);
 			if (m != model) machine = init_machine(m, 0, s, j, 0, d);
-			MachineZxPlus3Ptr(machine)->insertDisk(filename);
+			dynamic_cast<MachineZxPlus3&>(*machine).insertDisk(filename);
 		}
 
 		else if (eq(ext, ".dck"))
@@ -485,7 +484,7 @@ void MachineController::loadSnapshot(cstr filename)
 
 			fd.close_file(0);
 			if (m != model) machine = init_machine(m, 0, 0, 0, 0, 0);
-			MachineTc2068Ptr(machine)->insertCartridge(filename);
+			dynamic_cast<MachineTc2068&>(*machine).insertCartridge(filename);
 		}
 
 		else // unsupported snapshot format:
@@ -1910,12 +1909,13 @@ void MachineController::show_lenslok(bool f)
 	{
 		assert(!lenslok);
 		cstr name1 = filepath ? basename_from_path(filepath) : nullptr;
-		cstr name2 = machine->fdc && machine->fdc->getDrive(0) && machine->fdc->getDrive(0)->diskLoaded() ?
-						 basename_from_path(machine->fdc->getDrive(0)->disk->filepath) :
-					 machine->taperecorder->isLoaded() ? basename_from_path(machine->taperecorder->getFilepath()) :
-														 nullptr;
-		lenslok	   = new Lenslok(this, name1, name2);
-		connect(lenslok, &QObject::destroyed, [=] {
+		cstr name2 =
+			machine->fdc && machine->fdc->getSelectedDrive() && machine->fdc->getSelectedDrive()->diskLoaded() ?
+				basename_from_path(machine->fdc->getSelectedDrive()->disk->filepath) :
+			machine->taperecorder->isLoaded() ? basename_from_path(machine->taperecorder->getFilepath()) :
+												nullptr;
+		lenslok = new Lenslok(this, name1, name2);
+		connect(lenslok, &QObject::destroyed, this, [=] {
 			action_showLenslok->blockSignals(1);
 			action_showLenslok->setChecked(0);
 			action_showLenslok->blockSignals(0);
@@ -2056,8 +2056,9 @@ void MachineController::itemAdded(Item* item) // callback from Item c'tor
 			case isa_Z80: showaction->setShortcut(Qt::CTRL | Qt::Key_Z); break;
 			case isa_Joy:
 				showaction->setShortcut(Qt::CTRL | Qt::Key_J);
-				showaction->setIcon(
-					QIcon(JoyPtr(item)->getNumPorts() == 1 ? ":/Icons/joystick-1.gif" : ":/Icons/joystick-2.gif"));
+				showaction->setIcon(QIcon(
+					dynamic_cast<Joy&>(*item).getNumPorts() == 1 ? ":/Icons/joystick-1.gif" :
+																   ":/Icons/joystick-2.gif"));
 				break;
 			}
 

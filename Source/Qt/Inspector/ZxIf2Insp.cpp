@@ -21,12 +21,10 @@
 namespace gui
 {
 
-ZxIf2Insp::ZxIf2Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
+ZxIf2Insp::ZxIf2Insp(QWidget* w, MachineController* mc, volatile ZxIf2* i) :
 	SinclairJoyInsp(w, mc, i, "/Images/zxif2.jpg"),
 	old_romfilepath(nullptr)
 {
-	assert(object->isA(isa_ZxIf2));
-
 	button_insert_eject = new QPushButton("Insert", this);
 	button_insert_eject->setMinimumWidth(100);
 	connect(button_insert_eject, &QPushButton::clicked, this, &ZxIf2Insp::insert_or_eject_rom);
@@ -61,15 +59,17 @@ ZxIf2Insp::ZxIf2Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
 	//	timer->start(1000/15);			// started by JoyInsp()
 }
 
-
-// slot
 void ZxIf2Insp::insert_or_eject_rom()
 {
-	if (zxif2()->isLoaded())
+	if (!machine || !object) return;
+	auto* zxif2 = dynamic_cast<volatile ZxIf2*>(object);
+	if (!zxif2) return;
+
+	if (zxif2->isLoaded())
 	{
 		xlogIn("ZxIf2Insp::eject()");
 		bool f = machine->powerOff();
-		NV(zxif2())->ejectRom();
+		NV(zxif2)->ejectRom();
 		if (f) machine->powerOn();
 	}
 	else
@@ -81,21 +81,22 @@ void ZxIf2Insp::insert_or_eject_rom()
 		if (!filepath) return;
 
 		bool f = machine->powerOff();
-		NV(zxif2())->insertRom(filepath);
+		NV(zxif2)->insertRom(filepath);
 		if (f) machine->powerOn();
 	}
 }
 
-
 void ZxIf2Insp::updateWidgets()
 {
 	xlogIn("ZxIf2Insp::updateWidgets");
-
 	if (!machine || !object) return;
+
+	auto* zxif2 = dynamic_cast<volatile ZxIf2*>(object);
+	if (!zxif2) return;
 
 	SinclairJoyInsp::updateWidgets();
 
-	cstr new_romfilepath = zxif2()->getFilepath();
+	cstr new_romfilepath = zxif2->getFilepath();
 	if (old_romfilepath != new_romfilepath)
 	{
 		label_romfilename->setText(new_romfilepath ? basename_from_path(new_romfilepath) : nullptr);
@@ -117,16 +118,18 @@ void ZxIf2Insp::updateWidgets()
 	}
 }
 
-
-/*	fill context menu for right-click
-	called by Inspector::contextMenuEvent()
-	items inserted here are inserted at the to of the popup menu
-*/
 void ZxIf2Insp::fillContextMenu(QMenu* menu)
 {
+	// fill context menu for right-click
+	// called by Inspector::contextMenuEvent()
+	// items inserted here are inserted at the to of the popup menu
+
+	auto* zxif2 = dynamic_cast<volatile ZxIf2*>(object);
+	if (!zxif2) return;
+
 	Inspector::fillContextMenu(menu); // NOP
 
-	if (zxif2()->isLoaded()) { menu->addAction("Eject Rom", this, &ZxIf2Insp::insert_or_eject_rom); }
+	if (zxif2->isLoaded()) { menu->addAction("Eject Rom", this, &ZxIf2Insp::insert_or_eject_rom); }
 	else
 	{
 		menu->addAction("Insert Rom", this, &ZxIf2Insp::insert_or_eject_rom);
@@ -136,12 +139,15 @@ void ZxIf2Insp::fillContextMenu(QMenu* menu)
 	}
 }
 
-
 void ZxIf2Insp::insertRom(cstr filepath)
 {
+	if (!machine || !object) return;
+	auto* zxif2 = dynamic_cast<volatile ZxIf2*>(object);
+	if (!zxif2) return;
+
 	bool f = machine->powerOff();
-	if (zxif2()->isLoaded()) NV(zxif2())->ejectRom();
-	NV(zxif2())->insertRom(filepath);
+	if (zxif2->isLoaded()) NV(zxif2)->ejectRom();
+	NV(zxif2)->insertRom(filepath);
 	if (f) machine->powerOn();
 }
 

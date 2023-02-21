@@ -22,7 +22,7 @@
 namespace gui
 {
 
-WalkmanInspector::WalkmanInspector(QWidget* parent, MachineController* mc, volatile IsaObject* item) :
+WalkmanInspector::WalkmanInspector(QWidget* parent, MachineController* mc, volatile Walkman* item) :
 	TapeRecorderInsp(
 		parent, mc, item, QPoint(58, 113), // major info
 		QPoint(58, 124),				   // minor info
@@ -58,7 +58,7 @@ WalkmanInspector::WalkmanInspector(QWidget* parent, MachineController* mc, volat
 	btn_next = new MySimpleToggleButton(
 		this, btn_x + 6 * btn_w, btn_y, ":/Icons/button_next.png", ":/Icons/button_next_on.png", yes);
 
-#define NVTR NVPtr<TapeRecorder>(tape_recorder())
+#define NVTR nvptr(&dynamic_cast<volatile TapeRecorder&>(*object))
 	connect(btn_eject, &MySimpleToggleButton::toggled, this, [=] { handleEjectButton(); });
 	connect(btn_record, &MySimpleToggleButton::toggled, this, [=] { NVTR->record(); });
 	connect(btn_back, &MySimpleToggleButton::toggled, this, [=] { NVTR->pause(0)->rewind(); });
@@ -75,24 +75,25 @@ void WalkmanInspector::updateWidgets()
 	xlogIn("WalkmanInspector::updateWidgets");
 
 	if (!machine || !object) return;
+	auto* taperecorder = dynamic_cast<volatile TapeRecorder*>(object);
+	if (!taperecorder) return;
 
 	// note: don't not call super class TapeRecorderInsp::updateWidgets()
 
 	updateAnimation();
 
-	volatile TapeRecorder* t = tape_recorder();
-	btn_record->setDown(t->isRecordDown());
-	btn_prev->setDown(t->isRewinding() && t->isPauseDown());
-	btn_back->setDown(t->isRewinding() && !t->isPauseDown());
-	btn_play->setDown(t->isPlayDown());
-	btn_fore->setDown(t->isWinding() && !t->isPauseDown());
-	btn_next->setDown(t->isWinding() && t->isPauseDown());
+	btn_record->setDown(taperecorder->isRecordDown());
+	btn_prev->setDown(taperecorder->isRewinding() && taperecorder->isPauseDown());
+	btn_back->setDown(taperecorder->isRewinding() && !taperecorder->isPauseDown());
+	btn_play->setDown(taperecorder->isPlayDown());
+	btn_fore->setDown(taperecorder->isWinding() && !taperecorder->isPauseDown());
+	btn_next->setDown(taperecorder->isWinding() && taperecorder->isPauseDown());
 
 	// update window title:
 	// da die Machine ein Tape direkt einlegen kann und ich da (und sonstwo noch) nicht immer nach einem
 	// Taperecorder Inspector suchen will, wird das hier gepollt => single place.
 	// updateCustomTitle() ist mit dem ToolWindow verbunden, das danach getCustomTitle() aufruft.
-	cstr new_filepath = tape_recorder()->getFilepath();
+	cstr new_filepath = taperecorder->getFilepath();
 	if (tape_filepath != new_filepath)
 	{
 		tape_filepath = new_filepath;

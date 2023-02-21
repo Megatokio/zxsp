@@ -99,7 +99,9 @@ void ScreenMono::do_ffb_or_vbi() noexcept(false)
 
 	if (isVisible())
 	{
-		MonoRendererPtr(screen_renderer)
+		assert(dynamic_cast<MonoRenderer*>(screen_renderer));
+
+		static_cast<MonoRenderer*>(screen_renderer)
 			->drawScreen(new_pixels, screen_w, screen_h, frame_w, frame_h, screen_x0, screen_y0, cc);
 		paint_screen(no);
 	}
@@ -146,7 +148,8 @@ void ScreenMono::do_ffb_or_vbi() noexcept(false)
 	{
 		try
 		{
-			MonoGifWriterPtr(gif_writer)
+			assert(dynamic_cast<MonoGifWriter*>(gif_writer));
+			static_cast<MonoGifWriter*>(gif_writer)
 				->writeFrame(new_pixels, screen_w, screen_h, frame_w, frame_h, screen_x0, screen_y0);
 		}
 		catch (FileError& e)
@@ -198,7 +201,8 @@ void ScreenMono::paint_screen(bool draw_passepartout)
 	glLoadIdentity();
 
 	// setup new pixels unpacking, transfer, mapping & rasterization
-	MonoRenderer* mono_screen_renderer = MonoRendererPtr(screen_renderer);
+	assert(dynamic_cast<MonoRenderer*>(screen_renderer));
+	MonoRenderer* mono_screen_renderer = static_cast<MonoRenderer*>(screen_renderer);
 	int			  qsx = mono_screen_renderer->h_border; // position of screenfile in screen_renderer.bits[]
 	int			  qsy = mono_screen_renderer->v_border;
 	int			  qbx = qsx - h_border; // position of visible rect in screen_renderer.bits[]

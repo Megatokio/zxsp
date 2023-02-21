@@ -13,11 +13,9 @@
 namespace gui
 {
 
-Tc2048JoyInsp::Tc2048JoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* j) :
+Tc2048JoyInsp::Tc2048JoyInsp(QWidget* w, MachineController* mc, volatile Tc2048Joy* j) :
 	JoyInsp(w, mc, j, "/Images/tc2048_sideview.jpg")
 {
-	assert(object->isA(isa_Tc2048Joy));
-
 	QLabel* label = new QLabel("Buttons:");
 
 	QGridLayout* g = new QGridLayout(this);

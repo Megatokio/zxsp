@@ -45,15 +45,11 @@ static QLineEdit* new_led(cstr s, int width)
 	return e;
 }
 
-UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Machine* m) :
-	Inspector(w, mc, m->ula, "/Backgrounds/light-150-s.jpg")
+UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Machine* m, volatile Ula* ula) :
+	Inspector(w, mc, ula, "/Backgrounds/light-150-s.jpg")
 {
 	int width  = 300;
 	int height = 230;
-
-	mmu = m->mmu;
-	assert(mmu->isA(isa_Mmu));
-	assert(object->isA(isa_Ula));
 
 	QGridLayout* g = new QGridLayout(this);
 	g->setContentsMargins(10, 10, 10, 10);
@@ -63,7 +59,6 @@ UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Machine* m) :
 	g->setColumnStretch(2, 0);
 	g->setColumnStretch(3, 0);
 	g->setColumnStretch(4, 50);
-
 
 	// Clocks:
 
@@ -140,7 +135,9 @@ UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Machine* m) :
 	inputs.checkbox_enable_cpu_waitcycles = nullptr;
 	inputs.waitmap_offset				  = nullptr;
 	inputs.waitmap						  = nullptr;
-	if (ula()->isA(isa_UlaZxsp) && UlaZxspPtr(ula())->hasWaitmap())
+
+	auto* ulazxsp = dynamic_cast<volatile UlaZxsp*>(ula);
+	if (ulazxsp && ulazxsp->hasWaitmap())
 	{
 		values.checkbox_enable_cpu_waitcycles = yes;
 		inputs.checkbox_enable_cpu_waitcycles = new QCheckBox("cpu waitcycles (contended video ram)");
@@ -201,8 +198,8 @@ UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Machine* m) :
 	inputs.printer_strobe	   = nullptr;
 	inputs.disc_motor		   = nullptr;
 
-	bool has_7ffd = mmu->hasPort7ffd();
-	bool has_1ffd = mmu->hasPort1ffd();
+	bool has_7ffd = m->mmu->hasPort7ffd();
+	bool has_1ffd = m->mmu->hasPort1ffd();
 
 	if (has_7ffd)
 	{
@@ -288,24 +285,23 @@ UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Machine* m) :
 void UlaInsp::updateWidgets()
 {
 	xxlogIn("UlaInsp::updateWidgets");
-
 	if (!machine || !object) return;
-	if (!mmu) return timer->stop();
 
-	const volatile Ula* ula = this->ula();
+	const volatile Ula* ula = dynamic_cast<volatile Ula*>(object);
+	if (!ula) return;
 
 	bool f;
 	uint i;
 
-	if (inputs.port_1ffd != nullptr)
+	if (auto* mmu = reinterpret_cast<const volatile MmuPlus3*>(machine->mmu))
 	{
+		assert(inputs.port_1ffd != nullptr);
+
 		if (values.port_1ffd != mmu->getPort1ffd())
 		{
 			values.port_1ffd = mmu->getPort1ffd();
 			inputs.port_1ffd->setText(catstr("$", hexstr(values.port_1ffd, 2)));
 		}
-
-		const volatile MmuPlus3* mmu = MmuPlus3Ptr(this->mmu);
 
 		if (inputs.checkbox_ram_only->isChecked() != (f = mmu->isRamOnlyMode()))
 		{
@@ -324,15 +320,15 @@ void UlaInsp::updateWidgets()
 		}
 	}
 
-	if (inputs.port_7ffd != nullptr)
+	if (auto* mmu = reinterpret_cast<const volatile Mmu128k*>(machine->mmu))
 	{
+		assert(inputs.port_7ffd != nullptr);
+
 		if (values.port_7ffd != mmu->getPort7ffd())
 		{
 			values.port_7ffd = mmu->getPort7ffd();
 			inputs.port_7ffd->setText(catstr("$", hexstr(values.port_7ffd, 2)));
 		}
-
-		const volatile Mmu128k* mmu = Mmu128kPtr(this->mmu);
 
 		if (values.page_c000 != (i = mmu->getPageC000()))
 		{
@@ -452,16 +448,14 @@ void UlaInsp::updateWidgets()
 	if (values.frames_per_second != float(values.cpu_clock) / ula->getCcPerFrame())
 	{
 		values.frames_per_second = float(values.cpu_clock) / ula->getCcPerFrame();
-		char* s					 = tempstr(15);
+		char s[16];
 		sprintf(s, "%.4g", double(values.frames_per_second));
 		inputs.frames_per_second->setText(s);
 		xlogline("UlaInsp: frames_per_second = %s", s);
 	}
 
-	if (ula->isA(isa_UlaZxsp))
+	if (auto* zxula = dynamic_cast<const volatile UlaZxsp*>(ula))
 	{
-		const volatile UlaZxsp* zxula = UlaZxspPtr(ula);
-
 		if (zxula->hasWaitmap())
 		{
 			if (inputs.checkbox_enable_cpu_waitcycles->isChecked() != zxula->hasWaitmap())
@@ -526,3 +520,31 @@ void UlaInsp::updateWidgets()
 }
 
 } // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

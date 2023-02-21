@@ -20,12 +20,10 @@ namespace gui
 */
 
 
-SinclairJoyInsp::SinclairJoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* j, cstr img_path) :
+SinclairJoyInsp::SinclairJoyInsp(QWidget* w, MachineController* mc, volatile SinclairJoy* j, cstr img_path) :
 	JoyInsp(w, mc, j, img_path)
 {
-	assert(object->isA(isa_SinclairJoy));
-
-	if (j->isA(isa_ZxIf2)) return; // ZxIf2 macht sein eigenes Layout
+	if (j->isA(isa_ZxIf2)) return; // subclass ZxIf2Insp uses a different layout
 
 	QGridLayout* g = new QGridLayout(this);
 	g->setContentsMargins(10, 10, 10, 5);
@@ -43,21 +41,26 @@ SinclairJoyInsp::SinclairJoyInsp(QWidget* w, MachineController* mc, volatile Isa
 	g->addWidget(button_set_keys, 3, 1, Qt::AlignHCenter | Qt::AlignVCenter);
 }
 
+void SinclairJoyInsp::updateWidgets()
+{
+	// ZX Spectrum +2
+	//	Sinclair 1: %---FUDRL active low oK
+	//	Sinclair 2: %---LRDUF active low oK
 
-void SinclairJoyInsp::updateWidgets()		  // ZX Spectrum +2
-{											  //	Sinclair 1: %---FUDRL active low oK
-	xlogIn("SinclairJoyInsp::updateWidgets"); //	Sinclair 2: %---LRDUF active low oK
-
+	xlogIn("SinclairJoyInsp::updateWidgets");
 	if (!machine || !object) return;
 
-	uint8 newstate = joy()->getStateForInspector(0); // Sinclair 1
+	auto* joy = dynamic_cast<volatile SinclairJoy*>(object);
+	if (!joy) return;
+
+	uint8 newstate = joy->getStateForInspector(0); // Sinclair 1
 	if (newstate != lineedit_state[0])
 	{
 		lineedit_state[0] = newstate = SinclairJoy::calcS1ForJoy(newstate);
 		lineedit_display[0]->setText(binstr(newstate, "%000FUDRL", "%--------"));
 	}
 
-	newstate = joy()->getStateForInspector(1); // Sinclair 2
+	newstate = joy->getStateForInspector(1); // Sinclair 2
 	if (newstate != lineedit_state[1])
 	{
 		lineedit_state[1] = newstate = SinclairJoy::calcS2ForJoy(newstate);

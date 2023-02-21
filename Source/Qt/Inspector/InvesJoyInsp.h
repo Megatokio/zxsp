@@ -11,7 +11,7 @@ namespace gui
 class InvesJoyInsp : public JoyInsp
 {
 public:
-	InvesJoyInsp(QWidget*, MachineController*, volatile IsaObject*);
+	InvesJoyInsp(QWidget*, MachineController*, volatile InvesJoy*);
 };
 
 } // namespace gui

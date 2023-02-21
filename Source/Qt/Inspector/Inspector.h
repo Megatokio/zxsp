@@ -29,27 +29,6 @@ protected:
 	QMenu*				contextmenu;
 	QToolBar*			toolbar;
 
-	volatile Item*				item() { return ItemPtr(object); }
-	volatile Ula*				ula() { return UlaPtr(object); }
-	volatile Keyboard*			kbd() { return KeyboardPtr(object); }
-	volatile Z80*				cpu() { return Z80Ptr(object); }
-	volatile Joy*				joy() { return JoyPtr(object); }
-	volatile Ay*				ay() { return AyPtr(object); }
-	volatile ZxIf2*				zxif2() { return ZxIf2Ptr(object); }
-	volatile Zx3kRam*			zx3kram() { return Zx3kRamPtr(object); }
-	volatile IcTester*			ic_tester() { return IcTesterPtr(object); }
-	volatile Memotech64kRam*	memotech64kram() { return Memotech64kRamPtr(object); }
-	volatile KempstonMouse*		mif() { return KempstonMousePtr(object); }
-	volatile TapeRecorder*		tape_recorder() { return TapeRecorderPtr(object); }
-	volatile SpectraVideo*		spectra() { return SpectraVideoPtr(object); }
-	volatile MmuTc2068*			dock() { return MmuTc2068Ptr(object); }
-	volatile DivIDE*			divide() { return DivIDEPtr(object); }
-	volatile CurrahMicroSpeech* currah_uspeech() { return CurrahMicroSpeechPtr(object); }
-	volatile Multiface*			multiface() { return MultifacePtr(object); }
-	volatile Multiface1*		multiface1() { return Multiface1Ptr(object); }
-	volatile Multiface128*		multiface128() { return Multiface128Ptr(object); }
-	volatile Multiface3*		multiface3() { return Multiface3Ptr(object); }
-
 public:
 	// Inspector Factory:
 	static Inspector* newInspector(QWidget*, MachineController*, volatile IsaObject*);

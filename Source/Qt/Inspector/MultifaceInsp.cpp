@@ -51,19 +51,22 @@ void MultifaceInsp::mousePressEvent(QMouseEvent* e)
 }
 
 
-void MultifaceInsp::pressRedButton() { NVPtr<Multiface>(multiface())->triggerNmi(); }
+void MultifaceInsp::pressRedButton()
+{
+	auto* mf = dynamic_cast<volatile Multiface*>(object);
+	if (mf) NVPtr<Multiface>(mf)->triggerNmi();
+}
 
 
 void MultifaceInsp::updateWidgets()
 {
 	if (!machine || !object) return;
 
-	if (label_nmi_pending->isVisible() != multiface()->nmi_pending)
+	if (auto* mf = dynamic_cast<volatile Multiface*>(object))
 	{
-		label_nmi_pending->setVisible(multiface()->nmi_pending);
+		if (label_nmi_pending->isVisible() != mf->nmi_pending) label_nmi_pending->setVisible(mf->nmi_pending);
+		if (label_paged_in->isVisible() != mf->paged_in) label_paged_in->setVisible(mf->paged_in);
 	}
-
-	if (label_paged_in->isVisible() != multiface()->paged_in) { label_paged_in->setVisible(multiface()->paged_in); }
 }
 
 } // namespace gui

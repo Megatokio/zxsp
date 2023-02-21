@@ -19,8 +19,6 @@ namespace gui
 
 class UlaInsp : public Inspector
 {
-	volatile Mmu* mmu;
-
 	QPushButton* btn_restore_defaults;
 
 	struct
@@ -103,7 +101,7 @@ class UlaInsp : public Inspector
 	} values;
 
 public:
-	UlaInsp(QWidget*, MachineController*, volatile Machine*);
+	UlaInsp(QWidget*, MachineController*, volatile Machine*, volatile Ula*);
 
 protected:
 	void updateWidgets() override;

@@ -10,15 +10,15 @@ class FloppyDiskDrive;
 class Fdc : public MassStorage
 {
 protected:
-	FloppyDiskDrive* fdd[4];	// attached drives, mirrored drives may be inserted more than once
-	FloppyDiskDrive* drive;		// selected drive
-	bool			 motor_on;	// current state of the common motor-on output
-	bool			 interrupt; // current state of the interrupt output; may be not connected
+	std::shared_ptr<FloppyDiskDrive> fdd[4];	// attached drives, mirrored drives may be inserted more than once
+	FloppyDiskDrive*				 drive;		// selected drive
+	bool							 motor_on;	// current state of the common motor-on output
+	bool							 interrupt; // current state of the interrupt output; may be not connected
 
 public:
-	FloppyDiskDrive* getSelectedDrive() const volatile { return drive; }
-	FloppyDiskDrive* getDrive(uint n) const volatile { return fdd[n & 3]; }
-	bool			 isMotorOn() const volatile { return motor_on; }
+	FloppyDiskDrive*				 getSelectedDrive() const volatile { return drive; }
+	std::shared_ptr<FloppyDiskDrive> getDrive(uint n) const { return fdd[n & 3]; }
+	bool							 isMotorOn() const volatile { return motor_on; }
 
 	virtual void setMotor(Time, bool);
 	virtual void initForSnapshot(int32 /*cc*/) {}
@@ -27,7 +27,7 @@ public:
 
 protected:
 	Fdc(Machine*, isa_id, Internal internal, cstr o_addr, cstr i_addr);
-	~Fdc() override;
+	~Fdc() override = default;
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;

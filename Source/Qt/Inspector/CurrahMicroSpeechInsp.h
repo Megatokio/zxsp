@@ -23,7 +23,7 @@ class CurrahMicroSpeechInsp : public Inspector
 	int	  width;		// total width [pixels] of scroller
 
 public:
-	CurrahMicroSpeechInsp(QWidget*, MachineController*, volatile IsaObject*);
+	CurrahMicroSpeechInsp(QWidget*, MachineController*, volatile CurrahMicroSpeech*);
 	~CurrahMicroSpeechInsp() override;
 
 protected:

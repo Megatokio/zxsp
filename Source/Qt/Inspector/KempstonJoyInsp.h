@@ -12,7 +12,7 @@ namespace gui
 class KempstonJoyInsp : public JoyInsp
 {
 public:
-	KempstonJoyInsp(QWidget*, MachineController*, volatile IsaObject*);
+	KempstonJoyInsp(QWidget*, MachineController*, volatile KempstonJoy*);
 };
 
 } // namespace gui

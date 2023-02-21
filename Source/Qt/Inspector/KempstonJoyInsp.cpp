@@ -13,11 +13,9 @@
 namespace gui
 {
 
-KempstonJoyInsp::KempstonJoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* j) :
+KempstonJoyInsp::KempstonJoyInsp(QWidget* w, MachineController* mc, volatile KempstonJoy* j) :
 	JoyInsp(w, mc, j, "/Images/kempston_js_if.jpg")
 {
-	assert(object->isA(isa_KempstonJoy));
-
 	QLabel* label = new QLabel("Buttons:");
 
 	QGridLayout* g = new QGridLayout(this);

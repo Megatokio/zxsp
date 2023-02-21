@@ -97,7 +97,7 @@ public:
 
 	// Joystick handling:
 	void	   setJoystickEnabled(bool);
-	void	   insertJoystick(int id) volatile;
+	void	   insertJoystick(int id);
 	JoystickID getJoystickID() const volatile { return indexof(joystick); }
 
 	// CRTC:

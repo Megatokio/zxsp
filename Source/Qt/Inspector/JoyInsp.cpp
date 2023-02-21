@@ -16,17 +16,15 @@
 namespace gui
 {
 
-JoyInsp::JoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* j, cstr imgpath) : Inspector(w, mc, j, imgpath)
+JoyInsp::JoyInsp(QWidget* w, MachineController* mc, volatile Joy* joy, cstr imgpath) : Inspector(w, mc, joy, imgpath)
 {
-	assert(object->isA(isa_Joy));
-
-	num_ports = joy()->getNumPorts();
+	num_ports = joy->getNumPorts();
 	xlogIn("new JoyInsp for %s (%i ports)", object->name, num_ports);
 
 	joystick_selectors[1] = joystick_selectors[2] = nullptr;
 	lineedit_display[1] = lineedit_display[2] = nullptr;
 
-	for (int i = 0; i < num_ports; i++)
+	for (uint i = 0; i < num_ports; i++)
 	{
 		lineedit_display[i] = new QLineEdit(this);
 		lineedit_display[i]->setText("%--------");
@@ -77,10 +75,13 @@ void JoyInsp::joystick_selected()
 {
 	xlogIn("JoyInsp::joySelected");
 
-	for (int i = 0; i < num_ports; i++)
+	auto* joy = dynamic_cast<volatile Joy*>(object);
+	if (!joy) return;
+
+	for (uint i = 0; i < num_ports; i++)
 	{
 		int j = joystick_selectors[i]->currentIndex();
-		NVPtr<Joy>(joy())->insertJoystick(i, joystick_selectors[i]->itemData(j).toInt());
+		nvptr(joy)->insertJoystick(i, joystick_selectors[i]->itemData(j).toInt());
 	}
 }
 
@@ -90,9 +91,12 @@ void JoyInsp::updateWidgets() // Kempston
 	xlogIn("JoyInsp::updateWidgets");
 	if (!machine || !object) return;
 
-	for (int i = 0; i < num_ports; i++)
+	auto* joy = dynamic_cast<volatile Joy*>(object);
+	if (!joy) return;
+
+	for (uint i = 0; i < num_ports; i++)
 	{
-		uint8 newstate = joy()->getStateForInspector(i);
+		uint8 newstate = joy->getStateForInspector(i);
 		if (newstate == lineedit_state[i]) continue;
 
 		char s[] = "%111FUDLR";
@@ -108,6 +112,9 @@ void JoyInsp::updateWidgets() // Kempston
 
 void JoyInsp::update_joystick_selectors()
 {
+	auto* joy = dynamic_cast<volatile Joy*>(object);
+	if (!joy) return;
+
 	bool is_connected[max_joy];
 	int	 i;
 	bool is_in_list[max_joy] = {0, 0, 0, 0, 0};
@@ -130,18 +137,18 @@ void JoyInsp::update_joystick_selectors()
 	static cstr jname[5] = {"USB Joystick 1", "USB Joystick 2", "USB Joystick 3", "Keyboard", "no Joystick"};
 
 	// if selectors send events then slotSelectJoystick() will mess up the settings:
-	for (int s = 0; s < num_ports; s++) { joystick_selectors[s]->blockSignals(1); }
+	for (uint s = 0; s < num_ports; s++) { joystick_selectors[s]->blockSignals(1); }
 
 	// for all ports of this interface:
-	for (int s = 0; s < num_ports; s++)
+	for (uint s = 0; s < num_ports; s++)
 	{
 		// empty selector list:
 		while (joystick_selectors[s]->count()) { joystick_selectors[s]->removeItem(0); }
 
 		// add existing real-world joysticks to selector list
 		// and select the currently selected one, default = no_joy:
-		int selected_id	 = joy()->getJoystickID(s); // id of the real-world joystick
-		int selected_idx = -1;						// index in list
+		int selected_id	 = joy->getJoystickID(s); // id of the real-world joystick
+		int selected_idx = -1;					  // index in list
 		for (i = 0; i < max_joy; i++)
 		{
 			if (!is_connected[i]) continue;
@@ -151,7 +158,7 @@ void JoyInsp::update_joystick_selectors()
 		joystick_selectors[s]->setCurrentIndex(selected_idx >= 0 ? selected_idx : joystick_selectors[s]->count() - 1);
 	}
 
-	for (int s = 0; s < num_ports; s++) { joystick_selectors[s]->blockSignals(0); }
+	for (uint s = 0; s < num_ports; s++) { joystick_selectors[s]->blockSignals(0); }
 }
 
 } // namespace gui

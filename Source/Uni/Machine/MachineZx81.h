@@ -20,7 +20,7 @@ protected:
 public:
 	explicit MachineZx81(gui::MachineController*);
 
-	int32 nmiAtCycle(int32 cc_nmi) override { return UlaZx81Ptr(ula)->nmiAtCycle(cc_nmi); }
+	int32 nmiAtCycle(int32 cc_nmi) override { return static_cast<UlaZx81*>(ula)->nmiAtCycle(cc_nmi); }
 
 	void loadP81(FD&, bool p81) override;
 	void saveP81(FD&, bool p81) override;

@@ -62,31 +62,33 @@ static QRect box_LED(x_led, y_led, 23, 9);		 // area for lit LED
 static QRect box_overlay(x_overlay, y_overlay, 250, 85);
 
 
-// helper
-inline bool FdcPlus3Insp::motor_on() { return fdc->isMotorOn(); }
-inline bool FdcPlus3Insp::side_B_up() { return drive->side_B_up; }
+inline bool FdcPlus3Insp::is_motor_on()
+{
+	if (auto* fdc = dynamic_cast<volatile Fdc*>(object)) return fdc->isMotorOn();
+	else return no;
+}
 
-// helper
+inline bool FdcPlus3Insp::is_side_B_up()
+{
+	return drive->side_B_up; //
+}
+
 cstr FdcPlus3Insp::get_save_filename(cstr msg)
 {
 	static cstr filter = "ZX Spectrum +3 Discs (*.dsk);;All Files (*)";
 	return selectSaveFile(this, msg, filter);
 }
 
-// helper
 cstr FdcPlus3Insp::get_load_filename(cstr msg)
 {
 	cstr filter = "ZX Spectrum +3 Discs (*.dsk *.disk);;All Files (*)";
 	return selectLoadFile(this, msg, filter);
 }
 
-
-/*	CREATOR
- */
-FdcPlus3Insp::FdcPlus3Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
-	Inspector(w, mc, i, "Images/disk/plus3.jpg"),
-	fdc(FdcPlus3Ptr(i)),
-	drive(fdc->getDrive(0)),
+//	Constructor
+FdcPlus3Insp::FdcPlus3Insp(QWidget* w, MachineController* mc, volatile FdcPlus3* fdc) :
+	Inspector(w, mc, fdc, "Images/disk/plus3.jpg"),
+	drive(NV(fdc)->getDrive(0)),
 	overlay_disk_A_ejected(catstr(appl_rsrc_path, fname_A_ejected)),
 	overlay_disk_A_inserted(catstr(appl_rsrc_path, fname_A_inserted)),
 	overlay_disk_B_ejected(catstr(appl_rsrc_path, fname_B_ejected)),
@@ -121,17 +123,13 @@ FdcPlus3Insp::FdcPlus3Insp(QWidget* w, MachineController* mc, volatile IsaObject
 	timer->start(1000 / 20);
 }
 
-
-/*	DESTRUCTOR
- */
 FdcPlus3Insp::~FdcPlus3Insp() { delete[] current_disk; }
 
-
-/*	redraw widget:
-	virtual Qt
-*/
 void FdcPlus3Insp::paintEvent(QPaintEvent* e)
 {
+	// redraw widget:
+	// virtual Qt override
+
 	xlogIn("FdcPlus3Insp:paintEvent");
 	Inspector::paintEvent(e);
 	QPainter p(this);
@@ -139,17 +137,17 @@ void FdcPlus3Insp::paintEvent(QPaintEvent* e)
 	switch (diskstate)
 	{
 	case Ejected:
-		p.drawPixmap(x_overlay, y_overlay, side_B_up() ? overlay_disk_B_ejected : overlay_disk_A_ejected);
+		p.drawPixmap(x_overlay, y_overlay, is_side_B_up() ? overlay_disk_B_ejected : overlay_disk_A_ejected);
 		if (e->rect().intersects(box_disk_ejected_front))
 		{
 			p.setFont(font_label);
 			p.drawText(
-				side_B_up() ? box_label_disk_out_side_B : box_label_disk_out_side_A, Qt::AlignTop | Qt::TextSingleLine,
-				basename_from_path(current_disk));
+				is_side_B_up() ? box_label_disk_out_side_B : box_label_disk_out_side_A,
+				Qt::AlignTop | Qt::TextSingleLine, basename_from_path(current_disk));
 		}
 		break;
 	case Loaded:
-		p.drawPixmap(x_overlay, y_overlay, side_B_up() ? overlay_disk_B_inserted : overlay_disk_A_inserted);
+		p.drawPixmap(x_overlay, y_overlay, is_side_B_up() ? overlay_disk_B_inserted : overlay_disk_A_inserted);
 		if (current_disk && e->rect().intersects(box_disk_ejected_front))
 		{
 			p.setFont(font_label);
@@ -163,11 +161,11 @@ void FdcPlus3Insp::paintEvent(QPaintEvent* e)
 }
 
 
-/*	mouse down in widget:
-	virtual Qt
-*/
 void FdcPlus3Insp::mousePressEvent(QMouseEvent* e)
 {
+	// mouse down in widget:
+	// virtual Qt override
+
 	if (e->button() != Qt::LeftButton)
 	{
 		Inspector::mousePressEvent(e);
@@ -195,21 +193,20 @@ void FdcPlus3Insp::mousePressEvent(QMouseEvent* e)
 	}
 }
 
-
-/*	update widget:
-	slot
-	regularly called by this.timer
-*/
 void FdcPlus3Insp::updateWidgets()
 {
+	// update widget:
+	// regularly called by this->timer
+
 	if (!machine || !object) return;
 
 	// LED animieren:
-	if (led_on != (motor_on() && drive == fdc->getSelectedDrive()))
-	{
-		led_on = !led_on;
-		update(box_LED);
-	}
+	if (auto* fdc = dynamic_cast<volatile Fdc*>(object))
+		if (led_on != (is_motor_on() && drive.get() == fdc->getSelectedDrive()))
+		{
+			led_on = !led_on;
+			update(box_LED);
+		}
 
 	// Prüfen, ob hinterrücks eine Disk eingelegt wurde:
 	if (drive->disk && ne(drive->disk->filepath, current_disk))
@@ -219,11 +216,6 @@ void FdcPlus3Insp::updateWidgets()
 		set_disk_state(Loaded);
 	}
 }
-
-
-// void FdcPlus3Insp::mouseReleaseEvent(QMouseEvent* e)
-//{}
-
 
 /*	set state of display to NoDisk, Ejected or Inserted
 	updates the clickable areas which display custom mouse pointers
@@ -437,7 +429,7 @@ void FdcPlus3Insp::insert_again()
 	assert(diskstate == Ejected);
 	assert(current_disk);
 
-	drive->insertDisk(current_disk, side_B_up());
+	drive->insertDisk(current_disk, is_side_B_up());
 	set_disk_state(Loaded);
 }
 

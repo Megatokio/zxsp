@@ -19,7 +19,7 @@ class ZxIf2Insp : public SinclairJoyInsp
 	cstr		 old_romfilepath; // 2nd
 
 public:
-	ZxIf2Insp(QWidget*, MachineController*, volatile IsaObject*);
+	ZxIf2Insp(QWidget*, MachineController*, volatile ZxIf2*);
 
 	void insertRom(cstr filepath);
 

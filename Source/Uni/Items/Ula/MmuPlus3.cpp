@@ -263,14 +263,16 @@ void MmuPlus3::set_port_7ffd_and_1ffd(uint8 new_7ffd, uint8 new_1ffd)
 {
 	xlogIn("MmuPlus3:set_port_7ffd_and_1ffd:$%2x,$%2x", uint(new_7ffd), uint(new_1ffd));
 
+	assert(dynamic_cast<Ula128k*>(ula));
+
 	port_7ffd = new_7ffd;
 	port_1ffd = new_1ffd;
 
 	if (new_1ffd & 1) page_only_ram(); // ram only mode
 	else page_mem_plus3();			   // rom+ram mode
-	Ula128kPtr(ula)->setPort7ffd(new_7ffd);
+	static_cast<Ula128k*>(ula)->setPort7ffd(new_7ffd);
 
-	if (machine->printer) PrinterPlus3Ptr(machine->printer)->strobe(new_1ffd & 0x10);
+	if (auto* p = dynamic_cast<PrinterPlus3*>(machine->printer)) p->strobe(new_1ffd & 0x10);
 	if (machine->fdc) machine->fdc->setMotor(machine->now(), new_1ffd & 0x08);
 }
 
@@ -308,6 +310,7 @@ void MmuPlus3::output(Time t, int32 /*cc*/, uint16 addr, uint8 byte)
 		}
 
 		if ((toggled & 0x08) && machine->fdc) machine->fdc->setMotor(t, byte & 0x08);
-		if ((toggled & 0x10) && machine->printer) PrinterPlus3Ptr(machine->printer)->strobe(byte & 0x10);
+		if (toggled & 0x10)
+			if (auto* p = dynamic_cast<PrinterPlus3*>(machine->printer)) p->strobe(byte & 0x10);
 	}
 }

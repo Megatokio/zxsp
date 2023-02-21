@@ -15,7 +15,7 @@ class Memotech64kRamInsp : public Inspector
 	QComboBox* jumper;
 
 public:
-	Memotech64kRamInsp(QWidget*, MachineController*, volatile IsaObject*);
+	Memotech64kRamInsp(QWidget*, MachineController*, volatile Memotech64kRam*);
 };
 
 } // namespace gui

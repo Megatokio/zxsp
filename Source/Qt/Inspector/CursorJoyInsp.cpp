@@ -13,11 +13,9 @@
 namespace gui
 {
 
-CursorJoyInsp::CursorJoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* item, cstr backgroundimage) :
-	JoyInsp(w, mc, item, backgroundimage)
+CursorJoyInsp::CursorJoyInsp(QWidget* w, MachineController* mc, volatile CursorJoy* joy, cstr backgroundimage) :
+	JoyInsp(w, mc, joy, backgroundimage)
 {
-	assert(object->isA(isa_CursorJoy));
-
 	QLabel* label = new QLabel("Buttons:");
 
 	lineedit_display[0]->setMinimumWidth(110);
@@ -59,16 +57,19 @@ void CursorJoyInsp::updateWidgets()
 	xlogIn("CursorJoyInsp::updateWidgets");
 	if (!machine || !object) return;
 
-	uint8 newstate = joy()->getStateForInspector();
+	auto* joy = dynamic_cast<volatile CursorJoy*>(object);
+	if (!joy) return;
+
+	uint8 newstate = joy->getStateForInspector();
 	if (newstate != lineedit_state[0])
 	{
 		lineedit_state[0] = newstate;
 
-		uint16 mybyte = ((newstate & 2) << 9)	  // left
-						+ ((newstate & 1) << 2)	  // right
-						+ ((newstate & 4) << 2)	  // down
-						+ ((newstate & 8) << 0)	  // up
-						+ ((newstate & 16) >> 4); // fire
+		uint mybyte = ((newstate & 2u) << 9)	 // left
+					  + ((newstate & 1u) << 2)	 // right
+					  + ((newstate & 4u) << 2)	 // down
+					  + ((newstate & 8u) << 0)	 // up
+					  + ((newstate & 16u) >> 4); // fire
 
 		lineedit_display[0]->setText(binstr(mybyte, "%-----:-----", "&L----:DUR-F"));
 	}

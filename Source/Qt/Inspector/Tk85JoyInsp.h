@@ -11,7 +11,7 @@ namespace gui
 class Tk85JoyInsp : public JoyInsp
 {
 public:
-	Tk85JoyInsp(QWidget*, MachineController*, volatile IsaObject*);
+	Tk85JoyInsp(QWidget*, MachineController*, volatile Tk85Joy*);
 };
 
 } // namespace gui

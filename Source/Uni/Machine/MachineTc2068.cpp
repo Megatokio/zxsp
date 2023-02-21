@@ -28,7 +28,12 @@ MachineTc2068::MachineTc2068(gui::MachineController* m, Model model) : MachineTc
 
 void MachineTc2068::insertCartridge(cstr fpath)
 {
-	powerOff();
-	NV(MmuTc2068Ptr(mmu))->insertCartridge(fpath);
-	powerOn();
+	// called from MachineController.loadSnapshot()
+
+	auto* dock = dynamic_cast<MmuTc2068*>(mmu);
+	assert(dock);
+
+	bool f = powerOff();
+	dock->insertCartridge(fpath);
+	if (f) powerOn();
 }

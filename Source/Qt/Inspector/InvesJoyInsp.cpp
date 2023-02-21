@@ -14,11 +14,9 @@
 namespace gui
 {
 
-InvesJoyInsp::InvesJoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* j) :
-	JoyInsp(w, mc, j, "/Images/inves_joy.jpg")
+InvesJoyInsp::InvesJoyInsp(QWidget* w, MachineController* mc, volatile InvesJoy* joy) :
+	JoyInsp(w, mc, joy, "/Images/inves_joy.jpg")
 {
-	assert(object->isA(isa_InvesJoy));
-
 	QLabel* label = new QLabel("Buttons:");
 
 	QGridLayout* g = new QGridLayout(this);

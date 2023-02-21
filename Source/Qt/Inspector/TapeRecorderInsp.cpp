@@ -57,17 +57,17 @@ Cassette::Cassette(CassBody cass, HeadPos head_dn)
 	}
 }
 
-Plus2TapeRecorderInsp::Plus2TapeRecorderInsp(QWidget* p, MachineController* mc, volatile IsaObject* item) :
+Plus2TapeRecorderInsp::Plus2TapeRecorderInsp(QWidget* p, MachineController* mc, volatile Plus2TapeRecorder* item) :
 	PlusTapeRecorderInsp(p, mc, item, "Images/tape/plus2_hdgr.jpg", "Images/tape/plus2_lid.png", ":/Icons/btn2_")
 {}
 
-Plus2aTapeRecorderInsp::Plus2aTapeRecorderInsp(QWidget* p, MachineController* mc, volatile IsaObject* item) :
+Plus2aTapeRecorderInsp::Plus2aTapeRecorderInsp(QWidget* p, MachineController* mc, volatile Plus2aTapeRecorder* item) :
 	PlusTapeRecorderInsp(p, mc, item, "Images/tape/plus2a_hdgr.jpg", "Images/tape/plus2a_lid.png", ":/Icons/btn2A_")
 {}
 
 // +2 or +2A tape recorder
 PlusTapeRecorderInsp::PlusTapeRecorderInsp(
-	QWidget* parent, MachineController* mc, volatile IsaObject* item, cstr hdgr, cstr tray, cstr btn_root) :
+	QWidget* parent, MachineController* mc, volatile TapeRecorder* item, cstr hdgr, cstr tray, cstr btn_root) :
 	TapeRecorderInsp(
 		parent, mc, item, QPoint(38, 19), // major info pos
 		QPoint(38, 31),					  // minor info pos
@@ -95,7 +95,9 @@ PlusTapeRecorderInsp::PlusTapeRecorderInsp(
 	/*	The buttons just set the tape recorder to the new state
 		Later, updateWidgets() will update the animation and the button images
 	*/
-	connect(btn_record, &MySimpleToggleButton::toggled, this, [=] { nv_taperecorder()->record(); });
+	connect(btn_record, &MySimpleToggleButton::toggled, this, [=] {
+		nvptr(static_cast<volatile TapeRecorder*>(object))->record();
+	});
 	connect(btn_play, &MySimpleToggleButton::toggled, this, [=] { nv_taperecorder()->play(); });
 	connect(btn_back, &MySimpleToggleButton::toggled, this, [=] { nv_taperecorder()->rewind(); });
 	connect(btn_fore, &MySimpleToggleButton::toggled, this, [=] { nv_taperecorder()->wind(); });
@@ -104,7 +106,7 @@ PlusTapeRecorderInsp::PlusTapeRecorderInsp(
 }
 
 // TS2020 tape recorder:
-TS2020Inspector::TS2020Inspector(QWidget* parent, MachineController* mc, volatile IsaObject* item) :
+TS2020Inspector::TS2020Inspector(QWidget* parent, MachineController* mc, volatile TS2020* item) :
 	TapeRecorderInsp(
 		parent, mc, item, QPoint(68, 44), // major info pos
 		QPoint(68, 56),					  // minor info pos
@@ -143,7 +145,7 @@ TS2020Inspector::TS2020Inspector(QWidget* parent, MachineController* mc, volatil
 
 // tape recorder base class:
 TapeRecorderInsp::TapeRecorderInsp(
-	QWidget* w, MachineController* mc, volatile IsaObject* item, QPoint majorinfopos, QPoint minorinfopos,
+	QWidget* w, MachineController* mc, volatile TapeRecorder* item, QPoint majorinfopos, QPoint minorinfopos,
 	QPoint tapecounterpos, cstr hdgr_image_filename, cstr tray_image_filename, QPoint tray_position,
 	HeadPos head_position, cstr axis_image_filename, int axis_symmetries, int axis_x1, int axis_x2, int axis_y) :
 	Inspector(w, mc, item, hdgr_image_filename),
@@ -370,22 +372,23 @@ void TapeRecorderInsp::updateWidgets()
 	xxlogIn("TapeRecorderInsp::updateWidgets");
 
 	if (!machine || !object) return;
+	auto* taperecorder = dynamic_cast<volatile TapeRecorder*>(object);
+	if (!taperecorder) return;
 
 	updateAnimation();
 
-	volatile TapeRecorder* tr = tape_recorder();
-	btn_record->setDown(tr->isRecordDown());
-	btn_back->setDown(tr->isRewinding());
-	btn_play->setDown(tr->isPlayDown());
-	btn_fore->setDown(tr->isWinding());
-	btn_pause->setDown(tr->isPauseDown());
+	btn_record->setDown(taperecorder->isRecordDown());
+	btn_back->setDown(taperecorder->isRewinding());
+	btn_play->setDown(taperecorder->isPlayDown());
+	btn_fore->setDown(taperecorder->isWinding());
+	btn_pause->setDown(taperecorder->isPauseDown());
 
 	// update window title:
 	// da die Machine ein Tape direkt einlegen kann und ich da (und sonstwo noch) nicht immer nach einem
 	// Taperecorder Inspector suchen will, wird das hier gepollt => single place.
 	// updateCustomTitle() ist mit dem ToolWindow verbunden, das danach getCustomTitle() aufruft.
 	// updateWidgets() ist nochmal im WalkmanInspector überladen und dieser Code hier doppelt.
-	cstr new_filepath = tape_recorder()->getFilepath();
+	cstr new_filepath = taperecorder->getFilepath();
 	if (tape_filepath != new_filepath)
 	{
 		tape_filepath = new_filepath;
@@ -456,13 +459,14 @@ void TapeRecorderInsp::updateAnimation()
 	xxlogIn("TapeRecorderInsp::updateAnimation");
 
 	if (!is_visible) return;
-
-	NVPtr<TapeRecorder> tr(tape_recorder());
+	auto* taperecorder = dynamic_cast<volatile TapeRecorder*>(object);
+	if (!taperecorder) return;
 
 	// update text fields:
 	{
-		cstr s;
-		int	 p;
+		NVPtr<TapeRecorder> tr(taperecorder);
+		cstr				s;
+		int					p;
 
 		if (major_block_info != (s = tr->getMajorBlockInfo()))
 		{
@@ -497,15 +501,15 @@ void TapeRecorderInsp::updateAnimation()
 	Time now = system_time; // seconds-based time
 
 	// pause state change results in animation change only if tape loaded and playing:
-	if (anim_tr_state != TapeRecorder::playing || !anim_tr_loaded) { anim_tr_pause = tape_recorder()->pause_is_down; }
+	if (anim_tr_state != TapeRecorder::playing || !anim_tr_loaded) { anim_tr_pause = taperecorder->pause_is_down; }
 
 	// animation change?
-	if (anim_tr_loaded != tape_recorder()->isLoaded() || anim_tr_pause != tape_recorder()->pause_is_down ||
-		anim_tr_state != tape_recorder()->state)
+	if (anim_tr_loaded != taperecorder->isLoaded() || anim_tr_pause != taperecorder->pause_is_down ||
+		anim_tr_state != taperecorder->state)
 	{
-		anim_tr_loaded = tape_recorder()->isLoaded();
-		anim_tr_pause  = tape_recorder()->pause_is_down;
-		anim_tr_state  = tape_recorder()->state;
+		anim_tr_loaded = taperecorder->isLoaded();
+		anim_tr_pause  = taperecorder->pause_is_down;
+		anim_tr_state  = taperecorder->state;
 		next_time_l = next_time_r = now + 0.05;
 		update();
 		return;
@@ -518,11 +522,13 @@ void TapeRecorderInsp::updateAnimation()
 
 		if (cass.head_pos == head_down)
 		{
+			NVPtr<TapeRecorder> tr(taperecorder);
 			current_dia_r = reel_diameter_for_seconds(tr->getCurrentPosition());
 			current_dia_l = reel_diameter_for_seconds(tr->getTotalPlaytime() - tr->getCurrentPosition());
 		}
 		else
 		{
+			NVPtr<TapeRecorder> tr(taperecorder);
 			current_dia_l = reel_diameter_for_seconds(tr->getCurrentPosition());
 			current_dia_r = reel_diameter_for_seconds(tr->getTotalPlaytime() - tr->getCurrentPosition());
 		}
@@ -610,16 +616,19 @@ void TapeRecorderInsp::fillContextMenu(QMenu* menu)
 {
 	// Called by Inspector for right-click in inspector window
 
+	auto* taperecorder = dynamic_cast<volatile TapeRecorder*>(object);
+	if (!taperecorder) return;
+
 	Inspector::fillContextMenu(menu);
 
-	if (tape_recorder()->isLoaded())
+	if (taperecorder->isLoaded())
 	{
 		menu->addAction("Eject tape", this, &TapeRecorderInsp::eject_tape);
 		menu->addAction("Save as …", this, &TapeRecorderInsp::save_as);
 
 		QAction* action_wprot = new QAction("Write protected", menu);
 		action_wprot->setCheckable(true);
-		action_wprot->setChecked(tape_recorder()->isWriteProtected());
+		action_wprot->setChecked(taperecorder->isWriteProtected());
 		connect(action_wprot, &QAction::toggled, this, &TapeRecorderInsp::set_wprot);
 		menu->addAction(action_wprot);
 	}
@@ -627,34 +636,34 @@ void TapeRecorderInsp::fillContextMenu(QMenu* menu)
 	{
 		menu->addAction("Insert empty tape", this, &TapeRecorderInsp::insert_empty_tape_w_anim);
 		menu->addAction("Insert tape …", this, &TapeRecorderInsp::insert_tape_w_anim);
-		menu->addAction("Recent tapes …")->setMenu(new RecentFilesMenu(tape_recorder()->list_id, this, [=](cstr path) {
+		menu->addAction("Recent tapes …")->setMenu(new RecentFilesMenu(taperecorder->list_id, this, [=](cstr path) {
 			insert_tape(path);
 		}));
 	}
 
 	QAction* instantLoadAction = new QAction("Instant load/save tape", this);
 	instantLoadAction->setCheckable(true);
-	instantLoadAction->setChecked(tape_recorder()->instant_load_tape);
-	connect(instantLoadAction, &QAction::toggled, this, [=](bool f) { tape_recorder()->setInstantLoadTape(f); });
+	instantLoadAction->setChecked(taperecorder->instant_load_tape);
+	connect(instantLoadAction, &QAction::toggled, this, [=](bool f) { taperecorder->setInstantLoadTape(f); });
 	menu->addAction(instantLoadAction);
 
 	QAction* autoStartStopTape = new QAction("Auto start/stop tape", this);
 	autoStartStopTape->setCheckable(true);
-	autoStartStopTape->setChecked(tape_recorder()->auto_start_stop_tape);
-	connect(autoStartStopTape, &QAction::toggled, this, [=](bool f) { tape_recorder()->setAutoStartStopTape(f); });
+	autoStartStopTape->setChecked(taperecorder->auto_start_stop_tape);
+	connect(autoStartStopTape, &QAction::toggled, this, [=](bool f) { taperecorder->setAutoStartStopTape(f); });
 	menu->addAction(autoStartStopTape);
 
-	if (/*tape_recorder()->isLoaded() &&*/ tape_recorder()->isStopped() && !tape_recorder()->isWriteProtected())
+	if (/*tape_recorder()->isLoaded() &&*/ taperecorder->isStopped() && !taperecorder->isWriteProtected())
 	{
 		menu->addSeparator();
-		menu->addAction("Insert empty block before", this, [=] { nv_taperecorder()->newBlockBeforeCurrent(); });
+		menu->addAction("Insert empty block before", this, [=] { nvptr(taperecorder)->newBlockBeforeCurrent(); });
 		QAction* a1 =
-			menu->addAction("Insert empty block after", this, [=] { nv_taperecorder()->newBlockAfterCurrent(); });
-		QAction* a2 = menu->addAction("Delete current block", this, [=] { nv_taperecorder()->deleteCurrentBlock(); });
+			menu->addAction("Insert empty block after", this, [=] { nvptr(taperecorder)->newBlockAfterCurrent(); });
+		QAction* a2 = menu->addAction("Delete current block", this, [=] { nvptr(taperecorder)->deleteCurrentBlock(); });
 
 		PLocker z(machine->_lock);
 
-		TapeFile* tf = tape_recorder()->tapefile;
+		TapeFile* tf = taperecorder->tapefile;
 		if (tf->isLastBlock() && tf->getPlaytimeOfBlock() < 0.5)
 		{
 			a1->setEnabled(no);
@@ -709,11 +718,14 @@ void TapeRecorderInsp::handleEjectButton()
 {
 	// with button animation & sound
 
-	if (!tape_recorder()->isStopped()) // wenn Motor läuft, dann stoppen
+	auto* taperecorder = dynamic_cast<volatile TapeRecorder*>(object);
+	if (!taperecorder) return;
+
+	if (!taperecorder->isStopped()) // wenn Motor läuft, dann stoppen
 	{
-		nv_taperecorder()->stop();
+		nvptr(taperecorder)->stop();
 	}
-	else if (tape_recorder()->isLoaded()) // wenn Band eingelegt, dann auswerfen
+	else if (taperecorder->isLoaded()) // wenn Band eingelegt, dann auswerfen
 	{
 		eject_tape();
 	}
@@ -762,13 +774,16 @@ void TapeRecorderInsp::save_as()
 	// note: tapes must always have an associated file: in case the tape is modified
 	//		 and destroyed there must be a file for saving without asking the user.
 
-	assert(tape_recorder()->isLoaded());
+	auto* taperecorder = dynamic_cast<volatile TapeRecorder*>(object);
+	if (!taperecorder) return;
+
+	assert(taperecorder->isLoaded());
 
 	cstr filepath = get_save_filename();
 	if (filepath)
 	{
-		tape_recorder()->setFilename(filepath);
-		addRecentFile(tape_recorder()->list_id, filepath);
+		taperecorder->setFilename(filepath);
+		addRecentFile(taperecorder->list_id, filepath);
 		addRecentFile(RecentFiles, filepath);
 	}
 }
@@ -781,17 +796,21 @@ void TapeRecorderInsp::set_wprot(bool f)
 
 	assert(isMainThread());
 
-	if (!tape_recorder()->tapefile) return;
+	auto* taperecorder = dynamic_cast<volatile TapeRecorder*>(object);
+	if (!taperecorder) return;
+
+	if (!taperecorder->tapefile) return;
 
 	// Schreibschützen geht nicht, wenn schon was auf das Band geschrieben wurde:
-	if (f && tape_recorder()->isModified())
+	if (f && taperecorder->isModified())
 	{
 		showWarning(
 			"The tape is already modified.\n"
 			"Use \"Save as…\" if you don't want to overwrite the original file.");
 		return;
 	}
-	if (f && tape_recorder()->isRecordDown())
+
+	if (f && taperecorder->isRecordDown())
 	{
 		showWarning(
 			"The record button is down.\n"
@@ -799,21 +818,24 @@ void TapeRecorderInsp::set_wprot(bool f)
 		return;
 	}
 
-	int err = tape_recorder()->setWriteProtected(f);
+	int err = taperecorder->setWriteProtected(f);
 	if (err) showAlert(errorstr(err));
 }
 
 void TapeRecorderInsp::insert_tape(cstr filepath)
 {
-	assert(!tape_recorder()->isLoaded());
+	auto* taperecorder = dynamic_cast<volatile TapeRecorder*>(object);
+	if (!taperecorder) return;
+
+	assert(!taperecorder->isLoaded());
 
 	TapeFile* tapefile = nullptr;
 
 	if (filepath != nullptr)
 	{
-		tapefile = new TapeFile(tape_recorder()->machine_ccps, filepath);
+		tapefile = new TapeFile(taperecorder->machine_ccps, filepath);
 		xlogline("%s total length = %i sec", filepath, int(tapefile->getTotalPlaytime()));
-		addRecentFile(tape_recorder()->list_id, filepath);
+		addRecentFile(taperecorder->list_id, filepath);
 		addRecentFile(RecentFiles, filepath);
 	}
 

@@ -192,7 +192,7 @@
 		  R = peek(pc & 0x7fff);                                                    \
 		  if (~R & 0x40)                                                            \
 		  {                                                                         \
-			UlaZx80Ptr(crtc)->crtcRead(cc, R);                                      \
+			static_cast<UlaZx80*>(crtc)->crtcRead(cc, R);                           \
 			R = NOP;                                                                \
 		  }                                                                         \
 		}                                                                           \
@@ -230,7 +230,7 @@
 		  R = peek(pc & 0x7fff);                                 \
 		  if (~R & 0x40)                                         \
 		  {                                                      \
-			UlaZx80Ptr(crtc)->crtcRead(cc, R);                   \
+			static_cast<UlaZx80*>(crtc)->crtcRead(cc, R);        \
 			R = NOP;                                             \
 		  }                                                      \
 		}                                                        \

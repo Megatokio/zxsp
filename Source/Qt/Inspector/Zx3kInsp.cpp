@@ -20,11 +20,9 @@
 namespace gui
 {
 
-Zx3kInsp::Zx3kInsp(QWidget* parent, MachineController* mc, volatile IsaObject* item) :
-	Inspector(parent, mc, item, "/Images/sinclair3k.jpg")
+Zx3kInsp::Zx3kInsp(QWidget* parent, MachineController* mc, volatile Zx3kRam* zx3kram) :
+	Inspector(parent, mc, zx3kram, "/Images/sinclair3k.jpg")
 {
-	assert(object->isA(isa_Zx3kRam));
-
 	button1k = new QRadioButton("1 kByte", this);
 	button2k = new QRadioButton("2 kByte", this);
 	button3k = new QRadioButton("3 kByte", this);
@@ -40,7 +38,7 @@ Zx3kInsp::Zx3kInsp(QWidget* parent, MachineController* mc, volatile IsaObject* i
 	setColors(button2k, fore, back);
 	setColors(button3k, fore, back);
 
-	uint size = zx3kram()->getRamSize();
+	uint size = zx3kram->getRamSize();
 	button1k->setChecked(size == 1 kB);
 	button2k->setChecked(size == 2 kB);
 	button3k->setChecked(size == 3 kB);
@@ -52,9 +50,13 @@ Zx3kInsp::Zx3kInsp(QWidget* parent, MachineController* mc, volatile IsaObject* i
 
 void Zx3kInsp::set_ram_size(uint newsize)
 {
-	if (newsize == zx3kram()->getRamSize()) return;
+	assert(machine);
+	auto* zx3kram = dynamic_cast<volatile Zx3kRam*>(object);
+	if (!zx3kram) return;
+
+	if (newsize == zx3kram->getRamSize()) return;
 	machine->powerOff();
-	NV(zx3kram())->setRamSize(newsize);
+	NV(zx3kram)->setRamSize(newsize);
 	machine->powerOn();
 	settings.setValue(key_zx3k_ramsize, newsize);
 }

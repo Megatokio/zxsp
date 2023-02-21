@@ -153,12 +153,13 @@ void UlaTc2048::reset(Time t, int32 cc)
 void UlaTc2048::setPortFF(uint8 byte)
 {
 	xlogline("xxx port FF = %2x", int(byte));
+	assert(dynamic_cast<MmuTc2048*>(machine->mmu));
 
 	byte_ff = byte;
 	markVideoRam();
 	border_color = byte & 4 ? 8 + ((~byte >> 3) & 7) : ula_out_byte & 7;
 	cpu->setInterrupt(byte & 0x40 ? 0x7fffffff : cc_irpt_on, cc_irpt_off); // bit 6 disables the interrupt.
-	MmuTc2048Ptr(machine->mmu)->selectEXROM(byte >> 7);					   // bit 7 selects bank to use on TS2068
+	static_cast<MmuTc2048*>(machine->mmu)->selectEXROM(byte >> 7);		   // bit 7 selects bank to use on TS2068
 }
 
 
@@ -250,7 +251,8 @@ int32 UlaTc2048::doFrameFlyback(int32)
 
 	record_ioinfo(cc_frame_end, 0xfe, 0x00);		// for 60Hz models: remainder of screen is black
 	if (ioinfo_count == ioinfo_size) grow_ioinfo(); // required by Renderer
-	bool new_buffers_in_use = ScreenZxspPtr(screen)->ffb_or_vbi(
+	assert(dynamic_cast<gui::ScreenZxsp*>(screen));
+	bool new_buffers_in_use = static_cast<gui::ScreenZxsp*>(screen)->ffb_or_vbi(
 		ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, getFlashPhase(),
 		90000 /*cc_frame_end*/);
 

@@ -226,7 +226,7 @@ void Machine::saveZ80(FD& fd)
 	head.rldiremu |= 0x03; // R register and LDIR emu: always on
 
 	Ay* ay = this->ay;
-	if (!ay) ay = AyPtr(findIsaItem(isa_Ay));
+	if (!ay) ay = dynamic_cast<Ay*>(findIsaItem(isa_Ay));
 	if (ay)
 	{
 		head.rldiremu |= (1 << 2);								 // ay in use, even on 48k machine
@@ -356,12 +356,11 @@ void Machine::saveZ80(FD& fd)
 		}
 		else // paged memory		note: should work for 256k-Scorpion and Timex too
 		{
-			if (mmu->hasPort7ffd() && Mmu128kPtr(mmu)->port7ffdIsLocked())
+			auto* mmu128 = dynamic_cast<Mmu128k*>(mmu);
+			if (mmu128 && mmu128->port7ffdIsLocked())
 			{
 				// special service:
 				// don't write unaccessible pages in 128/+2/+2A/+3:
-
-				Mmu128k* mmu128 = Mmu128kPtr(mmu);
 
 				assert(&ram[mmu128->getPage4000() << 14] == cpu->rdPtr(0x4000));
 				assert(&ram[mmu128->getPage8000() << 14] == cpu->rdPtr(0x8000));
@@ -373,7 +372,8 @@ void Machine::saveZ80(FD& fd)
 				visible |= 1 << (mmu128->getPage8000());
 				visible |= 1 << (mmu128->getPageC000());
 
-				if (mmu->hasPort1ffd() && MmuPlus3Ptr(mmu)->isRamOnlyMode())
+				auto* mmu3 = dynamic_cast<MmuPlus3*>(mmu);
+				if (mmu && mmu3->isRamOnlyMode())
 				{
 					assert(&ram[mmu128->getPage0000() << 14] == cpu->rdPtr(0x0000)); // DENK: ROMDIS?
 					visible |= 1 << (mmu128->getPage0000());
@@ -470,7 +470,7 @@ void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 		if (ismainthread) loadZ80_attach_joysticks(head.im);
 		// else TODO .. ignore
 
-		if (mmu->isA(isa_Mmu128k)) Mmu128kPtr(mmu)->setMmuLocked(true);
+		if (auto* mmu128 = dynamic_cast<Mmu128k*>(mmu)) mmu128->setMmuLocked(true);
 
 		if (head.data & 0x20) // compressed
 		{
@@ -519,7 +519,7 @@ void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 	bool ay_used   = head.rldiremu & 0x04;
 	bool fuller_ay = head.rldiremu & 0x40; // only if ay_used
 	Ay*	 ay		   = this->ay;
-	if (!ay) ay = AyPtr(findIsaItem(isa_Ay));
+	if (!ay) ay = dynamic_cast<Ay*>(findIsaItem(isa_Ay));
 	if (ay_used && fuller_ay && (!ay || !ay->isA(isa_FullerBox))) ay = new FullerBox(this);
 	if (ay_used && !ay) ay = new DidaktikMelodik(this);
 	if (!this->ay) this->ay = ay;

@@ -91,14 +91,12 @@ enum ZxspKey // Names for specci keys
 };
 
 
-KeyboardInspector::KeyboardInspector(QWidget* w, MachineController* m, volatile IsaObject* i) :
-	Inspector(w, m, i, catstr("Keyboards/", m->getModelInfo()->kbd_filename)),
+KeyboardInspector::KeyboardInspector(QWidget* w, MachineController* m, volatile Keyboard* kbd) :
+	Inspector(w, m, kbd, catstr("Keyboards/", m->getModelInfo()->kbd_filename)),
 	model(m->getModel()),
 	mousekey(NOKEY),
 	keymap() // all key bits = 1 == up
 {
-	assert(object->isA(isa_Keyboard));
-
 #if QT_VERSION != 0x050300
 	setAttribute(Qt::WA_OpaquePaintEvent, 1); // broken in Qt 5.3.0beta
 #endif
@@ -721,8 +719,10 @@ void KeyboardInspector::updateWidgets()
 	// and directly after known key state change
 
 	if (!machine || !object) return;
+	auto* kbd = dynamic_cast<volatile Keyboard*>(object);
+	if (!kbd) return;
 
-	Keymap newkeys = const_cast<Keymap&>(kbd()->keymap);
+	Keymap newkeys = const_cast<Keymap&>(kbd->keymap);
 	if (newkeys.allrows == keymap.allrows) return;
 
 	for (int i = 0; i < 8; i++)
@@ -803,7 +803,9 @@ void KeyboardInspector::mousePressEvent(QMouseEvent* e)
 		if (mousekey != NOKEY)
 		{
 			xlogline("mousekey=$%02x", uint(mousekey));
-			NVPtr<Keyboard>(kbd())->specciKeyDown(mousekey);
+
+			auto* kbd = dynamic_cast<volatile Keyboard*>(object);
+			if (kbd) nvptr(kbd)->specciKeyDown(mousekey);
 			updateWidgets();
 		}
 	}
@@ -816,7 +818,8 @@ void KeyboardInspector::mouseReleaseEvent(QMouseEvent* e)
 
 	if (mousekey != NOKEY)
 	{
-		NVPtr<Keyboard>(kbd())->specciKeyUp(mousekey);
+		auto* kbd = dynamic_cast<volatile Keyboard*>(object);
+		if (kbd) nvptr(kbd)->specciKeyUp(mousekey);
 		mousekey = NOKEY;
 		updateWidgets();
 	}
@@ -838,10 +841,10 @@ void KeyboardInspector::mouseMoveEvent(QMouseEvent* e)
 
 		uint8 old = mousekey;
 		{
-			NVPtr<Keyboard> keyboard(kbd());
-			if (mousekey != NOKEY) keyboard->specciKeyUp(mousekey);
+			auto* kbd = dynamic_cast<volatile Keyboard*>(object);
+			if (kbd && mousekey != NOKEY) nvptr(kbd)->specciKeyUp(mousekey);
 			mousekey = findKeyForPoint(e->pos());
-			if (mousekey != NOKEY) keyboard->specciKeyDown(mousekey);
+			if (kbd && mousekey != NOKEY) nvptr(kbd)->specciKeyDown(mousekey);
 		}
 		if (mousekey != old) updateWidgets();
 	}

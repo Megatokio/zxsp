@@ -480,7 +480,7 @@ void Screen::paint_screen(bool draw_passepartout)
 	}
 }
 
-void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
+void ScreenZxsp::do_ffb_or_vbi()
 {
 	uint8*	attrpixels			   = _attrpixels;
 	IoInfo* ioinfo				   = _ioinfo;
@@ -493,7 +493,8 @@ void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
 
 	if (isVisible()) // --> draw screen
 	{
-		ZxspRendererPtr(screen_renderer)
+		assert(dynamic_cast<ZxspRenderer*>(screen_renderer));
+		static_cast<ZxspRenderer*>(screen_renderer)
 			->drawScreen(ioinfo, ioinfo_count, attrpixels, cc_per_scanline, cc_start_of_screenfile, flashphase, cc);
 		paint_screen(no);
 	}
@@ -503,10 +504,13 @@ void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
 		cstr path			 = _screenshot_filepath;
 		_screenshot_filepath = nullptr;
 
-		ZxspGifWriter* gif = static_cast<ZxspGifWriter*>(newGifWriter(no, 50));
+		GifWriter* gif = newGifWriter(no, 50);
+		assert(dynamic_cast<ZxspGifWriter*>(gif));
+
 		try
 		{
-			gif->saveScreenshot(path, ioinfo, ioinfo_count, attrpixels, cc_per_scanline, cc_start_of_screenfile);
+			static_cast<ZxspGifWriter*>(gif)->saveScreenshot(
+				path, ioinfo, ioinfo_count, attrpixels, cc_per_scanline, cc_start_of_screenfile);
 		}
 		catch (FileError& e)
 		{
@@ -522,7 +526,9 @@ void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
 		bool with_border   = _gifmovie_with_bordereffects;
 		_gifmovie_filepath = nullptr;
 
-		gif_writer = ZxspGifWriterPtr(newGifWriter(with_border, 50));
+		gif_writer = newGifWriter(with_border, 50);
+		assert(dynamic_cast<ZxspGifWriter*>(gif_writer));
+
 		try
 		{
 			gif_writer->startRecording(path);
@@ -540,7 +546,8 @@ void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
 	{
 		try
 		{
-			ZxspGifWriterPtr(gif_writer)
+			assert(dynamic_cast<ZxspGifWriter*>(gif_writer));
+			static_cast<ZxspGifWriter*>(gif_writer)
 				->writeFrame(ioinfo, ioinfo_count, attrpixels, cc_per_scanline, cc_start_of_screenfile, flashphase);
 		}
 		catch (FileError& e)

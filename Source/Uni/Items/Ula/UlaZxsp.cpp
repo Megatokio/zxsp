@@ -426,7 +426,8 @@ int32 UlaZxsp::doFrameFlyback(int32 /*cc*/) // called from runForSound()
 		ccx = lines_before_screen * cc_per_line; // update_screen_cc
 
 		record_ioinfo(cc_frame_end, 0xfe, 0); // for 60Hz models: remainder of screen is black
-		bool new_buffers_in_use = ScreenZxspPtr(screen)->ffb_or_vbi(
+		assert(dynamic_cast<gui::ScreenZxsp*>(screen));
+		bool new_buffers_in_use = static_cast<gui::ScreenZxsp*>(screen)->ffb_or_vbi(
 			ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, getFlashPhase(),
 			90000 /*cc_frame_end*/);
 
@@ -447,7 +448,8 @@ int32 UlaZxsp::doFrameFlyback(int32 /*cc*/) // called from runForSound()
 void UlaZxsp::drawVideoBeamIndicator(int32 cc) // called from runForSound()
 {
 	updateScreenUpToCycle(cc);
-	bool new_buffers_in_use = ScreenZxspPtr(screen)->ffb_or_vbi(
+	assert(dynamic_cast<gui::ScreenZxsp*>(screen));
+	bool new_buffers_in_use = static_cast<gui::ScreenZxsp*>(screen)->ffb_or_vbi(
 		ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, getFlashPhase(), cc);
 
 	if (new_buffers_in_use)

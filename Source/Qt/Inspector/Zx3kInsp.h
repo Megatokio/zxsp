@@ -16,7 +16,7 @@ class Zx3kInsp : public Inspector
 	QRadioButton* button3k;
 
 public:
-	Zx3kInsp(QWidget*, MachineController*, volatile IsaObject*);
+	Zx3kInsp(QWidget*, MachineController*, volatile Zx3kRam*);
 
 private:
 	void set_ram_size(uint);

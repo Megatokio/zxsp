@@ -5,6 +5,9 @@
 #define LOGLEVEL 1
 #include "Inspector.h"
 #include "Application.h"
+#include "Ay/Ay.h"
+#include "CurrahMicroSpeech.h"
+#include "Fdc/FdcPlus3.h"
 #include "Inspector/AyInsp.h"
 #include "Inspector/CurrahMicroSpeechInsp.h"
 #include "Inspector/CursorJoyInsp.h"
@@ -52,10 +55,19 @@
 #include "Inspector/ZxIf2Insp.h"
 #include "Inspector/ZxPrinterInsp.h"
 #include "IsaObject.h"
+#include "Items/Ram/Memotech64kRam.h"
+#include "Joy/DktronicsDualJoy.h"
+#include "Joy/InvesJoy.h"
+#include "Joy/KempstonJoy.h"
+#include "Joy/Tc2048Joy.h"
+#include "Joy/Tc2068Joy.h"
+#include "Joy/Tk85Joy.h"
+#include "KempstonMouse.h"
 #include "Keyboard.h"
 #include "Machine.h"
 #include "MachineController.h"
 #include "Mouse.h"
+#include "Ram/Zx3kRam.h"
 #include "ToolWindow.h"
 #include "ZxInfo.h"
 #include <QFont>
@@ -216,54 +228,66 @@ Inspector* Inspector::newInspector(QWidget* p, MachineController* mc, volatile I
 	// new item inspector:
 	switch (int(item->id))
 	{
-	case isa_KbdTk95: return new Tk95KbdInsp(p, mc, item);
-	case isa_KbdTk90x: return new Tk90xKbdInsp(p, mc, item);
-	case isa_KbdTs1000: return new Ts1000KbdInsp(p, mc, item);
-	case isa_KbdTs1500: return new Ts1500KbdInsp(p, mc, item);
-	case isa_KbdTk85: return new Tk85KbdInsp(p, mc, item);
+	case isa_KbdTk95: return new Tk95KbdInsp(p, mc, &dynamic_cast<volatile Keyboard&>(*item));
+	case isa_KbdTk90x: return new Tk90xKbdInsp(p, mc, &dynamic_cast<volatile Keyboard&>(*item));
+	case isa_KbdTs1000: return new Ts1000KbdInsp(p, mc, &dynamic_cast<volatile Keyboard&>(*item));
+	case isa_KbdTs1500: return new Ts1500KbdInsp(p, mc, &dynamic_cast<volatile Keyboard&>(*item));
+	case isa_KbdTk85: return new Tk85KbdInsp(p, mc, &dynamic_cast<volatile Keyboard&>(*item));
 	case isa_KbdJupiter:
 	case isa_KbdZx80:
 	case isa_KbdZx81:
 	case isa_KbdZxsp:
 	case isa_KbdZxPlus:
-	case isa_KbdTimex: return new KeyboardInspector(p, mc, item);
+	case isa_KbdTimex: return new KeyboardInspector(p, mc, &dynamic_cast<volatile Keyboard&>(*item));
 
 	case isa_Z80: return new Z80Insp(p, mc, item);
-	case isa_TS2020: return new TS2020Inspector(p, mc, item);
-	case isa_Plus2Tapedeck: return new Plus2TapeRecorderInsp(p, mc, item);
-	case isa_Plus2aTapedeck: return new Plus2aTapeRecorderInsp(p, mc, item);
-	case isa_Walkman: return new WalkmanInspector(p, mc, item);
+
+	case isa_TS2020: return new TS2020Inspector(p, mc, &dynamic_cast<volatile TS2020&>(*item));
+	case isa_Plus2Tapedeck: return new Plus2TapeRecorderInsp(p, mc, &dynamic_cast<volatile Plus2TapeRecorder&>(*item));
+	case isa_Plus2aTapedeck:
+		return new Plus2aTapeRecorderInsp(p, mc, &dynamic_cast<volatile Plus2aTapeRecorder&>(*item));
+	case isa_Walkman: return new WalkmanInspector(p, mc, &dynamic_cast<volatile Walkman&>(*item));
 
 	case isa_MemHex: return new MemoryHexInspector(p, mc, item);
 	case isa_MemDisass: return new MemoryDisassInspector(p, mc, item);
 	case isa_MemGraphical: return new MemoryGraphInspector(p, mc, item);
 	case isa_MemAccess: return new MemoryAccessInspector(p, mc, item);
 
-	case isa_FdcPlus3: return new FdcPlus3Insp(p, mc, item);
+	case isa_FdcPlus3: return new FdcPlus3Insp(p, mc, &dynamic_cast<volatile FdcPlus3&>(*item));
 	case isa_FdcBeta128: return new FdcBeta128Insp(p, mc, item);
 	case isa_FdcPlusD: return new FdcPlusDInsp(p, mc, item);
 	case isa_FdcD80: return new FdcD80Insp(p, mc, item);
-	case isa_FdcJLO:
-		return new FdcJLOInsp(p, mc, item);
+	case isa_FdcJLO: return new FdcJLOInsp(p, mc, item);
 
-		//	case isa_CursorJoy:			return new CursorJoyInsp(p,item);
-	case isa_DktronicsDualJoy: return new DktronicsDualJoyInsp(p, mc, item);
-	case isa_InvesJoy: return new InvesJoyInsp(p, mc, item);
-	case isa_KempstonJoy: return new KempstonJoyInsp(p, mc, item);
-	case isa_ProtekJoy: return new ProtekJoyInsp(p, mc, item);
-	case isa_ZxPlus2Joy: return new SinclairJoyInsp(p, mc, item, "/Images/zxplus2_sideview.jpg");
-	case isa_ZxPlus2AJoy: return new SinclairJoyInsp(p, mc, item, "/Images/zxplus2a_sideview.jpg");
-	case isa_ZxPlus3Joy: return new SinclairJoyInsp(p, mc, item, "/Images/zxplus3_sideview.jpg");
-	case isa_Tk90xJoy: return new SinclairJoyInsp(p, mc, item, "/Images/tk90x_joy.jpg");
-	case isa_Tk95Joy: return new SinclairJoyInsp(p, mc, item, "/Images/tk95_joy.jpg");
-	case isa_Tc2048Joy: return new Tc2048JoyInsp(p, mc, item);
-	case isa_Tc2068Joy: return new Tc2068JoyInsp(p, mc, item, "/Images/tc2068/side_view.jpg");
-	case isa_Ts2068Joy: return new Tc2068JoyInsp(p, mc, item, "/Images/ts2068_side_view.jpg");
-	case isa_U2086Joy: return new Tc2068JoyInsp(p, mc, item, "/Images/u2086/side_view.jpg");
-	case isa_Tk85Joy: return new Tk85JoyInsp(p, mc, item);
-	case isa_SpectraVideo: return new SpectraVideoInspector(p, mc, item);
+	case isa_CursorJoy:
+		return new CursorJoyInsp(p, mc, &dynamic_cast<volatile CursorJoy&>(*item), "/Backgrounds/light-grey-75.jpg");
+	case isa_DktronicsDualJoy: return new DktronicsDualJoyInsp(p, mc, &dynamic_cast<volatile DktronicsDualJoy&>(*item));
+	case isa_InvesJoy: return new InvesJoyInsp(p, mc, &dynamic_cast<volatile InvesJoy&>(*item));
+	case isa_KempstonJoy: return new KempstonJoyInsp(p, mc, &dynamic_cast<volatile KempstonJoy&>(*item));
+	case isa_ProtekJoy: return new ProtekJoyInsp(p, mc, &dynamic_cast<volatile ProtekJoy&>(*item));
+	case isa_ZxPlus2Joy:
+		return new SinclairJoyInsp(p, mc, &dynamic_cast<volatile SinclairJoy&>(*item), "/Images/zxplus2_sideview.jpg");
+	case isa_ZxPlus2AJoy:
+		return new SinclairJoyInsp(p, mc, &dynamic_cast<volatile SinclairJoy&>(*item), "/Images/zxplus2a_sideview.jpg");
+	case isa_ZxPlus3Joy:
+		return new SinclairJoyInsp(p, mc, &dynamic_cast<volatile SinclairJoy&>(*item), "/Images/zxplus3_sideview.jpg");
+	case isa_Tk90xJoy:
+		return new SinclairJoyInsp(p, mc, &dynamic_cast<volatile SinclairJoy&>(*item), "/Images/tk90x_joy.jpg");
+	case isa_Tk95Joy:
+		return new SinclairJoyInsp(p, mc, &dynamic_cast<volatile SinclairJoy&>(*item), "/Images/tk95_joy.jpg");
+	case isa_Tc2048Joy: return new Tc2048JoyInsp(p, mc, &dynamic_cast<volatile Tc2048Joy&>(*item));
+	case isa_Tc2068Joy:
+		return new Tc2068JoyInsp(p, mc, &dynamic_cast<volatile Tc2068Joy&>(*item), "/Images/tc2068/side_view.jpg");
+	case isa_Ts2068Joy:
+		return new Tc2068JoyInsp(p, mc, &dynamic_cast<volatile Tc2068Joy&>(*item), "/Images/ts2068_side_view.jpg");
+	case isa_U2086Joy:
+		return new Tc2068JoyInsp(p, mc, &dynamic_cast<volatile Tc2068Joy&>(*item), "/Images/u2086/side_view.jpg");
+	case isa_Tk85Joy: return new Tk85JoyInsp(p, mc, &dynamic_cast<volatile Tk85Joy&>(*item));
+
+	case isa_SpectraVideo: return new SpectraVideoInspector(p, mc, &dynamic_cast<volatile SpectraVideo&>(*item));
 	case isa_DivIDE: return new DivIDEInspector(p, mc, item);
-	case isa_CurrahMicroSpeech: return new CurrahMicroSpeechInsp(p, mc, item);
+	case isa_CurrahMicroSpeech:
+		return new CurrahMicroSpeechInsp(p, mc, &dynamic_cast<volatile CurrahMicroSpeech&>(*item));
 
 	case isa_PrinterAerco: return new PrinterAercoInsp(p, mc, item);
 	case isa_PrinterLprint3: return new PrinterLprint3Insp(p, mc, item);
@@ -271,7 +295,7 @@ Inspector* Inspector::newInspector(QWidget* p, MachineController* mc, volatile I
 	case isa_PrinterTs2040: return new PrinterTs2040Insp(p, mc, item);
 	case isa_ZxPrinter: return new ZxPrinterInsp(p, mc, item);
 
-	case isa_InternalAy: return new AyInsp(p, mc, item);
+	case isa_InternalAy: return new AyInsp(p, mc, &dynamic_cast<volatile Ay&>(*item));
 	case isa_ZonxBox: return new ZonxBoxInsp(p, mc, item);
 	case isa_ZonxBox81: return new ZonxBoxInsp(p, mc, item);
 	case isa_DidaktikMelodik: return new DidaktikMelodikInsp(p, mc, item);
@@ -283,18 +307,18 @@ Inspector* Inspector::newInspector(QWidget* p, MachineController* mc, volatile I
 	case isa_Stonechip16kRam: return new Inspector(p, mc, item, "/Images/stonechip16k.jpg");
 	case isa_Memotech16kRam: return new Inspector(p, mc, item, "/Images/memopak16k.jpg");
 
-	case isa_Memotech64kRam: return new Memotech64kRamInsp(p, mc, item);
-	case isa_Zx3kRam: return new Zx3kInsp(p, mc, item);
+	case isa_Memotech64kRam: return new Memotech64kRamInsp(p, mc, &dynamic_cast<volatile Memotech64kRam&>(*item));
+	case isa_Zx3kRam: return new Zx3kInsp(p, mc, &dynamic_cast<volatile Zx3kRam&>(*item));
 
 	case isa_FullerBox: return new FullerBoxInsp(p, mc, item);
 	case isa_GrafPad: return new GrafPadInsp(p, mc, item);
 	case isa_IcTester: return new IcTesterInsp(p, mc, item);
 
-	case isa_KempstonMouse: return new KempstonMouseInsp(p, mc, item);
+	case isa_KempstonMouse: return new KempstonMouseInsp(p, mc, &dynamic_cast<volatile KempstonMouse&>(*item));
 	case isa_Multiface1: return new Multiface1Insp(p, mc, item);
 	case isa_Multiface128: return new Multiface128Insp(p, mc, item);
 	case isa_Multiface3: return new Multiface3Insp(p, mc, item);
-	case isa_ZxIf2: return new ZxIf2Insp(p, mc, item);
+	case isa_ZxIf2: return new ZxIf2Insp(p, mc, &dynamic_cast<volatile ZxIf2&>(*item));
 	case isa_ZxIf1: return new ZxIf1Insp(p, mc, item);
 
 	case isa_MmuTc2068:
@@ -304,8 +328,8 @@ Inspector* Inspector::newInspector(QWidget* p, MachineController* mc, volatile I
 
 	switch (int(item->grp_id))
 	{
-	case isa_Ay: return new AyInsp(p, mc, item);
-	case isa_Ula: return new UlaInsp(p, mc, machine);
+	case isa_Ay: return new AyInsp(p, mc, &dynamic_cast<volatile Ay&>(*item));
+	case isa_Ula: return new UlaInsp(p, mc, machine, &dynamic_cast<volatile Ula&>(*item));
 	}
 
 	showAlert("TODO: Inspector::newInspector() for: %s", item->name);

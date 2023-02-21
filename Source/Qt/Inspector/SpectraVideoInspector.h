@@ -31,8 +31,8 @@ class SpectraVideoInspector : public Inspector
 	cstr	   rom_file; // 2nd
 
 public:
-	SpectraVideoInspector(QWidget*, MachineController*, volatile IsaObject*);
-	~SpectraVideoInspector();
+	SpectraVideoInspector(QWidget*, MachineController*, volatile SpectraVideo*);
+	~SpectraVideoInspector() override;
 	void insertRom(cstr filepath);
 
 protected:

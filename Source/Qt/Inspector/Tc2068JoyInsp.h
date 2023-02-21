@@ -12,7 +12,7 @@ namespace gui
 class Tc2068JoyInsp : public JoyInsp
 {
 public:
-	Tc2068JoyInsp(QWidget*, MachineController*, volatile IsaObject*, cstr img_path);
+	Tc2068JoyInsp(QWidget*, MachineController*, volatile Tc2068Joy*, cstr img_path);
 
 protected:
 	void updateWidgets() override;

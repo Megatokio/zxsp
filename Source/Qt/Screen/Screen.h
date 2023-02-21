@@ -84,7 +84,6 @@ public:
 		while (j && j != i) { j = isa_pid[j]; }
 		return i == j;
 	}
-	// { isa_id j=id; do{ if(i==j) return yes; }while((j=isa_pid[j])); return no; }
 
 	int		  getZoom() const { return zoom; /*minmax(1, min(width()/256, height()/192), 4); */ }
 	uint	  getFramesHit() const { return uint(frames_hit_percent + 0.5f); }
@@ -132,7 +131,7 @@ class ScreenZxsp : public Screen
 	bool	_flashphase;
 
 protected:
-	void do_ffb_or_vbi() noexcept(false) override;
+	void do_ffb_or_vbi() override;
 
 public:
 	explicit ScreenZxsp(QWidget* owner, isa_id id = isa_ScreenZxsp) : Screen(owner, id) {}
@@ -143,36 +142,5 @@ public:
 		IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint32 cc_start_of_screenfile, uint cc_per_scanline,
 		bool flashphase, uint32 cc);
 };
-
-
-// define safe casting procs:			e.g. Item* ItemPtr(object)
-
-#define DEFSPTR(ITEM)                                             \
-  inline ITEM* ITEM##Ptr(Screen* o)                               \
-  {                                                               \
-	assert(!o || o->isA(isa_##ITEM));                             \
-	return reinterpret_cast<ITEM*>(o);                            \
-  }                                                               \
-                                                                  \
-  inline const ITEM* ITEM##Ptr(const Screen* o)                   \
-  {                                                               \
-	assert(!o || o->isA(isa_##ITEM));                             \
-	return reinterpret_cast<const ITEM*>(o);                      \
-  }                                                               \
-                                                                  \
-  inline volatile ITEM* ITEM##Ptr(volatile Screen* o)             \
-  {                                                               \
-	assert(!o || o->isA(isa_##ITEM));                             \
-	return reinterpret_cast<volatile ITEM*>(o);                   \
-  }                                                               \
-                                                                  \
-  inline volatile const ITEM* ITEM##Ptr(volatile const Screen* o) \
-  {                                                               \
-	assert(!o || o->isA(isa_##ITEM));                             \
-	return reinterpret_cast<volatile const ITEM*>(o);             \
-  }
-
-DEFSPTR(ScreenMono)
-DEFSPTR(ScreenZxsp)
 
 } // namespace gui

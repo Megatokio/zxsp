@@ -13,11 +13,9 @@
 namespace gui
 {
 
-Tc2068JoyInsp::Tc2068JoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* j, cstr img_path) :
+Tc2068JoyInsp::Tc2068JoyInsp(QWidget* w, MachineController* mc, volatile Tc2068Joy* j, cstr img_path) :
 	JoyInsp(w, mc, j, img_path)
 {
-	assert(j->isA(isa_Tc2068Joy));
-
 	QGridLayout* g = new QGridLayout(this);
 	g->setContentsMargins(10, 10, 10, 5);
 	g->setVerticalSpacing(4);
@@ -38,12 +36,14 @@ Tc2068JoyInsp::Tc2068JoyInsp(QWidget* w, MachineController* mc, volatile IsaObje
 void Tc2068JoyInsp::updateWidgets()
 {
 	xlogIn("Tc2068JoyInsp::updateWidgets");
-
 	if (!machine || !object) return;
+
+	auto* joy = dynamic_cast<volatile Tc2068Joy*>(object);
+	if (!joy) return;
 
 	for (int i = 0; i < num_ports; i++)
 	{
-		uint8 newstate = AyForTc2068::ayByteForJoystickByte(joy()->getStateForInspector(i));
+		uint8 newstate = AyForTc2068::ayByteForJoystickByte(joy->getStateForInspector(i));
 		if (newstate == lineedit_state[i]) continue;
 		lineedit_display[i]->setText(binstr(newstate, "%F000RLDU", "%--------"));
 		lineedit_state[i] = newstate;

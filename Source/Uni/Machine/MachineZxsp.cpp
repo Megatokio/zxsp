@@ -233,8 +233,10 @@ void MachineZxsp::saveScr(FD& fd)
 	// this is the standard 6912 byte frame buffer of a ZX Spectrum
 	// ZX128: the actually visible frame buffer is saved.
 
+	assert(dynamic_cast<UlaZxsp*>(ula));
+
 	uint8 bu[6912];
-	Z80::c2b(UlaZxspPtr(ula)->getVideoRam(), bu, 6912);
+	Z80::c2b(static_cast<UlaZxsp*>(ula)->getVideoRam(), bu, 6912);
 	fd.write_bytes(bu, 6912);
 }
 
@@ -246,7 +248,7 @@ void MachineZxsp::loadScr(FD& fd)
 	uint8 bu[6912];
 	fd.read_bytes(bu, sz);
 
-	if (crtc->isA(isa_SpectraVideo)) SpectraVideoPtr(crtc)->setVideoMode(SpectraVideoPtr(crtc)->getVideoMode() & 0x60);
+	if (auto* spectra = dynamic_cast<SpectraVideo*>(crtc)) spectra->setVideoMode(spectra->getVideoMode() & 0x60);
 
 	CoreByte* videoram = crtc->getVideoRam();
 	Z80::b2c(bu, videoram, sz);
@@ -407,7 +409,7 @@ void MachineZxsp::loadSna(FD& fd)
 	assert(ram.count() <= 48 kB);
 	assert(is_locked());
 
-	uint32 qramsize = fd.file_size() - snalen;
+	off_t qramsize = fd.file_size() - snalen;
 	if (qramsize > 0xC000) qramsize = 0xc000;
 	assert(ram.count() /*zramsize*/ >= qramsize);
 
@@ -420,7 +422,7 @@ void MachineZxsp::loadSna(FD& fd)
 	head.readFromFile(fd);
 	head.getRegisters(cpu->getRegisters());
 
-	if (crtc->isaId() == isa_SpectraVideo) SpectraVideoPtr(crtc)->setVideoMode(0);
+	if (auto* spectra = dynamic_cast<SpectraVideo*>(crtc)) spectra->setVideoMode(0);
 	crtc->setBorderColor(head.brdr);
 
 	for (uint32 i = 0; i < qramsize; i += CPU_PAGESIZE)

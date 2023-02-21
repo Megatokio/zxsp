@@ -12,7 +12,7 @@ namespace gui
 class WalkmanInspector : public TapeRecorderInsp
 {
 public:
-	WalkmanInspector(QWidget*, MachineController*, volatile IsaObject*);
+	WalkmanInspector(QWidget*, MachineController*, volatile Walkman*);
 
 protected:
 	void updateWidgets() override;

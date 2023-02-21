@@ -4,6 +4,7 @@
 
 #include "DktronicsDualJoyInsp.h"
 #include "Item.h"
+#include "Joy/DktronicsDualJoy.h"
 #include <QComboBox>
 #include <QGridLayout>
 #include <QPushButton>
@@ -11,11 +12,9 @@
 namespace gui
 {
 
-DktronicsDualJoyInsp::DktronicsDualJoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* item) :
-	JoyInsp(w, mc, item, "/Images/dktronics_dual_js_if.jpg")
+DktronicsDualJoyInsp::DktronicsDualJoyInsp(QWidget* w, MachineController* mc, volatile DktronicsDualJoy* joy) :
+	JoyInsp(w, mc, joy, "/Images/dktronics_dual_js_if.jpg")
 {
-	assert(item->isA(isa_DktronicsDualJoy));
-
 	QGridLayout* g = new QGridLayout(this);
 	g->setContentsMargins(10, 10, 10, 5);
 	g->setVerticalSpacing(4);

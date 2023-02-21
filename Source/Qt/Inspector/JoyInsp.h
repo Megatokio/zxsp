@@ -15,7 +15,7 @@ namespace gui
 class JoyInsp : public Inspector
 {
 protected:
-	int			 num_ports;
+	uint		 num_ports;
 	QLineEdit*	 lineedit_display[3];
 	uint8		 lineedit_state[3];
 	QComboBox*	 joystick_selectors[3];
@@ -23,7 +23,7 @@ protected:
 	QPushButton* button_set_keys;
 
 public:
-	JoyInsp(QWidget*, MachineController*, volatile IsaObject*, cstr img_path);
+	JoyInsp(QWidget*, MachineController*, volatile Joy*, cstr img_path);
 
 protected:
 	void updateWidgets() override;

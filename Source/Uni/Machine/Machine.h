@@ -80,6 +80,9 @@ public:
 	Crtc*		  crtc;		// mostly same as ula
 	Item*		  lastitem; // list of all items: maintained by Item
 
+	std::vector<std::shared_ptr<Item>> items;
+
+
 	// virtual machine time:
 	//	 there are two scales: cpu T cycle count cc and time in seconds.
 	//	 cc are biased to the current video frame start
@@ -169,6 +172,14 @@ public:
 	void saveAs(cstr filepath);
 
 	// Components:
+	std::shared_ptr<Item> findItemSP(isa_id id)
+	{
+		for (auto i : items)
+		{
+			if (i->isaId() == id) return i;
+		}
+		return nullptr;
+	}
 	Item* findItem(isa_id id)
 	{
 		for (Item* i = lastitem; i; i = i->prev())

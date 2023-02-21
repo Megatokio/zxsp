@@ -26,7 +26,7 @@ namespace gui
 static uint dipsw[5] = {8, 4, 2, 6, 1}; // {0b1000,0b0100,0b0010,0b0110,0b0001};
 
 
-Memotech64kRamInsp::Memotech64kRamInsp(QWidget* p, MachineController* mc, volatile IsaObject* item) :
+Memotech64kRamInsp::Memotech64kRamInsp(QWidget* p, MachineController* mc, volatile Memotech64kRam* item) :
 	Inspector(p, mc, item, "/Images/memopak64k.jpg")
 {
 	assert(object->isA(isa_Memotech64kRam));
@@ -42,7 +42,7 @@ Memotech64kRamInsp::Memotech64kRamInsp(QWidget* p, MachineController* mc, volati
 						 << "-11-:  8-16k: Ram"
 						 << "---1:  8-16k: no Ram");
 
-	switch (memotech64kram()->getDipSwitches()) // settings.value(key_memotech64k_dip_switches,6/*0b0110*/).toInt())
+	switch (item->getDipSwitches()) // settings.value(key_memotech64k_dip_switches,6/*0b0110*/).toInt())
 	{
 	case /*0b1000*/ 8: jumper->setCurrentIndex(0); break;
 	case /*0b0100*/ 4: jumper->setCurrentIndex(1); break;
@@ -53,7 +53,7 @@ Memotech64kRamInsp::Memotech64kRamInsp(QWidget* p, MachineController* mc, volati
 
 	connect(jumper, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [=](int i) {
 		uint dip_switches = dipsw[i];
-		NVPtr<Memotech64kRam>(memotech64kram())->setDipSwitches(dip_switches);
+		NVPtr<Memotech64kRam>(item)->setDipSwitches(dip_switches);
 		settings.setValue(key_memotech64k_dip_switches, dip_switches);
 	});
 

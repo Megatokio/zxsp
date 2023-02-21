@@ -195,7 +195,7 @@ static uint32 blur_color(const Renderer& renderer, const QRect& box)
 */
 void Lenslok::draw_prism(QPainter& painter, QRectF qbox, const QRectF& zbox)
 {
-	Renderer& renderer = *ZxspRendererPtr(controller->getScreen()->getScreenRenderer());
+	Renderer& renderer = dynamic_cast<ZxspRenderer&>(*controller->getScreen()->getScreenRenderer());
 
 	// Koordinaten der auf Integer ausgeweiteten Quell-Box:
 	int l = floor(qbox.left());
@@ -278,7 +278,7 @@ void Lenslok::paintEvent(QPaintEvent*)
 	// Lenslok flipped => decoding mode:
 
 	Screen*	  screen		  = controller->getScreen();
-	Renderer* screen_renderer = ZxspRendererPtr(screen->getScreenRenderer());
+	Renderer* screen_renderer = screen->getScreenRenderer();
 	qreal	  vzoom			  = screen->getZoom();
 	qreal	  hzoom			  = vzoom / screen->getHF();
 

@@ -166,8 +166,9 @@ static QFont scrollfont = QFont("Lucida Grande", 11);
 #define max_gap 20u
 
 
-CurrahMicroSpeechInsp::CurrahMicroSpeechInsp(QWidget* parent, MachineController* mc, volatile IsaObject* item) :
-	Inspector(parent, mc, item, "Images/currah_microspeech.jpg"),
+CurrahMicroSpeechInsp::CurrahMicroSpeechInsp(
+	QWidget* parent, MachineController* mc, volatile CurrahMicroSpeech* uspeech) :
+	Inspector(parent, mc, uspeech, "Images/currah_microspeech.jpg"),
 	rp(0),
 	wp(0),
 	xpos(0),
@@ -186,7 +187,7 @@ CurrahMicroSpeechInsp::CurrahMicroSpeechInsp(QWidget* parent, MachineController*
 	//	setColors(button8bit, fore, back);
 	//	setColors(buttonHifi, fore, back);
 
-	bool hifi = currah_uspeech()->isHifi();
+	bool hifi = uspeech->isHifi();
 	button_8bit->setChecked(!hifi);
 	button_hifi->setChecked(hifi);
 
@@ -220,53 +221,55 @@ CurrahMicroSpeechInsp::CurrahMicroSpeechInsp(QWidget* parent, MachineController*
 
 CurrahMicroSpeechInsp::~CurrahMicroSpeechInsp() {}
 
+void CurrahMicroSpeechInsp::set_8bit()
+{
+	if (auto* uspeech = dynamic_cast<volatile CurrahMicroSpeech*>(object)) uspeech->setHifi(no);
+}
 
-// slot
-void CurrahMicroSpeechInsp::set_8bit() { currah_uspeech()->setHifi(no); }
-
-// slot
-void CurrahMicroSpeechInsp::set_hifi() { currah_uspeech()->setHifi(yes); }
-
+void CurrahMicroSpeechInsp::set_hifi()
+{
+	if (auto* uspeech = dynamic_cast<volatile CurrahMicroSpeech*>(object)) uspeech->setHifi(yes);
+}
 
 void CurrahMicroSpeechInsp::updateWidgets()
 {
 	xxlogIn("CurrahMicroSpeechInspector::update");
 	if (!machine || !object) return;
 
-	// list_lock.lock();		not needed: only inspector reads and only device writes to history[]
-
-	volatile CurrahMicroSpeech* o = currah_uspeech();
-
-	// add spoken allophones:
-
-	const uint hmask = NELEM(o->history) - 1;
-	const uint smask = NELEM(scroller) - 1;
-
-	while (o->lastrp != o->lastwp)
+	if (auto* uspeech = dynamic_cast<volatile CurrahMicroSpeech*>(object))
 	{
-		uint command = o->history[o->lastrp++ & hmask];
-		if (command > 0x80 + max_gap) command = 0x80 + max_gap;
-		scroller[(wp++) & smask] = command;
-		width += widths[command];
-	}
+		// list_lock.lock();		not needed: only inspector reads and only device writes to history[]
 
-	// list_lock.unlock();
+		// add spoken allophones:
 
-	// scroll the scroller, if needed:
-	if (xpos + width > 320)
-	{
-		xpos -= (xpos + width - 320 + 59) / 30;
-		int firstwidth = widths[scroller[rp & smask]];
-		if (xpos <= -firstwidth)
+		const uint hmask = NELEM(uspeech->history) - 1;
+		const uint smask = NELEM(scroller) - 1;
+
+		while (uspeech->lastrp != uspeech->lastwp)
 		{
-			rp++;
-			xpos += firstwidth;
-			width -= firstwidth;
+			uint8 command = uspeech->history[uspeech->lastrp++ & hmask];
+			if (command > 0x80 + max_gap) command = 0x80 + max_gap;
+			scroller[(wp++) & smask] = command;
+			width += widths[command];
 		}
-		update(0, 220, 320, 20);
+
+		// list_lock.unlock();
+
+		// scroll the scroller, if needed:
+		if (xpos + width > 320)
+		{
+			xpos -= (xpos + width - 320 + 59) / 30;
+			int firstwidth = widths[scroller[rp & smask]];
+			if (xpos <= -firstwidth)
+			{
+				rp++;
+				xpos += firstwidth;
+				width -= firstwidth;
+			}
+			update(0, 220, 320, 20);
+		}
 	}
 }
-
 
 void CurrahMicroSpeechInsp::paintEvent(QPaintEvent* e)
 {

@@ -398,16 +398,16 @@ void Machine::itemAdded(Item* item)
 	assert(isMainThread());
 	assert(is_locked());
 
-	if (item->isA(isa_Ay)) ay = AyPtr(item);
-	if (item->isA(isa_Keyboard)) keyboard = KeyboardPtr(item);
-	if (item->isA(isa_Joy)) joystick = JoyPtr(item);
-	if (item->isA(isa_Mmu)) mmu = MmuPtr(item);
-	if (item->isA(isa_Z80)) cpu = Z80Ptr(item);
-	if (item->isA(isa_Fdc)) fdc = FdcPtr(item);
-	if (item->isA(isa_Printer)) printer = PrinterPtr(item);
-	if (item->isA(isa_Ula)) ula = UlaPtr(item);
-	if (item->isA(isa_Crtc)) crtc = CrtcPtr(item);
-	if (item->isA(isa_TapeRecorder)) taperecorder = TapeRecorderPtr(item);
+	if (item->isA(isa_Ay)) ay = dynamic_cast<Ay*>(item);
+	if (item->isA(isa_Keyboard)) keyboard = dynamic_cast<Keyboard*>(item);
+	if (item->isA(isa_Joy)) joystick = dynamic_cast<Joy*>(item);
+	if (item->isA(isa_Mmu)) mmu = dynamic_cast<Mmu*>(item);
+	if (item->isA(isa_Z80)) cpu = dynamic_cast<Z80*>(item);
+	if (item->isA(isa_Fdc)) fdc = dynamic_cast<Fdc*>(item);
+	if (item->isA(isa_Printer)) printer = dynamic_cast<Printer*>(item);
+	if (item->isA(isa_Ula)) ula = dynamic_cast<Ula*>(item);
+	if (item->isA(isa_Crtc)) crtc = dynamic_cast<Crtc*>(item);
+	if (item->isA(isa_TapeRecorder)) taperecorder = dynamic_cast<TapeRecorder*>(item);
 
 	gui::MachineController* mc = NV(controller);
 	mc->itemAdded(item);
@@ -431,8 +431,7 @@ void Machine::itemRemoved(Item* item)
 	if (crtc == item) crtc = nullptr;
 	if (taperecorder == item) taperecorder = nullptr;
 
-	gui::MachineController* mc = NV(controller);
-	mc->itemRemoved(item);
+	NV(controller)->itemRemoved(item);
 }
 
 /*	resume machine from runForSound():
@@ -603,7 +602,7 @@ void Machine::_power_on(int32 start_cc)
 	tcc0 = -start_cc / cpu_clock;
 	assert(t_for_cc(start_cc) == 0.0);
 
-	crtc = CrtcPtr(findIsaItem(isa_Crtc));
+	crtc = dynamic_cast<Crtc*>(findIsaItem(isa_Crtc));
 	assert(crtc);
 	cpu->setCrtc(crtc);
 
@@ -883,8 +882,7 @@ uint8 Machine::handleRomPatch(uint16 pc, uint8 opcode)
 			if (taperecorder->instant_load_tape && handleSaveTapePatch()) return cpu->peek(cpu->getRegisters().pc);
 			if (taperecorder->auto_start_stop_tape) taperecorder->autoStart(cpu->cpuCycle());
 		}
-		if (ula->isA(isa_UlaZx80)) UlaZx80Ptr(ula)->enableMicOut(1);
-		else if (ula->isA(isa_UlaZx81)) UlaZx81Ptr(ula)->enableMicOut(1);
+		if (auto* ulazx80 = dynamic_cast<UlaZx80*>(ula)) ulazx80->enableMicOut(1); // ZX80 and ZX81
 	}
 
 	else if (instrptr == rom.getData() + model_info->tape_load_ret_addr)
@@ -893,8 +891,7 @@ uint8 Machine::handleRomPatch(uint16 pc, uint8 opcode)
 		{
 			if (taperecorder->auto_start_stop_tape) taperecorder->autoStop(cpu->cpuCycle());
 		}
-		if (ula->isA(isa_UlaZx80)) UlaZx80Ptr(ula)->enableMicOut(0);
-		else if (ula->isA(isa_UlaZx81)) UlaZx81Ptr(ula)->enableMicOut(0);
+		if (auto* ulazx80 = dynamic_cast<UlaZx80*>(ula)) ulazx80->enableMicOut(0); // ZX80 and ZX81
 	}
 
 	return opcode; // maybe handled
@@ -1021,10 +1018,8 @@ void Machine::runForSound(int32 cc_final)
 		int32  ic_end = rzx_file->getIcount();
 
 		do {
-			if (ula->isA(isa_UlaZxsp))
+			if (auto* crtc_zxsp = dynamic_cast<UlaZxsp*>(ula))
 			{
-				UlaZxsp* crtc_zxsp = UlaZxspPtr(ula);
-
 				int32 cc_end = min(cc_final, crtc_zxsp->getWaitmapStart());
 				if (cc < cc_end && ic < ic_end)
 					result = cpu->run(cc_end, ic_end, cpu_options & ~(cpu_waitmap | cpu_crtc));
@@ -1138,10 +1133,9 @@ void Machine::runForSound(int32 cc_final)
 		const int32 unlimited = 1 << 30;
 
 		do {
-			if (ula->isA(isa_UlaZxsp))
+			if (auto* crtc_zxsp = dynamic_cast<UlaZxsp*>(ula))
 			{
-				UlaZxsp* crtc_zxsp = UlaZxspPtr(ula);
-				int32	 cc_end	   = min(cc_final, crtc_zxsp->getWaitmapStart());
+				int32 cc_end = min(cc_final, crtc_zxsp->getWaitmapStart());
 				if (cc < cc_end) result = cpu->run(cc_end, unlimited, cpu_options & ~(cpu_waitmap | cpu_crtc));
 
 				cc_end = min(cc_final, crtc_zxsp->getWaitmapEnd());

@@ -8,6 +8,7 @@
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
 #include "RecentFilesMenu.h"
+#include "Templates/NVPtr.h"
 #include "Ula/MmuTc2048.h"
 #include "globals.h"
 #include "unix/files.h"
@@ -109,8 +110,10 @@ TccDockInspector::~TccDockInspector()
 void TccDockInspector::updateWidgets()
 {
 	if (!machine || !object) return;
+	auto* dock = dynamic_cast<volatile MmuTc2068*>(object);
+	if (!dock) return;
 
-	CartridgeState new_state = dock()->isLoaded() ? RomInserted : current_fpath ? RomEjected : NoCartridge;
+	CartridgeState new_state = dock->isLoaded() ? RomInserted : current_fpath ? RomEjected : NoCartridge;
 
 	if (cartridge_state != new_state)
 	{
@@ -120,10 +123,10 @@ void TccDockInspector::updateWidgets()
 			new_state == RomInserted ? "Eject Cartridge" :
 			new_state == RomEjected	 ? "Remove Cartridge" :
 									   "Insert Cartridge");
-		if (!current_fpath && dock()->isLoaded())
+		if (!current_fpath && dock->isLoaded())
 		{
-			current_fpath = newcopy(dock()->getFilepath());
-			current_id	  = dock()->getTccId();
+			current_fpath = newcopy(dock->getFilepath());
+			current_id	  = dock->getTccId();
 		}
 
 		dock_slot->setVisible(new_state == NoCartridge);
@@ -261,7 +264,8 @@ void TccDockInspector::mousePressEvent(QMouseEvent* e)
  */
 void TccDockInspector::insert_or_eject_cartridge()
 {
-	if (dock()->isLoaded()) eject_cartridge();
+	auto* dock = dynamic_cast<volatile MmuTc2068*>(object);
+	if (dock && dock->isLoaded()) eject_cartridge();
 
 	if (current_fpath) remove_cartridge();
 	else insert_cartridge();
@@ -293,6 +297,10 @@ void TccDockInspector::insert_cartridge(cstr filepath)
 	// called from menu: "Load..."        -> filepath==NULL -> query user
 	// called from menu: "Load recent..." -> filepath!=NULL
 
+	if (!machine || !object) return;
+	auto* dock = dynamic_cast<volatile MmuTc2068*>(object);
+	if (!dock) return;
+
 	if (!filepath) filepath = getLoadFilename();
 	if (!filepath) return;
 
@@ -302,8 +310,7 @@ void TccDockInspector::insert_cartridge(cstr filepath)
 
 	bool f = machine->powerOff();
 
-	MmuTc2068* dock = NV(this->dock());
-	dock->insertCartridge(filepath);
+	nvptr(dock)->insertCartridge(filepath);
 
 	current_fpath = newcopy(filepath);
 	current_id	  = dock->getTccId();
@@ -316,12 +323,15 @@ void TccDockInspector::insert_cartridge(cstr filepath)
  */
 void TccDockInspector::eject_cartridge()
 {
-	if (dock()->isLoaded())
+	if (!machine || !object) return;
+	auto* dock = dynamic_cast<volatile MmuTc2068*>(object);
+
+	if (dock && dock->isLoaded())
 	{
 		cartridge_state = Invalid;
 
 		bool f = machine->powerOff();
-		NV(dock())->ejectCartridge();
+		NV(dock)->ejectCartridge();
 		if (f) machine->powerOn();
 	}
 }
@@ -331,7 +341,10 @@ void TccDockInspector::eject_cartridge()
  */
 void TccDockInspector::remove_cartridge()
 {
-	if (!dock()->isLoaded())
+	if (!machine || !object) return;
+	auto* dock = dynamic_cast<volatile MmuTc2068*>(object);
+
+	if (dock && !dock->isLoaded())
 	{
 		cartridge_state = Invalid;
 		delete[] current_fpath;
@@ -344,11 +357,14 @@ void TccDockInspector::remove_cartridge()
  */
 void TccDockInspector::insert_again()
 {
+	if (!machine || !object) return;
+	auto* dock = dynamic_cast<volatile MmuTc2068*>(object);
+
 	if (current_fpath)
 	{
-		cartridge_state = Invalid;
 		bool f			= machine->powerOff();
-		NV(this->dock())->insertCartridge(current_fpath);
+		cartridge_state = Invalid;
+		NV(dock)->insertCartridge(current_fpath);
 		if (f) machine->powerOn();
 	}
 }
@@ -358,12 +374,15 @@ void TccDockInspector::insert_again()
  */
 void TccDockInspector::save_as()
 {
+	if (!machine || !object) return;
+	auto* dock = dynamic_cast<volatile MmuTc2068*>(object);
+
 	cstr filepath = getSaveFilename();
 	if (filepath)
 	{
-		cartridge_state = Invalid;
 		bool f			= machine->suspend();
-		NV(this->dock())->saveCartridgeAs(filepath);
+		cartridge_state = Invalid;
+		NV(dock)->saveCartridgeAs(filepath);
 		if (f) machine->resume();
 	}
 }
