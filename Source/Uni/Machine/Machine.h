@@ -51,12 +51,12 @@ private:
 	class RzxFile* rzx_file; // Rzx Replay and Recording
 	gui::Overlay*  overlay_rzx_play;
 	gui::Overlay*  overlay_rzx_record;
-	void		   show_overlay_play();
-	void		   show_overlay_record();
-	void		   hide_overlay_play();
-	void		   hide_overlay_record();
-	void		   rzx_load_snapshot(int32& cc_final, int32& ic_end);
-	void		   rzx_store_snapshot();
+	void		   showOverlayPlay();
+	void		   showOverlayRecord();
+	void		   hideOverlayPlay();
+	void		   hideOverlayRecord();
+	void		   rzxLoadSnapshot(int32& cc_final, int32& ic_end);
+	void		   rzxStoreSnapshot();
 
 public:
 	// all memory in the machine:
@@ -79,9 +79,6 @@ public:
 	Printer*	  printer;
 	Crtc*		  crtc;		// mostly same as ula
 	Item*		  lastitem; // list of all items: maintained by Item
-
-	std::vector<std::shared_ptr<Item>> items;
-
 
 	// virtual machine time:
 	//	 there are two scales: cpu T cycle count cc and time in seconds.
@@ -108,7 +105,7 @@ protected:
 	int32  cc_up_for_t(Time t) { return int32(ceil(cc_for_t(t))); }
 
 	// machine state
-	void		  clear_break_ptr();
+	void		  clearBreakPtr();
 	uint8		  handleRomPatch(uint16, uint8); // Z80options.h
 	void		  outputAtCycle(int32 cc, uint16, uint8);
 	uchar		  inputAtCycle(int32 cc, uint16);
@@ -172,14 +169,6 @@ public:
 	void saveAs(cstr filepath);
 
 	// Components:
-	std::shared_ptr<Item> findItemSP(isa_id id)
-	{
-		for (auto i : items)
-		{
-			if (i->isaId() == id) return i;
-		}
-		return nullptr;
-	}
 	Item* findItem(isa_id id)
 	{
 		for (Item* i = lastitem; i; i = i->prev())
@@ -204,16 +193,12 @@ public:
 		}
 		return nullptr;
 	}
-	Item*		  lastItem() volatile { return lastitem; }
+	Item*		  lastItem() { return lastitem; }
 	Item*		  firstItem() { return cpu; }
 	ZxIf2*		  findZxIf2() { return static_cast<ZxIf2*>(findItem(isa_ZxIf2)); }
 	SpectraVideo* findSpectraVideo() { return static_cast<SpectraVideo*>(findItem(isa_SpectraVideo)); }
 	DivIDE*		  findDivIDE() { return static_cast<DivIDE*>(findItem(isa_DivIDE)); }
-	void		  setCrtc(Crtc* c)
-	{
-		crtc = c;
-		cpu->setCrtc(c);
-	}
+	void		  setCrtc(Crtc* c) { cpu->setCrtc(crtc = c); }
 
 	Item*		  addExternalItem(isa_id);
 	ExternalRam*  addExternalRam(isa_id, uint size_or_options = 0);
@@ -278,6 +263,6 @@ public:
 	void speedupTo60fps();
 	void setSpeedAnd60fps(double factor);
 
-	void set50HzNeu() { set60HzNeu(0); } // 100%, ~50fps, stored in prefs
-	void set60HzNeu(bool = 1);			 // 100%, ~60fps, stored in prefs
+	void set50Hz() { set60Hz(0); } // 100%, ~50fps, stored in prefs
+	void set60Hz(bool = 1);		   // 100%, ~60fps, stored in prefs
 };

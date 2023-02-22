@@ -64,7 +64,7 @@ protected:
 	Overlay(Screen*, isa_id, Position);
 
 public:
-	~Overlay() {}
+	~Overlay() override {}
 
 	virtual void setZoom(int);
 	virtual void draw(QPainter&) = 0;

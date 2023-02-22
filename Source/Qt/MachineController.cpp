@@ -76,12 +76,15 @@ namespace gui
 
 MachineController* front_machine_controller = nullptr;
 
+static constexpr int CTRL  = Qt::CTRL; // for use with binary operators wg. Warning
+static constexpr int SHIFT = Qt::SHIFT;
+
 
 // ============================================================
 //			Create & Destroy:
 // ============================================================
 
-std::shared_ptr<Machine> MachineController::new_machine_for_model(Model model)
+std::shared_ptr<Machine> MachineController::newMachineForModel(Model model)
 {
 	// create Machine instance for model
 	// if ramsize==0 then default ramsize is used.
@@ -95,11 +98,11 @@ std::shared_ptr<Machine> MachineController::new_machine_for_model(Model model)
 
 	switch (model)
 	{
-	case jupiter: m->set60HzNeu(settings.get_bool(key_framerate_jupiter_60hz, false)); break;
-	case zx80: m->set60HzNeu(settings.get_bool(key_framerate_zx80_60hz, false)); break;
-	case tk85: m->set60HzNeu(settings.get_bool(key_framerate_tk85_60hz, false)); break;
-	case tk90x: m->set60HzNeu(settings.get_bool(key_framerate_tk90x_60hz, false)); break;
-	case tk95: m->set60HzNeu(settings.get_bool(key_framerate_tk95_60hz, false)); break;
+	case jupiter: m->set60Hz(settings.get_bool(key_framerate_jupiter_60hz, false)); break;
+	case zx80: m->set60Hz(settings.get_bool(key_framerate_zx80_60hz, false)); break;
+	case tk85: m->set60Hz(settings.get_bool(key_framerate_tk85_60hz, false)); break;
+	case tk90x: m->set60Hz(settings.get_bool(key_framerate_tk90x_60hz, false)); break;
+	case tk95: m->set60Hz(settings.get_bool(key_framerate_tk95_60hz, false)); break;
 	case zxplus_span: showWarning("spanisch Sinclair ZX Spectrum+: TODO\nusing a Sinclair ZX Spectrum+"); break;
 	case scorpion: showWarning("Scorpion: TODO\nusing a Sinclair ZX Spectrum 48k"); break;
 	default: break;
@@ -114,7 +117,7 @@ std::shared_ptr<Machine> MachineController::new_machine_for_model(Model model)
 	return m;
 }
 
-Screen* MachineController::new_screen_for_model(Model model)
+Screen* MachineController::newScreenForModel(Model model)
 {
 	// create Screen instance for model
 	// screen.parent := this
@@ -221,13 +224,12 @@ void MachineController::loadSnapshot(cstr filename)
 
 		if (eq(ext, ".hdf") || eq(ext, ".img") || eq(ext, ".dmg") || eq(ext, ".iso"))
 		{
-			if (!model_info->canAttachDivIDE())
-				machine = init_machine(zx128, 0, s, j, r, yes); // powered on & suspended
+			if (!model_info->canAttachDivIDE()) machine = initMachine(zx128, 0, s, j, r, yes); // powered on & suspended
 			action_addDivIDE->setChecked(true);
 			if (DivIDE* divide = dynamic_cast<DivIDE*>(machine->findIsaItem(isa_DivIDE))) divide->insertDisk(filename);
 
-			set_filepath(org_filename);
-			set_keyboard_mode(settings.get_KbdMode(key_new_snapshot_keyboard_mode, kbdgame));
+			setFilepath(org_filename);
+			setKeyboardMode(settings.get_KbdMode(key_new_snapshot_keyboard_mode, kbdgame));
 
 			assert(machine->isPowerOn());
 			assert(machine->isSuspended());
@@ -268,20 +270,20 @@ void MachineController::loadSnapshot(cstr filename)
 
 		if (eq(ext, ".o") || eq(ext, ".80"))
 		{
-			if (!machine->isA(isa_MachineZx80)) machine = init_machine(zx80, 0 /*ramsize*/, s, j, r, no);
+			if (!machine->isA(isa_MachineZx80)) machine = initMachine(zx80, 0 /*ramsize*/, s, j, r, no);
 			machine->loadO80(fd);
 		}
 
 		else if (eq(ext, ".p") || eq(ext, ".81") || eq(ext, ".p81"))
 		{
-			if (!machine->isA(isa_MachineZx81)) machine = init_machine(zx81, 0 /*ramsize*/, s, j, r, no);
+			if (!machine->isA(isa_MachineZx81)) machine = initMachine(zx81, 0 /*ramsize*/, s, j, r, no);
 			machine->loadP81(fd, eq(ext, ".p81"));
 		}
 
 		else if (eq(ext, ".sna"))
 		{
 			Model id = modelForSna(fd);
-			if (model != id) machine = init_machine(id, 0 /*ramsize*/, s, j, r, d);
+			if (model != id) machine = initMachine(id, 0 /*ramsize*/, s, j, r, d);
 			machine->loadSna(fd);
 		}
 
@@ -289,7 +291,7 @@ void MachineController::loadSnapshot(cstr filename)
 		{
 			Model id = modelForZ80(fd);
 			if (id == unknown_model) throw DataError("illegal model in file");
-			if (model != id) machine = init_machine(id, 0, s, j, no, d);
+			if (model != id) machine = initMachine(id, 0, s, j, no, d);
 			machine->loadZ80(fd);
 		}
 
@@ -297,20 +299,20 @@ void MachineController::loadSnapshot(cstr filename)
 		{
 			Model id = jupiter;
 			if (model != id)
-				machine = init_machine(
+				machine = initMachine(
 					id, 0, s, j, no, no); // note: don't add rampack now: rampack will be added by loadAce(),
 			machine->loadAce(fd);		  // while removing a just added item will crash in the queued signal!
 		}
 
 		else if (eq(ext, ".scr"))
 		{
-			if (!machine->isA(isa_MachineZxsp)) machine = init_machine(zxsp_i3, 0, s, j, r, d);
+			if (!machine->isA(isa_MachineZxsp)) machine = initMachine(zxsp_i3, 0, s, j, r, d);
 			machine->loadScr(fd);
 		}
 
 		else if (eq(ext, ".rom"))
 		{
-			uint32	 fsz	  = fd.file_size();
+			off_t	 fsz	  = fd.file_size();
 			Model	 m		  = settings.get_Model(key_startup_model, zxsp_i3);
 			Language language = zx_info[m].language;
 
@@ -322,14 +324,14 @@ void MachineController::loadSnapshot(cstr filename)
 			{
 				if (fsz != machine->rom.count())
 				{
-					if (machine->isA(isa_MachineZx80) && fsz == 8 kB) machine->rom.grow(fsz);
-					else if (machine->isA(isa_MachineZx80) && fsz == 4 kB) machine->rom.shrink(fsz);
+					if (machine->isA(isa_MachineZx80) && fsz == 8 kB) machine->rom.grow(8 kB);
+					else if (machine->isA(isa_MachineZx80) && fsz == 4 kB) machine->rom.shrink(4 kB);
 					else
 					{
 						if (fsz != zx_info[m].rom_size)
 							m = fsz == 4 kB ? zx80 : fsz == 10 kB ? tk85 : language == american ? ts1000 : zx81;
 
-						machine = init_machine(m, 0, s, j, r, d); // powered up & suspended
+						machine = initMachine(m, 0, s, j, r, d); // powered up & suspended
 						assert(fsz == machine->rom.count());
 					}
 				}
@@ -345,7 +347,7 @@ void MachineController::loadSnapshot(cstr filename)
 							fsz == 32 kB ? (language == spanish ? zx128_span : zx128) :
 										   (language == spanish ? zxplus3_span : zxplus3);
 
-					machine = init_machine(m, 0, s, j, r, d); // powered up & suspended
+					machine = initMachine(m, 0, s, j, r, d); // powered up & suspended
 					assert(fsz == machine->rom.count());
 				}
 				machine->loadRom(fd);
@@ -365,7 +367,7 @@ void MachineController::loadSnapshot(cstr filename)
 							model_info[m].rom_size != fsz)
 							m = language == portuguese ? tc2048 : language == spanish ? inves : zxsp_i3;
 
-						machine = init_machine(m, 0, s, j, r, d); // powered up & suspended
+						machine = initMachine(m, 0, s, j, r, d); // powered up & suspended
 					}
 
 					if (machine->model_info->canAttachZxIf2())
@@ -413,7 +415,7 @@ void MachineController::loadSnapshot(cstr filename)
 				cstr loader = catstr(appl_rsrc_path, "Snapshots/load_tape_jupiter.z80");
 
 				fd.close_file(0);
-				if (model != jupiter) machine = init_machine(jupiter, 0, s, j, no, no); // powered up & suspended
+				if (model != jupiter) machine = initMachine(jupiter, 0, s, j, no, no); // powered up & suspended
 				fd.open_file_r(loader);
 				machine->loadZ80(fd); // powered up & suspended
 				Z80::b2c(bname, &machine->ram[0x005], 10);
@@ -430,7 +432,7 @@ void MachineController::loadSnapshot(cstr filename)
 					throw AnyError("Sorry, i have no loader for loading tapes into a %s", zx_info[m].name);
 
 				fd.close_file(0);
-				if (m != model) machine = init_machine(m, 0, s, j, no, d);
+				if (m != model) machine = initMachine(m, 0, s, j, no, d);
 				fd.open_file_r(loader);
 				machine->loadZ80(fd);
 			}
@@ -472,7 +474,7 @@ void MachineController::loadSnapshot(cstr filename)
 			if (!is_file(loader)) throw AnyError("Sorry, i have no loader to load discs into a %s", zx_info[m].name);
 
 			fd.close_file(0);
-			if (m != model) machine = init_machine(m, 0, s, j, 0, d);
+			if (m != model) machine = initMachine(m, 0, s, j, 0, d);
 			dynamic_cast<MachineZxPlus3&>(*machine).insertDisk(filename);
 		}
 
@@ -483,7 +485,7 @@ void MachineController::loadSnapshot(cstr filename)
 			if (!zx_info[m].isA(isa_MachineTc2068)) m = zx_info[m].language == spanish ? tc2068 : ts2068;
 
 			fd.close_file(0);
-			if (m != model) machine = init_machine(m, 0, 0, 0, 0, 0);
+			if (m != model) machine = initMachine(m, 0, 0, 0, 0, 0);
 			dynamic_cast<MachineTc2068&>(*machine).insertCartridge(filename);
 		}
 
@@ -496,8 +498,8 @@ void MachineController::loadSnapshot(cstr filename)
 			org_filename = nullptr;
 		}
 
-		set_filepath(org_filename);
-		set_keyboard_mode(settings.get_KbdMode(key_new_snapshot_keyboard_mode, kbdgame));
+		setFilepath(org_filename);
+		setKeyboardMode(settings.get_KbdMode(key_new_snapshot_keyboard_mode, kbdgame));
 
 		if (rzx) // wir haben ein rzx file und der snapshot wurde geladen
 		{		 // der state nach getSnapshot() ist playing oder endoffile
@@ -521,13 +523,13 @@ void MachineController::loadSnapshot(cstr filename)
 	catch (AnyError& e)
 	{
 		showAlert("Error: %s", e.what());
-		if (!machine) machine = init_machine(zxsp_i3, 0, s, j, r, d);
+		if (!machine) machine = initMachine(zxsp_i3, 0, s, j, r, d);
 		delete rzx;
 		rzx = nullptr;
 		machine->rzxDispose();
 		action_RzxRecord->setChecked(false);
 		//		screen->removeAllOverlays();
-		set_filepath(nullptr);
+		setFilepath(nullptr);
 	}
 
 	assert(machine->isPowerOn());
@@ -580,7 +582,7 @@ protected:
 };
 
 QAction*
-MachineController::new_action(cstr icon, cstr title, const QKeySequence& key, std::function<void(bool)> fu, isa_id id)
+MachineController::newAction(cstr icon, cstr title, const QKeySequence& key, std::function<void(bool)> fu, isa_id id)
 {
 	// helper: create QAction for checkable menu entry:
 	// fu(bool) called when 'triggered'.
@@ -588,7 +590,7 @@ MachineController::new_action(cstr icon, cstr title, const QKeySequence& key, st
 	xxlogIn("new_action(%s, %s)", title, isa_names[id]);
 
 	QAction* a = icon ? new MyAction(icon, title, this) : new MyAction(title, this);
-	if (!key.isEmpty()) a->setShortcut(Qt::CTRL | key[0]);
+	if (!key.isEmpty()) a->setShortcut(CTRL | key[0]);
 	a->setCheckable(yes);
 	if (id != isa_none) a->setData(QVariant(id));
 	connect(a, &QAction::toggled, fu);
@@ -596,7 +598,7 @@ MachineController::new_action(cstr icon, cstr title, const QKeySequence& key, st
 }
 
 QAction*
-MachineController::new_action(cstr icon, cstr title, const QKeySequence& key, std::function<void()> fu, isa_id id)
+MachineController::newAction(cstr icon, cstr title, const QKeySequence& key, std::function<void()> fu, isa_id id)
 {
 	// helper: create QAction for non-checkable menu entry:
 	// fu() called when 'triggered'.
@@ -604,13 +606,13 @@ MachineController::new_action(cstr icon, cstr title, const QKeySequence& key, st
 	xxlogIn("new_action(%s, %s)", title, isa_names[id]);
 
 	QAction* a = icon ? new MyAction(icon, title, this) : new MyAction(title, this);
-	if (!key.isEmpty()) a->setShortcut(Qt::CTRL | key[0]);
+	if (!key.isEmpty()) a->setShortcut(CTRL | key[0]);
 	if (id != isa_none) a->setData(QVariant(id));
 	connect(a, &QAction::triggered, fu);
 	return a;
 }
 
-void MachineController::create_actions()
+void MachineController::createActions()
 {
 	// create all actions and action groups:
 
@@ -626,142 +628,138 @@ void MachineController::create_actions()
 
 #define NOKEY		 QKeySequence()
 #define NOICON		 nullptr
-#define ADDITEM(ISA) [=](bool f) { add_external_item(ISA, f); }, ISA // note: need to setData(ISA) in QAction
-#define ADDRAM(ISA)	 [=](bool f) { add_external_ram(ISA, f); }, ISA	 // for findActionForItem() in slot_item_added()
+#define ADDITEM(ISA) [=](bool f) { addExternalItem(ISA, f); }, ISA // note: need to setData(ISA) in QAction
+#define ADDRAM(ISA)	 [=](bool f) { addExternalRam(ISA, f); }, ISA  // for findActionForItem() in slot_item_added()
 
-	action_showAbout	   = new_action(NOICON, "About …", Qt::Key_Question, [] { Application::showAbout(); });
-	action_showPreferences = new_action(NOICON, "Settings …", Qt::Key_Comma, [] { Application::showPreferences(); });
+	action_showAbout	   = newAction(NOICON, "About …", Qt::Key_Question, [] { Application::showAbout(); });
+	action_showPreferences = newAction(NOICON, "Settings …", Qt::Key_Comma, [] { Application::showPreferences(); });
 	action_showAbout->setMenuRole(QAction::AboutRole);
 	action_showPreferences->setMenuRole(QAction::PreferencesRole);
 
 	action_newMachine =
-		new_action("new-window.png", "&New window", QKeySequence::New, [=] { new MachineController(""); });
-	action_openFile	   = new_action("open.png", "&Open…", QKeySequence::Open, [=] { open_file(); });
-	action_reloadFile  = new_action("reload.png", "&Reload current file", Qt::Key_R, [=] { reload_file(); });
-	action_closeWindow = new_action(NOICON, "Close top window", Qt::Key_W, [=] { QWidget::close(); });
-	action_saveAs	   = new_action("save.png", "&Save as…", QKeySequence::Save, [=] { save_as(); });
-	action_screenshot  = new_action("camera.png", "Save screenshot", Qt::Key_P, [=] { save_screenshot(); });
+		newAction("new-window.png", "&New window", QKeySequence::New, [=] { new MachineController(""); });
+	action_openFile	   = newAction("open.png", "&Open…", QKeySequence::Open, [=] { openFile(); });
+	action_reloadFile  = newAction("reload.png", "&Reload current file", Qt::Key_R, [=] { reloadFile(); });
+	action_closeWindow = newAction(NOICON, "Close top window", Qt::Key_W, [=] { QWidget::close(); });
+	action_saveAs	   = newAction("save.png", "&Save as…", QKeySequence::Save, [=] { saveAs(); });
+	action_screenshot  = newAction("camera.png", "Save screenshot", Qt::Key_P, [=] { saveScreenshot(); });
 	action_recordMovie =
-		new_action("video.gif", "Record Gif movie", Qt::Key_P | Qt::ALT, [=](bool f) { record_movie(f); });
+		newAction("video.gif", "Record Gif movie", Qt::Key_P | int(Qt::ALT), [=](bool f) { recordMovie(f); });
 	action_pwrOnReset =
-		new_action("power_button.gif", "Power-On reset", Qt::Key_R | Qt::SHIFT, [=] { power_reset_machine(); });
-	action_reset = new_action("reset_button.gif", "Push reset", NOKEY, [=] { reset_machine(); });
-	action_nmi =
-		new_action("nmi_button.gif", "Push NMI", Qt::Key_N | Qt::SHIFT, [=] { NVPtr<Machine>(machine)->nmi(); });
-	action_suspend	= new_action("run-pause.png", "Halt CPU", Qt::Key_H | Qt::SHIFT, [=](bool f) { halt_machine(f); });
-	action_stepIn	= new_action("arrow-dn.png", "Step in", Qt::Key_I | Qt::SHIFT, [=] {
+		newAction("power_button.gif", "Power-On reset", Qt::Key_R | SHIFT, [=] { powerResetMachine(); });
+	action_reset = newAction("reset_button.gif", "Push reset", NOKEY, [=] { resetMachine(); });
+	action_nmi	 = newAction("nmi_button.gif", "Push NMI", Qt::Key_N | SHIFT, [=] { NVPtr<Machine>(machine)->nmi(); });
+	action_suspend	= newAction("run-pause.png", "Halt CPU", Qt::Key_H | SHIFT, [=](bool f) { haltMachine(f); });
+	action_stepIn	= newAction("arrow-dn.png", "Step in", Qt::Key_I | SHIFT, [=] {
 		  assert(machine->isSuspended());
 		  NV(machine)->stepIn();
 	  });
-	action_stepOver = new_action("run-r.png", "Step over", Qt::Key_S | Qt::SHIFT, [=] {
+	action_stepOver = newAction("run-r.png", "Step over", Qt::Key_S | SHIFT, [=] {
 		assert(machine->isSuspended());
 		NV(machine)->stepOver();
 	});
-	action_stepOut	= new_action("arrow-up.png", "Step out", Qt::Key_O | Qt::SHIFT, [=] {
+	action_stepOut	= newAction("arrow-up.png", "Step out", Qt::Key_O | SHIFT, [=] {
 		 assert(machine->isSuspended());
 		 NV(machine)->stepOut();
 	 });
 	action_enable_breakpoints =
-		new_action(NOICON, "Enable breakpoints", Qt::Key_B | Qt::SHIFT, [=](bool f) { enable_breakpoints(f); });
+		newAction(NOICON, "Enable breakpoints", Qt::Key_B | SHIFT, [=](bool f) { enableBreakpoints(f); });
 
-	action_minimize		= new_action(NOICON, "Minimize", NOKEY, [=]() { showMinimized(); });
-	action_zoom[0]		= new_action(NOICON, "Size x 1", Qt::Key_1, [=]() { set_window_zoom(1); });
-	action_zoom[1]		= new_action(NOICON, "Size x 2", Qt::Key_2, [=]() { set_window_zoom(2); });
-	action_zoom[2]		= new_action(NOICON, "Size x 3", Qt::Key_3, [=]() { set_window_zoom(3); });
-	action_zoom[3]		= new_action(NOICON, "Size x 4", Qt::Key_4, [=]() { set_window_zoom(4); });
-	action_fullscreen	= new_action(NOICON, "Fullscreen", Qt::Key_F, [=]() { QWidget::showFullScreen(); });
-	action_showLenslok	= new_action(NOICON, "Lenslok", NOKEY, [=](bool f) { show_lenslok(f); });
-	action_newInspector = new_action(NOICON, "Inspector", NOKEY, [=] { new_toolwindow()->show(); });
+	action_minimize		= newAction(NOICON, "Minimize", NOKEY, [=]() { showMinimized(); });
+	action_zoom[0]		= newAction(NOICON, "Size x 1", Qt::Key_1, [=]() { setWindowZoom(1); });
+	action_zoom[1]		= newAction(NOICON, "Size x 2", Qt::Key_2, [=]() { setWindowZoom(2); });
+	action_zoom[2]		= newAction(NOICON, "Size x 3", Qt::Key_3, [=]() { setWindowZoom(3); });
+	action_zoom[3]		= newAction(NOICON, "Size x 4", Qt::Key_4, [=]() { setWindowZoom(4); });
+	action_fullscreen	= newAction(NOICON, "Fullscreen", Qt::Key_F, [=]() { QWidget::showFullScreen(); });
+	action_showLenslok	= newAction(NOICON, "Lenslok", NOKEY, [=](bool f) { showLenslok(f); });
+	action_newInspector = newAction(NOICON, "Inspector", NOKEY, [=] { newToolwindow()->show(); });
 
 	// fixed show_actions: these are never removed from showActions[] (except in dtor)
-	action_showMachineImage = new_action(
-		NOICON, "Machine image", Qt::Key_I, [=](bool f) { toggle_toolwindow(machine, action_showMachineImage, f); },
+	action_showMachineImage = newAction(
+		NOICON, "Machine image", Qt::Key_I, [=](bool f) { toggleToolwindow(machine, action_showMachineImage, f); },
 		isa_Machine);
-	action_showMemHex = new_action(
-		NOICON, "Memory hexview", Qt::Key_M, [=](bool f) { toggle_toolwindow(mem[0], action_showMemHex, f); },
+	action_showMemHex = newAction(
+		NOICON, "Memory hexview", Qt::Key_M, [=](bool f) { toggleToolwindow(mem[0], action_showMemHex, f); },
 		isa_MemHex);
-	action_showMemDisass = new_action(
-		NOICON, "Memory disassemble", Qt::Key_M | Qt::SHIFT,
-		[=](bool f) { toggle_toolwindow(mem[1], action_showMemDisass, f); }, isa_MemDisass);
-	action_showMemGraphical = new_action(
-		NOICON, "Memory graphical", Qt::Key_M | Qt::ALT,
-		[=](bool f) { toggle_toolwindow(mem[2], action_showMemGraphical, f); }, isa_MemGraphical);
-	action_showMemAccess = new_action(
-		NOICON, "Memory access", Qt::Key_M | Qt::META,
-		[=](bool f) { toggle_toolwindow(mem[3], action_showMemAccess, f); }, isa_MemAccess);
+	action_showMemDisass = newAction(
+		NOICON, "Memory disassemble", Qt::Key_M | SHIFT,
+		[=](bool f) { toggleToolwindow(mem[1], action_showMemDisass, f); }, isa_MemDisass);
+	action_showMemGraphical = newAction(
+		NOICON, "Memory graphical", Qt::Key_M | int(Qt::ALT),
+		[=](bool f) { toggleToolwindow(mem[2], action_showMemGraphical, f); }, isa_MemGraphical);
+	action_showMemAccess = newAction(
+		NOICON, "Memory access", Qt::Key_M | int(Qt::META),
+		[=](bool f) { toggleToolwindow(mem[3], action_showMemAccess, f); }, isa_MemAccess);
 
 	// add external item:
-	action_addKempstonJoy =
-		new_action("joystick-k.gif", "Kempston joystick interface", NOKEY, ADDITEM(isa_KempstonJoy));
-	action_addKempstonMouse	  = new_action("mouse.png", "Kempston mouse interface", NOKEY, ADDITEM(isa_KempstonMouse));
-	action_addDidaktikMelodik = new_action("ay.gif", "Didaktik Melodik [ACB]", NOKEY, ADDITEM(isa_DidaktikMelodik));
+	action_addKempstonJoy = newAction("joystick-k.gif", "Kempston joystick interface", NOKEY, ADDITEM(isa_KempstonJoy));
+	action_addKempstonMouse	  = newAction("mouse.png", "Kempston mouse interface", NOKEY, ADDITEM(isa_KempstonMouse));
+	action_addDidaktikMelodik = newAction("ay.gif", "Didaktik Melodik [ACB]", NOKEY, ADDITEM(isa_DidaktikMelodik));
 	// action_addZaxonAyMagic = newAction("ay.gif",         "Zaxon AY-Magic",               NOKEY,
 	// ADDITEM(isa_ZaxonAyMagic));
-	action_addZonxBox	 = new_action("ay.gif", "Bi-Pak ZON X", NOKEY, ADDITEM(isa_ZonxBox));
-	action_addZonxBox81	 = new_action("ay.gif", "Bi-Pak ZON X-81", NOKEY, ADDITEM(isa_ZonxBox81));
-	action_addZxIf2		 = new_action("joystick-2.gif", "Sinclair ZX Interface 2", NOKEY, ADDITEM(isa_ZxIf2));
-	action_addZxPrinter	 = new_action("printer.gif", "Sinclair ZX Printer", NOKEY, ADDITEM(isa_ZxPrinter));
-	action_addFdcBeta128 = new_action("save.png", "Beta 128 disc interface", NOKEY, ADDITEM(isa_FdcBeta128));
-	action_addFdcD80	 = new_action("save.png", "Datel 80 disc interface", NOKEY, ADDITEM(isa_FdcD80));
-	action_addFdcJLO	 = new_action("save.png", "JLO disc interface", NOKEY, ADDITEM(isa_FdcJLO));
-	action_addFdcPlusD	 = new_action("save.png", "Plus D disc interface", NOKEY, ADDITEM(isa_FdcPlusD));
+	action_addZonxBox	 = newAction("ay.gif", "Bi-Pak ZON X", NOKEY, ADDITEM(isa_ZonxBox));
+	action_addZonxBox81	 = newAction("ay.gif", "Bi-Pak ZON X-81", NOKEY, ADDITEM(isa_ZonxBox81));
+	action_addZxIf2		 = newAction("joystick-2.gif", "Sinclair ZX Interface 2", NOKEY, ADDITEM(isa_ZxIf2));
+	action_addZxPrinter	 = newAction("printer.gif", "Sinclair ZX Printer", NOKEY, ADDITEM(isa_ZxPrinter));
+	action_addFdcBeta128 = newAction("save.png", "Beta 128 disc interface", NOKEY, ADDITEM(isa_FdcBeta128));
+	action_addFdcD80	 = newAction("save.png", "Datel 80 disc interface", NOKEY, ADDITEM(isa_FdcD80));
+	action_addFdcJLO	 = newAction("save.png", "JLO disc interface", NOKEY, ADDITEM(isa_FdcJLO));
+	action_addFdcPlusD	 = newAction("save.png", "Plus D disc interface", NOKEY, ADDITEM(isa_FdcPlusD));
 	action_addDktronicsDualJoy =
-		new_action("joystick-2.gif", "dk'tronics dual joystick", NOKEY, ADDITEM(isa_DktronicsDualJoy));
-	action_addProtekJoy	   = new_action("joystick-1.gif", "Protek joystick interface", NOKEY, ADDITEM(isa_ProtekJoy));
-	action_addPrinterAerco = new_action("printer.gif", "Aerco printer", NOKEY, ADDITEM(isa_PrinterAerco));
+		newAction("joystick-2.gif", "dk'tronics dual joystick", NOKEY, ADDITEM(isa_DktronicsDualJoy));
+	action_addProtekJoy	   = newAction("joystick-1.gif", "Protek joystick interface", NOKEY, ADDITEM(isa_ProtekJoy));
+	action_addPrinterAerco = newAction("printer.gif", "Aerco printer", NOKEY, ADDITEM(isa_PrinterAerco));
 	action_addPrinterLprint3 =
-		new_action("printer.gif", "LPrintIII printer interface", NOKEY, ADDITEM(isa_PrinterLprint3));
-	action_addPrinterTs2040 = new_action("printer.gif", "TS2040 printer", NOKEY, ADDITEM(isa_PrinterTs2040));
-	action_addMultiface1	= new_action(
+		newAction("printer.gif", "LPrintIII printer interface", NOKEY, ADDITEM(isa_PrinterLprint3));
+	action_addPrinterTs2040 = newAction("printer.gif", "TS2040 printer", NOKEY, ADDITEM(isa_PrinterTs2040));
+	action_addMultiface1	= newAction(
 		   "nmi_button.gif", "Romantic Robots Multiface ONE", NOKEY, [this](bool f) { addMultiface1(f); }, isa_Multiface1);
 	action_addMultiface128 =
-		new_action("nmi_button.gif", "Romantic Robots Multiface 128", NOKEY, ADDITEM(isa_Multiface128));
-	action_addMultiface3 = new_action("nmi_button.gif", "Romantic Robots Multiface 3", NOKEY, ADDITEM(isa_Multiface3));
-	action_addFullerBox	 = new_action("ay.gif", "Fuller box", NOKEY, ADDITEM(isa_FullerBox));
-	action_addZxIf1		 = new_action(NOICON, "Sinclair ZX Interface 1", NOKEY, ADDITEM(isa_ZxIf1));
-	action_addGrafPad	 = new_action(NOICON, "Grafpad", NOKEY, ADDITEM(isa_GrafPad));
-	action_addIcTester	 = new_action(NOICON, "Kio's Ic Tester", NOKEY, ADDITEM(isa_IcTester));
-	action_addCurrahMicroSpeech = new_action(NOICON, "Currah µSpeech", NOKEY, ADDITEM(isa_CurrahMicroSpeech));
-	action_addCheetah32kRam		= new_action(NOICON, "Cheetah 32k rampack", NOKEY, ADDRAM(isa_Cheetah32kRam));
-	action_addJupiter16kRam		= new_action(NOICON, "Jupiter 16K RAM", NOKEY, ADDRAM(isa_Jupiter16kRam));
-	action_addZx16kRam			= new_action(NOICON, "Sinclair ZX 16K RAM", NOKEY, ADDRAM(isa_Zx16kRam));
-	action_addTs1016Ram			= new_action(NOICON, "Timex Sinclair 1016", NOKEY, ADDRAM(isa_Ts1016Ram));
-	action_addMemotech16kRam	= new_action(NOICON, "MEMOPAK 16k", NOKEY, ADDRAM(isa_Memotech16kRam));
-	action_addStonechip16kRam = new_action(NOICON, "Stonechip 16K Expandable Ram", NOKEY, ADDRAM(isa_Stonechip16kRam));
+		newAction("nmi_button.gif", "Romantic Robots Multiface 128", NOKEY, ADDITEM(isa_Multiface128));
+	action_addMultiface3 = newAction("nmi_button.gif", "Romantic Robots Multiface 3", NOKEY, ADDITEM(isa_Multiface3));
+	action_addFullerBox	 = newAction("ay.gif", "Fuller box", NOKEY, ADDITEM(isa_FullerBox));
+	action_addZxIf1		 = newAction(NOICON, "Sinclair ZX Interface 1", NOKEY, ADDITEM(isa_ZxIf1));
+	action_addGrafPad	 = newAction(NOICON, "Grafpad", NOKEY, ADDITEM(isa_GrafPad));
+	action_addIcTester	 = newAction(NOICON, "Kio's Ic Tester", NOKEY, ADDITEM(isa_IcTester));
+	action_addCurrahMicroSpeech = newAction(NOICON, "Currah µSpeech", NOKEY, ADDITEM(isa_CurrahMicroSpeech));
+	action_addCheetah32kRam		= newAction(NOICON, "Cheetah 32k rampack", NOKEY, ADDRAM(isa_Cheetah32kRam));
+	action_addJupiter16kRam		= newAction(NOICON, "Jupiter 16K RAM", NOKEY, ADDRAM(isa_Jupiter16kRam));
+	action_addZx16kRam			= newAction(NOICON, "Sinclair ZX 16K RAM", NOKEY, ADDRAM(isa_Zx16kRam));
+	action_addTs1016Ram			= newAction(NOICON, "Timex Sinclair 1016", NOKEY, ADDRAM(isa_Ts1016Ram));
+	action_addMemotech16kRam	= newAction(NOICON, "MEMOPAK 16k", NOKEY, ADDRAM(isa_Memotech16kRam));
+	action_addStonechip16kRam	= newAction(NOICON, "Stonechip 16K Expandable Ram", NOKEY, ADDRAM(isa_Stonechip16kRam));
 
-	action_addMemotech64kRam = new_action(
+	action_addMemotech64kRam = newAction(
 		NOICON, "MEMOPAK 64k", NOKEY, [this](bool f) { addMemotech64kRam(f); }, isa_Memotech64kRam);
 
-	action_addZx3kRam = new_action(
+	action_addZx3kRam = newAction(
 		NOICON, "Sinclair ZX80 1-3K BYTE RAM PACK", NOKEY, [this](bool f) { addZx3kRam(f); }, isa_Zx3kRam);
 
-	action_addDivIDE = new_action(
+	action_addDivIDE = newAction(
 		NOICON, "DivIDE 57c CF card interface", NOKEY, [this](bool f) { addDivIDE(f); }, isa_DivIDE);
 
-	action_addSpectraVideo = new_action(
+	action_addSpectraVideo = newAction(
 		NOICON, "SPECTRA video interface", NOKEY, [=](bool f) { addSpectraVideo(f); }, isa_SpectraVideo);
 
 	action_gifAnimateBorder = settings.action_gifAnimateBorder;
 
 	action_setKbdBasic =
-		new_action("mini_zxsp.gif", "Keyboard BASIC mode", Qt::Key_B, [=] { set_keyboard_mode(kbdbasic); });
-	action_setKbdGame =
-		new_action("mini_zxsp.gif", "Keyboard game mode", Qt::Key_G, [=] { set_keyboard_mode(kbdgame); });
-	action_setKbdBtZXKbd = new_action("mini_zxsp.gif", "Recreated ZXKeyboard game mode", Qt::Key_G | Qt::SHIFT, [=] {
-		set_keyboard_mode(kbdbtzxkbd);
-	});
+		newAction("mini_zxsp.gif", "Keyboard BASIC mode", Qt::Key_B, [=] { setKeyboardMode(kbdbasic); });
+	action_setKbdGame = newAction("mini_zxsp.gif", "Keyboard game mode", Qt::Key_G, [=] { setKeyboardMode(kbdgame); });
+	action_setKbdBtZXKbd = newAction(
+		"mini_zxsp.gif", "Recreated ZXKeyboard game mode", Qt::Key_G | SHIFT, [=] { setKeyboardMode(kbdbtzxkbd); });
 
-	action_audioin_enabled = new_action(NOICON, "Enable audio-in", NOKEY, [=](bool f) { enable_audio_in(f); });
-	action_RzxRecord	   = new_action(NOICON, "Record RZX data", NOKEY, [=](bool f) { set_rzx_recording(f); });
+	action_audioin_enabled = newAction(NOICON, "Enable audio-in", NOKEY, [=](bool f) { enableAudioIn(f); });
+	action_RzxRecord	   = newAction(NOICON, "Record RZX data", NOKEY, [=](bool f) { setRzxRecording(f); });
 	action_RzxRecordAutostart =
-		new_action(NOICON, "Switch to recording on any key", NOKEY, [=](bool f) { set_rzx_autostart_recording(f); });
+		newAction(NOICON, "Switch to recording on any key", NOKEY, [=](bool f) { setRzxAutostartRecording(f); });
 	action_RzxRecordAppendSna =
-		new_action(NOICON, "Append snapshots to RZX file", NOKEY, [=](bool f) { set_rzx_append_snapshots(f); });
+		newAction(NOICON, "Append snapshots to RZX file", NOKEY, [=](bool f) { setRzxAppendSnapshots(f); });
 
-	action_setSpeed100_50 = new_action(NOICON, "100% 50Hz", Qt::Key_5, [=](bool f) {
+	action_setSpeed100_50 = newAction(NOICON, "100% 50Hz", Qt::Key_5, [=](bool f) {
 		if (f)
 		{
-			nvptr(machine)->set50HzNeu();
+			nvptr(machine)->set50Hz();
 			switch (uint(model))
 			{
 			case zx80: gui::settings.setValue(key_framerate_zx80_60hz, false); break;
@@ -772,10 +770,10 @@ void MachineController::create_actions()
 			}
 		}
 	});
-	action_setSpeed100_60 = new_action(NOICON, "100% 60Hz", Qt::Key_6, [=](bool f) {
+	action_setSpeed100_60 = newAction(NOICON, "100% 60Hz", Qt::Key_6, [=](bool f) {
 		if (f)
 		{
-			nvptr(machine)->set60HzNeu();
+			nvptr(machine)->set60Hz();
 			switch (uint(model))
 			{
 			case zx80: gui::settings.setValue(key_framerate_zx80_60hz, true); break;
@@ -786,10 +784,10 @@ void MachineController::create_actions()
 			}
 		}
 	});
-	action_setSpeed120	  = new_action(NOICON, "120% 60Hz", Qt::Key_6, [=] { nvptr(machine)->speedupTo60fps(); });
-	action_setSpeed200	  = new_action(NOICON, "200% 60Hz", NOKEY, [=] { nvptr(machine)->setSpeedAnd60fps(2.0); });
-	action_setSpeed400	  = new_action(NOICON, "400% 60Hz", NOKEY, [=] { nvptr(machine)->setSpeedAnd60fps(4.0); });
-	action_setSpeed800	  = new_action(NOICON, "800% 60Hz", Qt::Key_8, [=] { nvptr(machine)->setSpeedAnd60fps(8.0); });
+	action_setSpeed120	  = newAction(NOICON, "120% 60Hz", Qt::Key_6, [=] { nvptr(machine)->speedupTo60fps(); });
+	action_setSpeed200	  = newAction(NOICON, "200% 60Hz", NOKEY, [=] { nvptr(machine)->setSpeedAnd60fps(2.0); });
+	action_setSpeed400	  = newAction(NOICON, "400% 60Hz", NOKEY, [=] { nvptr(machine)->setSpeedAnd60fps(4.0); });
+	action_setSpeed800	  = newAction(NOICON, "800% 60Hz", Qt::Key_8, [=] { nvptr(machine)->setSpeedAnd60fps(8.0); });
 
 	QActionGroup* speedGrp = new QActionGroup(this);
 	speedGrp->addAction(action_setSpeed100_50);
@@ -826,7 +824,7 @@ void MachineController::create_actions()
 	action_fullscreen->setCheckable(1);
 }
 
-void MachineController::create_menus()
+void MachineController::createMenus()
 {
 	// create mbar menus, context menu and model actiongroup:
 
@@ -907,16 +905,14 @@ void MachineController::create_menus()
 		bool r = settings.get_bool(key_always_attach_rampack, yes);
 		bool d = settings.get_bool(key_always_attach_divide, no);
 
-		init_machine(newmodel, 0, s, j, r, d)->resume(); // machine is powered up and running
+		initMachine(newmodel, 0, s, j, r, d)->resume(); // machine is powered up and running
 	});
 }
 
-void MachineController::create_mainmenubar()
+void MachineController::createMainmenubar()
 {
-	// create the menu bar:
-
-	create_actions();
-	create_menus();
+	createActions();
+	createMenus();
 
 	QMenuBar* mbar = new MyMenuBar(this);
 	mbar->addMenu(file_menu); // <-- void QCocoaMenu::insertNative … Menu item is already in a menu …
@@ -929,12 +925,12 @@ void MachineController::create_mainmenubar()
 	setMenuBar(mbar);
 }
 
-void MachineController::startup_open_toolwindows()
+void MachineController::startupOpenToolwindows()
 {
 	// open toolwindows for new window as set in preferences
 	// this must be delayed because creation of showactions in itemAdded() is also delayed
 
-	QTimer::singleShot(0, [=] {
+	QTimer::singleShot(0, this, [=] {
 		if (settings.get_bool(key_startup_open_keyboard, no))
 		{
 			QAction* action = findShowActionForItem(machine->keyboard);
@@ -964,7 +960,7 @@ void MachineController::startup_open_toolwindows()
 	});
 }
 
-MachineController::~MachineController() // ---- D E S T R U C T O R ----
+MachineController::~MachineController()
 {
 	xlogIn("~MachineController");
 
@@ -985,11 +981,10 @@ MachineController::~MachineController() // ---- D E S T R U C T O R ----
 
 	while (tool_windows.count()) { delete tool_windows.last(); }
 
-	kill_machine();
+	killMachine();
 }
 
-MachineController::MachineController(QString filepath) // ---- C O N S T R U C T O R ----
-	:
+MachineController::MachineController(QString filepath) :
 	QMainWindow(nullptr),
 	in_ctor(yes),
 	in_dtor(no),
@@ -1004,9 +999,6 @@ MachineController::MachineController(QString filepath) // ---- C O N S T R U C T
 	lenslok(nullptr),
 	keyjoy_keys {0, 0, 0, 0, 0},
 	keyjoy_fnmatch_pattern(nullptr)
-// actions:			  initialized in create_mbar()
-// model_actiongroup: initialized in create_mbar()
-// menus:			  initialized in create_mbar()
 {
 	// setup window
 	// setup menubar
@@ -1015,7 +1007,7 @@ MachineController::MachineController(QString filepath) // ---- C O N S T R U C T
 
 	xlogIn("new MachineController(\"%s\")", filepath.toUtf8().data());
 
-	create_mainmenubar();
+	createMainmenubar();
 
 	Model model = settings.get_Model(key_startup_model, zxsp_i3);
 	if (!filepath.isEmpty()) model = bestModelForFile(filepath.toUtf8().data(), model);
@@ -1026,7 +1018,7 @@ MachineController::MachineController(QString filepath) // ---- C O N S T R U C T
 	bool   ram	   = settings.get_bool(key_always_attach_rampack, yes);
 	bool   divide  = settings.get_bool(key_always_attach_divide, no);
 
-	init_machine(model, ramsize, ay, joy, ram, divide); // create and init Machine: powered on & suspended
+	initMachine(model, ramsize, ay, joy, ram, divide); // create and init Machine: powered on & suspended
 
 	// init window:
 	setMinimumSize(256, 192); // --> Screen
@@ -1057,7 +1049,7 @@ MachineController::MachineController(QString filepath) // ---- C O N S T R U C T
 		action_fullscreen->setChecked(1);
 	}
 
-	startup_open_toolwindows(); // acc. to preferences
+	startupOpenToolwindows(); // acc. to preferences
 
 	assert(machine->isPowerOn());
 	assert(machine->isSuspended());
@@ -1067,7 +1059,7 @@ MachineController::MachineController(QString filepath) // ---- C O N S T R U C T
 	in_ctor = no;
 }
 
-void MachineController::kill_machine()
+void MachineController::killMachine()
 {
 	// destroy Machine and Screen controlled by this Controller
 	// delete machine and screen
@@ -1092,11 +1084,11 @@ void MachineController::kill_machine()
 
 	for (int i = NELEM(mem); i--;)
 	{
-		hide_inspector(mem[i], no);
+		hideInspector(mem[i], no);
 		delete mem[i];
 		mem[i] = nullptr;
 	}
-	hide_inspector(NV(machine), no);
+	hideInspector(NV(machine), no);
 
 	//delete machine;
 	machine_sp.reset();
@@ -1118,7 +1110,7 @@ void MachineController::kill_machine()
 	in_machine_dtor = no;
 }
 
-Machine* MachineController::init_machine(
+Machine* MachineController::initMachine(
 	Model model, uint32 ramsize, bool alwaysAddAy, bool alwaysAddJoy, bool alwaysAddRam, bool alwaysAddDivide)
 {
 	// create Machine and Screen for model
@@ -1134,15 +1126,15 @@ Machine* MachineController::init_machine(
 	bool was_in_machine_ctor = in_machine_ctor;
 	in_machine_ctor			 = yes;
 
-	if (machine) kill_machine();
-
-	if (ramsize != 0) TODO();
+	if (machine) killMachine();
 
 	if (!zx_info[model].is_supported)
 	{
 		model	= zxsp_i3;
 		ramsize = 0;
 	}
+
+	if (ramsize != 0) TODO();
 
 
 	// Reset checkable menu entries: (done in killMachine())
@@ -1171,11 +1163,11 @@ Machine* MachineController::init_machine(
 	// Model menu:
 	// add checkmark to current model in model menu
 	// other machines become unchecked because they are in the same QActionGroup
-	model_actiongroup->actions()[model]->setChecked(1);
+	model_actiongroup->actions().at(model)->setChecked(1);
 
 	// Create machine:
-	screen			 = new_screen_for_model(model);
-	auto machine_sp	 = new_machine_for_model(model); // not powered on, not suspended
+	screen			 = newScreenForModel(model);
+	auto machine_sp	 = newMachineForModel(model); // not powered on, not suspended
 	auto machine	 = machine_sp.get();
 	this->machine_sp = machine_sp;
 	this->machine	 = machine;
@@ -1186,11 +1178,11 @@ Machine* MachineController::init_machine(
 	machine->installRomPatches();
 	action_enable_breakpoints->setChecked(true);
 
-	set_filepath(nullptr);
+	setFilepath(nullptr);
 	if (this == front_machine_controller) front_machine = machine;
 
-	set_keyboard_mode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
-	enable_audio_in(settings.get_bool(key_new_machine_audioin_enabled, machine->audio_in_enabled));
+	setKeyboardMode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
+	enableAudioIn(settings.get_bool(key_new_machine_audioin_enabled, machine->audio_in_enabled));
 	setCentralWidget(screen);
 	if (this == front_machine_controller) activateWindow(); // else no focus on special conditions. Qt-bug?
 	action_setKbdBasic->setText(model == jupiter ? "Keyboard FORTH mode" : "Keyboard BASIC mode");
@@ -1240,11 +1232,11 @@ Machine* MachineController::init_machine(
 
 	if (XSAFE)
 		foreach (ToolWindow* toolwindow, tool_windows) { assert(toolwindow->item == nullptr); }
-	show_inspector(machine, action_showMachineImage, no /*!force*/);
-	show_inspector(mem[0] = new MemObject(isa_MemHex), action_showMemHex, no /*!force*/);
-	show_inspector(mem[1] = new MemObject(isa_MemDisass), action_showMemDisass, no /*!force*/);
-	show_inspector(mem[2] = new MemObject(isa_MemGraphical), action_showMemGraphical, no /*!force*/);
-	show_inspector(mem[3] = new MemObject(isa_MemAccess), action_showMemAccess, no /*!force*/);
+	showInspector(machine, action_showMachineImage, no /*!force*/);
+	showInspector(mem[0] = new MemObject(isa_MemHex), action_showMemHex, no /*!force*/);
+	showInspector(mem[1] = new MemObject(isa_MemDisass), action_showMemDisass, no /*!force*/);
+	showInspector(mem[2] = new MemObject(isa_MemGraphical), action_showMemGraphical, no /*!force*/);
+	showInspector(mem[3] = new MemObject(isa_MemAccess), action_showMemAccess, no /*!force*/);
 
 	assert(findShowActionForItem(mem[0]) == action_showMemHex);
 	assert(findShowActionForItem(mem[1]) == action_showMemDisass);
@@ -1329,7 +1321,7 @@ Machine* MachineController::init_machine(
 	return machine;
 }
 
-void MachineController::open_file()
+void MachineController::openFile()
 {
 	xlogIn("MachineController:openFile()");
 
@@ -1387,7 +1379,7 @@ void MachineController::open_file()
 	if (filepath) loadSnapshot(filepath);
 }
 
-void MachineController::reload_file()
+void MachineController::reloadFile()
 {
 	xlogIn("MachineController:ReloadFile");
 	cstr path = dupstr(
@@ -1396,7 +1388,7 @@ void MachineController::reload_file()
 	if (path && *path) loadSnapshot(path);
 }
 
-void MachineController::save_as()
+void MachineController::saveAs()
 {
 	xlogIn("MachineController:SaveAs");
 
@@ -1417,7 +1409,7 @@ void MachineController::save_as()
 		try
 		{
 			NV(machine)->saveAs(filepath);
-			set_filepath(filepath);
+			setFilepath(filepath);
 		}
 		catch (AnyError& e)
 		{
@@ -1468,12 +1460,12 @@ void MachineController::changeEvent(QEvent* e)
 			{
 				if (front_machine_controller)
 				{
-					front_machine_controller->all_keys_up();
-					front_machine_controller->hide_all_toolwindows();
+					front_machine_controller->allKeysUp();
+					front_machine_controller->hideAllToolwindows();
 				}
 				front_machine			 = machine;
 				front_machine_controller = this;
-				show_all_toolwindows();
+				showAllToolwindows();
 			}
 		}
 		else // deactivated
@@ -1527,7 +1519,7 @@ static KbdModifiers zxmodifiers(uint32 qtm) // helper
 	return KbdModifiers(zxm);
 }
 
-void MachineController::all_keys_up()
+void MachineController::allKeysUp()
 {
 	if (machine && machine->keyboard) machine->keyboard->allKeysUp();
 	keyboardJoystick->allKeysUp();
@@ -1590,7 +1582,7 @@ void MachineController::keyPressEvent(QKeyEvent* e)
 
 	xlogIn("MachineController:keyPressEvent");
 
-	if (cmdkey_involved(e)) { all_keys_up(); }
+	if (cmdkey_involved(e)) { allKeysUp(); }
 	else
 	{
 		uint32 modifiers = e->modifiers();
@@ -1621,7 +1613,7 @@ void MachineController::keyReleaseEvent(QKeyEvent* e)
 {
 	xlogIn("MachineController:keyReleaseEvent");
 
-	if (cmdkey_involved(e)) { all_keys_up(); }
+	if (cmdkey_involved(e)) { allKeysUp(); }
 	else
 	{
 		uint32 modifiers = e->modifiers();
@@ -1646,7 +1638,7 @@ void MachineController::keyReleaseEvent(QKeyEvent* e)
 //                  RUN THE MACHINE
 // =======================================================
 
-void MachineController::set_filepath(cstr path)
+void MachineController::setFilepath(cstr path)
 {
 	delete[] filepath;
 	filepath = nullptr;
@@ -1664,10 +1656,10 @@ void MachineController::set_filepath(cstr path)
 
 	setWindowTitle(filepath ? filename_from_path(filepath) : model_info->name);
 	window_menu->setTitle();
-	model_actiongroup->actions()[model]->setChecked(1); // add checkmark to current model in model menu
+	model_actiongroup->actions().at(model)->setChecked(1); // add checkmark to current model in model menu
 }
 
-void MachineController::save_screenshot() // controlMenu
+void MachineController::saveScreenshot() // controlMenu
 {
 	xlogIn("MachineController:save_screenshot");
 	cstr dir  = fullpath("~/Desktop/", yes);
@@ -1684,7 +1676,7 @@ void MachineController::save_screenshot() // controlMenu
 	}
 }
 
-void MachineController::record_movie(bool f) // controlMenu
+void MachineController::recordMovie(bool f) // controlMenu
 {
 	xlogIn("MachineController:record_movie(%s)", f ? "on" : "off");
 
@@ -1712,7 +1704,7 @@ void MachineController::record_movie(bool f) // controlMenu
 	else { screen->stopRecording(); }
 }
 
-void MachineController::set_keyboard_mode(KbdMode mode)
+void MachineController::setKeyboardMode(KbdMode mode)
 {
 	xlogIn("MachineController:set_keyboard_mode");
 	machine->keyboard->setKbdMode(mode);
@@ -1721,14 +1713,14 @@ void MachineController::set_keyboard_mode(KbdMode mode)
 	action_setKbdBtZXKbd->setChecked(mode == kbdbtzxkbd);
 }
 
-void MachineController::enable_audio_in(bool f)
+void MachineController::enableAudioIn(bool f)
 {
 	xlogIn("MachineController:enableAudioIn");
 	machine->audio_in_enabled = f;
 	action_audioin_enabled->setChecked(f);
 }
 
-void MachineController::set_window_zoom(int factor)
+void MachineController::setWindowZoom(int factor)
 {
 	xlogIn("MachineController:set_window_zoom()");
 
@@ -1744,30 +1736,30 @@ void MachineController::set_window_zoom(int factor)
 	// update_all = yes;
 }
 
-void MachineController::power_reset_machine()
+void MachineController::powerResetMachine()
 {
 	xlogIn("MachineController:powerOffOn");
 
-	set_filepath(nullptr);
+	setFilepath(nullptr);
 	machine->powerOff(); // must be suspended
 	screen->hideOverlayPlay();
 	screen->hideOverlayRecord();
-	set_keyboard_mode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
+	setKeyboardMode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
 	machine->powerOn();
 }
 
-void MachineController::reset_machine()
+void MachineController::resetMachine()
 {
 	xlogIn("MachineController:Reset");
 
-	set_filepath(nullptr);
+	setFilepath(nullptr);
 	NVPtr<Machine>(machine)->reset();
 	screen->hideOverlayPlay();
 	screen->hideOverlayRecord();
-	set_keyboard_mode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
+	setKeyboardMode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
 }
 
-void MachineController::enable_breakpoints(bool f)
+void MachineController::enableBreakpoints(bool f)
 {
 	xlogIn("MachineController:enableBreakpoints(%i)", int(f));
 
@@ -1777,7 +1769,7 @@ void MachineController::enable_breakpoints(bool f)
 	machine->unlock();
 }
 
-void MachineController::halt_machine(bool f)
+void MachineController::haltMachine(bool f)
 {
 	xlogIn("MachineController:haltMachine(%i)", int(f));
 	if (f) machine->suspend();
@@ -1785,7 +1777,7 @@ void MachineController::halt_machine(bool f)
 	// note: we'll get a callback to machineRunStateChanged()
 }
 
-void MachineController::add_external_item(isa_id item_id, bool add)
+void MachineController::addExternalItem(isa_id item_id, bool add)
 {
 	xlogIn("MachineController:slot_add_external_item(%i,%s)", item_id, add ? "add" : "remove");
 
@@ -1797,7 +1789,7 @@ void MachineController::add_external_item(isa_id item_id, bool add)
 	if (f) machine->resume();
 }
 
-void MachineController::add_external_ram(isa_id item_id, bool add, uint options)
+void MachineController::addExternalRam(isa_id item_id, bool add, uint options)
 {
 	// Add or remove Ram
 	//  -> remove currently attached Ram, if any
@@ -1831,13 +1823,13 @@ void MachineController::addMultiface1(bool add)
 void MachineController::addMemotech64kRam(bool add)
 {
 	uint dip_switches = settings.get_uint(key_memotech64k_dip_switches, 0x06);
-	add_external_ram(isa_Memotech64kRam, add, dip_switches);
+	addExternalRam(isa_Memotech64kRam, add, dip_switches);
 }
 
 void MachineController::addZx3kRam(bool add)
 {
 	uint ramsize = settings.get_uint(key_zx3k_ramsize, 3 kB);
-	add_external_ram(isa_Zx3kRam, add, ramsize);
+	addExternalRam(isa_Zx3kRam, add, ramsize);
 }
 
 void MachineController::addDivIDE(bool add)
@@ -1901,7 +1893,7 @@ void MachineController::addSpectraVideo(bool add)
 	action_addSpectraVideo->setChecked(add);
 }
 
-void MachineController::show_lenslok(bool f)
+void MachineController::showLenslok(bool f)
 {
 	xlogIn("MachineController:show_lenslok(%s)", f ? "on" : "off");
 
@@ -1929,20 +1921,20 @@ void MachineController::show_lenslok(bool f)
 	}
 }
 
-void MachineController::set_rzx_autostart_recording(bool f)
+void MachineController::setRzxAutostartRecording(bool f)
 {
 	// toggle setting for "during rzx playback autostart recording on any key press":
 
 	settings.setValue(key_rzx_autostart_recording, f);
 }
 
-void MachineController::set_rzx_append_snapshots(bool /*f*/)
+void MachineController::setRzxAppendSnapshots(bool /*f*/)
 {
 	// toggle setting for "append new snapshots to rzx file (do not rewind the rzx file)"
 	// note: setting will be picked from the QAction.
 }
 
-void MachineController::set_rzx_recording(bool f)
+void MachineController::setRzxRecording(bool f)
 {
 	// start or stop recording into rzx file
 
@@ -1990,7 +1982,7 @@ void MachineController::itemAdded(Item* item) // callback from Item c'tor
 	bool force = !in_machine_ctor;
 
 	QTimer::singleShot(
-		0,
+		0, this,
 		[=]() // trick: queued connection for lambda
 		{
 			// wenn mehrere Files gleichzeitig gestartet werden,
@@ -1999,7 +1991,8 @@ void MachineController::itemAdded(Item* item) // callback from Item c'tor
 			// dadurch sind Items, für die wir hier ein delayed Event bekommen
 			// vielleicht schon wieder zerstört.
 			// => prüfen, ob die noch existieren, sonst crash!
-			Item* i = machine->lastItem();
+			assert(isMainThread());
+			Item* i = NV(machine)->lastItem();
 			while (i && i != item) { i = i->prev(); }
 			if (!i) return;
 
@@ -2025,37 +2018,37 @@ void MachineController::itemAdded(Item* item) // callback from Item c'tor
 			QAction* showaction = new QAction(item->name, this /*parent*/);
 			showaction->setCheckable(yes);
 			showaction->setData(QVariant(item->id));
-			connect(showaction, &QAction::toggled, this, [=](bool f) { toggle_toolwindow(item, showaction, f); });
+			connect(showaction, &QAction::toggled, this, [=](bool f) { toggleToolwindow(item, showaction, f); });
 
 			switch (g)
 			{
 			case isa_TapeRecorder:
-				showaction->setShortcut(Qt::CTRL | Qt::Key_T);
+				showaction->setShortcut(CTRL | Qt::Key_T);
 				showaction->setIcon(QIcon(":/Icons/tape.gif"));
 				break;
 			case isa_Ula:
-				showaction->setShortcut(Qt::CTRL | Qt::Key_U);
+				showaction->setShortcut(CTRL | Qt::Key_U);
 				showaction->setIcon(QIcon(":/Icons/screen.gif"));
 				break;
 			case isa_Keyboard:
-				showaction->setShortcut(Qt::CTRL | Qt::Key_K);
+				showaction->setShortcut(CTRL | Qt::Key_K);
 				showaction->setIcon(QIcon(":/Icons/mini_zxsp.gif"));
 				break;
 			case isa_Ay:
-				showaction->setShortcut(Qt::CTRL | Qt::Key_Y);
+				showaction->setShortcut(CTRL | Qt::Key_Y);
 				showaction->setIcon(QIcon(":/Icons/ay.gif"));
 				break;
 				//	case isa_Mmu:			// TCC
 			case isa_MassStorage: // +3 internal Floppy Disc: MassStorage wg. Inspector Window Gruppe
 			case isa_Fdc:
-				showaction->setShortcut(Qt::CTRL | Qt::Key_D);
+				showaction->setShortcut(CTRL | Qt::Key_D);
 				showaction->setIcon(QIcon(":/Icons/save.png"));
 				break;
 			case isa_Printer: showaction->setIcon(QIcon(":/Icons/printer.gif")); break;
 			case isa_Mouse: showaction->setIcon(QIcon(":/Icons/mouse.png")); break;
-			case isa_Z80: showaction->setShortcut(Qt::CTRL | Qt::Key_Z); break;
+			case isa_Z80: showaction->setShortcut(CTRL | Qt::Key_Z); break;
 			case isa_Joy:
-				showaction->setShortcut(Qt::CTRL | Qt::Key_J);
+				showaction->setShortcut(CTRL | Qt::Key_J);
 				showaction->setIcon(QIcon(
 					dynamic_cast<Joy&>(*item).getNumPorts() == 1 ? ":/Icons/joystick-1.gif" :
 																   ":/Icons/joystick-2.gif"));
@@ -2065,7 +2058,7 @@ void MachineController::itemAdded(Item* item) // callback from Item c'tor
 			window_menu->insertAction(separator, showaction);
 			show_actions.append(showaction);
 
-			show_inspector(item, showaction, force);
+			showInspector(item, showaction, force);
 		});
 }
 
@@ -2079,7 +2072,7 @@ void MachineController::itemRemoved(Item* item) // callback from Item d'tor
 	if (in_dtor) return;
 	assert(window_menu);
 
-	hide_inspector(item, !in_machine_dtor);
+	hideInspector(item, !in_machine_dtor);
 
 	QAction* addAction	= find_action_for_item(add_actions, item);
 	QAction* showAction = find_action_for_item(show_actions, item);
@@ -2100,11 +2093,11 @@ void MachineController::itemRemoved(Item* item) // callback from Item d'tor
 void MachineController::rzxStateChanged() volatile // callback from machine
 {
 	QTimer::singleShot(
-		0,
-		[this]() // trick: queuedConnection for lambda
+		0, NV(this),
+		[this] // trick: queuedConnection for lambda
 		{
 			action_RzxRecord->blockSignals(true);
-			action_RzxRecord->setChecked(NVPtr<Machine>(machine)->rzxIsRecording());
+			action_RzxRecord->setChecked(nvptr(machine)->rzxIsRecording());
 			action_RzxRecord->blockSignals(false);
 		});
 }
@@ -2119,8 +2112,8 @@ void MachineController::machineRunStateChanged() volatile // callback from machi
 	// callback from machine
 
 	QTimer::singleShot(
-		0,
-		[this]() // trick: queued connection for lambda
+		0, NV(this),
+		[this] // trick: queued connection for lambda
 		{
 			bool f = machine->isSuspended();
 			action_suspend->blockSignals(yes);
@@ -2155,7 +2148,7 @@ QList<QAction*> MachineController::getKeyboardActions() // for context menus
 // ###########################################################################################
 
 
-void MachineController::show_all_toolwindows()
+void MachineController::showAllToolwindows()
 {
 	// called from changeEvent()
 	// for the new front window
@@ -2170,7 +2163,7 @@ void MachineController::show_all_toolwindows()
 	}
 }
 
-void MachineController::hide_all_toolwindows()
+void MachineController::hideAllToolwindows()
 {
 	// called from changeEvent()
 	// for the old front window
@@ -2185,7 +2178,7 @@ void MachineController::hide_all_toolwindows()
 	}
 }
 
-void MachineController::toggle_toolwindow(volatile IsaObject* item, QAction* showaction, bool f)
+void MachineController::toggleToolwindow(volatile IsaObject* item, QAction* showaction, bool f)
 {
 	//	The show_action for an item was toggled
 	//	show existing or create and show a new Inspector for this item
@@ -2196,7 +2189,7 @@ void MachineController::toggle_toolwindow(volatile IsaObject* item, QAction* sho
 
 	if (f) // show
 	{
-		new_toolwindow(item, showaction)->show();
+		newToolwindow(item, showaction)->show();
 	}
 	else // hide
 	{
@@ -2225,7 +2218,7 @@ ToolWindow* MachineController::findToolWindowForItem(const volatile IsaObject* i
 	return nullptr;
 }
 
-ToolWindow* MachineController::new_toolwindow(volatile IsaObject* item, QAction* showaction)
+ToolWindow* MachineController::newToolwindow(volatile IsaObject* item, QAction* showaction)
 {
 	//	create new tool window with item inspector
 	//	• for item with associated show_action
@@ -2237,7 +2230,7 @@ ToolWindow* MachineController::new_toolwindow(volatile IsaObject* item, QAction*
 	ToolWindow* toolwindow = new ToolWindow(this, item, showaction);
 	tool_windows << toolwindow;
 
-	connect(toolwindow, &QObject::destroyed, [=] {
+	connect(toolwindow, &QObject::destroyed, this, [=] {
 		// remove the toolwindow from the tool_windows[] list.
 		// note: unchecking of showaction is handled in ToolWindow::kill().
 		tool_windows.removeAll(toolwindow);
@@ -2246,7 +2239,7 @@ ToolWindow* MachineController::new_toolwindow(volatile IsaObject* item, QAction*
 	return toolwindow;
 }
 
-void MachineController::show_inspector(IsaObject* item, QAction* showaction, bool force)
+void MachineController::showInspector(IsaObject* item, QAction* showaction, bool force)
 {
 	//	An Item has been added to the machine
 	//	If we have a toolwindow for the item's group
@@ -2275,10 +2268,10 @@ void MachineController::show_inspector(IsaObject* item, QAction* showaction, boo
 	}
 
 	// else open new toolwindow:
-	if (force) new_toolwindow(item, showaction)->show();
+	if (force) newToolwindow(item, showaction)->show();
 }
 
-void MachineController::hide_inspector(IsaObject* item, bool force)
+void MachineController::hideInspector(IsaObject* item, bool force)
 {
 	// An Item has been removed.
 	// if force==true  close all it's toolwindows

@@ -147,7 +147,7 @@ protected:
 
 private:
 	void  CHECK_LOCK() const volatile { assert(is_locked()); }
-	int32 current_cc() { return machine->cpu->cpuCycle(); }
+	int32 current_cc() { return machine->current_cc(); }
 	void  tapefile_stop(CC, bool mute = no);
 	void  tapefile_play(CC);
 	void  tapefile_record(CC);

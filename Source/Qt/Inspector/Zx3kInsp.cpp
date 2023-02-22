@@ -55,9 +55,9 @@ void Zx3kInsp::set_ram_size(uint newsize)
 	if (!zx3kram) return;
 
 	if (newsize == zx3kram->getRamSize()) return;
-	machine->powerOff();
+	bool f = machine->powerOff();
 	NV(zx3kram)->setRamSize(newsize);
-	machine->powerOn();
+	if (f) machine->powerOn();
 	settings.setValue(key_zx3k_ramsize, newsize);
 }
 

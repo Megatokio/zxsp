@@ -105,15 +105,15 @@ protected:
 
 protected:
 	MemoryInspector(QWidget*, MachineController*, volatile IsaObject*, MIDisplayMode);
-	~MemoryInspector();
+	~MemoryInspector() override;
 
 	void resizeEvent(QResizeEvent*) override;
-	// void		paintEvent(QPaintEvent*) override;
+	// void paintEvent(QPaintEvent*) override;
 	void wheelEvent(QWheelEvent*) override;
-	// void		mousePressEvent(QMouseEvent*) override;
-	// bool		event(QEvent*) override;
-	// void		keyPressEvent(QKeyEvent*) override;
-	// void		keyReleaseEvent(QKeyEvent*) override;
+	// void mousePressEvent(QMouseEvent*) override;
+	// bool event(QEvent*) override;
+	// void keyPressEvent(QKeyEvent*) override;
+	// void keyReleaseEvent(QKeyEvent*) override;
 
 	void saveSettings() override;
 	void updateWidgets() override; // timer
@@ -132,7 +132,7 @@ protected:
 	virtual void slotMemoryConfigChanged(Memory*, uint how);
 
 	FourBytes* dataReadPtrForOffset(int32 offset);
-	// uint8		peek(uint32 addr)				{ return rdPtr(addr)->data; }
+	// uint8	peek(uint32 addr)				{ return rdPtr(addr)->data; }
 	// uint16  	peek2(uint32 addr)				{ return rdPtr(addr)->data + rdPtr(addr+1)->data * 256; }
 	// void		poke(uint32 addr, uint8 byte)	{ rdPtr(addr)->data = byte; }
 	// void		poke2(uint32 addr, uint16 word)	{ rdPtr(addr)->data = word; rdPtr(addr+1)->data = word>>8; }

@@ -38,8 +38,6 @@ public:
 	CheckUpdate(QObject*, bool verbose);
 	~CheckUpdate() override;
 
-	// signals:
-	// private slots:
 private:
 	void slot_finished();
 };

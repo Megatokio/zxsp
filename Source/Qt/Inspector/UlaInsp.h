@@ -68,9 +68,6 @@ class UlaInsp : public Inspector
 
 	struct
 	{
-		// float	cpu_clock_overdrive;
-		// uint32 ula_clock;
-		// uint	cpu_clock_predivider;
 		uint32 cpu_clock;
 		int	   top_rows;
 		int	   screen_rows;

@@ -33,7 +33,7 @@ class Lenslok : public QWidget
 
 public:
 	Lenslok(MachineController*, cstr name1, cstr name2);
-	~Lenslok();
+	~Lenslok() override;
 
 protected:
 	void paintEvent(QPaintEvent*) override;

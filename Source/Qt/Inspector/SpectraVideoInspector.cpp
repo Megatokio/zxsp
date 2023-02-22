@@ -227,9 +227,9 @@ void SpectraVideoInspector::insert_or_eject_rom()
 		{
 			xlogIn("SpectraVideoInspector::eject()");
 
-			machine->powerOff();
+			bool f = machine->powerOff();
 			NV(sp)->ejectRom();
-			machine->powerOn();
+			if (f) machine->powerOn();
 		}
 		else
 		{
@@ -239,9 +239,9 @@ void SpectraVideoInspector::insert_or_eject_rom()
 			cstr filepath = selectLoadFile(this, "Select Rom Cartridge", filter);
 			if (!filepath) return;
 
-			machine->powerOff();
+			bool f = machine->powerOff();
 			NV(sp)->insertRom(filepath);
-			machine->powerOn();
+			if (f) machine->powerOn();
 		}
 	}
 }
@@ -335,10 +335,10 @@ void SpectraVideoInspector::insertRom(cstr filepath)
 {
 	if (auto* sp = dynamic_cast<volatile SpectraVideo*>(object))
 	{
-		machine->powerOff();
+		bool f = machine->powerOff();
 		if (sp->isRomInserted()) NV(sp)->ejectRom();
 		NV(sp)->insertRom(filepath);
-		machine->powerOn();
+		if (f) machine->powerOn();
 	}
 }
 

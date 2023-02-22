@@ -230,15 +230,6 @@ std::shared_ptr<Machine> Machine::newMachine(gui::MachineController* mc, Model m
 	IERR();
 }
 
-
-/*  Constructor:
-	create the Machine with 'model'
-	Creates Ram and Rom
-	but does not create all other itmes! (CPU, Ula, Mmu, Keyboard, Joysticks and AY sound chip)
-	adds the incomplete machine to the machine_list[]
-	the machine is not powered on.
-	the machine is not suspended.
-*/
 Machine::Machine(gui::MachineController* parent, Model model, isa_id id) :
 	IsaObject(id, isa_Machine),
 	_lock(), //_lock(PLock::recursive),
@@ -275,6 +266,13 @@ Machine::Machine(gui::MachineController* parent, Model model, isa_id id) :
 	beam_cnt(0), // video beam indicator
 	beam_cc(0)
 {
+	// create Machine with 'model'
+	// Create Ram and Rom
+	// but don't create all other itmes! (CPU, Ula, Mmu, Keyboard, Joysticks and AY sound chip)
+	// add the incomplete machine to the machine_list[]
+	// the machine is not powered on.
+	// the machine is not suspended.
+
 	xlogIn("new Machine");
 
 	// assert(cpu_clock*cpu_clock_predivider==ula_clock);
@@ -350,10 +348,10 @@ Machine::~Machine()
 	while (lastitem) removeItem(lastitem); // rückwärts abbauen.
 }
 
-/*	callback from Memory c'tor
- */
 void Machine::memoryAdded(Memory* m)
 {
+	// callback from Memory c'tor
+
 	assert(isMainThread());
 	assert(is_locked());
 
@@ -361,10 +359,10 @@ void Machine::memoryAdded(Memory* m)
 	memoryModified(m, 0);
 }
 
-/*	callback from Memory d'tor
- */
 void Machine::memoryRemoved(Memory* m)
 {
+	// callback from Memory d'tor
+
 	assert(isMainThread());
 	assert(is_locked());
 
@@ -380,10 +378,10 @@ void Machine::memoryRemoved(Memory* m)
 	memoryModified(m, 1);
 }
 
-/*	callback from Memory shrink or grow:
- */
 void Machine::memoryModified(Memory* m, uint how)
 {
+	// callback from Memory shrink or grow:
+
 	assert(isMainThread());
 	assert(is_locked());
 
@@ -391,10 +389,10 @@ void Machine::memoryModified(Memory* m, uint how)
 	mc->memoryModified(m, how);
 }
 
-/* callback from Item c'tor
- */
 void Machine::itemAdded(Item* item)
 {
+	// callback from Item c'tor
+
 	assert(isMainThread());
 	assert(is_locked());
 
@@ -409,14 +407,13 @@ void Machine::itemAdded(Item* item)
 	if (item->isA(isa_Crtc)) crtc = dynamic_cast<Crtc*>(item);
 	if (item->isA(isa_TapeRecorder)) taperecorder = dynamic_cast<TapeRecorder*>(item);
 
-	gui::MachineController* mc = NV(controller);
-	mc->itemAdded(item);
+	NV(controller)->itemAdded(item);
 }
 
-/* callback from Item d'tor
- */
 void Machine::itemRemoved(Item* item)
 {
+	// callback from Item d'tor
+
 	assert(isMainThread());
 	assert(is_locked());
 
@@ -434,46 +431,44 @@ void Machine::itemRemoved(Item* item)
 	NV(controller)->itemRemoved(item);
 }
 
-/*	resume machine from runForSound():
- */
 void Machine::_resume()
 {
+	// resume machine from runForSound()
+
 	is_suspended = no;
 	controller->machineRunStateChanged();
 }
 
-/*	resume machine:
- */
+void Machine::_suspend()
+{
+	// suspend machine from runForSound()
+
+	is_suspended = true;
+	controller->machineRunStateChanged();
+}
+
 void Machine::resume() volatile
 {
+	// resume machine:
+
 	PLocker z(_lock);
 	assert(is_suspended);
 	NV(this)->_resume();
 }
 
-/*	suspend machine from runForSound()
- */
-void Machine::_suspend()
-{
-	is_suspended = true;
-	controller->machineRunStateChanged();
-}
-
-/*	suspend machine
-	returns flag, whether it was running, to be passed to resume(bool):
-		1 = was running
-		0 = was suspended
-*/
 bool Machine::suspend() volatile
 {
+	// suspend machine
+	// returns flag, whether it was running, to be passed to resume(bool):
+	// 	 1 = was running
+	// 	 0 = was suspended
+
 	PLocker z(_lock);
 	if (is_suspended) return no; // was not running
 	NV(this)->_suspend();
 	return yes; // was running
 }
 
-
-// 9 x virtual:
 void Machine::loadO80(FD&) { showAlert("'.o' and '.80' files can only be loaded into a ZX80"); }
 void Machine::saveO80(FD&) { showAlert("'.o' and '.80' files can only be saved from a ZX80"); }
 void Machine::loadP81(FD&, bool) { showAlert("'.p' and '.81' files can only be loaded into a ZX81"); }
@@ -484,27 +479,25 @@ void Machine::loadAce(FD&) { showAlert("'.ace' files can only be loaded into a J
 void Machine::saveAce(FD&) { showAlert("'.ace' files can only be saved from a Jupiter ACE"); }
 void Machine::loadScr(FD&) { showAlert("'.scr' files can only be loaded into a ZX Spectrum"); }
 void Machine::saveScr(FD&) { showAlert("'.scr' files can only be saved from a ZX Spectrum"); }
-// void Machine::loadTap(FD&)	{ showAlert("'.tap' files can only be loaded into a ZX Spectrum or Jupiter Ace");
-// }
+// void Machine::loadTap(FD&) { showAlert("'.tap' files can only be loaded into a ZX Spectrum or Jupiter Ace"); }
 
-
-/*  save ROM:
-	simply dump the rom to a file
-*/
 void Machine::saveRom(FD& fd)
 {
+	// save ROM:
+	// simply dump the rom to a file
+
 	assert(isMainThread() || is_locked());
 
 	write_mem(fd, rom.getData(), rom.count());
 }
 
-/*	load ROM:
-	simply read the rom from a file.
-	there must be at least rom.count() bytes available
-	called from MachineController.loadSnapshot()
-*/
 void Machine::loadRom(FD& fd)
 {
+	// load ROM:
+	// simply read the rom from a file.
+	// there must be at least rom.count() bytes available
+	// called from MachineController.loadSnapshot()
+
 	assert(is_locked());
 
 	read_mem(fd, rom.getData(), rom.count());
@@ -582,15 +575,14 @@ void Machine::saveAs(cstr filepath)
 	showAlert("Unsupported file format");
 }
 
-
-/*  Reset the Machine via Power On-Off-On
-	start_cc = cpu cycle at which the power-on reset releases
-	some machines won't start with an arbitrary start_cc:
-	a starting value of 1000 cc seems to work for all machines
-	note: start_cc for +2A:  ok: 0k..2k, 7k..14k;  boot error: 3k..6k, 15k..40k
-*/
 void Machine::_power_on(int32 start_cc)
 {
+	// Reset the Machine via Power On-Off-On
+	// start_cc = cpu cycle at which the power-on reset releases
+	// some machines won't start with an arbitrary start_cc:
+	// a starting value of 1000 cc seems to work for all machines
+	// note: start_cc for +2A:  ok: 0k..2k, 7k..14k;  boot error: 3k..6k, 15k..40k
+
 	xlogIn("Machine:PowerOn");
 
 	total_frames   = 0; // information: accumulated frames until now
@@ -619,7 +611,7 @@ void Machine::_power_on(int32 start_cc)
 
 void Machine::powerOn(int32 start_cc) volatile
 {
-	// IF the machine is power_off, then we don't need to lock:
+	// if the machine is power_off, then we don't need to lock:
 	assert(!is_power_on);
 	NV(this)->rzxDispose();
 	NV(this)->_power_on(start_cc);
@@ -634,31 +626,30 @@ void Machine::_power_off()
 bool Machine::powerOff() volatile
 {
 	if (isPowerOff()) return false; // wasn't running
-	// power off and lock machine to wait for runForSound():
-	NVPtr<Machine>(this)->_power_off();
+
+	nvptr(this)->_power_off();
 	return true; // was running
 }
 
-/*	power-cycle the machine for reset
-	does not change the suspend state
-*/
 void Machine::powerCycle() volatile
 {
+	// power-cycle the machine for reset
+	// does not change the suspend state
+
 	powerOff();
 	powerOn();
 }
 
-
-/*	press the reset button
-	reset all items:
-	sequence: cpu .. lastitem
-	timing is as for input / output:
-		Time may overshoot dsp buffer but is limited to fit in dsp buffer + stitching
-		(this is only a concern if the machine is running veerryy slowwllyy)
-		cc may overshoot cc_per_frame a few cycles
-*/
 void Machine::reset()
 {
+	// press the reset button
+	// reset all items:
+	// sequence: cpu .. lastitem
+	// timing is as for input / output:
+	// 	Time may overshoot dsp buffer but is limited to fit in dsp buffer + stitching
+	// 	(this is only a concern if the machine is running veerryy slowwllyy)
+	// 	cc may overshoot cc_per_frame a few cycles
+
 	xlogIn("Machine: reset");
 	assert(is_locked());
 
@@ -671,14 +662,12 @@ void Machine::reset()
 	for (Item* p = cpu; p; p = p->next()) { p->reset(t, cc); }
 }
 
-
 void Machine::nmi()
 {
 	xlogIn("Machine:Nmi");
 	lastitem->triggerNmi();
-	if (rzxIsRecording()) rzx_store_snapshot();
+	if (rzxIsRecording()) rzxStoreSnapshot();
 }
-
 
 Item* Machine::addExternalItem(isa_id id)
 {
@@ -856,12 +845,12 @@ void Machine::installRomPatches(bool f)
 	}
 }
 
-/*  handle rom patch
-	called with all z80 registers stored
-	return new opcode to execute, which may be the one passed in
-*/
 uint8 Machine::handleRomPatch(uint16 pc, uint8 opcode)
 {
+	// handle rom patch
+	// called with all z80 registers stored
+	// return new opcode to execute, which may be the one passed in
+
 	opcode = lastitem->handleRomPatch(pc, opcode);
 
 	CoreByte* instrptr = cpu->rdPtr(pc);
@@ -897,13 +886,12 @@ uint8 Machine::handleRomPatch(uint16 pc, uint8 opcode)
 	return opcode; // maybe handled
 }
 
-
-/*	CPU callback: output instruction
-	lastitem linked list:
-	• item 1 = cpu:  no i/o
-*/
 void Machine::outputAtCycle(int32 cc, uint16 addr, uint8 byte)
 {
+	// CPU callback: output instruction
+	// lastitem linked list:
+	// • item 1 = cpu:  no i/o
+
 	xxlogline("OUT $%04x,$%02x ", uint(addr), uint(byte));
 
 	cc		 = ula->addWaitCycles(cc, addr);
@@ -912,18 +900,15 @@ void Machine::outputAtCycle(int32 cc, uint16 addr, uint8 byte)
 	for (Item* p = ula; p; p = p->next())
 	{
 		if (p->matchesOut(addr)) p->output(now, cc, addr, byte);
-	};
+	}
 }
 
-
-/*	CPU callback: input instruction
-	lastitem linked list:
-	• item 1 = cpu:  no i/o
-	• item 2 = ula: last item called => ula can add "idle bus bytes"
-*/
 uint8 Machine::inputAtCycle(int32 cc, uint16 addr)
 {
-	if (XXLOG && (cc > 2000 || (addr & 0xff) != 0xfe)) logline("IN $%04x ", uint(addr));
+	// CPU callback: input instruction
+	// lastitem linked list:
+	// • item 1 = cpu:  no i/o
+	// • item 2 = ula: last item called => ula can add "idle bus bytes"
 
 	cc		  = ula->addWaitCycles(cc, addr);
 	Time  now = t_for_cc_lim(cc);
@@ -933,7 +918,7 @@ uint8 Machine::inputAtCycle(int32 cc, uint16 addr)
 	for (Item* p = ula; p; p = p->next())
 	{
 		if (p->matchesIn(addr)) p->input(now, cc, addr, c, m);
-	};
+	}
 
 	if (m != 0xff) c &= ula->getFloatingBusByte(cc);
 
@@ -944,7 +929,7 @@ uint8 Machine::inputAtCycle(int32 cc, uint16 addr)
 		if (rzx_file->isPlaying())
 		{
 			int rval = rzx_file->getInput();
-			if (rval >= 0) return rval;
+			if (rval >= 0) return uint8(rval);
 			else
 			{
 				// -1 = EndOfFrame = OutOfSync.
@@ -966,16 +951,17 @@ uint8 Machine::inputAtCycle(int32 cc, uint16 addr)
 	return c;
 }
 
-
-// for memory mapped i/o
 uint8 Machine::readMemMappedPort(int32 cc, uint16 addr, uint8 byte)
 {
+	// for memory mapped i/o
+
 	return lastitem->readMemory(t_for_cc_lim(cc), cc, addr, byte);
 }
 
-// for memory mapped i/o
 void Machine::writeMemMappedPort(int32 cc, uint16 addr, uint8 byte)
 {
+	// for memory mapped i/o
+
 	lastitem->writeMemory(t_for_cc_lim(cc), cc, addr, byte);
 }
 
@@ -1071,7 +1057,7 @@ void Machine::runForSound(int32 cc_final)
 				{					 // rval = -1 and state = Snapshot -> call getSnapshot()
 					if (rzx_file->isSnapshot())
 					{
-						rzx_load_snapshot(cc_final, ic_end); // 	Snapshot -> Playing | EndOfFile | OutOfSync
+						rzxLoadSnapshot(cc_final, ic_end); // 	Snapshot -> Playing | EndOfFile | OutOfSync
 						if (rzx_file->isOutOfSync()) goto a;
 						if (rzx_file->isPlaying()) continue;
 					}
@@ -1211,30 +1197,27 @@ void Machine::runForSound(int32 cc_final)
 	tcc0 -= t;
 }
 
-
-/* Laufe für (mindestens) cc cpu cycles.
- */
 void Machine::runCpuCycles(int32 cc)
 {
+	// run for (at least) cc cpu cycles.
+
 	assert(isSuspended() || is_locked());
 
 	if (cc > 0) runForSound(cpu->cpuCycle() + cc);
 }
 
-
-void Machine::clear_break_ptr()
+void Machine::clearBreakPtr()
 {
 	break_ptr =
 		cpu_options & cpu_break_x & *cpu->rdPtr(cpu->getRegisters().pc) ? cpu->rdPtr(cpu->getRegisters().pc) : nullptr;
 }
-
 
 void Machine::stepOver()
 {
 	xlogIn("Machine:stepOver");
 	assert(isSuspended());
 
-	clear_break_ptr();
+	clearBreakPtr();
 
 	uint16 pc = cpu->getRegisters().pc; // pc
 	uint8  o  = cpu->peek(pc);			// Opcode
@@ -1308,7 +1291,6 @@ void Machine::stepOver()
 	}
 }
 
-
 void Machine::stepIn()
 {
 	xlogIn("Machine:stepIn");
@@ -1329,7 +1311,7 @@ void Machine::stepIn()
 
 		Der Single-Stepper funktioniert logischerweise nur, wenn die Cpu angehalten ist.
 	*/
-	clear_break_ptr();
+	clearBreakPtr();
 	runCpuCycles(1);
 }
 
@@ -1338,14 +1320,14 @@ void Machine::stepOut()
 	xlogIn("Machine:stepOut");
 	assert(isSuspended());
 
-	clear_break_ptr();
+	clearBreakPtr();
 
 	cpu->setStackBreakpoint(cpu->getRegisters().sp + 2);
 	cpu_options |= cpu_break_sp;
 	resume();
 }
 
-void Machine::set60HzNeu(bool is60hz)
+void Machine::set60Hz(bool is60hz)
 {
 	// set machine to 100% speed and select 50 or 60 Hz setup.
 	// called from speed menu and Machine50x60Inspector
@@ -1420,7 +1402,6 @@ void Machine::setSpeedAnd60fps(double factor)
 	ula->setLinesAfterScreen(lines_after);
 }
 
-
 void Machine::drawVideoBeamIndicator()
 {
 	/*	Wenn die Maschine angehalten ist oder zu stark gedrosselt ist,
@@ -1436,7 +1417,6 @@ void Machine::drawVideoBeamIndicator()
 	crtc->drawVideoBeamIndicator(beam_cc);
 }
 
-
 gui::OverlayJoystick* Machine::addOverlay(Joystick* joy, cstr idf, gui::Overlay::Position pos)
 {
 	gui::OverlayJoystick* o = new gui::OverlayJoystick(controller->getScreen(), joy, idf, pos);
@@ -1449,42 +1429,41 @@ void Machine::removeOverlay(gui::Overlay* o)
 	if (o) controller->getScreen()->removeOverlay(o);
 }
 
-
-void Machine::hide_overlay_play()
+void Machine::hideOverlayPlay()
 {
 	removeOverlay(overlay_rzx_play);
 	overlay_rzx_play = nullptr;
 }
 
-void Machine::hide_overlay_record()
+void Machine::hideOverlayRecord()
 {
 	removeOverlay(overlay_rzx_record);
 	overlay_rzx_record = nullptr;
 }
 
-void Machine::show_overlay_play()
+void Machine::showOverlayPlay()
 {
-	hide_overlay_record();
+	hideOverlayRecord();
 	if (overlay_rzx_play) return;
 	overlay_rzx_play = new gui::OverlayPlay(controller->getScreen());
 	controller->getScreen()->addOverlay(overlay_rzx_play);
 }
 
-void Machine::show_overlay_record()
+void Machine::showOverlayRecord()
 {
-	hide_overlay_play();
+	hideOverlayPlay();
 	if (overlay_rzx_record) return;
 	overlay_rzx_record = new gui::OverlayRecord(controller->getScreen());
 	controller->getScreen()->addOverlay(overlay_rzx_record);
 }
 
-/*	Snapshot -> Playing | EndOfFile | OutOfSync
-	OutOfSync --> warning dialog displayed, controller informed
-	EndOfFile --> caller must display message and MUST change rzx state to Recording or OutOfSync!
-	Playing   --> no state change
-*/
-void Machine::rzx_load_snapshot(int32& cc_final, int32& ic_end)
+void Machine::rzxLoadSnapshot(int32& cc_final, int32& ic_end)
 {
+	// Snapshot -> Playing | EndOfFile | OutOfSync
+	// OutOfSync --> warning dialog displayed, controller informed
+	// EndOfFile --> caller must display message and MUST change rzx state to Recording or OutOfSync!
+	// Playing   --> no state change
+
 	cstr   filename = rzx_file->getSnapshot();
 	cstr   ext		= lowerstr(extension_from_path(filename));
 	int32& cc		= cpu->cpuCycleRef();
@@ -1536,11 +1515,11 @@ void Machine::rzx_load_snapshot(int32& cc_final, int32& ic_end)
 	}
 }
 
-/*	store snapshot at current position
-	EndOfFile --> Recording | OutOfSync
-*/
-void Machine::rzx_store_snapshot()
+void Machine::rzxStoreSnapshot()
 {
+	// store snapshot at current position
+	// EndOfFile --> Recording | OutOfSync
+
 	assert(rzx_file);
 	assert(rzx_file->isEndOfFile());
 
@@ -1569,8 +1548,8 @@ void Machine::rzxOutOfSync(cstr msg, bool red)
 	}
 
 	rzx_file->setOutOfSync();
-	hide_overlay_play();
-	hide_overlay_record();
+	hideOverlayPlay();
+	hideOverlayRecord();
 	controller->rzxStateChanged();
 }
 
@@ -1580,16 +1559,16 @@ void Machine::rzxDispose()
 	delete rzx_file;
 	rzx_file = nullptr;
 
-	hide_overlay_play();
-	hide_overlay_record();
+	hideOverlayPlay();
+	hideOverlayRecord();
 	controller->rzxStateChanged();
 }
 
-/*	store the passed RzxFile and start playing
-	eventually immediately switch to recording, if the file is at end
-*/
 void Machine::rzxPlayFile(RzxFile* rzx)
 {
+	// store the passed RzxFile and start playing
+	// eventually immediately switch to recording, if the file is at end
+
 	if (rzxIsLoaded()) rzxDispose();
 	rzx_file = rzx;
 
@@ -1602,8 +1581,8 @@ void Machine::rzxPlayFile(RzxFile* rzx)
 	case RzxFile::Snapshot: break;
 	}
 
-	int32 cc_final, ic_end;				 // dummy
-	rzx_load_snapshot(cc_final, ic_end); // --> Playing | EndOfFile | OutOfSync
+	int32 cc_final, ic_end;			   // dummy
+	rzxLoadSnapshot(cc_final, ic_end); // --> Playing | EndOfFile | OutOfSync
 	switch (rzx->state)
 	{
 	default: return rzxOutOfSync("Bummer: unexpected state after loading the starter snapshot", yes);
@@ -1617,17 +1596,17 @@ void Machine::rzxPlayFile(RzxFile* rzx)
 			tcc0 -= dcc / cpu_clock;
 			cc += dcc;
 		}
-		show_overlay_play();
+		showOverlayPlay();
 		controller->rzxStateChanged();
 		return;
 	}
 }
 
-/*	start recording
-	!file | Playing | Recording | EndOfFile --> Recording
-*/
 void Machine::rzxStartRecording(cstr msg, bool yellow)
 {
+	// start recording
+	// !file | Playing | Recording | EndOfFile --> Recording
+
 	if (msg)
 	{
 		if (yellow) showWarning("%s", msg);
@@ -1645,12 +1624,12 @@ void Machine::rzxStartRecording(cstr msg, bool yellow)
 	case RzxFile::Recording: return;
 
 	case RzxFile::EndOfFile:
-		rzx_store_snapshot();
+		rzxStoreSnapshot();
 		if (rzx_file->isOutOfSync()) return;
 		break;
 	}
 
-	show_overlay_record();
+	showOverlayRecord();
 	controller->rzxStateChanged();
 }
 
@@ -1666,3 +1645,30 @@ void Machine::rzxStopRecording(cstr msg, bool yellow)
 
 	rzxOutOfSync(nullptr);
 }
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

@@ -37,7 +37,7 @@ class TccDockInspector : public Inspector
 
 public:
 	TccDockInspector(QWidget*, MachineController*, volatile IsaObject*);
-	~TccDockInspector();
+	~TccDockInspector() override;
 
 	cstr getSaveFilename();
 	cstr getLoadFilename();

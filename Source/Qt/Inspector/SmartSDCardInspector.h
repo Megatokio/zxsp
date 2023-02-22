@@ -12,7 +12,7 @@ class SmartSDCardInspector : public Inspector
 {
 public:
 	SmartSDCardInspector(QWidget* p, MachineController* m, volatile IsaObject* o);
-	~SmartSDCardInspector();
+	~SmartSDCardInspector() override;
 };
 
 } // namespace gui

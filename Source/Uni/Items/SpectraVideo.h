@@ -11,6 +11,8 @@
 
 class SpectraVideo : public Crtc
 {
+	friend class Machine;
+
 public:
 	bool	  has_port_7ffd; // SPECTRA zxsp or zx128k model
 	bool	  new_video_modes_enabled;

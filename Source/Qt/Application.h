@@ -14,7 +14,6 @@ namespace gui
 
 class Application : public QApplication
 {
-	Q_OBJECT
 	Q_DISABLE_COPY(Application)
 
 	static QString		  filepath; // during 'open file'

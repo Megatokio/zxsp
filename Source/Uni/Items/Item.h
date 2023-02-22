@@ -22,7 +22,8 @@ class Item : public IsaObject
 
 protected:
 	Machine* machine;
-	Item *	 _next, *_prev;
+	Item*	 _next;
+	Item*	 _prev;
 	uint16	 in_mask;
 	uint16	 in_bits;
 	uint16	 out_mask;

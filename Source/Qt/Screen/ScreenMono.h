@@ -28,7 +28,7 @@ class ScreenMono : public Screen, public IScreenMono
 
 protected:
 	// ScreenMono(QWidget*p,isa_id id) :Screen(p,id){}
-	void do_ffb_or_vbi() noexcept(false) override; // std::exception
+	void do_ffb_or_vbi() override;
 	void paint_screen(bool draw_passepartout = yes) override;
 
 public:

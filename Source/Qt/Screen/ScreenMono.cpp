@@ -85,7 +85,7 @@ bool ScreenMono::sendFrame(uint8* frame_data, const zxsp::Size& frame_size, cons
 }
 
 
-void ScreenMono::do_ffb_or_vbi() noexcept(false)
+void ScreenMono::do_ffb_or_vbi()
 {
 	uint8* new_pixels = _new_pixels;
 	uint   frame_h	  = _frame_h;
