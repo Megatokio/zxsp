@@ -464,9 +464,9 @@ bool Machine::suspend() volatile
 	// 	 0 = was suspended
 
 	PLocker z(_lock);
-	if (is_suspended) return no; // was not running
+	if (is_suspended) return false; // was not running
 	NV(this)->_suspend();
-	return yes; // was running
+	return true; // was running
 }
 
 void Machine::loadO80(FD&) { showAlert("'.o' and '.80' files can only be loaded into a ZX80"); }
@@ -611,8 +611,10 @@ void Machine::_power_on(int32 start_cc)
 
 void Machine::powerOn(int32 start_cc) volatile
 {
+	assert(isMainThread());
+	assert(isPowerOff());
+
 	// if the machine is power_off, then we don't need to lock:
-	assert(!is_power_on);
 	NV(this)->rzxDispose();
 	NV(this)->_power_on(start_cc);
 }
@@ -625,9 +627,11 @@ void Machine::_power_off()
 
 bool Machine::powerOff() volatile
 {
-	if (isPowerOff()) return false; // wasn't running
+	assert(isMainThread());
 
-	nvptr(this)->_power_off();
+	PLocker z(_lock);
+	if (isPowerOff()) return false; // wasn't running
+	NV(this)->_power_off();
 	return true; // was running
 }
 
