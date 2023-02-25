@@ -263,6 +263,7 @@ SOURCES +=	\
 	Source/Uni/Items/Fdc/FdcPlusD.cpp \
 	Source/Uni/Items/Fdc/FdcD80.cpp \
 	Source/Uni/Items/Fdc/FdcJLO.cpp \
+	Source/Uni/Items/Fdc/MGT.cpp \
 	Source/Uni/Items/Fdc/OpusDiscovery.cpp \
 	Source/Uni/Items/Fdc/Disciple.cpp \
 	Source/Uni/Items/Fdc/SmartSDCard.cpp \
@@ -565,6 +566,7 @@ HEADERS += \
 	Source/Uni/Items/Fdc/FdcPlusD.h \
 	Source/Uni/Items/Fdc/FdcD80.h \
 	Source/Uni/Items/Fdc/FdcJLO.h \
+	Source/Uni/Items/Fdc/MGT.h \
 	Source/Uni/Items/Fdc/Fdc.h \
 	Source/Uni/Items/Fdc/DivIDE.h \
 	Source/Uni/Items/Fdc/FloppyDiskDrive.h \
