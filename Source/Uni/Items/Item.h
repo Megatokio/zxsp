@@ -5,8 +5,7 @@
 
 #include "IoInfo.h"
 #include "IsaObject.h"
-#include "kio/peekpoke.h"
-#include "zxsp_types.h"
+
 
 extern uint16 bitsForSpec(cstr s);
 extern uint16 maskForSpec(cstr s);
@@ -17,8 +16,7 @@ enum Internal { internal = 1, external = 0 };
 
 class Item : public IsaObject
 {
-	Item(const Item&)			 = delete;
-	Item& operator=(const Item&) = delete;
+	NO_COPY_MOVE(Item);
 
 protected:
 	Machine* machine;
@@ -34,7 +32,6 @@ protected:
 	uint	ioinfo_count;
 	uint	ioinfo_size;
 
-protected:
 	bool ramdis_in; // RAMCS state    ZX80/81
 	bool romdis_in; // ROMCS state    ZX81/ZXSP/128/+2/+2A/+3
 
@@ -51,19 +48,19 @@ protected:
 	virtual ~Item() override;
 
 public:
-	Item*	 prev() const { return _prev; }
-	Item*	 next() const { return _next; }
-	Machine* getMachine() const { return machine; }
-	void	 linkBehind(Item*);
-	void	 unlink();
-	bool	 matchesIn(uint16 addr) { return (addr & in_mask) == in_bits; }
-	bool	 matchesOut(uint16 addr) { return (addr & out_mask) == out_bits; }
-	bool	 isInternal() { return _internal; }
-	bool	 isExternal() { return !_internal; }
+	Item* prev() const { return _prev; }
+	Item* next() const { return _next; }
+	void  linkBehind(Item*);
+	void  unlink();
+	bool  matchesIn(uint16 addr) { return (addr & in_mask) == in_bits; }
+	bool  matchesOut(uint16 addr) { return (addr & out_mask) == out_bits; }
+	bool  isInternal() { return _internal; }
+	bool  isExternal() { return !_internal; }
 
 	bool is_locked() const volatile;
 	void lock() const volatile;
 	void unlock() const volatile;
+
 
 	// Item interface:
 	virtual void  powerOn(/*t=0*/ int32 cc);
