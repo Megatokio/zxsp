@@ -158,21 +158,6 @@ void runMachinesForSound()
 
 
 // ########################################################################
-// Utilities:
-// ########################################################################
-
-
-#define ForAllItems(WHAT)    \
-  {                          \
-	Item* p = lastitem;      \
-	do {                     \
-	  p->WHAT;               \
-	}                        \
-	while ((p = p->prev())); \
-  }
-
-
-// ########################################################################
 // Create & Kill:
 // ########################################################################
 
@@ -256,7 +241,6 @@ Machine::Machine(gui::MachineController* parent, Model model, isa_id id) :
 	fdc(nullptr),
 	printer(nullptr),
 	crtc(nullptr),
-	lastitem(nullptr),
 	total_frames(0),   // information: accumulated frames until now
 	total_cc(0),	   // information: accumulated cpu T cycles until now
 	total_buffers(0),  // information: accumulated dsp buffers until now
@@ -345,7 +329,13 @@ Machine::~Machine()
 	machine_list.remove(this);
 
 	is_power_on = no;
-	while (lastitem) removeItem(lastitem); // rückwärts abbauen.
+
+	// remove from back to front:
+	for (uint i = all_items.count(); i--;)
+	{
+		controller->itemRemoved(all_items[i]);
+		delete all_items[i];
+	}
 }
 
 void Machine::memoryAdded(Memory* m)
@@ -389,71 +379,29 @@ void Machine::memoryModified(Memory* m, uint how)
 	mc->memoryModified(m, how);
 }
 
-void Machine::itemAdded(Item* item)
-{
-	// callback from Item c'tor
-
-	assert(isMainThread());
-	assert(is_locked());
-
-	if (item->isA(isa_Ay)) ay = dynamic_cast<Ay*>(item);
-	if (item->isA(isa_Keyboard)) keyboard = dynamic_cast<Keyboard*>(item);
-	if (item->isA(isa_Joy)) joystick = dynamic_cast<Joy*>(item);
-	if (item->isA(isa_Mmu)) mmu = dynamic_cast<Mmu*>(item);
-	if (item->isA(isa_Z80)) cpu = dynamic_cast<Z80*>(item);
-	if (item->isA(isa_Fdc)) fdc = dynamic_cast<Fdc*>(item);
-	if (item->isA(isa_Printer)) printer = dynamic_cast<Printer*>(item);
-	if (item->isA(isa_Ula)) ula = dynamic_cast<Ula*>(item);
-	if (item->isA(isa_Crtc)) crtc = dynamic_cast<Crtc*>(item);
-	if (item->isA(isa_TapeRecorder)) taperecorder = dynamic_cast<TapeRecorder*>(item);
-
-	NV(controller)->itemAdded(item);
-}
-
-void Machine::itemRemoved(Item* item)
-{
-	// callback from Item d'tor
-
-	assert(isMainThread());
-	assert(is_locked());
-
-	if (ay == item) ay = nullptr;
-	if (keyboard == item) keyboard = nullptr;
-	if (joystick == item) joystick = nullptr;
-	if (mmu == item) mmu = nullptr;
-	if (cpu == item) cpu = nullptr;
-	if (fdc == item) fdc = nullptr;
-	if (printer == item) printer = nullptr;
-	if (ula == item) ula = nullptr;
-	if (crtc == item) crtc = nullptr;
-	if (taperecorder == item) taperecorder = nullptr;
-
-	NV(controller)->itemRemoved(item);
-}
-
 void Machine::_resume()
 {
-	// resume machine from runForSound()
-
-	is_suspended = no;
-	controller->machineRunStateChanged();
+	if (is_suspended)
+	{
+		is_suspended = no;
+		controller->machineSuspendStateChanged();
+	}
 }
 
 void Machine::_suspend()
 {
-	// suspend machine from runForSound()
-
-	is_suspended = true;
-	controller->machineRunStateChanged();
+	if (!is_suspended)
+	{
+		is_suspended = true;
+		controller->machineSuspendStateChanged();
+	}
 }
 
 void Machine::resume() volatile
 {
 	// resume machine:
 
-	PLocker z(_lock);
-	assert(is_suspended);
-	NV(this)->_resume();
+	nvptr(this)->_resume();
 }
 
 bool Machine::suspend() volatile
@@ -594,7 +542,7 @@ void Machine::_power_on(int32 start_cc)
 	tcc0 = -start_cc / cpu_clock;
 	assert(t_for_cc(start_cc) == 0.0);
 
-	crtc = dynamic_cast<Crtc*>(findIsaItem(isa_Crtc));
+	crtc = find<Crtc>();
 	assert(crtc);
 	cpu->setCrtc(crtc);
 
@@ -669,8 +617,90 @@ void Machine::reset()
 void Machine::nmi()
 {
 	xlogIn("Machine:Nmi");
-	lastitem->triggerNmi();
+
+	all_items.last()->triggerNmi();
+
 	if (rzxIsRecording()) rzxStoreSnapshot();
+}
+
+Item* Machine::findItem(isa_id id)
+{
+	// find exact type:
+
+	for (uint i = all_items.count(); i--;)
+	{
+		if (all_items[i]->isaId() == id) { return all_items[i]; }
+	}
+	return nullptr;
+}
+
+Item* Machine::findIsaItem(isa_id id)
+{
+	// find sort of an item:
+
+	for (uint i = all_items.count(); i--;)
+	{
+		if (all_items[i]->isA(id)) { return all_items[i]; }
+	}
+	return nullptr;
+}
+
+Item* Machine::addItem(Item* item)
+{
+	// add item to all_items[]
+	// update the various cached pointers
+	// updates crtc only for the internal ula
+
+	assert(isMainThread());
+	assert(is_locked());
+	assert(cpu || isPowerOff());
+	assert(item);
+
+	if (all_items.count()) item->linkBehind(all_items.last());
+	all_items.append(item);
+
+	if (auto* i = dynamic_cast<Z80*>(item)) cpu = i;
+	if (auto* i = dynamic_cast<Mmu*>(item)) mmu = i;
+	if (auto* i = dynamic_cast<Ula*>(item)) crtc = ula = i;
+	if (auto* i = dynamic_cast<Keyboard*>(item)) keyboard = i;
+
+	if (auto* i = dynamic_cast<Ay*>(item)) ay = i;
+	if (auto* i = dynamic_cast<Joy*>(item)) joystick = i;
+	if (auto* i = dynamic_cast<Fdc*>(item)) fdc = i;
+	if (auto* i = dynamic_cast<Printer*>(item)) printer = i;
+	if (auto* i = dynamic_cast<TapeRecorder*>(item)) taperecorder = i;
+
+	controller->itemAdded(item);
+
+	if (isPowerOn()) item->powerOn(cpu->cpuCycle());
+	return item;
+}
+
+void Machine::removeItem(Item* item)
+{
+	// remove item from all_items[]
+	// update the various cached pointers
+	// updates crtc only for the internal ula
+
+	assert(isMainThread());
+	assert(is_locked());
+	if (!item) return;
+
+	controller->itemRemoved(item);
+
+	if (cpu == item) cpu = nullptr;
+	if (mmu == item) mmu = nullptr;
+	if (ula == item) crtc = ula = nullptr;
+	if (keyboard == item) keyboard = nullptr;
+
+	if (ay == item) ay = find<Ay>();
+	if (fdc == item) fdc = find<Fdc>();
+	if (printer == item) printer = find<Printer>();
+	if (joystick == item) joystick = find<Joy>();
+	if (taperecorder == item) taperecorder = find<TapeRecorder>();
+
+	all_items.remove(item);
+	delete item;
 }
 
 Item* Machine::addExternalItem(isa_id id)
@@ -724,8 +754,7 @@ Item* Machine::addExternalItem(isa_id id)
 	default: IERR();
 	}
 
-	if (isPowerOn()) item->powerOn(cpu->cpuCycle());
-	return item;
+	return addItem(item);
 }
 
 Multiface1* Machine::addMultiface1(bool joystick_enabled)
@@ -734,11 +763,10 @@ Multiface1* Machine::addMultiface1(bool joystick_enabled)
 	assert(is_locked());
 	assert(cpu || isPowerOff());
 
-	if (Item* sp = findItem(isa_Multiface1)) return static_cast<Multiface1*>(sp);
+	Multiface1* mf1 = find<Multiface1>();
+	if (mf1) return mf1;
 
-	Multiface1* mf1 = new Multiface1(this, joystick_enabled);
-	if (isPowerOn()) mf1->powerOn(cpu->cpuCycle());
-
+	addItem(mf1 = new Multiface1(this, joystick_enabled));
 	return mf1;
 }
 
@@ -746,27 +774,34 @@ ExternalRam* Machine::addExternalRam(isa_id id, uint options)
 {
 	assert(isMainThread());
 	assert(isPowerOff());
-	assert(findIsaItem(isa_ExternalRam) == nullptr);
+	assert(find<ExternalRam>() == nullptr);
+
+	ExternalRam* ram = nullptr;
 
 	switch (id)
 	{
-	case isa_Jupiter16kRam: return new Jupiter16kRam(this);
-	case isa_Zx16kRam: return new Zx16kRam(this);
-	case isa_Stonechip16kRam: return new Stonechip16kRam(this);
-	case isa_Ts1016Ram: return new Ts1016Ram(this);
-	case isa_Memotech16kRam: return new Memotech16kRam(this);
-	case isa_Cheetah32kRam: return new Cheetah32kRam(this);
+	case isa_Jupiter16kRam: ram = new Jupiter16kRam(this); break;
+	case isa_Zx16kRam: ram = new Zx16kRam(this); break;
+	case isa_Stonechip16kRam: ram = new Stonechip16kRam(this); break;
+	case isa_Ts1016Ram: ram = new Ts1016Ram(this); break;
+	case isa_Memotech16kRam: ram = new Memotech16kRam(this); break;
+	case isa_Cheetah32kRam: ram = new Cheetah32kRam(this); break;
 
 	case isa_Zx3kRam:
 		if (options != 1 kB && options != 2 kB) options = 3 kB; // safety
-		return new Zx3kRam(this, options);
+		ram = new Zx3kRam(this, options);
+		break;
 
 	case isa_Memotech64kRam:
 		if (!Memotech64kRam::isValidDipSwitches(options)) options = Memotech64kRam::DipSwitches::E;
-		return new Memotech64kRam(this, options);
+		ram = new Memotech64kRam(this, options);
+		break;
 
 	default: IERR();
 	}
+
+	addItem(ram);
+	return ram;
 }
 
 DivIDE* Machine::addDivIDE(uint ramsize, cstr romfile)
@@ -774,23 +809,32 @@ DivIDE* Machine::addDivIDE(uint ramsize, cstr romfile)
 	assert(isMainThread());
 	assert(isPowerOff());
 
-	if (Item* i = findItem(isa_DivIDE)) return static_cast<DivIDE*>(i);
-	else return new DivIDE(this, ramsize, romfile);
+	DivIDE* divide = find<DivIDE>();
+	if (divide) return divide;
+
+	addItem(divide = new DivIDE(this, ramsize, romfile));
+	return divide;
 }
 
 void Machine::removeSpectraVideo()
 {
 	assert(isMainThread());
 	assert(is_locked());
-	assert(isA(isa_MachineZxsp));
 
-	if (crtc->isaId() == isa_SpectraVideo)
+	auto* spectra = find<SpectraVideo>();
+	if (!spectra) return;
+
+	removeItem(spectra);
+
+	if (crtc == spectra)
 	{
-		if (crtc != ula) removeItem(crtc);
-		crtc = ula;
-		crtc->attachToScreen(controller->getScreen());
-		cpu->setCrtc(crtc);
-		if (isPowerOn()) crtc->powerOn(cpu->cpuCycle());
+		crtc = find<Crtc>();
+		if (crtc)
+		{
+			crtc->attachToScreen(controller->getScreen());
+			cpu->setCrtc(crtc);
+			if (isPowerOn()) crtc->powerOn(cpu->cpuCycle());
+		}
 	}
 }
 
@@ -801,19 +845,26 @@ SpectraVideo* Machine::addSpectraVideo(uint dip_switches)
 
 	assert(isMainThread());
 	assert(is_locked());
-	assert(isA(isa_MachineZxsp));
+	assert(dynamic_cast<UlaZxsp*>(ula));
 
-	if (crtc->isaId() != isa_SpectraVideo)
-	{
-		crtc->attachToScreen(nullptr);
-		crtc = new SpectraVideo(this, dip_switches);
-		crtc->attachToScreen(controller->getScreen());
-		cpu->setCrtc(crtc);
-		Z80::c2c(ula->getVideoRam(), crtc->getVideoRam(), 0x4000);
-		crtc->setBorderColor(ula->getBorderColor());
-		if (isPowerOn()) crtc->powerOn(cpu->cpuCycle());
-	}
-	return static_cast<SpectraVideo*>(crtc);
+	auto* spectra = dynamic_cast<SpectraVideo*>(crtc);
+	if (spectra) return spectra;
+
+	assert(crtc);
+	crtc->attachToScreen(nullptr);
+
+	spectra = find<SpectraVideo>();
+	if (!spectra) addItem(spectra = new SpectraVideo(this, dip_switches));
+
+	spectra->attachToScreen(controller->getScreen());
+	cpu->setCrtc(spectra);
+	if (isPowerOn()) spectra->powerOn(cpu->cpuCycle());
+
+	Z80::c2c(crtc->getVideoRam(), spectra->getVideoRam(), 0x4000);
+	spectra->setBorderColor(crtc->getBorderColor());
+
+	crtc = spectra;
+	return spectra;
 }
 
 
@@ -855,7 +906,7 @@ uint8 Machine::handleRomPatch(uint16 pc, uint8 opcode)
 	// called with all z80 registers stored
 	// return new opcode to execute, which may be the one passed in
 
-	opcode = lastitem->handleRomPatch(pc, opcode);
+	opcode = all_items.last()->handleRomPatch(pc, opcode);
 
 	CoreByte* instrptr = cpu->rdPtr(pc);
 
@@ -959,16 +1010,25 @@ uint8 Machine::readMemMappedPort(int32 cc, uint16 addr, uint8 byte)
 {
 	// for memory mapped i/o
 
-	return lastitem->readMemory(t_for_cc_lim(cc), cc, addr, byte);
+	return all_items.last()->readMemory(t_for_cc_lim(cc), cc, addr, byte);
 }
 
 void Machine::writeMemMappedPort(int32 cc, uint16 addr, uint8 byte)
 {
 	// for memory mapped i/o
 
-	lastitem->writeMemory(t_for_cc_lim(cc), cc, addr, byte);
+	all_items.last()->writeMemory(t_for_cc_lim(cc), cc, addr, byte);
 }
 
+void Machine::videoFrameEnd(int32 cc)
+{
+	for (uint i = all_items.count(); i--;) { all_items[i]->videoFrameEnd(cc); }
+}
+
+void Machine::audioBufferEnd(Time t)
+{
+	for (uint i = all_items.count(); i--;) { all_items[i]->audioBufferEnd(t); }
+}
 
 /* ----	The Main Thing ----
 
@@ -1101,12 +1161,12 @@ void Machine::runForSound(int32 cc_final)
 						cc_per_frame = cc - 18;
 					}
 
-					ForAllItems(videoFrameEnd(cc_per_frame)); // announce cc shift
-					cc_final -= cc_per_frame;				  // shift cc for lvars
-					tcc0 += cc_per_frame / cpu_clock;		  // shift start of current frame
-					total_frames += 1;						  // info
-					total_cc += cc_per_frame;				  // info
-															  // cc -= cc_per_frame;			// done by Item Z80
+					videoFrameEnd(cc_per_frame);	  // announce cc shift
+					cc_final -= cc_per_frame;		  // shift cc for lvars
+					tcc0 += cc_per_frame / cpu_clock; // shift start of current frame
+					total_frames += 1;				  // info
+					total_cc += cc_per_frame;		  // info
+													  // cc -= cc_per_frame;			// done by Item Z80
 				}
 				else { xlogline("late interrupt"); }
 
@@ -1144,7 +1204,7 @@ void Machine::runForSound(int32 cc_final)
 			if (cc >= cc_ffb)
 			{
 				int32 cc_per_frame = crtc->doFrameFlyback(cc); // finish drawing, get cc_per_frame
-				ForAllItems(videoFrameEnd(cc_per_frame));	   // announce cc shift
+				videoFrameEnd(cc_per_frame);				   // announce cc shift
 				cc_final -= cc_per_frame;					   // shift cc for lvars
 				tcc0 += cc_per_frame / cpu_clock;			   // shift start of current frame
 				total_frames += 1;							   // info
@@ -1193,7 +1253,7 @@ void Machine::runForSound(int32 cc_final)
 														t_for_cc(cc); // breaked
 
 	assert(this->is_locked());
-	ForAllItems(audioBufferEnd(t)); // announce time shift, force audio output
+	audioBufferEnd(t); // announce time shift, force audio output
 	TTest(2e-3, "Machine.runForSound()");
 
 	total_buffers += 1;
@@ -1363,7 +1423,7 @@ void Machine::setSpeedFromCpuClock(Frequency new_cpu_clock)
 	while (now() >= seconds_per_dsp_buffer())
 	{
 		Time t = seconds_per_dsp_buffer();
-		ForAllItems(audioBufferEnd(t)); // announce time shift, force audio output
+		audioBufferEnd(t); // announce time shift, force audio output
 		tcc0 -= t;
 	}
 }

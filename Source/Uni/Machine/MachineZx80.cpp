@@ -22,15 +22,11 @@
 
 MachineZx80::MachineZx80(gui::MachineController* parent, bool is60hz) : Machine(parent, zx80, isa_MachineZx80)
 {
-	cpu		 = new Z80(this);
-	ula		 = new UlaZx80(this, is60hz);
-	mmu		 = new MmuZx80(this);
-	keyboard = new KeyboardZx80(this);
-	// ay		=
-	// joystick	=
-	// fdc		=
-	// printer	=
-	taperecorder = new TS2020(this);
+	addItem(new Z80(this));
+	addItem(new UlaZx80(this, is60hz));
+	addItem(new MmuZx80(this));
+	addItem(new KeyboardZx80(this));
+	addItem(new TS2020(this));
 
 	audio_in_enabled = no; // default. MachineController will override if flag set in settings
 }
@@ -156,7 +152,7 @@ void MachineZx80::loadO80(FD& fd) noexcept(false) /*file_error,data_error*/
 	uint req_len = len + MIN_FREE;
 	if (req_len > ram.count())
 	{
-		removeIsaItem(isa_ExternalRam);
+		remove<ExternalRam>();
 
 		if (req_len > 16 kB) new Memotech64kRam(this); // note: required a small HW patch to work with the ZX80
 		else if (req_len > 4 kB) new Zx16kRam(this);

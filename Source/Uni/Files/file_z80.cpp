@@ -6,10 +6,13 @@
 #include "Ay/AySubclasses.h"
 #include "Ay/FullerBox.h"
 #include "Fdc/Fdc.h"
+#include "Fdc/MGT.h"
 #include "Items/SpectraVideo.h"
 #include "Items/Ula/MmuPlus3.h"
 #include "Items/Ula/Ula.h"
 #include "Joy/Joy.h"
+#include "Joy/KempstonJoy.h"
+#include "Joy/SinclairJoy.h"
 #include "Machine.h"
 #include "MachineController.h"
 #include "Ram/Cheetah32kRam.h"
@@ -188,16 +191,16 @@ void Machine::saveZ80(FD& fd)
 
 	head.data |= ula->getBorderColor() << 1;
 
-	Joy* kj = (Joy*)findIsaItem(isa_KempstonJoy);
-	Joy* sj = (Joy*)findIsaItem(isa_SinclairJoy);
+	KempstonJoy* kj = find<KempstonJoy>();
+	SinclairJoy* sj = find<SinclairJoy>();
 	// Bit 6-7: 0=Cursor/Protek/AGF joystick
 	if (kj) head.im |= 1 << 6;							  // Bit 6-7: 1=Kempston
 	else if (sj && sj->isConnected(0)) head.im |= 3 << 6; //          3=IF2 right JS
 	else if (sj && sj->isConnected(1)) head.im |= 2 << 6; //          2=IF2 left JS
 
-	ZxIf1* if1 = (ZxIf1*)findItem(isa_ZxIf1);
+	ZxIf1* if1 = find<ZxIf1>();
 	if (if1) showWarning("Interface 1: TODO");
-	Item* mgt = findItem(isa_MGT);
+	Item* mgt = find<MGT>();
 	if (mgt) showWarning("M.G.T. interface: TODO"); // probably never
 	Model model = this->model == zxsp_i1 && ram.count() > 0x4000 ? zxsp_i2 : this->model;
 	head.setZxspModel(model, if1, mgt);
@@ -226,13 +229,13 @@ void Machine::saveZ80(FD& fd)
 	head.rldiremu |= 0x03; // R register and LDIR emu: always on
 
 	Ay* ay = this->ay;
-	if (!ay) ay = dynamic_cast<Ay*>(findIsaItem(isa_Ay));
+	if (!ay) ay = find<Ay>();
 	if (ay)
 	{
-		head.rldiremu |= (1 << 2);								 // ay in use, even on 48k machine
-		if (find(ay->name, "Fuller")) head.rldiremu |= (1 << 6); // AY chip for Fuller box
-		head.port_fffd = ay->getRegNr();						 // selected register
-		memcpy(head.soundreg, ay->getRegisters(), 16);			 // registers
+		head.rldiremu |= (1 << 2);								   // ay in use, even on 48k machine
+		if (::find(ay->name, "Fuller")) head.rldiremu |= (1 << 6); // AY chip for Fuller box
+		head.port_fffd = ay->getRegNr();						   // selected register
+		memcpy(head.soundreg, ay->getRegisters(), 16);			   // registers
 	}
 
 	SpectraVideo* spectra = findSpectraVideo();
@@ -408,14 +411,14 @@ void Machine::loadZ80_attach_joysticks(uint z80head_im)
 	assert(isMainThread());
 
 	Item* j	  = nullptr;
-	int	  idx = 0;
+	uint  idx = 0;
 
 	switch (z80head_im >> 6)
 	{
 	default: return;
 
 	case 1:
-		j = findIsaItem(isa_KempstonJoy);
+		j = find<KempstonJoy>();
 		if (!j) j = addExternalItem(isa_KempstonJoy);
 		break;
 
@@ -519,7 +522,7 @@ void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 	bool ay_used   = head.rldiremu & 0x04;
 	bool fuller_ay = head.rldiremu & 0x40; // only if ay_used
 	Ay*	 ay		   = this->ay;
-	if (!ay) ay = dynamic_cast<Ay*>(findIsaItem(isa_Ay));
+	if (!ay) ay = find<Ay>();
 	if (ay_used && fuller_ay && (!ay || !ay->isA(isa_FullerBox))) ay = new FullerBox(this);
 	if (ay_used && !ay) ay = new DidaktikMelodik(this);
 	if (!this->ay) this->ay = ay;
@@ -529,7 +532,7 @@ void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 	if (req_ramsize == 0) req_ramsize = model_info->ram_size;
 	if (ram.count() < req_ramsize)
 	{
-		Item* xram = findIsaItem(isa_ExternalRam);
+		ExternalRam* xram = find<ExternalRam>();
 		if (xram && !ismainthread)
 			throw DataError("Cannot detach ram extension on background thread"); // can't happen for zxsp models
 		else removeItem(xram);

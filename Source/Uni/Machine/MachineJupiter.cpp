@@ -23,16 +23,11 @@
 
 MachineJupiter::MachineJupiter(gui::MachineController* m, bool is60hz) : Machine(m, jupiter, isa_MachineJupiter)
 {
-	cpu = new Z80(this);
-	//	ula		 = new UlaJupiter(this, gui::settings.get_bool(key_framerate_jupiter_60hz, false) ? 60 : 50);
-	ula		 = new UlaJupiter(this, is60hz);
-	mmu		 = new MmuJupiter(this);
-	keyboard = new KeyboardJupiter(this);
-	// ay		=
-	// joystick	=
-	// fdc		=
-	// printer	=
-	taperecorder = new TS2020(this);
+	addItem(new Z80(this));
+	addItem(new UlaJupiter(this, is60hz));
+	addItem(new MmuJupiter(this));
+	addItem(new KeyboardJupiter(this));
+	addItem(new TS2020(this));
 }
 
 static uint8 calc_zxsp_tapeblock_crc(const uint8* data, int cnt) noexcept
@@ -335,7 +330,7 @@ void MachineJupiter::loadAce(FD& fd) noexcept(false) /*file_error,data_error*/
 
 	if (zsize == 0x2000) //  8k => jupiter 3k without ram extension
 	{
-		removeIsaItem(isa_ExternalRam);
+		remove<ExternalRam>();
 	}
 	else if (zsize <= 0x6000) // 24k => jupiter 3k with 16k ram extension
 	{

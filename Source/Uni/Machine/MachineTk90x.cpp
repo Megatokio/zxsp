@@ -12,15 +12,12 @@
 
 MachineTk90x::MachineTk90x(gui::MachineController* m, bool is60hz) : MachineZxsp(m, tk90x, isa_MachineTk90x)
 {
-	cpu		 = new Z80(this);
-	ula		 = new UlaTk90x(this, is60hz);
-	mmu		 = new MmuZxsp(this);
-	keyboard = new KeyboardZxsp(this, isa_KbdTk90x);
-	// ay		=
-	joystick = new Tk90xJoy(this);
-	// fdc		=
-	// printer	=
-	taperecorder = new TS2020(this);
+	addItem(new Z80(this));
+	addItem(new UlaTk90x(this, is60hz));
+	addItem(new MmuZxsp(this));
+	addItem(new KeyboardZxsp(this, isa_KbdTk90x));
+	addItem(new Tk90xJoy(this));
+	addItem(new TS2020(this));
 }
 
 

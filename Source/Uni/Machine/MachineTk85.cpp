@@ -12,15 +12,11 @@
 
 MachineTk85::MachineTk85(gui::MachineController* m, bool is60hz) : MachineZx81(m, isa_MachineTk85, tk85)
 {
-	cpu = new Z80(this);
-	ula = new UlaZx81(this);
-	//	ula->set60Hz(gui::settings.get_bool(key_framerate_tk85_60hz, false));
+	addItem(new Z80(this));
+	addItem(new UlaZx81(this));
 	ula->set60Hz(is60hz);
-	mmu		 = new MmuTk85(this);
-	keyboard = new KeyboardZx81(this, isa_KbdTk85);
-	// ay		=
-	joystick = new Tk85Joy(this);
-	// fdc		=
-	// printer	=
-	taperecorder = new TS2020(this);
+	addItem(new MmuTk85(this));
+	addItem(new KeyboardZx81(this, isa_KbdTk85));
+	addItem(new Tk85Joy(this));
+	addItem(new TS2020(this));
 }

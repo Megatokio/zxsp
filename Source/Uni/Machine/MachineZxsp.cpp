@@ -19,15 +19,11 @@ MachineZxsp::MachineZxsp(gui::MachineController* m, Model model) : Machine(m, mo
 {
 	assert(model == zxsp_i1 || model == zxsp_i2 || model == zxsp_i3 || model == zxplus);
 
-	cpu		 = new Z80(this);	  // must be 1st item
-	ula		 = new UlaZxsp(this); // should be 2nd item
-	mmu		 = new MmuZxsp(this);
-	keyboard = model == zxplus ? static_cast<Keyboard*>(new KeyboardZxPlus(this)) : new KeyboardZxsp(this);
-	// ay		=
-	// joystick	=
-	// fdc		=
-	// printer	=
-	taperecorder = new Walkman(this);
+	addItem(new Z80(this));		// must be 1st item
+	addItem(new UlaZxsp(this)); // should be 2nd item
+	addItem(new MmuZxsp(this));
+	addItem(model == zxplus ? static_cast<Keyboard*>(new KeyboardZxPlus(this)) : new KeyboardZxsp(this));
+	addItem(new Walkman(this));
 }
 
 static uint8 calc_zxsp_tapeblock_crc(const uint8* data, int cnt, uint8 crc) noexcept

@@ -133,6 +133,9 @@ private:
 	void		showAllToolwindows();													   // changeEvent()
 	void		hideAllToolwindows();													   // changeEvent()
 
+	void item_added(Item*, bool force);	  // callback from Item c'tor
+	void item_removed(Item*, bool force); // callback from Item d'tor
+
 protected:
 	void contextMenuEvent(QContextMenuEvent*) override;
 	void changeEvent(QEvent*) override;
@@ -163,11 +166,11 @@ public:
 	QList<QAction*> getKeyboardActions();
 	ToolWindow*		findToolWindowForItem(const volatile IsaObject* item);
 
-	void memoryModified(Memory* m, uint how); // callback from machine
-	void machineRunStateChanged() volatile;	  // callback from machine
-	void rzxStateChanged() volatile;		  // callback from machine
-	void itemAdded(Item*);					  // callback from Item c'tor
-	void itemRemoved(Item*);				  // callback from Item d'tor
+	void memoryModified(Memory* m, uint how);	// callback from machine
+	void machineSuspendStateChanged() volatile; // callback from machine
+	void rzxStateChanged() volatile;			// callback from machine
+	void itemAdded(Item*) volatile;				// callback from machine
+	void itemRemoved(Item*) volatile;			// callback from machine
 
 signals:
 	void signal_keymapModified();

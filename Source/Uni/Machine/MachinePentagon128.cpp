@@ -16,13 +16,11 @@
 MachinePentagon128::MachinePentagon128(gui::MachineController* mc) :
 	MachineZx128(mc, pentagon128, isa_MachinePentagon128)
 {
-	cpu		 = new Z80(this);			 // must be 1st item
-	ula		 = new Ula128k(this);		 // should be 2nd item
-	mmu		 = new Mmu128k(this);		 // TODO: verify!
-	keyboard = new KeyboardZxPlus(this); // TODO: use own image!
-	ay		 = new AyForZx128(this);
-	joystick = new Tc2048Joy(this); // TODO: use own image!
-	// fdc		=
-	// printer	=
-	taperecorder = new Walkman(this);
+	addItem(new Z80(this));			   // must be 1st item
+	addItem(new Ula128k(this));		   // should be 2nd item
+	addItem(new Mmu128k(this));		   // TODO: verify!
+	addItem(new KeyboardZxPlus(this)); // TODO: use own image!
+	addItem(new AyForZx128(this));
+	addItem(new Tc2048Joy(this)); // TODO: use own image!
+	addItem(new Walkman(this));
 }

@@ -226,7 +226,7 @@ void MachineController::loadSnapshot(cstr filename)
 		{
 			if (!model_info->canAttachDivIDE()) machine = initMachine(zx128, 0, s, j, r, yes); // powered on & suspended
 			action_addDivIDE->setChecked(true);
-			if (DivIDE* divide = dynamic_cast<DivIDE*>(machine->findIsaItem(isa_DivIDE))) divide->insertDisk(filename);
+			if (DivIDE* divide = machine->find<DivIDE>()) divide->insertDisk(filename);
 
 			setFilepath(org_filename);
 			setKeyboardMode(settings.get_KbdMode(key_new_snapshot_keyboard_mode, kbdgame));
@@ -1800,7 +1800,7 @@ void MachineController::addExternalRam(isa_id item_id, bool add, uint options)
 
 	bool f = machine->powerOff();
 
-	NV(machine)->removeIsaItem(isa_ExternalRam);
+	NV(machine)->remove<ExternalRam>();
 	if (add) NV(machine)->addExternalRam(item_id, options);
 
 	if (f) machine->powerOn();
@@ -1815,7 +1815,7 @@ void MachineController::addMultiface1(bool add)
 		bool joystick_enabled = settings.get_bool(key_multiface1_enable_joystick, yes);
 		NV(machine)->addMultiface1(joystick_enabled);
 	}
-	else NV(machine)->removeItem(isa_Multiface1);
+	else NV(machine)->remove<Multiface1>();
 
 	if (f) machine->resume();
 }
@@ -1861,7 +1861,7 @@ void MachineController::addDivIDE(bool add)
 
 		if (diskfile) divide->insertDisk(diskfile); // shows it's own errors
 	}
-	else NV(machine)->removeItem(isa_DivIDE);
+	else NV(machine)->remove<DivIDE>();
 
 	if (f) machine->powerOn();
 
@@ -1963,7 +1963,83 @@ static QAction* find_action_for_item(QList<QAction*>& array, const volatile IsaO
 	return nullptr;
 }
 
-void MachineController::itemAdded(Item* item) // callback from Item c'tor
+void MachineController::item_added(Item* item, bool force) // callback from Item c'tor
+{
+	assert(isMainThread());
+
+	// wenn mehrere Files gleichzeitig gestartet werden,
+	// werden die ohne Unterbrechung in die Maschine geladen,
+	// die dafür ggf. zerstört und neu erzeugt wird.
+	// dadurch sind Items, für die wir hier ein delayed Event bekommen
+	// vielleicht schon wieder zerstört.
+	// => prüfen, ob die noch existieren, sonst crash!
+	if (!nvptr(machine)->all_items.contains(item)) return;
+
+	int g = item->grp_id;
+
+	if (item->isInternal() || g == isa_TapeRecorder)
+	{
+		if (g == isa_Mmu) return; // MMU wird mit ULA zusammengefasst
+	}
+	else
+	{
+		QAction* addAction = find_action_for_item(add_actions, item);
+		if (addAction == nullptr) { showAlert("no addAction found for item %s", item->name); }
+		if (addAction != nullptr)
+		{
+			addAction->blockSignals(true);
+			addAction->setChecked(true);
+			addAction->setEnabled(true);
+			addAction->blockSignals(false);
+		}
+	}
+
+	QAction* showaction = new QAction(item->name, this /*parent*/);
+	showaction->setCheckable(yes);
+	showaction->setData(QVariant(item->id));
+	connect(showaction, &QAction::toggled, this, [=](bool f) { toggleToolwindow(item, showaction, f); });
+
+	switch (g)
+	{
+	case isa_TapeRecorder:
+		showaction->setShortcut(CTRL | Qt::Key_T);
+		showaction->setIcon(QIcon(":/Icons/tape.gif"));
+		break;
+	case isa_Ula:
+		showaction->setShortcut(CTRL | Qt::Key_U);
+		showaction->setIcon(QIcon(":/Icons/screen.gif"));
+		break;
+	case isa_Keyboard:
+		showaction->setShortcut(CTRL | Qt::Key_K);
+		showaction->setIcon(QIcon(":/Icons/mini_zxsp.gif"));
+		break;
+	case isa_Ay:
+		showaction->setShortcut(CTRL | Qt::Key_Y);
+		showaction->setIcon(QIcon(":/Icons/ay.gif"));
+		break;
+		//	case isa_Mmu:			// TCC
+	case isa_MassStorage: // +3 internal Floppy Disc: MassStorage wg. Inspector Window Gruppe
+	case isa_Fdc:
+		showaction->setShortcut(CTRL | Qt::Key_D);
+		showaction->setIcon(QIcon(":/Icons/save.png"));
+		break;
+	case isa_Printer: showaction->setIcon(QIcon(":/Icons/printer.gif")); break;
+	case isa_Mouse: showaction->setIcon(QIcon(":/Icons/mouse.png")); break;
+	case isa_Z80: showaction->setShortcut(CTRL | Qt::Key_Z); break;
+	case isa_Joy:
+		showaction->setShortcut(CTRL | Qt::Key_J);
+		showaction->setIcon(
+			QIcon(dynamic_cast<Joy&>(*item).getNumPorts() == 1 ? ":/Icons/joystick-1.gif" : ":/Icons/joystick-2.gif"));
+		break;
+	}
+
+	window_menu->insertAction(separator, showaction);
+	show_actions.append(showaction);
+
+	showInspector(item, showaction, force);
+}
+
+void MachineController::itemAdded(Item* item) volatile // callback from Item c'tor
 {
 	// we manage the 'Extensions' menu here.
 	// 'add' and 'show' actions are un|checked and dis|enabled
@@ -1971,112 +2047,24 @@ void MachineController::itemAdded(Item* item) // callback from Item c'tor
 	// Assumptions:
 	// 	 external item: the 'add' action exists (and is visible in the menu)
 	// Note:
-	// 	 this function is called at the end of the Item constructor,
-	// 	 => item _IS_ an Item, not the yet-to-construct subtype!
-	// 	 Also, it is called for Item::Ula before Item::Mmu,
+	// 	 This callback is called for Item::Ula before Item::Mmu,
 	// 	 => if the Ula Inspector is open, then it will setup with a void Mmu
 	// 	 ==> we postpone all actions into a queued event
 
 	xlogIn("MachineController::itemAdded()");
 
 	bool force = !in_machine_ctor;
-
-	QTimer::singleShot(
-		0, this,
-		[=]() // trick: queued connection for lambda
-		{
-			// wenn mehrere Files gleichzeitig gestartet werden,
-			// werden die ohne Unterbrechung in die Maschine geladen,
-			// die dafür ggf. zerstört und neu erzeugt wird.
-			// dadurch sind Items, für die wir hier ein delayed Event bekommen
-			// vielleicht schon wieder zerstört.
-			// => prüfen, ob die noch existieren, sonst crash!
-			assert(isMainThread());
-			Item* i = NV(machine)->lastItem();
-			while (i && i != item) { i = i->prev(); }
-			if (!i) return;
-
-			int g = item->grp_id;
-
-			if (item->isInternal() || g == isa_TapeRecorder)
-			{
-				if (g == isa_Mmu) return; // MMU wird mit ULA zusammengefasst
-			}
-			else
-			{
-				QAction* addAction = find_action_for_item(add_actions, item);
-				if (addAction == nullptr) { showAlert("no addAction found for item %s", item->name); }
-				if (addAction != nullptr)
-				{
-					addAction->blockSignals(true);
-					addAction->setChecked(true);
-					addAction->setEnabled(true);
-					addAction->blockSignals(false);
-				}
-			}
-
-			QAction* showaction = new QAction(item->name, this /*parent*/);
-			showaction->setCheckable(yes);
-			showaction->setData(QVariant(item->id));
-			connect(showaction, &QAction::toggled, this, [=](bool f) { toggleToolwindow(item, showaction, f); });
-
-			switch (g)
-			{
-			case isa_TapeRecorder:
-				showaction->setShortcut(CTRL | Qt::Key_T);
-				showaction->setIcon(QIcon(":/Icons/tape.gif"));
-				break;
-			case isa_Ula:
-				showaction->setShortcut(CTRL | Qt::Key_U);
-				showaction->setIcon(QIcon(":/Icons/screen.gif"));
-				break;
-			case isa_Keyboard:
-				showaction->setShortcut(CTRL | Qt::Key_K);
-				showaction->setIcon(QIcon(":/Icons/mini_zxsp.gif"));
-				break;
-			case isa_Ay:
-				showaction->setShortcut(CTRL | Qt::Key_Y);
-				showaction->setIcon(QIcon(":/Icons/ay.gif"));
-				break;
-				//	case isa_Mmu:			// TCC
-			case isa_MassStorage: // +3 internal Floppy Disc: MassStorage wg. Inspector Window Gruppe
-			case isa_Fdc:
-				showaction->setShortcut(CTRL | Qt::Key_D);
-				showaction->setIcon(QIcon(":/Icons/save.png"));
-				break;
-			case isa_Printer: showaction->setIcon(QIcon(":/Icons/printer.gif")); break;
-			case isa_Mouse: showaction->setIcon(QIcon(":/Icons/mouse.png")); break;
-			case isa_Z80: showaction->setShortcut(CTRL | Qt::Key_Z); break;
-			case isa_Joy:
-				showaction->setShortcut(CTRL | Qt::Key_J);
-				showaction->setIcon(QIcon(
-					dynamic_cast<Joy&>(*item).getNumPorts() == 1 ? ":/Icons/joystick-1.gif" :
-																   ":/Icons/joystick-2.gif"));
-				break;
-			}
-
-			window_menu->insertAction(separator, showaction);
-			show_actions.append(showaction);
-
-			showInspector(item, showaction, force);
-		});
+	QTimer::singleShot(0, NV(this), [=] { NV(this)->item_added(item, force); });
 }
 
-void MachineController::itemRemoved(Item* item) // callback from Item d'tor
+void MachineController::item_removed(Item* item, bool force) // callback from Item d'tor
 {
-	//	ATTN: during this.dtor the items_menu is already purged
-	//	CAVEAT: the Item is already destroyed except for the class Item base object
-
-	xlogIn("MachineController::itemRemoved()");
-
-	if (in_dtor) return;
-	assert(window_menu);
-
-	hideInspector(item, !in_machine_dtor);
+	hideInspector(item, force);
 
 	QAction* addAction	= find_action_for_item(add_actions, item);
 	QAction* showAction = find_action_for_item(show_actions, item);
 
+	assert(window_menu);
 	window_menu->removeAction(showAction);
 	show_actions.removeAll(showAction);
 	delete showAction;
@@ -2090,16 +2078,23 @@ void MachineController::itemRemoved(Item* item) // callback from Item d'tor
 	}
 }
 
+void MachineController::itemRemoved(Item* item) volatile // callback from Item d'tor
+{
+	xlogIn("MachineController::itemRemoved()");
+
+	if (in_dtor) return; // during this.dtor the items_menu is already purged
+
+	bool force = !in_machine_dtor;
+	QTimer::singleShot(0, NV(this), [=] { NV(this)->item_removed(item, force); });
+}
+
 void MachineController::rzxStateChanged() volatile // callback from machine
 {
-	QTimer::singleShot(
-		0, NV(this),
-		[this] // trick: queuedConnection for lambda
-		{
-			action_RzxRecord->blockSignals(true);
-			action_RzxRecord->setChecked(nvptr(machine)->rzxIsRecording());
-			action_RzxRecord->blockSignals(false);
-		});
+	QTimer::singleShot(0, NV(this), [this] {
+		action_RzxRecord->blockSignals(true);
+		action_RzxRecord->setChecked(nvptr(machine)->rzxIsRecording());
+		action_RzxRecord->blockSignals(false);
+	});
 }
 
 void MachineController::memoryModified(Memory* m, uint how) // callback from machine
@@ -2107,22 +2102,19 @@ void MachineController::memoryModified(Memory* m, uint how) // callback from mac
 	emit signal_memoryModified(m, how);
 }
 
-void MachineController::machineRunStateChanged() volatile // callback from machine
+void MachineController::machineSuspendStateChanged() volatile // callback from machine
 {
 	// callback from machine
 
-	QTimer::singleShot(
-		0, NV(this),
-		[this] // trick: queued connection for lambda
-		{
-			bool f = machine->isSuspended();
-			action_suspend->blockSignals(yes);
-			action_suspend->setChecked(f);
-			action_suspend->blockSignals(no);
-			action_stepIn->setEnabled(f);
-			action_stepOut->setEnabled(f);
-			action_stepOver->setEnabled(f);
-		});
+	QTimer::singleShot(0, NV(this), [this] {
+		bool f = machine->isSuspended();
+		action_suspend->blockSignals(yes);
+		action_suspend->setChecked(f);
+		action_suspend->blockSignals(no);
+		action_stepIn->setEnabled(f);
+		action_stepOut->setEnabled(f);
+		action_stepOver->setEnabled(f);
+	});
 }
 
 
@@ -2300,3 +2292,37 @@ void MachineController::hideInspector(IsaObject* item, bool force)
 }
 
 } // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

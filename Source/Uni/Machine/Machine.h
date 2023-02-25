@@ -9,6 +9,7 @@
 #include "Joy/ZxIf2.h"
 #include "Memory.h"
 #include "Overlays/Overlay.h"
+#include "Ram/ExternalRam.h"
 #include "SpectraVideo.h"
 #include "StereoSample.h"
 #include "Templates/RCPtr.h"
@@ -20,11 +21,14 @@
 #include "globals.h"
 #include "kio/kio.h"
 #include "zxsp_types.h"
+#include <Multiface/Multiface1.h>
 #include <math.h>
 
 
 class Machine : public IsaObject
 {
+	NO_COPY_MOVE(Machine);
+
 	friend void runMachinesForSound();
 	friend class gui::MachineController;
 	friend class Item;
@@ -61,14 +65,20 @@ private:
 public:
 	// all memory in the machine:
 	Array<Memory*> memory; // updated by memoryAdded() / memoryRemoved()
-	void		   memoryAdded(Memory*);
-	void		   memoryRemoved(Memory*);
-	void		   memoryModified(Memory*, uint how = 2); // 0=added, 1=removed, 2=modified
+	MemoryPtr	   rom;	   // rom pages
+	MemoryPtr	   ram;	   // ram pages
 
-	// Built-in components:
-	MemoryPtr	  rom; // rom pages
-	MemoryPtr	  ram; // ram pages
-	class Z80*	  cpu; // the cpu: always first in list of items
+	void memoryAdded(Memory*);
+	void memoryRemoved(Memory*);
+	void memoryModified(Memory*, uint how = 2); // 0=added, 1=removed, 2=modified
+
+
+public:
+	// All components:
+	Array<Item*> all_items;
+
+	// Mostly internal components:
+	Z80*		  cpu; // the cpu: always first in list of items
 	Ula*		  ula;
 	Mmu*		  mmu;
 	Keyboard*	  keyboard;
@@ -77,8 +87,45 @@ public:
 	TapeRecorder* taperecorder;
 	Fdc*		  fdc;
 	Printer*	  printer;
-	Crtc*		  crtc;		// mostly same as ula
-	Item*		  lastitem; // list of all items: maintained by Item
+
+	Crtc* crtc; // mostly same as ula. not update by addItem()/removeItem()!
+
+public:
+	Item*		  addItem(Item*);
+	Item*		  addExternalItem(isa_id);
+	ExternalRam*  addExternalRam(isa_id, uint size_or_options = 0);
+	SpectraVideo* addSpectraVideo(uint dip_switches);
+	DivIDE*		  addDivIDE(uint ramsize, cstr romfile);
+	Multiface1*	  addMultiface1(bool joystick_enabled);
+
+	void removeItem(Item*);
+	void removeItem(isa_id id) { removeItem(findItem(id)); }
+	void removeSpectraVideo();
+
+	template<typename Item>
+	void remove()
+	{
+		removeItem(find<Item>());
+	}
+
+	Item*  findItem(isa_id id); // TODO: separate base classes and real classes -> use find<typename>() becomes possible
+	Item*  findIsaItem(isa_id id); // prefer find<typename>()
+	ZxIf2* findZxIf2() { return find<ZxIf2>(); }
+	SpectraVideo* findSpectraVideo() { return find<SpectraVideo>(); }
+	DivIDE*		  findDivIDE() { return find<DivIDE>(); }
+
+	template<typename Item>
+	Item* find()
+	{
+		for (uint i = all_items.count(); --i;)
+		{
+			if (Item* item = dynamic_cast<Item*>(all_items[i])) return item;
+		}
+		return nullptr;
+	}
+
+	void setCrtc(Crtc* c) { cpu->setCrtc(crtc = c); }
+
 
 	// virtual machine time:
 	//	 there are two scales: cpu T cycle count cc and time in seconds.
@@ -115,6 +162,8 @@ protected:
 	virtual bool  handleSaveTapePatch() = 0;
 	uint8		  readMemMappedPort(int32 cc, uint16, uint8);  // for memory mapped i/o
 	void		  writeMemMappedPort(int32 cc, uint16, uint8); // for memory mapped i/o
+	void		  videoFrameEnd(int32 cc);
+	void		  audioBufferEnd(Time t);
 
 	bool rzxIsLoaded() const volatile { return rzx_file != nullptr; }
 	bool rzxIsPlaying() const { return rzx_file != nullptr && rzx_file->isPlaying(); }
@@ -167,51 +216,6 @@ public:
 	~Machine() override;
 
 	void saveAs(cstr filepath);
-
-	// Components:
-	Item* findItem(isa_id id)
-	{
-		for (Item* i = lastitem; i; i = i->prev())
-		{
-			if (i->isaId() == id) return i;
-		}
-		return nullptr;
-	}
-	Item* findIsaItem(isa_id id)
-	{
-		for (Item* i = lastitem; i; i = i->prev())
-		{
-			if (i->isA(id)) return i;
-		}
-		return nullptr;
-	}
-	Item* findInternalItem(isa_id id)
-	{
-		for (Item* i = firstItem(); i; i = i->next())
-		{
-			if (i->isA(id) && i->isInternal()) return i;
-		}
-		return nullptr;
-	}
-	Item*		  lastItem() { return lastitem; }
-	Item*		  firstItem() { return cpu; }
-	ZxIf2*		  findZxIf2() { return static_cast<ZxIf2*>(findItem(isa_ZxIf2)); }
-	SpectraVideo* findSpectraVideo() { return static_cast<SpectraVideo*>(findItem(isa_SpectraVideo)); }
-	DivIDE*		  findDivIDE() { return static_cast<DivIDE*>(findItem(isa_DivIDE)); }
-	void		  setCrtc(Crtc* c) { cpu->setCrtc(crtc = c); }
-
-	Item*		  addExternalItem(isa_id);
-	ExternalRam*  addExternalRam(isa_id, uint size_or_options = 0);
-	void		  removeItem(Item* item) { delete item; }
-	void		  removeItem(isa_id id) { removeItem(findItem(id)); }
-	void		  removeIsaItem(isa_id id) { removeItem(findIsaItem(id)); }
-	SpectraVideo* addSpectraVideo(uint dip_switches);
-	void		  removeSpectraVideo();
-	DivIDE*		  addDivIDE(uint ramsize, cstr romfile);
-	Multiface1*	  addMultiface1(bool joystick_enabled);
-
-	void itemAdded(Item*);	 // callback from Item c'tor
-	void itemRemoved(Item*); // callback from Item d'tor
 
 	gui::OverlayJoystick* addOverlay(Joystick*, cstr idf, gui::Overlay::Position);
 	void				  removeOverlay(gui::Overlay*);
@@ -266,3 +270,6 @@ public:
 	void set50Hz() { set60Hz(0); } // 100%, ~50fps, stored in prefs
 	void set60Hz(bool = 1);		   // 100%, ~60fps, stored in prefs
 };
+
+
+// =============================================================================================

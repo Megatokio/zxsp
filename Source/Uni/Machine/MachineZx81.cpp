@@ -44,15 +44,11 @@ MachineZx81::MachineZx81(gui::MachineController* m, isa_id id, Model model) : Ma
 
 MachineZx81::MachineZx81(gui::MachineController* m) : Machine(m, zx81, isa_MachineZx81)
 {
-	cpu		 = new Z80(this);	  // must be 1st item
-	ula		 = new UlaZx81(this); // should be 2nd item
-	mmu		 = new MmuZx81(this);
-	keyboard = new KeyboardZx81(this);
-	// ay		=
-	// joystick	=
-	// fdc		=
-	// printer	=
-	taperecorder = new TS2020(this);
+	addItem(new Z80(this));		// must be 1st item
+	addItem(new UlaZx81(this)); // should be 2nd item
+	addItem(new MmuZx81(this));
+	addItem(new KeyboardZx81(this));
+	addItem(new TS2020(this));
 
 	audio_in_enabled = no; // default. MachineController will override if flag set in settings
 }
@@ -252,12 +248,12 @@ void MachineZx81::loadP81(FD& fd, bool p81) noexcept(false) /*file_error,data_er
 	// note: MachineController must update the menu entries!
 	if (len + MIN_FREE_16k > ram.count() && len + MIN_FREE_16k > 16 kB)
 	{
-		removeIsaItem(isa_ExternalRam);
+		remove<ExternalRam>();
 		new Memotech64kRam(this);
 	}
 	else if (ram.count() < 16 kB && len + MIN_FREE_4k > ram.count())
 	{
-		removeIsaItem(isa_ExternalRam);
+		remove<ExternalRam>();
 		new Zx16kRam(this);
 	}
 

@@ -283,8 +283,9 @@ void ToolWindow::fillContextMenu(QMenu* contextmenu)
 		});
 	}
 
-	for (Item* item = NV(machine)->firstItem(); item; item = item->next())
+	for (uint i = 0; i < machine->all_items.count(); i++)
 	{
+		Item* item = machine->all_items[i];
 		if (item->grp_id == isa_Mmu) continue; // mmu+ula=ula
 
 		action = new QAction(item->name, contextmenu);
