@@ -8,6 +8,7 @@
 namespace gui
 {
 
-PrinterTs2040Insp::PrinterTs2040Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) : Inspector(w, mc, i) {}
+PrinterTs2040Insp::PrinterTs2040Insp(QWidget* w, MachineController* mc, volatile PrinterTs2040* i) : Inspector(w, mc, i)
+{}
 
 } // namespace gui

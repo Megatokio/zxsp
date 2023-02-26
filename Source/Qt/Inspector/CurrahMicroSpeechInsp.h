@@ -12,6 +12,8 @@ namespace gui
 
 class CurrahMicroSpeechInsp : public Inspector
 {
+	volatile CurrahMicroSpeech* uspeech;
+
 	QRadioButton* button_8bit;
 	QRadioButton* button_hifi;
 
@@ -24,15 +26,10 @@ class CurrahMicroSpeechInsp : public Inspector
 
 public:
 	CurrahMicroSpeechInsp(QWidget*, MachineController*, volatile CurrahMicroSpeech*);
-	~CurrahMicroSpeechInsp() override;
 
 protected:
-	void paintEvent(QPaintEvent*) override; // Qt
-	void updateWidgets() override;			// Timer
-
-private:
-	void set_8bit();
-	void set_hifi();
+	void paintEvent(QPaintEvent*) override;
+	void updateWidgets() override;
 };
 
 } // namespace gui

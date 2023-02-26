@@ -4,9 +4,6 @@
 
 
 #include "Zx3kInsp.h"
-#include "Inspector.h"
-#include "Items/Item.h"
-#include "Items/Ram/Zx3kRam.h"
 #include "Machine.h"
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
@@ -21,7 +18,8 @@ namespace gui
 {
 
 Zx3kInsp::Zx3kInsp(QWidget* parent, MachineController* mc, volatile Zx3kRam* zx3kram) :
-	Inspector(parent, mc, zx3kram, "/Images/sinclair3k.jpg")
+	Inspector(parent, mc, zx3kram, "/Images/sinclair3k.jpg"),
+	zx3kram(zx3kram)
 {
 	button1k = new QRadioButton("1 kByte", this);
 	button2k = new QRadioButton("2 kByte", this);
@@ -43,21 +41,21 @@ Zx3kInsp::Zx3kInsp(QWidget* parent, MachineController* mc, volatile Zx3kRam* zx3
 	button2k->setChecked(size == 2 kB);
 	button3k->setChecked(size == 3 kB);
 
-	connect(button1k, &QRadioButton::clicked, this, [=] { set_ram_size(1 kB); });
-	connect(button2k, &QRadioButton::clicked, this, [=] { set_ram_size(2 kB); });
-	connect(button3k, &QRadioButton::clicked, this, [=] { set_ram_size(3 kB); });
+	connect(button1k, &QRadioButton::clicked, this, [=] { slotSetRamSize(1 kB); });
+	connect(button2k, &QRadioButton::clicked, this, [=] { slotSetRamSize(2 kB); });
+	connect(button3k, &QRadioButton::clicked, this, [=] { slotSetRamSize(3 kB); });
 }
 
-void Zx3kInsp::set_ram_size(uint newsize)
+void Zx3kInsp::slotSetRamSize(uint newsize)
 {
-	assert(machine);
-	auto* zx3kram = dynamic_cast<volatile Zx3kRam*>(object);
-	if (!zx3kram) return;
+	assert(validReference(zx3kram));
 
 	if (newsize == zx3kram->getRamSize()) return;
+
 	bool f = machine->powerOff();
 	NV(zx3kram)->setRamSize(newsize);
 	if (f) machine->powerOn();
+
 	settings.setValue(key_zx3k_ramsize, newsize);
 }
 

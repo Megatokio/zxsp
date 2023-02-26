@@ -1396,11 +1396,11 @@ void MachineController::saveAs()
 
 	cstr filter = catstr(
 		machine->rzxIsLoaded() ? "RZX Recording (*.rzx);;" : "",
-		model == zx80												   ? "ZX80 Snapshots (*.z80 *.o *.80);;" :
-		model == zx81												   ? "ZX81 Snapshots (*.z80 *.p *.81);;" :
-		model == jupiter											   ? "Jupiter Ace Snapshots (*.z80 *.ace);;" :
-		machine->isA(isa_MachineZxsp) && machine->ram.count() <= 48 kB ? "ZXSP Snapshots (*.z80 *.sna);;" :
-																		 "ZXSP Snapshots (*.z80);;",
+		model == zx80													   ? "ZX80 Snapshots (*.z80 *.o *.80);;" :
+		model == zx81													   ? "ZX81 Snapshots (*.z80 *.p *.81);;" :
+		model == jupiter												   ? "Jupiter Ace Snapshots (*.z80 *.ace);;" :
+		machine->isA(isa_MachineZxsp) && NV(machine->ram).count() <= 48 kB ? "ZXSP Snapshots (*.z80 *.sna);;" :
+																			 "ZXSP Snapshots (*.z80);;",
 		"Rom (*.rom);;", model_info->isA(isa_MachineZxsp) ? "Screenshot (*.scr);;" : "", "All Files (*)");
 
 	cstr filepath = selectSaveFile(this, "Save snapshot", filter);
@@ -1963,9 +1963,27 @@ static QAction* find_action_for_item(QList<QAction*>& array, const volatile IsaO
 	return nullptr;
 }
 
-void MachineController::item_added(Item* item, bool force) // callback from Item c'tor
+void MachineController::itemAdded(Item* item) volatile
 {
+	// callback from Item c'tor
+
+	xlogIn("MachineController::itemAdded()");
 	assert(isMainThread());
+	NV(this)->item_added(item);
+}
+
+void MachineController::item_added(Item* item)
+{
+	// we manage the 'Extensions' menu here.
+	// 'add' and 'show' actions are un|checked and dis|enabled
+	// an existing ToolWindow is reused
+	// Assumptions:
+	// 	 external item: the 'add' action exists (and is visible in the menu)
+
+	// Ula and Mmu are handled as one:
+	if (dynamic_cast<Ula*>(item) && !machine->mmu) return;
+	if (dynamic_cast<Mmu*>(item) && !machine->ula) return;
+	if (dynamic_cast<Mmu*>(item)) item = machine->ula;
 
 	// wenn mehrere Files gleichzeitig gestartet werden,
 	// werden die ohne Unterbrechung in die Maschine geladen,
@@ -1973,8 +1991,9 @@ void MachineController::item_added(Item* item, bool force) // callback from Item
 	// dadurch sind Items, für die wir hier ein delayed Event bekommen
 	// vielleicht schon wieder zerstört.
 	// => prüfen, ob die noch existieren, sonst crash!
-	if (!nvptr(machine)->all_items.contains(item)) return;
+	if (!NV(machine)->all_items.contains(item)) return;
 
+	assert(item); //wg. bogus warning
 	int g = item->grp_id;
 
 	if (item->isInternal() || g == isa_TapeRecorder)
@@ -2036,29 +2055,25 @@ void MachineController::item_added(Item* item, bool force) // callback from Item
 	window_menu->insertAction(separator, showaction);
 	show_actions.append(showaction);
 
+	bool force = !in_machine_ctor;
 	showInspector(item, showaction, force);
 }
 
-void MachineController::itemAdded(Item* item) volatile // callback from Item c'tor
+void MachineController::itemRemoved(Item* item) volatile
 {
-	// we manage the 'Extensions' menu here.
-	// 'add' and 'show' actions are un|checked and dis|enabled
-	// an existing ToolWindow is reused
-	// Assumptions:
-	// 	 external item: the 'add' action exists (and is visible in the menu)
-	// Note:
-	// 	 This callback is called for Item::Ula before Item::Mmu,
-	// 	 => if the Ula Inspector is open, then it will setup with a void Mmu
-	// 	 ==> we postpone all actions into a queued event
+	// callback from Item d'tor
 
-	xlogIn("MachineController::itemAdded()");
+	xlogIn("MachineController::itemRemoved()");
+	assert(isMainThread());
 
-	bool force = !in_machine_ctor;
-	QTimer::singleShot(0, NV(this), [=] { NV(this)->item_added(item, force); });
+	NV(this)->item_removed(item);
 }
 
-void MachineController::item_removed(Item* item, bool force) // callback from Item d'tor
+void MachineController::item_removed(Item* item)
 {
+	if (in_dtor) return; // during this.dtor the items_menu is already purged
+
+	bool force = !in_machine_dtor;
 	hideInspector(item, force);
 
 	QAction* addAction	= find_action_for_item(add_actions, item);
@@ -2078,18 +2093,10 @@ void MachineController::item_removed(Item* item, bool force) // callback from It
 	}
 }
 
-void MachineController::itemRemoved(Item* item) volatile // callback from Item d'tor
+void MachineController::rzxStateChanged() volatile
 {
-	xlogIn("MachineController::itemRemoved()");
+	// callback from machine, any thread
 
-	if (in_dtor) return; // during this.dtor the items_menu is already purged
-
-	bool force = !in_machine_dtor;
-	QTimer::singleShot(0, NV(this), [=] { NV(this)->item_removed(item, force); });
-}
-
-void MachineController::rzxStateChanged() volatile // callback from machine
-{
 	QTimer::singleShot(0, NV(this), [this] {
 		action_RzxRecord->blockSignals(true);
 		action_RzxRecord->setChecked(nvptr(machine)->rzxIsRecording());
@@ -2097,14 +2104,17 @@ void MachineController::rzxStateChanged() volatile // callback from machine
 	});
 }
 
-void MachineController::memoryModified(Memory* m, uint how) // callback from machine
-{
-	emit signal_memoryModified(m, how);
-}
-
-void MachineController::machineSuspendStateChanged() volatile // callback from machine
+void MachineController::memoryModified(Memory* m, uint how) volatile
 {
 	// callback from machine
+
+	//assert(isMainThread());
+	emit NV(this)->signal_memoryModified(m, how);
+}
+
+void MachineController::machineSuspendStateChanged() volatile
+{
+	// callback from machine, any thread
 
 	QTimer::singleShot(0, NV(this), [this] {
 		bool f = machine->isSuspended();

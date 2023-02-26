@@ -3,8 +3,8 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "Ay/AySubclasses.h"
 #include "Inspector.h"
-
 
 namespace gui
 {
@@ -12,7 +12,7 @@ namespace gui
 class DidaktikMelodikInsp : public Inspector
 {
 public:
-	DidaktikMelodikInsp(QWidget*, MachineController*, volatile IsaObject*);
+	DidaktikMelodikInsp(QWidget*, MachineController*, volatile DidaktikMelodik*);
 };
 
 } // namespace gui

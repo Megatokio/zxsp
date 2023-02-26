@@ -4,7 +4,6 @@
 
 #include "Tc2068JoyInsp.h"
 #include "Ay/AySubclasses.h"
-#include "Joy/Tc2068Joy.h"
 #include <QComboBox>
 #include <QGridLayout>
 #include <QPushButton>
@@ -13,8 +12,8 @@
 namespace gui
 {
 
-Tc2068JoyInsp::Tc2068JoyInsp(QWidget* w, MachineController* mc, volatile Tc2068Joy* j, cstr img_path) :
-	JoyInsp(w, mc, j, img_path)
+Tc2068JoyInsp::Tc2068JoyInsp(QWidget* w, MachineController* mc, volatile Tc2068Joy* joy, cstr img_path) :
+	JoyInsp(w, mc, joy, img_path)
 {
 	QGridLayout* g = new QGridLayout(this);
 	g->setContentsMargins(10, 10, 10, 5);
@@ -36,14 +35,11 @@ Tc2068JoyInsp::Tc2068JoyInsp(QWidget* w, MachineController* mc, volatile Tc2068J
 void Tc2068JoyInsp::updateWidgets()
 {
 	xlogIn("Tc2068JoyInsp::updateWidgets");
-	if (!machine || !object) return;
+	assert(validReference(joy));
 
-	auto* joy = dynamic_cast<volatile Tc2068Joy*>(object);
-	if (!joy) return;
-
-	for (int i = 0; i < num_ports; i++)
+	for (uint i = 0; i < num_ports; i++)
 	{
-		uint8 newstate = AyForTc2068::ayByteForJoystickByte(joy->getStateForInspector(i));
+		uint8 newstate = AyForTc2068::ayByteForJoystickByte(NV(joy)->getState(i));
 		if (newstate == lineedit_state[i]) continue;
 		lineedit_display[i]->setText(binstr(newstate, "%F000RLDU", "%--------"));
 		lineedit_state[i] = newstate;

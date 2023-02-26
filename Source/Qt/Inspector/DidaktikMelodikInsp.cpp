@@ -4,15 +4,12 @@
 
 
 #include "DidaktikMelodikInsp.h"
-#include "Item.h"
 
 namespace gui
 {
 
-DidaktikMelodikInsp::DidaktikMelodikInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
+DidaktikMelodikInsp::DidaktikMelodikInsp(QWidget* w, MachineController* mc, volatile DidaktikMelodik* i) :
 	Inspector(w, mc, i, "/Images/didaktik_melodik.jpg")
-{
-	assert(i->isA(isa_DidaktikMelodik));
-}
+{}
 
 } // namespace gui

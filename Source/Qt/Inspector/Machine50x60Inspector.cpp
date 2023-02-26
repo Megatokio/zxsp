@@ -5,13 +5,10 @@
 
 #define LOGLEVEL 1
 #include "Machine50x60Inspector.h"
-#include "IsaObject.h"
 #include "Machine.h"
 #include "MachineController.h"
-#include "Qt/Settings.h"
 #include "Qt/qt_util.h"
 #include "Templates/NVPtr.h"
-#include "Ula/UlaZx80.h"
 #include <QButtonGroup>
 #include <QSettings>
 
@@ -26,8 +23,8 @@ namespace gui
 Machine50x60Inspector::Machine50x60Inspector(QWidget* p, MachineController* mc, volatile Machine* m) :
 	MachineInspector(p, mc, m)
 {
-	assert(controller->action_setSpeed100_50 != nullptr);
-	assert(controller->action_setSpeed100_60 != nullptr);
+	assert(mc->action_setSpeed100_50 != nullptr);
+	assert(mc->action_setSpeed100_60 != nullptr);
 
 	QRadioButton* btn_50hz = new QRadioButton("50 Hz", this);
 	btn_50hz->move(7, 10);
@@ -47,8 +44,8 @@ Machine50x60Inspector::Machine50x60Inspector(QWidget* p, MachineController* mc, 
 	setColors(btn_50hz, fore, back);
 	setColors(btn_60hz, fore, back);
 
-	QAction* action_50hz = controller->action_setSpeed100_50;
-	QAction* action_60hz = controller->action_setSpeed100_60;
+	QAction* action_50hz = mc->action_setSpeed100_50;
+	QAction* action_60hz = mc->action_setSpeed100_60;
 
 	btn_50hz->setChecked(action_50hz->isChecked());
 	btn_60hz->setChecked(action_60hz->isChecked());

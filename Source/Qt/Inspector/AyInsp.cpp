@@ -4,14 +4,12 @@
 
 #include "AyInsp.h"
 #include "Ay/Ay.h"
-#include "Machine.h"
 #include "Templates/NVPtr.h"
 #include "Uni/util.h"
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QtGui>
-
 
 namespace gui
 {
@@ -24,6 +22,7 @@ static const QFont ff("Monaco" /*"Andale Mono"*/, 12);
 
 AyInsp::AyInsp(QWidget* w, MachineController* mc, volatile Ay* ay) :
 	Inspector(w, mc, ay, "/Backgrounds/light-150-s.jpg"),
+	ay(ay),
 	value {0, 0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 {
 	clock	= new_led("0.0 MHz");
@@ -47,8 +46,9 @@ AyInsp::AyInsp(QWidget* w, MachineController* mc, volatile Ay* ay) :
 	stereo->addItem("ACB Stereo - Eastern Europe");
 	value.stereo = ay->getStereoMix();
 	stereo->setCurrentIndex(value.stereo);
-	connect(stereo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=](int i) {
-		ay->setStereoMix(Ay::StereoMix(i));
+	connect(stereo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this](int i) {
+		assert(validReference(this->ay));
+		NV(this->ay)->setStereoMix(Ay::StereoMix(i));
 	});
 
 	QGridLayout* g = new QGridLayout(this);
@@ -93,9 +93,8 @@ AyInsp::AyInsp(QWidget* w, MachineController* mc, volatile Ay* ay) :
 void AyInsp::updateWidgets()
 {
 	xxlogIn("AyInsp::update");
-	if (!machine || !object) return;
+	assert(validReference(ay));
 
-	const volatile Ay*	  ay   = dynamic_cast<const volatile Ay*>(object);
 	const volatile uint8* regs = ay->getRegisters();
 
 	if (value.clock != ay->getClock() && !clock->hasFocus())
@@ -174,12 +173,12 @@ void AyInsp::updateWidgets()
 
 QLineEdit* AyInsp::new_led(cstr s)
 {
-	QLineEdit* e = new QLineEdit(s);
-	e->setAlignment(Qt::AlignHCenter);
-	e->setFrame(0);
-	e->setFont(ff);
-	connect(e, &QLineEdit::returnPressed, this, [=] { handle_return_in_led(e); });
-	return e;
+	QLineEdit* led = new QLineEdit(s);
+	led->setAlignment(Qt::AlignHCenter);
+	led->setFrame(0);
+	led->setFont(ff);
+	connect(led, &QLineEdit::returnPressed, this, [=] { handle_return_in_led(led); });
+	return led;
 }
 
 void AyInsp::set_register(volatile Ay* ay, uint r, uint8 n)
@@ -235,8 +234,7 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 	//	Eingabe in einem QLineEdit wurde mit 'Return' beendet:
 	//	must only be called from AyInspector's QLineEdits
 
-	auto* ay = dynamic_cast<volatile Ay*>(object);
-	if (!ay) return;
+	assert(validReference(ay));
 
 	cstr text = led->text().toUtf8().data();
 	uint n;

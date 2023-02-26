@@ -11,7 +11,7 @@ namespace gui
 class ZonxBoxInsp : public Inspector
 {
 public:
-	ZonxBoxInsp(QWidget*, MachineController* mc, volatile IsaObject*);
+	ZonxBoxInsp(QWidget*, MachineController* mc, volatile Ay*);
 };
 
 } // namespace gui

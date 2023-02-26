@@ -3,20 +3,19 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "MultifaceInsp.h"
-#include "Machine.h"
 #include "Multiface/Multiface.h"
 #include "Templates/NVPtr.h"
 #include <QLabel>
 #include <QMouseEvent>
 #include <QTimer>
 
-
 namespace gui
 {
 
 MultifaceInsp::MultifaceInsp(
-	QWidget* p, MachineController* mc, volatile IsaObject* o, cstr image, const QRect& btnbox) :
+	QWidget* p, MachineController* mc, volatile Multiface* o, cstr image, const QRect& btnbox) :
 	Inspector(p, mc, o, image),
+	mf(o),
 	buttonbox(btnbox)
 {
 	QWidget* button = new QWidget(this);
@@ -33,12 +32,11 @@ MultifaceInsp::MultifaceInsp(
 	timer->start(1000 / 60); // --> updateWidgets()
 }
 
-
-/*	Mouse click handler:
-	- press the red button
-*/
 void MultifaceInsp::mousePressEvent(QMouseEvent* e)
 {
+	// Mouse click handler:
+	// - press the red button
+
 	if (e->button() != Qt::LeftButton)
 	{
 		Inspector::mousePressEvent(e);
@@ -50,23 +48,52 @@ void MultifaceInsp::mousePressEvent(QMouseEvent* e)
 	if (buttonbox.contains(e->pos())) pressRedButton();
 }
 
-
 void MultifaceInsp::pressRedButton()
 {
-	auto* mf = dynamic_cast<volatile Multiface*>(object);
-	if (mf) NVPtr<Multiface>(mf)->triggerNmi();
-}
+	xlogIn("MultifaceInspector::pressRedButton");
+	assert(validReference(mf));
 
+	nvptr(mf)->triggerNmi();
+}
 
 void MultifaceInsp::updateWidgets()
 {
-	if (!machine || !object) return;
+	// timer
 
-	if (auto* mf = dynamic_cast<volatile Multiface*>(object))
-	{
-		if (label_nmi_pending->isVisible() != mf->nmi_pending) label_nmi_pending->setVisible(mf->nmi_pending);
-		if (label_paged_in->isVisible() != mf->paged_in) label_paged_in->setVisible(mf->paged_in);
-	}
+	xxlogIn("MultifaceInspector::updateWidgets");
+	assert(validReference(mf));
+
+	if (label_nmi_pending->isVisible() != mf->nmi_pending) label_nmi_pending->setVisible(mf->nmi_pending);
+	if (label_paged_in->isVisible() != mf->paged_in) label_paged_in->setVisible(mf->paged_in);
 }
 
 } // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

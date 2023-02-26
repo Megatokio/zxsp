@@ -4,6 +4,7 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Inspector.h"
+#include "ZxIf1.h"
 
 namespace gui
 {
@@ -11,7 +12,7 @@ namespace gui
 class ZxIf1Insp : public Inspector
 {
 public:
-	ZxIf1Insp(QWidget*, MachineController*, volatile IsaObject*);
+	ZxIf1Insp(QWidget*, MachineController*, volatile ZxIf1*);
 };
 
 } // namespace gui

@@ -31,7 +31,7 @@ public:
 public:
 	explicit CurrahMicroSpeech(Machine*);
 
-	void setHifi(bool) volatile; // main thread only
+	void setHifi(bool); // main thread only
 	bool isHifi() const volatile;
 
 protected:

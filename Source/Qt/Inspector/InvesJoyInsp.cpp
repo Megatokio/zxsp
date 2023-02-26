@@ -3,7 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "InvesJoyInsp.h"
-#include "Joy/InvesJoy.h"
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>

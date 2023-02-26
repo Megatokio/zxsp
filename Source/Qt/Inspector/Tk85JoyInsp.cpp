@@ -3,7 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Tk85JoyInsp.h"
-#include "Joy/Tk85Joy.h"
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>

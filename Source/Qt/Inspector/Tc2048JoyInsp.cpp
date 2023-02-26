@@ -3,7 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Tc2048JoyInsp.h"
-#include "Joy/Tc2048Joy.h"
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>
@@ -13,8 +12,8 @@
 namespace gui
 {
 
-Tc2048JoyInsp::Tc2048JoyInsp(QWidget* w, MachineController* mc, volatile Tc2048Joy* j) :
-	JoyInsp(w, mc, j, "/Images/tc2048_sideview.jpg")
+Tc2048JoyInsp::Tc2048JoyInsp(QWidget* w, MachineController* mc, volatile Tc2048Joy* joy) :
+	JoyInsp(w, mc, joy, "/Images/tc2048_sideview.jpg")
 {
 	QLabel* label = new QLabel("Buttons:");
 

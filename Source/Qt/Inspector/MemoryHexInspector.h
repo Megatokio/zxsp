@@ -123,7 +123,6 @@ private:
 	bool is_editing_in_ascii();
 	bool is_editing_in_hex();
 	void setBreakpoint(CoreByte mask, bool f);
-	void save_settings();
 };
 
 } // namespace gui

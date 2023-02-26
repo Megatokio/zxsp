@@ -95,7 +95,7 @@ void KempstonMouse::setScale(int n)
 	scale = n;
 }
 
-uint8 KempstonMouse::getXPos() volatile
+uint8 KempstonMouse::getXPos()
 {
 	if (machine == front_machine)
 	{
@@ -106,7 +106,7 @@ uint8 KempstonMouse::getXPos() volatile
 	return uint8(x / scale);
 }
 
-uint8 KempstonMouse::getYPos() volatile
+uint8 KempstonMouse::getYPos()
 {
 	if (machine == front_machine)
 	{
@@ -117,7 +117,7 @@ uint8 KempstonMouse::getYPos() volatile
 	return uint8(y / scale);
 }
 
-uint8 KempstonMouse::getButtons() const volatile
+uint8 KempstonMouse::getButtons() const
 {
 	return mouse.isGrabbed() && machine == front_machine ?
 			   0xff - (mouse.getLeftButton() * 2) - mouse.getRightButton() : // 2-button version

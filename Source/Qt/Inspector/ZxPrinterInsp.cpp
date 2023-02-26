@@ -7,7 +7,7 @@
 namespace gui
 {
 
-ZxPrinterInsp::ZxPrinterInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
+ZxPrinterInsp::ZxPrinterInsp(QWidget* w, MachineController* mc, volatile ZxPrinter* i) :
 	Inspector(w, mc, i, "/Backgrounds/light-150-s.jpg")
 {}
 

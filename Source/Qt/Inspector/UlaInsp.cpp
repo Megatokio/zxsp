@@ -45,8 +45,10 @@ static QLineEdit* new_led(cstr s, int width)
 	return e;
 }
 
-UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Machine* m, volatile Ula* ula) :
-	Inspector(w, mc, ula, "/Backgrounds/light-150-s.jpg")
+UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Ula* ula, volatile Mmu* mmu) :
+	Inspector(w, mc, ula, "/Backgrounds/light-150-s.jpg"),
+	ula(ula),
+	mmu(mmu)
 {
 	int width  = 300;
 	int height = 230;
@@ -198,8 +200,8 @@ UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Machine* m, volatil
 	inputs.printer_strobe	   = nullptr;
 	inputs.disc_motor		   = nullptr;
 
-	bool has_7ffd = m->mmu->hasPort7ffd();
-	bool has_1ffd = m->mmu->hasPort1ffd();
+	bool has_7ffd = mmu->hasPort7ffd();
+	bool has_1ffd = mmu->hasPort1ffd();
 
 	if (has_7ffd)
 	{
@@ -282,18 +284,24 @@ UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Machine* m, volatil
 	timer->start(1000 / 20);
 }
 
+bool UlaInsp::validReference(volatile Ula* ula, volatile Mmu* mmu)
+{
+	assert(isMainThread());
+	assert(machine == controller->getMachine());
+	assert(machine->ula == ula);
+	assert(machine->mmu == mmu);
+	return true;
+}
+
 void UlaInsp::updateWidgets()
 {
 	xxlogIn("UlaInsp::updateWidgets");
-	if (!machine || !object) return;
-
-	const volatile Ula* ula = dynamic_cast<volatile Ula*>(object);
-	if (!ula) return;
+	assert(validReference(ula, mmu));
 
 	bool f;
 	uint i;
 
-	if (auto* mmu = reinterpret_cast<const volatile MmuPlus3*>(machine->mmu))
+	if (auto* mmu = dynamic_cast<const volatile MmuPlus3*>(this->mmu))
 	{
 		assert(inputs.port_1ffd != nullptr);
 
@@ -320,7 +328,7 @@ void UlaInsp::updateWidgets()
 		}
 	}
 
-	if (auto* mmu = reinterpret_cast<const volatile Mmu128k*>(machine->mmu))
+	if (auto* mmu = dynamic_cast<const volatile Mmu128k*>(this->mmu))
 	{
 		assert(inputs.port_7ffd != nullptr);
 
@@ -366,17 +374,17 @@ void UlaInsp::updateWidgets()
 		// if cpu_clock changes then update:
 		// cpu_clock, ula_clock, cpu_clock_predivider and cpu_clock_overdrive
 
-		uint32	cpu_clock = values.cpu_clock = uint32(machine->cpu_clock);
-		float64 overdrive					 = float64(cpu_clock) / machine->model_info->cpu_cycles_per_second;
+		uint32 cpu_clock = values.cpu_clock = uint32(machine->cpu_clock);
+		double overdrive					= double(cpu_clock) / machine->model_info->cpu_cycles_per_second;
 
 		uint32 predivider = machine->model_info->cpuClockPredivider();
 		for (uint o = uint(overdrive + 0.2); o > 1; o >>= 1)
 		{
-			if (predivider > 1) predivider >>= 1;
-		} // speed menu: 200%, 400%, 800%
+			if (predivider > 1) predivider >>= 1; // speed menu: 200%, 400%, 800%
+		}
 
 		uint32 ula_clock = cpu_clock * predivider;
-		overdrive *= 100; // percent
+		overdrive *= 100; // -> percent
 
 		xlogline("UlaInsp: overdrive = %5g%%", double(overdrive));
 		xlogline("UlaInsp: cpu_clock = %u", uint(cpu_clock));

@@ -22,7 +22,7 @@ class Multiface1Insp : public MultifaceInsp
 	QPushButton* button_scan_usb;
 
 public:
-	Multiface1Insp(QWidget*, MachineController*, volatile IsaObject*);
+	Multiface1Insp(QWidget*, MachineController*, volatile Multiface1*);
 
 protected:
 	void updateWidgets() override;

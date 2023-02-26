@@ -5,6 +5,7 @@
 #include "MemoryDisassInspector.h"
 #include "Application.h"
 #include "Machine.h"
+#include "MachineController.h"
 #include "MemoryInspector.h"
 #include "MyLineEdit.h"
 #include "Templates/NVPtr.h"
@@ -59,7 +60,7 @@ class AsSeenByCpuDisass : public CoreByteDisassembler
 
 public:
 	AsSeenByCpuDisass(class Z80* cpu) : cpu(cpu) {}
-	const CoreByte* pointer(uint32 address) { return cpu->rdPtr(address); }
+	const CoreByte* pointer(uint32 address) override { return cpu->rdPtr(address); }
 };
 
 
@@ -73,7 +74,7 @@ public:
 public:
 	CoreDisass(const CoreByte* core, uint32 size, uint32 baseaddress) : core(core), size(size), baseaddress(baseaddress)
 	{}
-	const CoreByte* pointer(uint32 address) { return core + ((address - baseaddress) % size); }
+	const CoreByte* pointer(uint32 address) override { return core + ((address - baseaddress) % size); }
 };
 
 
@@ -123,11 +124,11 @@ MemoryDisassInspector::MemoryDisassInspector(QWidget* parent, MachineController*
 	case AsSeenByCpu: disass = new AsSeenByCpuDisass(machine->cpu); break;
 	case AllRom:
 	case RomPages:
-		disass = new CoreDisass(machine->rom.getData() + data.baseoffset, data.size, data.baseaddress);
+		disass = new CoreDisass(NV(machine->rom).getData() + data.baseoffset, data.size, data.baseaddress);
 		break;
 	case AllRam:
 	case RamPages:
-		disass = new CoreDisass(machine->ram.getData() + data.baseoffset, data.size, data.baseaddress);
+		disass = new CoreDisass(NV(machine->ram).getData() + data.baseoffset, data.size, data.baseaddress);
 		break;
 	}
 
@@ -148,11 +149,8 @@ MemoryDisassInspector::MemoryDisassInspector(QWidget* parent, MachineController*
 	hex_view->setGeometry(LEFT_MARGIN + HOR_SPACING + 5 * cw, TOP_MARGIN, 8 * cw, rows * rh);
 	disass_view->setGeometry(LEFT_MARGIN + 2 * HOR_SPACING + (5 + 8) * cw, TOP_MARGIN, disass_cols * cw, rows * rh);
 
-	bool f;
-	f = connect(hex_view, &SimpleTerminal::focusChanged, this, &MemoryDisassInspector::slotFocusChanged);
-	assert(f);
-	f = connect(disass_view, &SimpleTerminal::focusChanged, this, &MemoryDisassInspector::slotFocusChanged);
-	assert(f);
+	connect(hex_view, &SimpleTerminal::focusChanged, this, &MemoryDisassInspector::slotFocusChanged);
+	connect(disass_view, &SimpleTerminal::focusChanged, this, &MemoryDisassInspector::slotFocusChanged);
 
 	// resize:
 	setMinimumWidth(width_for_disass_cols(MIN_DISASS_COLS));
@@ -170,30 +168,26 @@ MemoryDisassInspector::MemoryDisassInspector(QWidget* parent, MachineController*
 	widget_edit_mode->setFixedSize(3 * W, 2 * H);
 
 	button_edit_mode = new QPushButton("Edit", widget_edit_mode);
-	f				 = connect(button_edit_mode, &QPushButton::toggled, this, &MemoryDisassInspector::slotSetEditMode);
-	assert(f);
+	connect(button_edit_mode, &QPushButton::toggled, this, &MemoryDisassInspector::slotSetEditMode);
 	button_edit_mode->setFixedSize(3 * W, H);
 	button_edit_mode->setCheckable(1);
 
 	button_breakpoint_r = new QPushButton("R", widget_edit_mode);
-	f = connect(button_breakpoint_r, &QPushButton::toggled, this, &MemoryDisassInspector::slotSetBreakpointR);
-	assert(f);
+	connect(button_breakpoint_r, &QPushButton::toggled, this, &MemoryDisassInspector::slotSetBreakpointR);
 	button_breakpoint_r->move(0, H);
 	button_breakpoint_r->setFixedSize(W, H);
 	button_breakpoint_r->setCheckable(1);
 	button_breakpoint_r->setStyleSheet("color: rgb(0,0,255)"); // blue
 
 	button_breakpoint_w = new QPushButton("W", widget_edit_mode);
-	f = connect(button_breakpoint_w, &QPushButton::toggled, this, &MemoryDisassInspector::slotSetBreakpointW);
-	assert(f);
+	connect(button_breakpoint_w, &QPushButton::toggled, this, &MemoryDisassInspector::slotSetBreakpointW);
 	button_breakpoint_w->move(W, H);
 	button_breakpoint_w->setFixedSize(W, H);
 	button_breakpoint_w->setCheckable(1);
 	button_breakpoint_w->setStyleSheet("color: rgb(0,180,0)"); // green
 
 	button_breakpoint_x = new QPushButton("X", widget_edit_mode);
-	f = connect(button_breakpoint_x, &QPushButton::toggled, this, &MemoryDisassInspector::slotSetBreakpointX);
-	assert(f);
+	connect(button_breakpoint_x, &QPushButton::toggled, this, &MemoryDisassInspector::slotSetBreakpointX);
 	button_breakpoint_x->move(2 * W, H);
 	button_breakpoint_x->setFixedSize(W, H);
 	button_breakpoint_x->setCheckable(1);
@@ -216,15 +210,15 @@ int MemoryDisassInspector::height_for_rows(int n) { return VERT_MARGINS + n * rh
 
 int MemoryDisassInspector::rows_for_height(int h) { return (h - VERT_MARGINS + rh / 3) / rh; }
 
-// calc char columns in disass view from inspector width:
 int MemoryDisassInspector::disass_cols_for_width(int w)
 {
+	// calc char columns in disass view from inspector width
 	return (w - HOR_MARGINS - 2 * HOR_SPACING - scrollbar_width) / cw - 5 - 8;
 }
 
-// calc inspector width from columns in disass view:
 int MemoryDisassInspector::width_for_disass_cols(int n)
 {
+	// calc inspector width from columns in disass view
 	return HOR_MARGINS + 2 * HOR_SPACING + scrollbar_width + (5 + 8 + n) * cw;
 }
 
@@ -232,13 +226,13 @@ void MemoryDisassInspector::validate_rows() { limit(MIN_ROWS, rows, MAX_ROWS); }
 
 void MemoryDisassInspector::validate_disass_cols(int& n) { limit(MIN_DISASS_COLS, n, MAX_DISASS_COLS); }
 
-/*	validate scroll_offset:
-	asserts that all rows will be filled with text
-	does not force-align to opcode boundary
-	except if scroll_offset must be lowered
-*/
 void MemoryDisassInspector::validate_scrollposition()
 {
+	// validate scroll_offset:
+	// asserts that all rows will be filled with text
+	// does not force-align to opcode boundary
+	// except if scroll_offset must be lowered
+
 	// max. opcode size is 4 bytes => if at least rows*4 bytes left then disassembly will fill all rows:
 	if (scroll_offset < 0) scroll_offset = 0;
 	if (scroll_offset <= data.size - 4 * rows) return;
@@ -255,7 +249,6 @@ void MemoryDisassInspector::validate_scrollposition()
 	while (r-- > rows) a0 += disass->opcodeLength(a0);
 	scroll_offset = a0;
 }
-
 
 inline bool MemoryDisassInspector::editing_in_hex() { return hex_view->hasFocus(); }
 
@@ -290,13 +283,12 @@ inline void MemoryDisassInspector::step_right_in_hex()
 	}
 }
 
-
-/*	find row for address in displayed_data[0..rows-1]
-	returns -1 if row is out of screen
-	returned row is unprecise if the machine is running and modifies the displayed data
-*/
 int MemoryDisassInspector::displayed_data_row_for_address(int32 address)
 {
+	// find row for address in displayed_data[0..rows-1]
+	// returns -1 if row is out of screen
+	// returned row is unprecise if the machine is running and modifies the displayed data
+
 	if (address < displayed_data[0].address) return -1;
 
 	int row_a = 0;
@@ -320,12 +312,11 @@ int MemoryDisassInspector::displayed_data_row_for_address(int32 address)
 	return row_e;
 }
 
-
-/*	Note: Stepping back is ambiguous!
-	Note: Unprecise if running machine modifies code!
-*/
 int32 MemoryDisassInspector::start_of_opcode(int32 address)
 {
+	// Note: Stepping back is ambiguous!
+	// Note: Unprecise if running machine modifies code!
+
 	for (int32 a = max(address - 16, data.baseaddress);;)
 	{
 		int n = disass->opcodeLength(a);
@@ -334,15 +325,14 @@ int32 MemoryDisassInspector::start_of_opcode(int32 address)
 	}
 }
 
-
-/*	step back one opcode
-	assumes that displayed_data[] is valid
-	assumes that address points to the start of an opcode
-	if address points inside an opcode, the start of that opcode is returned
-	note: stepping back is ambiguous!
-*/
 int32 MemoryDisassInspector::prev_opcode(int32 address)
 {
+	// step back one opcode
+	// assumes that displayed_data[] is valid
+	// assumes that address points to the start of an opcode
+	// if address points inside an opcode, the start of that opcode is returned
+	// note: stepping back is ambiguous!
+
 	if (address > displayed_data[0].address && address <= displayed_data[rows - 1].address)
 	{
 		uint row = displayed_data_row_for_address(address);
@@ -362,16 +352,15 @@ int32 MemoryDisassInspector::prev_opcode(int32 address)
 	}
 }
 
-
-/*	• Step back n Opcodes
-	• Wenn 'address' nicht auf den Anfang eines Opcodes zeigt,
-		count_partial_opcode==0: wird der angebrochene Opcode nicht mitgezählt.
-		count_partial_opcode==1: wird der angebrochene Opcode mitgezählt.
-	• Stops at address 0.
-	• Note: Stepping back is ambiguous!
-*/
 int32 MemoryDisassInspector::prev_opcode(int32 address, int n, bool count_partial_opcode)
 {
+	// • Step back n Opcodes
+	// • Wenn 'address' nicht auf den Anfang eines Opcodes zeigt,
+	// 	count_partial_opcode==0: wird der angebrochene Opcode nicht mitgezählt.
+	// 	count_partial_opcode==1: wird der angebrochene Opcode mitgezählt.
+	// • Stops at address 0.
+	// • Note: Stepping back is ambiguous!
+
 	assert(n >= 0);
 
 	if (data.baseaddress + n >= address) return data.baseaddress;
@@ -393,10 +382,10 @@ int32 MemoryDisassInspector::prev_opcode(int32 address, int n, bool count_partia
 	return i > n ? addr[i - 1 - n] : data.baseaddress;
 }
 
-
-// note: modifies Pen Color!
 void MemoryDisassInspector::print_byte_at_address(int32 addr)
 {
+	// note: modifies Pen Color!
+
 	int row = displayed_data_row_for_address(addr);
 	if (row == -1) return;
 	int		 col  = addr - displayed_data[row].address;
@@ -442,10 +431,11 @@ void MemoryDisassInspector::show_disass_cursor(bool show)
 	disass_view->setPenColor(color_black);
 }
 
-// remove cursor blob
-// resets pen color and attributes in affected view
 void MemoryDisassInspector::hide_cursor()
 {
+	// remove cursor blob
+	// resets pen color and attributes in affected view
+
 	if (edit_flashphase)
 	{
 		if (editing_in_hex()) show_hex_cursor(0);
@@ -455,21 +445,19 @@ void MemoryDisassInspector::hide_cursor()
 	edit_flashtime	= system_time;
 }
 
-
-/*	assembles opcode into buffer[4]
-	returns size of opcode (1..4) or 0 if error
-*/
 int assemble(uint16 address, QString source_str, char buffer[])
 {
+	// assembles opcode into buffer[4]
+	// returns size of opcode (1..4) or 0 if error
+
 	Z80Assembler ass;
 	return ass.assembleSingleLine(address, catstr(" ", source_str.toUtf8().data()), buffer);
 }
 
-
-/*	test whether the source string assembles without errors
- */
 bool assembles_ok(uint16 address, QString source_str)
 {
+	// test whether the source string assembles without errors
+
 	char bu[4];
 	return assemble(address, source_str, bu) != 0;
 }
@@ -502,19 +490,18 @@ void MemoryDisassInspector::assemble_and_store_opcode()
 	}
 }
 
-
-/*	Print one row:
-	- Address
-	- Hex
-	- Disassemble
-	Update displayed_data[]
-	Colorizes line with new_pc
-	Decolorizes line with old pc
-
-	Returns opcode size: 1 .. 4
-*/
 int MemoryDisassInspector::print_row(int row, int32 address)
 {
+	// Print one row:
+	// - Address
+	// - Hex
+	// - Disassemble
+	// Update displayed_data[]
+	// Colorizes line with new_pc
+	// Decolorizes line with old pc
+	//
+	// Returns opcode size: 1 .. 4
+
 	DisassData& data = displayed_data[row];
 
 	if (editing_in_disass() && address == disass_edit_address && old_disass_edit_address != disass_edit_address &&
@@ -619,39 +606,36 @@ int MemoryDisassInspector::print_row(int row, int32 address)
 	return n;
 }
 
-
 void MemoryDisassInspector::print_row(int32 address)
 {
 	int row = displayed_data_row_for_address(address);
 	if (row != -1) print_row(row, address);
 }
 
-
-/*	Print rows [a..[e to textedit widgets.
-	Used to print data after clear or scroll screen.
-	Prints address into textedit_address,
-		hex codes into textedit_hex and
-		disassembly into textedit_disass.
-	Updates displayed_data[]
-
-	row_a	first row
-	row_e	last row +1
-	address	address to print for row_a
-*/
 void MemoryDisassInspector::print_rows(int row_a, int row_e, int32 address)
 {
+	// Print rows [a..[e to textedit widgets.
+	// Used to print data after clear or scroll screen.
+	// Prints address into textedit_address,
+	// 	hex codes into textedit_hex and
+	// 	disassembly into textedit_disass.
+	// Updates displayed_data[]
+	//
+	// row_a	first row
+	// row_e	last row +1
+	// address	address to print for row_a
+
 	for (int row = row_a; row < row_e; row++) { address += print_row(row, address); }
 	old_pc = pc; // remember line with colored background
 }
 
-
-// step forward one opcode
 inline int32 MemoryDisassInspector::next_opcode(int32 address)
 {
+	// step forward one opcode
+
 	address = prev_opcode(address + 1);
 	return address + disass->opcodeLength(address);
 }
-
 
 void MemoryDisassInspector::scroll_to_show_address(int32 address)
 {
@@ -714,14 +698,13 @@ void MemoryDisassInspector::resizeEvent(QResizeEvent* e)
 	setMaximumWidth(width_for_disass_cols(MAX_DISASS_COLS));
 }
 
-
-/*	we catch the showEvent to call updateWidgets
-	because the child views were not resized by QT until now
-	and their current contents is invalid
-	and we don't want them to draw invalid contents in their first paintEvent
-*/
 void MemoryDisassInspector::showEvent(QShowEvent* e)
 {
+	// we catch the showEvent to call updateWidgets
+	// because the child views were not resized by QT until now
+	// and their current contents is invalid
+	// and we don't want them to draw invalid contents in their first paintEvent
+
 	xlogIn("MemoryDisassInspector::showEvent");
 
 	MemoryInspector::showEvent(e);
@@ -731,14 +714,13 @@ void MemoryDisassInspector::showEvent(QShowEvent* e)
 	updateWidgets();
 }
 
-
-/*	adjust size:
-	called from toolwindow to finalize size after resizing
-	Justiert size auf ein Vielfaches der Zellengröße und
-	setzt maxSize so dass Maximize nur vertikal vergrößert.
-*/
 void MemoryDisassInspector::adjustSize(QSize& size)
 {
+	// adjust size:
+	// called from toolwindow to finalize size after resizing
+	// Justiert size auf ein Vielfaches der Zellengröße und
+	// setzt maxSize so dass Maximize nur vertikal vergrößert.
+
 	xlogIn("MemoryDisassInspector::adjustSize");
 
 	int disass_cols = disass_cols_for_width(size.width());
@@ -752,18 +734,18 @@ void MemoryDisassInspector::adjustSize(QSize& size)
 	size.setHeight(height_for_rows(rows));
 }
 
-
-/*	slot für combobox_datasource:
-	we also create a new disassembler here
-	and clear focus in hex and disass view
-	and clear follow_pc
-*/
 void MemoryDisassInspector::slotSetDataSource(int newdatasource)
 {
-	if (newdatasource == data_source) return;
+	// slot für combobox_datasource:
+	// we also create a new disassembler here
+	// and clear focus in hex and disass view
+	// and clear follow_pc
 
 	xlogIn("MemoryDisassInspector.slotSetDataSource");
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
 
+	if (newdatasource == data_source) return;
 	MemoryInspector::slotSetDataSource(newdatasource);
 
 	delete disass;
@@ -773,11 +755,13 @@ void MemoryDisassInspector::slotSetDataSource(int newdatasource)
 	case AsSeenByCpu: disass = new AsSeenByCpuDisass(machine->cpu); break;
 	case AllRom:
 	case RomPages:
-		disass = new CoreDisass(machine->rom.getData() + data.baseoffset, data.size, data.baseaddress);
+		//TODO: stores an unprotected pointer!!
+		disass = new CoreDisass(NV(machine->rom).getData() + data.baseoffset, data.size, data.baseaddress);
 		break;
 	case AllRam:
 	case RamPages:
-		disass = new CoreDisass(machine->ram.getData() + data.baseoffset, data.size, data.baseaddress);
+		//TODO: stores an unprotected pointer!!
+		disass = new CoreDisass(NV(machine->ram).getData() + data.baseoffset, data.size, data.baseaddress);
 		break;
 	}
 
@@ -786,39 +770,43 @@ void MemoryDisassInspector::slotSetDataSource(int newdatasource)
 	follow_pc = no;
 }
 
-
-/*	slot for combobox_memorypage
-	we also point disass to the new memory page
-	and clear focus in hex and disass view
-	and clear follow_pc
-*/
 void MemoryDisassInspector::slotSetMemoryPage(int newpage)
 {
+	// slot for combobox_memorypage
+	// we also point disass to the new memory page
+	// and clear focus in hex and disass view
+	// and clear follow_pc
+
+	xlogIn("MemoryDisassInspector.setMemoryPage()");
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
+
 	if (newpage < 0) return; // empty comboBox
 	assert(data_source == RamPages || data_source == RomPages);
 	if (newpage == (data_source == RamPages ? ram_page_idx : rom_page_idx)) return;
 
-	xlogIn("MemoryDisassInspector.setMemoryPage()");
-
 	MemoryInspector::slotSetMemoryPage(newpage);
 
-	volatile MemoryPtr& mem = data_source == RomPages ? machine->rom : machine->ram;
+	MemoryPtr& mem = data_source == RomPages ? NV(machine->rom) : NV(machine->ram);
 	delete disass;
-	disass = new CoreDisass(&mem[data.baseoffset], data.size, data.baseaddress);
+
+	//TODO: stores an unprotected pointer!!
+	disass = new CoreDisass(&(mem[data.baseoffset]), data.size, data.baseaddress);
 
 	hex_view->clearFocus();
 	disass_view->clearFocus();
 	follow_pc = no;
 }
 
-
-/*	slot for combobox_register
-	if reg==regPC then switch on follow_pc else off
-	if PC points to unmapped memory then switch off follow_pc to suppress subsequent "unmapped memory" alerts
-*/
 void MemoryDisassInspector::slotSetAddressFromRegister(int reg)
 {
+	// slot for combobox_register
+	// if reg==regPC then switch on follow_pc else off
+	// if PC points to unmapped memory then switch off follow_pc to suppress subsequent "unmapped memory" alerts
+
 	xlogIn("MemoryDisassInspector.slotSetAddressFromRegister");
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
 
 	MemoryInspector::slotSetAddressFromRegister(reg);
 
@@ -833,9 +821,12 @@ void MemoryDisassInspector::slotSetAddressFromRegister(int reg)
 	follow_pc		   = pageOffsetForCpuAddress(address) != -1;
 }
 
-
 void MemoryDisassInspector::slotSetEditMode(bool f)
 {
+	xlogIn("MemoryDisassInspector.slotSetEditMode");
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
+
 	if (f)
 	{
 		button_breakpoint_r->setChecked(0);
@@ -850,12 +841,15 @@ void MemoryDisassInspector::slotSetEditMode(bool f)
 	disass_view->setCursor(f ? Qt::IBeamCursor : Qt::ArrowCursor);
 }
 
-
-/* Common Handler for Slots: setBreakpoint…()
- */
 void MemoryDisassInspector::setBreakpoint(CoreByte mask, bool f)
 {
+	// Common Handler for Slots: setBreakpoint…()
+
+	xlogIn("MemoryDisassInspector.slotSetBreakPoint");
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
 	assert((mask & ~cpu_break_rwx) == 0);
+
 	breakpoint_mask &= ~mask;
 	if (f)
 	{
@@ -867,30 +861,34 @@ void MemoryDisassInspector::setBreakpoint(CoreByte mask, bool f)
 	disass_view->setCursor(edit_mode ? Qt::PointingHandCursor : Qt::ArrowCursor);
 }
 
-
-//	set display base address
-//	note: may be called for data source change => don't fast quit if new addr == old addr
-//	reimplemented for adjusted limit test
 void MemoryDisassInspector::setScrollOffset(int32 new_scroll_offset)
 {
+	// set display base address
+	// note: may be called for data source change => don't fast quit if new addr == old addr
+	// reimplemented for adjusted limit test
+
 	xlogIn("MemoryDisassInspector.setScrollOffset(%i)", new_scroll_offset);
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
 
 	scroll_offset = new_scroll_offset;
 	validate_scrollposition();
 	updateScrollbar();
 }
 
-
-//	slot for scrollbar:
-//	reimplemented to lock to opcode boundaries
-//	note: new_scrollposition is measured in rows
-//		  bytes_per_row was determined by screen contents
 void MemoryDisassInspector::slotSetScrollPosition(int32 new_scrollposition)
 {
-	xlogIn("MemoryDisassInspector.setScrollPosition(%i)", new_scrollposition);
+	// slot for scrollbar:
+	// reimplemented to lock to opcode boundaries
+	// note: new_scrollposition is measured in rows
+	// 	 bytes_per_row was determined by screen contents
 
-	float bytes_per_row = data.size / (scrollbar->maximum() + rows);			// calculate bytes/row
-	float delta_rows	= (new_scrollposition - scroll_offset / bytes_per_row); // distance of movement [rows]
+	xlogIn("MemoryDisassInspector.setScrollPosition(%i)", new_scrollposition);
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
+
+	double bytes_per_row = data.size / (scrollbar->maximum() + rows);			 // calculate bytes/row
+	double delta_rows	 = (new_scrollposition - scroll_offset / bytes_per_row); // distance of movement [rows]
 
 	if (fabs(delta_rows) > rows + 0.5) // beyond paging
 	{
@@ -898,11 +896,11 @@ void MemoryDisassInspector::slotSetScrollPosition(int32 new_scrollposition)
 	}
 	else if (delta_rows < 0) // small movement or paging down
 	{
-		scroll_offset = prev_opcode(data.baseaddress + scroll_offset, floorf(-delta_rows), yes) - data.baseaddress;
+		scroll_offset = prev_opcode(data.baseaddress + scroll_offset, floor(-delta_rows), yes) - data.baseaddress;
 	}
 	else // small movement or paging up
 	{
-		for (int r = 0; r < ceilf(delta_rows); r++) scroll_offset += disass->opcodeLength(scroll_offset);
+		for (int r = 0; r < ceil(delta_rows); r++) scroll_offset += disass->opcodeLength(scroll_offset);
 	}
 
 	xlogline("--> display_base_address = %i", int(scroll_offset));
@@ -911,29 +909,32 @@ void MemoryDisassInspector::slotSetScrollPosition(int32 new_scrollposition)
 	updateScrollbar();
 }
 
-
-//	reimplemented due to varying page size
 void MemoryDisassInspector::updateScrollbar()
 {
+	// reimplemented due to varying page size
+
 	xlogIn("MemoryDisassInspector.updateScrollbar");
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
 
 	int visible_bytes = 0;
 	for (int r = 0; r < rows; r++) visible_bytes += disass->opcodeLength(scroll_offset + visible_bytes);
-	float bytes_per_row = (float)visible_bytes / rows;
+	double bytes_per_row = double(visible_bytes) / rows;
 
 	scrollbar->blockSignals(true);
 	scrollbar->setMinimum(0);
-	scrollbar->setMaximum((data.size - visible_bytes + 0.5f) / bytes_per_row);
-	scrollbar->setValue((scroll_offset + 0.5f) / bytes_per_row);
+	scrollbar->setMaximum((data.size - visible_bytes + 0.5) / bytes_per_row);
+	scrollbar->setValue((scroll_offset + 0.5) / bytes_per_row);
 	scrollbar->setPageStep(rows);
 	scrollbar->setSingleStep(max(1, rows / 16));
 	scrollbar->blockSignals(false);
 }
 
-
 void MemoryDisassInspector::updateWidgets()
 {
-	if (!machine || !object || !isVisible()) return;
+	// timer
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
 
 	// follow PC:
 	Z80Regs& regs = machine->cpu->getRegisters();
@@ -943,7 +944,9 @@ void MemoryDisassInspector::updateWidgets()
 	{
 		if ((machine->isRunning() && machine->cpu_clock > 1000) || this->combobox_register->currentIndex() != regPC ||
 			editing_in_disass() || editing_in_hex())
+		{
 			follow_pc = no;
+		}
 		else
 		{
 			if (pc < displayed_data[0].address || pc > displayed_data[rows - 1].address) // TODO: or misaligned PC
@@ -981,13 +984,15 @@ void MemoryDisassInspector::updateWidgets()
 	else if (editing_in_disass()) show_disass_cursor(edit_flashphase);
 }
 
-
-/*	mouse button pressed
-	if edit_mode == EDITMODE_EDIT start editing in hex_view or disass_view
-	if edit_mode == EDITMODE_BREAKPOINTS set / clear breakpoint
-*/
 void MemoryDisassInspector::mousePressEvent(QMouseEvent* e)
 {
+	// mouse button pressed
+	// if edit_mode == EDITMODE_EDIT start editing in hex_view or disass_view
+	// if edit_mode == EDITMODE_BREAKPOINTS set / clear breakpoint
+
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
+
 	if (e->button() != Qt::LeftButton)
 	{
 		MemoryInspector::mousePressEvent(e);
@@ -1052,7 +1057,7 @@ void MemoryDisassInspector::mousePressEvent(QMouseEvent* e)
 		{
 			if (col < opcodelen * 2)
 			{
-				NVPtr<Machine> z(machine);
+				NVPtr<Machine> z(machine); //TODO this doesn't help. disass->pointer() may be invalid
 				CoreByte*	   cb = (CoreByte*)(disass->pointer(address + col / 2));
 				if ((*cb & breakpoint_mask) == breakpoint_mask) { *cb &= ~breakpoint_mask; }
 				else { *cb |= breakpoint_mask; }
@@ -1063,7 +1068,7 @@ void MemoryDisassInspector::mousePressEvent(QMouseEvent* e)
 			CoreByte sum = disass->peek_cb(address);
 			for (int i = 1; i < opcodelen; i++) sum &= disass->peek_cb(address + i);
 
-			NVPtr<Machine> z(machine);
+			NVPtr<Machine> z(machine); //TODO this doesn't help. disass->pointer() may be invalid
 			if ((sum & breakpoint_mask) == breakpoint_mask)
 				for (int i = 0; i < opcodelen; i++) { *(CoreByte*)disass->pointer(address + i) &= ~breakpoint_mask; }
 			else
@@ -1072,10 +1077,11 @@ void MemoryDisassInspector::mousePressEvent(QMouseEvent* e)
 	}
 }
 
-
-// virtual
 void MemoryDisassInspector::keyPressEvent(QKeyEvent* e)
 {
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
+
 	if (!editing_in_hex() && !editing_in_disass())
 	{
 		MemoryInspector::keyPressEvent(e);
@@ -1194,10 +1200,13 @@ void MemoryDisassInspector::keyPressEvent(QKeyEvent* e)
 	}
 }
 
-
-// slot for hex_view and disass_view:
 void MemoryDisassInspector::slotFocusChanged(bool f)
 {
+	// slot for hex_view and disass_view:
+
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
+
 	QObject* sender = (QObject::sender());
 
 	if (sender == disass_view)
@@ -1226,3 +1235,52 @@ void MemoryDisassInspector::slotFocusChanged(bool f)
 }
 
 } // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

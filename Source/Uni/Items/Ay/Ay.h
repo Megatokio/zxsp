@@ -195,7 +195,7 @@ public:
 	Frequency getClock() const volatile { return 1.0 / time_for_cycle; }
 
 	// set stereo/mono:
-	void	  setStereoMix(StereoMix n) volatile { stereo_mix = n; }
+	void	  setStereoMix(StereoMix n) { stereo_mix = n; }
 	StereoMix getStereoMix() const volatile { return stereo_mix; }
 
 	// ports:

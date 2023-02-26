@@ -3,9 +3,9 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "Fdc/FdcBeta128.h"
 #include "Inspector.h"
 #include <QObject>
-
 
 namespace gui
 {
@@ -13,7 +13,7 @@ namespace gui
 class FdcBeta128Insp : public Inspector
 {
 public:
-	FdcBeta128Insp(QWidget*, MachineController*, volatile IsaObject*);
+	FdcBeta128Insp(QWidget*, MachineController*, volatile FdcBeta128*);
 };
 
 } // namespace gui

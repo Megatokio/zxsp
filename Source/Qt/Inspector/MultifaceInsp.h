@@ -15,14 +15,22 @@ namespace gui
 class MultifaceInsp : public Inspector
 {
 protected:
+	union
+	{
+		volatile Multiface*	   mf;
+		volatile Multiface1*   mf1;
+		volatile Multiface128* mf128;
+		volatile Multiface3*   mf3;
+	};
+
 	QRect	buttonbox;
 	QLabel* label_nmi_pending;
 	QLabel* label_paged_in;
 
-	static const int l_x = 4, l_y = 3, l_d = 14;
+	static constexpr int l_x = 4, l_y = 3, l_d = 14;
 
 public:
-	MultifaceInsp(QWidget*, MachineController*, volatile IsaObject*, cstr image, const QRect& redbuttonbox);
+	MultifaceInsp(QWidget*, MachineController*, volatile Multiface*, cstr image, const QRect& redbuttonbox);
 
 	void pressRedButton();
 

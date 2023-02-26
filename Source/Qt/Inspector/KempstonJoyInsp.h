@@ -3,8 +3,8 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "Joy/KempstonJoy.h"
 #include "JoyInsp.h"
-#include <QObject>
 
 namespace gui
 {

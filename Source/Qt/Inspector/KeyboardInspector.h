@@ -13,6 +13,8 @@ namespace gui
 
 class KeyboardInspector : public Inspector
 {
+	volatile Keyboard* const kbd;
+
 	Model  model;
 	uint8  mousekey;
 	Keymap keymap; // currently displayed keyboard state

@@ -14,6 +14,8 @@ namespace gui
 
 class TccDockInspector : public Inspector
 {
+	volatile MmuTc2068* const dock;
+
 	bool		 u;
 	QPushButton* button_insert;
 	int			 x_overlay;
@@ -36,7 +38,7 @@ class TccDockInspector : public Inspector
 	TccRomId current_id;
 
 public:
-	TccDockInspector(QWidget*, MachineController*, volatile IsaObject*);
+	TccDockInspector(QWidget*, MachineController*, volatile MmuTc2068*);
 	~TccDockInspector() override;
 
 	cstr getSaveFilename();

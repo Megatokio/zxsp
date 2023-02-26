@@ -5,7 +5,9 @@
 #include "MemoryGraphInspector.h"
 #include "Application.h"
 #include "Machine.h"
+#include "MachineController.h"
 #include "MyLineEdit.h"
+#include "Templates/NVPtr.h"
 #include "kio/util/msbit.h"
 #include <QBoxLayout>
 #include <QComboBox>
@@ -42,12 +44,12 @@ public:
 	int		x, y; // highlight position
 
 protected:
-	void resizeEvent(QResizeEvent*);
-	void paintEvent(QPaintEvent*);
+	void resizeEvent(QResizeEvent*) override;
+	void paintEvent(QPaintEvent*) override;
 
 public:
 	GWidget(QWidget* parent) : QWidget(parent), canvas(nullptr) {}
-	~GWidget() { delete canvas; }
+	~GWidget() override { delete canvas; }
 };
 
 void GWidget::resizeEvent(QResizeEvent*)
@@ -153,7 +155,6 @@ int MemoryGraphInspector::height_for_rows(int n) { return VERT_MARGINS + n; }
 
 int MemoryGraphInspector::rows_for_height(int h) { return (h - VERT_MARGINS + 16 / 3) / 16 * 16; }
 
-
 void MemoryGraphInspector::validate_bytes_per_row() { limit(MIN_BYTES_PER_ROW, bytes_per_row, MAX_BYTES_PER_ROW); }
 
 void MemoryGraphInspector::validate_rows()
@@ -201,14 +202,13 @@ void MemoryGraphInspector::resizeEvent(QResizeEvent* e)
 	updateWidgets();
 }
 
-
-/*	we catch the showEvent to call updateWidgets
-	because the child views were not resized by QT until now
-	and their current contents is invalid
-	and we don't want them to draw invalid contents in their first paintEvent
-*/
 void MemoryGraphInspector::showEvent(QShowEvent* e)
 {
+	// we catch the showEvent to call updateWidgets
+	// because the child views were not resized by QT until now
+	// and their current contents is invalid
+	// and we don't want them to draw invalid contents in their first paintEvent
+
 	xlogIn("MemoryGraphInspector::showEvent");
 
 	MemoryInspector::showEvent(e);
@@ -216,13 +216,12 @@ void MemoryGraphInspector::showEvent(QShowEvent* e)
 	updateWidgets();
 }
 
-
-/*	callback for ToolWindow during user resize operation
-	we have no fixed max width and height, instead max width and height always depend on current height and width.
-	after a 1 sec timeout ToolWindow will call adjustSize so that we can set the max size for the Maximize button.
-*/
 void MemoryGraphInspector::adjustMaxSizeDuringResize()
 {
+	// callback for ToolWindow during user resize operation
+	// we have no fixed max width and height, instead max width and height always depend on current height and width.
+	// after a 1 sec timeout ToolWindow will call adjustSize so that we can set the max size for the Maximize button.
+
 	xxlogIn("MemoryGraphInspector.adjustMaxSizeDuringResize");
 
 	int maxbytes = (data.size + rows - 1) / rows;
@@ -232,19 +231,17 @@ void MemoryGraphInspector::adjustMaxSizeDuringResize()
 	limit(MIN_ROWS, maxrows, MAX_ROWS);
 	maxrows = (maxrows + 15) / 16 * 16;
 
+	// limit height, but not below current height, because then the upper border of the window moves...
 	setMaximumSize(
-		width_for_bytes(MAX_BYTES_PER_ROW), // erlaube Maximalbreite
-		max(height(),
-			height_for_rows(
-				maxrows))); // begrenze Höhe, aber nicht unter aktuelle Höhe, weil sonst die Fensteroberkante wandert...
+		width_for_bytes(MAX_BYTES_PER_ROW), // allow maximum width
+		max(height(), height_for_rows(maxrows)));
 }
 
-
-// adjust size:
-// called from toolwindow to finalize size after resizing
-//
 void MemoryGraphInspector::adjustSize(QSize& size)
 {
+	// adjust size:
+	// called from toolwindow to finalize size after resizing
+
 	xlogIn("MemoryGraphInspector.adjustSize");
 
 	validate_bytes_per_row();
@@ -269,7 +266,6 @@ void MemoryGraphInspector::adjustSize(QSize& size)
 	size.setHeight(height_for_rows(rows));
 }
 
-
 void MemoryGraphInspector::updateScrollbar()
 {
 	xlogIn("MemoryGraphInspector.updateScrollbar");
@@ -287,7 +283,6 @@ void MemoryGraphInspector::updateScrollbar()
 	scrollbar->blockSignals(false);
 }
 
-
 void MemoryGraphInspector::slotSet32BytesPerRow()
 {
 	xlogIn("MemoryGraphInspector::slotSet32BytesPerRow");
@@ -298,11 +293,13 @@ void MemoryGraphInspector::slotSet32BytesPerRow()
 	emit signalSizeConstraintsChanged();
 }
 
-
-// timer: refresh displayed data
 void MemoryGraphInspector::updateWidgets()
 {
-	if (!machine || !object || !isVisible()) return;
+	// timer: refresh displayed data
+
+	xxlogIn("MemoryGraphInspector::updateWidgets");
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
 
 	assert(graphics_view->canvas);
 	assert(graphics_view->canvas->width() == bytes_per_row * 8);
@@ -330,17 +327,17 @@ void MemoryGraphInspector::updateWidgets()
 
 	if (data_source == AsSeenByCpu)
 	{
-		Z80* cpu = machine->cpu;
+		volatile Z80* cpu = machine->cpu;
 		for (int n, r = 0, a = scroll_offset; r < rows && a < data.size; r++, a += n)
 		{
 			n = min(bytes_per_row, data.size - a);
-			cpu->copyRamToBuffer(a, canvas->scanLine(r), n);
+			NV(cpu)->copyRamToBuffer(a, canvas->scanLine(r), n);
 		}
 	}
 	else
 	{
-		const CoreByte* q = data_source == AllRom || data_source == RomPages ? &machine->rom[data.baseoffset] :
-																			   &machine->ram[data.baseoffset];
+		const CoreByte* q = data_source == AllRom || data_source == RomPages ? &NV(machine->rom)[data.baseoffset] :
+																			   &NV(machine->ram)[data.baseoffset];
 		for (int n, r = 0, a = scroll_offset; r < rows && a < data.size; r++, a += n)
 		{
 			n = min(bytes_per_row, data.size - a);
@@ -350,17 +347,18 @@ void MemoryGraphInspector::updateWidgets()
 	graphics_view->update();
 
 	// update tooltip:
-	updateTooltip();
+	update_tooltip();
 }
 
-
-/*	Tooltip aktualisieren:
-	aber nur, wenn die Maus über dem MemoryView hovert
-	da QToolTip::showText(…) die App zwangsweise in den Vordergrund (zurück-) bringt.
-*/
-void MemoryGraphInspector::updateTooltip()
+void MemoryGraphInspector::update_tooltip()
 {
-	xlogIn("MemoryGraphInspector::updateTooltip");
+	// Tooltip aktualisieren:
+	// aber nur, wenn die Maus über dem MemoryView hovert
+	// da QToolTip::showText(…) die App zwangsweise in den Vordergrund (zurück-) bringt.
+
+	xxlogIn("MemoryGraphInspector::updateTooltip");
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
 
 	// test whether mouse is over this inspector:
 	QPoint gpos = QCursor::pos();
@@ -377,10 +375,10 @@ void MemoryGraphInspector::updateTooltip()
 
 	// get the local coordinates
 	QPoint pos = graphics_view->mapFromGlobal(gpos);
-	uint   x = graphics_view->x = pos.x() + mouse_x_offset;
-	if (x >= uint(graphics_view->width())) return;
-	uint y = graphics_view->y = pos.y() + mouse_y_offset;
-	if (y >= uint(graphics_view->height())) return;
+	int	   x = graphics_view->x = pos.x() + mouse_x_offset;
+	if (uint(x) >= uint(graphics_view->width())) return;
+	int y = graphics_view->y = pos.y() + mouse_y_offset;
+	if (uint(y) >= uint(graphics_view->height())) return;
 
 	int32 offset = scroll_offset + x / 8 + y * bytes_per_row;
 	if (offset >= data.size)
@@ -391,10 +389,51 @@ void MemoryGraphInspector::updateTooltip()
 	}
 
 	uint byte = data_source == AsSeenByCpu						 ? machine->cpu->peek(offset) :
-				data_source == RomPages || data_source == AllRom ? uint8(machine->rom[data.baseoffset + offset]) :
-																   uint8(machine->ram[data.baseoffset + offset]);
+				data_source == RomPages || data_source == AllRom ? uint8(NV(machine->rom)[data.baseoffset + offset]) :
+																   uint8(NV(machine->ram)[data.baseoffset + offset]);
 
 	QToolTip::showText(gpos, usingstr("$%04X: $%02X", data.baseaddress + offset, byte), graphics_view, QRect());
 }
 
 } // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

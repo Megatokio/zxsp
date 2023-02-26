@@ -4,6 +4,7 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Inspector.h"
+#include "KempstonMouse.h"
 class QLineEdit;
 class QComboBox;
 class QPushButton;
@@ -14,6 +15,8 @@ namespace gui
 
 class KempstonMouseInsp final : public Inspector
 {
+	volatile KempstonMouse* const mif;
+
 	// widgets:
 	QLineEdit*	 display_x;
 	QLineEdit*	 display_y;

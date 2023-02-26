@@ -2,28 +2,18 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-
 #include "Memotech64kRamInsp.h"
-#include "Items/Item.h"
-#include "Items/Ram/Memotech64kRam.h"
-#include "Machine/Machine.h"
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
 #include "Templates/NVPtr.h"
-#include <QAction>
 #include <QComboBox>
 #include <QLabel>
-#include <QList>
-#include <QPushButton>
-#include <QRgb>
-#include <QSettings>
-#include <QVariant>
 
 
 namespace gui
 {
 
-static uint dipsw[5] = {8, 4, 2, 6, 1}; // {0b1000,0b0100,0b0010,0b0110,0b0001};
+static constexpr uint dipsw[5] = {8, 4, 2, 6, 1}; // {0b1000,0b0100,0b0010,0b0110,0b0001};
 
 
 Memotech64kRamInsp::Memotech64kRamInsp(QWidget* p, MachineController* mc, volatile Memotech64kRam* item) :
@@ -52,8 +42,9 @@ Memotech64kRamInsp::Memotech64kRamInsp(QWidget* p, MachineController* mc, volati
 	}
 
 	connect(jumper, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [=](int i) {
+		assert(validReference(item));
 		uint dip_switches = dipsw[i];
-		NVPtr<Memotech64kRam>(item)->setDipSwitches(dip_switches);
+		nvptr(item)->setDipSwitches(dip_switches);
 		settings.setValue(key_memotech64k_dip_switches, dip_switches);
 	});
 

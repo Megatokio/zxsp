@@ -30,7 +30,7 @@ public:
 
 	void  setScale(int n);
 	int	  getScale() const volatile { return scale; }
-	uint8 getXPos() volatile;
-	uint8 getYPos() volatile;
-	uint8 getButtons() const volatile;
+	uint8 getXPos();
+	uint8 getYPos();
+	uint8 getButtons() const;
 };

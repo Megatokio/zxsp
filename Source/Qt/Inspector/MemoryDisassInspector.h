@@ -12,7 +12,6 @@ class QLineEdit;
 
 namespace gui
 {
-class MemoryInspector;
 class SimpleTerminal;
 class CoreByteDisassembler;
 

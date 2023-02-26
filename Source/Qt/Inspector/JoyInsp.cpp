@@ -12,13 +12,14 @@
 #include <QPushButton>
 #include <QtGui>
 
-
 namespace gui
 {
 
-JoyInsp::JoyInsp(QWidget* w, MachineController* mc, volatile Joy* joy, cstr imgpath) : Inspector(w, mc, joy, imgpath)
+JoyInsp::JoyInsp(QWidget* w, MachineController* mc, volatile Joy* joy, cstr imgpath) :
+	Inspector(w, mc, joy, imgpath),
+	joy(joy)
 {
-	num_ports = joy->getNumPorts();
+	num_ports = NV(joy)->getNumPorts();
 	xlogIn("new JoyInsp for %s (%i ports)", object->name, num_ports);
 
 	joystick_selectors[1] = joystick_selectors[2] = nullptr;
@@ -37,32 +38,33 @@ JoyInsp::JoyInsp(QWidget* w, MachineController* mc, volatile Joy* joy, cstr imgp
 		joystick_selectors[i]->setMinimumWidth(80);
 		connect(
 			joystick_selectors[i], static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
-			&JoyInsp::joystick_selected);
+			&JoyInsp::slot_joystick_selected);
 	}
 
 	update_joystick_selectors();
 
 	button_scan_usb = new QPushButton("Scan USB", this);
 	button_scan_usb->setMinimumWidth(100);
-	connect(button_scan_usb, &QPushButton::clicked, this, &JoyInsp::find_usb_joysticks);
+	connect(button_scan_usb, &QPushButton::clicked, this, &JoyInsp::slot_find_usb_joysticks);
 
 	button_set_keys = new QPushButton("Set Keys", this);
 	button_set_keys->setMinimumWidth(100);
-	connect(button_set_keys, &QPushButton::clicked, this, &JoyInsp::set_keyboard_joystick_keys);
+	connect(button_set_keys, &QPushButton::clicked, this, &JoyInsp::slot_set_keyboard_joystick_keys);
 
 	timer->start(1000 / 10);
 }
 
 
-void JoyInsp::find_usb_joysticks()
+void JoyInsp::slot_find_usb_joysticks()
 {
 	xlogIn("JoyInsp::scanUSB");
+	assert(validReference(joy));
+
 	findUsbJoysticks();
 	update_joystick_selectors();
 }
 
-
-void JoyInsp::set_keyboard_joystick_keys()
+void JoyInsp::slot_set_keyboard_joystick_keys()
 {
 	xlogIn("JoyInsp::setKeys");
 
@@ -70,13 +72,10 @@ void JoyInsp::set_keyboard_joystick_keys()
 	d->show();
 }
 
-
-void JoyInsp::joystick_selected()
+void JoyInsp::slot_joystick_selected()
 {
 	xlogIn("JoyInsp::joySelected");
-
-	auto* joy = dynamic_cast<volatile Joy*>(object);
-	if (!joy) return;
+	assert(validReference(joy));
 
 	for (uint i = 0; i < num_ports; i++)
 	{
@@ -85,18 +84,14 @@ void JoyInsp::joystick_selected()
 	}
 }
 
-
 void JoyInsp::updateWidgets() // Kempston
 {
 	xlogIn("JoyInsp::updateWidgets");
-	if (!machine || !object) return;
-
-	auto* joy = dynamic_cast<volatile Joy*>(object);
-	if (!joy) return;
+	assert(validReference(joy));
 
 	for (uint i = 0; i < num_ports; i++)
 	{
-		uint8 newstate = joy->getStateForInspector(i);
+		uint8 newstate = NV(joy)->getState(i);
 		if (newstate == lineedit_state[i]) continue;
 
 		char s[] = "%111FUDLR";
@@ -112,9 +107,6 @@ void JoyInsp::updateWidgets() // Kempston
 
 void JoyInsp::update_joystick_selectors()
 {
-	auto* joy = dynamic_cast<volatile Joy*>(object);
-	if (!joy) return;
-
 	bool is_connected[max_joy];
 	int	 i;
 	bool is_in_list[max_joy] = {0, 0, 0, 0, 0};
@@ -147,8 +139,8 @@ void JoyInsp::update_joystick_selectors()
 
 		// add existing real-world joysticks to selector list
 		// and select the currently selected one, default = no_joy:
-		int selected_id	 = joy->getJoystickID(s); // id of the real-world joystick
-		int selected_idx = -1;					  // index in list
+		int selected_id	 = NV(joy)->getJoystickID(s); // id of the real-world joystick
+		int selected_idx = -1;						  // index in list
 		for (i = 0; i < max_joy; i++)
 		{
 			if (!is_connected[i]) continue;

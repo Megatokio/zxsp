@@ -19,10 +19,10 @@
 namespace gui
 {
 
-Z80Insp::Z80Insp(QWidget* window, MachineController* mc, volatile IsaObject* item) :
-	Inspector(window, mc, item, "/Backgrounds/light-150-s.jpg")
+Z80Insp::Z80Insp(QWidget* window, MachineController* mc, volatile Z80* cpu) :
+	Inspector(window, mc, cpu, "/Backgrounds/light-150-s.jpg"),
+	cpu(cpu)
 {
-	assert(object->isA(isa_Z80));
 	background = background.scaled(200, 350);
 	this->setFixedSize(background.size());
 
@@ -112,42 +112,34 @@ Z80Insp::Z80Insp(QWidget* window, MachineController* mc, volatile IsaObject* ite
 	irpt = new QCheckBox("Int", this);
 	h4->addWidget(irpt, 0, Qt::AlignRight);
 	h4->setStretch(0, 100);
-	//	bool f = connect(irpt,SIGNAL(clicked(bool)),this,SLOT(slotIrptClicked(bool)));
-	connect(irpt, &QCheckBox::clicked, this, &Z80Insp::set_interrupt);
+	connect(irpt, &QCheckBox::clicked, this, &Z80Insp::slotSetInterrupt);
 	nmi = new QCheckBox("Nmi", this);
 	h4->addWidget(nmi, 1);
 	h4->setStretch(1, 0);
-	//	f = f && connect(nmi,SIGNAL(clicked(bool)),this,SLOT(slotNmiClicked(bool)));
-	connect(nmi, &QCheckBox::clicked, this, &Z80Insp::set_nmi);
+	connect(nmi, &QCheckBox::clicked, this, &Z80Insp::slotSetNmi);
 	ie = new QCheckBox("IE", this);
 	h4->addWidget(ie, 2);
 	h4->setStretch(2, 0);
-	//	f = f && connect(ie,SIGNAL(clicked(bool)),this,SLOT(slotIeClicked(bool)));
-	connect(ie, &QCheckBox::clicked, this, &Z80Insp::set_interrupt_enable);
+	connect(ie, &QCheckBox::clicked, this, &Z80Insp::slotSetInterruptEnable);
 	g->addLayout(h4, 16, 0, 1, 2);
 
 	timer->start(1000 / 10);
 }
 
-
 MyLineEdit* Z80Insp::new_led(cstr s)
 {
 	MyLineEdit* e = new MyLineEdit(s);
-	connect(e, &MyLineEdit::returnPressed, this, [=] { return_pressed_in_lineedit(e); });
+	connect(e, &MyLineEdit::returnPressed, this, [=] { slotReturnPressedInLineEdit(e); });
 	return e;
 }
 
-
-/*	update displayed values
-	called by QTimer started in this.c'tor
-*/
 void Z80Insp::updateWidgets()
 {
-	xxlogIn("Z80Insp::update");
+	// update displayed values
+	// called by QTimer started in this.c'tor
 
-	if (!machine || !object) return;
-	auto* cpu = dynamic_cast<volatile Z80*>(object);
-	if (!cpu) return;
+	xxlogIn("Z80Insp::update");
+	assert(validReference(cpu));
 
 #define SetRR(RR)                                   \
   do {                                              \
@@ -220,13 +212,10 @@ void Z80Insp::updateWidgets()
 }
 
 
-void Z80Insp::return_pressed_in_lineedit(MyLineEdit* led)
+void Z80Insp::slotReturnPressedInLineEdit(MyLineEdit* led)
 {
 	xlogIn("Z80Insp::returnPressed");
-	if (!machine || !object) return;
-
-	auto* cpu = dynamic_cast<volatile Z80*>(object);
-	if (!cpu) return;
+	assert(validReference(cpu));
 
 	cstr  text = led->text().toUtf8().data();
 	int32 n	   = intValue(text);
@@ -329,35 +318,32 @@ void Z80Insp::return_pressed_in_lineedit(MyLineEdit* led)
 	}
 }
 
-void Z80Insp::set_interrupt_enable(bool checked)
+void Z80Insp::slotSetInterruptEnable(bool checked)
 {
 	// The user toggled the IE checkbox
 	// Note: signal 'clicked' is only sent on user action, click() and animateClick();
 	// not on other program actions like setDown(), setChecked() or toggle().
 
-	auto* cpu = dynamic_cast<volatile Z80*>(object);
-	if (!cpu) return;
+	assert(validReference(cpu));
 
 	nvptr(cpu)->getRegisters().iff = checked ? 0x0101 : 0x0000;
 }
 
-void Z80Insp::set_nmi(bool checked)
+void Z80Insp::slotSetNmi(bool checked)
 {
 	// The user toggled the NMI checkbox
 
-	auto* cpu = dynamic_cast<volatile Z80*>(object);
-	if (!cpu) return;
+	assert(validReference(cpu));
 
 	if (checked) nvptr(cpu)->triggerNmi();
 	else nvptr(cpu)->clearNmi();
 }
 
-void Z80Insp::set_interrupt(bool checked)
+void Z80Insp::slotSetInterrupt(bool checked)
 {
 	// The user toggled the INT checkbox
 
-	auto* cpu = dynamic_cast<volatile Z80*>(object);
-	if (!cpu) return;
+	assert(validReference(cpu));
 
 	if (checked) nvptr(cpu)->raiseInterrupt();
 	else nvptr(cpu)->clearInterrupt();

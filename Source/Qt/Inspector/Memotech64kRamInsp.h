@@ -4,6 +4,7 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Inspector.h"
+#include "Ram/Memotech64kRam.h"
 class QComboBox;
 
 

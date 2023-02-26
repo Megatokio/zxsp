@@ -15,6 +15,8 @@ namespace gui
 
 class Z80Insp : public Inspector
 {
+	volatile Z80* const cpu;
+
 	union
 	{
 		struct
@@ -36,17 +38,17 @@ class Z80Insp : public Inspector
 	} value;
 
 public:
-	Z80Insp(QWidget*, MachineController*, volatile IsaObject*);
+	Z80Insp(QWidget*, MachineController*, volatile Z80*);
 
 protected:
 	void updateWidgets() override;
 
 private:
 	MyLineEdit* new_led(cstr);
-	void		return_pressed_in_lineedit(MyLineEdit* led);
-	void		set_interrupt_enable(bool);
-	void		set_nmi(bool);
-	void		set_interrupt(bool);
+	void		slotReturnPressedInLineEdit(MyLineEdit* led);
+	void		slotSetInterruptEnable(bool);
+	void		slotSetNmi(bool);
+	void		slotSetInterrupt(bool);
 };
 
 } // namespace gui

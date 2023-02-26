@@ -3,6 +3,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "Joy/DktronicsDualJoy.h"
 #include "JoyInsp.h"
 
 

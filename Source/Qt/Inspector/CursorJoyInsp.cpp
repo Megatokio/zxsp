@@ -55,12 +55,9 @@ CursorJoyInsp::CursorJoyInsp(QWidget* w, MachineController* mc, volatile CursorJ
 void CursorJoyInsp::updateWidgets()
 {
 	xlogIn("CursorJoyInsp::updateWidgets");
-	if (!machine || !object) return;
+	assert(validReference(joy));
 
-	auto* joy = dynamic_cast<volatile CursorJoy*>(object);
-	if (!joy) return;
-
-	uint8 newstate = joy->getStateForInspector();
+	uint8 newstate = NV(joy)->getState();
 	if (newstate != lineedit_state[0])
 	{
 		lineedit_state[0] = newstate;

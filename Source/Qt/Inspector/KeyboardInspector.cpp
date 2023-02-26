@@ -4,8 +4,6 @@
 
 #include "KeyboardInspector.h"
 #include "Application.h"
-#include "Keyboard.h"
-#include "Machine.h"
 #include "MachineController.h"
 #include "Templates/NVPtr.h"
 #include "ZxInfo.h"
@@ -23,76 +21,30 @@ enum ZxspKey // Names for specci keys
 	//  	0x00-04	= key's column
 	//  	0x05-07 = compound keys activating two matrix points
 
-	x = 0x77, // no mapping
-	c = 0x80, // add caps shift key
-	s = 0x08, // add symbol shift key
+	// clang-format off
+	
+	x  	= 0x77,				// no mapping
+	c  	= 0x80,				// add caps shift key
+	s  	= 0x08,				// add symbol shift key
 
-	CSH = 0x00,
-	Z,
-	X,
-	C,
-	V,
-	/*	left bottom row	*/ cZ1,
-	cZ2,
-	cZ3, /*	EDIT, CAPS LOCK, TRUE VIDEO		*/
-	A = 0x10,
-	S,
-	D,
-	F,
-	G,
-	/* 	...				*/ cZ4,
-	cZ5,
-	cZ6, /*	INV.VIDEO, CRSR LEFT, CRSR DOWN	*/
-	Q = 0x20,
-	W,
-	E,
-	R,
-	T,
-	/*	...				*/ cZ7,
-	cZ8,
-	cZ9, /*	CRSR UP, CRSR RIGHT, GRAPHICS	*/
-	Z1 = 0x30,
-	Z2,
-	Z3,
-	Z4,
-	Z5,
-	/* left top row		*/ cZ0,
-	cSPC, /*	DELETE, BREAK,					*/
-	Z0 = 0x40,
-	Z9,
-	Z8,
-	Z7,
-	Z6,
-	/* right top row	*/ sO,
-	sP, /*	; "								*/
-	P = 0x50,
-	O,
-	I,
-	U,
-	Y,
-	/* 	...				*/ sN,
-	sM, /*	, .								*/
-	ENT = 0x60,
-	L,
-	K,
-	J,
-	H,
-	/*	...				*/ CSH2,
-	SSH2,
-	EXT, /*	2nd CAPS SHIFT, 2nd SYMBOL SHIFT, EXTENDED MODE */
-	SPC = 0x70,
-	SSH,
-	M,
-	N,
-	B,
-	/* right bottom row	*/ NOKEY = 0x77,
+	CSH	= 0x00,Z,X,C,V,		/*	left bottom row	*/	cZ1, cZ2, cZ3,	/*	EDIT, CAPS LOCK, TRUE VIDEO		*/
+	A  	= 0x10,S,D,F,G,		/* 	...				*/	cZ4, cZ5, cZ6,	/*	INV.VIDEO, CRSR LEFT, CRSR DOWN	*/
+	Q  	= 0x20,W,E,R,T,		/*	...				*/	cZ7, cZ8, cZ9,	/*	CRSR UP, CRSR RIGHT, GRAPHICS	*/
+	Z1 	= 0x30,Z2,Z3,Z4,Z5,	/* left top row		*/	cZ0, cSPC,		/*	DELETE, BREAK,					*/
+	Z0 	= 0x40,Z9,Z8,Z7,Z6,	/* right top row	*/	sO, sP,			/*	; "								*/
+	P  	= 0x50,O,I,U,Y,		/* 	...				*/	sN, sM,			/*	, .								*/
+	ENT	= 0x60,L,K,J,H,		/*	...				*/	CSH2, SSH2, EXT,/*	2nd CAPS SHIFT, 2nd SYMBOL SHIFT, EXTENDED MODE */
+	SPC	= 0x70,SSH,M,N,B,	/* right bottom row	*/	NOKEY = 0x77,
 
-	DOT = SSH // "." on ZX80/ZX81 keyboard
+	DOT = SSH				// "." on ZX80/ZX81 keyboard
+
+	// clang-format on
 };
 
 
 KeyboardInspector::KeyboardInspector(QWidget* w, MachineController* m, volatile Keyboard* kbd) :
 	Inspector(w, m, kbd, catstr("Keyboards/", m->getModelInfo()->kbd_filename)),
+	kbd(kbd),
 	model(m->getModel()),
 	mousekey(NOKEY),
 	keymap() // all key bits = 1 == up
@@ -429,7 +381,9 @@ QRegion KeyboardInspector::keyRegion(uint8 spec)
 {
 	QRegion regio = keyRect(spec);
 
-	if (spec == ENT) switch (machine->model)
+	if (spec == ENT)
+	{
+		switch (model)
 		{
 		default: break;
 		case zxplus:
@@ -443,9 +397,9 @@ QRegion KeyboardInspector::keyRegion(uint8 spec)
 		case zxplus3_span:
 		case zxplus2a:
 		case zxplus2a_span: return regio.united(QRect(500 - 40 + 11, 201 - 80 - 41, 30, 41));
-
 		case pentagon128: return regio.united(QRect(500 + 1 - 19, 201 - (80 + 1) - 41 + 2, 19, 41 - 2));
 		}
+	}
 	return regio;
 }
 
@@ -793,6 +747,7 @@ void KeyboardInspector::paintEvent(QPaintEvent* e)
 void KeyboardInspector::mousePressEvent(QMouseEvent* e)
 {
 	xlogIn("KbdInsp:mousePressEvent");
+	assert(validReference(kbd));
 
 	if (e->button() == Qt::LeftButton || (QGuiApplication::keyboardModifiers() & Qt::META))
 	{ // note: CTRL-Key + left mouse button werden von Qt (OSX?) in right mouse button umgewandelt
@@ -804,8 +759,7 @@ void KeyboardInspector::mousePressEvent(QMouseEvent* e)
 		{
 			xlogline("mousekey=$%02x", uint(mousekey));
 
-			auto* kbd = dynamic_cast<volatile Keyboard*>(object);
-			if (kbd) nvptr(kbd)->specciKeyDown(mousekey);
+			nvptr(kbd)->specciKeyDown(mousekey);
 			updateWidgets();
 		}
 	}
@@ -815,11 +769,11 @@ void KeyboardInspector::mousePressEvent(QMouseEvent* e)
 void KeyboardInspector::mouseReleaseEvent(QMouseEvent* e)
 {
 	xlogIn("KbdInsp:mouseReleaseEvent");
+	assert(validReference(kbd));
 
 	if (mousekey != NOKEY)
 	{
-		auto* kbd = dynamic_cast<volatile Keyboard*>(object);
-		if (kbd) nvptr(kbd)->specciKeyUp(mousekey);
+		nvptr(kbd)->specciKeyUp(mousekey);
 		mousekey = NOKEY;
 		updateWidgets();
 	}
@@ -832,6 +786,7 @@ void KeyboardInspector::mouseMoveEvent(QMouseEvent* e)
 	// If mouse tracking is switched on, mouse move events occur even if no mouse button is pressed.
 
 	xlogIn("KbdInsp:mouseMoveEvent");
+	assert(validReference(kbd));
 
 	if (e->buttons() & Qt::LeftButton)
 	{
@@ -841,10 +796,9 @@ void KeyboardInspector::mouseMoveEvent(QMouseEvent* e)
 
 		uint8 old = mousekey;
 		{
-			auto* kbd = dynamic_cast<volatile Keyboard*>(object);
-			if (kbd && mousekey != NOKEY) nvptr(kbd)->specciKeyUp(mousekey);
+			if (mousekey != NOKEY) nvptr(kbd)->specciKeyUp(mousekey);
 			mousekey = findKeyForPoint(e->pos());
-			if (kbd && mousekey != NOKEY) nvptr(kbd)->specciKeyDown(mousekey);
+			if (mousekey != NOKEY) nvptr(kbd)->specciKeyDown(mousekey);
 		}
 		if (mousekey != old) updateWidgets();
 	}
@@ -855,13 +809,44 @@ bool KeyboardInspector::event(QEvent* e)
 {
 	xlogline("KbdInsp event: %s", QEventTypeStr(e->type()));
 
-	// CTRL-Key + left mouse button werden von MacOS in right mouse button umgewandelt
-	// damit geht kein CTRL-Klick im Kbd Inspector => ContextMenu event abfangen
-	// siehe auch mousePressEvent()
+	// macos converts CTRL key + left mouse button to right mouse button.
+	// this makes CTRL clicks in KeyboardInspector impossible => catch the ContextMenu event
+	// see also mousePressEvent()
 
-	if (e->type() == QEvent::ContextMenu && (QGuiApplication::keyboardModifiers() & Qt::META)) return true /*handled*/;
+	if (e->type() == QEvent::ContextMenu && (QGuiApplication::keyboardModifiers() & Qt::META)) return true; // handled
 
 	return Inspector::event(e);
 }
 
 } // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

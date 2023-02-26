@@ -3,6 +3,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "Grafpad.h"
 #include "Inspector.h"
 
 namespace gui
@@ -11,7 +12,7 @@ namespace gui
 class GrafPadInsp : public Inspector
 {
 public:
-	GrafPadInsp(QWidget*, MachineController*, volatile IsaObject*);
+	GrafPadInsp(QWidget*, MachineController*, volatile GrafPad*);
 };
 
 } // namespace gui

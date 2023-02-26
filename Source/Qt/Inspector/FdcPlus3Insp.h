@@ -13,6 +13,8 @@ namespace gui
 
 class FdcPlus3Insp : public Inspector
 {
+	volatile FdcPlus3* fdc;
+
 	std::shared_ptr<FloppyDiskDrive> drive;
 
 	QPixmap overlay_disk_A_ejected;
@@ -46,8 +48,6 @@ protected:
 	void fillContextMenu(QMenu*) override;
 
 private:
-	bool is_motor_on();
-	bool is_side_B_up();
 	cstr get_save_filename(cstr msg = "Save +3 disc as…");
 	cstr get_load_filename(cstr msg = "Load +3 disc file…");
 	void set_disk_state(DiskState);

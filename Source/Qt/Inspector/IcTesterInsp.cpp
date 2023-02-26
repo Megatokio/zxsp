@@ -9,7 +9,7 @@
 namespace gui
 {
 
-IcTesterInsp::IcTesterInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
+IcTesterInsp::IcTesterInsp(QWidget* w, MachineController* mc, volatile IcTester* i) :
 	Inspector(w, mc, i, "/Backgrounds/light-150-s.jpg")
 {
 	assert(i->isA(isa_IcTester));

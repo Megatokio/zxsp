@@ -417,7 +417,7 @@ void CurrahMicroSpeech::writeMemory(Time t, int32 cc, uint16 addr, uint8 byte)
 	prev()->writeMemory(t, cc, addr, byte);
 }
 
-void CurrahMicroSpeech::setHifi(bool f) volatile
+void CurrahMicroSpeech::setHifi(bool f)
 {
 	//	set sp0256 emulation to normal or "HiFi" mode:
 	//	actually this makes no audible difference

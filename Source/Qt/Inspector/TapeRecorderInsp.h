@@ -45,7 +45,7 @@ struct Cassette
 
 	int reel_symmetries;
 
-	float ppmm;
+	double ppmm;
 
 	Cassette(CassBody, HeadPos);
 
@@ -61,8 +61,10 @@ struct Cassette
 // base class:
 class TapeRecorderInsp : public Inspector
 {
-	// buttons:
 protected:
+	volatile TapeRecorder* const tr;
+
+	// buttons:
 	MySimpleToggleButton* btn_record;
 	MySimpleToggleButton* btn_play;
 	MySimpleToggleButton* btn_back;
@@ -73,7 +75,6 @@ protected:
 	MySimpleToggleButton* btn_pause;
 
 	// labels:
-protected:
 	cstr	   major_block_info; // displayed value
 	cstr	   minor_block_info; // displayed value
 	int		   tape_position;	 // displayed value
@@ -83,7 +84,6 @@ protected:
 	cstr	   tape_filepath;
 
 	// animation:
-protected:
 	QImage			tr_image;		 // tape recorder image (skin)
 	QImage			tr_window_image; // tape recorder window image
 	QRect			tr_window_rect;	 // tape recorder window rect
@@ -133,7 +133,7 @@ protected:
 
 	void handleEjectButton();
 
-	NVPtr<TapeRecorder> nv_taperecorder() { return NVPtr<TapeRecorder>(dynamic_cast<volatile TapeRecorder&>(*object)); }
+	//NVPtr<TapeRecorder> nv_taperecorder() { return NVPtr<TapeRecorder>(dynamic_cast<volatile TapeRecorder&>(*object)); }
 
 private:
 	void insert_tape(cstr filepath);

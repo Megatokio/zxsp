@@ -3,9 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "KempstonMouseInsp.h"
-#include "KempstonMouse.h"
-#include "Machine.h"
-#include "MachineController.h"
 #include "Mouse.h"
 #include "Templates/NVPtr.h"
 #include <QComboBox>
@@ -20,6 +17,7 @@ namespace gui
 
 KempstonMouseInsp::KempstonMouseInsp(QWidget* w, MachineController* mc, volatile KempstonMouse* mif) :
 	Inspector(w, mc, mif, "/Images/kempston_mouse_if.jpg"),
+	mif(mif),
 	display_x(newLineEdit("0", 32)),
 	display_y(newLineEdit("0", 32)),
 	display_buttons(newLineEdit("%------11", 100)),
@@ -43,12 +41,13 @@ KempstonMouseInsp::KempstonMouseInsp(QWidget* w, MachineController* mc, volatile
 					  << "1:3"
 					  << "1:4");
 	combobox_scale->setMinimumWidth(80);
-	connect(combobox_scale, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=](int index) {
-		nvptr(mif)->setScale(index + 1);
+	connect(combobox_scale, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this](int index) {
+		assert(validReference(this->mif));
+		nvptr(this->mif)->setScale(index + 1);
 	});
 
 	button_grab_mouse->setMinimumWidth(100);
-	connect(button_grab_mouse, &QPushButton::clicked, [=] {
+	connect(button_grab_mouse, &QPushButton::clicked, this, [this] {
 		mouse.grab(this);
 		timer->start(1000 / 20);
 	});
@@ -85,18 +84,16 @@ KempstonMouseInsp::KempstonMouseInsp(QWidget* w, MachineController* mc, volatile
 void KempstonMouseInsp::updateWidgets()
 {
 	xxlogIn("KempstonMouseInsp:updateWidgets");
-	if (!machine || !object) return;
-
-	auto* mif = dynamic_cast<volatile KempstonMouse*>(object);
-	if (!mif) return;
+	assert(validReference(mif));
 
 	uint8 newx, newy;
 	uint  newbuttons;
 
 	{
-		newx	   = mif->getXPos();
-		newy	   = mif->getYPos();
-		newbuttons = mif->getButtons();
+		auto mouse = nvptr(mif);
+		newx	   = mouse->getXPos();
+		newy	   = mouse->getYPos();
+		newbuttons = mouse->getButtons();
 	}
 
 	if (old_x != newx)

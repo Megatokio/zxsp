@@ -3,7 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "KempstonJoyInsp.h"
-#include "Joy/KempstonJoy.h"
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>

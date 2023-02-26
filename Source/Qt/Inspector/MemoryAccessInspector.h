@@ -67,7 +67,7 @@ private:
 	void validate_rows();
 	void validate_bytes_per_row();
 	void validate_scrollposition();
-	void updateTooltip();
+	void update_tooltip();
 	void slotSetDecayMode(int);	  // combobox_decaymode
 	void slotSetPixelSize(int);	  // combobox_pixelzoom
 	void slotSetBytesPerRow(int); // combobox_bytes_per_row

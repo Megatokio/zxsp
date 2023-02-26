@@ -4,6 +4,8 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Inspector.h"
+#include "Printer/PrinterAerco.h"
+
 
 namespace gui
 {
@@ -11,7 +13,7 @@ namespace gui
 class PrinterAercoInsp : public Inspector
 {
 public:
-	PrinterAercoInsp(QWidget*, MachineController*, volatile IsaObject*);
+	PrinterAercoInsp(QWidget*, MachineController*, volatile PrinterAerco*);
 };
 
 } // namespace gui

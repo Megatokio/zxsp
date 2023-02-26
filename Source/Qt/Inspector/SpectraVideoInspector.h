@@ -16,6 +16,8 @@ namespace gui
 
 class SpectraVideoInspector : public Inspector
 {
+	volatile SpectraVideo* const spectra;
+
 	QCheckBox*	 checkbox_if1_rom_hooks;
 	QCheckBox*	 checkbox_rs232;
 	QCheckBox*	 checkbox_joystick;
@@ -32,7 +34,6 @@ class SpectraVideoInspector : public Inspector
 
 public:
 	SpectraVideoInspector(QWidget*, MachineController*, volatile SpectraVideo*);
-	~SpectraVideoInspector() override;
 	void insertRom(cstr filepath);
 
 protected:
@@ -41,14 +42,14 @@ protected:
 
 private:
 	void update_js_selector();
-	void js_selector_selected();
-	void find_usb_joysticks();
-	void set_keyboard_joystick_keys();
-	void enable_if1_rom_hooks(bool);
-	void enable_rs232(bool);
-	void enable_joystick(bool);
-	void enable_new_displaymodes(bool);
-	void insert_or_eject_rom();
+	void slot_js_selector_selected();
+	void slot_find_usb_joysticks();
+	void slot_set_keyboard_joystick_keys();
+	void slot_enable_if1_rom_hooks(bool);
+	void slot_enable_rs232(bool);
+	void slot_enable_joystick(bool);
+	void slot_enable_new_displaymodes(bool);
+	void slot_insert_or_eject_rom();
 };
 
 } // namespace gui

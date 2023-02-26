@@ -33,8 +33,8 @@ class Memory
 	Memory(const Memory&);		   // prohibit
 	~Memory();					   // prohibit
 
-	// data members:
 public:
+	// data members:
 	Array<CoreByte> data;
 	cstr			name; // e.g. "internal ram"
 	Machine*		machine;
@@ -67,36 +67,19 @@ class MemoryPtr : public RCPtr<Memory>
 
 public:
 	MemoryPtr(Memory* p) : RCPtr(p) {}
-	// MemoryPtr		(RCPtr const& q)	:p(q.p) { retain(); }
 	~MemoryPtr() { assert(!p || p->_cnt > 0); }
-	MemoryPtr(Machine* m, cstr name, uint cnt) noexcept(false) /*limit_error*/ : RCPtr(new Memory(m, name, cnt)) {}
+	MemoryPtr(Machine* m, cstr name, uint cnt) : RCPtr(new Memory(m, name, cnt)) {}
 
 	// access data members:
 	uint			count() const { return p->data.count(); }
 	CoreByte*		getData() { return p->data.getData(); }
 	const CoreByte* getData() const { return p->data.getData(); }
-	const CoreByte* getData() const volatile
-	{
-		assert(isMainThread());
-		return p->data.getData();
-	}
-
-	uint count() const volatile
-	{
-		assert(isMainThread());
-		return p->data.count();
-	}
 
 	// get item at index:
-	const CoreByte& operator[](uint i) const volatile noexcept
-	{
-		assert(isMainThread());
-		return p->data[i];
-	}
 	const CoreByte& operator[](uint i) const noexcept { return p->data[i]; }
 	CoreByte&		operator[](uint i) noexcept { return p->data[i]; }
 
 	// modifiy:
 	void shrink(uint newcnt) { p->shrink(newcnt); }
-	void grow(uint newcnt) noexcept(false) /*limit_error*/ { p->grow(newcnt); }
+	void grow(uint newcnt) { p->grow(newcnt); }
 };

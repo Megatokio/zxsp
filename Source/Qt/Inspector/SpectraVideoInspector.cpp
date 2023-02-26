@@ -25,12 +25,10 @@ namespace gui
 
 SpectraVideoInspector::SpectraVideoInspector(QWidget* w, MachineController* mc, volatile SpectraVideo* spectra) :
 	Inspector(w, mc, spectra, spectra->isRomInserted() ? "/Images/Spectra_Loaded.jpg" : "/Images/Spectra.jpg"),
+	spectra(spectra),
 	js_state(0),
 	rom_file(nullptr)
 {
-	assert(object->isA(isa_SpectraVideo));
-	//	ula = UlaSpectraPtr(machine->ula);
-
 	//	this->setFixedSize( background.size() );
 
 	rom_name = new QLabel(this);
@@ -51,15 +49,15 @@ SpectraVideoInspector::SpectraVideoInspector(QWidget* w, MachineController* mc, 
 	js_selector->setFixedWidth(110);
 	connect(
 		js_selector, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
-		&SpectraVideoInspector::js_selector_selected);
+		&SpectraVideoInspector::slot_js_selector_selected);
 
 	button_scan_usb = new QPushButton("Scan USB", this);
 	button_scan_usb->setMinimumWidth(100);
-	connect(button_scan_usb, &QPushButton::clicked, this, &SpectraVideoInspector::find_usb_joysticks);
+	connect(button_scan_usb, &QPushButton::clicked, this, &SpectraVideoInspector::slot_find_usb_joysticks);
 
 	button_set_keys = new QPushButton("Set Keys", this);
 	button_set_keys->setMinimumWidth(100);
-	connect(button_set_keys, &QPushButton::clicked, this, &SpectraVideoInspector::set_keyboard_joystick_keys);
+	connect(button_set_keys, &QPushButton::clicked, this, &SpectraVideoInspector::slot_set_keyboard_joystick_keys);
 
 	int x1 = 20 - 5, x2 = 130 - 7, x3 = 208 - 10, x4 = 290;
 
@@ -68,15 +66,15 @@ SpectraVideoInspector::SpectraVideoInspector(QWidget* w, MachineController* mc, 
 	int ya = 227 + 3, yb = ya + dy, yc = yb + dy, yd = yc + dy; // checkboxes
 
 	checkbox_if1_rom_hooks = new QCheckBox("IF1Rom hooks", this);
-	connect(checkbox_if1_rom_hooks, &QCheckBox::toggled, this, &SpectraVideoInspector::enable_if1_rom_hooks);
+	connect(checkbox_if1_rom_hooks, &QCheckBox::toggled, this, &SpectraVideoInspector::slot_enable_if1_rom_hooks);
 	checkbox_rs232 = new QCheckBox("RS232", this);
-	connect(checkbox_rs232, &QCheckBox::toggled, this, &SpectraVideoInspector::enable_rs232);
+	connect(checkbox_rs232, &QCheckBox::toggled, this, &SpectraVideoInspector::slot_enable_rs232);
 	checkbox_joystick = new QCheckBox("Joystick", this);
-	connect(checkbox_joystick, &QCheckBox::toggled, this, &SpectraVideoInspector::enable_joystick);
+	connect(checkbox_joystick, &QCheckBox::toggled, this, &SpectraVideoInspector::slot_enable_joystick);
 	checkbox_new_video_modes = new QCheckBox("New colours", this);
-	connect(checkbox_new_video_modes, &QCheckBox::toggled, this, &SpectraVideoInspector::enable_new_displaymodes);
+	connect(checkbox_new_video_modes, &QCheckBox::toggled, this, &SpectraVideoInspector::slot_enable_new_displaymodes);
 	button_insert_rom = new QPushButton(spectra->isRomInserted() ? "Eject Rom" : "Insert Rom", this);
-	connect(button_insert_rom, &QPushButton::clicked, this, &SpectraVideoInspector::insert_or_eject_rom);
+	connect(button_insert_rom, &QPushButton::clicked, this, &SpectraVideoInspector::slot_insert_or_eject_rom);
 
 	button_set_keys->setFixedWidth(80);
 	button_scan_usb->setFixedWidth(80 + 12);
@@ -114,58 +112,53 @@ SpectraVideoInspector::SpectraVideoInspector(QWidget* w, MachineController* mc, 
 	timer->start(1000 / 15);
 }
 
-SpectraVideoInspector::~SpectraVideoInspector() {}
-
-void SpectraVideoInspector::enable_if1_rom_hooks(bool f)
+void SpectraVideoInspector::slot_enable_if1_rom_hooks(bool f)
 {
-	if (auto* sp = dynamic_cast<volatile SpectraVideo*>(object))
-	{
-		NVPtr<SpectraVideo>(sp)->setIF1RomHooksEnabled(f);
-		settings.setValue(key_spectra_enable_if1_rom_hooks, f);
-	}
+	assert(validReference(spectra));
+
+	nvptr(spectra)->setIF1RomHooksEnabled(f);
+	settings.setValue(key_spectra_enable_if1_rom_hooks, f);
 }
 
-void SpectraVideoInspector::enable_rs232(bool f)
+void SpectraVideoInspector::slot_enable_rs232(bool f)
 {
-	if (auto* sp = dynamic_cast<volatile SpectraVideo*>(object))
-	{
-		NVPtr<SpectraVideo>(sp)->setRS232Enabled(f);
-		settings.setValue(key_spectra_enable_rs232, f);
-	}
+	assert(validReference(spectra));
+
+	nvptr(spectra)->setRS232Enabled(f);
+	settings.setValue(key_spectra_enable_rs232, f);
 }
 
-void SpectraVideoInspector::enable_new_displaymodes(bool f)
+void SpectraVideoInspector::slot_enable_new_displaymodes(bool f)
 {
-	if (auto* sp = dynamic_cast<volatile SpectraVideo*>(object))
-	{
-		NVPtr<SpectraVideo>(sp)->enableNewVideoModes(f);
-		settings.setValue(key_spectra_enable_new_video_modes, f);
-	}
+	assert(validReference(spectra));
+
+	nvptr(spectra)->enableNewVideoModes(f);
+	settings.setValue(key_spectra_enable_new_video_modes, f);
 }
 
-void SpectraVideoInspector::enable_joystick(bool f)
+void SpectraVideoInspector::slot_enable_joystick(bool f)
 {
-	if (auto* sp = dynamic_cast<volatile SpectraVideo*>(object))
-	{
-		NVPtr<SpectraVideo>(sp)->setJoystickEnabled(f);
+	assert(validReference(spectra));
 
-		//	js_selector->setEnabled(f);
-		//	js_display->setEnabled(f);
-		//	button_set_keys->setEnabled(f);
-		//	button_scan_usb->setEnabled(f);
+	nvptr(spectra)->setJoystickEnabled(f);
 
-		settings.setValue(key_spectra_enable_joystick, f);
-	}
+	//	js_selector->setEnabled(f);
+	//	js_display->setEnabled(f);
+	//	button_set_keys->setEnabled(f);
+	//	button_scan_usb->setEnabled(f);
+
+	settings.setValue(key_spectra_enable_joystick, f);
 }
 
-void SpectraVideoInspector::find_usb_joysticks()
+void SpectraVideoInspector::slot_find_usb_joysticks()
 {
 	xlogIn("SpectraVideoInspector::scanUSB");
+
 	findUsbJoysticks();
 	update_js_selector();
 }
 
-void SpectraVideoInspector::set_keyboard_joystick_keys()
+void SpectraVideoInspector::slot_set_keyboard_joystick_keys()
 {
 	xlogIn("SpectraVideoInspector::setKeys");
 	//	getKbdJoystick()->setKeys();
@@ -174,19 +167,20 @@ void SpectraVideoInspector::set_keyboard_joystick_keys()
 	d->show();
 }
 
-void SpectraVideoInspector::js_selector_selected()
+void SpectraVideoInspector::slot_js_selector_selected()
 {
 	xlogIn("SpectraVideoInspector::joySelected");
+	assert(validReference(spectra));
 
-	if (auto* sp = dynamic_cast<volatile SpectraVideo*>(object))
-	{
-		int j = js_selector->currentIndex();
-		NVPtr<SpectraVideo>(sp)->insertJoystick(js_selector->itemData(j).toInt());
-	}
+	int j = js_selector->currentIndex();
+	nvptr(spectra)->insertJoystick(js_selector->itemData(j).toInt());
 }
 
 void SpectraVideoInspector::update_js_selector()
 {
+	xlogIn("SpectraVideoInspector::update_js_selector");
+	assert(validReference(spectra));
+
 	char f[max_joy];
 	int	 i;
 	for (i = 0; i < max_joy; i++) f[i] = joysticks[i]->isConnected() ? '1' : '0';
@@ -195,7 +189,7 @@ void SpectraVideoInspector::update_js_selector()
 		if (f[i] != '0' && f[i] != '3') break;
 	if (i == max_joy) return; // no change
 
-	static cstr jname[5] = {"USB Joystick 1", "USB Joystick 2", "USB Joystick 3", "Keyboard", "no Joystick"};
+	static constexpr cstr jname[5] = {"USB Joystick 1", "USB Joystick 2", "USB Joystick 3", "Keyboard", "no Joystick"};
 
 	while (js_selector->count()) { js_selector->removeItem(0); }
 	for (i = 0; i < max_joy; i++)
@@ -203,107 +197,100 @@ void SpectraVideoInspector::update_js_selector()
 		if (f[i] != '0') js_selector->addItem(jname[i], i);
 	}
 
-	if (auto* sp = dynamic_cast<volatile SpectraVideo*>(object))
+	int id = spectra->getJoystickID();
+	for (i = 0; i < js_selector->count(); i++)
 	{
-		int id = sp->getJoystickID();
-		for (i = 0; i < js_selector->count(); i++)
+		if (js_selector->itemData(i).toInt() == id)
 		{
-			if (js_selector->itemData(i).toInt() == id)
-			{
-				js_selector->setCurrentIndex(i);
-				break;
-			}
+			js_selector->setCurrentIndex(i);
+			break;
 		}
-
-		if (i == js_selector->count()) { js_selector->setCurrentIndex(i - 1); }
 	}
+
+	if (i == js_selector->count()) { js_selector->setCurrentIndex(i - 1); }
 }
 
-void SpectraVideoInspector::insert_or_eject_rom()
+void SpectraVideoInspector::slot_insert_or_eject_rom()
 {
-	if (auto* sp = dynamic_cast<volatile SpectraVideo*>(object))
+	xlogIn("SpectraVideoInspector::slot_insert_or_eject_rom()");
+	assert(validReference(spectra));
+
+	if (spectra->isRomInserted())
 	{
-		if (sp->isRomInserted())
-		{
-			xlogIn("SpectraVideoInspector::eject()");
+		xlogIn(" -> eject");
 
-			bool f = machine->powerOff();
-			NV(sp)->ejectRom();
-			if (f) machine->powerOn();
-		}
-		else
-		{
-			xlogIn("SpectraVideoInspector::insert()");
+		bool f = machine->powerOff();
+		NV(spectra)->ejectRom();
+		if (f) machine->powerOn();
+	}
+	else
+	{
+		xlogIn(" -> insert");
 
-			cstr filter	  = "IF2 Rom Cartridges (*.rom)"; //";;All Files (*)";
-			cstr filepath = selectLoadFile(this, "Select Rom Cartridge", filter);
-			if (!filepath) return;
+		cstr filter	  = "IF2 Rom Cartridges (*.rom)"; //";;All Files (*)";
+		cstr filepath = selectLoadFile(this, "Select Rom Cartridge", filter);
+		if (!filepath) return;
 
-			bool f = machine->powerOff();
-			NV(sp)->insertRom(filepath);
-			if (f) machine->powerOn();
-		}
+		bool f = machine->powerOff();
+		NV(spectra)->insertRom(filepath);
+		if (f) machine->powerOn();
 	}
 }
 
 void SpectraVideoInspector::updateWidgets()
 {
 	xlogIn("SpectraVideoInspector::updateWidgets");
+	assert(validReference(spectra));
 
-	if (!machine || !object) return;
-
-	if (auto* sp = dynamic_cast<volatile SpectraVideo*>(object))
+	uint8 newstate = spectra->joystick->getState(no);
+	if (js_state != newstate)
 	{
-		uint8 newstate = sp->joystick->getState(no);
-		if (js_state != newstate)
+		js_state = newstate;
+		char s[] = "%111FUDLR";
+		for (int j = 0; j < 8; j++)
 		{
-			js_state = newstate;
-			char s[] = "%111FUDLR";
-			for (int j = 0; j < 8; j++)
-			{
-				if (((~newstate) << j) & 0x80) s[j + 1] = '-';
-			}
-			js_display->setText(s);
+			if (((~newstate) << j) & 0x80) s[j + 1] = '-';
+		}
+		js_display->setText(s);
+	}
+
+	cstr new_romfile = spectra->filepath;
+	if (rom_file != new_romfile)
+	{
+		rom_name->setText(new_romfile ? basename_from_path(new_romfile) : nullptr);
+
+		if (!rom_file)
+		{
+			background.load(catstr(appl_rsrc_path, "/Images/Spectra_Loaded.jpg"));
+			button_insert_rom->setText("Eject Rom");
+			update();
+		}
+		if (!new_romfile)
+		{
+			background.load(catstr(appl_rsrc_path, "/Images/Spectra.jpg"));
+			button_insert_rom->setText("Insert Rom");
+			update();
 		}
 
-		cstr new_romfile = sp->filepath;
-		if (rom_file != new_romfile)
-		{
-			rom_name->setText(new_romfile ? basename_from_path(new_romfile) : nullptr);
+		rom_file = new_romfile;
+	}
 
-			if (!rom_file)
-			{
-				background.load(catstr(appl_rsrc_path, "/Images/Spectra_Loaded.jpg"));
-				button_insert_rom->setText("Eject Rom");
-				update();
-			}
-			if (!new_romfile)
-			{
-				background.load(catstr(appl_rsrc_path, "/Images/Spectra.jpg"));
-				button_insert_rom->setText("Insert Rom");
-				update();
-			}
+	if (checkbox_if1_rom_hooks->isChecked() != spectra->if1_rom_hooks_enabled)
+		checkbox_if1_rom_hooks->setChecked(spectra->if1_rom_hooks_enabled);
 
-			rom_file = new_romfile;
-		}
+	if (checkbox_rs232->isChecked() != spectra->rs232_enabled) checkbox_rs232->setChecked(spectra->rs232_enabled);
 
-		if (checkbox_if1_rom_hooks->isChecked() != sp->if1_rom_hooks_enabled)
-			checkbox_if1_rom_hooks->setChecked(sp->if1_rom_hooks_enabled);
+	if (checkbox_new_video_modes->isChecked() != spectra->new_video_modes_enabled)
+		checkbox_new_video_modes->setChecked(spectra->new_video_modes_enabled);
 
-		if (checkbox_rs232->isChecked() != sp->rs232_enabled) checkbox_rs232->setChecked(sp->rs232_enabled);
-
-		if (checkbox_new_video_modes->isChecked() != sp->new_video_modes_enabled)
-			checkbox_new_video_modes->setChecked(sp->new_video_modes_enabled);
-
-		bool f = sp->joystick_enabled;
-		if (checkbox_joystick->isChecked() != f)
-		{
-			checkbox_joystick->setChecked(f);
-			js_selector->setEnabled(f);
-			js_display->setEnabled(f);
-			button_set_keys->setEnabled(f);
-			button_scan_usb->setEnabled(f);
-		}
+	bool f = spectra->joystick_enabled;
+	if (checkbox_joystick->isChecked() != f)
+	{
+		checkbox_joystick->setChecked(f);
+		js_selector->setEnabled(f);
+		js_display->setEnabled(f);
+		button_set_keys->setEnabled(f);
+		button_scan_usb->setEnabled(f);
 	}
 }
 
@@ -313,33 +300,65 @@ void SpectraVideoInspector::fillContextMenu(QMenu* menu)
 	// called by Inspector::contextMenuEvent()
 	// items inserted here are inserted at the to of the popup menu
 
+	xlogIn("SpectraVideoInspector::fillContextMenu");
+	assert(validReference(spectra));
 	Inspector::fillContextMenu(menu); // NOP
 
-	if (auto* sp = dynamic_cast<volatile SpectraVideo*>(object))
+	if (spectra->isRomInserted())
 	{
-		if (NVPtr<SpectraVideo>(sp)->isRomInserted())
-		{
-			menu->addAction("Eject Rom", this, &SpectraVideoInspector::insert_or_eject_rom); //
-		}
-		else
-		{
-			menu->addAction("Insert Rom", this, &SpectraVideoInspector::insert_or_eject_rom);
-			menu->addAction("Recent Roms …")->setMenu(new RecentFilesMenu(RecentIf2Roms, this, [=](cstr fpath) {
-				insertRom(fpath);
-			}));
-		}
+		menu->addAction("Eject Rom", this, &SpectraVideoInspector::slot_insert_or_eject_rom); //
+	}
+	else
+	{
+		menu->addAction("Insert Rom", this, &SpectraVideoInspector::slot_insert_or_eject_rom);
+		menu->addAction("Recent Roms …")->setMenu(new RecentFilesMenu(RecentIf2Roms, this, [=](cstr fpath) {
+			insertRom(fpath);
+		}));
 	}
 }
 
 void SpectraVideoInspector::insertRom(cstr filepath)
 {
-	if (auto* sp = dynamic_cast<volatile SpectraVideo*>(object))
-	{
-		bool f = machine->powerOff();
-		if (sp->isRomInserted()) NV(sp)->ejectRom();
-		NV(sp)->insertRom(filepath);
-		if (f) machine->powerOn();
-	}
+	xlogIn("SpectraVideoInspector::insertRom");
+	assert(validReference(spectra));
+
+	bool f = machine->powerOff();
+	NV(spectra)->insertRom(filepath);
+	if (f) machine->powerOn();
 }
 
 } // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

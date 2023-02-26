@@ -9,12 +9,15 @@ class QComboBox;
 class QPushButton;
 class QPushButton;
 
+
 namespace gui
 {
 
 class JoyInsp : public Inspector
 {
 protected:
+	volatile Joy* joy;
+
 	uint		 num_ports;
 	QLineEdit*	 lineedit_display[3];
 	uint8		 lineedit_state[3];
@@ -30,9 +33,9 @@ protected:
 
 private:
 	void update_joystick_selectors();
-	void find_usb_joysticks();
-	void set_keyboard_joystick_keys();
-	void joystick_selected();
+	void slot_find_usb_joysticks();
+	void slot_set_keyboard_joystick_keys();
+	void slot_joystick_selected();
 };
 
 } // namespace gui

@@ -375,8 +375,7 @@ void Machine::memoryModified(Memory* m, uint how)
 	assert(isMainThread());
 	assert(is_locked());
 
-	gui::MachineController* mc = NV(controller);
-	mc->memoryModified(m, how);
+	controller->memoryModified(m, how);
 }
 
 void Machine::_resume()

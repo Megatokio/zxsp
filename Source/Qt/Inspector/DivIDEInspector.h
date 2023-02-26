@@ -11,6 +11,8 @@ namespace gui
 
 class DivIDEInspector : public Inspector
 {
+	volatile DivIDE* divide;
+
 	QPixmap overlay_jumper_E;
 	QPixmap overlay_jumper_A;
 	QPixmap overlay_jumper_EA;
@@ -36,7 +38,7 @@ class DivIDEInspector : public Inspector
 
 
 public:
-	DivIDEInspector(QWidget*, MachineController* mc, volatile IsaObject*);
+	DivIDEInspector(QWidget*, MachineController* mc, volatile DivIDE*);
 	~DivIDEInspector() override;
 
 protected:

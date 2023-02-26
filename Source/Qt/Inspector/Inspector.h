@@ -5,10 +5,12 @@
 
 #include "IsaObject.h"
 #include "Templates/RCPtr.h"
+#include "cpp/cppthreads.h"
 #include "kio/peekpoke.h"
 #include "zxsp_types.h"
 #include <QLineEdit>
 #include <QToolBar>
+
 
 namespace gui
 {
@@ -16,24 +18,25 @@ namespace gui
 class Inspector : public QWidget
 {
 	Q_OBJECT
+	NO_COPY_MOVE(Inspector);
 
 	friend class ToolWindow;
 
 protected:
-	MachineController*	controller;
-	volatile IsaObject* object;
-	volatile Machine*	machine;
-	QPixmap				background;
-	bool				is_visible;
-	QTimer*				timer;
-	QMenu*				contextmenu;
-	QToolBar*			toolbar;
+	MachineController* const  controller;
+	volatile Machine* const	  machine;
+	volatile IsaObject* const object;
+	QPixmap					  background;
+	bool					  is_visible  = false;
+	QTimer*					  timer		  = nullptr;
+	QMenu*					  contextmenu = nullptr;
+	QToolBar*				  toolbar	  = nullptr;
 
 public:
-	// Inspector Factory:
+	// Factory:
 	static Inspector* newInspector(QWidget*, MachineController*, volatile IsaObject*);
-	Inspector(const Inspector&)			   = delete;
-	Inspector& operator=(const Inspector&) = delete;
+
+	Inspector(QWidget*, MachineController*); // empty Inspector
 	~Inspector() override;
 
 protected:
@@ -54,6 +57,8 @@ protected:
 	virtual void updateWidgets() {}					  // called by timer. Timer must be started by subclass ctor.
 
 	static QLineEdit* newLineEdit(cstr text, int min_width = 80);
+
+	bool validReference(volatile Item* item);
 
 signals:
 	void signalSizeConstraintsChanged(); // -> min, max, fix size, size incr, shrinktofit

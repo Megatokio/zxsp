@@ -43,7 +43,7 @@ protected:
 	void updateWidgets() override;
 
 private:
-	void updateTooltip();
+	void update_tooltip();
 	int	 width_for_bytes(int);
 	int	 bytes_for_width(int);
 	int	 height_for_rows(int);

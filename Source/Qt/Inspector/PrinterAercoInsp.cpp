@@ -8,6 +8,6 @@
 namespace gui
 {
 
-PrinterAercoInsp::PrinterAercoInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) : Inspector(w, mc, i) {}
+PrinterAercoInsp::PrinterAercoInsp(QWidget* w, MachineController* mc, volatile PrinterAerco* i) : Inspector(w, mc, i) {}
 
 } // namespace gui

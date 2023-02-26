@@ -43,11 +43,10 @@ static QRect box_front_label_ejected_tc(99, 176, 131, 11);
 static QFont font_label("Arial Black", 9); // Geneva (weiter), Arial oder Gill Sans (enger)
 
 
-/*	Creator
- */
-TccDockInspector::TccDockInspector(QWidget* parent, MachineController* mc, volatile IsaObject* i) :
-	Inspector(parent, mc, i, i->isA(isa_MmuU2086) ? "/Images/u2086/open.jpg" : "/Images/tc2068/open.jpg"),
-	u(i->isA(isa_MmuU2086)),
+TccDockInspector::TccDockInspector(QWidget* parent, MachineController* mc, volatile MmuTc2068* mmu) :
+	Inspector(parent, mc, mmu, mmu->isA(isa_MmuU2086) ? "/Images/u2086/open.jpg" : "/Images/tc2068/open.jpg"),
+	dock(mmu),
+	u(mmu->isA(isa_MmuU2086)),
 	button_insert(new QPushButton("Insert Cartridge", this)),
 	x_overlay(u ? 72 : 73),
 	y_overlay(89),
@@ -105,13 +104,11 @@ TccDockInspector::~TccDockInspector()
 	delete[] current_fpath;
 }
 
-/*	Timer slot:
- */
 void TccDockInspector::updateWidgets()
 {
-	if (!machine || !object) return;
-	auto* dock = dynamic_cast<volatile MmuTc2068*>(object);
-	if (!dock) return;
+	// timer
+
+	assert(validReference(dock));
 
 	CartridgeState new_state = dock->isLoaded() ? RomInserted : current_fpath ? RomEjected : NoCartridge;
 
@@ -139,12 +136,11 @@ void TccDockInspector::updateWidgets()
 	}
 }
 
-
-// virtual
-void TccDockInspector::paintEvent(QPaintEvent*) // Qt callback
+void TccDockInspector::paintEvent(QPaintEvent*)
 {
 	xlogIn("TccInspector:paintEvent");
 	QPainter p(this);
+
 	//	p.setPen(Qt::blue);
 	//	p.setFont(QFont("Arial", 30));
 	//	p.drawText(rect(), Qt::AlignCenter, "Qt");
@@ -180,21 +176,17 @@ void TccDockInspector::paintEvent(QPaintEvent*) // Qt callback
 	}
 }
 
-
-// helper
 cstr TccDockInspector::getSaveFilename()
 {
 	static cstr filter = "TCC Cartridges (*.dck);;All Files (*)";
 	return selectSaveFile(this, "Save Cartridge as…", filter);
 }
 
-// helper
 cstr TccDockInspector::getLoadFilename()
 {
 	cstr filter = "TCC Cartridge (*.dck);;All Files (*)";
 	return selectLoadFile(this, "Insert Cartridge …", filter);
 }
-
 
 void TccDockInspector::fillContextMenu(QMenu* menu)
 {
@@ -204,7 +196,7 @@ void TccDockInspector::fillContextMenu(QMenu* menu)
 	{
 	case RomInserted:
 		menu->addAction("Eject cartridge", this, &TccDockInspector::eject_cartridge);
-		if (1) menu->addAction("Save as …", this, &TccDockInspector::save_as);
+		menu->addAction("Save as …", this, &TccDockInspector::save_as);
 		break;
 
 	case RomEjected:
@@ -223,14 +215,13 @@ void TccDockInspector::fillContextMenu(QMenu* menu)
 	}
 }
 
-
-/*	Mouse click handler:
-	- eject cartridge
-	- remove ejected cartridge
-	- insert ejected cartridge again
-*/
 void TccDockInspector::mousePressEvent(QMouseEvent* e)
 {
+	// Mouse click handler:
+	// - eject cartridge
+	// - remove ejected cartridge
+	// - insert ejected cartridge again
+
 	if (e->button() != Qt::LeftButton)
 	{
 		Inspector::mousePressEvent(e);
@@ -259,47 +250,23 @@ void TccDockInspector::mousePressEvent(QMouseEvent* e)
 	}
 }
 
-
-/*	Slot für "Insert/Eject" Button:
- */
 void TccDockInspector::insert_or_eject_cartridge()
 {
-	auto* dock = dynamic_cast<volatile MmuTc2068*>(object);
-	if (dock && dock->isLoaded()) eject_cartridge();
+	// Slot für "Insert/Eject" Button:
 
+	assert(validReference(dock));
+
+	if (dock->isLoaded()) eject_cartridge();
 	if (current_fpath) remove_cartridge();
 	else insert_cartridge();
 }
-
-
-/*void TccDockInspector::slotInsertCartridge()
-{
-	cstr filepath = getLoadFilename();
-	if(!filepath) return;
-
-	cartridge_state = Invalid;
-	delete[] current_fpath;
-	current_fpath = nullptr;
-
-	bool f = machine->powerOff();
-
-		MmuTc2068* dock = NV(this->dock());
-		dock->insertCartridge(filepath);
-
-		current_fpath = newcopy(filepath);
-		current_id = dock->getTccId();
-
-	if(f) machine->powerOn();
-}*/
 
 void TccDockInspector::insert_cartridge(cstr filepath)
 {
 	// called from menu: "Load..."        -> filepath==NULL -> query user
 	// called from menu: "Load recent..." -> filepath!=NULL
 
-	if (!machine || !object) return;
-	auto* dock = dynamic_cast<volatile MmuTc2068*>(object);
-	if (!dock) return;
+	assert(validReference(dock));
 
 	if (!filepath) filepath = getLoadFilename();
 	if (!filepath) return;
@@ -310,7 +277,7 @@ void TccDockInspector::insert_cartridge(cstr filepath)
 
 	bool f = machine->powerOff();
 
-	nvptr(dock)->insertCartridge(filepath);
+	NV(dock)->insertCartridge(filepath);
 
 	current_fpath = newcopy(filepath);
 	current_id	  = dock->getTccId();
@@ -318,15 +285,13 @@ void TccDockInspector::insert_cartridge(cstr filepath)
 	if (f) machine->powerOn();
 }
 
-
-/*	Context menu:
- */
 void TccDockInspector::eject_cartridge()
 {
-	if (!machine || !object) return;
-	auto* dock = dynamic_cast<volatile MmuTc2068*>(object);
+	// Context menu:
 
-	if (dock && dock->isLoaded())
+	assert(validReference(dock));
+
+	if (dock->isLoaded())
 	{
 		cartridge_state = Invalid;
 
@@ -336,15 +301,13 @@ void TccDockInspector::eject_cartridge()
 	}
 }
 
-
-/*	Context menu:
- */
 void TccDockInspector::remove_cartridge()
 {
-	if (!machine || !object) return;
-	auto* dock = dynamic_cast<volatile MmuTc2068*>(object);
+	// Context menu:
 
-	if (dock && !dock->isLoaded())
+	assert(validReference(dock));
+
+	if (!dock->isLoaded())
 	{
 		cartridge_state = Invalid;
 		delete[] current_fpath;
@@ -352,13 +315,11 @@ void TccDockInspector::remove_cartridge()
 	}
 }
 
-
-/*	Context menu:
- */
 void TccDockInspector::insert_again()
 {
-	if (!machine || !object) return;
-	auto* dock = dynamic_cast<volatile MmuTc2068*>(object);
+	// Context menu:
+
+	assert(validReference(dock));
 
 	if (current_fpath)
 	{
@@ -369,13 +330,11 @@ void TccDockInspector::insert_again()
 	}
 }
 
-
-/*	Context menu:
- */
 void TccDockInspector::save_as()
 {
-	if (!machine || !object) return;
-	auto* dock = dynamic_cast<volatile MmuTc2068*>(object);
+	// Context menu:
+
+	assert(validReference(dock));
 
 	cstr filepath = getSaveFilename();
 	if (filepath)
@@ -388,3 +347,34 @@ void TccDockInspector::save_as()
 }
 
 } // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

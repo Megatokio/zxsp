@@ -59,29 +59,13 @@ public:
 	// bool		getIdeBusy		(Time t)			{ return cf_card && cf_card->isBusy(t); }
 
 	// for Inspector:
-	bool getIdeBusy() const volatile
-	{
-		assert(isMainThread());
-		return cf_card && cf_card->is_busy();
-	}
-	bool isDiskWritable() const volatile
-	{
-		assert(isMainThread());
-		return cf_card && cf_card->isWritable();
-	}
-	cstr	getDiskFilename() const volatile;
-	Memory& getRam() const volatile
-	{
-		assert(isMainThread());
-		return const_cast<MemoryPtr&>(ram).ref();
-	}
-	Memory& getRom() const volatile
-	{
-		assert(isMainThread());
-		return const_cast<MemoryPtr&>(rom).ref();
-	}
-	// cstr	getDiskFilepath	() volatile const { assertMainThread(); return cf_card?cf_card->getFilepath():nullptr; }
-	void setDiskWritable(bool) volatile;
+	bool	getIdeBusy() const { return cf_card && cf_card->is_busy(); }
+	bool	isDiskWritable() const { return cf_card && cf_card->isWritable(); }
+	cstr	getDiskFilename() const;
+	Memory& getRam() const { return const_cast<MemoryPtr&>(ram).ref(); }
+	Memory& getRom() const { return const_cast<MemoryPtr&>(rom).ref(); }
+	// cstr	getDiskFilepath	() const { return cf_card?cf_card->getFilepath():nullptr; }
+	void setDiskWritable(bool);
 
 protected:
 	~DivIDE() override;

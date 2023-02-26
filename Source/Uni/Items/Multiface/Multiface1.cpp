@@ -185,7 +185,7 @@ void Multiface1::triggerNmi()
 }
 
 
-void Multiface1::insertJoystick(int id) volatile
+void Multiface1::insertJoystick(int id)
 {
 	if (joystick == joysticks[id]) return;
 

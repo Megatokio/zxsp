@@ -3,8 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "DktronicsDualJoyInsp.h"
-#include "Item.h"
-#include "Joy/DktronicsDualJoy.h"
 #include <QComboBox>
 #include <QGridLayout>
 #include <QPushButton>

@@ -12,6 +12,8 @@ namespace gui
 
 class AyInsp : public Inspector
 {
+	volatile Ay* const ay;
+
 	QLineEdit *clock, *pitch_a, *pitch_b, *pitch_c, *mixer, *vol_a, *vol_b, *vol_c, *pitch_n, *pitch_e, *shape_e,
 		*port_a, *port_b;
 

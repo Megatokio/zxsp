@@ -123,6 +123,14 @@ public:
 		}
 		return nullptr;
 	}
+	bool contains(const volatile Item* item)
+	{
+		for (uint i = all_items.count(); i--;)
+		{
+			if (item == all_items[i]) return true;
+		}
+		return false;
+	}
 
 	void setCrtc(Crtc* c) { cpu->setCrtc(crtc = c); }
 

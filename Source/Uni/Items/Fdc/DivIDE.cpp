@@ -422,20 +422,16 @@ void DivIDE::audioBufferEnd(Time t)
 	if (cf_card) cf_card->audioBufferEnd(t);
 }
 
-cstr DivIDE::getDiskFilename() const volatile
+cstr DivIDE::getDiskFilename() const
 {
-	assert(isMainThread());
-
 	if (!cf_card) return nullptr;
 	cstr fpath = cf_card->getFilepath();
 	if (startswith(fpath, "/dev/")) return fpath;
 	else return basename_from_path(fpath);
 }
 
-void DivIDE::setDiskWritable(bool f) volatile
+void DivIDE::setDiskWritable(bool f)
 {
-	assert(isMainThread());
-
 	if (cf_card != nullptr) cf_card->setWritable(f);
 }
 
