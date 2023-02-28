@@ -87,8 +87,8 @@ public:
 	TapeRecorder* taperecorder;
 	Fdc*		  fdc;
 	Printer*	  printer;
-
-	Crtc* crtc; // mostly same as ula. not update by addItem()/removeItem()!
+	Crtc*		  crtc; // mostly same as ula. not update by addItem()/removeItem()!
+	Item*		  last_item() const { return all_items.count() ? all_items.last() : nullptr; }
 
 public:
 	Item*		  addItem(Item*);

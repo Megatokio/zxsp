@@ -50,8 +50,6 @@ protected:
 public:
 	Item* prev() const { return _prev; }
 	Item* next() const { return _next; }
-	void  linkBehind(Item*);
-	void  unlink();
 	bool  matchesIn(uint16 addr) { return (addr & in_mask) == in_bits; }
 	bool  matchesOut(uint16 addr) { return (addr & out_mask) == out_bits; }
 	bool  isInternal() { return _internal; }

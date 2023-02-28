@@ -655,7 +655,6 @@ Item* Machine::addItem(Item* item)
 	assert(cpu || isPowerOff());
 	assert(item);
 
-	if (all_items.count()) item->linkBehind(all_items.last());
 	all_items.append(item);
 
 	if (auto* i = dynamic_cast<Z80*>(item)) cpu = i;
@@ -1711,27 +1710,27 @@ void Machine::rzxStopRecording(cstr msg, bool yellow)
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

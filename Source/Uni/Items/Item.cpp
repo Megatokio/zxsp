@@ -76,6 +76,11 @@ Item::Item(Machine* machine, isa_id id, isa_id grp, Internal internal, cstr o_ad
 {
 	xlogIn("new Item: %s", name);
 
+	assert(machine->is_locked());
+	_prev = machine->last_item();
+	if (_prev) _prev->_next = this;
+	assert(!_prev == this->isA(isa_Z80));
+
 	// io masks:
 	if (i_addr)
 	{
@@ -95,34 +100,10 @@ Item::~Item()
 {
 	xlogIn("~Item: %s", name);
 
-	unlink();
 	delete[] ioinfo;
+	if (_prev) _prev->_next = _next;
+	if (_next) _next->_prev = _prev;
 }
-
-void Item::linkBehind(Item* prev_item)
-{
-	assert(!_prev && !_next);
-
-	_prev = prev_item;
-	if (_prev) _next = _prev->_next;
-	if (_prev) _prev->_next = this;
-	if (_next) _next->_prev = this;
-}
-
-void Item::unlink()
-{
-	if (_prev)
-	{
-		_prev->_next = _next;
-		_prev		 = nullptr;
-	}
-	if (_next)
-	{
-		_next->_prev = _prev;
-		_next		 = nullptr;
-	}
-}
-
 
 void Item::powerOn(int32)
 {
@@ -159,32 +140,32 @@ void Item::unlock() const volatile { machine->unlock(); }
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */
