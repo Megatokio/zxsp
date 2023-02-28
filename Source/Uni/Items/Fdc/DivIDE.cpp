@@ -27,17 +27,16 @@ static constexpr uint MAPRAM_bit_mask = 1 << 6; // bit in DivIDE ctl reg
 static constexpr uint CONMEM_bit_mask = 1 << 7; // bit in DivIDE ctl reg
 
 
-DivIDE::DivIDE(Machine* machine, uint ramsize, cstr romfile) :
-	MassStorage(machine, isa_DivIDE, external, o_addr, i_addr),
-	rom(machine, "DivIDE Rom", 8 kB),
-	ram(machine, "DivIDE Ram", ramsize == 16 kB ? 16 kB : 32 kB),
+DivIDE::DivIDE(Machine* _machine, uint ramsize, cstr romfile) :
+	MassStorage(_machine, isa_DivIDE, external, o_addr, i_addr),
+	rom(_machine, "DivIDE Rom", 8 kB),
+	ram(_machine, "DivIDE Ram", ramsize == 512 kB ? 512 kB : 32 kB),
 	cf_card(nullptr),
 	ide_data_latch_state(random() & 1),
-	control_register(0),						 // All bits are reset to '0' after power-on.
-	jumper_E(),									 // set by insertRom()
-	jumper_A(machine->isA(isa_MachineZxPlus2a)), // for most models off, for +2A/+3 it must be set
-	auto_paged_in(0),							 // state of auto-paging
-	own_romdis_state(0),						 // own state
+	control_register(0),						  // All bits are reset to '0' after power-on.
+	jumper_E(),									  // set by insertRom()
+	jumper_A(_machine->isA(isa_MachineZxPlus2a)), // for most models off, for +2A/+3 it must be set
+	auto_page_in_ff(0),							  // state of auto-paging
 	romfilepath(nullptr)
 {
 	xlogIn("new DivIDE");
@@ -46,13 +45,8 @@ DivIDE::DivIDE(Machine* machine, uint ramsize, cstr romfile) :
 
 DivIDE::~DivIDE()
 {
-	if (own_romdis_state &&
-		romdis_in == no) // this should always be true. else romCS chain is left in inconsistent state
-	{
-		control_register = 0;  // clear conmem bit
-		auto_paged_in	 = no; // !conmem && !autopaged => will unmap all
-		mapMemory();		   // unmap our memory => also unmaps ram at 0..16k!
-	}
+	prev()->romCS(romdis_in);
+	unmap_memory();
 
 	delete cf_card;
 	delete[] romfilepath;
@@ -61,15 +55,68 @@ DivIDE::~DivIDE()
 void DivIDE::powerOn(int32 cc)
 {
 	MassStorage::powerOn(cc);
-	assert(romdis_in == off);
 
 	ide_data_latch_state = random() & 1;
 	control_register	 = 0;
-	auto_paged_in		 = off; // the FF that is toggled by the auto-paging addresses
-	own_romdis_state	 = off; // own state = auto-state + CONMEM
-	applyRomPatches();
+	auto_page_in_ff		 = off; // the FF that is toggled by the auto-paging addresses
+	assert(own_romdis_state() == off);
+
+	apply_rom_patches();
 	for (uint i = 0; i < ram.count(); i++) ram[i] |= random() & 0xff;
+
 	if (cf_card) cf_card->reset(0.0);
+
+	if (romdis_in) prev()->romCS(romdis_in);
+	else mapMemory();
+}
+
+void DivIDE::map_memory()
+{
+	// map ram at $2000:
+
+	uint rampage = mapped_rampage();
+	if (rampage != 3 || conmem_is_set() || !mapram_is_set()) // ram writable
+	{
+		machine->cpu->mapRam(0x2000 /*addr*/, 8 kB /*size*/, &ram[rampage << 13], nullptr, 0);
+	}
+	else // ram page #3 write protected
+	{
+		machine->cpu->mapRom(0x2000 /*addr*/, 8 kB /*size*/, &ram[3 << 13], nullptr, 0);
+		machine->cpu->unmapWom(0x2000 /*addr*/, 8 kB /*size*/, nullptr, 0);
+	}
+
+	// map ram, rom or nothing at $0000:
+
+	if (mapram_is_set() && !conmem_is_set()) // write protected ram#3 at 0x0000
+	{
+		machine->cpu->mapRom(0, 8 kB, &ram[3 << 13], nullptr, 0);
+		machine->cpu->unmapWom(0 /*addr*/, 8 kB /*size*/, nullptr, 0);
+	}
+	else if (conmem_is_set() && !jumper_E) // rom writable
+	{
+		machine->cpu->mapRam(0 /*addr*/, 8 kB /*size*/, &rom[0], nullptr, 0);
+	}
+	else // rom write protected
+	{
+		machine->cpu->mapRom(0 /*addr*/, 8 kB /*size*/, &rom[0], nullptr, 0);
+		machine->cpu->unmapWom(0 /*addr*/, 8 kB /*size*/, nullptr, 0);
+	}
+}
+
+void DivIDE::unmap_memory()
+{
+	// no need to unmap our readable memory: caller will map it's own rom
+	// but we probably must actively unmap our writable memory:
+
+	CoreByte* roma = rom.getData();
+	CoreByte* rama = ram.getData();
+	CoreByte* rame = rama + ram.count();
+
+	CoreByte* p = machine->cpu->wrPtr(0);
+	if (p == roma || (p >= rama && p < rame)) machine->cpu->unmapWom(0x0000 /*addr*/, 8 kB /*size*/);
+
+	p = machine->cpu->wrPtr(0x2000);
+	if (p >= rama && p < rame) machine->cpu->unmapWom(0x2000 /*addr*/, 8 kB /*size*/);
 }
 
 void DivIDE::romCS(bool f)
@@ -80,62 +127,45 @@ void DivIDE::romCS(bool f)
 	if (f == romdis_in) return;
 	romdis_in = f;
 
-	if (!own_romdis_state) // our memory is not paged in.
-	{					   // => we are not involved in memory paging.
-		prev()->romCS(f);  // => just pass the bucket.
-		return;
+	if (own_romdis_state() == off) // our memory is not paged in.
+	{							   // => we are not involved in memory paging.
+		prev()->romCS(f);		   // => just pass the bucket.
 	}
-
-	// own_romdis_state = true!
-
-	if (f) // paged out!
+	else // our memory is paged in:
 	{
-		// prev()->romCS(1);	since we are paged in this is a nop
-
-		// no need to unmap our readable memory: caller will map it's own rom
-		// but we probably must actively unmap our writable memory:
-
-		CoreByte* roma = rom.getData();
-		CoreByte* rama = ram.getData();
-		CoreByte* rame = rama + ram.count();
-
-		CoreByte* p = machine->cpu->wrPtr(0);
-		if (p == roma || (p >= rama && p < rame)) machine->cpu->unmapWom(0x0000 /*addr*/, 8 kB /*size*/);
-
-		p = machine->cpu->rdPtr(0x2000);
-		if (p >= rama && p < rame) machine->cpu->unmapWom(0x2000 /*addr*/, 8 kB /*size*/);
-	}
-	else // paged in!
-	{
-		mapMemory(); // also emits romCS()
+		// prev()->romCS(on);	   no change
+		if (f) unmap_memory();
+		else map_memory();
 	}
 }
 
-void DivIDE::applyRomPatches()
+void DivIDE::apply_rom_patches()
 {
 	// apply rom patches, regardless whether paging is enabled or not:
-	{ // enable-hooks go into the built-in rom:
-		MemoryPtr rom =
-			machine->rom; // TODO: sollten vor uns noch andere roms sein, müssten die enable-hooks auch da rein...
+	// enable-hooks go into the built-in rom:
+	MemoryPtr rom =
+		machine->rom; // TODO: sollten vor uns noch andere roms sein, müssten die enable-hooks auch da rein...
 
-		uint pagesize = machine->model_info->page_size;
-		assert(pagesize == 0x4000 || pagesize == 0x2000);
+	uint pagesize = machine->model_info->page_size;
+	assert(pagesize == 0x4000 || pagesize == 0x2000);
 
-		for (uint page = 0; page < rom.count(); page += pagesize)
-		{
-			rom[page + 0x000] |= cpu_patch;														   // RESET
-			rom[page + 0x008] |= cpu_patch;														   // ERROR1
-			rom[page + 0x038] |= cpu_patch;														   // INT IM1
-			rom[page + 0x066] |= cpu_patch;														   // NMI
-			rom[page + 0x4C6] |= cpu_patch;														   // SAVE
-			rom[page + 0x562] |= cpu_patch;														   // LOAD
-			for (uint i = 0x3d00; i <= 0x3dff; i++) rom[page + (i & (pagesize - 1))] |= cpu_patch; // TR-DOS
-		}
+	for (uint page = 0; page < rom.count(); page += pagesize)
+	{
+		rom[page + 0x000] |= cpu_patch;														   // RESET
+		rom[page + 0x008] |= cpu_patch;														   // ERROR1
+		rom[page + 0x038] |= cpu_patch;														   // INT IM1
+		rom[page + 0x066] |= cpu_patch;														   // NMI
+		rom[page + 0x4C6] |= cpu_patch;														   // SAVE
+		rom[page + 0x562] |= cpu_patch;														   // LOAD
+		for (uint i = 0x3d00; i <= 0x3dff; i++) rom[page + (i & (pagesize - 1))] |= cpu_patch; // TR-DOS
 	}
 
 	// disable hooks go into the DivIDE rom:
 	// TODO: sollten hinter uns noch roms sein, müssen die disable hooks auch da rein...
-	for (uint i = 0x1ff8; i <= 0x1fff; i++) rom[i] |= cpu_patch; // 'off-area'
+	for (uint i = 0x1ff8; i <= 0x1fff; i++)
+	{
+		rom[i] |= cpu_patch; // 'off-area'
+	}
 }
 
 void DivIDE::reset(Time t, int32 cc)
@@ -150,62 +180,12 @@ void DivIDE::reset(Time t, int32 cc)
 
 void DivIDE::mapMemory()
 {
-	// TODO: evtl. alten state cachen und vergleichen ob überhaupt was getan werden muss
+	if (romdis_in) return;
 
-	own_romdis_state = conmem_is_set() || auto_paged_in;
-
-	if (romdis_in) return; // wir sind von hinten übersteuert
-
-	prev()->romCS(own_romdis_state);
-
-	if (own_romdis_state) // on:
-	{
-		// map ram at $2000:
-		{
-			int rampage = mapped_rampage();
-			if (rampage != 3 || conmem_is_set() || !mapram_is_set()) // ram writable
-			{
-				machine->cpu->mapRam(0x2000 /*addr*/, 8 kB /*size*/, &ram[rampage << 13], nullptr, 0);
-			}
-			else // ram page #3 write protected
-			{
-				machine->cpu->mapRom(0x2000 /*addr*/, 8 kB /*size*/, &ram[3 << 13], nullptr, 0);
-				machine->cpu->unmapWom(0x2000 /*addr*/, 8 kB /*size*/, nullptr, 0);
-			}
-		}
-
-		// map ram, rom or nothing at $0000:
-
-		if (mapram_is_set() && !conmem_is_set()) // write protected ram#3 at 0x0000
-		{
-			machine->cpu->mapRom(0, 8 kB, &ram[3 << 13], nullptr, 0);
-			machine->cpu->unmapWom(0 /*addr*/, 8 kB /*size*/, nullptr, 0);
-		}
-		else if (conmem_is_set() && !jumper_E) // rom writable
-		{
-			machine->cpu->mapRam(0 /*addr*/, 8 kB /*size*/, &rom[0], nullptr, 0);
-		}
-		else // rom write protected
-		{
-			machine->cpu->mapRom(0 /*addr*/, 8 kB /*size*/, &rom[0], nullptr, 0);
-			machine->cpu->unmapWom(0 /*addr*/, 8 kB /*size*/, nullptr, 0);
-		}
-	}
-
-	else // off:
-	{	 // the mmu will already have unmapped our readable memory
-		 // but we still need to unmap our writable memory:
-
-		CoreByte* roma = rom.getData();
-		CoreByte* rama = ram.getData();
-		CoreByte* rame = rama + ram.count();
-
-		CoreByte* p = machine->cpu->wrPtr(0);
-		if (p == roma || (p >= rama && p < rame)) machine->cpu->unmapWom(0x0000 /*addr*/, 8 kB /*size*/);
-
-		p = machine->cpu->rdPtr(0x2000);
-		if (p >= rama && p < rame) machine->cpu->unmapWom(0x2000 /*addr*/, 8 kB /*size*/);
-	}
+	bool f = own_romdis_state();
+	prev()->romCS(f);
+	if (f) map_memory();
+	else unmap_memory();
 }
 
 void DivIDE::input(Time t, int32 /*cc*/, uint16 addr, uint8& byte, uint8& mask)
@@ -270,7 +250,7 @@ void DivIDE::output(Time t, int32 /*cc*/, uint16 addr, uint8 byte)
 		}
 		else if (x & 0x7f) // MAPRAM toggled (can only be set) or selected ram page toggled?
 		{
-			if (own_romdis_state) mapMemory(); // if currently mapped in => update mapping
+			if (own_romdis_state() == on) mapMemory(); // if currently mapped in => update mapping
 		}
 	}
 	else // IDE register
@@ -313,9 +293,9 @@ uint8 DivIDE::handleRomPatch(uint16 pc, uint8 opcode)
 		if ((pc | 7) == 0x1fff)
 		{
 			xlogline("DivIDE: page OUT");
-			if (auto_paged_in)
+			if (auto_page_in_ff)
 			{
-				auto_paged_in = off;
+				auto_page_in_ff = off;
 				if (!conmem_is_set()) mapMemory();
 			}
 			return opcode; // don't re-read opcode
@@ -325,9 +305,9 @@ uint8 DivIDE::handleRomPatch(uint16 pc, uint8 opcode)
 		if (pc == 0 || pc == 8 || pc == 0x38 || pc == 0x66 || pc == 0x4c6 || pc == 0x562)
 		{
 			xlogline("DivIDE: page IN");
-			if (!auto_paged_in)
+			if (!auto_page_in_ff)
 			{
-				auto_paged_in = on;
+				auto_page_in_ff = on;
 				if (!conmem_is_set()) mapMemory();
 			}
 			return opcode; // don't re-read opcode
@@ -337,9 +317,9 @@ uint8 DivIDE::handleRomPatch(uint16 pc, uint8 opcode)
 		if ((pc | 0xff) == 0x3dff)
 		{
 			xlogline("DivIDE: page IN (instantly)");
-			if (!auto_paged_in)
+			if (!auto_page_in_ff)
 			{
-				auto_paged_in = on;
+				auto_page_in_ff = on;
 				if (!conmem_is_set()) mapMemory();
 			}
 			return machine->cpu->peek(pc); // re-read opcode
@@ -356,21 +336,15 @@ void DivIDE::setJumperE(bool f)
 	//				write-protect Rom
 
 	if (jumper_E == f) return;
-	jumper_E = f;
-
-	auto_paged_in = off; // reset paging FF
-
-	mapMemory(); // update paging and rom write protection state
+	jumper_E		= f;
+	auto_page_in_ff = off; // reset paging FF
+	mapMemory();		   // update paging and rom write protection state
 }
 
 void DivIDE::saveRom(FD& fd)
 {
 	assert(rom.count() == 8 kB);
 	write_mem(fd, rom.getData(), 8 kB);
-
-	//	settings.setValue(key_divide_rom_file,fd.filepath());
-	//	delete[] romfilepath;
-	//	romfilepath = newcopy(path);
 }
 
 cstr DivIDE::insertRom(cstr path)
@@ -381,15 +355,15 @@ cstr DivIDE::insertRom(cstr path)
 
 	try
 	{
-		FD fd(path, 'r'); // throws
+		FD	 fd(path, 'r');
+		long sz = fd.file_size();
+		if (sz != rom.count()) //
+			return usingstr("Rom size is %u kByte, but file size is %lu", rom.count() >> 10, sz);
 
-		off_t sz = fd.file_size();
-		if (sz != 8 kB) return usingstr("Rom size is 8 kByte, but file size is %lu", sz);
-
-		read_mem(fd, rom.getData(), 8 kB); // throws
+		read_mem(fd, rom.getData(), 8 kB);
 		delete[] romfilepath;
 		romfilepath = newcopy(path);
-		applyRomPatches();
+		apply_rom_patches();
 		setJumperE(true);
 		return nullptr; // ok
 	}
@@ -432,7 +406,7 @@ cstr DivIDE::getDiskFilename() const
 
 void DivIDE::setDiskWritable(bool f)
 {
-	if (cf_card != nullptr) cf_card->setWritable(f);
+	if (cf_card) cf_card->setWritable(f);
 }
 
 void DivIDE::setRamSize(uint sz)
@@ -447,3 +421,45 @@ void DivIDE::setRamSize(uint sz)
 	mapMemory();
 	if (f) machine->resume();
 }
+
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/

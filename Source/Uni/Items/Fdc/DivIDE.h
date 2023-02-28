@@ -23,9 +23,8 @@ class DivIDE final : public MassStorage
 	uint8 control_register;
 	bool  jumper_E;
 	bool  jumper_A;
-	// bool	romdis_in;	   // rear-side input state
-	bool auto_paged_in;	   // auto page-in active?
-	bool own_romdis_state; // own state = auto_paged_in + CONMEM bit
+	// bool	romdis_in;	  // rear-side input state
+	bool auto_page_in_ff; // auto page-in active?
 	cstr romfilepath;
 
 public:
@@ -38,7 +37,7 @@ public:
 	// ROM handling:
 	cstr		 getRomFilepath() const volatile { return romfilepath; }
 	cstr		 getRomFilename() const volatile { return basename_from_path(romfilepath); }
-	bool		 isRomPagedIn() const volatile { return own_romdis_state; }
+	bool		 isRomPagedIn() const volatile { return own_romdis_state(); }
 	cstr /*err*/ insertRom(cstr path);
 	cstr /*err*/ insertDefaultRom() { return insertRom(default_rom); }
 	void		 saveRom(FD&);
@@ -81,9 +80,13 @@ protected:
 	void  romCS(bool f) override;
 
 private:
-	bool mapram_is_set() { return control_register & 0x40; }
-	bool conmem_is_set() { return control_register & 0x80; }
-	uint mapped_rampage() { return control_register & ((ram.count() >> 13) - 1); }
 	void mapMemory();
-	void applyRomPatches();
+
+	void map_memory();
+	void unmap_memory();
+	bool mapram_is_set() const volatile { return control_register & 0x40; }
+	bool conmem_is_set() const volatile { return control_register & 0x80; }
+	uint mapped_rampage() const { return control_register & ((ram.count() >> 13) - 1); }
+	bool own_romdis_state() const volatile { return conmem_is_set() || auto_page_in_ff; }
+	void apply_rom_patches();
 };
