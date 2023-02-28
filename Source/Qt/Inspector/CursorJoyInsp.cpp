@@ -4,6 +4,7 @@
 
 #include "CursorJoyInsp.h"
 #include "Joy/CursorJoy.h"
+#include "Templates/NVPtr.h"
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>

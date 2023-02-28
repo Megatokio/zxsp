@@ -43,9 +43,8 @@ class MachineController : public QMainWindow
 	cstr		  filepath;	  // Snapshot file path or nil
 
 	// controlled objects:
-	std::shared_ptr<volatile Machine> machine_sp;
-	volatile Machine*				  machine; // for easy access
-	Screen*							  screen;  // ScreenZxsp* or ScreenMono*
+	std::shared_ptr<volatile Machine> machine;
+	Screen*							  screen; // ScreenZxsp* or ScreenMono*
 	IsaObject*						  mem[4];
 	Lenslok*						  lenslok;
 
@@ -153,7 +152,7 @@ public:
 	MachineController(QString filepath);
 	~MachineController() override;
 
-	volatile Machine* getMachine() { return machine; }
+	volatile Machine* getMachine() { return machine.get(); }
 	Screen*			  getScreen() volatile { return screen; } // callback from running machine
 	void			  setScreen(Screen*);
 

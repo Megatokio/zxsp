@@ -647,8 +647,8 @@ void MachineController::createActions()
 		newAction("video.gif", "Record Gif movie", Qt::Key_P | int(Qt::ALT), [=](bool f) { recordMovie(f); });
 	action_pwrOnReset =
 		newAction("power_button.gif", "Power-On reset", Qt::Key_R | SHIFT, [=] { powerResetMachine(); });
-	action_reset = newAction("reset_button.gif", "Push reset", NOKEY, [=] { resetMachine(); });
-	action_nmi	 = newAction("nmi_button.gif", "Push NMI", Qt::Key_N | SHIFT, [=] { NVPtr<Machine>(machine)->nmi(); });
+	action_reset	= newAction("reset_button.gif", "Push reset", NOKEY, [=] { resetMachine(); });
+	action_nmi		= newAction("nmi_button.gif", "Push NMI", Qt::Key_N | SHIFT, [=] { nvptr(machine)->nmi(); });
 	action_suspend	= newAction("run-pause.png", "Halt CPU", Qt::Key_H | SHIFT, [=](bool f) { haltMachine(f); });
 	action_stepIn	= newAction("arrow-dn.png", "Step in", Qt::Key_I | SHIFT, [=] {
 		  assert(machine->isSuspended());
@@ -676,8 +676,8 @@ void MachineController::createActions()
 
 	// fixed show_actions: these are never removed from showActions[] (except in dtor)
 	action_showMachineImage = newAction(
-		NOICON, "Machine image", Qt::Key_I, [=](bool f) { toggleToolwindow(machine, action_showMachineImage, f); },
-		isa_Machine);
+		NOICON, "Machine image", Qt::Key_I,
+		[=](bool f) { toggleToolwindow(machine.get(), action_showMachineImage, f); }, isa_Machine);
 	action_showMemHex = newAction(
 		NOICON, "Memory hexview", Qt::Key_M, [=](bool f) { toggleToolwindow(mem[0], action_showMemHex, f); },
 		isa_MemHex);
@@ -1090,9 +1090,8 @@ void MachineController::killMachine()
 	}
 	hideInspector(NV(machine), no);
 
-	//delete machine;
-	machine_sp.reset();
-	machine = nullptr;
+	//delete machine:
+	machine.reset();
 
 	delete screen;
 	screen = nullptr;
@@ -1166,11 +1165,9 @@ Machine* MachineController::initMachine(
 	model_actiongroup->actions().at(model)->setChecked(1);
 
 	// Create machine:
-	screen			 = newScreenForModel(model);
-	auto machine_sp	 = newMachineForModel(model); // not powered on, not suspended
-	auto machine	 = machine_sp.get();
-	this->machine_sp = machine_sp;
-	this->machine	 = machine;
+	screen		  = newScreenForModel(model);
+	auto machine  = newMachineForModel(model); // not powered on, not suspended
+	this->machine = machine;				   // volatile
 	this->model = model = machine->model;
 	model_info			= machine->model_info;
 	if (XSAFE)
@@ -1179,7 +1176,7 @@ Machine* MachineController::initMachine(
 	action_enable_breakpoints->setChecked(true);
 
 	setFilepath(nullptr);
-	if (this == front_machine_controller) front_machine = machine;
+	if (this == front_machine_controller) front_machine = machine.get();
 
 	setKeyboardMode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
 	enableAudioIn(settings.get_bool(key_new_machine_audioin_enabled, machine->audio_in_enabled));
@@ -1232,7 +1229,7 @@ Machine* MachineController::initMachine(
 
 	if (XSAFE)
 		foreach (ToolWindow* toolwindow, tool_windows) { assert(toolwindow->item == nullptr); }
-	showInspector(machine, action_showMachineImage, no /*!force*/);
+	showInspector(machine.get(), action_showMachineImage, no /*!force*/);
 	showInspector(mem[0] = new MemObject(isa_MemHex), action_showMemHex, no /*!force*/);
 	showInspector(mem[1] = new MemObject(isa_MemDisass), action_showMemDisass, no /*!force*/);
 	showInspector(mem[2] = new MemObject(isa_MemGraphical), action_showMemGraphical, no /*!force*/);
@@ -1318,7 +1315,7 @@ Machine* MachineController::initMachine(
 	machine->powerOn();
 
 	in_machine_ctor = was_in_machine_ctor;
-	return machine;
+	return machine.get();
 }
 
 void MachineController::openFile()
@@ -1463,7 +1460,7 @@ void MachineController::changeEvent(QEvent* e)
 					front_machine_controller->allKeysUp();
 					front_machine_controller->hideAllToolwindows();
 				}
-				front_machine			 = machine;
+				front_machine			 = machine.get();
 				front_machine_controller = this;
 				showAllToolwindows();
 			}
@@ -1591,7 +1588,7 @@ void MachineController::keyPressEvent(QKeyEvent* e)
 
 		if (machine && machine->rzxIsLoaded() && action_RzxRecordAutostart->isChecked())
 		{
-			NVPtr<Machine> machine(this->machine);
+			NVPtr<Machine> machine(this->machine.get());
 			if (machine->rzxIsPlaying()) machine->rzxStartRecording(); // -> callback rzxStateChanged()
 		}
 
@@ -1753,7 +1750,7 @@ void MachineController::resetMachine()
 	xlogIn("MachineController:Reset");
 
 	setFilepath(nullptr);
-	NVPtr<Machine>(machine)->reset();
+	nvptr(machine)->reset();
 	screen->hideOverlayPlay();
 	screen->hideOverlayRecord();
 	setKeyboardMode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
@@ -1939,8 +1936,8 @@ void MachineController::setRzxRecording(bool f)
 	// start or stop recording into rzx file
 
 	if (!machine) return;
-	if (f) NVPtr<Machine>(machine)->rzxStartRecording();
-	else NVPtr<Machine>(machine)->rzxStopRecording();
+	if (f) nvptr(machine)->rzxStartRecording();
+	else nvptr(machine)->rzxStopRecording();
 }
 
 
@@ -2098,8 +2095,9 @@ void MachineController::rzxStateChanged() volatile
 	// callback from machine, any thread
 
 	QTimer::singleShot(0, NV(this), [this] {
+		assert(isMainThread());
 		action_RzxRecord->blockSignals(true);
-		action_RzxRecord->setChecked(nvptr(machine)->rzxIsRecording());
+		action_RzxRecord->setChecked(nvptr(NV(this)->machine)->rzxIsRecording());
 		action_RzxRecord->blockSignals(false);
 	});
 }
@@ -2117,7 +2115,8 @@ void MachineController::machineSuspendStateChanged() volatile
 	// callback from machine, any thread
 
 	QTimer::singleShot(0, NV(this), [this] {
-		bool f = machine->isSuspended();
+		assert(isMainThread());
+		bool f = NV(this)->machine->isSuspended();
 		action_suspend->blockSignals(yes);
 		action_suspend->setChecked(f);
 		action_suspend->blockSignals(no);

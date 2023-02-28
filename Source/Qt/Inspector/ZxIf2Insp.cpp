@@ -9,6 +9,7 @@
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
 #include "RecentFilesMenu.h"
+#include "Templates/NVPtr.h"
 #include "Z80/Z80.h"
 #include <QGridLayout>
 #include <QLabel>

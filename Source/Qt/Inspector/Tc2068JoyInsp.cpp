@@ -4,6 +4,7 @@
 
 #include "Tc2068JoyInsp.h"
 #include "Ay/AySubclasses.h"
+#include "Templates/NVPtr.h"
 #include <QComboBox>
 #include <QGridLayout>
 #include <QPushButton>
