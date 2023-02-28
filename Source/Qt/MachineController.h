@@ -133,8 +133,8 @@ private:
 	void		showAllToolwindows();													   // changeEvent()
 	void		hideAllToolwindows();													   // changeEvent()
 
-	void item_added(Item*);	  // callback from Item c'tor
-	void item_removed(Item*); // callback from Item d'tor
+	void item_added(Item*, bool force);	  // callback from Item c'tor
+	void item_removed(Item*, bool force); // callback from Item d'tor
 
 protected:
 	void contextMenuEvent(QContextMenuEvent*) override;

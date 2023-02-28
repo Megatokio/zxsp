@@ -1969,10 +1969,13 @@ void MachineController::itemAdded(Item* item) volatile
 
 	xlogIn("MachineController::itemAdded()");
 	assert(isMainThread());
-	NV(this)->item_added(item);
+
+	// we delay the updates because in case of a new machine it is not yet stored in this->machine:
+	bool force = !in_machine_ctor;
+	QTimer::singleShot(0, NV(this), [=] { NV(this)->item_added(item, force); });
 }
 
-void MachineController::item_added(Item* item)
+void MachineController::item_added(Item* item, bool force)
 {
 	// we manage the 'Extensions' menu here.
 	// 'add' and 'show' actions are un|checked and dis|enabled
@@ -1981,9 +1984,8 @@ void MachineController::item_added(Item* item)
 	// 	 external item: the 'add' action exists (and is visible in the menu)
 
 	// Ula and Mmu are handled as one:
-	if (dynamic_cast<Ula*>(item) && !machine->mmu) return;
-	if (dynamic_cast<Mmu*>(item) && !machine->ula) return;
-	if (dynamic_cast<Mmu*>(item)) item = machine->ula;
+	if (dynamic_cast<Mmu*>(item)) return;
+	if (dynamic_cast<Ula*>(item)) assert(machine->mmu != nullptr);
 
 	// wenn mehrere Files gleichzeitig gestartet werden,
 	// werden die ohne Unterbrechung in die Maschine geladen,
@@ -2055,7 +2057,6 @@ void MachineController::item_added(Item* item)
 	window_menu->insertAction(separator, showaction);
 	show_actions.append(showaction);
 
-	bool force = !in_machine_ctor;
 	showInspector(item, showaction, force);
 }
 
@@ -2066,14 +2067,13 @@ void MachineController::itemRemoved(Item* item) volatile
 	xlogIn("MachineController::itemRemoved()");
 	assert(isMainThread());
 
-	NV(this)->item_removed(item);
+	if (in_dtor) return; // during this.dtor the items_menu is already purged
+	bool force = !in_machine_dtor;
+	NV(this)->item_removed(item, force);
 }
 
-void MachineController::item_removed(Item* item)
+void MachineController::item_removed(Item* item, bool force)
 {
-	if (in_dtor) return; // during this.dtor the items_menu is already purged
-
-	bool force = !in_machine_dtor;
 	hideInspector(item, force);
 
 	QAction* addAction	= find_action_for_item(add_actions, item);
@@ -2305,34 +2305,34 @@ void MachineController::hideInspector(IsaObject* item, bool force)
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

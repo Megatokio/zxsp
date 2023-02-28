@@ -141,10 +141,16 @@ Inspector::Inspector(QWidget* w, MachineController* mc, volatile IsaObject* item
 			timer, &QTimer::timeout, this,
 			[this] {
 				assert(isMainThread());
-				assert(controller->getMachine() == machine);
-				if (auto* item = dynamic_cast<volatile Item*>(this->object)) assert(NV(machine)->contains(item));
-
-				if (is_visible) updateWidgets();
+				if (!is_visible) return;
+				if (unlikely(controller->getMachine() != machine))
+				{
+					// can happen if event sent just before Machine destroyed
+					showWarning("Inspector::timer called for invalid Machine");
+					//logline("*** Inspector::timer called for invalid Machine ***");
+					return;
+				}
+				if (auto* item = dynamic_cast<volatile Item*>(object)) { assert(NV(machine)->contains(item)); }
+				updateWidgets();
 			},
 			Qt::AutoConnection);
 
