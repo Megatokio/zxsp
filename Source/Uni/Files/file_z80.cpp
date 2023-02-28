@@ -426,7 +426,7 @@ void Machine::loadZ80_attach_joysticks(uint z80head_im)
 		idx = 1;
 		FALLTHROUGH
 	case 2: // left (2nd) IF2
-		j = findIsaItem(isa_SinclairJoy);
+		j = find<SinclairJoy>();
 		if (!j) j = addExternalItem(isa_ZxIf2);
 		break;
 	}

@@ -25,6 +25,44 @@
 #include <math.h>
 
 
+class Items : private Array<std::shared_ptr<Item>>
+{
+public:
+	using Array::append;
+	using Array::count;
+	using Array::drop;
+	using Array::last;
+	using Array::remove;
+	using Array::operator[];
+	using Array::indexof;
+
+	uint indexof(const volatile Item* item) const
+	{
+		uint i = count();
+		while (i-- && data[i].get() != item) {}
+		return i; // i = ~0u if not found
+	}
+
+	bool contains(const volatile Item* item) { return indexof(item) != ~0u; }
+
+	void remove(Item* item)
+	{
+		uint i = indexof(item);
+		if (i != ~0u) remove(i);
+	}
+
+	template<typename ITEM>
+	ITEM* find()
+	{
+		for (uint i = count(); --i;)
+		{
+			if (ITEM* item = dynamic_cast<ITEM*>(data[i].get())) return item;
+		}
+		return nullptr;
+	}
+};
+
+
 class Machine : public IsaObject
 {
 	NO_COPY_MOVE(Machine);
@@ -75,7 +113,7 @@ public:
 
 public:
 	// All components:
-	Array<Item*> all_items;
+	Items all_items;
 
 	// Mostly internal components:
 	Z80*		  cpu; // the cpu: always first in list of items
@@ -88,7 +126,7 @@ public:
 	Fdc*		  fdc;
 	Printer*	  printer;
 	Crtc*		  crtc; // mostly same as ula. not update by addItem()/removeItem()!
-	Item*		  last_item() const { return all_items.count() ? all_items.last() : nullptr; }
+	Item*		  last_item() const { return all_items.count() ? all_items.last().get() : nullptr; }
 
 public:
 	Item*		  addItem(Item*);
@@ -102,35 +140,24 @@ public:
 	void removeItem(isa_id id) { removeItem(findItem(id)); }
 	void removeSpectraVideo();
 
-	template<typename Item>
+	template<typename ITEM>
 	void remove()
 	{
-		removeItem(find<Item>());
+		removeItem(find<ITEM>());
 	}
 
-	Item*  findItem(isa_id id); // TODO: separate base classes and real classes -> use find<typename>() becomes possible
-	Item*  findIsaItem(isa_id id); // prefer find<typename>()
-	ZxIf2* findZxIf2() { return find<ZxIf2>(); }
+	template<typename ITEM>
+	ITEM* find()
+	{
+		return all_items.find<ITEM>(); // nullptr if not found
+	}
+
+	Item*		  findItem(isa_id id); // kind of an Item
+	ZxIf2*		  findZxIf2() { return find<ZxIf2>(); }
 	SpectraVideo* findSpectraVideo() { return find<SpectraVideo>(); }
 	DivIDE*		  findDivIDE() { return find<DivIDE>(); }
 
-	template<typename Item>
-	Item* find()
-	{
-		for (uint i = all_items.count(); --i;)
-		{
-			if (Item* item = dynamic_cast<Item*>(all_items[i])) return item;
-		}
-		return nullptr;
-	}
-	bool contains(const volatile Item* item)
-	{
-		for (uint i = all_items.count(); i--;)
-		{
-			if (item == all_items[i]) return true;
-		}
-		return false;
-	}
+	bool contains(const volatile Item* item) { return all_items.contains(item); }
 
 	void setCrtc(Crtc* c) { cpu->setCrtc(crtc = c); }
 

@@ -953,7 +953,7 @@ void MachineController::startupOpenToolwindows()
 			else if (machine->mmu->isA(isa_MmuTc2068)) findShowActionForItem(machine->mmu)->setChecked(yes);
 			else
 			{
-				Item* divide = NV(machine)->findIsaItem(isa_DivIDE);
+				Item* divide = NV(machine)->find<DivIDE>();
 				if (divide) findShowActionForItem(divide)->setChecked(yes);
 			}
 		}

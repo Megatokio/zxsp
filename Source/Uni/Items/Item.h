@@ -44,8 +44,8 @@ protected:
 
 	// ---------------- P U B L I C -------------------
 
-	friend class Machine;
-	virtual ~Item() override;
+public:
+	virtual ~Item() override; // making friend with a shared_ptr is left as an exercise to the reader...
 
 public:
 	Item* prev() const { return _prev; }

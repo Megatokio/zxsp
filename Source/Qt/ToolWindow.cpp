@@ -285,7 +285,7 @@ void ToolWindow::fillContextMenu(QMenu* contextmenu)
 
 	for (uint i = 0; i < machine->all_items.count(); i++)
 	{
-		Item* item = machine->all_items[i];
+		Item* item = machine->all_items[i].get();
 		if (item->grp_id == isa_Mmu) continue; // mmu+ula=ula
 
 		action = new QAction(item->name, contextmenu);

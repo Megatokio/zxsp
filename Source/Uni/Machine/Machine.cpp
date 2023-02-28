@@ -331,10 +331,10 @@ Machine::~Machine()
 	is_power_on = no;
 
 	// remove from back to front:
-	for (uint i = all_items.count(); i--;)
+	while (all_items.count())
 	{
-		controller->itemRemoved(all_items[i]);
-		delete all_items[i];
+		controller->itemRemoved(all_items.last().get());
+		all_items.drop();
 	}
 }
 
@@ -628,18 +628,7 @@ Item* Machine::findItem(isa_id id)
 
 	for (uint i = all_items.count(); i--;)
 	{
-		if (all_items[i]->isaId() == id) { return all_items[i]; }
-	}
-	return nullptr;
-}
-
-Item* Machine::findIsaItem(isa_id id)
-{
-	// find sort of an item:
-
-	for (uint i = all_items.count(); i--;)
-	{
-		if (all_items[i]->isA(id)) { return all_items[i]; }
+		if (all_items[i]->isaId() == id) { return all_items[i].get(); }
 	}
 	return nullptr;
 }
@@ -655,7 +644,7 @@ Item* Machine::addItem(Item* item)
 	assert(cpu || isPowerOff());
 	assert(item);
 
-	all_items.append(item);
+	all_items.append(std::shared_ptr<Item>(item));
 
 	if (auto* i = dynamic_cast<Z80*>(item)) cpu = i;
 	if (auto* i = dynamic_cast<Mmu*>(item)) mmu = i;
@@ -697,8 +686,10 @@ void Machine::removeItem(Item* item)
 	if (joystick == item) joystick = find<Joy>();
 	if (taperecorder == item) taperecorder = find<TapeRecorder>();
 
-	all_items.remove(item);
-	delete item;
+	uint i = all_items.indexof(item);
+	assert(i != ~0u);			   // must be in list
+	assert(all_items[i].unique()); // must be the only shared_ref
+	all_items.remove(i);		   // => will be deleted
 }
 
 Item* Machine::addExternalItem(isa_id id)
