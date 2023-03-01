@@ -8,10 +8,12 @@
 #include "IsaObject.h"
 #include "Joy/ZxIf2.h"
 #include "Memory.h"
+#include "Multiface/Multiface1.h"
 #include "Overlays/Overlay.h"
 #include "Ram/ExternalRam.h"
 #include "SpectraVideo.h"
 #include "StereoSample.h"
+#include "Templates/NVPtr.h"
 #include "Templates/RCPtr.h"
 #include "Ula/Ula.h"
 #include "Ula/UlaZx80.h"
@@ -21,9 +23,7 @@
 #include "globals.h"
 #include "kio/kio.h"
 #include "zxsp_types.h"
-#include <Multiface/Multiface1.h>
 #include <math.h>
-
 
 class Items : private Array<std::shared_ptr<Item>>
 {
@@ -73,7 +73,12 @@ class Machine : public IsaObject
 	friend class Z80;
 
 public:
-	PLock _lock;
+	std::timed_mutex mutex;
+
+	void lock() volatile { NV(mutex).lock(); }
+	void unlock() volatile { NV(mutex).unlock(); }
+	bool trylock() volatile { return NV(mutex).try_lock(); }
+	bool trylock(int timeout_nsec) volatile { return NV(mutex).try_lock_for(std::chrono::nanoseconds(timeout_nsec)); }
 
 	volatile gui::MachineController* controller;
 
@@ -256,14 +261,12 @@ public:
 	Time  now_lim() { return t_for_cc_lim(cpu->cpuCycle()); }
 
 	// Control & Run the Machine:
-	void lock() volatile { _lock.lock(); }
-	void unlock() volatile { _lock.unlock(); }
 	bool is_locked() volatile
 	{
 		if (!is_power_on) return yes;
 		if (is_suspended) return yes;
-		bool f = _lock.trylock();
-		if (f) _lock.unlock();
+		bool f = NV(mutex).try_lock();
+		if (f) NV(mutex).unlock();
 		return !f;
 	}
 

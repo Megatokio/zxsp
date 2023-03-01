@@ -278,7 +278,7 @@ static OSStatus audioDeviceIOProc(
 
 	TT; // Test Timer
 
-	PLocker lock(audio_callback_lock); // 2006-11-16 kio
+	PLocker<PLock> lock(audio_callback_lock); // 2006-11-16 kio
 
 	try
 	{
@@ -410,7 +410,7 @@ void stopCoreAudio()
 	(void)AudioDeviceStop(output_device_id, audio_out_ioProcID); // kio 2012-08-08
 
 	// wait for any current sound callback to finish:
-	PLocker lock(audio_callback_lock);
+	PLocker<PLock> lock(audio_callback_lock);
 	//    waitDelay(0.01);
 }
 
@@ -438,7 +438,7 @@ void startCoreAudio(bool input_enabled) //, int playthrough_mode)
 #endif
 
 	// block audio interrupt until setup completed:
-	PLocker lock(audio_callback_lock);
+	PLocker<PLock> lock(audio_callback_lock);
 
 	// clear stitching samples: (required?)
 	for (int i = 0; i < DSP_SAMPLES_STITCHING; i++)

@@ -103,25 +103,17 @@ class MachineList : private Array<volatile Machine*>
 	using Array::data;
 
 public:
-	PLock _lock;
+	PLock mutex;
 
 	void append(volatile Machine* m)
 	{
-		PLocker z(_lock);
+		PLocker<PLock> z(mutex);
 		Array::append(m);
 	}
 	void remove(volatile Machine* m)
 	{
-		PLocker z(_lock);
-		// Array::removeitem(m);
-		for (uint i = 0; i < cnt; i++)
-		{
-			if (m == data[i])
-			{
-				Array::remove(i);
-				return;
-			}
-		}
+		PLocker<PLock> z(mutex);
+		Array::remove(m);
 	}
 
 	using Array::count;
@@ -135,19 +127,21 @@ volatile void*	   front_machine = nullptr;
 
 void runMachinesForSound()
 {
-	PLocker z(machine_list._lock);
+	PLocker<PLock> z(machine_list.mutex);
 
 	for (uint i = 0; i < machine_list.count(); i++)
 	{
-		NVPtr<Machine> machine(machine_list[i]);
-		if (machine->isPowerOn()) // not suspended by controller
+		NVPtr<Machine> machine(machine_list[i], 50 * 1000); // 50 µs
+
+		if (machine->isPowerOn())
 		{
-			if (machine->isRunning()) // cpu not suspended for debugger
+			if (machine->isRunning()) // not suspended
 			{
 				machine->runForSound();
-				if (machine->cpu_clock <= 100000) machine->drawVideoBeamIndicator();
+				if (machine->cpu_clock > 100000) continue;
 			}
-			else { machine->drawVideoBeamIndicator(); }
+
+			machine->drawVideoBeamIndicator();
 		}
 	}
 }
@@ -213,7 +207,7 @@ std::shared_ptr<Machine> Machine::newMachine(gui::MachineController* mc, Model m
 
 Machine::Machine(gui::MachineController* parent, Model model, isa_id id) :
 	IsaObject(id, isa_Machine),
-	_lock(), //_lock(PLock::recursive),
+	mutex(), //_lock(PLock::recursive),
 	controller(parent),
 	model(model),
 	model_info(&zx_info[model]),
@@ -406,7 +400,7 @@ bool Machine::suspend() volatile
 	// 	 1 = was running
 	// 	 0 = was suspended
 
-	PLocker z(_lock);
+	PLocker<Machine> z(this);
 	if (is_suspended) return false; // was not running
 	NV(this)->_suspend();
 	return true; // was running
@@ -572,7 +566,7 @@ bool Machine::powerOff() volatile
 {
 	assert(isMainThread());
 
-	PLocker z(_lock);
+	PLocker<Machine> z(this);
 	if (isPowerOff()) return false; // wasn't running
 	NV(this)->_power_off();
 	return true; // was running

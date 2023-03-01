@@ -111,7 +111,7 @@ void UsbJoystick::connect(io_object_t dev)
 	xlogIn("UsbJoystick:Connect");
 	if (XXLOG) ShowDeviceProperties(dev); // <-- very longish!
 
-	PLocker z(lock);
+	PLocker<PLock> z(lock);
 	dev_if = newHIDDeviceInterfaceForService(dev);
 
 	if (!dev_if)
@@ -163,7 +163,7 @@ void UsbJoystick::disconnect()
 {
 	xlogIn("UsbJoystick:Disconnect");
 
-	PLocker z(lock);
+	PLocker<PLock> z(lock);
 	if (dev_if)
 	{
 		(*dev_if)->close(dev_if);
@@ -187,7 +187,7 @@ uint8 UsbJoystick::getState(bool mark_active) volatile
 	if (mark_active) last_time = system_time;
 
 	// get new state:
-	PLocker z(lock);
+	PLocker<PLock> z(lock);
 	state = const_cast<UsbJoystick*>(this)->get_state();
 	return state;
 }

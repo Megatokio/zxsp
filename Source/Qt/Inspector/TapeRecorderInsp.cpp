@@ -129,8 +129,7 @@ TS2020Inspector::TS2020Inspector(QWidget* parent, MachineController* mc, volatil
 		head_down,						// head position
 		"Images/tape/axis_plus2.png",	// axis image
 		6,								// axis symmetries
-		104, 205,
-		94) // axis position x1, x2, y
+		104, 205, 94)					// axis position x1, x2, y
 {
 	xlogIn("new TS2020Inspector");
 
@@ -702,7 +701,7 @@ void TapeRecorderInsp::fillContextMenu(QMenu* menu)
 			nvptr(tr)->deleteCurrentBlock();
 		});
 
-		PLocker z(machine->_lock);
+		NVPtr<TapeRecorder> tr(this->tr);
 
 		TapeFile* tf = tr->tapefile;
 		if (tf->isLastBlock() && tf->getPlaytimeOfBlock() < 0.5)
@@ -886,40 +885,40 @@ void TapeRecorderInsp::eject_tape()
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */
