@@ -208,12 +208,7 @@ protected:
 	void rzxDispose();
 	void rzxStartRecording(cstr msg = nullptr, bool yellow = no);
 	void rzxStopRecording(cstr msg = nullptr, bool yellow = no);
-	void rzxStopPlaying(cstr msg = nullptr, bool yellow = no)
-	{
-		(void)msg;
-		(void)yellow;
-		TODO();
-	}
+	void rzxStopPlaying(cstr msg = nullptr, bool yellow = no);
 	void rzxOutOfSync(cstr msg, bool alert = no);
 
 	Machine(gui::MachineController*, Model, isa_id);

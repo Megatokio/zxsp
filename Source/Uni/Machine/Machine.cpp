@@ -1613,6 +1613,19 @@ void Machine::rzxDispose()
 	controller->rzxStateChanged();
 }
 
+void Machine::rzxStopPlaying(cstr msg, bool yellow)
+{
+	assert(rzx_file);
+
+	if (msg)
+	{
+		if (yellow) showWarning("%s", msg);
+		else showInfo("%s", msg);
+	}
+
+	rzxDispose();
+}
+
 void Machine::rzxPlayFile(RzxFile* rzx)
 {
 	// store the passed RzxFile and start playing
