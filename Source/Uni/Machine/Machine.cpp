@@ -99,8 +99,8 @@
 
 class MachineList : private Array<volatile Machine*>
 {
-	using Array<volatile Machine*>::cnt;
-	using Array<volatile Machine*>::data;
+	using Array::cnt;
+	using Array::data;
 
 public:
 	PLock _lock;
@@ -124,12 +124,8 @@ public:
 		}
 	}
 
-	uint			  count() { return cnt; }
-	volatile Machine* operator[](uint i)
-	{
-		assert(i < cnt);
-		return data[i];
-	}
+	using Array::count;
+	using Array::operator[];
 };
 
 
