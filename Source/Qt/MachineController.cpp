@@ -652,15 +652,15 @@ void MachineController::createActions()
 	action_suspend	= newAction("run-pause.png", "Halt CPU", Qt::Key_H | SHIFT, [=](bool f) { haltMachine(f); });
 	action_stepIn	= newAction("arrow-dn.png", "Step in", Qt::Key_I | SHIFT, [=] {
 		  assert(machine->isSuspended());
-		  NV(machine)->stepIn();
+		  nvptr(machine)->stepIn();
 	  });
 	action_stepOver = newAction("run-r.png", "Step over", Qt::Key_S | SHIFT, [=] {
 		assert(machine->isSuspended());
-		NV(machine)->stepOver();
+		nvptr(machine)->stepOver();
 	});
 	action_stepOut	= newAction("arrow-up.png", "Step out", Qt::Key_O | SHIFT, [=] {
 		 assert(machine->isSuspended());
-		 NV(machine)->stepOut();
+		 nvptr(machine)->stepOut();
 	 });
 	action_enable_breakpoints =
 		newAction(NOICON, "Enable breakpoints", Qt::Key_B | SHIFT, [=](bool f) { enableBreakpoints(f); });
@@ -1405,7 +1405,7 @@ void MachineController::saveAs()
 	{
 		try
 		{
-			NV(machine)->saveAs(filepath);
+			nvptr(machine)->saveAs(filepath);
 			setFilepath(filepath);
 		}
 		catch (AnyError& e)
@@ -1780,8 +1780,8 @@ void MachineController::addExternalItem(isa_id item_id, bool add)
 
 	bool f = machine->suspend();
 
-	if (add) NV(machine)->addExternalItem(item_id);
-	else NV(machine)->removeItem(item_id);
+	if (add) nvptr(machine)->addExternalItem(item_id);
+	else nvptr(machine)->removeItem(item_id);
 
 	if (f) machine->resume();
 }
@@ -1797,8 +1797,8 @@ void MachineController::addExternalRam(isa_id item_id, bool add, uint options)
 
 	bool f = machine->powerOff();
 
-	NV(machine)->remove<ExternalRam>();
-	if (add) NV(machine)->addExternalRam(item_id, options);
+	nvptr(machine)->remove<ExternalRam>();
+	if (add) nvptr(machine)->addExternalRam(item_id, options);
 
 	if (f) machine->powerOn();
 }
@@ -1810,9 +1810,9 @@ void MachineController::addMultiface1(bool add)
 	if (add)
 	{
 		bool joystick_enabled = settings.get_bool(key_multiface1_enable_joystick, yes);
-		NV(machine)->addMultiface1(joystick_enabled);
+		nvptr(machine)->addMultiface1(joystick_enabled);
 	}
-	else NV(machine)->remove<Multiface1>();
+	else nvptr(machine)->remove<Multiface1>();
 
 	if (f) machine->resume();
 }
@@ -1841,7 +1841,7 @@ void MachineController::addDivIDE(bool add)
 		cstr romfile  = settings.get_cstr(key_divide_rom_file);
 		cstr diskfile = settings.get_cstr(key_divide_disk_file);
 
-		DivIDE* divide = NV(machine)->addDivIDE(ramsize, romfile);
+		DivIDE* divide = nvptr(machine)->addDivIDE(ramsize, romfile);
 
 		cstr err = nullptr;
 		if (divide->getRomFilepath() == nullptr) // failed to load
@@ -1858,7 +1858,7 @@ void MachineController::addDivIDE(bool add)
 
 		if (diskfile) divide->insertDisk(diskfile); // shows it's own errors
 	}
-	else NV(machine)->remove<DivIDE>();
+	else nvptr(machine)->remove<DivIDE>();
 
 	if (f) machine->powerOn();
 
@@ -1881,9 +1881,9 @@ void MachineController::addSpectraVideo(bool add)
 		if (settings.get_bool(key_spectra_enable_joystick, false)) dip_switches |= Dip::EnableJoystick;
 		if (settings.get_bool(key_spectra_enable_new_video_modes, true)) dip_switches |= Dip::EnableNewVideoModes;
 
-		NV(machine)->addSpectraVideo(dip_switches);
+		nvptr(machine)->addSpectraVideo(dip_switches);
 	}
-	else NV(machine)->removeSpectraVideo();
+	else nvptr(machine)->removeSpectraVideo();
 
 	if (f) machine->powerOn();
 
