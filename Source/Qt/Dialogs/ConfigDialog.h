@@ -37,16 +37,20 @@ public:
 	double click_t0;		   // after click
 	QPoint click_p0;		   // after click
 
-	static const int NoBorder = 0 << 0, Border1 = 1 << 0, Border2 = 2 << 0, Border3 = 3 << 0, Border4 = 4 << 0,
-					 Border5 = 5 << 0, Border6 = 6 << 0, Border7 = 7 << 0,
-					 Neutral = 0 << 3, // default
-		Red = 1 << 3, Green = 2 << 3, Yellow = 3 << 3, Blue = 4 << 3, Magenta = 5 << 3, Cyan = 6 << 3, White = 7 << 3,
-					 Dark			= 0 << 6, // default
-		Bright						= 1 << 6,
-					 IgnoreFocusOut = 0 << 7, // default
-		CloseOnFocusOut				= 1 << 7,
-					 EatAllKeys		= 0 << 8, // default
-		PropagateKeys = 1 << 8, DefaultStyle = Dark + Neutral + Border2 + IgnoreFocusOut + EatAllKeys;
+	static constexpr int NoBorder = 0 << 0,										//
+		Border1 = 1 << 0, Border2 = 2 << 0, Border3 = 3 << 0,					//
+		Border4 = 4 << 0, Border5 = 5 << 0, Border6 = 6 << 0, Border7 = 7 << 0, //
+		Neutral = 0 << 3, Red = 1 << 3, Green = 2 << 3, Yellow = 3 << 3,		//
+		Blue = 4 << 3, Magenta = 5 << 3, Cyan = 6 << 3, White = 7 << 3,			//
+		Dark			= 0 << 6,												//
+		Bright			= 1 << 6,												//
+		IgnoreFocusOut	= 0 << 7,												//
+		CloseOnFocusOut = 1 << 7,												//
+		EatAllKeys		= 0 << 8,												//
+		PropagateKeys	= 1 << 8,												//
+		CloseOnClick	= 1 << 9,												//
+		CloseOnEsc		= 1 << 10,												//
+		DefaultStyle	= Dark + Neutral + Border2 + IgnoreFocusOut + EatAllKeys;
 
 private:
 	static QColor color_for_style(uint s, int h, int l, int n, int a = 0xff);
