@@ -28,7 +28,8 @@ class ToolWindow : public QMainWindow
 	int						 toolbar_height;
 	isa_id					 grp_id; // of item
 
-	void init(volatile IsaObject* = nullptr, QAction* showaction = nullptr);
+	void init();
+	void init(volatile IsaObject*, QAction* showaction);
 	void kill();
 	void save_window_position();
 	void restore_window_position();

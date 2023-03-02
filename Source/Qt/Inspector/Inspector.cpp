@@ -91,16 +91,16 @@ QLineEdit* Inspector::newLineEdit(cstr text, int min_width)
 	return te;
 }
 
-Inspector::Inspector(QWidget* p, MachineController* mc) :
+Inspector::Inspector(QWidget* p, MachineController* mc, cstr bg_file) :
 	QWidget(p),
 	controller(mc),
 	machine(mc->getMachine()),
-	object(nullptr)
+	object(nullptr),
+	background(catstr(appl_rsrc_path, bg_file))
 {
 	// empty Inspector
 
 	assert(mc);
-	assert(machine);
 
 	xlogIn("new empty Inspector");
 
@@ -217,6 +217,7 @@ Inspector* Inspector::newInspector(QWidget* p, MachineController* mc, volatile I
 
 	xlogIn("Inspector::newInspector");
 	assert(isMainThread());
+	assert(item);
 	assert(mc != nullptr);
 	volatile Machine* machine = mc->getMachine();
 	assert(machine);

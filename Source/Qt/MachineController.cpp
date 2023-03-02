@@ -2255,6 +2255,7 @@ void MachineController::showInspector(IsaObject* item, QAction* showaction, bool
 	xlogIn("MachineController::show_inspector(%i)", force);
 
 	if (!showaction) showaction = findShowActionForItem(item);
+	assert(showaction);
 
 	// reuse existing empty toolwindow for the item's group:
 	foreach (ToolWindow* toolwindow, tool_windows)

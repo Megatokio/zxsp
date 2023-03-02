@@ -21,6 +21,7 @@ class Inspector : public QWidget
 	NO_COPY_MOVE(Inspector);
 
 	friend class ToolWindow;
+	static constexpr cstr light_grey_background = "/Backgrounds/light-grey-75.jpg";
 
 protected:
 	MachineController* const  controller;
@@ -36,11 +37,11 @@ public:
 	// Factory:
 	static Inspector* newInspector(QWidget*, MachineController*, volatile IsaObject*);
 
-	Inspector(QWidget*, MachineController*); // empty Inspector
+	Inspector(QWidget*, MachineController*, cstr bgr = light_grey_background); // empty Inspector
 	~Inspector() override;
 
 protected:
-	Inspector(QWidget*, MachineController*, volatile IsaObject*, cstr bgr = "/Backgrounds/light-grey-75.jpg");
+	Inspector(QWidget*, MachineController*, volatile IsaObject*, cstr bgr = light_grey_background);
 
 	void paintEvent(QPaintEvent*) override;
 	void mousePressEvent(QMouseEvent*) override;

@@ -114,20 +114,35 @@ void ToolWindow::kill()
 	inspector->saveSettings();
 }
 
+void ToolWindow::init()
+{
+	// setup the toolwindow with an empty inspector
+
+	item		   = nullptr;
+	show_action	   = nullptr;
+	toolbar		   = nullptr;
+	toolbar_height = 0;
+	// grp_id = preserve grp_id
+
+	inspector = new Inspector(this, machine_controller);
+	setWindowTitle("Empty inspector");
+
+	setFixedSize(inspector->size());
+	setCentralWidget(inspector);
+}
+
 void ToolWindow::init(volatile IsaObject* object, QAction* showaction)
 {
-	assert(!object == !showaction);
+	assert(object);
+	assert(showaction);
 
-	item = object;					 // item or machine
-	if (item) grp_id = item->grp_id; // else preserve
+	item   = object; // item or machine
+	grp_id = item->grp_id;
 
 	show_action = showaction;
-	if (showaction)
-	{
-		showaction->blockSignals(true);
-		showaction->setChecked(on);
-		showaction->blockSignals(false);
-	}
+	showaction->blockSignals(true);
+	showaction->setChecked(on);
+	showaction->blockSignals(false);
 
 	inspector = Inspector::newInspector(this, machine_controller, object);
 	set_window_title();
@@ -137,7 +152,7 @@ void ToolWindow::init(volatile IsaObject* object, QAction* showaction)
 	if (toolbar)
 	{
 		toolbar->setAllowedAreas(Qt::TopToolBarArea);
-		connect(toolbar, &QToolBar::topLevelChanged, [=] { adjust_size_timer.start(); });
+		connect(toolbar, &QToolBar::topLevelChanged, toolbar, [=] { adjust_size_timer.start(); });
 		addToolBar(toolbar);
 		setUnifiedTitleAndToolBarOnMac(1);
 		toolbar_height = settings.value(catstr(key_toolwindow_toolbar_height, tostr(grp_id)), 38).toInt();
