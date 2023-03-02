@@ -17,6 +17,7 @@
 #include "kio/util/msbit.h"
 #include "unix/FD.h"
 #include "unix/files.h"
+#include "version.h"
 #include "zasm/Source/Z80Assembler.h"
 #include <QNetworkAccessManager>
 #include <QPainter>
@@ -121,11 +122,18 @@ Application::Application(int argc, char* argv[]) : QApplication(argc, argv)
 	// catch 'open' events for double clicked file:
 	processEvents();
 
-	// not started vie double click on snapshot file => show splash screen:
+	// not started via double click on snapshot file => show splash screen:
 	if (filepath.isEmpty())
 	{
 		about_screen->show();
-		QTimer::singleShot(2500, about_screen, SLOT(close()));
+		QTimer::singleShot(2500, [] {
+			about_screen->close();
+			if (ne(settings.get_str(key_new_version_info), APPL_VERSION_STR))
+			{
+				settings.setValue(key_new_version_info, APPL_VERSION_STR);
+				showInfo(startup_info_message);
+			}
+		});
 	}
 
 	// create 'recent files' menu:

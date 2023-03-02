@@ -346,6 +346,7 @@ HEADERS += \
 	Libraries/kio/util/msbit.h \
 	Libraries/kio/util/count1bits.h \
 	Libraries/kio/TestTimer.h \
+	Source/version.h \
 	\
 	Libraries/unix/log.h \
 	Libraries/unix/os_utilities.h \

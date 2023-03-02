@@ -4,20 +4,19 @@
 
 #include "RzxFile.h"
 #include "RzxBlock.h"
+#include "Uni/globals.h"
+#include "kio/TestTimer.h"
 #include "kio/kio.h"
+#include "unix/files.h"
+#include "version.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <zlib.h>
 
-// #ifndef _MSC_VER
 #ifdef HAVE_UNISTD_H
   #include <unistd.h>
 #endif
-
-#include "Uni/globals.h"
-#include "kio/TestTimer.h"
-#include "unix/files.h"
 
 
 // ============================================================

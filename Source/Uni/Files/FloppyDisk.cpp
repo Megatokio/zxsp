@@ -7,6 +7,7 @@
 #include "globals.h"
 #include "kio/peekpoke.h"
 #include "unix/files.h"
+#include "version.h"
 
 static const uint8 DAM	= 0xFB; // data address mark
 static const uint8 DDAM = 0xF8; // deleted data address mark

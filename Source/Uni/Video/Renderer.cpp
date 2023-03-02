@@ -6,6 +6,7 @@
 #include "globals.h"
 #include "graphics/gif/Colormap.h"
 #include "unix/os_utilities.h"
+#include "version.h"
 
 
 Renderer::Renderer(isa_id id, uint screen_width, uint screen_height, uint h_border, uint v_border, bool color) :

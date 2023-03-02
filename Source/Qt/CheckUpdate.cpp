@@ -10,6 +10,7 @@
 #include "globals.h"
 #include "unix/FD.h"
 #include "unix/files.h"
+#include "version.h"
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QObject>
@@ -20,9 +21,6 @@
 
 namespace gui
 {
-
-static char check_update_url[] = "http://zxsp.de/cgi-bin/zxsp-check-update.cgi?version=";
-
 
 // extern
 void checkUpdate(bool verbose)
@@ -47,8 +45,7 @@ CheckUpdate::CheckUpdate(QObject* parent, bool verbose) :
 {
 	request.setUrl(QUrl(catstr(check_update_url, APPL_VERSION_STR)));
 	network_manager = new QNetworkAccessManager(this);
-	IFDEBUG(bool f =) connect(network_manager, &QNetworkAccessManager::finished, this, &CheckUpdate::slot_finished);
-	assert(f);
+	connect(network_manager, &QNetworkAccessManager::finished, this, &CheckUpdate::slot_finished);
 	reply = network_manager->get(request);
 }
 
@@ -76,7 +73,7 @@ void CheckUpdate::slot_finished()
 
 	{
 		QVariant qv = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
-		if ((QMetaType::Type)qv.type() == QMetaType::QUrl)
+		if (QMetaType::Type(qv.type()) == QMetaType::QUrl)
 		{
 			QUrl url = request.url().resolved(qv.toUrl());
 			xlogline("CheckUpdate: redirected to %s", url.toString().toUtf8().data());

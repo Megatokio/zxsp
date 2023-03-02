@@ -22,6 +22,7 @@ extern class Settings settings;
 
 // Keys:
 
+static constexpr char key_new_version_info[]		   = "settings/new_version_info";
 static constexpr char key_save_and_restore_session[]   = "settings/save_and_restore_session";  // bool
 static constexpr char key_saved_session[]			   = "settings/saved_session";			   // QString  … filepath
 static constexpr char key_startup_model[]			   = "settings/startup_model";			   // int
