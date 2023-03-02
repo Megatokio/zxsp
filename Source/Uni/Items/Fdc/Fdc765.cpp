@@ -278,7 +278,7 @@ aa:
 	SR0		  = 0x00;
 	head	  = 0;
 	unit	  = 0;
-	drive	  = fdd[0].get();
+	drive	  = fdd[0];
 	ready	  = no;
 
 	for (;;)
@@ -351,7 +351,7 @@ aa:
 			head_unit = byte & 7;
 			head	  = head_unit >> 2;
 			unit	  = head_unit & 3;
-			drive	  = fdd[unit].get();
+			drive	  = fdd[unit];
 		}
 
 		// Get TrackID, HeadID, 1st SectorID

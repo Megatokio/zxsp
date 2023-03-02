@@ -11,18 +11,18 @@ class Fdc : public MassStorage
 {
 protected:
 	std::shared_ptr<FloppyDiskDrive> fdd[4];	// attached drives, mirrored drives may be inserted more than once
-	FloppyDiskDrive*				 drive;		// selected drive
+	std::shared_ptr<FloppyDiskDrive> drive;		// selected drive
 	bool							 motor_on;	// current state of the common motor-on output
 	bool							 interrupt; // current state of the interrupt output; may be not connected
 
 public:
-	FloppyDiskDrive*				 getSelectedDrive() const volatile { return drive; }
-	std::shared_ptr<FloppyDiskDrive> getDrive(uint n) const { return fdd[n & 3]; }
-	bool							 isMotorOn() const volatile { return motor_on; }
+	const std::shared_ptr<FloppyDiskDrive>& getSelectedDrive() const { return drive; }
+	const std::shared_ptr<FloppyDiskDrive>& getDrive(uint n) const { return fdd[n & 3]; }
+	bool									isMotorOn() const volatile { return motor_on; }
 
 	virtual void setMotor(Time, bool);
 	virtual void initForSnapshot(int32 /*cc*/) {}
-	virtual void attachDiskDrive(uint n, FloppyDiskDrive*);
+	virtual void attachDiskDrive(uint n, std::shared_ptr<FloppyDiskDrive>);
 	virtual void removeDiskDrive(uint n);
 
 protected:

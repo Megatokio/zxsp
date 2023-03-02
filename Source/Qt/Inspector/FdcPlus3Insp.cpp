@@ -186,7 +186,7 @@ void FdcPlus3Insp::updateWidgets()
 	assert(validReference(fdc));
 
 	// LED animieren:
-	if (led_on != (fdc->isMotorOn() && drive.get() == fdc->getSelectedDrive()))
+	if (led_on != (fdc->isMotorOn() && drive.get() == NV(fdc)->getSelectedDrive().get()))
 	{
 		led_on = !led_on;
 		update(box_LED);

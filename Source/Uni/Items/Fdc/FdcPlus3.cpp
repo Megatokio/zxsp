@@ -88,7 +88,7 @@ static cstr o_addr = "0011 ---- ---- --0-";
 
 FdcPlus3::FdcPlus3(Machine* m) : Fdc765(m, isa_FdcPlus3, internal, o_addr, i_addr)
 {
-	attachDiskDrive(0, new FloppyDiskDrive(Drive3, 1, 42, 0.006, 6250));
+	attachDiskDrive(0, FloppyDiskDrive::newFloppyDiskDrive(Drive3, 1, 42, 0.006, 6250));
 }
 
 void FdcPlus3::input(Time t, int32 /*cc*/, uint16 addr, uint8& byte, uint8& mask)
@@ -99,7 +99,7 @@ void FdcPlus3::input(Time t, int32 /*cc*/, uint16 addr, uint8& byte, uint8& mask
 
 void FdcPlus3::output(Time t, int32 /*cc*/, uint16 /*addr*/, uint8 byte) { writeDataRegister(t, byte); }
 
-void FdcPlus3::attachDiskDrive(uint n, FloppyDiskDrive* dd)
+void FdcPlus3::attachDiskDrive(uint n, std::shared_ptr<FloppyDiskDrive> dd)
 {
 	Fdc765::attachDiskDrive(n, dd);
 	Fdc765::attachDiskDrive(n ^ 2, dd); // mirrored position

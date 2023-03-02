@@ -15,13 +15,12 @@
 #include <math.h>
 
 
-inline uint random(uint n) //	16 bit random number in range [0 ... [n
+inline uint16 random(uint n) //	16 bit random number in range [0 ... [n
 {
 	return (uint32(n) * uint16(random())) >> 16;
 }
 
-
-/*	Default Creator
+/*	Default Constructor
 	creates a "no disk drive" which reacts to the control signals
 	of the FDC as if no disk drive is attached.
 	these signals are active low on the FDD bus and pulled high by resistors.
@@ -46,6 +45,7 @@ FloppyDiskDrive::FloppyDiskDrive() :
 	sound_insert_index(0),
 	sound_eject_index(0),
 	sound_running_index(0),
+	sound_step_index {0, 0, 0, 0},
 	num_heads(1),
 	num_tracks(1),
 	rpm(300),
@@ -70,12 +70,9 @@ FloppyDiskDrive::FloppyDiskDrive() :
 	is_atindex(no),
 	is_wprot(no),
 	is_track0(no)
-{
-	memset(sound_step_index, 0, sizeof(sound_step_index));
-}
+{}
 
-
-/*	Actual Drive Creator
+/*	Constructor
 	creates a 3", 3.5" or 5.25" Disk Drive
 */
 FloppyDiskDrive::FloppyDiskDrive(FddType type, uint heads, uint tracks, Time step_delay, uint bytes_per_track) :
@@ -91,6 +88,7 @@ FloppyDiskDrive::FloppyDiskDrive(FddType type, uint heads, uint tracks, Time ste
 	sound_insert_index(0),
 	sound_eject_index(0),
 	sound_running_index(0),
+	sound_step_index {0, 0, 0, 0},
 	num_heads(heads),
 	num_tracks(tracks),
 	rpm(300),
@@ -162,6 +160,20 @@ FloppyDiskDrive::FloppyDiskDrive(FddType type, uint heads, uint tracks, Time ste
 	sound_step_size = cnt;
 }
 
+std::shared_ptr<FloppyDiskDrive> FloppyDiskDrive::noFloppyDiskDrive()
+{
+	// create and return a dummy drive
+	// returns the same drive on every request
+
+	static auto no_fdd = std::shared_ptr<FloppyDiskDrive>(new FloppyDiskDrive());
+	return no_fdd;
+}
+
+std::shared_ptr<FloppyDiskDrive>
+FloppyDiskDrive::newFloppyDiskDrive(FddType fddtype, uint heads, uint tracks, Time step_delay, uint bytes_per_track)
+{
+	return std::shared_ptr<FloppyDiskDrive>(new FloppyDiskDrive(fddtype, heads, tracks, step_delay, bytes_per_track));
+}
 
 FloppyDiskDrive::~FloppyDiskDrive()
 {
@@ -171,7 +183,6 @@ FloppyDiskDrive::~FloppyDiskDrive()
 	delete[] sound_running;
 	delete[] sound_step;
 }
-
 
 void FloppyDiskDrive::setMotor(Time t, bool f)
 {
@@ -187,11 +198,11 @@ void FloppyDiskDrive::setMotor(Time t, bool f)
 	update_signals();
 }
 
-
-// update track and byte position inside track
-// update motor speed
 void FloppyDiskDrive::update(Time t)
 {
+	// update track and byte position inside track
+	// update motor speed
+
 	if (type == NoDrive) return;
 	if (t <= time) return;
 
@@ -260,10 +271,10 @@ void FloppyDiskDrive::update(Time t)
 	time	   = t;
 }
 
-
-// shift time base:
 void FloppyDiskDrive::audioBufferEnd(Time dt)
 {
+	// shift time base
+
 	if (time < dt) update(dt);
 	time -= dt;
 	step_end_time -= dt;
@@ -305,7 +316,6 @@ void FloppyDiskDrive::audioBufferEnd(Time dt)
 		}
 	}
 }
-
 
 void FloppyDiskDrive::step(Time t, int dir) // dir = ±1
 {
@@ -394,3 +404,36 @@ void FloppyDiskDrive::update_signals()
 	if (type == Drive525 && !is_ready) is_wprot = no; // 5.25" drives don't report read-only when they're not ready
 	if (type == Drive35 && !motor_on) is_track0 = no; // 3.5" don't report track 0 if motor is off
 }
+
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/

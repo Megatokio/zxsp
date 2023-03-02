@@ -1898,11 +1898,13 @@ void MachineController::showLenslok(bool f)
 	{
 		assert(!lenslok);
 		cstr name1 = filepath ? basename_from_path(filepath) : nullptr;
-		cstr name2 =
-			machine->fdc && machine->fdc->getSelectedDrive() && machine->fdc->getSelectedDrive()->diskLoaded() ?
-				basename_from_path(machine->fdc->getSelectedDrive()->disk->filepath) :
-			machine->taperecorder->isLoaded() ? basename_from_path(machine->taperecorder->getFilepath()) :
-												nullptr;
+		cstr name2 = nullptr;
+		{
+			NVPtr<Machine> m(machine.get());
+			if (m->taperecorder->isLoaded()) name2 = basename_from_path(m->taperecorder->getFilepath());
+			else if (m->fdc && m->fdc->getSelectedDrive()->diskLoaded())
+				name2 = basename_from_path(m->fdc->getSelectedDrive()->disk->filepath);
+		}
 		lenslok = new Lenslok(this, name1, name2);
 		connect(lenslok, &QObject::destroyed, this, [=] {
 			action_showLenslok->blockSignals(1);

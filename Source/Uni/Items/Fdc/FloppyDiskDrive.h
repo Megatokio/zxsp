@@ -67,8 +67,9 @@ public:
 	bool is_track0;
 
 public:
-	FloppyDiskDrive();
-	FloppyDiskDrive(FddType, uint heads, uint tracks, Time step_delay = 0.006, uint bytes_per_track = 6250);
+	static std::shared_ptr<FloppyDiskDrive> noFloppyDiskDrive();
+	static std::shared_ptr<FloppyDiskDrive>
+	newFloppyDiskDrive(FddType, uint heads, uint tracks, Time step_delay = 0.006, uint bytes_per_track = 6250);
 	~FloppyDiskDrive();
 
 	// misc. querries:
@@ -109,6 +110,9 @@ public:
 	void resetError() {} // todo
 
 private:
+	FloppyDiskDrive();
+	FloppyDiskDrive(FddType, uint heads, uint tracks, Time step_delay, uint bytes_per_track);
+
 	void update_signals();
 };
 
