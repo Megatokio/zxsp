@@ -14,12 +14,13 @@
 // Effektiv wurde also der Speicher auf 2, 3 oder 4k erweitert.
 
 
-Zx3kRam::Zx3kRam(Machine* m, uint size) : ExternalRam(m, isa_Zx3kRam)
+Zx3kRam::Zx3kRam(Machine* m, uint sz) : ExternalRam(m, isa_Zx3kRam)
 {
 	xlogIn("new Zx3kRam");
-	assert(size != 0);
+	assert(sz == 1 kB || sz == 2 kB || sz == 3 kB);
 
-	machine->ram.grow(1 kB + size);
+	size = sz;
+	machine->ram.grow(1 kB + sz);
 	machine->mmu->mapMem(); // map new memory to cpu & set videoram
 }
 
