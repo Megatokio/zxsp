@@ -6,22 +6,18 @@
 #include "FloppyDiskDrive.h"
 
 
-static FloppyDiskDrive* no_fdd = new FloppyDiskDrive();
+static std::shared_ptr<FloppyDiskDrive> no_fdd() { return FloppyDiskDrive::noFloppyDiskDrive(); } // convenience
 
 
 Fdc::Fdc(Machine* m, isa_id id, Internal internal, cstr o_addr, cstr i_addr) :
-	MassStorage(m, id, internal, o_addr, i_addr), drive(no_fdd), motor_on(no), interrupt(no)
+	MassStorage(m, id, internal, o_addr, i_addr),
+	fdd {no_fdd(), no_fdd(), no_fdd(), no_fdd()},
+	drive(fdd[0]),
+	motor_on(no),
+	interrupt(no)
 {
-	assert(no_fdd);
-	for (uint i = 0; i < NELEM(fdd); i++) fdd[i] = no_fdd;
+	assert(drive);
 }
-
-
-Fdc::~Fdc()
-{
-	for (uint i = 0; i < NELEM(fdd); i++) removeDiskDrive(i);
-}
-
 
 void Fdc::powerOn(/*t=0*/ int32 cc)
 {
@@ -30,7 +26,6 @@ void Fdc::powerOn(/*t=0*/ int32 cc)
 	interrupt = off;
 }
 
-
 void Fdc::reset(Time t, int32 cc)
 {
 	MassStorage::reset(t, cc);
@@ -38,31 +33,31 @@ void Fdc::reset(Time t, int32 cc)
 	interrupt = off;
 }
 
-
-void Fdc::attachDiskDrive(uint i, FloppyDiskDrive* dd)
+void Fdc::attachDiskDrive(uint i, std::shared_ptr<FloppyDiskDrive> dd)
 {
+	assert(dd);
+
 	Fdc::removeDiskDrive(i);
-	fdd[i] = dd;
 	if (motor_on) dd->setMotor(0.0, on);
+	fdd[i] = std::move(dd);
 }
 
-
-/*	remove drive.
-	does not remove mirrored drives.
-*/
 void Fdc::removeDiskDrive(uint i)
 {
-	FloppyDiskDrive* dd = fdd[i];
-	if (dd == no_fdd) return;
-	fdd[i] = no_fdd;
+	// remove drive.
+	// does not remove mirrored drives.
+
+	FloppyDiskDrive* dd = fdd[i].get();
+	if (dd == no_fdd().get()) return;
+	fdd[i] = no_fdd();
 
 	for (uint i = 0; i < NELEM(fdd); i++)
-		if (fdd[i] == dd) return; // drive still exists at mirrored position
+	{
+		if (fdd[i].get() == dd) return; // drive still exists at mirrored position
+	}
 
-	if (drive == dd) drive = no_fdd;
-	delete dd;
+	if (drive.get() == dd) drive = no_fdd();
 }
-
 
 void Fdc::setMotor(Time t, bool f)
 {
@@ -79,8 +74,8 @@ void Fdc::audioBufferEnd(Time t)
 {
 	for (uint j, i = 0; i < NELEM(fdd); i++)
 	{
-		FloppyDiskDrive* dd = fdd[i];
-		for (j = 0; fdd[j] != dd; j++) {}
+		FloppyDiskDrive* dd = fdd[i].get();
+		for (j = 0; fdd[j].get() != dd; j++) {}
 		if (i == j) dd->audioBufferEnd(t);
 	}
 }

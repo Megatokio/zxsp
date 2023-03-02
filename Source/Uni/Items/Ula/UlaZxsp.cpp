@@ -44,17 +44,22 @@
 
 
 UlaZxsp::UlaZxsp(Machine* m, isa_id id, cstr oaddr, cstr iaddr) :
-	Ula(m, id, oaddr, iaddr), cc_per_side_border(), // Zeit für Seitenborder+Strahlrücklauf
-	cc_waitmap_start(),								// Ab wann die Waitmap benutzt werden muss
-	cc_screen_start(),								// Erster cc für einen CRT Backcall
-	cc_waitmap_end(),								// Ab wann nicht mehr
-	cc_frame_end(),									// Total cpu clocks per Frame
-	waitmap_size(0), cpu(m->cpu), ram(m->ram),
+	Ula(m, id, oaddr, iaddr),
+	cc_per_side_border(), // Zeit für Seitenborder+Strahlrücklauf
+	cc_waitmap_start(),	  // Ab wann die Waitmap benutzt werden muss
+	cc_screen_start(),	  // Erster cc für einen CRT Backcall
+	cc_waitmap_end(),	  // Ab wann nicht mehr
+	cc_frame_end(),		  // Total cpu clocks per Frame
+	waitmap_size(0),
+	cpu(m->cpu),
+	ram(m->ram),
 	// current_frame(0),			// counter, used for flash phase
 	// ccx(0),					// next cc for reading from video_ram
 	attr_pixel(newAttrPixelArray()),	 // specci screen attribute and pixel tupels
 	alt_attr_pixel(newAttrPixelArray()), // alternate data set
-	alt_ioinfo(new IoInfo[IOSZ + 1]), alt_ioinfo_size(IOSZ), earin_threshold_mic_lo(info->earin_threshold_mic_lo),
+	alt_ioinfo(new IoInfo[IOSZ + 1]),
+	alt_ioinfo_size(IOSZ),
+	earin_threshold_mic_lo(info->earin_threshold_mic_lo),
 	earin_threshold_mic_hi(info->earin_threshold_mic_hi)
 {
 	xlogIn("new UlaZxsp");
@@ -69,7 +74,7 @@ UlaZxsp::UlaZxsp(Machine* m, isa_id id, cstr oaddr, cstr iaddr) :
 UlaZxsp::UlaZxsp(Machine* m) : UlaZxsp(m, isa_UlaZxsp, io_addr, io_addr) {}
 
 
-UlaTk90x::UlaTk90x(Machine* m) : UlaZxsp(m, isa_UlaTk90x, io_addr, io_addr) {}
+UlaTk90x::UlaTk90x(Machine* m, bool is60hz) : UlaZxsp(m, isa_UlaTk90x, io_addr, io_addr) { UlaTk90x::set60Hz(is60hz); }
 
 
 UlaZxsp::~UlaZxsp()
@@ -292,7 +297,7 @@ void UlaZxsp::output(Time now, int32 cc, uint16 addr, uint8 byte)
 	// --- BEEPER ---
 	if (x & (MIC_OUT_MASK | EAR_OUT_MASK))
 	{
-		Dsp::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
+		os::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
 		beeper_last_sample_time = now;
 
 		uint bb = byte ^ MIC_OUT_MASK; // mic pin is low active
@@ -360,12 +365,11 @@ void UlaZxsp::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 			}
 			else
 			{
-				if (Dsp::audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
+				if (os::audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
 			}
 		}
 	}
-	else if (0.0 < threshold)
-		byte &= ~EAR_IN_MASK;
+	else if (0.0 < threshold) byte &= ~EAR_IN_MASK;
 }
 
 
@@ -422,13 +426,9 @@ int32 UlaZxsp::doFrameFlyback(int32 /*cc*/) // called from runForSound()
 		ccx = lines_before_screen * cc_per_line; // update_screen_cc
 
 		record_ioinfo(cc_frame_end, 0xfe, 0); // for 60Hz models: remainder of screen is black
-		bool new_buffers_in_use = ScreenZxspPtr(screen)->ffb_or_vbi(
-			ioinfo,
-			ioinfo_count,
-			attr_pixel,
-			cc_screen_start,
-			cc_per_side_border + 128,
-			getFlashPhase(),
+		assert(dynamic_cast<gui::ScreenZxsp*>(screen));
+		bool new_buffers_in_use = static_cast<gui::ScreenZxsp*>(screen)->ffb_or_vbi(
+			ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, getFlashPhase(),
 			90000 /*cc_frame_end*/);
 
 		if (new_buffers_in_use)
@@ -448,7 +448,8 @@ int32 UlaZxsp::doFrameFlyback(int32 /*cc*/) // called from runForSound()
 void UlaZxsp::drawVideoBeamIndicator(int32 cc) // called from runForSound()
 {
 	updateScreenUpToCycle(cc);
-	bool new_buffers_in_use = ScreenZxspPtr(screen)->ffb_or_vbi(
+	assert(dynamic_cast<gui::ScreenZxsp*>(screen));
+	bool new_buffers_in_use = static_cast<gui::ScreenZxsp*>(screen)->ffb_or_vbi(
 		ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, getFlashPhase(), cc);
 
 	if (new_buffers_in_use)

@@ -91,7 +91,7 @@
 */
 
 
-typedef uint32 CC;
+using CC = uint32;
 
 
 class CswBuffer
@@ -166,13 +166,8 @@ public:
 
 	void splitAtCurrentPos(CswBuffer&);
 	void addToAudioBuffer(
-		StereoSample*,
-		uint	count,
-		double	samples_per_second,
-		double& zpos,
-		uint32& qpos,
-		double& qoffs,
-		Sample	volume = 0.32f); // 0.32 ~ -10dB
+		StereoSample*, uint count, double samples_per_second, double& zpos, uint32& qpos, double& qoffs,
+		Sample volume = 0.32f); // 0.32 ~ -10dB
 
 	// read / write with CPU input / output:
 

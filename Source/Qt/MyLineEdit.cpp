@@ -10,6 +10,9 @@
 #include <QKeyEvent>
 
 
+namespace gui
+{
+
 QFont monaco12("Monaco", 12);
 
 
@@ -63,3 +66,5 @@ void MyLineEdit::setText(QString s)
 	oldtext = s;
 	if (!hasFocus()) QLineEdit::setText(s);
 }
+
+} // namespace gui

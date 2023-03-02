@@ -21,6 +21,9 @@
 #include <QThread>
 
 
+namespace gui
+{
+
 // =========================================================================
 //							Render Thread
 // =========================================================================
@@ -66,9 +69,17 @@ QGL::NoDeprecatedFunctions	Disables the use of deprecated functionality for Open
 */
 
 Screen::Screen(QWidget* owner, isa_id id) :
-	QGLWidget(QGLFormat(QGL::SingleBuffer), owner), render_thread(new RenderThread(this)), id(id), _what(IDLE),
-	_gifmovie_filepath(nullptr), _screenshot_filepath(nullptr), frames_hit_percent(100.0f), zoom(calc_zoom()),
-	screen_renderer(newRenderer()), gif_writer(nullptr), overlays {nullptr, nullptr}
+	QGLWidget(QGLFormat(QGL::SingleBuffer), owner),
+	render_thread(new RenderThread(this)),
+	id(id),
+	_what(IDLE),
+	_gifmovie_filepath(nullptr),
+	_screenshot_filepath(nullptr),
+	frames_hit_percent(100.0f),
+	zoom(calc_zoom()),
+	screen_renderer(newRenderer()),
+	gif_writer(nullptr),
+	overlays {nullptr, nullptr}
 {
 	xlogIn("new Screen");
 
@@ -110,14 +121,14 @@ void Screen::initializeGL()
 	QGLWidget::initializeGL();
 }
 
-GifWriter* Screen::newGifWriter(bool update_border)
+GifWriter* Screen::newGifWriter(bool update_border, uint fps)
 {
 	switch (uint(id))
 	{
-	case isa_ScreenTc2048: return new Tc2048GifWriter(this, update_border);
-	case isa_ScreenZxsp: return new ZxspGifWriter(this, update_border);
-	case isa_ScreenSpectra: return new SpectraGifWriter(this, update_border);
-	case isa_ScreenMono: return new MonoGifWriter(this, update_border);
+	case isa_ScreenTc2048: return new Tc2048GifWriter(update_border, fps);
+	case isa_ScreenZxsp: return new ZxspGifWriter(update_border, fps);
+	case isa_ScreenSpectra: return new SpectraGifWriter(update_border, fps);
+	case isa_ScreenMono: return new MonoGifWriter(update_border, fps);
 	default: IERR();
 	}
 }
@@ -129,10 +140,10 @@ Renderer* Screen::newRenderer()
 
 	switch (uint(id))
 	{
-	case isa_ScreenTc2048: return new Tc2048Renderer(this);
-	case isa_ScreenZxsp: return new ZxspRenderer(this);
-	case isa_ScreenSpectra: return new SpectraRenderer(this);
-	case isa_ScreenMono: return new MonoRenderer(this);
+	case isa_ScreenTc2048: return new Tc2048Renderer();
+	case isa_ScreenZxsp: return new ZxspRenderer();
+	case isa_ScreenSpectra: return new SpectraRenderer();
+	case isa_ScreenMono: return new MonoRenderer();
 	default: IERR();
 	}
 }
@@ -188,13 +199,8 @@ void Screen::resizeEvent(QResizeEvent*)
 }
 
 bool ScreenZxsp::ffb_or_vbi(
-	IoInfo* ioinfo,
-	uint	ioinfo_count,
-	uint8*	attr_pixels,
-	uint32	cc_start_of_screenfile,
-	uint	cc_per_scanline,
-	bool	flashphase,
-	uint32	cc)
+	IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint32 cc_start_of_screenfile, uint cc_per_scanline,
+	bool flashphase, uint32 cc)
 {
 	// store data for new FFB and trigger render thread.
 	// the arrays ioinfo[] and attr_pixels[] are managed by the caller.
@@ -433,10 +439,7 @@ void Screen::paint_screen(bool draw_passepartout)
 
 	// note: glDrawPixels(w,h,format,type,data*)
 	glDrawPixels(
-		h_border * 2 * hf + 256 * hf,
-		v_border * 2 + 192,
-		GL_RGBA,
-		GL_UNSIGNED_INT_8_8_8_8,
+		h_border * 2 * hf + 256 * hf, v_border * 2 + 192, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8,
 		screen_renderer->bits + qbx + qby * screen_renderer->width);
 
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
@@ -477,7 +480,7 @@ void Screen::paint_screen(bool draw_passepartout)
 	}
 }
 
-void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
+void ScreenZxsp::do_ffb_or_vbi()
 {
 	uint8*	attrpixels			   = _attrpixels;
 	IoInfo* ioinfo				   = _ioinfo;
@@ -490,7 +493,8 @@ void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
 
 	if (isVisible()) // --> draw screen
 	{
-		ZxspRendererPtr(screen_renderer)
+		assert(dynamic_cast<ZxspRenderer*>(screen_renderer));
+		static_cast<ZxspRenderer*>(screen_renderer)
 			->drawScreen(ioinfo, ioinfo_count, attrpixels, cc_per_scanline, cc_start_of_screenfile, flashphase, cc);
 		paint_screen(no);
 	}
@@ -500,10 +504,13 @@ void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
 		cstr path			 = _screenshot_filepath;
 		_screenshot_filepath = nullptr;
 
-		ZxspGifWriter* gif = static_cast<ZxspGifWriter*>(newGifWriter(no));
+		GifWriter* gif = newGifWriter(no, 50);
+		assert(dynamic_cast<ZxspGifWriter*>(gif));
+
 		try
 		{
-			gif->saveScreenshot(path, ioinfo, ioinfo_count, attrpixels, cc_per_scanline, cc_start_of_screenfile);
+			static_cast<ZxspGifWriter*>(gif)->saveScreenshot(
+				path, ioinfo, ioinfo_count, attrpixels, cc_per_scanline, cc_start_of_screenfile);
 		}
 		catch (FileError& e)
 		{
@@ -519,7 +526,9 @@ void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
 		bool with_border   = _gifmovie_with_bordereffects;
 		_gifmovie_filepath = nullptr;
 
-		gif_writer = ZxspGifWriterPtr(newGifWriter(with_border));
+		gif_writer = newGifWriter(with_border, 50);
+		assert(dynamic_cast<ZxspGifWriter*>(gif_writer));
+
 		try
 		{
 			gif_writer->startRecording(path);
@@ -537,7 +546,8 @@ void ScreenZxsp::do_ffb_or_vbi() noexcept(false) // std::exception
 	{
 		try
 		{
-			ZxspGifWriterPtr(gif_writer)
+			assert(dynamic_cast<ZxspGifWriter*>(gif_writer));
+			static_cast<ZxspGifWriter*>(gif_writer)
 				->writeFrame(ioinfo, ioinfo_count, attrpixels, cc_per_scanline, cc_start_of_screenfile, flashphase);
 		}
 		catch (FileError& e)
@@ -717,8 +727,7 @@ Overlay* Screen::findOverlay(isa_id id)
 void Screen::showOverlayPlay(bool f)
 {
 	if (!!overlayPlay == f) return;
-	if (f)
-		overlayPlay = new OverlayPlay(this);
+	if (f) overlayPlay = new OverlayPlay(this);
 	else
 	{
 		delete overlayPlay;
@@ -731,8 +740,7 @@ void Screen::showOverlayPlay(bool f)
 void Screen::showOverlayRecord(bool f)
 {
 	if (!!overlayRecord == f) return;
-	if (f)
-		overlayRecord = new OverlayRecord(this);
+	if (f) overlayRecord = new OverlayRecord(this);
 	else
 	{
 		delete overlayRecord;
@@ -748,3 +756,5 @@ void Screen::removeAllOverlays()
 	memset(overlays, 0, sizeof(overlays));
 	update(); // falls das Passepartout nicht gezeichnet wird
 }
+
+} // namespace gui

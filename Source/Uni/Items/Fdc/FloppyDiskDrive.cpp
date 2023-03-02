@@ -15,13 +15,12 @@
 #include <math.h>
 
 
-inline uint random(uint n) //	16 bit random number in range [0 ... [n
+inline uint16 random(uint n) //	16 bit random number in range [0 ... [n
 {
 	return (uint32(n) * uint16(random())) >> 16;
 }
 
-
-/*	Default Creator
+/*	Default Constructor
 	creates a "no disk drive" which reacts to the control signals
 	of the FDC as if no disk drive is attached.
 	these signals are active low on the FDD bus and pulled high by resistors.
@@ -34,29 +33,86 @@ inline uint random(uint n) //	16 bit random number in range [0 ... [n
 			READY
 */
 FloppyDiskDrive::FloppyDiskDrive() :
-	type(NoDrive), sound_insert(nullptr), sound_eject(nullptr), sound_running(nullptr), sound_step(nullptr),
-	sound_insert_size(0), sound_eject_size(0), sound_running_size(0), sound_step_size(0), sound_insert_index(0),
-	sound_eject_index(0), sound_running_index(0), num_heads(1), num_tracks(1), rpm(300), step_delay(0),
-	motor_on_delay(0), motor_off_delay(0), bytes_per_track(1000), bytes_per_second(bytes_per_track * rpm / 60),
-	bytes_per_index(bytes_per_track), disk(nullptr), side_B_up(0), motor_on(no), bytepos(0), speed(0), time(0),
-	track(0), stepping(0), step_end_time(0), is_ready(no), is_error(no), is_2sided(no), is_atindex(no), is_wprot(no),
+	type(NoDrive),
+	sound_insert(nullptr),
+	sound_eject(nullptr),
+	sound_running(nullptr),
+	sound_step(nullptr),
+	sound_insert_size(0),
+	sound_eject_size(0),
+	sound_running_size(0),
+	sound_step_size(0),
+	sound_insert_index(0),
+	sound_eject_index(0),
+	sound_running_index(0),
+	sound_step_index {0, 0, 0, 0},
+	num_heads(1),
+	num_tracks(1),
+	rpm(300),
+	step_delay(0),
+	motor_on_delay(0),
+	motor_off_delay(0),
+	bytes_per_track(1000),
+	bytes_per_second(bytes_per_track * rpm / 60),
+	bytes_per_index(bytes_per_track),
+	disk(nullptr),
+	side_B_up(0),
+	motor_on(no),
+	bytepos(0),
+	speed(0),
+	time(0),
+	track(0),
+	stepping(0),
+	step_end_time(0),
+	is_ready(no),
+	is_error(no),
+	is_2sided(no),
+	is_atindex(no),
+	is_wprot(no),
 	is_track0(no)
-{
-	memset(sound_step_index, 0, sizeof(sound_step_index));
-}
+{}
 
-
-/*	Actual Drive Creator
+/*	Constructor
 	creates a 3", 3.5" or 5.25" Disk Drive
 */
 FloppyDiskDrive::FloppyDiskDrive(FddType type, uint heads, uint tracks, Time step_delay, uint bytes_per_track) :
-	type(type), sound_insert(nullptr), sound_eject(nullptr), sound_running(nullptr), sound_step(nullptr),
-	sound_insert_size(0), sound_eject_size(0), sound_running_size(0), sound_step_size(0), sound_insert_index(0),
-	sound_eject_index(0), sound_running_index(0), num_heads(heads), num_tracks(tracks), rpm(300),
-	step_delay(step_delay), motor_on_delay(0.5), motor_off_delay(0.4), bytes_per_track(bytes_per_track),
-	bytes_per_second(bytes_per_track * rpm / 60), bytes_per_index(bytes_per_track / 50), disk(nullptr), side_B_up(0),
-	motor_on(no), bytepos(random(bytes_per_track)), speed(0), time(0), track(random(num_tracks)), stepping(0),
-	step_end_time(0), is_ready(no), is_error(no), is_2sided(heads > 1), is_atindex(no), is_wprot(no), is_track0(no)
+	type(type),
+	sound_insert(nullptr),
+	sound_eject(nullptr),
+	sound_running(nullptr),
+	sound_step(nullptr),
+	sound_insert_size(0),
+	sound_eject_size(0),
+	sound_running_size(0),
+	sound_step_size(0),
+	sound_insert_index(0),
+	sound_eject_index(0),
+	sound_running_index(0),
+	sound_step_index {0, 0, 0, 0},
+	num_heads(heads),
+	num_tracks(tracks),
+	rpm(300),
+	step_delay(step_delay),
+	motor_on_delay(0.5),
+	motor_off_delay(0.4),
+	bytes_per_track(bytes_per_track),
+	bytes_per_second(bytes_per_track * rpm / 60),
+	bytes_per_index(bytes_per_track / 50),
+	disk(nullptr),
+	side_B_up(0),
+	motor_on(no),
+	bytepos(random(bytes_per_track)),
+	speed(0),
+	time(0),
+	track(random(num_tracks)),
+	stepping(0),
+	step_end_time(0),
+	is_ready(no),
+	is_error(no),
+	is_2sided(heads > 1),
+	is_atindex(no),
+	is_wprot(no),
+	is_track0(no)
 {
 	FD	   fd(catstr(appl_rsrc_path, "/Audio/plus3/running.raw"), 'r');
 	uint32 cnt = fd.file_size() >> 1;
@@ -104,6 +160,20 @@ FloppyDiskDrive::FloppyDiskDrive(FddType type, uint heads, uint tracks, Time ste
 	sound_step_size = cnt;
 }
 
+std::shared_ptr<FloppyDiskDrive> FloppyDiskDrive::noFloppyDiskDrive()
+{
+	// create and return a dummy drive
+	// returns the same drive on every request
+
+	static auto no_fdd = std::shared_ptr<FloppyDiskDrive>(new FloppyDiskDrive());
+	return no_fdd;
+}
+
+std::shared_ptr<FloppyDiskDrive>
+FloppyDiskDrive::newFloppyDiskDrive(FddType fddtype, uint heads, uint tracks, Time step_delay, uint bytes_per_track)
+{
+	return std::shared_ptr<FloppyDiskDrive>(new FloppyDiskDrive(fddtype, heads, tracks, step_delay, bytes_per_track));
+}
 
 FloppyDiskDrive::~FloppyDiskDrive()
 {
@@ -113,7 +183,6 @@ FloppyDiskDrive::~FloppyDiskDrive()
 	delete[] sound_running;
 	delete[] sound_step;
 }
-
 
 void FloppyDiskDrive::setMotor(Time t, bool f)
 {
@@ -129,11 +198,11 @@ void FloppyDiskDrive::setMotor(Time t, bool f)
 	update_signals();
 }
 
-
-// update track and byte position inside track
-// update motor speed
 void FloppyDiskDrive::update(Time t)
 {
+	// update track and byte position inside track
+	// update motor speed
+
 	if (type == NoDrive) return;
 	if (t <= time) return;
 
@@ -202,10 +271,10 @@ void FloppyDiskDrive::update(Time t)
 	time	   = t;
 }
 
-
-// shift time base:
 void FloppyDiskDrive::audioBufferEnd(Time dt)
 {
+	// shift time base
+
 	if (time < dt) update(dt);
 	time -= dt;
 	step_end_time -= dt;
@@ -214,7 +283,7 @@ void FloppyDiskDrive::audioBufferEnd(Time dt)
 	{
 		for (uint i = 0; i < uint(DSP_SAMPLES_PER_BUFFER); i++)
 		{
-			Dsp::audio_out_buffer[i] += sound_running[sound_running_index++];
+			os::audio_out_buffer[i] += sound_running[sound_running_index++];
 			if (sound_running_index == sound_running_size) sound_running_index = 0;
 		}
 	}
@@ -222,13 +291,13 @@ void FloppyDiskDrive::audioBufferEnd(Time dt)
 	if (sound_insert_index < sound_insert_size)
 	{
 		uint n = min(uint(DSP_SAMPLES_PER_BUFFER), sound_insert_size - sound_insert_index);
-		for (uint i = 0; i < n; i++) { Dsp::audio_out_buffer[i] += sound_insert[sound_insert_index++]; }
+		for (uint i = 0; i < n; i++) { os::audio_out_buffer[i] += sound_insert[sound_insert_index++]; }
 	}
 
 	if (sound_eject_index < sound_eject_size)
 	{
 		uint n = min(uint(DSP_SAMPLES_PER_BUFFER), sound_eject_size - sound_eject_index);
-		for (uint i = 0; i < n; i++) { Dsp::audio_out_buffer[i] += sound_eject[sound_eject_index++]; }
+		for (uint i = 0; i < n; i++) { os::audio_out_buffer[i] += sound_eject[sound_eject_index++]; }
 	}
 
 	for (uint ii = 0; ii < NELEM(sound_step_index); ii++)
@@ -243,11 +312,10 @@ void FloppyDiskDrive::audioBufferEnd(Time dt)
 				ssi = 0;
 			}
 			int e = min(DSP_SAMPLES_PER_BUFFER, i + sound_step_size - ssi);
-			while (i < e) { Dsp::audio_out_buffer[i++] += sound_step[ssi++]; }
+			while (i < e) { os::audio_out_buffer[i++] += sound_step[ssi++]; }
 		}
 	}
 }
-
 
 void FloppyDiskDrive::step(Time t, int dir) // dir = ±1
 {
@@ -286,8 +354,8 @@ void FloppyDiskDrive::insertDisk(FloppyDisk* d, bool side_B)
 	sound_insert_index = 0;				   // start sound
 	sound_eject_index  = sound_eject_size; // stop it (if running)
 
-	addRecentFile(RecentPlus3Disks, d->filepath); // TODO: andere Disk drives
-	addRecentFile(RecentFiles, d->filepath);
+	addRecentFile(gui::RecentPlus3Disks, d->filepath); // TODO: andere Disk drives
+	addRecentFile(gui::RecentFiles, d->filepath);
 }
 
 void FloppyDiskDrive::insertDisk(cstr filepath, bool side_B)
@@ -305,8 +373,8 @@ void FloppyDiskDrive::insertDisk(cstr filepath, bool side_B)
 	sound_insert_index = 0;				   // start sound
 	sound_eject_index  = sound_eject_size; // stop it (if running)
 
-	addRecentFile(RecentPlus3Disks, filepath); // TODO: andere Disk drives
-	addRecentFile(RecentFiles, filepath);
+	addRecentFile(gui::RecentPlus3Disks, filepath); // TODO: andere Disk drives
+	addRecentFile(gui::RecentFiles, filepath);
 }
 
 void FloppyDiskDrive::ejectDisk()
@@ -336,3 +404,36 @@ void FloppyDiskDrive::update_signals()
 	if (type == Drive525 && !is_ready) is_wprot = no; // 5.25" drives don't report read-only when they're not ready
 	if (type == Drive35 && !motor_on) is_track0 = no; // 3.5" don't report track 0 if motor is off
 }
+
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/

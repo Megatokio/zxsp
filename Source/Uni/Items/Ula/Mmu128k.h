@@ -23,7 +23,10 @@ public:
 	bool		 port7ffdIsLocked() const volatile noexcept { return port_7ffd & 0x20; }
 
 protected:
+	friend class gui::UlaInsp;
+
 	Mmu128k(Machine*, isa_id, cstr o_addr, cstr i_addr);
+	~Mmu128k() override = default;
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;

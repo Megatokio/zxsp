@@ -4,9 +4,15 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Inspector.h"
+#include "Printer/ZxPrinter.h"
+
+namespace gui
+{
 
 class ZxPrinterInsp : public Inspector
 {
 public:
-	ZxPrinterInsp(QWidget*, MachineController* mc, volatile IsaObject*);
+	ZxPrinterInsp(QWidget*, MachineController* mc, volatile ZxPrinter*);
 };
+
+} // namespace gui

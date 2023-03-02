@@ -27,7 +27,10 @@
 	e.g. built-in ram and rom
 */
 Memory::Memory(Machine* machine, cstr name, uint size) noexcept :
-	_cnt(0), data(min(size, MAXSIZE)), name(newcopy(name)), machine(machine)
+	_cnt(0),
+	data(min(size, MAXSIZE)),
+	name(newcopy(name)),
+	machine(machine)
 {
 	assert(isMainThread());
 	assert(machine != nullptr);

@@ -30,7 +30,7 @@ struct SectorFormatInfo
 	uint totalsize() { return gap3 + 12 + 10 + 22 + 12 + 4 + (0x80 << sector_sz) + 2; }
 };
 
-typedef Array<SectorFormatInfo> TrackFormatInfo;
+using TrackFormatInfo = Array<SectorFormatInfo>;
 
 
 struct DiskFormatInfo

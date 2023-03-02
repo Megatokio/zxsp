@@ -6,7 +6,7 @@
 #include "Printer.h"
 
 
-class PrinterPlus3 : public Printer
+class PrinterPlus3 final : public Printer
 {
 public:
 	explicit PrinterPlus3(Machine*);
@@ -14,6 +14,8 @@ public:
 	void strobe(bool) {}
 
 protected:
+	~PrinterPlus3() override = default;
+
 	// Item interface:
 	// void	powerOn			( /*t=0*/ int32 cc ) override;
 	// void	reset			( Time t, int32 cc ) override;

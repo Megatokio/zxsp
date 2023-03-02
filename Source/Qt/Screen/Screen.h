@@ -11,8 +11,10 @@
 #include <QMutex>
 #include <QSemaphore>
 struct IoInfo;
-// typedef uint32	RgbaColor;			// RGBA
 
+
+namespace gui
+{
 
 #define H_BORDER_MAX 64 // in 32 column mode
 #define V_BORDER_MAX 48
@@ -48,25 +50,25 @@ protected:
 	void		 do_render_thread(); // call from render_thread
 	void		 draw_rect(int x, int y, int w, int h, RgbaColor color);
 	virtual void paint_screen(bool draw_passepartout = yes);
-	GifWriter*	 newGifWriter(bool update_border);
+	GifWriter*	 newGifWriter(bool update_border, uint fps);
 	Renderer*	 newRenderer();
 	int			 calc_zoom() { return zoom = minmax(1, min(width() / 256, height() / 192), 4); }
 
 protected:
 	virtual void do_ffb_or_vbi() noexcept(false) = 0; // std::exception // call from render_thread
 
-	void paintGL();					 // Qt reimplement
-	void resizeGL(int, int);		 // Qt reimplement
-	void paintEvent(QPaintEvent*);	 // Qt reimplement
-	void resizeEvent(QResizeEvent*); // Qt reimplement
-	void initializeGL();			 // Qt reimplement
+	void paintGL() override;				  // Qt reimplement
+	void resizeGL(int, int) override;		  // Qt reimplement
+	void paintEvent(QPaintEvent*) override;	  // Qt reimplement
+	void resizeEvent(QResizeEvent*) override; // Qt reimplement
+	void initializeGL() override;			  // Qt reimplement
 
 	Screen(QWidget* owner, isa_id);
 	Screen(const Screen&)			 = delete;
 	Screen& operator=(const Screen&) = delete;
 
 public:
-	virtual ~Screen();
+	~Screen() override;
 
 	void setFlavour(isa_id);
 	void repaint();
@@ -82,7 +84,6 @@ public:
 		while (j && j != i) { j = isa_pid[j]; }
 		return i == j;
 	}
-	// { isa_id j=id; do{ if(i==j) return yes; }while((j=isa_pid[j])); return no; }
 
 	int		  getZoom() const { return zoom; /*minmax(1, min(width()/256, height()/192), 4); */ }
 	uint	  getFramesHit() const { return uint(frames_hit_percent + 0.5f); }
@@ -130,7 +131,7 @@ class ScreenZxsp : public Screen
 	bool	_flashphase;
 
 protected:
-	void do_ffb_or_vbi() noexcept(false) override;
+	void do_ffb_or_vbi() override;
 
 public:
 	explicit ScreenZxsp(QWidget* owner, isa_id id = isa_ScreenZxsp) : Screen(owner, id) {}
@@ -138,42 +139,8 @@ public:
 	ScreenZxsp& operator=(const ScreenZxsp&) = delete;
 
 	bool ffb_or_vbi(
-		IoInfo* ioinfo,
-		uint	ioinfo_count,
-		uint8*	attr_pixels,
-		uint32	cc_start_of_screenfile,
-		uint	cc_per_scanline,
-		bool	flashphase,
-		uint32	cc);
+		IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint32 cc_start_of_screenfile, uint cc_per_scanline,
+		bool flashphase, uint32 cc);
 };
 
-
-// define safe casting procs:			e.g. Item* ItemPtr(object)
-
-#define DEFSPTR(ITEM)                                                                                                  \
-  inline ITEM* ITEM##Ptr(Screen* o)                                                                                    \
-  {                                                                                                                    \
-	assert(!o || o->isA(isa_##ITEM));                                                                                  \
-	return reinterpret_cast<ITEM*>(o);                                                                                 \
-  }                                                                                                                    \
-                                                                                                                       \
-  inline const ITEM* ITEM##Ptr(const Screen* o)                                                                        \
-  {                                                                                                                    \
-	assert(!o || o->isA(isa_##ITEM));                                                                                  \
-	return reinterpret_cast<const ITEM*>(o);                                                                           \
-  }                                                                                                                    \
-                                                                                                                       \
-  inline volatile ITEM* ITEM##Ptr(volatile Screen* o)                                                                  \
-  {                                                                                                                    \
-	assert(!o || o->isA(isa_##ITEM));                                                                                  \
-	return reinterpret_cast<volatile ITEM*>(o);                                                                        \
-  }                                                                                                                    \
-                                                                                                                       \
-  inline volatile const ITEM* ITEM##Ptr(volatile const Screen* o)                                                      \
-  {                                                                                                                    \
-	assert(!o || o->isA(isa_##ITEM));                                                                                  \
-	return reinterpret_cast<volatile const ITEM*>(o);                                                                  \
-  }
-
-DEFSPTR(ScreenMono)
-DEFSPTR(ScreenZxsp)
+} // namespace gui

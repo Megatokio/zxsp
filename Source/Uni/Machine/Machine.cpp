@@ -35,12 +35,20 @@
 #include "Keyboard.h"
 #include "Libraries/kio/TestTimer.h"
 #include "MachineController.h"
+#include "MachineInves.h"
 #include "MachineJupiter.h"
+#include "MachinePentagon128.h"
 #include "MachineTc2048.h"
 #include "MachineTc2068.h"
+#include "MachineTk85.h"
+#include "MachineTk90x.h"
+#include "MachineTk95.h"
+#include "MachineTs1000.h"
+#include "MachineTs1500.h"
 #include "MachineZx128.h"
 #include "MachineZx80.h"
 #include "MachineZx81.h"
+#include "MachineZxPlus2.h"
 #include "MachineZxPlus2a.h"
 #include "MachineZxPlus3.h"
 #include "MachineZxsp.h"
@@ -52,7 +60,6 @@
 #include "Printer/PrinterPlus3.h"
 #include "Printer/PrinterTs2040.h"
 #include "Printer/ZxPrinter.h"
-#include "Qt/Settings.h"
 #include "Ram/Cheetah32kRam.h"
 #include "Ram/Jupiter16kRam.h"
 #include "Ram/Memotech64kRam.h"
@@ -92,37 +99,25 @@
 
 class MachineList : private Array<volatile Machine*>
 {
-	using Array<volatile Machine*>::cnt;
-	using Array<volatile Machine*>::data;
+	using Array::cnt;
+	using Array::data;
 
 public:
-	PLock _lock;
+	PLock mutex;
 
 	void append(volatile Machine* m)
 	{
-		PLocker z(_lock);
+		PLocker<PLock> z(mutex);
 		Array::append(m);
 	}
 	void remove(volatile Machine* m)
 	{
-		PLocker z(_lock);
-		// Array::removeitem(m);
-		for (uint i = 0; i < cnt; i++)
-		{
-			if (m == data[i])
-			{
-				Array::remove(i);
-				return;
-			}
-		}
+		PLocker<PLock> z(mutex);
+		Array::remove(m);
 	}
 
-	uint			  count() { return cnt; }
-	volatile Machine* operator[](uint i)
-	{
-		assert(i < cnt);
-		return data[i];
-	}
+	using Array::count;
+	using Array::operator[];
 };
 
 
@@ -132,37 +127,24 @@ volatile void*	   front_machine = nullptr;
 
 void runMachinesForSound()
 {
-	PLocker z(machine_list._lock);
+	PLocker<PLock> z(machine_list.mutex);
 
 	for (uint i = 0; i < machine_list.count(); i++)
 	{
-		NVPtr<Machine> machine(machine_list[i]);
-		if (machine->isPowerOn()) // not suspended by controller
+		NVPtr<Machine> machine(machine_list[i], 50 * 1000); // 50 µs
+
+		if (machine->isPowerOn())
 		{
-			if (machine->isRunning()) // cpu not suspended for debugger
+			if (machine->isRunning()) // not suspended
 			{
 				machine->runForSound();
-				if (machine->cpu_clock <= 100000) machine->drawVideoBeamIndicator();
+				if (machine->cpu_clock > 100000) continue;
 			}
-			else { machine->drawVideoBeamIndicator(); }
+
+			machine->drawVideoBeamIndicator();
 		}
 	}
 }
-
-
-// ########################################################################
-// Utilities:
-// ########################################################################
-
-
-#define ForAllItems(WHAT)                                                                                              \
-  {                                                                                                                    \
-	Item* p = lastitem;                                                                                                \
-	do {                                                                                                               \
-	  p->WHAT;                                                                                                         \
-	}                                                                                                                  \
-	while ((p = p->prev()));                                                                                           \
-  }
 
 
 // ########################################################################
@@ -170,23 +152,86 @@ void runMachinesForSound()
 // ########################################################################
 
 
-/*  CREATOR:
-	create the Machine with 'model'
-	Creates Ram and Rom
-	but does not create all other itmes! (CPU, Ula, Mmu, Keyboard, Joysticks and AY sound chip)
-	adds the incomplete machine to the machine_list[]
-	the machine is not powered on.
-	the machine is not suspended.
-*/
-Machine::Machine(MachineController* parent, Model model, isa_id id) :
-	IsaObject(parent, id, isa_Machine), _lock(),								  //_lock(PLock::recursive),
-	controller(parent), model(model), model_info(&zx_info[model]), cpu_options(), // s.u.
-	break_ptr(nullptr), audio_in_enabled(yes), // default. Child class and MachineController will override
-	is_power_on(no), is_suspended(no),		   // must be initialized before memory
-	rzx_file(nullptr), overlay_rzx_play(nullptr), overlay_rzx_record(nullptr),
-	rom(this, "Internal Rom", model_info->rom_size), ram(this, "Internal Ram", model_info->ram_size), cpu(nullptr),
-	ula(nullptr), mmu(nullptr), keyboard(nullptr), ay(nullptr), joystick(nullptr), taperecorder(nullptr), fdc(nullptr),
-	printer(nullptr), crtc(nullptr), lastitem(nullptr), total_frames(0), // information: accumulated frames until now
+std::shared_ptr<Machine> Machine::newMachine(gui::MachineController* mc, Model model)
+{
+	// create Machine instance for model
+	// the machine is not powered on.
+
+	switch (model)
+	{
+	case jupiter: return std::make_shared<MachineJupiter>(mc);
+
+	case zx80: return std::make_shared<MachineZx80>(mc);
+	case zx81: return std::make_shared<MachineZx81>(mc);
+	case tk85: return std::make_shared<MachineTk85>(mc);
+	case ts1000: return std::make_shared<MachineTs1000>(mc);
+	case ts1500: return std::make_shared<MachineTs1500>(mc);
+
+	case tk90x: return std::make_shared<MachineTk90x>(mc);
+	case tk95: return std::make_shared<MachineTk95>(mc);
+	case inves: return std::make_shared<MachineInves>(mc);
+	case tc2048: return std::make_shared<MachineTc2048>(mc);
+
+	case zxsp_i1:
+	case zxsp_i2:
+	case zxsp_i3:
+	case zxplus: return std::make_shared<MachineZxsp>(mc, model);
+
+	case zxplus2_span:
+	case zxplus2_frz:
+	case zxplus2: return std::make_shared<MachineZxPlus2>(mc, model);
+
+	case zx128_span:
+	case zx128: return std::make_shared<MachineZx128>(mc, model);
+
+	case zxplus3_span:
+	case zxplus3: return std::make_shared<MachineZxPlus3>(mc, model);
+
+	case zxplus2a_span:
+	case zxplus2a: return std::make_shared<MachineZxPlus2a>(mc, model);
+
+	case u2086:
+	case tc2068:
+	case ts2068: return std::make_shared<MachineTc2068>(mc, model);
+
+	case pentagon128: return std::make_shared<MachinePentagon128>(mc);
+	case zxplus_span: return std::make_shared<MachineZxsp>(mc, zxplus); // TODO
+	case scorpion: return std::make_shared<MachineZxsp>(mc, zxsp_i3);	// TODO
+
+	case unknown_model:
+	case num_models:
+	case samcoupe: break;
+	}
+	IERR();
+}
+
+Machine::Machine(gui::MachineController* parent, Model model, isa_id id) :
+	IsaObject(id, isa_Machine),
+	mutex(), //_lock(PLock::recursive),
+	controller(parent),
+	model(model),
+	model_info(&zx_info[model]),
+	cpu_options(), // s.u.
+	break_ptr(nullptr),
+	audio_in_enabled(yes), // default. Child class and MachineController will override
+	is_power_on(no),
+	is_suspended(no), // must be initialized before memory
+	rzx_file(nullptr),
+	overlay_rzx_play(nullptr),
+	overlay_rzx_record(nullptr),
+	rom(this, "Internal Rom", model_info->rom_size),
+	ram(this, "Internal Ram", model_info->ram_size),
+	cpu(nullptr),
+	ula(nullptr),
+	mmu(nullptr),
+	keyboard(nullptr),
+	ay(nullptr),
+	joystick(nullptr),
+	taperecorder(nullptr),
+	fdc(nullptr),
+	printer(nullptr),
+	crtc(nullptr),
+	total_frames(0),   // information: accumulated frames until now
 	total_cc(0),	   // information: accumulated cpu T cycles until now
 	total_buffers(0),  // information: accumulated dsp buffers until now
 	total_realtime(0), // information: accumulated time[sec] until now
@@ -195,6 +240,13 @@ Machine::Machine(MachineController* parent, Model model, isa_id id) :
 	beam_cnt(0), // video beam indicator
 	beam_cc(0)
 {
+	// create Machine with 'model'
+	// Create Ram and Rom
+	// but don't create all other itmes! (CPU, Ula, Mmu, Keyboard, Joysticks and AY sound chip)
+	// add the incomplete machine to the machine_list[]
+	// the machine is not powered on.
+	// the machine is not suspended.
+
 	xlogIn("new Machine");
 
 	// assert(cpu_clock*cpu_clock_predivider==ula_clock);
@@ -267,13 +319,19 @@ Machine::~Machine()
 	machine_list.remove(this);
 
 	is_power_on = no;
-	while (lastitem) delete lastitem; // rückwärts abbauen. QObject d'tor hat unbestimmte Reihenfolge!
+
+	// remove from back to front:
+	while (all_items.count())
+	{
+		controller->itemRemoved(all_items.last().get());
+		all_items.drop();
+	}
 }
 
-/*	callback from Memory c'tor
- */
 void Machine::memoryAdded(Memory* m)
 {
+	// callback from Memory c'tor
+
 	assert(isMainThread());
 	assert(is_locked());
 
@@ -281,10 +339,10 @@ void Machine::memoryAdded(Memory* m)
 	memoryModified(m, 0);
 }
 
-/*	callback from Memory d'tor
- */
 void Machine::memoryRemoved(Memory* m)
 {
+	// callback from Memory d'tor
+
 	assert(isMainThread());
 	assert(is_locked());
 
@@ -300,101 +358,54 @@ void Machine::memoryRemoved(Memory* m)
 	memoryModified(m, 1);
 }
 
-/*	callback from Memory shrink or grow:
- */
 void Machine::memoryModified(Memory* m, uint how)
 {
+	// callback from Memory shrink or grow:
+
 	assert(isMainThread());
 	assert(is_locked());
 
-	MachineController* mc = NV(controller);
-	mc->memoryModified(m, how);
+	controller->memoryModified(m, how);
 }
 
-/* callback from Item c'tor
- */
-void Machine::itemAdded(Item* item)
-{
-	assert(isMainThread());
-	assert(is_locked());
-
-	if (item->isA(isa_Ay)) ay = AyPtr(item);
-	if (item->isA(isa_Keyboard)) keyboard = KeyboardPtr(item);
-	if (item->isA(isa_Joy)) joystick = JoyPtr(item);
-	if (item->isA(isa_Mmu)) mmu = MmuPtr(item);
-	if (item->isA(isa_Z80)) cpu = Z80Ptr(item);
-	if (item->isA(isa_Fdc)) fdc = FdcPtr(item);
-	if (item->isA(isa_Printer)) printer = PrinterPtr(item);
-	if (item->isA(isa_Ula)) ula = UlaPtr(item);
-	if (item->isA(isa_Crtc)) crtc = CrtcPtr(item);
-	if (item->isA(isa_TapeRecorder)) taperecorder = TapeRecorderPtr(item);
-
-	MachineController* mc = NV(controller);
-	mc->itemAdded(item);
-}
-
-/* callback from Item d'tor
- */
-void Machine::itemRemoved(Item* item)
-{
-	assert(isMainThread());
-	assert(is_locked());
-
-	if (ay == item) ay = nullptr;
-	if (keyboard == item) keyboard = nullptr;
-	if (joystick == item) joystick = nullptr;
-	if (mmu == item) mmu = nullptr;
-	if (cpu == item) cpu = nullptr;
-	if (fdc == item) fdc = nullptr;
-	if (printer == item) printer = nullptr;
-	if (ula == item) ula = nullptr;
-	if (crtc == item) crtc = nullptr;
-	if (taperecorder == item) taperecorder = nullptr;
-
-	MachineController* mc = NV(controller);
-	mc->itemRemoved(item);
-}
-
-/*	resume machine from runForSound():
- */
 void Machine::_resume()
 {
-	is_suspended = no;
-	controller->machineRunStateChanged();
+	if (is_suspended)
+	{
+		is_suspended = no;
+		controller->machineSuspendStateChanged();
+	}
 }
 
-/*	resume machine:
- */
-void Machine::resume() volatile
-{
-	PLocker z(_lock);
-	assert(is_suspended);
-	NV(this)->_resume();
-}
-
-/*	suspend machine from runForSound()
- */
 void Machine::_suspend()
 {
-	is_suspended = true;
-	controller->machineRunStateChanged();
+	if (!is_suspended)
+	{
+		is_suspended = true;
+		controller->machineSuspendStateChanged();
+	}
 }
 
-/*	suspend machine
-	returns flag, whether it was running, to be passed to resume(bool):
-		1 = was running
-		0 = was suspended
-*/
+void Machine::resume() volatile
+{
+	// resume machine:
+
+	nvptr(this)->_resume();
+}
+
 bool Machine::suspend() volatile
 {
-	PLocker z(_lock);
-	if (is_suspended) return no; // was not running
+	// suspend machine
+	// returns flag, whether it was running, to be passed to resume(bool):
+	// 	 1 = was running
+	// 	 0 = was suspended
+
+	PLocker<Machine> z(this);
+	if (is_suspended) return false; // was not running
 	NV(this)->_suspend();
-	return yes; // was running
+	return true; // was running
 }
 
-
-// 9 x virtual:
 void Machine::loadO80(FD&) { showAlert("'.o' and '.80' files can only be loaded into a ZX80"); }
 void Machine::saveO80(FD&) { showAlert("'.o' and '.80' files can only be saved from a ZX80"); }
 void Machine::loadP81(FD&, bool) { showAlert("'.p' and '.81' files can only be loaded into a ZX81"); }
@@ -405,27 +416,25 @@ void Machine::loadAce(FD&) { showAlert("'.ace' files can only be loaded into a J
 void Machine::saveAce(FD&) { showAlert("'.ace' files can only be saved from a Jupiter ACE"); }
 void Machine::loadScr(FD&) { showAlert("'.scr' files can only be loaded into a ZX Spectrum"); }
 void Machine::saveScr(FD&) { showAlert("'.scr' files can only be saved from a ZX Spectrum"); }
-// void Machine::loadTap(FD&)	{ showAlert("'.tap' files can only be loaded into a ZX Spectrum or Jupiter Ace");
-// }
+// void Machine::loadTap(FD&) { showAlert("'.tap' files can only be loaded into a ZX Spectrum or Jupiter Ace"); }
 
-
-/*  save ROM:
-	simply dump the rom to a file
-*/
 void Machine::saveRom(FD& fd)
 {
+	// save ROM:
+	// simply dump the rom to a file
+
 	assert(isMainThread() || is_locked());
 
 	write_mem(fd, rom.getData(), rom.count());
 }
 
-/*	load ROM:
-	simply read the rom from a file.
-	there must be at least rom.count() bytes available
-	called from MachineController.loadSnapshot()
-*/
 void Machine::loadRom(FD& fd)
 {
+	// load ROM:
+	// simply read the rom from a file.
+	// there must be at least rom.count() bytes available
+	// called from MachineController.loadSnapshot()
+
 	assert(is_locked());
 
 	read_mem(fd, rom.getData(), rom.count());
@@ -495,25 +504,22 @@ void Machine::saveAs(cstr filepath)
 
 	if (eq(ext, ".rzx"))
 	{
-		if (rzx_file)
-			rzx_file->writeFile(filepath);
-		else
-			showAlert("No rzx file in place.");
+		if (rzx_file) rzx_file->writeFile(filepath);
+		else showAlert("No rzx file in place.");
 		return;
 	}
 
 	showAlert("Unsupported file format");
 }
 
-
-/*  Reset the Machine via Power On-Off-On
-	start_cc = cpu cycle at which the power-on reset releases
-	some machines won't start with an arbitrary start_cc:
-	a starting value of 1000 cc seems to work for all machines
-	note: start_cc for +2A:  ok: 0k..2k, 7k..14k;  boot error: 3k..6k, 15k..40k
-*/
 void Machine::_power_on(int32 start_cc)
 {
+	// Reset the Machine via Power On-Off-On
+	// start_cc = cpu cycle at which the power-on reset releases
+	// some machines won't start with an arbitrary start_cc:
+	// a starting value of 1000 cc seems to work for all machines
+	// note: start_cc for +2A:  ok: 0k..2k, 7k..14k;  boot error: 3k..6k, 15k..40k
+
 	xlogIn("Machine:PowerOn");
 
 	total_frames   = 0; // information: accumulated frames until now
@@ -525,7 +531,7 @@ void Machine::_power_on(int32 start_cc)
 	tcc0 = -start_cc / cpu_clock;
 	assert(t_for_cc(start_cc) == 0.0);
 
-	crtc = CrtcPtr(findIsaItem(isa_Crtc));
+	crtc = find<Crtc>();
 	assert(crtc);
 	cpu->setCrtc(crtc);
 
@@ -542,8 +548,10 @@ void Machine::_power_on(int32 start_cc)
 
 void Machine::powerOn(int32 start_cc) volatile
 {
-	// IF the machine is power_off, then we don't need to lock:
-	assert(!is_power_on);
+	assert(isMainThread());
+	assert(isPowerOff());
+
+	// if the machine is power_off, then we don't need to lock:
 	NV(this)->rzxDispose();
 	NV(this)->_power_on(start_cc);
 }
@@ -556,32 +564,33 @@ void Machine::_power_off()
 
 bool Machine::powerOff() volatile
 {
+	assert(isMainThread());
+
+	PLocker<Machine> z(this);
 	if (isPowerOff()) return false; // wasn't running
-	// power off and lock machine to wait for runForSound():
-	NVPtr<Machine>(this)->_power_off();
+	NV(this)->_power_off();
 	return true; // was running
 }
 
-/*	power-cycle the machine for reset
-	does not change the suspend state
-*/
 void Machine::powerCycle() volatile
 {
+	// power-cycle the machine for reset
+	// does not change the suspend state
+
 	powerOff();
 	powerOn();
 }
 
-
-/*	press the reset button
-	reset all items:
-	sequence: cpu .. lastitem
-	timing is as for input / output:
-		Time may overshoot dsp buffer but is limited to fit in dsp buffer + stitching
-		(this is only a concern if the machine is running veerryy slowwllyy)
-		cc may overshoot cc_per_frame a few cycles
-*/
 void Machine::reset()
 {
+	// press the reset button
+	// reset all items:
+	// sequence: cpu .. lastitem
+	// timing is as for input / output:
+	// 	Time may overshoot dsp buffer but is limited to fit in dsp buffer + stitching
+	// 	(this is only a concern if the machine is running veerryy slowwllyy)
+	// 	cc may overshoot cc_per_frame a few cycles
+
 	xlogIn("Machine: reset");
 	assert(is_locked());
 
@@ -594,96 +603,247 @@ void Machine::reset()
 	for (Item* p = cpu; p; p = p->next()) { p->reset(t, cc); }
 }
 
-
 void Machine::nmi()
 {
 	xlogIn("Machine:Nmi");
-	lastitem->triggerNmi();
-	if (rzxIsRecording()) rzx_store_snapshot();
+
+	all_items.last()->triggerNmi();
+
+	if (rzxIsRecording()) rzxStoreSnapshot();
 }
 
+Item* Machine::findItem(isa_id id)
+{
+	// find exact type:
+
+	for (uint i = all_items.count(); i--;)
+	{
+		if (all_items[i]->isaId() == id) { return all_items[i].get(); }
+	}
+	return nullptr;
+}
+
+Item* Machine::addItem(Item* item)
+{
+	// add item to all_items[]
+	// update the various cached pointers
+	// updates crtc only for the internal ula
+
+	assert(isMainThread());
+	assert(is_locked());
+	assert(cpu || isPowerOff());
+	assert(item);
+
+	all_items.append(std::shared_ptr<Item>(item));
+
+	if (auto* i = dynamic_cast<Z80*>(item)) cpu = i;
+	if (auto* i = dynamic_cast<Mmu*>(item)) mmu = i;
+	if (auto* i = dynamic_cast<Ula*>(item)) crtc = ula = i;
+	if (auto* i = dynamic_cast<Keyboard*>(item)) keyboard = i;
+
+	if (auto* i = dynamic_cast<Ay*>(item)) ay = i;
+	if (auto* i = dynamic_cast<Joy*>(item)) joystick = i;
+	if (auto* i = dynamic_cast<Fdc*>(item)) fdc = i;
+	if (auto* i = dynamic_cast<Printer*>(item)) printer = i;
+	if (auto* i = dynamic_cast<TapeRecorder*>(item)) taperecorder = i;
+
+	controller->itemAdded(item);
+
+	if (isPowerOn()) item->powerOn(cpu->cpuCycle());
+	return item;
+}
+
+void Machine::removeItem(Item* item)
+{
+	// remove item from all_items[]
+	// update the various cached pointers
+	// updates crtc only for the internal ula
+
+	assert(isMainThread());
+	assert(is_locked());
+	if (!item) return;
+
+	controller->itemRemoved(item);
+
+	if (cpu == item) cpu = nullptr;
+	if (mmu == item) mmu = nullptr;
+	if (ula == item) crtc = ula = nullptr;
+	if (keyboard == item) keyboard = nullptr;
+
+	if (ay == item) ay = find<Ay>();
+	if (fdc == item) fdc = find<Fdc>();
+	if (printer == item) printer = find<Printer>();
+	if (joystick == item) joystick = find<Joy>();
+	if (taperecorder == item) taperecorder = find<TapeRecorder>();
+
+	uint i = all_items.indexof(item);
+	assert(i != ~0u);			   // must be in list
+	assert(all_items[i].unique()); // must be the only shared_ref
+	all_items.remove(i);		   // => will be deleted
+}
 
 Item* Machine::addExternalItem(isa_id id)
 {
 	assert(isMainThread());
 	assert(is_locked()); // note: complex items / with memory must actually be PowerOff
-	assert(cpu);
+	assert(cpu || isPowerOff());
 
-	Item* i = findItem(id);
-	if (i) return i;
+	Item* item = findItem(id);
+	if (item) return item;
 
 	switch (id)
 	{
-	case isa_KempstonJoy: i = new KempstonJoy(this); break;
-	case isa_ZxIf1: i = new ZxIf1(this); break;
-	case isa_ZxIf2: i = new ZxIf2(this); break;
-	case isa_ZxPrinter: i = new ZxPrinter(this); break;
-	case isa_KempstonMouse: i = new KempstonMouse(this); break;
-	case isa_ZonxBox: i = new ZonxBox(this); break;
-	case isa_ZonxBox81: i = new ZonxBox81(this); break;
-	case isa_DidaktikMelodik: i = new DidaktikMelodik(this); break;
-	case isa_FdcBeta128: i = new FdcBeta128(this); break;
-	case isa_FdcD80: i = new FdcD80(this); break;
-	case isa_FdcJLO: i = new FdcJLO(this); break;
-	case isa_FdcPlusD: i = new FdcPlusD(this); break;
-	case isa_CursorJoy: i = new CursorJoy(this); break;
-	case isa_DktronicsDualJoy: i = new DktronicsDualJoy(this); break;
-	case isa_ProtekJoy: i = new ProtekJoy(this); break;
-	case isa_PrinterAerco: i = new PrinterAerco(this); break;
-	case isa_PrinterLprint3: i = new PrinterLprint3(this); break;
-	case isa_PrinterTs2040: i = new PrinterTs2040(this); break;
-	case isa_FullerBox: i = new FullerBox(this); break;
-	case isa_GrafPad: i = new GrafPad(this); break;
-	case isa_IcTester: i = new IcTester(this); break;
-	case isa_Multiface1: i = new Multiface1(this); break;
-	case isa_Multiface128: i = new Multiface128(this); break;
-	case isa_Multiface3: i = new Multiface3(this); break;
-	case isa_Cheetah32kRam: i = new Cheetah32kRam(this); break;
-	case isa_Jupiter16kRam: i = new Jupiter16kRam(this); break;
-	case isa_SpectraVideo: i = new SpectraVideo(this); break;
-	case isa_DivIDE: i = new DivIDE(this); break;
-	case isa_CurrahMicroSpeech: i = new CurrahMicroSpeech(this); break;
-	case isa_Zx16kRam: i = new Zx16kRam(this); break;
-	case isa_Memotech16kRam: i = new Memotech16kRam(this); break;
-	case isa_Memotech64kRam: i = new Memotech64kRam(this); break;
-	case isa_Stonechip16kRam: i = new Stonechip16kRam(this); break;
-	case isa_Zx3kRam: i = new Zx3kRam(this); break;
-	case isa_Ts1016Ram: i = new Ts1016Ram(this); break;
+	case isa_KempstonJoy: item = new KempstonJoy(this); break;
+	case isa_ZxIf1: item = new ZxIf1(this); break;
+	case isa_ZxIf2: item = new ZxIf2(this); break;
+	case isa_ZxPrinter: item = new ZxPrinter(this); break;
+	case isa_KempstonMouse: item = new KempstonMouse(this); break;
+	case isa_ZonxBox: item = new ZonxBox(this); break;
+	case isa_ZonxBox81: item = new ZonxBox81(this); break;
+	case isa_DidaktikMelodik: item = new DidaktikMelodik(this); break;
+	case isa_FdcBeta128: item = new FdcBeta128(this); break;
+	case isa_FdcD80: item = new FdcD80(this); break;
+	case isa_FdcJLO: item = new FdcJLO(this); break;
+	case isa_FdcPlusD: item = new FdcPlusD(this); break;
+	case isa_CursorJoy: item = new CursorJoy(this); break;
+	case isa_DktronicsDualJoy: item = new DktronicsDualJoy(this); break;
+	case isa_ProtekJoy: item = new ProtekJoy(this); break;
+	case isa_PrinterAerco: item = new PrinterAerco(this); break;
+	case isa_PrinterLprint3: item = new PrinterLprint3(this); break;
+	case isa_PrinterTs2040: item = new PrinterTs2040(this); break;
+	case isa_FullerBox: item = new FullerBox(this); break;
+	case isa_GrafPad: item = new GrafPad(this); break;
+	case isa_IcTester: item = new IcTester(this); break;
+	case isa_Multiface128: item = new Multiface128(this); break;
+	case isa_Multiface3: item = new Multiface3(this); break;
+	case isa_CurrahMicroSpeech: item = new CurrahMicroSpeech(this); break;
 
-	default: showWarning("TODO: dieses Item in Machine::addExternalItem() eintragen"); return nullptr;
+	case isa_Multiface1:
+	case isa_SpectraVideo:
+	case isa_DivIDE:
+	case isa_Cheetah32kRam:
+	case isa_Jupiter16kRam:
+	case isa_Zx16kRam:
+	case isa_Memotech16kRam:
+	case isa_Memotech64kRam:
+	case isa_Stonechip16kRam:
+	case isa_Zx3kRam:
+	case isa_Ts1016Ram: IERR();
+
+	default: IERR();
 	}
 
-	i->powerOn(cpu->cpuCycle());
-	return i;
+	return addItem(item);
 }
 
-/*	add or remove SpectraVideo interface
-	Spectra is set as crtc in the CPU
-*/
-SpectraVideo* Machine::addSpectraVideo(bool f)
+Multiface1* Machine::addMultiface1(bool joystick_enabled)
 {
 	assert(isMainThread());
 	assert(is_locked());
-	assert(isA(isa_MachineZxsp));
+	assert(cpu || isPowerOff());
 
-	if (f) // attach
+	Multiface1* mf1 = find<Multiface1>();
+	if (mf1) return mf1;
+
+	addItem(mf1 = new Multiface1(this, joystick_enabled));
+	return mf1;
+}
+
+ExternalRam* Machine::addExternalRam(isa_id id, uint options)
+{
+	assert(isMainThread());
+	assert(isPowerOff());
+	assert(find<ExternalRam>() == nullptr);
+
+	ExternalRam* ram = nullptr;
+
+	switch (id)
 	{
-		crtc->attachToScreen(nullptr);
-		crtc = CrtcPtr(addExternalItem(isa_SpectraVideo));
-		crtc->attachToScreen(controller->getScreen());
-		cpu->setCrtc(crtc);
-		Z80::c2c(ula->getVideoRam(), crtc->getVideoRam(), 0x4000);
-		crtc->setBorderColor(ula->getBorderColor());
-		return SpectraVideoPtr(crtc);
+	case isa_Jupiter16kRam: ram = new Jupiter16kRam(this); break;
+	case isa_Zx16kRam: ram = new Zx16kRam(this); break;
+	case isa_Stonechip16kRam: ram = new Stonechip16kRam(this); break;
+	case isa_Ts1016Ram: ram = new Ts1016Ram(this); break;
+	case isa_Memotech16kRam: ram = new Memotech16kRam(this); break;
+	case isa_Cheetah32kRam: ram = new Cheetah32kRam(this); break;
+
+	case isa_Zx3kRam:
+		if (options != 1 kB && options != 2 kB) options = 3 kB; // safety
+		ram = new Zx3kRam(this, options);
+		break;
+
+	case isa_Memotech64kRam:
+		if (!Memotech64kRam::isValidDipSwitches(options)) options = Memotech64kRam::DipSwitches::E;
+		ram = new Memotech64kRam(this, options);
+		break;
+
+	default: IERR();
 	}
-	else // remove
+
+	addItem(ram);
+	return ram;
+}
+
+DivIDE* Machine::addDivIDE(uint ramsize, cstr romfile)
+{
+	assert(isMainThread());
+	assert(isPowerOff());
+
+	DivIDE* divide = find<DivIDE>();
+	if (divide) return divide;
+
+	addItem(divide = new DivIDE(this, ramsize, romfile));
+	return divide;
+}
+
+void Machine::removeSpectraVideo()
+{
+	assert(isMainThread());
+	assert(is_locked());
+
+	auto* spectra = find<SpectraVideo>();
+	if (!spectra) return;
+
+	removeItem(spectra);
+
+	if (crtc == spectra)
 	{
-		if (crtc != ula) removeItem(crtc);
-		crtc = ula;
-		crtc->attachToScreen(controller->getScreen());
-		cpu->setCrtc(crtc);
-		return nullptr;
+		crtc = find<Crtc>();
+		if (crtc)
+		{
+			crtc->attachToScreen(controller->getScreen());
+			cpu->setCrtc(crtc);
+			if (isPowerOn()) crtc->powerOn(cpu->cpuCycle());
+		}
 	}
+}
+
+SpectraVideo* Machine::addSpectraVideo(uint dip_switches)
+{
+	// Add SpectraVideo interface
+	// Spectra is set as crtc in the CPU
+
+	assert(isMainThread());
+	assert(is_locked());
+	assert(dynamic_cast<UlaZxsp*>(ula));
+
+	auto* spectra = dynamic_cast<SpectraVideo*>(crtc);
+	if (spectra) return spectra;
+
+	assert(crtc);
+	crtc->attachToScreen(nullptr);
+
+	spectra = find<SpectraVideo>();
+	if (!spectra) addItem(spectra = new SpectraVideo(this, dip_switches));
+
+	spectra->attachToScreen(controller->getScreen());
+	cpu->setCrtc(spectra);
+	if (isPowerOn()) spectra->powerOn(cpu->cpuCycle());
+
+	Z80::c2c(crtc->getVideoRam(), spectra->getVideoRam(), 0x4000);
+	spectra->setBorderColor(crtc->getBorderColor());
+
+	crtc = spectra;
+	return spectra;
 }
 
 
@@ -698,40 +858,34 @@ void Machine::installRomPatches(bool f)
 	if (addr)
 	{
 		assert(addr < rom.count());
-		if (f)
-			rom[addr] |= cpu_patch;
-		else
-			rom[addr] &= ~cpu_patch;
+		if (f) rom[addr] |= cpu_patch;
+		else rom[addr] &= ~cpu_patch;
 	}
 
 	addr = model_info->tape_save_routine;
 	if (addr)
 	{
 		assert(addr < rom.count());
-		if (f)
-			rom[addr] |= cpu_patch;
-		else
-			rom[addr] &= ~cpu_patch;
+		if (f) rom[addr] |= cpu_patch;
+		else rom[addr] &= ~cpu_patch;
 	}
 
 	addr = model_info->tape_load_ret_addr;
 	if (addr)
 	{
 		assert(addr < rom.count());
-		if (f)
-			rom[addr] |= cpu_patch;
-		else
-			rom[addr] &= ~cpu_patch;
+		if (f) rom[addr] |= cpu_patch;
+		else rom[addr] &= ~cpu_patch;
 	}
 }
 
-/*  handle rom patch
-	called with all z80 registers stored
-	return new opcode to execute, which may be the one passed in
-*/
 uint8 Machine::handleRomPatch(uint16 pc, uint8 opcode)
 {
-	opcode = lastitem->handleRomPatch(pc, opcode);
+	// handle rom patch
+	// called with all z80 registers stored
+	// return new opcode to execute, which may be the one passed in
+
+	opcode = all_items.last()->handleRomPatch(pc, opcode);
 
 	CoreByte* instrptr = cpu->rdPtr(pc);
 
@@ -751,10 +905,7 @@ uint8 Machine::handleRomPatch(uint16 pc, uint8 opcode)
 			if (taperecorder->instant_load_tape && handleSaveTapePatch()) return cpu->peek(cpu->getRegisters().pc);
 			if (taperecorder->auto_start_stop_tape) taperecorder->autoStart(cpu->cpuCycle());
 		}
-		if (ula->isA(isa_UlaZx80))
-			UlaZx80Ptr(ula)->enableMicOut(1);
-		else if (ula->isA(isa_UlaZx81))
-			UlaZx81Ptr(ula)->enableMicOut(1);
+		if (auto* ulazx80 = dynamic_cast<UlaZx80*>(ula)) ulazx80->enableMicOut(1); // ZX80 and ZX81
 	}
 
 	else if (instrptr == rom.getData() + model_info->tape_load_ret_addr)
@@ -763,22 +914,18 @@ uint8 Machine::handleRomPatch(uint16 pc, uint8 opcode)
 		{
 			if (taperecorder->auto_start_stop_tape) taperecorder->autoStop(cpu->cpuCycle());
 		}
-		if (ula->isA(isa_UlaZx80))
-			UlaZx80Ptr(ula)->enableMicOut(0);
-		else if (ula->isA(isa_UlaZx81))
-			UlaZx81Ptr(ula)->enableMicOut(0);
+		if (auto* ulazx80 = dynamic_cast<UlaZx80*>(ula)) ulazx80->enableMicOut(0); // ZX80 and ZX81
 	}
 
 	return opcode; // maybe handled
 }
 
-
-/*	CPU callback: output instruction
-	lastitem linked list:
-	• item 1 = cpu:  no i/o
-*/
 void Machine::outputAtCycle(int32 cc, uint16 addr, uint8 byte)
 {
+	// CPU callback: output instruction
+	// lastitem linked list:
+	// • item 1 = cpu:  no i/o
+
 	xxlogline("OUT $%04x,$%02x ", uint(addr), uint(byte));
 
 	cc		 = ula->addWaitCycles(cc, addr);
@@ -787,18 +934,15 @@ void Machine::outputAtCycle(int32 cc, uint16 addr, uint8 byte)
 	for (Item* p = ula; p; p = p->next())
 	{
 		if (p->matchesOut(addr)) p->output(now, cc, addr, byte);
-	};
+	}
 }
 
-
-/*	CPU callback: input instruction
-	lastitem linked list:
-	• item 1 = cpu:  no i/o
-	• item 2 = ula: last item called => ula can add "idle bus bytes"
-*/
 uint8 Machine::inputAtCycle(int32 cc, uint16 addr)
 {
-	if (XXLOG && (cc > 2000 || (addr & 0xff) != 0xfe)) logline("IN $%04x ", uint(addr));
+	// CPU callback: input instruction
+	// lastitem linked list:
+	// • item 1 = cpu:  no i/o
+	// • item 2 = ula: last item called => ula can add "idle bus bytes"
 
 	cc		  = ula->addWaitCycles(cc, addr);
 	Time  now = t_for_cc_lim(cc);
@@ -808,7 +952,7 @@ uint8 Machine::inputAtCycle(int32 cc, uint16 addr)
 	for (Item* p = ula; p; p = p->next())
 	{
 		if (p->matchesIn(addr)) p->input(now, cc, addr, c, m);
-	};
+	}
 
 	if (m != 0xff) c &= ula->getFloatingBusByte(cc);
 
@@ -819,8 +963,7 @@ uint8 Machine::inputAtCycle(int32 cc, uint16 addr)
 		if (rzx_file->isPlaying())
 		{
 			int rval = rzx_file->getInput();
-			if (rval >= 0)
-				return rval;
+			if (rval >= 0) return uint8(rval);
 			else
 			{
 				// -1 = EndOfFrame = OutOfSync.
@@ -842,19 +985,29 @@ uint8 Machine::inputAtCycle(int32 cc, uint16 addr)
 	return c;
 }
 
-
-// for memory mapped i/o
 uint8 Machine::readMemMappedPort(int32 cc, uint16 addr, uint8 byte)
 {
-	return lastitem->readMemory(t_for_cc_lim(cc), cc, addr, byte);
+	// for memory mapped i/o
+
+	return all_items.last()->readMemory(t_for_cc_lim(cc), cc, addr, byte);
 }
 
-// for memory mapped i/o
 void Machine::writeMemMappedPort(int32 cc, uint16 addr, uint8 byte)
 {
-	lastitem->writeMemory(t_for_cc_lim(cc), cc, addr, byte);
+	// for memory mapped i/o
+
+	all_items.last()->writeMemory(t_for_cc_lim(cc), cc, addr, byte);
 }
 
+void Machine::videoFrameEnd(int32 cc)
+{
+	for (uint i = all_items.count(); i--;) { all_items[i]->videoFrameEnd(cc); }
+}
+
+void Machine::audioBufferEnd(Time t)
+{
+	for (uint i = all_items.count(); i--;) { all_items[i]->audioBufferEnd(t); }
+}
 
 /* ----	The Main Thing ----
 
@@ -894,10 +1047,8 @@ void Machine::runForSound(int32 cc_final)
 		int32  ic_end = rzx_file->getIcount();
 
 		do {
-			if (ula->isA(isa_UlaZxsp))
+			if (auto* crtc_zxsp = dynamic_cast<UlaZxsp*>(ula))
 			{
-				UlaZxsp* crtc_zxsp = UlaZxspPtr(ula);
-
 				int32 cc_end = min(cc_final, crtc_zxsp->getWaitmapStart());
 				if (cc < cc_end && ic < ic_end)
 					result = cpu->run(cc_end, ic_end, cpu_options & ~(cpu_waitmap | cpu_crtc));
@@ -949,7 +1100,7 @@ void Machine::runForSound(int32 cc_final)
 				{					 // rval = -1 and state = Snapshot -> call getSnapshot()
 					if (rzx_file->isSnapshot())
 					{
-						rzx_load_snapshot(cc_final, ic_end); // 	Snapshot -> Playing | EndOfFile | OutOfSync
+						rzxLoadSnapshot(cc_final, ic_end); // 	Snapshot -> Playing | EndOfFile | OutOfSync
 						if (rzx_file->isOutOfSync()) goto a;
 						if (rzx_file->isPlaying()) continue;
 					}
@@ -989,12 +1140,12 @@ void Machine::runForSound(int32 cc_final)
 						cc_per_frame = cc - 18;
 					}
 
-					ForAllItems(videoFrameEnd(cc_per_frame)); // announce cc shift
-					cc_final -= cc_per_frame;				  // shift cc for lvars
-					tcc0 += cc_per_frame / cpu_clock;		  // shift start of current frame
-					total_frames += 1;						  // info
-					total_cc += cc_per_frame;				  // info
-															  // cc -= cc_per_frame;			// done by Item Z80
+					videoFrameEnd(cc_per_frame);	  // announce cc shift
+					cc_final -= cc_per_frame;		  // shift cc for lvars
+					tcc0 += cc_per_frame / cpu_clock; // shift start of current frame
+					total_frames += 1;				  // info
+					total_cc += cc_per_frame;		  // info
+													  // cc -= cc_per_frame;			// done by Item Z80
 				}
 				else { xlogline("late interrupt"); }
 
@@ -1011,10 +1162,9 @@ void Machine::runForSound(int32 cc_final)
 		const int32 unlimited = 1 << 30;
 
 		do {
-			if (ula->isA(isa_UlaZxsp))
+			if (auto* crtc_zxsp = dynamic_cast<UlaZxsp*>(ula))
 			{
-				UlaZxsp* crtc_zxsp = UlaZxspPtr(ula);
-				int32	 cc_end	   = min(cc_final, crtc_zxsp->getWaitmapStart());
+				int32 cc_end = min(cc_final, crtc_zxsp->getWaitmapStart());
 				if (cc < cc_end) result = cpu->run(cc_end, unlimited, cpu_options & ~(cpu_waitmap | cpu_crtc));
 
 				cc_end = min(cc_final, crtc_zxsp->getWaitmapEnd());
@@ -1033,7 +1183,7 @@ void Machine::runForSound(int32 cc_final)
 			if (cc >= cc_ffb)
 			{
 				int32 cc_per_frame = crtc->doFrameFlyback(cc); // finish drawing, get cc_per_frame
-				ForAllItems(videoFrameEnd(cc_per_frame));	   // announce cc shift
+				videoFrameEnd(cc_per_frame);				   // announce cc shift
 				cc_final -= cc_per_frame;					   // shift cc for lvars
 				tcc0 += cc_per_frame / cpu_clock;			   // shift start of current frame
 				total_frames += 1;							   // info
@@ -1082,7 +1232,7 @@ void Machine::runForSound(int32 cc_final)
 														t_for_cc(cc); // breaked
 
 	assert(this->is_locked());
-	ForAllItems(audioBufferEnd(t)); // announce time shift, force audio output
+	audioBufferEnd(t); // announce time shift, force audio output
 	TTest(2e-3, "Machine.runForSound()");
 
 	total_buffers += 1;
@@ -1090,30 +1240,27 @@ void Machine::runForSound(int32 cc_final)
 	tcc0 -= t;
 }
 
-
-/* Laufe für (mindestens) cc cpu cycles.
- */
 void Machine::runCpuCycles(int32 cc)
 {
+	// run for (at least) cc cpu cycles.
+
 	assert(isSuspended() || is_locked());
 
 	if (cc > 0) runForSound(cpu->cpuCycle() + cc);
 }
 
-
-void Machine::clear_break_ptr()
+void Machine::clearBreakPtr()
 {
 	break_ptr =
 		cpu_options & cpu_break_x & *cpu->rdPtr(cpu->getRegisters().pc) ? cpu->rdPtr(cpu->getRegisters().pc) : nullptr;
 }
-
 
 void Machine::stepOver()
 {
 	xlogIn("Machine:stepOver");
 	assert(isSuspended());
 
-	clear_break_ptr();
+	clearBreakPtr();
 
 	uint16 pc = cpu->getRegisters().pc; // pc
 	uint8  o  = cpu->peek(pc);			// Opcode
@@ -1122,45 +1269,29 @@ void Machine::stepOver()
 	switch (o)
 	{
 	case CALL_NZ:
-		if (f & Z_FLAG)
-			goto s;
-		else
-			goto c;
+		if (f & Z_FLAG) goto s;
+		else goto c;
 	case CALL_Z:
-		if (f & Z_FLAG)
-			goto c;
-		else
-			goto s;
+		if (f & Z_FLAG) goto c;
+		else goto s;
 	case CALL_NC:
-		if (f & C_FLAG)
-			goto s;
-		else
-			goto c;
+		if (f & C_FLAG) goto s;
+		else goto c;
 	case CALL_C:
-		if (f & C_FLAG)
-			goto c;
-		else
-			goto s;
+		if (f & C_FLAG) goto c;
+		else goto s;
 	case CALL_PO:
-		if (f & P_FLAG)
-			goto s;
-		else
-			goto c;
+		if (f & P_FLAG) goto s;
+		else goto c;
 	case CALL_PE:
-		if (f & P_FLAG)
-			goto c;
-		else
-			goto s;
+		if (f & P_FLAG) goto c;
+		else goto s;
 	case CALL_P:
-		if (f & S_FLAG)
-			goto s;
-		else
-			goto c;
+		if (f & S_FLAG) goto s;
+		else goto c;
 	case CALL_M:
-		if (f & S_FLAG)
-			goto c;
-		else
-			goto s;
+		if (f & S_FLAG) goto c;
+		else goto s;
 
 	case RST00:
 	case RST08:
@@ -1182,10 +1313,8 @@ void Machine::stepOver()
 		// Halt wenn Breakpoint aktiviert wird ((kann nur ein cpu_break_x genau hier auf pc sein))
 		if (cpu->cpuCycle() >= ula->cpuCycleOfIrptEnd()) runCpuCycles(ula->cpuCycleOfFrameFlyback() - cpu->cpuCycle());
 		if (break_ptr == nullptr) runCpuCycles(ula->cpuCycleOfInterrupt() - cpu->cpuCycle());
-		if (break_ptr == nullptr)
-			goto s;
-		else
-			break;
+		if (break_ptr == nullptr) goto s;
+		else break;
 
 	case PFX_ED:
 		// Blockbefehle komplett abarbeiten:
@@ -1204,7 +1333,6 @@ void Machine::stepOver()
 		break;
 	}
 }
-
 
 void Machine::stepIn()
 {
@@ -1226,7 +1354,7 @@ void Machine::stepIn()
 
 		Der Single-Stepper funktioniert logischerweise nur, wenn die Cpu angehalten ist.
 	*/
-	clear_break_ptr();
+	clearBreakPtr();
 	runCpuCycles(1);
 }
 
@@ -1235,7 +1363,7 @@ void Machine::stepOut()
 	xlogIn("Machine:stepOut");
 	assert(isSuspended());
 
-	clear_break_ptr();
+	clearBreakPtr();
 
 	cpu->setStackBreakpoint(cpu->getRegisters().sp + 2);
 	cpu_options |= cpu_break_sp;
@@ -1244,20 +1372,10 @@ void Machine::stepOut()
 
 void Machine::set60Hz(bool is60hz)
 {
-	/*	set machine to 100% speed and select 50 or 60 Hz setup.
-		50/60Hz selection is stored in preferences.
-		called from speed menu and Machine50x60Inspector  */
+	// set machine to 100% speed and select 50 or 60 Hz setup.
+	// called from speed menu and Machine50x60Inspector
 
 	assert(is_locked());
-
-	switch (uint(model))
-	{
-	case zx80: settings.setValue(key_framerate_zx80_60hz, is60hz); break;
-	case jupiter: settings.setValue(key_framerate_jupiter_60hz, is60hz); break;
-	case tk85: settings.setValue(key_framerate_tk85_60hz, is60hz); break;
-	case tk90x: settings.setValue(key_framerate_tk90x_60hz, is60hz); break;
-	case tk95: settings.setValue(key_framerate_tk95_60hz, is60hz); break;
-	}
 
 	setSpeedFromCpuClock(model_info->cpu_cycles_per_second);
 	ula->set60Hz(is60hz);
@@ -1265,9 +1383,9 @@ void Machine::set60Hz(bool is60hz)
 
 void Machine::setSpeedFromCpuClock(Frequency new_cpu_clock)
 {
-	/*	accelerate or slow down virtual world:
-		set machine speed from cpu clock.
-		called from Z80Inspector  */
+	// accelerate or slow down virtual world:
+	// set machine speed from cpu clock.
+	// called from Z80Inspector
 
 	assert(is_locked());
 
@@ -1284,7 +1402,7 @@ void Machine::setSpeedFromCpuClock(Frequency new_cpu_clock)
 	while (now() >= seconds_per_dsp_buffer())
 	{
 		Time t = seconds_per_dsp_buffer();
-		ForAllItems(audioBufferEnd(t)); // announce time shift, force audio output
+		audioBufferEnd(t); // announce time shift, force audio output
 		tcc0 -= t;
 	}
 }
@@ -1327,7 +1445,6 @@ void Machine::setSpeedAnd60fps(double factor)
 	ula->setLinesAfterScreen(lines_after);
 }
 
-
 void Machine::drawVideoBeamIndicator()
 {
 	/*	Wenn die Maschine angehalten ist oder zu stark gedrosselt ist,
@@ -1343,55 +1460,53 @@ void Machine::drawVideoBeamIndicator()
 	crtc->drawVideoBeamIndicator(beam_cc);
 }
 
-
-OverlayJoystick* Machine::addOverlay(Joystick* joy, cstr idf, Overlay::Position pos)
+gui::OverlayJoystick* Machine::addOverlay(Joystick* joy, cstr idf, gui::Overlay::Position pos)
 {
-	OverlayJoystick* o = new OverlayJoystick(controller->getScreen(), joy, idf, pos);
+	gui::OverlayJoystick* o = new gui::OverlayJoystick(controller->getScreen(), joy, idf, pos);
 	controller->getScreen()->addOverlay(o);
 	return o;
 }
 
-void Machine::removeOverlay(Overlay* o)
+void Machine::removeOverlay(gui::Overlay* o)
 {
 	if (o) controller->getScreen()->removeOverlay(o);
 }
 
-
-void Machine::hide_overlay_play()
+void Machine::hideOverlayPlay()
 {
 	removeOverlay(overlay_rzx_play);
 	overlay_rzx_play = nullptr;
 }
 
-void Machine::hide_overlay_record()
+void Machine::hideOverlayRecord()
 {
 	removeOverlay(overlay_rzx_record);
 	overlay_rzx_record = nullptr;
 }
 
-void Machine::show_overlay_play()
+void Machine::showOverlayPlay()
 {
-	hide_overlay_record();
+	hideOverlayRecord();
 	if (overlay_rzx_play) return;
-	overlay_rzx_play = new OverlayPlay(controller->getScreen());
+	overlay_rzx_play = new gui::OverlayPlay(controller->getScreen());
 	controller->getScreen()->addOverlay(overlay_rzx_play);
 }
 
-void Machine::show_overlay_record()
+void Machine::showOverlayRecord()
 {
-	hide_overlay_play();
+	hideOverlayPlay();
 	if (overlay_rzx_record) return;
-	overlay_rzx_record = new OverlayRecord(controller->getScreen());
+	overlay_rzx_record = new gui::OverlayRecord(controller->getScreen());
 	controller->getScreen()->addOverlay(overlay_rzx_record);
 }
 
-/*	Snapshot -> Playing | EndOfFile | OutOfSync
-	OutOfSync --> warning dialog displayed, controller informed
-	EndOfFile --> caller must display message and MUST change rzx state to Recording or OutOfSync!
-	Playing   --> no state change
-*/
-void Machine::rzx_load_snapshot(int32& cc_final, int32& ic_end)
+void Machine::rzxLoadSnapshot(int32& cc_final, int32& ic_end)
 {
+	// Snapshot -> Playing | EndOfFile | OutOfSync
+	// OutOfSync --> warning dialog displayed, controller informed
+	// EndOfFile --> caller must display message and MUST change rzx state to Recording or OutOfSync!
+	// Playing   --> no state change
+
 	cstr   filename = rzx_file->getSnapshot();
 	cstr   ext		= lowerstr(extension_from_path(filename));
 	int32& cc		= cpu->cpuCycleRef();
@@ -1443,11 +1558,11 @@ void Machine::rzx_load_snapshot(int32& cc_final, int32& ic_end)
 	}
 }
 
-/*	store snapshot at current position
-	EndOfFile --> Recording | OutOfSync
-*/
-void Machine::rzx_store_snapshot()
+void Machine::rzxStoreSnapshot()
 {
+	// store snapshot at current position
+	// EndOfFile --> Recording | OutOfSync
+
 	assert(rzx_file);
 	assert(rzx_file->isEndOfFile());
 
@@ -1468,11 +1583,16 @@ void Machine::rzx_store_snapshot()
 void Machine::rzxOutOfSync(cstr msg, bool red)
 {
 	assert(rzx_file);
-	if (msg) (red ? showAlert : showWarning)(msg);
+
+	if (msg)
+	{
+		if (red) showAlert("%s", msg);
+		else showWarning("%s", msg);
+	}
 
 	rzx_file->setOutOfSync();
-	hide_overlay_play();
-	hide_overlay_record();
+	hideOverlayPlay();
+	hideOverlayRecord();
 	controller->rzxStateChanged();
 }
 
@@ -1482,16 +1602,29 @@ void Machine::rzxDispose()
 	delete rzx_file;
 	rzx_file = nullptr;
 
-	hide_overlay_play();
-	hide_overlay_record();
+	hideOverlayPlay();
+	hideOverlayRecord();
 	controller->rzxStateChanged();
 }
 
-/*	store the passed RzxFile and start playing
-	eventually immediately switch to recording, if the file is at end
-*/
+void Machine::rzxStopPlaying(cstr msg, bool yellow)
+{
+	assert(rzx_file);
+
+	if (msg)
+	{
+		if (yellow) showWarning("%s", msg);
+		else showInfo("%s", msg);
+	}
+
+	rzxDispose();
+}
+
 void Machine::rzxPlayFile(RzxFile* rzx)
 {
+	// store the passed RzxFile and start playing
+	// eventually immediately switch to recording, if the file is at end
+
 	if (rzxIsLoaded()) rzxDispose();
 	rzx_file = rzx;
 
@@ -1504,8 +1637,8 @@ void Machine::rzxPlayFile(RzxFile* rzx)
 	case RzxFile::Snapshot: break;
 	}
 
-	int32 cc_final, ic_end;				 // dummy
-	rzx_load_snapshot(cc_final, ic_end); // --> Playing | EndOfFile | OutOfSync
+	int32 cc_final, ic_end;			   // dummy
+	rzxLoadSnapshot(cc_final, ic_end); // --> Playing | EndOfFile | OutOfSync
 	switch (rzx->state)
 	{
 	default: return rzxOutOfSync("Bummer: unexpected state after loading the starter snapshot", yes);
@@ -1519,18 +1652,22 @@ void Machine::rzxPlayFile(RzxFile* rzx)
 			tcc0 -= dcc / cpu_clock;
 			cc += dcc;
 		}
-		show_overlay_play();
+		showOverlayPlay();
 		controller->rzxStateChanged();
 		return;
 	}
 }
 
-/*	start recording
-	!file | Playing | Recording | EndOfFile --> Recording
-*/
 void Machine::rzxStartRecording(cstr msg, bool yellow)
 {
-	if (msg) (yellow ? showWarning : showInfo)(msg);
+	// start recording
+	// !file | Playing | Recording | EndOfFile --> Recording
+
+	if (msg)
+	{
+		if (yellow) showWarning("%s", msg);
+		else showInfo("%s", msg);
+	}
 
 	if (!rzx_file) rzx_file = new RzxFile(); // --> EndOfFile
 
@@ -1543,12 +1680,12 @@ void Machine::rzxStartRecording(cstr msg, bool yellow)
 	case RzxFile::Recording: return;
 
 	case RzxFile::EndOfFile:
-		rzx_store_snapshot();
+		rzxStoreSnapshot();
 		if (rzx_file->isOutOfSync()) return;
 		break;
 	}
 
-	show_overlay_record();
+	showOverlayRecord();
 	controller->rzxStateChanged();
 }
 
@@ -1556,6 +1693,38 @@ void Machine::rzxStopRecording(cstr msg, bool yellow)
 {
 	assert(rzx_file);
 
-	if (msg) (yellow ? showWarning : showInfo)(msg);
+	if (msg)
+	{
+		if (yellow) showWarning("%s", msg);
+		else showInfo("%s", msg);
+	}
+
 	rzxOutOfSync(nullptr);
 }
+
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/

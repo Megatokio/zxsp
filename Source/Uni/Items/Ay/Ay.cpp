@@ -41,19 +41,13 @@ static Sample logVol[16];
 // valid bits masks:
 cuint8 ayRegMask[16] = // exising bits mask
 	{
-		0xff,
-		0x0f,
-		0xff,
-		0x0f,
-		0xff,
+		0xff, 0x0f, 0xff, 0x0f, 0xff,
 		0x0f, // channel A,B,C period
 		0x1f, // noise period
 		0xff, // mixer control
-		0x1f,
-		0x1f,
+		0x1f, 0x1f,
 		0x1f, // channel A,B,C volume
-		0xff,
-		0xff,
+		0xff, 0xff,
 		0x0f, // envelope period and shape
 		0xff,
 		0xff // i/o ports
@@ -62,19 +56,13 @@ cuint8 ayRegMask[16] = // exising bits mask
 
 // registers after reset:
 const uchar AYregReset[] = {
-	0xff,
-	0x0f,
-	0xff,
-	0x0f,
-	0xff,
+	0xff,		0x0f,		0xff, 0x0f, 0xff,
 	0x0f, // channel A,B,C period
 	0x1f, // noise period
 	0x3f, // mixer control
-	0x00,
-	0x00,
+	0x00,		0x00,
 	0x00, // channel A,B,C volume
-	0 /*0xff*/,
-	0 /*0xff*/,
+	0 /*0xff*/, 0 /*0xff*/,
 	0x00, // envelope period and shape	note: some sq-tracker demos assume registers=0 after reset
 	0xff,
 	0xff // i/o ports
@@ -533,9 +521,17 @@ void Envelope::trigger()
 /* ----	standard creator -----------------------------------
  */
 Ay::Ay(Machine* m, isa_id id, Internal internal, cstr s, cstr w, cstr r, Frequency freq, StereoMix mix) :
-	Item(m, id, isa_Ay, internal, And(w, s), r), select_mask(maskForSpec(s)), select_bits(bitsForSpec(s)),
-	write_mask(maskForSpec(w)), write_bits(bitsForSpec(w)), time_for_cycle(1 / freq), stereo_mix(mix),
-	channel_A(1 / freq), channel_B(1 / freq), channel_C(1 / freq), noise(1 / freq, &channel_A, &channel_B, &channel_C),
+	Item(m, id, isa_Ay, internal, And(w, s), r),
+	select_mask(maskForSpec(s)),
+	select_bits(bitsForSpec(s)),
+	write_mask(maskForSpec(w)),
+	write_bits(bitsForSpec(w)),
+	time_for_cycle(1 / freq),
+	stereo_mix(mix),
+	channel_A(1 / freq),
+	channel_B(1 / freq),
+	channel_C(1 / freq),
+	noise(1 / freq, &channel_A, &channel_B, &channel_C),
 	envelope(1 / freq, &channel_A, &channel_B, &channel_C)
 {
 	xlogIn("new Ay");
@@ -622,8 +618,7 @@ void Ay::setRegister(Time when, uint regnr, uint8 newvalue)
 				who = 1;
 				now = noise.when;
 			} // noise is next
-			else
-				noise.when = now + 1000 * time_for_cycle;
+			else noise.when = now + 1000 * time_for_cycle;
 		}
 		if (channel_A.when - now < 0)
 		{
@@ -632,8 +627,7 @@ void Ay::setRegister(Time when, uint regnr, uint8 newvalue)
 				who = 3;
 				now = channel_A.when;
 			} // channel A is next
-			else
-				channel_A.when = now + 1000 * time_for_cycle;
+			else channel_A.when = now + 1000 * time_for_cycle;
 		}
 		if (channel_B.when - now < 0)
 		{
@@ -642,8 +636,7 @@ void Ay::setRegister(Time when, uint regnr, uint8 newvalue)
 				who = 4;
 				now = channel_B.when;
 			} // channel B is next
-			else
-				channel_B.when = now + 1000 * time_for_cycle;
+			else channel_B.when = now + 1000 * time_for_cycle;
 		}
 		if (channel_C.when - now < 0)
 		{
@@ -652,8 +645,7 @@ void Ay::setRegister(Time when, uint regnr, uint8 newvalue)
 				who = 5;
 				now = channel_C.when;
 			} // channel C is next
-			else
-				channel_C.when = now + 1000 * time_for_cycle;
+			else channel_C.when = now + 1000 * time_for_cycle;
 		}
 		if (envelope.when - now < 0)
 		{
@@ -662,8 +654,7 @@ void Ay::setRegister(Time when, uint regnr, uint8 newvalue)
 				who = 2;
 				now = envelope.when;
 			} // envelope is next
-			else
-				envelope.when = now + 1000 * time_for_cycle;
+			else envelope.when = now + 1000 * time_for_cycle;
 		}
 
 		// handle next:
@@ -724,7 +715,7 @@ void Ay::setRegister(Time when, uint regnr, uint8 newvalue)
 		// write samples to dsp
 		if (now > time_of_last_sample)
 		{
-			Dsp::outputSamples(current_value, time_of_last_sample, now);
+			os::outputSamples(current_value, time_of_last_sample, now);
 			time_of_last_sample = now;
 		}
 		switch (stereo_mix)
@@ -748,8 +739,7 @@ void Ay::setRegister(Time when, uint regnr, uint8 newvalue)
 
 void Ay::output(Time t, int32 /*cc*/, uint16 addr, uint8 byte)
 {
-	if ((addr & select_mask) == select_bits)
-		ay_reg_nr = byte & 0x0f;
+	if ((addr & select_mask) == select_bits) ay_reg_nr = byte & 0x0f;
 	else if ((addr & write_mask) == write_bits)
 	{
 		xlogline("Ay:Output: register %i = $%02x", int(ay_reg_nr), uint(byte));
@@ -762,8 +752,7 @@ void Ay::input(Time t, int32 /*cc*/, uint16 addr, uint8& byte, uint8& mask)
 {
 	xlogline("Ay:input: register %i = $%02x", int(ay_reg_nr), uint(ay_reg[ay_reg_nr]));
 
-	if (ay_reg_nr < 14)
-		byte &= ay_reg[ay_reg_nr];
+	if (ay_reg_nr < 14) byte &= ay_reg[ay_reg_nr];
 	else if (ay_reg_nr == 14)
 	{
 		byte &= getInputValueAtPortA(t, addr); // note: addr is req. for TS2068

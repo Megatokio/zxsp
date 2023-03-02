@@ -5,11 +5,13 @@
 #include "CurrahMicroSpeechInsp.h"
 #include "CurrahMicroSpeech.h"
 #include "Qt/qt_util.h"
-#include "cpp/cppthreads.h"
+#include "Templates/NVPtr.h"
 #include <QPainter>
 #include <QRadioButton>
 #include <QTimer>
 
+namespace gui
+{
 
 /*	Allophone names for the AL2 rom:
  */
@@ -163,11 +165,15 @@ static QFont scrollfont = QFont("Lucida Grande", 11);
 #define max_gap 20u
 
 
-CurrahMicroSpeechInsp::CurrahMicroSpeechInsp(QWidget* parent, MachineController* mc, volatile IsaObject* item) :
-	Inspector(parent, mc, item, "Images/currah_microspeech.jpg"), rp(0), wp(0), xpos(0), width(0)
+CurrahMicroSpeechInsp::CurrahMicroSpeechInsp(
+	QWidget* parent, MachineController* mc, volatile CurrahMicroSpeech* uspeech) :
+	Inspector(parent, mc, uspeech, "Images/currah_microspeech.jpg"),
+	uspeech(uspeech),
+	rp(0),
+	wp(0),
+	xpos(0),
+	width(0)
 {
-	assert(object->isA(isa_CurrahMicroSpeech));
-
 	button_8bit = new QRadioButton("8 Bit", this);
 	button_hifi = new QRadioButton("Hifi", this);
 
@@ -179,12 +185,18 @@ CurrahMicroSpeechInsp::CurrahMicroSpeechInsp(QWidget* parent, MachineController*
 	//	setColors(button8bit, fore, back);
 	//	setColors(buttonHifi, fore, back);
 
-	bool hifi = currah_uspeech()->isHifi();
+	bool hifi = uspeech->isHifi();
 	button_8bit->setChecked(!hifi);
 	button_hifi->setChecked(hifi);
 
-	connect(button_8bit, &QRadioButton::clicked, this, &CurrahMicroSpeechInsp::set_8bit);
-	connect(button_hifi, &QRadioButton::clicked, this, &CurrahMicroSpeechInsp::set_hifi);
+	connect(button_8bit, &QRadioButton::clicked, this, [this] {
+		assert(validReference(this->uspeech));
+		NV(this->uspeech)->setHifi(no);
+	});
+	connect(button_hifi, &QRadioButton::clicked, this, [this] {
+		assert(validReference(this->uspeech));
+		NV(this->uspeech)->setHifi(yes);
+	});
 
 	// precalculate print widths of allophone names:
 	if (!initialized)
@@ -192,8 +204,15 @@ CurrahMicroSpeechInsp::CurrahMicroSpeechInsp(QWidget* parent, MachineController*
 		QPainter painter(this);
 		painter.setFont(scrollfont);
 		QFontMetrics m = painter.fontMetrics();
-		for (uint i = 0; i < 128; i++) { widths[i] = spacing + m.width(names[i]); }
-		for (uint i = 128; i < 256; i++) { widths[i] = i - 128; }
+		for (uint i = 0; i < 128; i++)
+		{
+#if QT_VERSION < 0x050b00
+			widths[i] = spacing + uint8(m.width(names[i]));
+#else
+			widths[i] = spacing + uint8(m.horizontalAdvance(names[i]));
+#endif
+		}
+		for (uint i = 128; i < 256; i++) { widths[i] = uint8(i - 128); }
 		initialized = yes;
 	}
 
@@ -203,44 +222,23 @@ CurrahMicroSpeechInsp::CurrahMicroSpeechInsp(QWidget* parent, MachineController*
 	timer->start(1000 / 60);
 }
 
-
-CurrahMicroSpeechInsp::~CurrahMicroSpeechInsp() {}
-
-
-// slot
-void CurrahMicroSpeechInsp::set_8bit() { currah_uspeech()->setHifi(no); }
-
-// slot
-void CurrahMicroSpeechInsp::set_hifi() { currah_uspeech()->setHifi(yes); }
-
-
 void CurrahMicroSpeechInsp::updateWidgets()
 {
 	xxlogIn("CurrahMicroSpeechInspector::update");
-	if (!object)
-	{
-		timer->stop();
-		return;
-	}
-
-	// list_lock.lock();		not needed: only inspector reads and only device writes to history[]
-
-	volatile CurrahMicroSpeech* o = currah_uspeech();
+	assert(validReference(this->uspeech));
 
 	// add spoken allophones:
 
-	const uint hmask = NELEM(o->history) - 1;
+	const uint hmask = NELEM(uspeech->history) - 1;
 	const uint smask = NELEM(scroller) - 1;
 
-	while (o->lastrp != o->lastwp)
+	while (uspeech->lastrp != uspeech->lastwp)
 	{
-		uint command = o->history[o->lastrp++ & hmask];
+		uint8 command = uspeech->history[uspeech->lastrp++ & hmask];
 		if (command > 0x80 + max_gap) command = 0x80 + max_gap;
 		scroller[(wp++) & smask] = command;
 		width += widths[command];
 	}
-
-	// list_lock.unlock();
 
 	// scroll the scroller, if needed:
 	if (xpos + width > 320)
@@ -257,13 +255,11 @@ void CurrahMicroSpeechInsp::updateWidgets()
 	}
 }
 
-
 void CurrahMicroSpeechInsp::paintEvent(QPaintEvent* e)
 {
 	Inspector::paintEvent(e);
 
 	QPainter p(this);
-	//	p.setPen(Qt::white);
 	p.setFont(scrollfont);
 
 	int		   ypos = 235;
@@ -280,6 +276,40 @@ void CurrahMicroSpeechInsp::paintEvent(QPaintEvent* e)
 		}
 		xpos += widths[a];
 	}
-
-	//	width = xpos - this->xpos;
 }
+
+} // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

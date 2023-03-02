@@ -7,6 +7,7 @@
 #include "globals.h"
 #include "kio/peekpoke.h"
 #include "unix/files.h"
+#include "version.h"
 
 static const uint8 DAM	= 0xFB; // data address mark
 static const uint8 DDAM = 0xF8; // deleted data address mark
@@ -16,14 +17,20 @@ static const uint8 IDAM = 0xFE; // sector ID address mark
 /*	create an unformatted new disk:
  */
 FloppyDisk::FloppyDisk(uint bytes_per_track) :
-	bytes_per_track(bytes_per_track), writeprotected(no), modified(no), filepath(nullptr)
+	bytes_per_track(bytes_per_track),
+	writeprotected(no),
+	modified(no),
+	filepath(nullptr)
 {}
 
 
 /*	create a formatted new disk:
  */
 FloppyDisk::FloppyDisk(uint sides, uint tracks, uint sectors, bool interleaved, uint bytes_per_track) :
-	bytes_per_track(bytes_per_track), writeprotected(no), modified(no), filepath(nullptr)
+	bytes_per_track(bytes_per_track),
+	writeprotected(no),
+	modified(no),
+	filepath(nullptr)
 {
 	DiskFormatInfo df;
 	df.sides	   = sides;
@@ -58,12 +65,9 @@ FloppyDisk::FloppyDisk(cstr fpath) : bytes_per_track(6250), modified(no), filepa
 		writeprotected = !fd.is_writable();
 		fd.close_file(0);
 
-		if (startswith(cstr(bu), "MV - CPC"))
-			err = read_dsk_file(bu, sz);
-		else if (startswith(cstr(bu), "EXTENDED"))
-			err = read_extended_dsk_file(bu, sz);
-		else
-			err = "The disc file format is not recognized";
+		if (startswith(cstr(bu), "MV - CPC")) err = read_dsk_file(bu, sz);
+		else if (startswith(cstr(bu), "EXTENDED")) err = read_extended_dsk_file(bu, sz);
+		else err = "The disc file format is not recognized";
 		if (!err) return;
 	}
 	catch (std::exception& e)
@@ -320,11 +324,9 @@ uint8* FloppyDisk::writeSector(SectorFormatInfo& f, uint8* p)
 	if (f.special & sf_dam_notfound) *(p - 1) += 1;
 
 	// Data and crc:
-	uint n = 0x80u << f.sector_sz; // TODO: handling für sector_sz=6 => n=0x2000
-	if (f.data)
-		memcpy(p, f.data, n); //		DATA
-	else
-		memset(p, f.databyte, n);
+	uint n = 0x80u << f.sector_sz;	  // TODO: handling für sector_sz=6 => n=0x2000
+	if (f.data) memcpy(p, f.data, n); //		DATA
+	else memset(p, f.databyte, n);
 	p += n; //		DATA
 	poke2X(p, crc16(p - (n + 4), n + 4));
 	p += 2; // 2*	CRC
@@ -423,8 +425,8 @@ enum {
 	NotWriteable =
 		1 << 1,			// Not writeable:	WRITE DATA, WRITE DELETED DATA or Write ID: Line WProt from FDD was activated
 	MissingAM = 1 << 0, // Missing Address Mark:	 the FDC does not detect the IDAM before 2 index pulses.
-						//							 or the FDC cannot find the DAM or DDAM after the IDAM is found, then
-						//bit MD of ST2 is also set.
+						//							 or the FDC cannot find the DAM or DDAM after the IDAM is found,
+						//then bit MD of ST2 is also set.
 
 	// NEC µPD765 SR2:
 	ControlMark = 1 << 6,	  // READ DATA or SCAN: the FDC encountered a Sector with a DDAM
@@ -698,10 +700,8 @@ void FloppyDisk::parse_track(uint8* track, TrackFormatInfo& trackinfo) const
 			n++;
 		} // IDAM
 		if (n != 3) continue;
-		if (track[i] != IDAM)
-			continue;
-		else
-			i++;
+		if (track[i] != IDAM) continue;
+		else i++;
 
 		si.track_id	 = track[i++];
 		si.side_id	 = track[i++];

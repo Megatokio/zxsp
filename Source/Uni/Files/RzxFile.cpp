@@ -4,20 +4,19 @@
 
 #include "RzxFile.h"
 #include "RzxBlock.h"
+#include "Uni/globals.h"
+#include "kio/TestTimer.h"
 #include "kio/kio.h"
+#include "unix/files.h"
+#include "version.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <zlib.h>
 
-// #ifndef _MSC_VER
 #ifdef HAVE_UNISTD_H
   #include <unistd.h>
 #endif
-
-#include "Uni/globals.h"
-#include "kio/TestTimer.h"
-#include "unix/files.h"
 
 
 // ============================================================
@@ -207,17 +206,13 @@ void RzxFile::rewind()
 
 	bi = 0;
 
-	if (blocks.count() == 0)
-		state = EndOfFile;
+	if (blocks.count() == 0) state = EndOfFile;
 
-	else if (blocks[0].isaSnapshotBlock())
-		state = Snapshot;
+	else if (blocks[0].isaSnapshotBlock()) state = Snapshot;
 
-	else if (blocks[0].isaInputRecordingBlock())
-		state = OutOfSync;
+	else if (blocks[0].isaInputRecordingBlock()) state = OutOfSync;
 
-	else
-		IERR(); // isaMachineSnapshot: TODO
+	else IERR(); // isaMachineSnapshot: TODO
 }
 
 
@@ -332,8 +327,7 @@ void RzxFile::readFile(cstr filename, bool snapshotOnly) // throws DataError,fil
 					block.kill();
 					blocks.drop();
 				}
-				else
-					block.compress();
+				else block.compress();
 			}
 			catch (AnyError&)
 			{
@@ -343,8 +337,7 @@ void RzxFile::readFile(cstr filename, bool snapshotOnly) // throws DataError,fil
 					block.kill();
 					blocks.drop();
 				}
-				else
-					block.compress();
+				else block.compress();
 				throw;
 			}
 
@@ -477,8 +470,7 @@ a:
 	cstr fn = blocks[bi++].snapshot_filename;
 
 b:
-	if (bi == blocks.count())
-		state = EndOfFile;
+	if (bi == blocks.count()) state = EndOfFile;
 
 	else if (blocks[bi].isaInputRecordingBlock())
 	{
@@ -488,15 +480,12 @@ b:
 			blocks[bi].compress();
 			goto b;
 		} // EndOfBlock -> empty Block!
-		else
-			state = Playing;
+		else state = Playing;
 	}
 
-	else if (blocks[bi].isaSnapshotBlock())
-		goto a; // hm hm..
+	else if (blocks[bi].isaSnapshotBlock()) goto a; // hm hm..
 
-	else
-		TODO(); // isaMachineSnapshot
+	else TODO(); // isaMachineSnapshot
 
 	return fn;
 }
@@ -514,8 +503,7 @@ void RzxFile::storeSnapshot(cstr fname)
 
 	if (bi < blocks.count())
 	{
-		if (blocks[bi].num_frames)
-			blocks[bi++].compress();
+		if (blocks[bi].num_frames) blocks[bi++].compress();
 		else
 		{
 			blocks[bi].kill();
@@ -543,8 +531,7 @@ void RzxFile::startBlock(int32 cc)
 
 	if (bi < blocks.count())
 	{
-		if (blocks[bi].num_frames)
-			blocks[bi++].compress();
+		if (blocks[bi].num_frames) blocks[bi++].compress();
 		else
 		{
 			blocks[bi].kill();
@@ -838,8 +825,6 @@ cstr RzxFile::getFirstSnapshot(cstr filename)
 	catch (AnyError&)
 	{}
 
-	if (rzx.blocks.count() && rzx.blocks.last().isaSnapshotBlock())
-		return rzx.blocks.last().snapshot_filename;
-	else
-		return nullptr;
+	if (rzx.blocks.count() && rzx.blocks.last().isaSnapshotBlock()) return rzx.blocks.last().snapshot_filename;
+	else return nullptr;
 }

@@ -6,13 +6,17 @@
 #include "globals.h"
 #include "graphics/gif/Colormap.h"
 #include "unix/os_utilities.h"
+#include "version.h"
 
 
-Renderer::Renderer(
-	QObject* p, isa_id id, uint screen_width, uint screen_height, uint h_border, uint v_border, bool color) :
-	IsaObject(p, id, isa_Renderer),
-	screen_width(screen_width), screen_height(screen_height), h_border(h_border), v_border(v_border),
-	width(screen_width + 2 * h_border), height(screen_height + 2 * v_border),
+Renderer::Renderer(isa_id id, uint screen_width, uint screen_height, uint h_border, uint v_border, bool color) :
+	IsaObject(id, isa_Renderer),
+	screen_width(screen_width),
+	screen_height(screen_height),
+	h_border(h_border),
+	v_border(v_border),
+	width(screen_width + 2 * h_border),
+	height(screen_height + 2 * v_border),
 	mono_octets(new uint8[color ? width * height * sizeof(RgbaColor) : width * (height + 1) / 8])
 {}
 
@@ -24,20 +28,24 @@ Renderer::Renderer(
 
 
 GifWriter::GifWriter(
-	QObject*   p,
-	isa_id	   id,
-	cColormap& colormap,
-	uint	   screen_width,
-	uint	   screen_height,
-	uint	   h_border,
-	uint	   v_border,
-	bool	   update_border,
-	uint	   frames_per_second) :
-	IsaObject(p, id, isa_GifWriter /*grp*/),
-	screen_width(screen_width), screen_height(screen_height), h_border(h_border), v_border(v_border),
-	width(screen_width + 2 * h_border), height(screen_height + 2 * v_border), frame_count(0), bits(nullptr),
-	diff(nullptr), bits2(nullptr), diff2(nullptr), update_border(update_border), frames_per_second(frames_per_second),
-	frames_per_flashphase(16), global_colormap(colormap)
+	isa_id id, const Colormap& colormap, uint screen_width, uint screen_height, uint h_border, uint v_border,
+	bool update_border, uint frames_per_second) :
+	IsaObject(id, isa_GifWriter /*grp*/),
+	screen_width(screen_width),
+	screen_height(screen_height),
+	h_border(h_border),
+	v_border(v_border),
+	width(screen_width + 2 * h_border),
+	height(screen_height + 2 * v_border),
+	frame_count(0),
+	bits(nullptr),
+	diff(nullptr),
+	bits2(nullptr),
+	diff2(nullptr),
+	update_border(update_border),
+	frames_per_second(frames_per_second),
+	frames_per_flashphase(16),
+	global_colormap(colormap)
 {}
 
 

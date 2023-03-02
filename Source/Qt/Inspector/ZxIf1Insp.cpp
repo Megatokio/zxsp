@@ -4,6 +4,11 @@
 
 #include "ZxIf1Insp.h"
 
-ZxIf1Insp::ZxIf1Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
+namespace gui
+{
+
+ZxIf1Insp::ZxIf1Insp(QWidget* w, MachineController* mc, volatile ZxIf1* i) :
 	Inspector(w, mc, i, "/Backgrounds/light-150-s.jpg")
 {}
+
+} // namespace gui

@@ -13,10 +13,10 @@
 
 
 #define uspeech_rom "Roms/µspeech.rom"
-#define sp0256_rom                                                                                                     \
-  "Roms/sp0256-al2.rom" // the bytes in the file are in reversed bit-order,
-						// ie. the "Target" values are unreversed,
-						// all other opcodes and parameters are reversed
+#define sp0256_rom	"Roms/sp0256-al2.rom"
+// the bytes in the file are in reversed bit-order,
+// ie. the "Target" values are unreversed,
+// all other opcodes and parameters are reversed
 
 /*	uses memory mapped and no i/o ports, but /MREQ is not properly decoded:
 
@@ -31,7 +31,7 @@
 			this means, IN can be used instead of READ and OUT instead of WRITE,
 			if you don't care about other peripherals. But as long as you use $FF for
 			the low address byte this should work. Except on a TC2048…TS2068. B-)
-
+ 
 	0x0000 - 0x07ff	the rom
 	0x0800 - 0x0fff	a mirror of the rom									// verified by T. Busse
 
@@ -85,8 +85,15 @@ static const float RC = 11e3f * 22e-9f * 0.5f; // 33kΩ * 22nF * 0.5
 CurrahMicroSpeech::CurrahMicroSpeech(Machine* m) // CREATOR
 	:
 	Item(m, isa_CurrahMicroSpeech, isa_CurrahMicroSpeech /*grp*/, external, o_addr, i_addr),
-	sp0256(nullptr), rom(m, "Currah µSpeech Rom", 2 kB), enable_state(no), pitch(0x00), clock(clock_low),
-	current_clock(clock_low), lastrp(0), lastwp(0), pause(0)
+	sp0256(nullptr),
+	rom(m, "Currah µSpeech Rom", 2 kB),
+	enable_state(no),
+	pitch(0x00),
+	clock(clock_low),
+	current_clock(clock_low),
+	lastrp(0),
+	lastwp(0),
+	pause(0)
 {
 	xlogIn("new CurrahMicroSpeech");
 
@@ -155,7 +162,7 @@ void CurrahMicroSpeech::powerOn(/*t=0*/ int32 cc)
 		nowritepage[i] |= cpu_memmapped_w;
 	}
 
-	this->prev()->romCS(off);
+	prev()->romCS(off);
 }
 
 void CurrahMicroSpeech::reset(Time t, int32 cc)
@@ -410,7 +417,7 @@ void CurrahMicroSpeech::writeMemory(Time t, int32 cc, uint16 addr, uint8 byte)
 	prev()->writeMemory(t, cc, addr, byte);
 }
 
-void CurrahMicroSpeech::setHifi(bool f) volatile
+void CurrahMicroSpeech::setHifi(bool f)
 {
 	//	set sp0256 emulation to normal or "HiFi" mode:
 	//	actually this makes no audible difference

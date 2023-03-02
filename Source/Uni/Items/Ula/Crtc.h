@@ -9,9 +9,11 @@
 
 class Crtc : public Item
 {
+	friend class Machine;
+
 protected:
 	const ZxInfo* info; // machine info
-	Screen*		  screen;
+	gui::Screen*  screen;
 	CoreByte*	  video_ram; // current video ram
 
 	static constexpr int cc_per_byte = 4; // ula cycles per 8 pixels
@@ -26,7 +28,7 @@ protected:
 	bool  is60hz;
 
 public:
-	uint8		 getBorderColor() { return border_color; }
+	uint8		 getBorderColor() const volatile { return border_color; }
 	virtual void setBorderColor(uint8) {}
 	CoreByte*	 getVideoRam() { return video_ram; }
 
@@ -43,7 +45,7 @@ public:
 	int			  getBytesPerLine() const volatile { return cc_per_line / cc_per_byte; } // nominal
 	virtual int32 getCcPerFrame() const volatile { return lines_per_frame * cc_per_line; }
 
-	void		  attachToScreen(Screen*);
+	void		  attachToScreen(gui::Screen*);
 	virtual void  drawVideoBeamIndicator(int32 cc) = 0;
 	virtual int32 doFrameFlyback(int32 cc)		   = 0;
 	virtual int32 cpuCycleOfNextCrtRead()		   = 0;
@@ -54,6 +56,7 @@ public:
 
 protected:
 	Crtc(Machine*, isa_id, isa_id grp, Internal, cstr o_addr, cstr i_addr);
+	~Crtc() override = default;
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;

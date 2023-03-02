@@ -9,6 +9,11 @@
 #include "zxsp_types.h"
 #include <QActionGroup>
 #include <QMainWindow>
+
+
+namespace gui
+{
+
 class Overlay;
 class ToolWindow;
 
@@ -38,10 +43,10 @@ class MachineController : public QMainWindow
 	cstr		  filepath;	  // Snapshot file path or nil
 
 	// controlled objects:
-	volatile Machine* machine;
-	Screen*			  screen; // ScreenZxsp* or ScreenMono*
-	IsaObject*		  mem[4];
-	Lenslok*		  lenslok;
+	std::shared_ptr<volatile Machine> machine;
+	Screen*							  screen; // ScreenZxsp* or ScreenMono*
+	IsaObject*						  mem[4];
+	Lenslok*						  lenslok;
 
 	uint8 keyjoy_keys[5];		  // (RLDUF) Qt keycode to use for keyboard joystick up-down-left-right-fire
 	cstr  keyjoy_fnmatch_pattern; // the filename pattern, for which the keys were set
@@ -81,47 +86,54 @@ private:
 
 
 	//	static Model best_model_for_file(cstr filepath);
-	Screen*	 new_screen_for_model(Model);
-	Machine* new_machine_for_model(Model);
+	Screen*					 newScreenForModel(Model);
+	std::shared_ptr<Machine> newMachineForModel(Model);
 
 	QAction*
-	new_action(cstr icon, cstr title, const QKeySequence& key, std::function<void(bool)> fu, isa_id id = isa_none);
-	QAction* new_action(cstr icon, cstr title, const QKeySequence& key, std::function<void()> fu, isa_id id = isa_none);
-	void	 create_actions();
-	void	 create_menus();
-	void	 create_mainmenubar();
-	void	 kill_machine();
-	Machine* init_machine(Model, uint32 ramsize, bool ay, bool joy, bool alwaysAddRam, bool alwaysAddDivide);
-	void	 set_window_zoom(int);
+	newAction(cstr icon, cstr title, const QKeySequence& key, std::function<void(bool)> fu, isa_id id = isa_none);
+	QAction* newAction(cstr icon, cstr title, const QKeySequence& key, std::function<void()> fu, isa_id id = isa_none);
+	void	 createActions();
+	void	 createMenus();
+	void	 createMainmenubar();
+	void	 killMachine();
+	Machine* initMachine(Model, uint32 ramsize, bool ay, bool joy, bool alwaysAddRam, bool alwaysAddDivide);
+	void	 setWindowZoom(int);
 	void	 set_model(QAction*); // from model_actiongroup
-	void	 open_file();
-	void	 reload_file();
-	void	 save_as();
-	void	 save_screenshot();
-	void	 record_movie(bool);
-	void	 power_reset_machine();
-	void	 reset_machine();
-	void	 halt_machine(bool);
-	void	 enable_breakpoints(bool);
-	void	 show_lenslok(bool);
-	void	 add_external_item(isa_id, bool);
-	void	 add_external_ram(isa_id, bool);
-	void	 add_spectra_video(bool);
-	void	 set_rzx_recording(bool);
-	void	 set_rzx_autostart_recording(bool);
-	void	 set_rzx_append_snapshots(bool);
-	void	 startup_open_toolwindows();
-	void	 set_filepath(cstr);
-	void	 set_keyboard_mode(KbdMode);
-	void	 enable_audio_in(bool);
-	void	 all_keys_up();
+	void	 openFile();
+	void	 reloadFile();
+	void	 saveAs();
+	void	 saveScreenshot();
+	void	 recordMovie(bool);
+	void	 powerResetMachine();
+	void	 resetMachine();
+	void	 haltMachine(bool);
+	void	 enableBreakpoints(bool);
+	void	 showLenslok(bool);
+	void	 addExternalItem(isa_id, bool);
+	void	 addExternalRam(isa_id, bool, uint options = 0);
+	void	 addMemotech64kRam(bool);
+	void	 addDivIDE(bool);
+	void	 addZx3kRam(bool);
+	void	 addMultiface1(bool);
+	void	 addSpectraVideo(bool);
+	void	 setRzxRecording(bool);
+	void	 setRzxAutostartRecording(bool);
+	void	 setRzxAppendSnapshots(bool);
+	void	 startupOpenToolwindows();
+	void	 setFilepath(cstr);
+	void	 setKeyboardMode(KbdMode);
+	void	 enableAudioIn(bool);
+	void	 allKeysUp();
 
-	ToolWindow* new_toolwindow(volatile IsaObject* item = nullptr, QAction* showaction = nullptr);
-	void		show_inspector(IsaObject*, QAction* showaction, bool force);				// from Item c'tor
-	void		hide_inspector(IsaObject*, bool force);										// from Item d'tor
-	void		toggle_toolwindow(volatile IsaObject*, QAction* actionshow, bool showhide); // from action
-	void		show_all_toolwindows();														// changeEvent()
-	void		hide_all_toolwindows();														// changeEvent()
+	ToolWindow* newToolwindow(volatile IsaObject* item = nullptr, QAction* showaction = nullptr);
+	void		showInspector(IsaObject*, QAction* showaction, bool force);				   // from Item c'tor
+	void		hideInspector(IsaObject*, bool force);									   // from Item d'tor
+	void		toggleToolwindow(volatile IsaObject*, QAction* actionshow, bool showhide); // from action
+	void		showAllToolwindows();													   // changeEvent()
+	void		hideAllToolwindows();													   // changeEvent()
+
+	void item_added(Item*, bool force);	  // callback from Item c'tor
+	void item_removed(Item*, bool force); // callback from Item d'tor
 
 protected:
 	void contextMenuEvent(QContextMenuEvent*) override;
@@ -138,14 +150,14 @@ public:
 
 public:
 	MachineController(QString filepath);
-	~MachineController();
+	~MachineController() override;
 
-	volatile Machine* getMachine() { return machine; }
+	volatile Machine* getMachine() { return machine.get(); }
 	Screen*			  getScreen() volatile { return screen; } // callback from running machine
 	void			  setScreen(Screen*);
 
-	Model	 getModel() { return model; }
-	cZxInfo* getModelInfo() { return model_info; } // generic model info
+	Model		  getModel() { return model; }
+	const ZxInfo* getModelInfo() { return model_info; } // generic model info
 
 	void			loadSnapshot(cstr);
 	bool			isRzxAutostartRecording() const volatile;
@@ -153,13 +165,15 @@ public:
 	QList<QAction*> getKeyboardActions();
 	ToolWindow*		findToolWindowForItem(const volatile IsaObject* item);
 
-	void memoryModified(Memory* m, uint how); // callback from machine
-	void machineRunStateChanged() volatile;	  // callback from machine
-	void rzxStateChanged() volatile;		  // callback from machine
-	void itemAdded(Item*);					  // callback from Item c'tor
-	void itemRemoved(Item*);				  // callback from Item d'tor
+	void memoryModified(Memory* m, uint how) volatile; // callback from machine
+	void machineSuspendStateChanged() volatile;		   // callback from machine
+	void rzxStateChanged() volatile;				   // callback from machine
+	void itemAdded(Item*) volatile;					   // callback from machine
+	void itemRemoved(Item*) volatile;				   // callback from machine
 
 signals:
 	void signal_keymapModified();
 	void signal_memoryModified(Memory*, uint how);
 };
+
+} // namespace gui

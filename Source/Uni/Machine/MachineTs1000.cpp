@@ -9,15 +9,11 @@
 #include "TapeRecorder.h"
 
 
-MachineTs1000::MachineTs1000(MachineController* m) : MachineZx81(m, isa_MachineTs1000, ts1000)
+MachineTs1000::MachineTs1000(gui::MachineController* m) : MachineZx81(m, isa_MachineTs1000, ts1000)
 {
-	cpu		 = new Z80(this);	  // must be 1st item
-	ula		 = new UlaZx81(this); // should be 2nd item
-	mmu		 = new MmuZx81(this);
-	keyboard = new KeyboardZx81(this, isa_KbdTs1000);
-	// ay		=
-	// joystick	=
-	// fdc		=
-	// printer	=
-	taperecorder = new TS2020(this);
+	addItem(new Z80(this));		// must be 1st item
+	addItem(new UlaZx81(this)); // should be 2nd item
+	addItem(new MmuZx81(this));
+	addItem(new KeyboardZx81(this, isa_KbdTs1000));
+	addItem(new TS2020(this));
 }

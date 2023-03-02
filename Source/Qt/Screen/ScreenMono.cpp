@@ -9,6 +9,9 @@
 #include "graphics/gif/GifEncoder.h"
 
 
+namespace gui
+{
+
 // colors & pixels:
 static const uint16 i2r[2] = {0, 0xffff};
 static const uint16 i2g[2] = {0, 0xffff};
@@ -82,7 +85,7 @@ bool ScreenMono::sendFrame(uint8* frame_data, const zxsp::Size& frame_size, cons
 }
 
 
-void ScreenMono::do_ffb_or_vbi() noexcept(false)
+void ScreenMono::do_ffb_or_vbi()
 {
 	uint8* new_pixels = _new_pixels;
 	uint   frame_h	  = _frame_h;
@@ -96,7 +99,9 @@ void ScreenMono::do_ffb_or_vbi() noexcept(false)
 
 	if (isVisible())
 	{
-		MonoRendererPtr(screen_renderer)
+		assert(dynamic_cast<MonoRenderer*>(screen_renderer));
+
+		static_cast<MonoRenderer*>(screen_renderer)
 			->drawScreen(new_pixels, screen_w, screen_h, frame_w, frame_h, screen_x0, screen_y0, cc);
 		paint_screen(no);
 	}
@@ -106,7 +111,7 @@ void ScreenMono::do_ffb_or_vbi() noexcept(false)
 		cstr path			 = _screenshot_filepath;
 		_screenshot_filepath = nullptr;
 
-		MonoGifWriter* gif = new MonoGifWriter(this, no);
+		MonoGifWriter* gif = new MonoGifWriter(no, 50);
 		try
 		{
 			gif->saveScreenshot(path, new_pixels, screen_w, screen_h, frame_w, frame_h, screen_x0, screen_y0);
@@ -125,7 +130,7 @@ void ScreenMono::do_ffb_or_vbi() noexcept(false)
 		bool with_border   = _gifmovie_with_bordereffects;
 		_gifmovie_filepath = nullptr;
 
-		gif_writer = new MonoGifWriter(this, with_border);
+		gif_writer = new MonoGifWriter(with_border, 50);
 		try
 		{
 			gif_writer->startRecording(path);
@@ -143,7 +148,8 @@ void ScreenMono::do_ffb_or_vbi() noexcept(false)
 	{
 		try
 		{
-			MonoGifWriterPtr(gif_writer)
+			assert(dynamic_cast<MonoGifWriter*>(gif_writer));
+			static_cast<MonoGifWriter*>(gif_writer)
 				->writeFrame(new_pixels, screen_w, screen_h, frame_w, frame_h, screen_x0, screen_y0);
 		}
 		catch (FileError& e)
@@ -195,7 +201,8 @@ void ScreenMono::paint_screen(bool draw_passepartout)
 	glLoadIdentity();
 
 	// setup new pixels unpacking, transfer, mapping & rasterization
-	MonoRenderer* mono_screen_renderer = MonoRendererPtr(screen_renderer);
+	assert(dynamic_cast<MonoRenderer*>(screen_renderer));
+	MonoRenderer* mono_screen_renderer = static_cast<MonoRenderer*>(screen_renderer);
 	int			  qsx = mono_screen_renderer->h_border; // position of screenfile in screen_renderer.bits[]
 	int			  qsy = mono_screen_renderer->v_border;
 	int			  qbx = qsx - h_border; // position of visible rect in screen_renderer.bits[]
@@ -208,10 +215,7 @@ void ScreenMono::paint_screen(bool draw_passepartout)
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, mono_screen_renderer->width);
 	// note: glDrawPixels(w,h,format,type,data*)
 	glDrawPixels(
-		h_border * 2 + 256,
-		v_border * 2 + 192,
-		GL_COLOR_INDEX,
-		GL_BITMAP,
+		h_border * 2 + 256, v_border * 2 + 192, GL_COLOR_INDEX, GL_BITMAP,
 		screen_renderer->mono_octets + (qbx + qby * screen_renderer->width) / 8);
 
 	if (draw_passepartout && (v_black | h_black))
@@ -227,8 +231,7 @@ void ScreenMono::paint_screen(bool draw_passepartout)
 
 
 	// flush drawing to screen:
-	if (doubleBuffer())
-		swapBuffers();
+	if (doubleBuffer()) swapBuffers();
 	else
 		glFlush(); // force actual execution of all buffered commands
 				   //	else glFinish();				// also blocks until done
@@ -238,3 +241,5 @@ void ScreenMono::paint_screen(bool draw_passepartout)
 
 	doneCurrent();
 }
+
+} // namespace gui

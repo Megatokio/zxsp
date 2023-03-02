@@ -185,11 +185,9 @@ void MmuPlus3::romCS(bool f)
 		// ram banks 4,5,6,7 are contended
 		if (port_1ffd & 6)
 			cpu->mapRam(0x0000, 0x4000, &ram[4 * 0x4000], ula_zxsp->getWaitmap(), ula_zxsp->getWaitmapSize());
-		else
-			cpu->mapRam(0x0000, 0x4000, &ram[0 * 0x4000], nullptr, 0);
+		else cpu->mapRam(0x0000, 0x4000, &ram[0 * 0x4000], nullptr, 0);
 	}
-	else
-		page_rom_plus3();
+	else page_rom_plus3();
 }
 
 
@@ -215,10 +213,8 @@ inline void MmuPlus3::page_ram_plus3()
 {
 	int n = port_7ffd & 0x07;
 	// only ram banks 4,5,6,7 are contended				fixed kio 2016-02-11
-	if (n >= 4)
-		cpu->mapRam(3 * 0x4000, 0x4000, &ram[n * 0x4000], ula_zxsp->getWaitmap(), ula_zxsp->getWaitmapSize());
-	else
-		cpu->mapRam(3 * 0x4000, 0x4000, &ram[n * 0x4000], nullptr, 0);
+	if (n >= 4) cpu->mapRam(3 * 0x4000, 0x4000, &ram[n * 0x4000], ula_zxsp->getWaitmap(), ula_zxsp->getWaitmapSize());
+	else cpu->mapRam(3 * 0x4000, 0x4000, &ram[n * 0x4000], nullptr, 0);
 }
 
 
@@ -252,8 +248,7 @@ void MmuPlus3::page_only_ram()
 		int n = pp[i];
 		if (n >= 4)
 			cpu->mapRam(i * 0x4000, 0x4000, &ram[n * 0x4000], ula_zxsp->getWaitmap(), ula_zxsp->getWaitmapSize());
-		else
-			cpu->mapRam(i * 0x4000, 0x4000, &ram[n * 0x4000], nullptr, 0);
+		else cpu->mapRam(i * 0x4000, 0x4000, &ram[n * 0x4000], nullptr, 0);
 	}
 }
 
@@ -268,16 +263,16 @@ void MmuPlus3::set_port_7ffd_and_1ffd(uint8 new_7ffd, uint8 new_1ffd)
 {
 	xlogIn("MmuPlus3:set_port_7ffd_and_1ffd:$%2x,$%2x", uint(new_7ffd), uint(new_1ffd));
 
+	assert(dynamic_cast<Ula128k*>(ula));
+
 	port_7ffd = new_7ffd;
 	port_1ffd = new_1ffd;
 
-	if (new_1ffd & 1)
-		page_only_ram(); // ram only mode
-	else
-		page_mem_plus3(); // rom+ram mode
-	Ula128kPtr(ula)->setPort7ffd(new_7ffd);
+	if (new_1ffd & 1) page_only_ram(); // ram only mode
+	else page_mem_plus3();			   // rom+ram mode
+	static_cast<Ula128k*>(ula)->setPort7ffd(new_7ffd);
 
-	if (machine->printer) PrinterPlus3Ptr(machine->printer)->strobe(new_1ffd & 0x10);
+	if (auto* p = dynamic_cast<PrinterPlus3*>(machine->printer)) p->strobe(new_1ffd & 0x10);
 	if (machine->fdc) machine->fdc->setMotor(machine->now(), new_1ffd & 0x08);
 }
 
@@ -310,13 +305,12 @@ void MmuPlus3::output(Time t, int32 /*cc*/, uint16 addr, uint8 byte)
 		}									  // or switched ram config. in ram-only mode
 		else								  // rom+ram
 		{
-			if (toggled & 1)
-				page_mem_plus3(); // switch from ram only mode to rom+ram mode
-			else if (toggled & 4 && !romdis_in)
-				page_rom_plus3(); // switch rom in rom+ram mode
+			if (toggled & 1) page_mem_plus3();					  // switch from ram only mode to rom+ram mode
+			else if (toggled & 4 && !romdis_in) page_rom_plus3(); // switch rom in rom+ram mode
 		}
 
 		if ((toggled & 0x08) && machine->fdc) machine->fdc->setMotor(t, byte & 0x08);
-		if ((toggled & 0x10) && machine->printer) PrinterPlus3Ptr(machine->printer)->strobe(byte & 0x10);
+		if (toggled & 0x10)
+			if (auto* p = dynamic_cast<PrinterPlus3*>(machine->printer)) p->strobe(byte & 0x10);
 	}
 }

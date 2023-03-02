@@ -4,7 +4,6 @@
 
 #include "ZxIf2.h"
 #include "Machine.h"
-#include "Qt/Settings.h"
 #include "RecentFilesMenu.h"
 #include "Z80/Z80.h"
 #include "globals.h"
@@ -78,8 +77,8 @@ void ZxIf2::insertRom(cstr path)
 	filepath = newcopy(path);
 	prev()->romCS(true);
 	machine->cpu->mapRom(0 /*addr*/, 0x4000 /*size*/, rom.getData(), nullptr, 0);
-	addRecentFile(RecentIf2Roms, path);
-	addRecentFile(RecentFiles, path);
+	addRecentFile(gui::RecentIf2Roms, path);
+	addRecentFile(gui::RecentFiles, path);
 }
 
 

@@ -6,12 +6,14 @@
 #include "Printer.h"
 
 
-class ZxPrinter : public Printer
+class ZxPrinter final : public Printer
 {
 public:
 	explicit ZxPrinter(Machine*);
 
 protected:
+	~ZxPrinter() override = default;
+
 	// Item interface:
 	// void	powerOn			( /*t=0*/ int32 cc ) override;
 	// void	reset			( Time t, int32 cc ) override;

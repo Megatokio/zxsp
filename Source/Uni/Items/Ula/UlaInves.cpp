@@ -86,10 +86,8 @@ void UlaInves::setupTiming()
 			col = 0;
 			row += 1;
 		}
-		if (row >= lines_in_screen)
-			ccx = 1 << 30;
-		else
-			ccx = (lines_before_screen + row) * cc_per_line + col * CC_PER_BYTE;
+		if (row >= lines_in_screen) ccx = 1 << 30;
+		else ccx = (lines_before_screen + row) * cc_per_line + col * CC_PER_BYTE;
 	}
 
 	// ccb validieren:
@@ -160,12 +158,11 @@ void UlaInves::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 			}
 			else
 			{
-				if (Dsp::audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
+				if (os::audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
 			}
 		}
 	}
-	else
-		byte &= ~EAR_IN_MASK;
+	else byte &= ~EAR_IN_MASK;
 }
 
 

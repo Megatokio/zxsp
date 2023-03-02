@@ -3,10 +3,9 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-typedef float		 Sample;
-typedef const Sample cSample;
+
+using Sample = float;
 class StereoSample;
-typedef const StereoSample cStereoSample;
 
 
 class StereoSample
@@ -17,21 +16,21 @@ public:
 	StereoSample() noexcept : left(0), right(0) {}
 	StereoSample(Sample m) noexcept : left(m), right(m) {}
 	StereoSample(Sample l, Sample r) noexcept : left(l), right(r) {}
-	StereoSample(cStereoSample& q) noexcept = default;
+	StereoSample(const StereoSample& q) noexcept = default;
 
 	StereoSample& operator=(Sample q) noexcept
 	{
 		left = right = q;
 		return *this;
 	}
-	StereoSample& operator=(cStereoSample& q) noexcept = default;
+	StereoSample& operator=(const StereoSample& q) noexcept = default;
 	StereoSample& operator+=(Sample q) noexcept
 	{
 		left += q;
 		right += q;
 		return *this;
 	}
-	StereoSample& operator+=(cStereoSample& q) noexcept
+	StereoSample& operator+=(const StereoSample& q) noexcept
 	{
 		left += q.left;
 		right += q.right;
@@ -43,7 +42,7 @@ public:
 		right -= q;
 		return *this;
 	}
-	StereoSample& operator-=(cStereoSample& q) noexcept
+	StereoSample& operator-=(const StereoSample& q) noexcept
 	{
 		left -= q.left;
 		right -= q.right;

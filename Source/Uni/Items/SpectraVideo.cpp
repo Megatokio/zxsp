@@ -6,7 +6,6 @@
 #include "Items/Z80/Z80options.h"
 #include "Joystick.h" // physical joysticks
 #include "Machine.h"
-#include "Qt/Settings.h"
 #include "RecentFilesMenu.h"
 #include "Screen/Screen.h"
 #include "Ula/Mmu.h"
@@ -170,11 +169,6 @@ SpectraVideo::~SpectraVideo()
 
 	ejectRom();
 
-	settings.setValue(key_spectra_enable_if1_rom_hooks, if1_rom_hooks_enabled);
-	settings.setValue(key_spectra_enable_rs232, rs232_enabled);
-	settings.setValue(key_spectra_enable_joystick, joystick_enabled);
-	settings.setValue(key_spectra_enable_new_video_modes, new_video_modes_enabled);
-
 	delete[] attr_pixel;
 	delete[] alt_attr_pixel;
 	delete[] alt_ioinfo;
@@ -186,26 +180,34 @@ SpectraVideo::~SpectraVideo()
 #define IOSZ 100
 
 
-SpectraVideo::SpectraVideo(Machine* m) :
-	Crtc(m, isa_SpectraVideo, isa_SpectraVideo, external, o_addr, i_addr), has_port_7ffd(machine->mmu->hasPort7ffd()),
-	new_video_modes_enabled(settings.get_bool(key_spectra_enable_new_video_modes, true)),
+SpectraVideo::SpectraVideo(Machine* m, uint dip_switches) :
+	Crtc(m, isa_SpectraVideo, isa_SpectraVideo, external, o_addr, i_addr),
+	has_port_7ffd(machine->mmu->hasPort7ffd()),
+	new_video_modes_enabled(dip_switches & EnableNewVideoModes),
 	// port_7fdf(0),
 	// port_7ffd(0),
 	// shadowram_ever_used(no),
-	shadowram(new Memory(m, "SPECTRA Video Ram", 0x8000)), joystick(nullptr), overlay(nullptr),
+	shadowram(new Memory(m, "SPECTRA Video Ram", 0x8000)),
+	joystick(nullptr),
+	overlay(nullptr),
 	// port_254(0),
 	// port_239(0),
 	// port_247(0),
-	rs232_enabled(settings.get_bool(key_spectra_enable_rs232, false)),
-	joystick_enabled(settings.get_bool(key_spectra_enable_joystick, false)),
-	if1_rom_hooks_enabled(settings.get_bool(key_spectra_enable_if1_rom_hooks, false)), rom(nullptr), filepath(nullptr),
+	rs232_enabled(dip_switches & EnableRs232),
+	joystick_enabled(dip_switches & EnableJoystick),
+	if1_rom_hooks_enabled(dip_switches & EnableIf1RomHooks),
+	rom(nullptr),
+	filepath(nullptr),
 	own_romdis_state(false),
 	// current_frame(0),
 	// ccx(0),
 	attr_pixel(new uint8[32 * 24 * 8 * BYTES_PER_OCTET]),	  // transfer buffers -> screen
 	alt_attr_pixel(new uint8[32 * 24 * 8 * BYTES_PER_OCTET]), // swap buffer
-	alt_ioinfo_size(IOSZ), alt_ioinfo(new IoInfo[IOSZ + 1]), cc_per_side_border(cc_per_line - 32 * cc_per_byte),
-	cc_frame_end(lines_per_frame * cc_per_line), cc_screen_start(lines_before_screen * cc_per_line)
+	alt_ioinfo_size(IOSZ),
+	alt_ioinfo(new IoInfo[IOSZ + 1]),
+	cc_per_side_border(cc_per_line - 32 * cc_per_byte),
+	cc_frame_end(lines_per_frame * cc_per_line),
+	cc_screen_start(lines_before_screen * cc_per_line)
 {
 	assert(machine->isA(isa_MachineZxsp));
 
@@ -229,7 +231,8 @@ void SpectraVideo::powerOn(int32 cc)
 
 void SpectraVideo::setup_timing()
 {
-	UlaZxsp* ula = UlaZxspPtr(machine->ula);
+	UlaZxsp* ula = dynamic_cast<UlaZxsp*>(machine->ula);
+	assert(ula);
 
 	assert(cc_per_byte == 4);						// ula cycles per crtc address increment (= 8 pixels)
 	cc_per_line			= ula->cc_per_line;			// 48k: 224, +128k: 228
@@ -543,13 +546,9 @@ int32 SpectraVideo::doFrameFlyback(int32 /*cc*/) // called from runForSound()
 		ccx = lines_before_screen * cc_per_line; // update_screen_cc
 
 		record_ioinfo(cc_frame_end, 0xfe, 0x00); // for 60Hz models: remainder of screen is black
-		bool new_buffers_in_use = ScreenZxspPtr(screen)->ffb_or_vbi(
-			ioinfo,
-			ioinfo_count,
-			attr_pixel,
-			cc_screen_start,
-			cc_per_side_border + 128,
-			get_flash_phase(),
+		assert(dynamic_cast<gui::ScreenZxsp*>(screen));
+		bool new_buffers_in_use = static_cast<gui::ScreenZxsp*>(screen)->ffb_or_vbi(
+			ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, get_flash_phase(),
 			90000 /*cc_frame_end*/);
 
 		if (new_buffers_in_use)
@@ -573,7 +572,8 @@ void SpectraVideo::drawVideoBeamIndicator(int32 cc) // called from runForSound()
 	if (screen)
 	{
 		updateScreenUpToCycle(cc);
-		bool new_buffers_in_use = ScreenZxspPtr(screen)->ffb_or_vbi(
+		assert(dynamic_cast<gui::ScreenZxsp*>(screen));
+		bool new_buffers_in_use = static_cast<gui::ScreenZxsp*>(screen)->ffb_or_vbi(
 			ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, get_flash_phase(), cc);
 
 		if (new_buffers_in_use)
@@ -625,10 +625,8 @@ void SpectraVideo::romCS(bool f)
 	if (f == romdis_in) return;
 	romdis_in = f;
 
-	if (!f && rom.ptr())
-		activateRom(); // also emits romCS
-	else
-		prev()->romCS(f || own_romdis_state);
+	if (!f && rom.ptr()) activateRom(); // also emits romCS
+	else prev()->romCS(f || own_romdis_state);
 }
 
 void SpectraVideo::setRS232Enabled(bool f) { rs232_enabled = f; }
@@ -661,8 +659,8 @@ void SpectraVideo::insertRom(cstr path)
 	filepath = newcopy(path);
 
 	init_rom();
-	addRecentFile(RecentIf2Roms, path);
-	addRecentFile(RecentFiles, path);
+	addRecentFile(gui::RecentIf2Roms, path);
+	addRecentFile(gui::RecentFiles, path);
 }
 
 void SpectraVideo::ejectRom()
@@ -718,8 +716,7 @@ void SpectraVideo::init_rom()
 			activateRom();
 		}
 	}
-	else
-		own_romdis_state = false;
+	else own_romdis_state = false;
 }
 
 void SpectraVideo::activateRom()
@@ -875,7 +872,7 @@ void SpectraVideo::markVideoRam()
 }
 
 
-void SpectraVideo::insertJoystick(int id) volatile
+void SpectraVideo::insertJoystick(int id)
 {
 	if (joystick == joysticks[id]) return;
 
@@ -885,5 +882,5 @@ void SpectraVideo::insertJoystick(int id) volatile
 		overlay = nullptr;
 	}
 	joystick = joysticks[id];
-	if (id != no_joystick) overlay = machine->addOverlay(joystick, "K", Overlay::TopRight);
+	if (id != no_joystick) overlay = machine->addOverlay(joystick, "K", gui::Overlay::TopRight);
 }

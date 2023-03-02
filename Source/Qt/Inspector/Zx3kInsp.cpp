@@ -4,9 +4,6 @@
 
 
 #include "Zx3kInsp.h"
-#include "Inspector.h"
-#include "Items/Item.h"
-#include "Items/Ram/Zx3kRam.h"
 #include "Machine.h"
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
@@ -17,11 +14,13 @@
 #include <QVariant>
 
 
-Zx3kInsp::Zx3kInsp(QWidget* parent, MachineController* mc, volatile IsaObject* item) :
-	Inspector(parent, mc, item, "/Images/sinclair3k.jpg")
+namespace gui
 {
-	assert(object->isA(isa_Zx3kRam));
 
+Zx3kInsp::Zx3kInsp(QWidget* parent, MachineController* mc, volatile Zx3kRam* zx3kram) :
+	Inspector(parent, mc, zx3kram, "/Images/sinclair3k.jpg"),
+	zx3kram(zx3kram)
+{
 	button1k = new QRadioButton("1 kByte", this);
 	button2k = new QRadioButton("2 kByte", this);
 	button3k = new QRadioButton("3 kByte", this);
@@ -37,20 +36,27 @@ Zx3kInsp::Zx3kInsp(QWidget* parent, MachineController* mc, volatile IsaObject* i
 	setColors(button2k, fore, back);
 	setColors(button3k, fore, back);
 
-	uint size = zx3kram()->getRamSize();
+	uint size = zx3kram->getRamSize();
 	button1k->setChecked(size == 1 kB);
 	button2k->setChecked(size == 2 kB);
 	button3k->setChecked(size == 3 kB);
 
-	connect(button1k, &QRadioButton::clicked, this, [=] { set_ram_size(1 kB); });
-	connect(button2k, &QRadioButton::clicked, this, [=] { set_ram_size(2 kB); });
-	connect(button3k, &QRadioButton::clicked, this, [=] { set_ram_size(3 kB); });
+	connect(button1k, &QRadioButton::clicked, this, [=] { slotSetRamSize(1 kB); });
+	connect(button2k, &QRadioButton::clicked, this, [=] { slotSetRamSize(2 kB); });
+	connect(button3k, &QRadioButton::clicked, this, [=] { slotSetRamSize(3 kB); });
 }
 
-void Zx3kInsp::set_ram_size(uint newsize)
+void Zx3kInsp::slotSetRamSize(uint newsize)
 {
-	if (newsize == zx3kram()->getRamSize()) return;
-	machine->powerOff();
-	NV(zx3kram())->setRamSize(newsize);
-	machine->powerOn();
+	assert(validReference(zx3kram));
+
+	if (newsize == zx3kram->getRamSize()) return;
+
+	bool f = machine->powerOff();
+	NV(zx3kram)->setRamSize(newsize);
+	if (f) machine->powerOn();
+
+	settings.setValue(key_zx3k_ramsize, newsize);
 }
+
+} // namespace gui

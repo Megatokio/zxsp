@@ -119,11 +119,10 @@ void UlaPlus3::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 		}
 		else
 		{
-			if (Dsp::audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
+			if (os::audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
 		}
 	}
-	else if (0.0f < threshold)
-		byte &= ~EAR_IN_MASK;
+	else if (0.0f < threshold) byte &= ~EAR_IN_MASK;
 }
 
 

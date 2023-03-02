@@ -355,20 +355,16 @@ void RzxBlock::_uncompress() noexcept(false) // DataError
 		{
 			if (newsize > 666 MB) // worst case assumption for 4h gameplay with 30' tape loading in one block…
 			{
-				if (ucsize == 666 MB)
-					throw DataError("zlib bomb");
-				else
-					newsize = 666 MB;
+				if (ucsize == 666 MB) throw DataError("zlib bomb");
+				else newsize = 666 MB;
 			}
 
 			resize_ucbu(newsize);
 			zs.next_out	 = &ucbu[ucsize];
 			zs.avail_out = ucmax - ucsize;
 			err			 = inflate(&zs, Z_NO_FLUSH);
-			if (err == Z_STREAM_END)
-				assert(zs.avail_in == 0);
-			else if (err)
-				throw_zlib_error(err);
+			if (err == Z_STREAM_END) assert(zs.avail_in == 0);
+			else if (err) throw_zlib_error(err);
 			assert(zs.next_out + zs.avail_out == ucbu + ucmax);
 			ucsize	= ucmax - zs.avail_out;
 			ratio	= (double)ucsize / (csize - zs.avail_in);
@@ -894,13 +890,9 @@ void RzxBlock::readSnapshotBlock(FD& fd, uint32 blen, cstr filename) // throws f
 		cstr tmpdir = "/tmp/zxsp/"; // catstr(tempdirpath(), "/zxsp/");
 		create_dir(tmpdir);
 		ssfn = catstr(
-			tmpdir,
-			basename_from_path(filename),
-			tostr(-fd.file_position()),
+			tmpdir, basename_from_path(filename), tostr(-fd.file_position()),
 			// tostr(-int32(uclen)),
-			tostr(-int32(fd.file_mtime())),
-			".",
-			ext);
+			tostr(-int32(fd.file_mtime())), ".", ext);
 
 		if (is_file(ssfn) && file_size(ssfn) == uclen)
 		{

@@ -6,8 +6,11 @@
 #include "Fdc.h"
 
 
-class OpusDiscovery : public Fdc
+class OpusDiscovery final : public Fdc
 {
 public:
 	explicit OpusDiscovery(Machine*);
+
+protected:
+	~OpusDiscovery() override = default;
 };

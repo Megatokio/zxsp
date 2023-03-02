@@ -71,6 +71,8 @@ public:
 	void initForSnapshot(int32 cc) override;
 
 protected:
+	~Fdc765() override = default;
+
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
 	void reset(Time, int32 cc) override;

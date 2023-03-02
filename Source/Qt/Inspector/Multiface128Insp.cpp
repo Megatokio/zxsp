@@ -7,7 +7,10 @@
 #include <QLabel>
 
 
-Multiface128Insp::Multiface128Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
+namespace gui
+{
+
+Multiface128Insp::Multiface128Insp(QWidget* w, MachineController* mc, volatile Multiface128* i) :
 	MultifaceInsp(w, mc, i, "Images/multiface128.jpg", QRect(220, 20, 30, 30)) // red button		x y w h
 {
 	label_visibility = new QLabel("Visible", this);
@@ -20,10 +23,14 @@ Multiface128Insp::Multiface128Insp(QWidget* w, MachineController* mc, volatile I
 
 void Multiface128Insp::updateWidgets()
 {
+	// timer
+
+	xxlogIn("Multiface128Inspector::updateWidgets");
+	//assert(validReference(mf3));
+
 	MultifaceInsp::updateWidgets();
 
-	if (label_visibility->isVisible() != multiface128()->mf_enabled)
-	{
-		label_visibility->setVisible(multiface128()->mf_enabled);
-	}
+	if (label_visibility->isVisible() != mf128->mf_enabled) label_visibility->setVisible(mf128->mf_enabled);
 }
+
+} // namespace gui

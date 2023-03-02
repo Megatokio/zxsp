@@ -6,12 +6,14 @@
 #include "Joy.h"
 
 
-class DktronicsDualJoy : public Joy
+class DktronicsDualJoy final : public Joy
 {
 public:
 	explicit DktronicsDualJoy(Machine*);
 
 protected:
+	~DktronicsDualJoy() override = default;
+
 	// Item interface:
 	void input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
 };

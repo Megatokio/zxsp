@@ -16,10 +16,13 @@
 #include <QTimer>
 
 
-Z80Insp::Z80Insp(QWidget* window, MachineController* mc, volatile IsaObject* item) :
-	Inspector(window, mc, item, "/Backgrounds/light-150-s.jpg")
+namespace gui
 {
-	assert(object->isA(isa_Z80));
+
+Z80Insp::Z80Insp(QWidget* window, MachineController* mc, volatile Z80* cpu) :
+	Inspector(window, mc, cpu, "/Backgrounds/light-150-s.jpg"),
+	cpu(cpu)
+{
 	background = background.scaled(200, 350);
 	this->setFixedSize(background.size());
 
@@ -109,57 +112,54 @@ Z80Insp::Z80Insp(QWidget* window, MachineController* mc, volatile IsaObject* ite
 	irpt = new QCheckBox("Int", this);
 	h4->addWidget(irpt, 0, Qt::AlignRight);
 	h4->setStretch(0, 100);
-	//	bool f = connect(irpt,SIGNAL(clicked(bool)),this,SLOT(slotIrptClicked(bool)));
-	connect(irpt, &QCheckBox::clicked, this, &Z80Insp::set_interrupt);
+	connect(irpt, &QCheckBox::clicked, this, &Z80Insp::slotSetInterrupt);
 	nmi = new QCheckBox("Nmi", this);
 	h4->addWidget(nmi, 1);
 	h4->setStretch(1, 0);
-	//	f = f && connect(nmi,SIGNAL(clicked(bool)),this,SLOT(slotNmiClicked(bool)));
-	connect(nmi, &QCheckBox::clicked, this, &Z80Insp::set_nmi);
+	connect(nmi, &QCheckBox::clicked, this, &Z80Insp::slotSetNmi);
 	ie = new QCheckBox("IE", this);
 	h4->addWidget(ie, 2);
 	h4->setStretch(2, 0);
-	//	f = f && connect(ie,SIGNAL(clicked(bool)),this,SLOT(slotIeClicked(bool)));
-	connect(ie, &QCheckBox::clicked, this, &Z80Insp::set_interrupt_enable);
+	connect(ie, &QCheckBox::clicked, this, &Z80Insp::slotSetInterruptEnable);
 	g->addLayout(h4, 16, 0, 1, 2);
 
 	timer->start(1000 / 10);
 }
 
-
 MyLineEdit* Z80Insp::new_led(cstr s)
 {
 	MyLineEdit* e = new MyLineEdit(s);
-	connect(e, &MyLineEdit::returnPressed, this, [=] { return_pressed_in_lineedit(e); });
+	connect(e, &MyLineEdit::returnPressed, this, [=] { slotReturnPressedInLineEdit(e); });
 	return e;
 }
 
-
-/*	update displayed values
-	called by QTimer started in this.c'tor
-*/
 void Z80Insp::updateWidgets()
 {
-	xxlogIn("Z80Insp::update");
-	if (!object)
-	{
-		timer->stop();
-		return;
-	}
-	volatile Z80* cpu = this->cpu();
+	// update displayed values
+	// called by QTimer started in this.c'tor
 
-#define SetRR(RR)                                                                                                      \
-  if (regs.RR != value.RR)                                                                                             \
-  {                                                                                                                    \
-	value.RR = regs.RR;                                                                                                \
-	RR->setText(catstr("$", hexstr(regs.RR, 4)));                                                                      \
-  }
-#define SetR(RR)                                                                                                       \
-  if (regs.RR != value.RR)                                                                                             \
-  {                                                                                                                    \
-	value.RR = regs.RR;                                                                                                \
-	RR->setText(catstr("$", hexstr(regs.RR, 2)));                                                                      \
-  }
+	xxlogIn("Z80Insp::update");
+	assert(validReference(cpu));
+
+#define SetRR(RR)                                   \
+  do {                                              \
+	if (regs.RR != value.RR)                        \
+	{                                               \
+	  value.RR = regs.RR;                           \
+	  RR->setText(catstr("$", hexstr(regs.RR, 4))); \
+	}                                               \
+  }                                                 \
+  while (0)
+
+#define SetR(RR)                                    \
+  do {                                              \
+	if (regs.RR != value.RR)                        \
+	{                                               \
+	  value.RR = regs.RR;                           \
+	  RR->setText(catstr("$", hexstr(regs.RR, 2))); \
+	}                                               \
+  }                                                 \
+  while (0)
 
 	const volatile Z80Regs& regs = cpu->getRegisters();
 	SetRR(pc);
@@ -212,38 +212,54 @@ void Z80Insp::updateWidgets()
 }
 
 
-void Z80Insp::return_pressed_in_lineedit(MyLineEdit* led)
+void Z80Insp::slotReturnPressedInLineEdit(MyLineEdit* led)
 {
 	xlogIn("Z80Insp::returnPressed");
+	assert(validReference(cpu));
 
-	// MyLineEdit* led = dynamic_cast<MyLineEdit*>(QObject::sender());
-	cstr   text = led->text().toUtf8().data();
-	uint32 n	= intValue(text);
+	cstr  text = led->text().toUtf8().data();
+	int32 n	   = intValue(text);
 
-	NVPtr<Z80> cpu(this->cpu());
-	Z80Regs&   regs = cpu->getRegisters();
+#define setR(REG)                                            \
+  do {                                                       \
+	if (led == REG)                                          \
+	{                                                        \
+	  value.REG = nvptr(cpu)->getRegisters().REG = uint8(n); \
+	  led->setText(catstr("$", hexstr(n, 2)));               \
+	  return;                                                \
+	}                                                        \
+  }                                                          \
+  while (0)
 
-#define setR(REG)                                                                                                      \
-  if (led == REG)                                                                                                      \
-  {                                                                                                                    \
-	value.REG = regs.REG = n;                                                                                          \
-	led->setText(catstr("$", hexstr(n, 2)));                                                                           \
-  }                                                                                                                    \
-  else
-#define setRR(REG)                                                                                                     \
-  if (led == REG)                                                                                                      \
-  {                                                                                                                    \
-	value.REG = regs.REG = n;                                                                                          \
-	led->setText(catstr("$", hexstr(n, 4)));                                                                           \
-  }                                                                                                                    \
-  else
+#define setRR(REG)                                            \
+  do {                                                        \
+	if (led == REG)                                           \
+	{                                                         \
+	  value.REG = nvptr(cpu)->getRegisters().REG = uint16(n); \
+	  led->setText(catstr("$", hexstr(n, 4)));                \
+	  return;                                                 \
+	}                                                         \
+  }                                                           \
+  while (0)
 
-	setR(a) setR(f) setR(a2) setR(f2) setR(i) setR(r) setRR(sp) setRR(pc) setRR(bc) setRR(de) setRR(hl) setRR(ix)
-		setRR(iy) setRR(bc2) setRR(de2) setRR(hl2)
+	setR(a);
+	setR(f);
+	setR(a2);
+	setR(f2);
+	setR(i);
+	setR(r);
+	setRR(sp);
+	setRR(pc);
+	setRR(bc);
+	setRR(de);
+	setRR(hl);
+	setRR(ix);
+	setRR(iy);
+	setRR(bc2);
+	setRR(de2);
+	setRR(hl2);
 
-		// else:
-
-		if (led == flags)
+	if (led == flags)
 	{
 		char* s			= upperstr(text);
 		uint8 new_flags = 0;
@@ -261,30 +277,29 @@ void Z80Insp::return_pressed_in_lineedit(MyLineEdit* led)
 			}
 		}
 
-		value.fstr = regs.f = new_flags;
+		value.fstr = nvptr(cpu)->getRegisters().f = new_flags;
 		led->setText(binstr(value.fstr, "--------", "SZ1H1VNC"));
 	}
 
 	else if (led == im)
 	{
-		if (n <= 2)
+		if (uint(n) <= 2)
 		{
-			value.im = regs.im = n;
+			value.im = nvptr(cpu)->getRegisters().im = uint8(n);
 			led->setText(tostr(n));
 		}
 	}
 
 	else if (led == cc)
 	{
-		Machine* m = cpu->getMachine();
-		if (m->isSuspended())
+		if (machine->isSuspended())
 		{
-			uint32 cc_ffb = m->ula->cpuCycleOfFrameFlyback(); // TODO: ZX80++
+			int32 cc_ffb = NV(machine)->ula->cpuCycleOfFrameFlyback();
 			if (n > cc_ffb) n = cc_ffb;
-			n = (n - cpu->cpuCycle() + cc_ffb) % cc_ffb;
-			if (n) m->runCpuCycles(n);
+			n = (n - NV(cpu)->cpuCycle() + cc_ffb) % cc_ffb;
+			if (n) NV(machine)->runCpuCycles(n);
 
-			value.cc = cpu->cpuCycle();
+			value.cc = NV(cpu)->cpuCycle();
 			cstr s	 = tostr(value.cc);
 			cc->setText(s);
 			cc->QLineEdit::setText(s); // wg. Kbd Fokus wird der Text sonst nicht aktualisiert
@@ -296,39 +311,77 @@ void Z80Insp::return_pressed_in_lineedit(MyLineEdit* led)
 		Frequency v = mhzValue(text);
 		if (v >= 1.0)
 		{
-			Machine* m = cpu->getMachine();
-			m->setSpeedFromCpuClock(v);
-			value.clock = m->cpu_clock;
+			nvptr(machine)->setSpeedFromCpuClock(v);
+			value.clock = machine->cpu_clock;
 			led->setText(MHzStr(value.clock));
 		}
 	}
 }
 
+void Z80Insp::slotSetInterruptEnable(bool checked)
+{
+	// The user toggled the IE checkbox
+	// Note: signal 'clicked' is only sent on user action, click() and animateClick();
+	// not on other program actions like setDown(), setChecked() or toggle().
 
-/*	The user toggled the IE checkbox
-	Note: signal 'clicked' is only sent on user action, click() and animateClick();
-	not on other program actions like setDown(), setChecked() or toggle().
+	assert(validReference(cpu));
+
+	nvptr(cpu)->getRegisters().iff = checked ? 0x0101 : 0x0000;
+}
+
+void Z80Insp::slotSetNmi(bool checked)
+{
+	// The user toggled the NMI checkbox
+
+	assert(validReference(cpu));
+
+	if (checked) nvptr(cpu)->triggerNmi();
+	else nvptr(cpu)->clearNmi();
+}
+
+void Z80Insp::slotSetInterrupt(bool checked)
+{
+	// The user toggled the INT checkbox
+
+	assert(validReference(cpu));
+
+	if (checked) nvptr(cpu)->raiseInterrupt();
+	else nvptr(cpu)->clearInterrupt();
+}
+
+} // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 */
-void Z80Insp::set_interrupt_enable(bool checked) { NVPtr<Z80>(cpu())->getRegisters().iff = checked ? 0x0101 : 0x0000; }
-
-/*	The user toggled the NMI checkbox
- */
-void Z80Insp::set_nmi(bool checked)
-{
-	NVPtr<Z80> z80(cpu());
-	if (checked)
-		z80->triggerNmi();
-	else
-		z80->clearNmi();
-}
-
-/*	The user toggled the INT checkbox
- */
-void Z80Insp::set_interrupt(bool checked)
-{
-	NVPtr<Z80> z80(cpu());
-	if (checked)
-		z80->raiseInterrupt();
-	else
-		z80->clearInterrupt();
-}

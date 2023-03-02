@@ -8,6 +8,7 @@
 #include "globals.h"
 #include "graphics/gif/GifEncoder.h"
 #include "unix/os_utilities.h"
+#include "version.h"
 #include <QImage>
 #include <QPainter>
 
@@ -15,22 +16,10 @@
 #define opacity 0xFFFFFFFF // e.g. 0xFFFFFF80 for fading out tv image
 
 const RgbaColor zxsp_rgba_colors[16] = // RGBA
-	{opacity & black,
-	 opacity& blue,
-	 opacity& red,
-	 opacity& magenta,
-	 opacity& green,
-	 opacity& cyan,
-	 opacity& yellow,
-	 opacity& white,
-	 opacity& bright_black,
-	 opacity& bright_blue,
-	 opacity& bright_red,
-	 opacity& bright_magenta,
-	 opacity& bright_green,
-	 opacity& bright_cyan,
-	 opacity& bright_yellow,
-	 opacity& bright_white};
+	{opacity & black,		opacity& blue,		  opacity& red,			  opacity& magenta,
+	 opacity& green,		opacity& cyan,		  opacity& yellow,		  opacity& white,
+	 opacity& bright_black, opacity& bright_blue, opacity& bright_red,	  opacity& bright_magenta,
+	 opacity& bright_green, opacity& bright_cyan, opacity& bright_yellow, opacity& bright_white};
 
 
 /*	rendere Ausgaben der Zxsp Ula in bits[].
@@ -44,13 +33,8 @@ const RgbaColor zxsp_rgba_colors[16] = // RGBA
 		pro Scanline werden 32 Pärchen (64 Bytes) ausgegeben
 */
 void ZxspRenderer::drawScreen(
-	IoInfo* ioinfo,
-	uint	ioinfo_count,
-	uint8*	attr_pixels,
-	uint	cc_per_scanline,
-	uint32	cc_start_of_screenfile,
-	bool	flashphase,
-	uint32	cc_vbi)
+	IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
+	bool flashphase, uint32 cc_vbi)
 {
 	assert((cc_start_of_screenfile & 3) == 0);
 
@@ -149,36 +133,32 @@ void ZxspRenderer::drawScreen(
 // ================================================================================
 
 
-typedef uint8 GifColor;
+using GifColor = uint8;
 
 /* global ZX Spectrum color table:
 		8 x normal brightness
 		8 x bright
 */
 const GifColor transp	   = 8;	   // 'bright black' used for transparency
-cComp		   F		   = 0xFF; // "bright": full brightness
-cComp		   H		   = 0xCC; // "normal": reduced brightness: 80%
-cComp		   zx_colors[] = {0, 0, 0, 0, 0, H, H, 0, 0, H, 0, H, 0, H, 0, 0, H, H, H, H, 0, H, H, H, // r,g,b
+const Comp	   F		   = 0xFF; // "bright": full brightness
+const Comp	   H		   = 0xCC; // "normal": reduced brightness: 80%
+const Comp	   zx_colors[] = {0, 0, 0, 0, 0, H, H, 0, 0, H, 0, H, 0, H, 0, 0, H, H, H, H, 0, H, H, H, // r,g,b
 							  0, 0, 0, 0, 0, F, F, 0, 0, F, 0, F, 0, F, 0, 0, F, F, F, F, 0, F, F, F};
-cColormap	   zxsp_colormap(zx_colors, 16, transp);
+const Colormap zxsp_colormap(zx_colors, 16, transp);
 
 
-ZxspGifWriter::ZxspGifWriter(QObject* p, bool update_border, uint frames_per_second) :
-	GifWriter(p, isa_ZxspGifWriter, zxsp_colormap, 256, 192, 32, 24, update_border, frames_per_second)
+ZxspGifWriter::ZxspGifWriter(bool update_border, uint frames_per_second) :
+	GifWriter(isa_ZxspGifWriter, zxsp_colormap, 256, 192, 32, 24, update_border, frames_per_second)
 {}
 
-ZxspGifWriter::ZxspGifWriter(QObject* p, isa_id id, cColormap& colormap, bool update_border, uint frames_per_second) :
-	GifWriter(p, id, colormap, 256, 192, 32, 24, update_border, frames_per_second)
+ZxspGifWriter::ZxspGifWriter(isa_id id, const Colormap& colormap, bool update_border, uint frames_per_second) :
+	GifWriter(id, colormap, 256, 192, 32, 24, update_border, frames_per_second)
 {}
 
 
 void ZxspGifWriter::drawScreen(
-	IoInfo* ioinfo,
-	uint	ioinfo_count,
-	uint8*	attr_pixels,
-	uint	cc_per_scanline,
-	uint32	cc_start_of_screenfile,
-	bool	flashphase)
+	IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
+	bool flashphase)
 {
 	assert((cc_start_of_screenfile & 3) == 0);
 	if (!bits) bits = new Pixelmap(width, height);
@@ -208,7 +188,7 @@ void ZxspGifWriter::drawScreen(
 
 		if (io->cc > cc_start_of_visible_screen)
 		{
-			uint32 cc = min(cc_end_of_visible_screen, io->cc + 3 & ~3) - cc_start_of_visible_screen;
+			uint32 cc = min(cc_end_of_visible_screen, (io->cc + 3) & ~3) - cc_start_of_visible_screen;
 
 			uint end_row = cc / cc_per_scanline;
 			uint end_col = min(uint(width), cc % cc_per_scanline * pixel_per_cc);
@@ -266,20 +246,14 @@ void ZxspGifWriter::drawScreen(
 	this is the version for ZX Spectrum-style screens
 */
 void ZxspGifWriter::writeFrame(
-	IoInfo* ioinfo,
-	uint	ioinfo_count,
-	uint8*	attr_pixels,
-	uint	cc_per_scanline,
-	uint32	cc_start_of_screenfile,
-	bool	flashphase)
+	IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
+	bool flashphase)
 {
 	assert(gif_encoder.imageInProgress());
 	assert(bits && bits2 && diff && diff2);
 
-	if (update_border || frame_count == 0)
-		bits->setFrame(0, 0, width, height);
-	else
-		bits->setFrame(h_border, v_border, screen_width, screen_height);
+	if (update_border || frame_count == 0) bits->setFrame(0, 0, width, height);
+	else bits->setFrame(h_border, v_border, screen_width, screen_height);
 
 	drawScreen(
 		ioinfo, ioinfo_count, attr_pixels, cc_per_scanline, cc_start_of_screenfile, flashphase); // bits := new screen
@@ -310,12 +284,8 @@ void ZxspGifWriter::writeFrame(
 	this is the version for ZX Spectrum-style screens
 */
 void ZxspGifWriter::saveScreenshot(
-	cstr	path,
-	IoInfo* ioinfo,
-	uint	ioinfo_count,
-	uint8*	attr_pixels,
-	uint	cc_per_scanline,
-	uint32	cc_start_of_screenfile)
+	cstr path, IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline,
+	uint32 cc_start_of_screenfile)
 {
 	assert(!gif_encoder.imageInProgress());
 	assert(!bits && !bits2); // else we'd need to fix the bbox

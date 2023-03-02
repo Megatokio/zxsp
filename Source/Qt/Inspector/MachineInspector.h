@@ -5,8 +5,11 @@
 
 #include "Inspector.h"
 
+namespace gui
+{
 class MachineInspector : public Inspector
 {
 public:
 	MachineInspector(QWidget*, MachineController*, volatile Machine*);
 };
+} // namespace gui

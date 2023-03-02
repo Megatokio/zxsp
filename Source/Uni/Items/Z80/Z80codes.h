@@ -193,10 +193,8 @@ case EI:
 	// EI does not test for INT after itself => next command must be executed without INT test:
 	//   if cc >= cc_max then loop is exited and reentry of loop will test for INT
 	//   and accept the INT immediately after EI. This must be avoided!
-	if (cc < cc_nmi)
-		goto loop_ei; // => no jump to LOOP
-	else
-		LOOP; // but NMI presumably can start after EI
+	if (cc < cc_nmi) goto loop_ei; // => no jump to LOOP
+	else LOOP;					   // but NMI presumably can start after EI
 
 case SCF:
 	rf |= C_FLAG;
@@ -425,45 +423,29 @@ ld_nn:
 
 
 case JP_NZ:
-	if (rf & Z_FLAG)
-		goto njp;
-	else
-		goto jp;
+	if (rf & Z_FLAG) goto njp;
+	else goto jp;
 case JP_NC:
-	if (rf & C_FLAG)
-		goto njp;
-	else
-		goto jp;
+	if (rf & C_FLAG) goto njp;
+	else goto jp;
 case JP_PO:
-	if (rf & P_FLAG)
-		goto njp;
-	else
-		goto jp;
+	if (rf & P_FLAG) goto njp;
+	else goto jp;
 case JP_P:
-	if (rf & S_FLAG)
-		goto njp;
-	else
-		goto jp;
+	if (rf & S_FLAG) goto njp;
+	else goto jp;
 case JP_C:
-	if (rf & C_FLAG)
-		goto jp;
-	else
-		goto njp;
+	if (rf & C_FLAG) goto jp;
+	else goto njp;
 case JP_PE:
-	if (rf & P_FLAG)
-		goto jp;
-	else
-		goto njp;
+	if (rf & P_FLAG) goto jp;
+	else goto njp;
 case JP_M:
-	if (rf & S_FLAG)
-		goto jp;
-	else
-		goto njp;
+	if (rf & S_FLAG) goto jp;
+	else goto njp;
 case JP_Z:
-	if (rf & Z_FLAG)
-		goto jp;
-	else
-		goto njp;
+	if (rf & Z_FLAG) goto jp;
+	else goto njp;
 njp:
 	GET_N(c);
 	GET_N(c);
@@ -487,26 +469,18 @@ njr:
 	GET_N(c);
 	LOOP;
 case JR_C:
-	if (rf & C_FLAG)
-		goto jr;
-	else
-		goto njr; // timing: pc:4, pc+1:3,[5*1]
+	if (rf & C_FLAG) goto jr;
+	else goto njr; // timing: pc:4, pc+1:3,[5*1]
 case JR_NZ:
-	if (rf & Z_FLAG)
-		goto njr;
-	else
-		goto jr; // timing: pc:4, pc+1:3,[5*1]
+	if (rf & Z_FLAG) goto njr;
+	else goto jr; // timing: pc:4, pc+1:3,[5*1]
 case JR_NC:
-	if (rf & C_FLAG)
-		goto njr;
-	else
-		goto jr; // timing: pc:4, pc+1:3,[5*1]
+	if (rf & C_FLAG) goto njr;
+	else goto jr; // timing: pc:4, pc+1:3,[5*1]
 case DJNZ:
 	cc += 1;
-	if (--RB)
-		goto jr;
-	else
-		goto njr; // timing: pc:5, pc+1:3,[5*1]
+	if (--RB) goto jr;
+	else goto njr; // timing: pc:5, pc+1:3,[5*1]
 
 
 case RET:
@@ -519,52 +493,36 @@ ret:
 
 case RET_NZ:
 	cc += 1;
-	if (rf & Z_FLAG)
-		LOOP;
-	else
-		goto ret; // timing: pc:5, [sp:3, sp+1:3]
+	if (rf & Z_FLAG) LOOP;
+	else goto ret; // timing: pc:5, [sp:3, sp+1:3]
 case RET_NC:
 	cc += 1;
-	if (rf & C_FLAG)
-		LOOP;
-	else
-		goto ret;
+	if (rf & C_FLAG) LOOP;
+	else goto ret;
 case RET_PO:
 	cc += 1;
-	if (rf & P_FLAG)
-		LOOP;
-	else
-		goto ret;
+	if (rf & P_FLAG) LOOP;
+	else goto ret;
 case RET_P:
 	cc += 1;
-	if (rf & S_FLAG)
-		LOOP;
-	else
-		goto ret;
+	if (rf & S_FLAG) LOOP;
+	else goto ret;
 case RET_Z:
 	cc += 1;
-	if (rf & Z_FLAG)
-		goto ret;
-	else
-		LOOP;
+	if (rf & Z_FLAG) goto ret;
+	else LOOP;
 case RET_C:
 	cc += 1;
-	if (rf & C_FLAG)
-		goto ret;
-	else
-		LOOP;
+	if (rf & C_FLAG) goto ret;
+	else LOOP;
 case RET_PE:
 	cc += 1;
-	if (rf & P_FLAG)
-		goto ret;
-	else
-		LOOP;
+	if (rf & P_FLAG) goto ret;
+	else LOOP;
 case RET_M:
 	cc += 1;
-	if (rf & S_FLAG)
-		goto ret;
-	else
-		LOOP;
+	if (rf & S_FLAG) goto ret;
+	else LOOP;
 
 
 case LD_A_xNN: GET_NN(w); goto ld_a_xw; // timing: pc:4, pc+1:3, pc+2:3, nn:3
@@ -613,45 +571,29 @@ case INA:
 
 // ########	Write-to-memory Instructions #####################
 case CALL_NC:
-	if (rf & C_FLAG)
-		goto nocall;
-	else
-		goto call; // pc:4, pc+1:3, pc+2:3, [pc+2:1, sp-1:3, sp-2:3]
+	if (rf & C_FLAG) goto nocall;
+	else goto call; // pc:4, pc+1:3, pc+2:3, [pc+2:1, sp-1:3, sp-2:3]
 case CALL_PO:
-	if (rf & P_FLAG)
-		goto nocall;
-	else
-		goto call;
+	if (rf & P_FLAG) goto nocall;
+	else goto call;
 case CALL_P:
-	if (rf & S_FLAG)
-		goto nocall;
-	else
-		goto call;
+	if (rf & S_FLAG) goto nocall;
+	else goto call;
 case CALL_NZ:
-	if (rf & Z_FLAG)
-		goto nocall;
-	else
-		goto call;
+	if (rf & Z_FLAG) goto nocall;
+	else goto call;
 case CALL_C:
-	if (rf & C_FLAG)
-		goto call;
-	else
-		goto nocall;
+	if (rf & C_FLAG) goto call;
+	else goto nocall;
 case CALL_PE:
-	if (rf & P_FLAG)
-		goto call;
-	else
-		goto nocall;
+	if (rf & P_FLAG) goto call;
+	else goto nocall;
 case CALL_M:
-	if (rf & S_FLAG)
-		goto call;
-	else
-		goto nocall;
+	if (rf & S_FLAG) goto call;
+	else goto nocall;
 case CALL_Z:
-	if (rf & Z_FLAG)
-		goto call;
-	else
-		goto nocall;
+	if (rf & Z_FLAG) goto call;
+	else goto nocall;
 nocall:
 	GET_N(c);
 	GET_N(c);

@@ -17,6 +17,7 @@ public:
 	explicit CursorJoy(Machine*);
 
 protected:
+	~CursorJoy() override = default;
 	CursorJoy(Machine*, isa_id);
 
 	// Item interface:
@@ -24,10 +25,13 @@ protected:
 };
 
 
-class ProtekJoy : public CursorJoy
+class ProtekJoy final : public CursorJoy
 {
 	// Kio: The PCB contains two 74LS32 quad OR and one 74LS09 quad AND with oK.
 
 public:
 	explicit ProtekJoy(Machine* m) : CursorJoy(m, isa_ProtekJoy) {}
+
+protected:
+	~ProtekJoy() override = default;
 };

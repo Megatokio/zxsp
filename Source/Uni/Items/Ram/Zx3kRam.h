@@ -12,8 +12,10 @@ class Zx3kRam : public ExternalRam
 
 public:
 	explicit Zx3kRam(Machine*, uint sz = 0);
-	virtual ~Zx3kRam();
 
 	void setRamSize(uint);
 	uint getRamSize() const volatile { return size; }
+
+protected:
+	~Zx3kRam() override;
 };

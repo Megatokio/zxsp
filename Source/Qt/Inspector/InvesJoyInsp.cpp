@@ -3,7 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "InvesJoyInsp.h"
-#include "Joy/InvesJoy.h"
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>
@@ -11,11 +10,12 @@
 #include <QtGui>
 
 
-InvesJoyInsp::InvesJoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* j) :
-	JoyInsp(w, mc, j, "/Images/inves_joy.jpg")
+namespace gui
 {
-	assert(object->isA(isa_InvesJoy));
 
+InvesJoyInsp::InvesJoyInsp(QWidget* w, MachineController* mc, volatile InvesJoy* joy) :
+	JoyInsp(w, mc, joy, "/Images/inves_joy.jpg")
+{
 	QLabel* label = new QLabel("Buttons:");
 
 	QGridLayout* g = new QGridLayout(this);
@@ -32,3 +32,5 @@ InvesJoyInsp::InvesJoyInsp(QWidget* w, MachineController* mc, volatile IsaObject
 	g->addWidget(lineedit_display[0], 2, 1);
 	g->addWidget(button_scan_usb, 2, 2, Qt::AlignHCenter | Qt::AlignVCenter);
 }
+
+} // namespace gui

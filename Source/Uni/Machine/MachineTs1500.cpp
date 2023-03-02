@@ -10,15 +10,11 @@
 #include "Ula/MmuTs1500.h"
 
 
-MachineTs1500::MachineTs1500(MachineController* m) : MachineZx81(m, isa_MachineTs1500, ts1500)
+MachineTs1500::MachineTs1500(gui::MachineController* m) : MachineZx81(m, isa_MachineTs1500, ts1500)
 {
-	cpu		 = new Z80(this);	  // must be 1st item
-	ula		 = new UlaZx81(this); // should be 2nd item
-	mmu		 = new MmuTs1500(this);
-	keyboard = new KeyboardZx81(this, isa_KbdTs1500);
-	// ay		=
-	// joystick	=
-	// fdc		=
-	// printer	=
-	taperecorder = new TS2020(this);
+	addItem(new Z80(this));		// must be 1st item
+	addItem(new UlaZx81(this)); // should be 2nd item
+	addItem(new MmuTs1500(this));
+	addItem(new KeyboardZx81(this, isa_KbdTs1500));
+	addItem(new TS2020(this));
 }

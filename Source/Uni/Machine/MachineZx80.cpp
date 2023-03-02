@@ -8,7 +8,6 @@
 #include "Items/Ram/Zx16kRam.h"
 #include "Items/Ram/Zx3kRam.h"
 #include "MachineController.h"
-#include "Settings.h"
 #include "TapeRecorder.h"
 #include "Z80/Z80.h"
 #include "ZxInfo.h"
@@ -21,18 +20,13 @@
 #define MIN_FREE (24 * 33 + 32) // full screen + edit line + some spare bytes...
 
 
-MachineZx80::MachineZx80(MachineController* parent, Model model, isa_id id) : Machine(parent, model, id)
+MachineZx80::MachineZx80(gui::MachineController* parent, bool is60hz) : Machine(parent, zx80, isa_MachineZx80)
 {
-	cpu = new Z80(this);
-	ula = new UlaZx80(this);
-	ula->set60Hz(settings.get_bool(key_framerate_zx80_60hz, false));
-	mmu		 = new MmuZx80(this);
-	keyboard = new KeyboardZx80(this);
-	// ay		=
-	// joystick	=
-	// fdc		=
-	// printer	=
-	taperecorder = new TS2020(this);
+	addItem(new Z80(this));
+	addItem(new UlaZx80(this, is60hz));
+	addItem(new MmuZx80(this));
+	addItem(new KeyboardZx80(this));
+	addItem(new TS2020(this));
 
 	audio_in_enabled = no; // default. MachineController will override if flag set in settings
 }
@@ -57,7 +51,7 @@ bool MachineZx80::handleSaveTapePatch()
 	// sanity test:
 	if (datalen < 0x28 || datalen > ram.count())
 	{
-		showWarning("Illegal sysvar E_LINE ($400A): %u\nThe programme was NOT saved!", uint(dataend));
+		gui::showWarning("Illegal sysvar E_LINE ($400A): %u\nThe programme was NOT saved!", uint(dataend));
 		return 1; // handled
 	}
 
@@ -96,18 +90,14 @@ bool MachineZx80::handleLoadTapePatch()
 	cpu->getRegisters().pc = 0x0283; // pc: MAIN_EXEC
 
 	// show possible issues:
-	if (bu->isZX81())
-		showWarning("Programme is for a ZX81");
-	else if (len < 0x28)
-		showWarning("Data corrupted: data is too short: len < sysvars");
-	else if (0x4000 + len < cpu->peek2(0x400A))
-		showWarning("Data corrupted: data is too short: len < ($400A)-$4000");
+	if (bu->isZX81()) showWarning("Programme is for a ZX81");
+	else if (len < 0x28) showWarning("Data corrupted: data is too short: len < sysvars");
+	else if (0x4000 + len < cpu->peek2(0x400A)) showWarning("Data corrupted: data is too short: len < ($400A)-$4000");
 	else if (len > ram.count() - 25 /*min.screen*/)
 		showWarning("Programme did not fit in ram.\nProgramme size = %u bytes", uint(len));
 	// else if(len>ram.count()-MIN_FREE)		 showWarning("Programme uses almost all ram and may require more ram to
 	// run.");
-	else if (0x4000 + len > cpu->getRegisters().sp)
-		showInfo("Note: The machine stack was overwritten by the data");
+	else if (0x4000 + len > cpu->getRegisters().sp) showInfo("Note: The machine stack was overwritten by the data");
 
 	return 1; // handled
 }
@@ -162,14 +152,11 @@ void MachineZx80::loadO80(FD& fd) noexcept(false) /*file_error,data_error*/
 	uint req_len = len + MIN_FREE;
 	if (req_len > ram.count())
 	{
-		delete findIsaItem(isa_ExternalRam);
+		remove<ExternalRam>();
 
-		if (req_len > 16 kB)
-			new Memotech64kRam(this); // note: required a small HW patch to work with the ZX80
-		else if (req_len > 4 kB)
-			new Zx16kRam(this);
-		else
-			new Zx3kRam(this, (req_len - 1) / 0x4000 * 0x4000); // 1 .. 3 kB
+		if (req_len > 16 kB) new Memotech64kRam(this); // note: required a small HW patch to work with the ZX80
+		else if (req_len > 4 kB) new Zx16kRam(this);
+		else new Zx3kRam(this, (req_len - 1) / 0x4000 * 0x4000); // 1 .. 3 kB
 	}
 
 	// we need to power on the machine but it must not runForSound()
@@ -192,12 +179,9 @@ void MachineZx80::loadO80(FD& fd) noexcept(false) /*file_error,data_error*/
 	cpu->copyBufferToRam(data, 0x4000, len);
 
 	// show possible issues:
-	if (len < 0x28)
-		showWarning("Data corrupted: data is too short: len < sysvars");
-	else if (0x4000 + len < cpu->peek2(0x400A))
-		showWarning("Data corrupted: data is too short: len < ($400A)-$4000");
-	else if (0x4000 + len > cpu->getRegisters().sp)
-		showInfo("Note: The machine stack was overwritten by the data");
+	if (len < 0x28) showWarning("Data corrupted: data is too short: len < sysvars");
+	else if (0x4000 + len < cpu->peek2(0x400A)) showWarning("Data corrupted: data is too short: len < ($400A)-$4000");
+	else if (0x4000 + len > cpu->getRegisters().sp) showInfo("Note: The machine stack was overwritten by the data");
 }
 
 

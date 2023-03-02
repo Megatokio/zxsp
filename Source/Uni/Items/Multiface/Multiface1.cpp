@@ -90,13 +90,15 @@ Deduced from from Circuit:
 */
 
 
-static cstr o_addr = "----.----.-001.--1-"; //	read Kempston Joystick, page ram+rom if bit7=1
-static cstr i_addr = "----.----.-001.--1-"; //	nmi-taster wieder scharf schalten
+static constexpr cstr o_addr = "----.----.-001.--1-"; // read Kempston Joystick, page ram+rom if bit7=1
+static constexpr cstr i_addr = "----.----.-001.--1-"; // nmi-taster wieder scharf schalten
 
 
-Multiface1::Multiface1(Machine* m) :
-	Multiface(m, isa_Multiface1, "Roms/mf1.rom", o_addr, i_addr), joystick(nullptr), overlay(nullptr),
-	joystick_enabled(settings.get_bool(key_multiface1_enable_joystick, yes))
+Multiface1::Multiface1(Machine* m, bool enable_joystick) :
+	Multiface(m, isa_Multiface1, "Roms/mf1.rom", o_addr, i_addr),
+	joystick(nullptr),
+	overlay(nullptr),
+	joystick_enabled(enable_joystick)
 {
 	insertJoystick(usb_joystick0);
 }
@@ -183,7 +185,7 @@ void Multiface1::triggerNmi()
 }
 
 
-void Multiface1::insertJoystick(int id) volatile
+void Multiface1::insertJoystick(int id)
 {
 	if (joystick == joysticks[id]) return;
 
@@ -193,5 +195,5 @@ void Multiface1::insertJoystick(int id) volatile
 		overlay = nullptr;
 	}
 	joystick = joysticks[id];
-	if (id != no_joystick) overlay = machine->addOverlay(joystick, "K", Overlay::TopRight);
+	if (id != no_joystick) overlay = machine->addOverlay(joystick, "K", gui::Overlay::TopRight);
 }

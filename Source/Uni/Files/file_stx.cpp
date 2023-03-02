@@ -95,19 +95,18 @@ struct StxZ80 : StxBlock
 	uint16 ix, iy, sp, pc;
 	uint8  i, r, iff1, iff2; // iff's must be 0 or 1
 	uint8  im;				 // 0, 1 or 2
-	uint32 cpu_cycle; // The t-states value at the time the snapshot was made. This counts up from zero to the maximum
-					  // number of t-states per frame for the specific Spectrum model.
-	uint8
-		int_time_cc; // The number of t-states left on restart when an interrupt can occur. This is used to support
-					 // interrupt re-triggering properly. On the Spectrum, the ULA holds the INTREQ line of the Z80 low
-					 // for up to 48 t-states (depending on the model). If interrupts are enabled during this time, the
-					 // Z80 will accept the request and invoke the appropriate interrupt service routine. The AMX mouse
-					 // also asserts the INTREQ line when it needs attention. It is therefore possible for this member
-					 // to be non-zero even if the t-state counter suggests we are not at the beginning of a frame.
-	uint8 flags;	 // EILAST	The last instruction executed was an EI instruction or an invalid $DD or $FD prefix.
-					 // HALTED	The last instruction executed was a HALT instruction. The CPU is currently executing NOPs
-				 // and will continue to do so until the next interrupt occurs. This flag is mutually exclusive with
-				 // EILAST.
+	uint32 cpu_cycle;  // The t-states value at the time the snapshot was made. This counts up from zero to the maximum
+					   // number of t-states per frame for the specific Spectrum model.
+	uint8 int_time_cc; // The number of t-states left on restart when an interrupt can occur. This is used to support
+		// interrupt re-triggering properly. On the Spectrum, the ULA holds the INTREQ line of the Z80 low
+		// for up to 48 t-states (depending on the model). If interrupts are enabled during this time, the
+		// Z80 will accept the request and invoke the appropriate interrupt service routine. The AMX mouse
+		// also asserts the INTREQ line when it needs attention. It is therefore possible for this member
+		// to be non-zero even if the t-state counter suggests we are not at the beginning of a frame.
+	uint8 flags; // EILAST	The last instruction executed was an EI instruction or an invalid $DD or $FD prefix.
+				 // HALTED	The last instruction executed was a HALT instruction. The CPU is currently executing NOPs
+	// and will continue to do so until the next interrupt occurs. This flag is mutually exclusive with
+	// EILAST.
 	uint16 mem_ptr; // Internal Z80 register used to generate bits 5 and 3 of the F register after executing a BIT
 					// x,(HL) instruction. Set to 0 (zero) if not supported.
 };
@@ -168,7 +167,7 @@ struct StxAtaSpRam : StxBlock
 
 	uint16 flags;	// COMPRESSED
 	uint8  page_no; // Page number of this 16KB RAM page. For the 128KB version of the ZXATASP interface, this is 0 - 7.
-				   // For the 512KB version, this is 0 - 31.
+		// For the 512KB version, this is 0 - 31.
 	uint8 data[1]; // The actual compressed or uncompressed memory page data. When uncompressed, this member is exactly
 				   // 16KB (16,384) bytes in size.
 };
@@ -191,8 +190,8 @@ struct StxAY : StxBlock
 	uint8 flags;	   // BUILT_IN, FULLERBOX or ZX128AY
 	uint8 current_reg; // The currently selected AY register (0-15).
 	uint8 regs[16];	   // The current values of the AY registers.
-					// Note: The AY chip does not use all 8 bits for all registers. Where this is the case, the unused
-					// bits should be set to 0 (zero).
+		// Note: The AY chip does not use all 8 bits for all registers. Where this is the case, the unused
+		// bits should be set to 0 (zero).
 };
 
 
@@ -252,7 +251,7 @@ struct StxBeta128 : StxBlock
 		PAGED	  = 4, // The TR-DOS ROM is currently paged in.
 		AUTOBOOT  = 8, // The Beta 128's Auto boot feature is enabled (48k ZX Spectum only).
 		SEEKLOWER = 16, // The WD179x FDC's current seek direction is towards lower cylinder numbers. Otherwise, it is
-						// towards higher ones.
+		// towards higher ones.
 		COMPRESSED = 32 // If a custom TR-DOS ROM is embedded in this block, it has been compressed with the Zlib
 						// compression library.
 	};
@@ -332,9 +331,9 @@ struct StxDock : StxBlock
 
 	uint16 flags;	// COMPRESSED | RAM | EXROMDOCK
 	uint8  page_no; // Page number of this 8K RAM page in the applicable bank (DOCK or EXROM). This can range from 0-7,
-				   // and pages are only written if they are provided by an expansion cartridge (i.e. no page is written
-				   // for the Timex ROM 1 in the EXROM bank at page 0). If the machine being emulated is a Spectrum SE,
-				   // there will be 8 DOCK pages and 8 EXROM pages of RAM.
+		// and pages are only written if they are provided by an expansion cartridge (i.e. no page is written
+		// for the Timex ROM 1 in the EXROM bank at page 0). If the machine being emulated is a Spectrum SE,
+		// there will be 8 DOCK pages and 8 EXROM pages of RAM.
 	uint8 data[1]; // The actual compressed or uncompressed memory page data. When uncompressed, this member is exactly
 				   // 8KB (8,192) bytes in size.
 };
@@ -376,9 +375,9 @@ struct StxGS : StxBlock
 		EILAST = 1, // The last instruction executed was an EI instruction.
 		HALTED =
 			2, // The last instruction executed was a HALT instruction. The CPU is currently executing NOPs and will
-			   // continue to do so until the next interrupt occurs. This flag is mutually exclusive with EILAST.
+		// continue to do so until the next interrupt occurs. This flag is mutually exclusive with EILAST.
 		CUSTOMROM = 64, // A custom GS ROM is installed. The ROM image is stored in rom_data[]. Note: The default ROM is
-						// version 1.04.
+		// version 1.04.
 		COMPRESSED = 128 // If a custom GS ROM is embedded in this block, it has been compressed with the Zlib
 						 // compression library.
 	};
@@ -458,16 +457,15 @@ struct StxIf1 : StxBlock
 	enum {
 		ENABLED	   = 1, // Indicates Interface 1 emulation is enabled.
 		COMPRESSED = 2, // Specifies the custom Interface 1 ROM image at chRomData has been compressed by the Zlib
-						// compression library.
+		// compression library.
 		PAGED = 4 // Indicates that the Interface 1 ROM is currently paged in.
 	};
 
 	uint16 flags;			// ENABLED | COMPRESSED | PAGED
 	uint8  num_microdrives; // Number of Microdrives attached to the Interface 1 (1-8). Note: this cannot be 0 (zero).
 	uint8  reserved[4 * 8 + 3]; // Set to 0.
-	uint16
-		rom_size; // The uncompressed size of the custom Interface 1 ROM at chData. This is either 8192 or 16384.
-				  // It will be 0 if there is no custom ROM installed. In this case the standard v2 ROM should be used.
+	uint16 rom_size; // The uncompressed size of the custom Interface 1 ROM at chData. This is either 8192 or 16384.
+		// It will be 0 if there is no custom ROM installed. In this case the standard v2 ROM should be used.
 	uint8 rom_data[1]; // A Zlib compressed or uncompressed custom Interface 1 ROM (if one was installed).
 };
 // When loading Zlib compressed ROMs, the compressed size can be obtained by: compressedSize = blk.dwSize - ( sizeof(
@@ -562,11 +560,11 @@ struct StxMultiface : StxBlock
 		COMPRESSED = 0x02, // Specifies whether the Multiface RAM data (beginning at chData) is Zlib compressed or not.
 		SOFTWARELOCKOUT =
 			0x04, // Indicates that the software lockout feature of Multiface 128s and Multiface 3s has been enabled.
-				  // This flag is not valid and should be set to 0 (zero) when emulating the Multiface 1.
+		// This flag is not valid and should be set to 0 (zero) when emulating the Multiface 1.
 		REDBUTTONDISABLED = 0x08, // Indicates that the red (magic) button is disabled.
 		DISABLED =
 			0x10, // Indicates that the user has disabled Multiface 1 emulation with the physical disable switch. This
-				  // flag is not valid and should be set to 0 (zero) when emulating the Multiface 128 or Multiface 3.
+		// flag is not valid and should be set to 0 (zero) when emulating the Multiface 128 or Multiface 3.
 		RAM16KMODE = 0x20 // Specifies Multiface hardware which has had the 8KB of ROM and 8KB of RAM replaced with 16KB
 						  // of RAM. This is required by advanced Multiface programs such as SoftCrack. If RAM16KMODE is
 						  // set, the RAM image stored at data[] will expand to 16,384 bytes.
@@ -635,9 +633,9 @@ struct StxOpusDisk : StxBlock
 		OPD		= 0,	  // The disk image is in the .opd format.
 		OPU		= 1,	  // The disk image is in the .opu format.
 		FLOPPY0 = 2, // Real disk mode. drive 'drive_num' should use the first real 3½" floppy disk drive in a system.
-					 // In Windows, this is the A: drive. (filename and disk_image void)
+		// In Windows, this is the A: drive. (filename and disk_image void)
 		FLOPPY1 = 3 // Real disk mode. drive 'drive_num' should use the second real 3½" floppy disk drive in a system.
-					// In Windows, this is the B: drive. (filename and disk_image void)
+		// In Windows, this is the B: drive. (filename and disk_image void)
 	};
 
 	uint32 flags;	  // EMBEDDED | COMPRESSED | WRITEPROTECT
@@ -685,7 +683,7 @@ struct StxPlusD : StxBlock
 		GDOS   = 0,	   // The standard G+DOS ROM (Version 1.A).
 		UNIDOS = 1,	   // Uni-DOS ROM.
 		CUSTOM = 2	   // A custom ROM is installed. The Zlib compressed or uncompressed ROM image is stored starting at
-				   // ram[compressed_ram_size].
+					   // ram[compressed_ram_size].
 	};
 
 	uint32 flags;				// PAGED | COMPRESSED | SEEKLOWER
@@ -722,9 +720,9 @@ struct StxPlusDDisk : StxBlock
 		MGT		= 0,	  // The disk image is in the .mgt format.
 		IMG		= 1,	  // The disk image is in the .img format.
 		FLOPPY0 = 2, // Real disk mode. Drive 'drive_num' should use the first real 3½" floppy disk drive in a system,
-					 // e.g. Drive A. 'filename' and 'disk_image' are unused.
+		// e.g. Drive A. 'filename' and 'disk_image' are unused.
 		FLOPPY1 = 3 // Real disk mode. Drive 'drive_num' should use the second real 3½" floppy disk drive in a system,
-					// e.g. Drive B. 'filename' and 'disk_image' are unused.
+		// e.g. Drive B. 'filename' and 'disk_image' are unused.
 	};
 
 	uint32 flags;	  // EMBEDDED | COMPRESSED | WRITEPROTECT
@@ -847,12 +845,13 @@ struct StxTape : StxBlock
 							   // Type					Description
 							   // File name			chData is the file name of a linked tape file.
 							   //						dwCompressedSize is the length of the file name.
-				   // Embedded tape file	If the EMBEDDED bit in 'flags' is set, data[] is an embedded tape file.
-				   //						If the COMPRESSED bit in 'flags' is also set, the embedded file will be
-				   //compressed using the
-				   // Zlib compression libarary. 						compressed_size contains the size of the compressed data at
-				   // data[]. 						uncompressed_size contains the size of the expanded data. 						These two values will be the
-				   //same if the embedded file isn't compressed.
+	// Embedded tape file	If the EMBEDDED bit in 'flags' is set, data[] is an embedded tape file.
+	//						If the COMPRESSED bit in 'flags' is also set, the embedded file will be
+	// compressed using the
+	// Zlib compression libarary. 						compressed_size contains the size of the compressed data at
+	// data[]. 						uncompressed_size contains the size of the expanded data. 						These two values will be
+	// the
+	// same if the embedded file isn't compressed.
 };
 // Remarks: If there is no tape file in the cassette recorder, this block is not written to the file.
 

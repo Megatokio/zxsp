@@ -5,14 +5,15 @@
 
 
 #include "ConfigDialog.h"
-#include "kio/kio.h"
-class MachineController;
 class QLineEdit;
 class QLabel;
 class QPushButton;
 class QRadioButton;
-class KbdLed;
 
+namespace gui
+{
+class KbdLed;
+class MachineController;
 
 extern void addKeyCap(uint8 key, cstr cap);
 extern cstr getKeyCap(uint8 key);
@@ -50,3 +51,5 @@ public:
 protected:
 	void paintEvent(QPaintEvent*);
 };
+
+} // namespace gui

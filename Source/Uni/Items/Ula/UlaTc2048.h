@@ -13,6 +13,9 @@ class UlaTc2048 : public UlaZxsp
 public:
 	UlaTc2048(Machine*, isa_id);
 
+protected:
+	~UlaTc2048() override = default;
+
 	void  powerOn(/*t=0*/ int32 cc) override;
 	void  reset(Time t, int32 cc) override;
 	void  output(Time t, int32 cc, uint16 addr, uint8 byte) override;
@@ -23,6 +26,7 @@ public:
 	void markVideoRam() override;
 	// int32	addWaitCycles			(int32 cc, uint16 addr) volatile const override;	TODO ?
 
+public:
 	uint8 getPortFE() { return ula_out_byte; }
 	bool  is64ColumnMode() { return byte_ff & 4; }
 

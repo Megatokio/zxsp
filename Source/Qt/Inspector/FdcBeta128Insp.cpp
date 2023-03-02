@@ -5,4 +5,9 @@
 
 #include "FdcBeta128Insp.h"
 
-FdcBeta128Insp::FdcBeta128Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) : Inspector(w, mc, i) {}
+namespace gui
+{
+
+FdcBeta128Insp::FdcBeta128Insp(QWidget* w, MachineController* mc, volatile FdcBeta128* i) : Inspector(w, mc, i) {}
+
+} // namespace gui

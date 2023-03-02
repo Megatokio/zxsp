@@ -18,4 +18,4 @@ struct IoInfo
 };
 
 
-typedef Array<IoInfo> IoArray;
+using IoArray = Array<IoInfo>;

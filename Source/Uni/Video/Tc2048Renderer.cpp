@@ -44,13 +44,8 @@
 		64 column mode: high byte = left pixels; low byte = right pixels
 */
 void Tc2048Renderer::drawScreen(
-	IoInfo* ioinfo,
-	uint	ioinfo_count,
-	uint8*	attr_pixels,
-	uint	cc_per_scanline,
-	uint32	cc_start_of_screenfile,
-	bool	flashphase,
-	uint32	cc_vbi)
+	IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
+	bool flashphase, uint32 cc_vbi)
 {
 	assert((cc_start_of_screenfile & 3) == 0);
 
@@ -190,7 +185,7 @@ void Tc2048Renderer::drawScreen(
 // ================================================================================
 
 
-typedef uint8 GifColor;
+using GifColor = uint8;
 
 /* global ZX Spectrum color table:
 		8 x normal brightness
@@ -198,15 +193,15 @@ typedef uint8 GifColor;
 		1 x 50% grau für TC2048 64 Column-Mode
 */
 const GifColor transp	   = 8;	   // 'bright black' used for transparency
-cComp		   F		   = 0xFF; // "bright": full brightness
-cComp		   H		   = 0xCC; // "normal": reduced brightness: 80%
-cComp		   tc_colors[] = {0, 0, 0, 0, 0, H, H, 0, 0, H, 0, H, 0, H, 0, 0, H, H, H, H, 0, H, H, H, // r,g,b
+const Comp	   F		   = 0xFF; // "bright": full brightness
+const Comp	   H		   = 0xCC; // "normal": reduced brightness: 80%
+const Comp	   tc_colors[] = {0, 0, 0, 0, 0, H, H, 0, 0, H, 0, H, 0, H, 0, 0, H, H, H, H, 0, H, H, H, // r,g,b
 							  0, 0, 0, 0, 0, F, F, 0, 0, F, 0, F, 0, F, 0, 0, F, F, F, F, 0, F, F, F, 128, 128, 128};
-cColormap	   tc2048_colormap(tc_colors, 17, transp);
+const Colormap tc2048_colormap(tc_colors, 17, transp);
 
 
-Tc2048GifWriter::Tc2048GifWriter(QObject* p, bool update_border) :
-	ZxspGifWriter(p, isa_Tc2048GifWriter, tc2048_colormap, update_border, 50)
+Tc2048GifWriter::Tc2048GifWriter(bool update_border, uint fps) :
+	ZxspGifWriter(isa_Tc2048GifWriter, tc2048_colormap, update_border, fps)
 {}
 
 
@@ -221,12 +216,8 @@ Tc2048GifWriter::Tc2048GifWriter(QObject* p, bool update_border) :
    50% grau ergibt.
 */
 void Tc2048GifWriter::drawScreen(
-	IoInfo* ioinfo,
-	uint	ioinfo_count,
-	uint8*	attr_pixels,
-	uint	cc_per_scanline,
-	uint32	cc_start_of_screenfile,
-	bool	flashphase)
+	IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
+	bool flashphase)
 {
 	assert((cc_start_of_screenfile & 3) == 0);
 	if (!bits) bits = new Pixelmap(width, height);
@@ -261,7 +252,7 @@ void Tc2048GifWriter::drawScreen(
 
 		if (io->cc > cc_start_of_visible_screen)
 		{
-			uint32 cc = min(cc_end_of_visible_screen, io->cc + 3 & ~3) - cc_start_of_visible_screen;
+			uint32 cc = min(cc_end_of_visible_screen, (io->cc + 3) & ~3) - cc_start_of_visible_screen;
 
 			uint end_row = cc / cc_per_scanline;
 			uint end_col = min(uint(width), cc % cc_per_scanline * pixel_per_cc);

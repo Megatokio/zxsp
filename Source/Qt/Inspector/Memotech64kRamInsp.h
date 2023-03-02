@@ -4,13 +4,19 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Inspector.h"
+#include "Ram/Memotech64kRam.h"
 class QComboBox;
 
+
+namespace gui
+{
 
 class Memotech64kRamInsp : public Inspector
 {
 	QComboBox* jumper;
 
 public:
-	Memotech64kRamInsp(QWidget*, MachineController*, volatile IsaObject*);
+	Memotech64kRamInsp(QWidget*, MachineController*, volatile Memotech64kRam*);
 };
+
+} // namespace gui

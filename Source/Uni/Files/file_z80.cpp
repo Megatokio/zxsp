@@ -6,10 +6,13 @@
 #include "Ay/AySubclasses.h"
 #include "Ay/FullerBox.h"
 #include "Fdc/Fdc.h"
+#include "Fdc/MGT.h"
 #include "Items/SpectraVideo.h"
 #include "Items/Ula/MmuPlus3.h"
 #include "Items/Ula/Ula.h"
 #include "Joy/Joy.h"
+#include "Joy/KempstonJoy.h"
+#include "Joy/SinclairJoy.h"
 #include "Machine.h"
 #include "MachineController.h"
 #include "Ram/Cheetah32kRam.h"
@@ -188,19 +191,16 @@ void Machine::saveZ80(FD& fd)
 
 	head.data |= ula->getBorderColor() << 1;
 
-	Joy* kj = (Joy*)findIsaItem(isa_KempstonJoy);
-	Joy* sj = (Joy*)findIsaItem(isa_SinclairJoy);
+	KempstonJoy* kj = find<KempstonJoy>();
+	SinclairJoy* sj = find<SinclairJoy>();
 	// Bit 6-7: 0=Cursor/Protek/AGF joystick
-	if (kj)
-		head.im |= 1 << 6; // Bit 6-7: 1=Kempston
-	else if (sj && sj->isConnected(0))
-		head.im |= 3 << 6; //          3=IF2 right JS
-	else if (sj && sj->isConnected(1))
-		head.im |= 2 << 6; //          2=IF2 left JS
+	if (kj) head.im |= 1 << 6;							  // Bit 6-7: 1=Kempston
+	else if (sj && sj->isConnected(0)) head.im |= 3 << 6; //          3=IF2 right JS
+	else if (sj && sj->isConnected(1)) head.im |= 2 << 6; //          2=IF2 left JS
 
-	ZxIf1* if1 = (ZxIf1*)findItem(isa_ZxIf1);
+	ZxIf1* if1 = find<ZxIf1>();
 	if (if1) showWarning("Interface 1: TODO");
-	Item* mgt = findItem(isa_MGT);
+	Item* mgt = find<MGT>();
 	if (mgt) showWarning("M.G.T. interface: TODO"); // probably never
 	Model model = this->model == zxsp_i1 && ram.count() > 0x4000 ? zxsp_i2 : this->model;
 	head.setZxspModel(model, if1, mgt);
@@ -229,13 +229,13 @@ void Machine::saveZ80(FD& fd)
 	head.rldiremu |= 0x03; // R register and LDIR emu: always on
 
 	Ay* ay = this->ay;
-	if (!ay) ay = AyPtr(findIsaItem(isa_Ay));
+	if (!ay) ay = find<Ay>();
 	if (ay)
 	{
-		head.rldiremu |= (1 << 2);								 // ay in use, even on 48k machine
-		if (find(ay->name, "Fuller")) head.rldiremu |= (1 << 6); // AY chip for Fuller box
-		head.port_fffd = ay->getRegNr();						 // selected register
-		memcpy(head.soundreg, ay->getRegisters(), 16);			 // registers
+		head.rldiremu |= (1 << 2);								   // ay in use, even on 48k machine
+		if (::find(ay->name, "Fuller")) head.rldiremu |= (1 << 6); // AY chip for Fuller box
+		head.port_fffd = ay->getRegNr();						   // selected register
+		memcpy(head.soundreg, ay->getRegisters(), 16);			   // registers
 	}
 
 	SpectraVideo* spectra = findSpectraVideo();
@@ -359,12 +359,11 @@ void Machine::saveZ80(FD& fd)
 		}
 		else // paged memory		note: should work for 256k-Scorpion and Timex too
 		{
-			if (mmu->hasPort7ffd() && Mmu128kPtr(mmu)->port7ffdIsLocked())
+			auto* mmu128 = dynamic_cast<Mmu128k*>(mmu);
+			if (mmu128 && mmu128->port7ffdIsLocked())
 			{
 				// special service:
 				// don't write unaccessible pages in 128/+2/+2A/+3:
-
-				Mmu128k* mmu128 = Mmu128kPtr(mmu);
 
 				assert(&ram[mmu128->getPage4000() << 14] == cpu->rdPtr(0x4000));
 				assert(&ram[mmu128->getPage8000() << 14] == cpu->rdPtr(0x8000));
@@ -376,7 +375,8 @@ void Machine::saveZ80(FD& fd)
 				visible |= 1 << (mmu128->getPage8000());
 				visible |= 1 << (mmu128->getPageC000());
 
-				if (mmu->hasPort1ffd() && MmuPlus3Ptr(mmu)->isRamOnlyMode())
+				auto* mmu3 = dynamic_cast<MmuPlus3*>(mmu);
+				if (mmu && mmu3->isRamOnlyMode())
 				{
 					assert(&ram[mmu128->getPage0000() << 14] == cpu->rdPtr(0x0000)); // DENK: ROMDIS?
 					visible |= 1 << (mmu128->getPage0000());
@@ -410,23 +410,24 @@ void Machine::loadZ80_attach_joysticks(uint z80head_im)
 {
 	assert(isMainThread());
 
-	Joy* j;
-	int	 idx = 0;
+	Item* j	  = nullptr;
+	uint  idx = 0;
 
 	switch (z80head_im >> 6)
 	{
 	default: return;
 
 	case 1:
-		j = JoyPtr(findIsaItem(isa_KempstonJoy));
-		if (!j) joystick = j = JoyPtr(addExternalItem(isa_KempstonJoy));
+		j = find<KempstonJoy>();
+		if (!j) j = addExternalItem(isa_KempstonJoy);
 		break;
 
 	case 3: // right (1st) IF2
 		idx = 1;
+		FALLTHROUGH
 	case 2: // left (2nd) IF2
-		j = JoyPtr(findIsaItem(isa_SinclairJoy));
-		if (!j) joystick = j = JoyPtr(addExternalItem(isa_ZxIf2));
+		j = find<SinclairJoy>();
+		if (!j) j = addExternalItem(isa_ZxIf2);
 		break;
 	}
 
@@ -434,7 +435,7 @@ void Machine::loadZ80_attach_joysticks(uint z80head_im)
 	{
 		if (joysticks[i] && joysticks[i]->isConnected())
 		{
-			j->insertJoystick(idx, i);
+			static_cast<Joy*>(j)->insertJoystick(idx, i);
 			break;
 		}
 	}
@@ -472,7 +473,7 @@ void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 		if (ismainthread) loadZ80_attach_joysticks(head.im);
 		// else TODO .. ignore
 
-		if (mmu->isA(isa_Mmu128k)) Mmu128kPtr(mmu)->setMmuLocked(true);
+		if (auto* mmu128 = dynamic_cast<Mmu128k*>(mmu)) mmu128->setMmuLocked(true);
 
 		if (head.data & 0x20) // compressed
 		{
@@ -483,7 +484,7 @@ void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 		{
 			xlogline("$c000 bytes uncompressed");
 			read_uncompressed_page(fd, &ram[0], 0xc000);
-		};
+		}
 		return;
 	}
 
@@ -496,7 +497,7 @@ void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 	// attach SPECTRA which has a Kempston joystick port:
 	bool spectra_used	  = head.isVersion300() && (head.rldiremu & 0x08) && isA(isa_MachineZxsp); // else not supported
 	SpectraVideo* spectra = findSpectraVideo();
-	if (spectra_used && !spectra) spectra = addSpectraVideo();
+	if (spectra_used && !spectra) spectra = addSpectraVideo(0); // configured later
 
 	// attach joysticks:
 	if (ismainthread) loadZ80_attach_joysticks(head.im);
@@ -521,7 +522,7 @@ void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 	bool ay_used   = head.rldiremu & 0x04;
 	bool fuller_ay = head.rldiremu & 0x40; // only if ay_used
 	Ay*	 ay		   = this->ay;
-	if (!ay) ay = AyPtr(findIsaItem(isa_Ay));
+	if (!ay) ay = find<Ay>();
 	if (ay_used && fuller_ay && (!ay || !ay->isA(isa_FullerBox))) ay = new FullerBox(this);
 	if (ay_used && !ay) ay = new DidaktikMelodik(this);
 	if (!this->ay) this->ay = ay;
@@ -531,23 +532,17 @@ void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 	if (req_ramsize == 0) req_ramsize = model_info->ram_size;
 	if (ram.count() < req_ramsize)
 	{
-		Item* xram = findIsaItem(isa_ExternalRam);
+		ExternalRam* xram = find<ExternalRam>();
 		if (xram && !ismainthread)
 			throw DataError("Cannot detach ram extension on background thread"); // can't happen for zxsp models
-		else
-			delete xram;
-		if (model == jupiter)
-			addExternalItem(isa_Jupiter16kRam);
-		else if (model_info->has_zxsp_bus)
-			addExternalItem(isa_Cheetah32kRam);
+		else removeItem(xram);
+		if (model == jupiter) addExternalRam(isa_Jupiter16kRam);
+		else if (model_info->has_zxsp_bus) addExternalRam(isa_Cheetah32kRam);
 		else if (model_info->has_zx80_bus)
 		{
-			if (req_ramsize <= 4 kB)
-				new Zx3kRam(this, req_ramsize - 1 kB);
-			else if (req_ramsize <= 16 kB)
-				new Zx16kRam(this);
-			else
-				new Memotech64kRam(this);
+			if (req_ramsize <= 4 kB) new Zx3kRam(this, req_ramsize - 1 kB);
+			else if (req_ramsize <= 16 kB) new Zx16kRam(this);
+			else new Memotech64kRam(this);
 		}
 		if (ram.count() < req_ramsize)
 			throw DataError("Snapshot: can't find a suitable ram extension to load this file");

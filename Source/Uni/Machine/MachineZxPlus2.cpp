@@ -13,17 +13,15 @@
 #include "Ula/Ula128k.h"
 
 
-MachineZxPlus2::MachineZxPlus2(MachineController* m, Model model) : MachineZx128(m, model, isa_MachineZxPlus2)
+MachineZxPlus2::MachineZxPlus2(gui::MachineController* m, Model model) : MachineZx128(m, model, isa_MachineZxPlus2)
 {
 	assert(model == zxplus2 || model == zxplus2_span || model == zxplus2_frz);
 
-	cpu		 = new Z80(this);	  // must be 1st item
-	ula		 = new Ula128k(this); // should be 2nd item
-	mmu		 = new Mmu128k(this);
-	keyboard = new KeyboardZxPlus(this);
-	ay		 = new AyForZx128(this);
-	joystick = new ZxPlus2Joy(this);
-	// fdc		=
-	// printer	=
-	taperecorder = new Plus2TapeRecorder(this);
+	addItem(new Z80(this));		// must be 1st item
+	addItem(new Ula128k(this)); // should be 2nd item
+	addItem(new Mmu128k(this));
+	addItem(new KeyboardZxPlus(this));
+	addItem(new AyForZx128(this));
+	addItem(new ZxPlus2Joy(this));
+	addItem(new Plus2TapeRecorder(this));
 }

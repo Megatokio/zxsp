@@ -7,7 +7,6 @@
 #include "Joy/SinclairJoy.h"
 #include "Keyboard.h"
 #include "MachineZxsp.h"
-#include "Settings.h"
 #include "TapeRecorder.h"
 
 
@@ -27,16 +26,12 @@ kio: so i believe this TK90X info also applies:
 	and NTSC (60 Hz) as used in USA and many other countries.
 */
 
-MachineTk95::MachineTk95(MachineController* m) : MachineZxsp(m, tk95, isa_MachineTk95)
+MachineTk95::MachineTk95(gui::MachineController* m, bool is60hz) : MachineZxsp(m, tk95, isa_MachineTk95)
 {
-	cpu = new Z80(this);
-	ula = new UlaTk90x(this);
-	ula->set60Hz(settings.get_bool(key_framerate_tk95_60hz, false));
-	mmu		 = new MmuZxsp(this);
-	keyboard = new KeyboardZxsp(this, isa_KbdTk95);
-	// ay		=
-	joystick = new Tk95Joy(this);
-	// fdc		=
-	// printer	=
-	taperecorder = new TS2020(this);
+	addItem(new Z80(this));
+	addItem(new UlaTk90x(this, is60hz));
+	addItem(new MmuZxsp(this));
+	addItem(new KeyboardZxsp(this, isa_KbdTk95));
+	addItem(new Tk95Joy(this));
+	addItem(new TS2020(this));
 }

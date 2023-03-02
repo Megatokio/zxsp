@@ -3,17 +3,19 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Multiface1Insp.h"
-#include "Machine.h"
 #include "Multiface/Multiface1.h"
 #include "Settings.h"
+#include "Templates/NVPtr.h"
 #include <QCheckBox>
 #include <QComboBox>
 #include <QLineEdit>
 #include <QPushButton>
 
+namespace gui
+{
 
-Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
-	MultifaceInsp(w, mc, i, "Images/multiface1.jpg", QRect(224, 20, 30, 30)) // red button		x y w h
+Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile Multiface1* mf) :
+	MultifaceInsp(w, mc, mf, "Images/multiface1.jpg", QRect(224, 20, 30, 30)) // red button		x y w h
 {
 	chkbox_joystick_enabled = new QCheckBox("Joystick", this);
 	connect(chkbox_joystick_enabled, &QCheckBox::clicked, this, &Multiface1Insp::enable_joystick);
@@ -21,9 +23,7 @@ Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile IsaOb
 	joystick_selector = new QComboBox(this);
 	joystick_selector->setFocusPolicy(Qt::NoFocus);
 	connect(
-		joystick_selector,
-		static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-		this,
+		joystick_selector, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 		&Multiface1Insp::joystick_selected);
 	update_joystick_selector();
 
@@ -45,22 +45,21 @@ Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile IsaOb
 	lineedit_display->move(223, 212);
 	lineedit_display->setFixedWidth(86);
 
-	enable_joystick(multiface1()->joystick_enabled);
+	enable_joystick(mf->joystick_enabled);
 }
-
 
 void Multiface1Insp::updateWidgets() // Kempston
 {
 	xlogIn("Multiface1Insp::updateWidgets");
-	if (!object) return;
+	//assert(validReference(mf3));
 
 	MultifaceInsp::updateWidgets();
 
-	bool f = multiface1()->joystick_enabled;
-	if (chkbox_joystick_enabled->isChecked() != f) enable_joystick(f); // security only
+	bool f = mf1->joystick_enabled;
+	if (chkbox_joystick_enabled->isChecked() != f) enable_joystick(f); // safety
 	if (!f) return;													   // disabled
 
-	uint8 newstate = multiface1()->joystick->getState(no);
+	uint8 newstate = mf1->joystick->getState(no);
 	if (lineedit_state == newstate) return; // no change
 	lineedit_state = newstate;
 
@@ -73,11 +72,11 @@ void Multiface1Insp::updateWidgets() // Kempston
 	lineedit_display->setText(s);
 }
 
-
 void Multiface1Insp::enable_joystick(bool f)
 {
 	settings.setValue(key_multiface1_enable_joystick, f);
-	multiface1()->enableJoystick(f);
+
+	mf1->enableJoystick(f);
 	chkbox_joystick_enabled->setChecked(f);
 	button_scan_usb->setEnabled(f);
 	joystick_selector->setEnabled(f);
@@ -89,7 +88,6 @@ void Multiface1Insp::enable_joystick(bool f)
 	}
 }
 
-
 void Multiface1Insp::find_usb_joysticks()
 {
 	xlogIn("Multiface1Insp::scanUSB");
@@ -97,17 +95,20 @@ void Multiface1Insp::find_usb_joysticks()
 	update_joystick_selector();
 }
 
-
 void Multiface1Insp::joystick_selected()
 {
-	xlogIn("Multiface1Insp::joySelected");
-	int j = joystick_selector->currentIndex();
-	multiface1()->insertJoystick(joystick_selector->itemData(j).toInt());
-}
+	xlogIn("Multiface1Insp::joystick_selected");
+	assert(validReference(mf1));
 
+	int j = joystick_selector->currentIndex();
+	nvptr(mf1)->insertJoystick(joystick_selector->itemData(j).toInt());
+}
 
 void Multiface1Insp::update_joystick_selector()
 {
+	xlogIn("Multiface1Insp::update_joystick_selector");
+	assert(validReference(mf1));
+
 	char f[max_joy];
 	int	 i;
 
@@ -121,7 +122,7 @@ void Multiface1Insp::update_joystick_selector()
 	}
 	if (i == max_joy) return; // no change
 
-	static cstr jname[5] = {"USB Joystick 1", "USB Joystick 2", "USB Joystick 3", "Keyboard", "no Joystick"};
+	static constexpr cstr jname[5] = {"USB Joystick 1", "USB Joystick 2", "USB Joystick 3", "Keyboard", "no Joystick"};
 
 	joystick_selector->blockSignals(1);
 	while (joystick_selector->count()) { joystick_selector->removeItem(0); }
@@ -131,7 +132,7 @@ void Multiface1Insp::update_joystick_selector()
 	}
 	joystick_selector->blockSignals(0);
 
-	int id = multiface1()->getJoystickID();
+	int id = mf1->getJoystickID();
 	for (i = 0; i < joystick_selector->count(); i++)
 	{
 		if (joystick_selector->itemData(i).toInt() == id)
@@ -142,3 +143,42 @@ void Multiface1Insp::update_joystick_selector()
 	}
 	if (i == joystick_selector->count()) { joystick_selector->setCurrentIndex(i - 1); }
 }
+
+} // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

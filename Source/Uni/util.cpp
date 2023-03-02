@@ -13,12 +13,9 @@
 cstr MHzStr(Frequency f)
 {
 	str s = tempstr(16);
-	if (f >= 1000000)
-		sprintf(s, "%.5g MHz", f / 1000000.0);
-	else if (f >= 1000)
-		sprintf(s, "%.5g kHz", f / 1000.0);
-	else
-		sprintf(s, "%.5g Hz", f);
+	if (f >= 1000000) sprintf(s, "%.5g MHz", f / 1000000.0);
+	else if (f >= 1000) sprintf(s, "%.5g kHz", f / 1000.0);
+	else sprintf(s, "%.5g Hz", f);
 	return s;
 }
 
@@ -52,10 +49,8 @@ int32 intValue(cstr s)
 		return 0;
 	}
 	if (s[0] == '$') return int32(strtol(s + 1, nullptr, 16));
-	if (s[0] == '%')
-		return int32(strtol(s + 1, nullptr, 2));
-	else
-		return int32(strtol(s, nullptr, 10));
+	if (s[0] == '%') return int32(strtol(s + 1, nullptr, 2));
+	else return int32(strtol(s, nullptr, 10));
 }
 
 

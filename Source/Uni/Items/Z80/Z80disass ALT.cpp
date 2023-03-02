@@ -436,10 +436,8 @@ int Z80OpcodeLength(uint8 op1, uint8 op2)
 	{
 	case 0xcb: return 2;
 	case 0xed:
-		if (/* op2<0x40 || op2>=0x80 || ((op2&7)!=3) */ (op2 & 0xc7) != 0x43)
-			return 2;
-		else
-			return 4;
+		if (/* op2<0x40 || op2>=0x80 || ((op2&7)!=3) */ (op2 & 0xc7) != 0x43) return 2;
+		else return 4;
 	case 0xdd:
 	case 0xfd:
 		switch (op2 >> 6)
@@ -448,10 +446,8 @@ int Z80OpcodeLength(uint8 op1, uint8 op2)
 			return len0[op2] - '0' + 1 + (op2 >= 0x34 && op2 <= 0x36); // inc(hl); dec(hl); ld(hl),N: add displacement
 		case 1:
 		case 2:
-			if (((op2 & 0x07) == 6) == ((op2 & 0x0F8) == 0x70))
-				return 2;
-			else
-				return 3;
+			if (((op2 & 0x07) == 6) == ((op2 & 0x0F8) == 0x70)) return 2;
+			else return 3;
 		}
 		if (op2 == 0xcb) return 4;
 		return len3[op2 & 0x3F] - '0' +

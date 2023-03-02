@@ -3,14 +3,19 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "Joy/Tc2068Joy.h"
 #include "JoyInsp.h"
-#include <QObject>
+
+namespace gui
+{
 
 class Tc2068JoyInsp : public JoyInsp
 {
 public:
-	Tc2068JoyInsp(QWidget*, MachineController*, volatile IsaObject*, cstr img_path);
+	Tc2068JoyInsp(QWidget*, MachineController*, volatile Tc2068Joy*, cstr img_path);
 
 protected:
 	void updateWidgets() override;
 };
+
+} // namespace gui

@@ -6,18 +6,19 @@
 #include "MemoryInspector.h"
 #include "Templates/Array.h"
 #include "Z80/Z80.h"
-#include "kio/kio.h"
 #include <QWidget>
-
-class Machine;
-class MemoryInspector;
-class SimpleTerminal;
 class QScrollBar;
 class QPushButton;
 class QLineEdit;
-class MyScrollBar;
 class QCheckBox;
+class Machine;
 
+
+namespace gui
+{
+class MemoryInspector;
+class SimpleTerminal;
+class MyScrollBar;
 
 class MemoryHexInspector : public MemoryInspector
 {
@@ -71,16 +72,16 @@ class MemoryHexInspector : public MemoryInspector
 
 public:
 	MemoryHexInspector(QWidget* parent, MachineController* mc, volatile IsaObject*);
-	~MemoryHexInspector();
+	~MemoryHexInspector() override;
 
 protected:
 	void resizeEvent(QResizeEvent*) override;
-	// void		wheelEvent(QWheelEvent*) override;
-	// void		paintEvent(QPaintEvent*) override;
+	// void wheelEvent(QWheelEvent*) override;
+	// void paintEvent(QPaintEvent*) override;
 	void mousePressEvent(QMouseEvent*) override;
 	bool event(QEvent*) override;
 	void keyPressEvent(QKeyEvent*) override;
-	// void		keyReleaseEvent(QKeyEvent*) override;
+	// void keyReleaseEvent(QKeyEvent*) override;
 	void showEvent(QShowEvent*) override;
 
 	void saveSettings() override;
@@ -89,7 +90,7 @@ protected:
 	void updateWidgets() override;
 	void adjustSize(QSize&) override;
 
-	// void		slotSetScrollPosition	(int) override;		// scrollbar
+	// void slotSetScrollPosition	(int) override;		// scrollbar
 	void slotSetDataSource(int) override;
 	void slotSetMemoryPage(int) override;
 	void slotSet16BytesPerRow();
@@ -122,5 +123,6 @@ private:
 	bool is_editing_in_ascii();
 	bool is_editing_in_hex();
 	void setBreakpoint(CoreByte mask, bool f);
-	void save_settings();
 };
+
+} // namespace gui

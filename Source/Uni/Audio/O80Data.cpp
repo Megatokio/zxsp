@@ -109,7 +109,10 @@ O80Data::O80Data(const O80Data& q) : TapeData(q), data(q.data), is_zx80(q.is_zx8
 /*	construct O80Data from existing data
  */
 O80Data::O80Data(Array<uint8> q, bool is_zx81) :
-	TapeData(isa_O80Data, original_data), data(q), is_zx80(!is_zx81), is_zx81(is_zx81)
+	TapeData(isa_O80Data, original_data),
+	data(q),
+	is_zx80(!is_zx81),
+	is_zx81(is_zx81)
 {}
 
 
@@ -184,7 +187,7 @@ start:
 		byte += byte + (n > 13);
 		if (byte & 0x100)
 		{
-			data[zi++] = byte;
+			data[zi++] = uint8(byte);
 			byte	   = 1;
 		}
 		if (cc > cclooo_max) break; // looong pulse too too long => assume end
@@ -223,31 +226,23 @@ start:
 			uint32 zx80_len = peek2Z(&data[0x0A]) - 0x4000;
 			uint32 zx81_len = peek2Z(&data[0x4014 - 0x4009 + namelen]) - 0x4009 + namelen;
 
-			if (zi == zx81_len)
-				is_zx81 = yes;
+			if (zi == zx81_len) is_zx81 = yes;
 			else // Länge passt exakt: das wird's wohl sein
-				if (zi == zx80_len)
-					is_zx80 = yes;
+				if (zi == zx80_len) is_zx80 = yes;
 				else // Länge passt exakt: das wird's wohl sein
 					// sonst Heuristik:
-					if (namelen > 31)
-						is_zx80 = yes;
+					if (namelen > 31) is_zx80 = yes;
 					else // unglaublich langer Name => ZX81 unwahrscheinlich
-						if (zi > 4 kB)
-							is_zx81 = yes;
+						if (zi > 4 kB) is_zx81 = yes;
 						else // > 4kB => ZX80 ist unwahrscheinlich wg. orig. ZX80 Rampack
 							// letzte Idee: wer weniger Bytes zuviel hat:
-							if (zx80_len > zx81_len - namelen + 9)
-								is_zx80 = yes;
-							else
-								is_zx81 = yes;
+							if (zx80_len > zx81_len - namelen + 9) is_zx80 = yes;
+							else is_zx81 = yes;
 		}
 
 		// truncate block at E_LINE:
-		if (is_zx80)
-			zi = peek2Z(&data[0x0A]) - 0x4000;
-		else
-			zi = peek2Z(&data[0x4014 - 0x4009 + namelen]) - 0x4009 + namelen;
+		if (is_zx80) zi = peek2Z(&data[0x0A]) - 0x4000;
+		else zi = peek2Z(&data[0x4014 - 0x4009 + namelen]) - 0x4009 + namelen;
 		data.shrink(zi);
 
 		trust_level = data.last() == 0x80 ? decoded_data : checksum_error; // last byte of VARS != 0x80
@@ -293,21 +288,21 @@ start:
 // saved data starts with a program name, 127 char max and last char | 0x80
 // saved progname in file is in ZX81 charset!
 //
-inline int zx81_progname_len(cu8ptr p, int n)
+inline uint zx81_progname_len(cu8ptr p, uint n)
 {
 	if (n > 127) n = 127;
-	for (int i = 0; i < n; i++)
+	for (uint i = 0; i < n; i++)
 	{
 		if (p[i] & 0x80) return i + 1;
 	}
 	return n;
 }
 
-static cstr zx81_progname_str(cu8ptr p, int n)
+static cstr zx81_progname_str(cu8ptr p, uint n)
 {
 	n	  = zx81_progname_len(p, n);
 	str s = tempstr(n);
-	for (int i = 0; i < n; i++) { s[i] = zx81_charset[p[i] & 0x3F]; }
+	for (uint i = 0; i < n; i++) { s[i] = zx81_charset[p[i] & 0x3F]; }
 	return s;
 }
 
@@ -330,10 +325,10 @@ cstr O80Data::calcMajorBlockInfo() const noexcept
  */
 cstr O80Data::calcMinorBlockInfo() const noexcept
 {
-	if (zx81 || zx80)
+	if (is_zx81 || is_zx80)
 	{
 		uint n = data.count();
-		if (zx81) n -= zx81_progname_len(data.getData(), data.count());
+		if (is_zx81) n -= zx81_progname_len(data.getData(), data.count());
 		return usingstr("%u bytes", n);
 	}
 	return nullptr;
@@ -353,7 +348,7 @@ CswBuffer::CswBuffer(const O80Data& o80data, uint32 ccps) : CswBuffer(ccps, 0, 6
 	writePulse(5.0, 0);
 
 	// data
-	double f	   = (double)::ccps / ccps;
+	double f	   = double(::ccps / ccps);
 	uint   zx81lo  = uint(::zx81lo * f + 0.5);
 	uint   zx81hi  = uint(::zx81hi * f + 0.5);
 	uint   zx81ooo = uint(::zx81ooo * f + 0.5);
@@ -541,7 +536,6 @@ void O80Data::writeFile(cstr fpath, TapeFile& data) noexcept(false) // file_erro
 			}
 			fd.write_bytes(p, n);
 		}
-		else
-			xlogline("error: no suitable block in TapeFile");
+		else xlogline("error: no suitable block in TapeFile");
 	}
 }

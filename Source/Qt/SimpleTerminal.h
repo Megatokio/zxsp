@@ -13,6 +13,9 @@
 #include <QSemaphore>
 #include <QWidget>
 
+namespace gui
+{
+
 enum {
 	BOLD				= 1,
 	UNDERLINE			= 2,
@@ -53,7 +56,7 @@ public:
 	void set_colors();
 
 	SimpleTerminal(QWidget* parent, QString fontname = "Menlo", int fontsize = 12, bool antialias = yes);
-	~SimpleTerminal();
+	~SimpleTerminal() override;
 
 	void resize(int w, int h);
 	void resize(const QSize& sz);
@@ -96,12 +99,15 @@ private:
 	void resize_canvas(int w, int h);
 
 protected:
-	void paintEvent(QPaintEvent*);	  // virtual protected
-	void resizeEvent(QResizeEvent*);  // virtual protected
-	void focusInEvent(QFocusEvent*);  // [virtual protected]
-	void focusOutEvent(QFocusEvent*); // [virtual protected]
+	void paintEvent(QPaintEvent*) override;	   // virtual protected
+	void resizeEvent(QResizeEvent*) override;  // virtual protected
+	void focusInEvent(QFocusEvent*) override;  // [virtual protected]
+	void focusOutEvent(QFocusEvent*) override; // [virtual protected]
 
 signals:
 	void focusChanged(bool);
+
 public slots:
 };
+
+} // namespace gui

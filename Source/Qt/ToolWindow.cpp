@@ -30,14 +30,19 @@
 #include <QVector>
 
 
+namespace gui
+{
+
 // -------------------------------------------------------
 //			c'tor, d'tor etc.
 // -------------------------------------------------------
 
 ToolWindow::ToolWindow(MachineController* mc, volatile IsaObject* item, QAction* showaction) :
-	QMainWindow(mc, Qt::Tool), machine_controller(mc)
+	QMainWindow(mc, Qt::Tool),
+	machine_controller(mc)
 {
 	xlogIn("new ToolWindow");
+	assert(mc != nullptr);
 
 	setAttribute(Qt::WA_DeleteOnClose, 1);
 	setAttribute(Qt::WA_ShowWithoutActivating, 1);
@@ -109,20 +114,35 @@ void ToolWindow::kill()
 	inspector->saveSettings();
 }
 
+void ToolWindow::init()
+{
+	// setup the toolwindow with an empty inspector
+
+	item		   = nullptr;
+	show_action	   = nullptr;
+	toolbar		   = nullptr;
+	toolbar_height = 0;
+	// grp_id = preserve grp_id
+
+	inspector = new Inspector(this, machine_controller);
+	setWindowTitle("Empty inspector");
+
+	setFixedSize(inspector->size());
+	setCentralWidget(inspector);
+}
+
 void ToolWindow::init(volatile IsaObject* object, QAction* showaction)
 {
-	assert(!object == !showaction);
+	assert(object);
+	assert(showaction);
 
-	item = object;					 // item or machine
-	if (item) grp_id = item->grp_id; // else preserve
+	item   = object; // item or machine
+	grp_id = item->grp_id;
 
 	show_action = showaction;
-	if (showaction)
-	{
-		showaction->blockSignals(true);
-		showaction->setChecked(on);
-		showaction->blockSignals(false);
-	}
+	showaction->blockSignals(true);
+	showaction->setChecked(on);
+	showaction->blockSignals(false);
 
 	inspector = Inspector::newInspector(this, machine_controller, object);
 	set_window_title();
@@ -132,16 +152,14 @@ void ToolWindow::init(volatile IsaObject* object, QAction* showaction)
 	if (toolbar)
 	{
 		toolbar->setAllowedAreas(Qt::TopToolBarArea);
-		connect(toolbar, &QToolBar::topLevelChanged, [=] { adjust_size_timer.start(); });
+		connect(toolbar, &QToolBar::topLevelChanged, toolbar, [=] { adjust_size_timer.start(); });
 		addToolBar(toolbar);
 		setUnifiedTitleAndToolBarOnMac(1);
 		toolbar_height = settings.value(catstr(key_toolwindow_toolbar_height, tostr(grp_id)), 38).toInt();
 	}
 
 	xlogline(
-		"Toolwindow resized acc. to inspector to %i x %i + %i",
-		inspector->width(),
-		inspector->height(),
+		"Toolwindow resized acc. to inspector to %i x %i + %i", inspector->width(), inspector->height(),
 		toolbar_height);
 	setMinimumSize(inspector->minimumSize() + QSize(0, toolbar_height));
 	xlogline("ToolWindow min size = %i x %i", minimumWidth(), minimumHeight());
@@ -280,8 +298,9 @@ void ToolWindow::fillContextMenu(QMenu* contextmenu)
 		});
 	}
 
-	for (Item* item = NV(machine)->firstItem(); item; item = item->next())
+	for (uint i = 0; i < machine->all_items.count(); i++)
 	{
+		Item* item = machine->all_items[i].get();
 		if (item->grp_id == isa_Mmu) continue; // mmu+ula=ula
 
 		action = new QAction(item->name, contextmenu);
@@ -314,3 +333,5 @@ void ToolWindow::contextMenuEvent(QContextMenuEvent* e)
 	contextmenu.popup(e->globalPos());
 	e->accept();
 }
+
+} // namespace gui

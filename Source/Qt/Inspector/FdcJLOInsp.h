@@ -3,12 +3,17 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "Fdc/FdcJLO.h"
 #include "Inspector.h"
 #include <QObject>
 
+namespace gui
+{
 
 class FdcJLOInsp : public Inspector
 {
 public:
-	FdcJLOInsp(QWidget*, MachineController*, volatile IsaObject*);
+	FdcJLOInsp(QWidget*, MachineController*, volatile FdcJLO*);
 };
+
+} // namespace gui

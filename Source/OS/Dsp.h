@@ -6,13 +6,8 @@
 #include "DspTime.h"
 #include "StereoSample.h"
 
-typedef float		 Sample;
-typedef const Sample cSample;
-class StereoSample;
-typedef const StereoSample cStereoSample;
 
-
-namespace Dsp
+namespace os
 {
 extern StereoSample audio_out_buffer[];
 extern StereoSample audio_in_buffer[];
@@ -44,7 +39,7 @@ inline Sample getOutputVolume() { return audio_output_volume; }
 //			 	playthrough_off
 //		};
 
-extern void outputSamples(cStereoSample&, Time start, Time end);
+extern void outputSamples(const StereoSample&, Time start, Time end);
 extern void outputSamples(Sample, Time start, Time end);
 
 // ---- Utilities ----
@@ -59,4 +54,4 @@ inline void clearBuffer(StereoSample* bu) // preserves stitching at buffer start
 }
 
 
-} // namespace Dsp
+} // namespace os

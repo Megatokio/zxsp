@@ -2,7 +2,18 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+/*
+	MGT Plus D
+	Disk interface with snapshot button. 
+	Interface 1 compliant. 
+	Up to 780k per disk.
+*/
 
 #include "FdcPlusDInsp.h"
 
-FdcPlusDInsp::FdcPlusDInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) : Inspector(w, mc, i) {}
+namespace gui
+{
+
+FdcPlusDInsp::FdcPlusDInsp(QWidget* w, MachineController* mc, volatile FdcPlusD* i) : Inspector(w, mc, i) {}
+
+} // namespace gui

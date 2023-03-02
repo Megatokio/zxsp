@@ -3,19 +3,21 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-extern void checkUpdate(bool verbose);
-
-
-// ---------------------------------------------------------
-// Implementation, private:
-
-
 #include "kio/kio.h"
 #include "unix/FD.h"
 #include <QNetworkRequest>
 #include <QObject>
 class QNetworkAccessManager;
 class QNetworkReply;
+
+
+namespace gui
+{
+extern void checkUpdate(bool verbose);
+
+
+// ---------------------------------------------------------
+// Implementation, private:
 
 
 class CheckUpdate : public QObject
@@ -34,10 +36,10 @@ class CheckUpdate : public QObject
 
 public:
 	CheckUpdate(QObject*, bool verbose);
-	~CheckUpdate();
+	~CheckUpdate() override;
 
-	// signals:
-	// private slots:
 private:
 	void slot_finished();
 };
+
+} // namespace gui

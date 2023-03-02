@@ -13,6 +13,10 @@
 #include <QPalette>
 #include <QTimer>
 
+
+namespace gui
+{
+
 /*
 QPalette::ColorGroup
 	QPalette::Disabled	1
@@ -184,3 +188,5 @@ cstr selectSaveFile(QWidget* parent, cstr headline, cstr filefilterlist)
 
 	return selectFile(parent, headline, filefilterlist, yes);
 }
+
+} // namespace gui

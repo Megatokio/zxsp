@@ -8,6 +8,7 @@
 #include "globals.h"
 #include "graphics/gif/GifEncoder.h"
 #include "unix/os_utilities.h"
+#include "version.h"
 #include <QImage>
 #include <QPainter>
 
@@ -15,14 +16,8 @@
 /*	rendere Ausgaben der B&W Ula in mono_octets[].
  */
 void MonoRenderer::drawScreen(
-	uint8* new_pixels,
-	uint   q_screen_width,
-	uint   q_screen_height,
-	uint   q_width,
-	uint   q_height,
-	uint   q_h_border,
-	uint   q_v_border,
-	uint32 cc_vbi)
+	uint8* new_pixels, uint q_screen_width, uint q_screen_height, uint q_width, uint q_height, uint q_h_border,
+	uint q_v_border, uint32 cc_vbi)
 {
 	//	assert(!(q_screen_w&7));
 	assert(!(q_width & 7));
@@ -44,15 +39,11 @@ void MonoRenderer::drawScreen(
 
 	// shift boxes to meet at screen_P0:
 	int dx = q_h_border - h_border;
-	if (dx > 0)
-		qx += dx;
-	else
-		zx -= dx;
+	if (dx > 0) qx += dx;
+	else zx -= dx;
 	int dy = q_v_border - v_border;
-	if (dy > 0)
-		qy += dy;
-	else
-		zy -= dy;
+	if (dy > 0) qy += dy;
+	else zy -= dy;
 
 	// limit box width and height:
 	qw = min(qw, int(q_width) - qx);
@@ -98,29 +89,24 @@ void MonoRenderer::drawScreen(
 //		save a screenshot or record movie
 // ================================================================================
 
-typedef uint8 GifColor;
+using GifColor = uint8;
 // const GifColor gifcolor_black  = 0;
 // const GifColor gifcolor_white  = 1;
 const GifColor transp = 2;
 
-cComp	  mono_colors[] = {0, 0, 0, 255, 255, 255, 0, 0, 0};
-cColormap mono_colormap(mono_colors, 2, transp);
-cColormap mono_colormap_with_trans(mono_colors, 3, transp);
+const Comp	   mono_colors[] = {0, 0, 0, 255, 255, 255, 0, 0, 0};
+const Colormap mono_colormap(mono_colors, 2, transp);
+const Colormap mono_colormap_with_trans(mono_colors, 3, transp);
 
 
-MonoGifWriter::MonoGifWriter(QObject* p, bool update_border, uint frames_per_second) :
-	GifWriter(p, isa_MonoGifWriter, mono_colormap_with_trans, 256, 192, 32, 24, update_border, frames_per_second)
+MonoGifWriter::MonoGifWriter(bool update_border, uint frames_per_second) :
+	GifWriter(isa_MonoGifWriter, mono_colormap_with_trans, 256, 192, 32, 24, update_border, frames_per_second)
 {}
 
 
 void MonoGifWriter::drawScreen(
-	uint8* new_pixels,
-	uint   q_screen_width,
-	uint   q_screen_height,
-	uint   q_width,
-	uint   q_height,
-	uint   q_h_border,
-	uint   q_v_border)
+	uint8* new_pixels, uint q_screen_width, uint q_screen_height, uint q_width, uint q_height, uint q_h_border,
+	uint q_v_border)
 {
 	//	assert(!(q_screen_w&7));
 	assert(!(q_width & 7));
@@ -142,15 +128,11 @@ void MonoGifWriter::drawScreen(
 
 	// shift boxes to meet at screen_P0:
 	int dx = q_h_border - h_border;
-	if (dx > 0)
-		qx += dx;
-	else
-		zx -= dx;
+	if (dx > 0) qx += dx;
+	else zx -= dx;
 	int dy = q_v_border - v_border;
-	if (dy > 0)
-		qy += dy;
-	else
-		zy -= dy;
+	if (dy > 0) qy += dy;
+	else zy -= dy;
 
 	// limit box width and height:
 	qw = min(qw, int(q_width) - qx);
@@ -205,10 +187,8 @@ void MonoGifWriter::writeFrame(
 	assert(gif_encoder.imageInProgress());
 	assert(bits && bits2 && diff && diff2);
 
-	if (update_border || frame_count == 0)
-		bits->setFrame(0, 0, width, height);
-	else
-		bits->setFrame(h_border, v_border, screen_width, screen_height);
+	if (update_border || frame_count == 0) bits->setFrame(0, 0, width, height);
+	else bits->setFrame(h_border, v_border, screen_width, screen_height);
 
 	drawScreen(new_pixels, screen_w, screen_h, frame_h, frame_w, screen_x0, screen_y0); // bits := new screen
 	*diff = *bits;
@@ -235,14 +215,8 @@ void MonoGifWriter::writeFrame(
 
 
 void MonoGifWriter::saveScreenshot(
-	cstr   path,
-	uint8* new_pixels,
-	uint   screen_w,
-	uint   screen_h,
-	uint   frame_h,
-	uint   frame_w,
-	uint   screen_x0,
-	uint   screen_y0)
+	cstr path, uint8* new_pixels, uint screen_w, uint screen_h, uint frame_h, uint frame_w, uint screen_x0,
+	uint screen_y0)
 {
 	assert(!gif_encoder.imageInProgress());
 	assert(!bits); // else we'd need to fix the bbox

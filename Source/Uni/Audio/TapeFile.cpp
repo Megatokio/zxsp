@@ -94,8 +94,17 @@ void TapeFile::insert_empty_block(uint i)
 /* CREATOR
  */
 TapeFile::TapeFile(uint32 machine_ccps, cstr filename) :
-	filepath(newcopy(filename)), machine_ccps(machine_ccps), write_protected(yes), modified(no), mode(stopped), pos(0),
-	current_block(nullptr), blk_cswbuffer(nullptr), blk_cc_size(0), blk_starttime(0.0), blk_cc_offset(0)
+	filepath(newcopy(filename)),
+	machine_ccps(machine_ccps),
+	write_protected(yes),
+	modified(no),
+	mode(stopped),
+	pos(0),
+	current_block(nullptr),
+	blk_cswbuffer(nullptr),
+	blk_cc_size(0),
+	blk_starttime(0.0),
+	blk_cc_offset(0)
 {
 	xlogIn("new TapeFile");
 
@@ -669,8 +678,7 @@ void TapeFile::seekEndOfPrevBlock()
 		goto_block(pos - 1);
 		current_block->seekEnd();
 	}
-	else
-		current_block->seekStart();
+	else current_block->seekStart();
 }
 
 
@@ -694,10 +702,8 @@ void TapeFile::deleteCurrentBlock()
 
 	if (current_block->isNotEmpty()) modified = yes;
 
-	if (current_block == last())
-		current_block->purgeBlock();
-	else
-		remove(pos);
+	if (current_block == last()) current_block->purgeBlock();
+	else remove(pos);
 	update_blk_info();
 	current_block->seekStart();
 }

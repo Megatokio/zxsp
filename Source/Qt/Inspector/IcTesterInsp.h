@@ -3,10 +3,17 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "IcTester.h"
 #include "Inspector.h"
+
+
+namespace gui
+{
 
 class IcTesterInsp : public Inspector
 {
 public:
-	IcTesterInsp(QWidget*, MachineController*, volatile IsaObject*);
+	IcTesterInsp(QWidget*, MachineController*, volatile IcTester*);
 };
+
+} // namespace gui

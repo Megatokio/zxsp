@@ -20,11 +20,14 @@
 #include <fnmatch.h>
 
 
+namespace gui
+{
+
 // =================================================
 //			map of key caps for os key codes
 // =================================================
 
-typedef char capstr[16];
+using capstr = char[16];
 
 static capstr caps[128] = {
 	"A",	 "S",	  "D",	 "F",	 "H",		"G",	"Z",	"X", // 0x00-0x07: a  s  d  f  h  g  z  x
@@ -397,12 +400,18 @@ void KbdFnLed::focusInEvent(QFocusEvent* e)
 
 
 ConfigureKeyboardJoystickDialog::ConfigureKeyboardJoystickDialog(MachineController* mc) :
-	ConfigDialog(mc, WIDTH, HEIGHT, ConfigDialog::DefaultStyle), led_filenamepattern(new KbdFnLed(this)),
+	ConfigDialog(mc, WIDTH, HEIGHT, ConfigDialog::DefaultStyle),
+	led_filenamepattern(new KbdFnLed(this)),
 	btn_default_for_all_files(new QRadioButton("Default for all files", this)),
 	btn_for_match_pattern(new QRadioButton("For file pattern", this)),
-	btn_use_just_now(new QRadioButton("Use just now", this)), led_up(new KbdLed(this, 3)),
-	led_down(new KbdLed(this, 2)), led_left(new KbdLed(this, 1)), led_right(new KbdLed(this, 0)),
-	led_fire(new KbdLed(this, 4)), btn_cancel(new QPushButton("Cancel", this)), btn_ok(new QPushButton("OK", this)),
+	btn_use_just_now(new QRadioButton("Use just now", this)),
+	led_up(new KbdLed(this, 3)),
+	led_down(new KbdLed(this, 2)),
+	led_left(new KbdLed(this, 1)),
+	led_right(new KbdLed(this, 0)),
+	led_fire(new KbdLed(this, 4)),
+	btn_cancel(new QPushButton("Cancel", this)),
+	btn_ok(new QPushButton("OK", this)),
 	old_matchpattern(nullptr)
 {
 	// Layout:
@@ -478,10 +487,8 @@ ConfigureKeyboardJoystickDialog::ConfigureKeyboardJoystickDialog(MachineControll
 
 	if (old_matchpattern == nullptr) // => der User hat bei diesem Snapshot schon mal explizit "just now" angewählt
 		btn_use_just_now->setChecked(true);
-	if (eq(old_matchpattern, "*"))
-		btn_default_for_all_files->setChecked(true);
-	else
-		btn_for_match_pattern->setChecked(true);
+	if (eq(old_matchpattern, "*")) btn_default_for_all_files->setChecked(true);
+	else btn_for_match_pattern->setChecked(true);
 
 	led_up->updateState();
 	led_down->updateState();
@@ -592,3 +599,5 @@ void ConfigureKeyboardJoystickDialog::paintEvent(QPaintEvent* e)
 	p.drawLine(xm - 3 * 16, ym + 3 * 16, xm - 4 * 16, ym + 3 * 16);
 	p.drawEllipse(xm - 16, ym - 16, 2 * 16, 2 * 16);
 }
+
+} // namespace gui

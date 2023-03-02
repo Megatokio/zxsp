@@ -3,11 +3,16 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "Joy/KempstonJoy.h"
 #include "JoyInsp.h"
-#include <QObject>
+
+namespace gui
+{
 
 class KempstonJoyInsp : public JoyInsp
 {
 public:
-	KempstonJoyInsp(QWidget*, MachineController*, volatile IsaObject*);
+	KempstonJoyInsp(QWidget*, MachineController*, volatile KempstonJoy*);
 };
+
+} // namespace gui

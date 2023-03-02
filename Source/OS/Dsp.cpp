@@ -10,7 +10,7 @@
 Time	  system_time		 = 0.0;
 Frequency samples_per_second = 44100;
 
-namespace Dsp
+namespace os
 {
 StereoSample audio_out_buffer[DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING];
 StereoSample audio_in_buffer[DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING];
@@ -38,7 +38,7 @@ void setOutputVolume(Sample volume)
 	}
 }
 
-void outputSamples(cStereoSample& sample, Time aa /*start [seconds]*/, Time ee /*end [seconds]*/)
+void outputSamples(const StereoSample& sample, Time aa /*start [seconds]*/, Time ee /*end [seconds]*/)
 {
 	// Output sample value to audio_out_buffer[]:
 
@@ -84,4 +84,4 @@ void outputSamples(Sample sample, Time aa /*start [seconds]*/, Time ee /*end [se
 	while (pa < pe) { *pa++ += sample; }
 }
 
-} // namespace Dsp
+} // namespace os

@@ -6,6 +6,9 @@
 #include "IScreenMono.h"
 #include "Screen.h"
 
+namespace gui
+{
+
 class ScreenMono : public Screen, public IScreenMono
 {
 	// uint16*	_attrpixels;
@@ -25,7 +28,7 @@ class ScreenMono : public Screen, public IScreenMono
 
 protected:
 	// ScreenMono(QWidget*p,isa_id id) :Screen(p,id){}
-	void do_ffb_or_vbi() noexcept(false) override; // std::exception
+	void do_ffb_or_vbi() override;
 	void paint_screen(bool draw_passepartout = yes) override;
 
 public:
@@ -33,7 +36,9 @@ public:
 	ScreenMono(const ScreenMono&)			 = delete;
 	ScreenMono& operator=(const ScreenMono&) = delete;
 
-	__deprecated bool
+	__attribute__((__deprecated__)) bool
 	ffb_or_vbi(uint8* new_pixels, int frame_w, int frame_h, int scrn_w, int scrn_h, int x0, int y0, uint32 cc);
 	virtual bool sendFrame(uint8* frame_data, const zxsp::Size& frame_size, const zxsp::Rect& screen) override;
 };
+
+} // namespace gui

@@ -12,6 +12,7 @@
 #include "Qt/qt_util.h"
 #include "SimpleTerminal.h"
 #include "Templates/Array.h"
+#include "Templates/NVPtr.h"
 #include "Uni/util.h"
 #include "Z80/Z80.h"
 #include <QApplication>
@@ -23,6 +24,9 @@
 #include <QTextEdit>
 #include <QTimer>
 
+
+namespace gui
+{
 
 //
 //	MemoryInspector ist die Basis-Klasse für Memory Display Widgets.
@@ -46,15 +50,22 @@ const QColor color_light_grey(Qt::lightGray);
 
 
 MemoryInspector::MemoryInspector(QWidget* p, MachineController* mc, volatile IsaObject* i, MIDisplayMode displaymode) :
-	Inspector(p, mc, i), combobox_datasource(nullptr), combobox_memorypage(nullptr), combobox_register(nullptr),
-	lineedit_baseaddress(nullptr), scrollbar(new MyScrollBar(Qt::Vertical, this)),
-	scrollbar_width(scrollbar->sizeHint().width()), needs_aligned_addresses(displaymode == MemAccess),
-	display_mode(displaymode), data_source(settings.get_int(key_memoryview_datasource(displaymode), AsSeenByCpu)),
+	Inspector(p, mc, i),
+	combobox_datasource(nullptr),
+	combobox_memorypage(nullptr),
+	combobox_register(nullptr),
+	lineedit_baseaddress(nullptr),
+	scrollbar(new MyScrollBar(Qt::Vertical, this)),
+	scrollbar_width(scrollbar->sizeHint().width()),
+	needs_aligned_addresses(displaymode == MemAccess),
+	display_mode(displaymode),
+	data_source(settings.get_int(key_memoryview_datasource(displaymode), AsSeenByCpu)),
 	ram_page_idx(settings.get_int(key_memoryview_ram_page(displaymode), 0)),
 	rom_page_idx(settings.get_int(key_memoryview_rom_page(displaymode), 0)),
 	bytes_per_row(settings.get_int(key_memoryview_bytes_per_row(displaymode), 32)), // must be validated by subclass
 	rows(settings.get_int(key_memoryview_rows(displaymode), 8)),					// must be validated by subclass
-	scroll_offset(settings.get_int(key_memoryview_scrollposition(displaymode), 0)), update_all(yes)
+	scroll_offset(settings.get_int(key_memoryview_scrollposition(displaymode), 0)),
+	update_all(yes)
 {
 	xlogIn("new MemoryInspector");
 
@@ -65,11 +76,11 @@ MemoryInspector::MemoryInspector(QWidget* p, MachineController* mc, volatile Isa
 
 	switch (data_source)
 	{
-	default: data_source = AsSeenByCpu;
+	default: data_source = AsSeenByCpu; FALLTHROUGH
 	case AsSeenByCpu: data.size = 64 kB; break;
-	case AllRom: data.size = machine->rom.count(); break;
+	case AllRom: data.size = NV(machine->rom).count(); break;
 	case AllRam:
-		data.size = machine->ram.count();
+		data.size = NV(machine->ram).count();
 		if (data.size <= 0xc000) data.baseaddress = 0x4000;
 		break;
 	case RamPages:
@@ -105,9 +116,7 @@ MemoryInspector::MemoryInspector(QWidget* p, MachineController* mc, volatile Isa
 	combobox_datasource->setFocusPolicy(Qt::NoFocus);
 	combobox_datasource->setCurrentIndex(data_source);
 	connect(
-		combobox_datasource,
-		static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-		this,
+		combobox_datasource, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 		&MemoryInspector::slotSetDataSource);
 	toolbar->addWidget(combobox_datasource);
 
@@ -117,9 +126,7 @@ MemoryInspector::MemoryInspector(QWidget* p, MachineController* mc, volatile Isa
 	action_memorypage = toolbar->addWidget(combobox_memorypage);
 	init_combobox_memorypage();
 	connect(
-		combobox_memorypage,
-		static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-		this,
+		combobox_memorypage, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 		&MemoryInspector::slotSetMemoryPage);
 
 	lineedit_baseaddress = new MyLineEdit(usingstr("$%04x", old_baseaddress = data.baseaddress), nullptr);
@@ -132,13 +139,11 @@ MemoryInspector::MemoryInspector(QWidget* p, MachineController* mc, volatile Isa
 	timer->start(1000 / 20);
 }
 
-
 MemoryInspector::~MemoryInspector()
 {
 	xlogIn("~MemoryInspector");
 	save_settings();
 }
-
 
 void MemoryInspector::saveSettings()
 {
@@ -177,36 +182,37 @@ QComboBox* MemoryInspector::newComboboxRegister()
 	combobox_register->setFixedSize(50, TOOLBAR_WIDGET_HEIGHT);
 	combobox_register->setFocusPolicy(Qt::NoFocus);
 	connect(
-		combobox_register,
-		static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
-		this,
+		combobox_register, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this,
 		&MemoryInspector::slotSetAddressFromRegister);
 	return combobox_register;
 }
 
-
 FourBytes* MemoryInspector::dataReadPtrForOffset(int32 offset)
 {
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
+
 	assert(offset >= 0 && offset < data.size);
 
 	return (FourBytes*)(data_source==AsSeenByCpu
-			? machine->cpu->rdPtr(offset)
+			? NV(machine->cpu)->rdPtr(offset)
 			: data_source==RomPages || data_source==AllRom
-				? &machine->rom[offset]
-				: &machine->ram[offset]);
+				? &NV(machine->rom)[offset]
+				: &NV(machine->ram)[offset]);
 }
 
+void MemoryInspector::wheelEvent(QWheelEvent* e)
+{
+	// pass mouse wheel event to scrollbar:
+	scrollbar->wheelEvent(e);
+}
 
-// pass mouse wheel event to scrollbar:
-void MemoryInspector::wheelEvent(QWheelEvent* e) { scrollbar->wheelEvent(e); }
-
-
-// virtual: Qt
-// resize head_widget
-// reposition and resize data_widget
-// data_widget contents must be updated by subclass
 void MemoryInspector::resizeEvent(QResizeEvent* e)
 {
+	// resize head_widget
+	// reposition and resize data_widget
+	// data_widget contents must be updated by subclass
+
 	xlogIn("MemoryInspector.resizeEvent");
 
 	Inspector::resizeEvent(e);
@@ -214,15 +220,15 @@ void MemoryInspector::resizeEvent(QResizeEvent* e)
 	updateAll();
 }
 
-
-//	Prüfe, ob Speicher wurde zur Laufzeit hinzugefügt / entfernt / geändert.
-//	Wir prüfen, ob es die angezeigte Memory Page noch gibt
-//	und ob Adresse und Länge noch stimmen.
-//
 void MemoryInspector::slotMemoryConfigChanged(Memory*, uint /*how*/)
 {
+	//	Prüfe, ob Speicher wurde zur Laufzeit hinzugefügt / entfernt / geändert.
+	//	Wir prüfen, ob es die angezeigte Memory Page noch gibt
+	//	und ob Adresse und Länge noch stimmen.
+
 	xlogIn("MemoryInspector.slotMemoryConfigChanged");
-	if (!machine || !object) return;
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
 
 	switch (data_source)
 	{
@@ -234,8 +240,8 @@ void MemoryInspector::slotMemoryConfigChanged(Memory*, uint /*how*/)
 		init_combobox_memorypage();
 		data = ramPage(ram_page_idx);
 		break;
-	case AllRom: data.size = machine->rom.count(); break;
-	case AllRam: data.size = machine->ram.count(); break;
+	case AllRom: data.size = NV(machine->rom).count(); break;
+	case AllRam: data.size = NV(machine->ram).count(); break;
 	case AsSeenByCpu: break;
 	}
 
@@ -244,24 +250,22 @@ void MemoryInspector::slotMemoryConfigChanged(Memory*, uint /*how*/)
 	emit signalSizeConstraintsChanged();
 }
 
-
-// slot: called from textedit_baseaddress
 void MemoryInspector::set_address_from_textedit()
 {
+	// slot: called from textedit_baseaddress
+
 	xlogIn("MemoryInspector.setAddressFromTextEdit");
 
 	int32 baseaddress = intValue(lineedit_baseaddress->text());
-	if (errno == ok)
-		setScrollOffset(baseaddress - data.baseaddress);
-	else
-		lineedit_baseaddress->setText(lineedit_baseaddress->oldText());
+	if (errno == ok) setScrollOffset(baseaddress - data.baseaddress);
+	else lineedit_baseaddress->setText(lineedit_baseaddress->oldText());
 }
 
-
-// virtual: set display base address
-// note: may be called for data source change => don't fast quit if new addr == old addr
 void MemoryInspector::setScrollOffset(int32 new_scrolloffset)
 {
+	// set display base address
+	// note: may be called for data source change => don't fast quit if new addr == old addr
+
 	xlogIn("MemoryInspector.setScrollOffset");
 
 	limit(0, new_scrolloffset, data.size - 2 * bytes_per_row);
@@ -270,8 +274,6 @@ void MemoryInspector::setScrollOffset(int32 new_scrolloffset)
 	updateScrollbar();
 }
 
-
-// slot for scrollbar:
 void MemoryInspector::slotSetScrollPosition(int32 row)
 {
 	xlogIn("MemoryInspector.setScrollPosition");
@@ -281,8 +283,6 @@ void MemoryInspector::slotSetScrollPosition(int32 row)
 	setScrollOffset(scroll_offset + (row - current_base_row) * bytes_per_row);
 }
 
-
-// helper:
 void MemoryInspector::updateScrollbar()
 {
 	xlogIn("MemoryInspector.updateScrollbar");
@@ -298,11 +298,13 @@ void MemoryInspector::updateScrollbar()
 	scrollbar->blockSignals(false);
 }
 
-
-// slot for combobox_register
 void MemoryInspector::slotSetAddressFromRegister(int reg)
 {
+	// slot for combobox_register
+
 	xlogIn("MemoryInspector.slotSetAddressFromRegister");
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
 
 	uint	 address;
 	Z80Regs& registers = machine->cpu->getRegisters();
@@ -331,19 +333,22 @@ void MemoryInspector::slotSetAddressFromRegister(int reg)
 
 	CoreByte* rdptr = machine->cpu->rdPtr(address);
 
-	if (rdptr >= machine->ram.getData() && rdptr < machine->ram.getData() + machine->ram.count())
+	auto ram = NV(machine->ram);
+	auto rom = NV(machine->rom);
+
+	if (rdptr >= ram.getData() && rdptr < ram.getData() + ram.count())
 	{
 		if (data_source == RomPages) combobox_datasource->setCurrentIndex(RamPages);
 		if (data_source == AllRom) combobox_datasource->setCurrentIndex(AllRam);
 		if (data_source == RamPages) combobox_memorypage->setCurrentIndex(ramPageIndexForCpuAddress(address));
-		setScrollOffset(rdptr - &machine->ram[0]);
+		setScrollOffset(rdptr - &ram[0]);
 	}
-	else if (rdptr >= machine->rom.getData() && rdptr < machine->rom.getData() + machine->rom.count())
+	else if (rdptr >= rom.getData() && rdptr < rom.getData() + rom.count())
 	{
 		if (data_source == RamPages) combobox_datasource->setCurrentIndex(RomPages);
 		if (data_source == AllRam) combobox_datasource->setCurrentIndex(AllRom);
 		if (data_source == RomPages) combobox_memorypage->setCurrentIndex(romPageIndexForCpuAddress(address));
-		setScrollOffset(rdptr - &machine->rom[0]);
+		setScrollOffset(rdptr - &rom[0]);
 	}
 	else
 	{
@@ -352,13 +357,15 @@ void MemoryInspector::slotSetAddressFromRegister(int reg)
 	}
 }
 
-
-// slot für combobox_datasource:
 void MemoryInspector::slotSetDataSource(int newdatasource)
 {
-	if (newdatasource == data_source) return;
+	// slot für combobox_datasource
 
 	xlogIn("MemoryInspector.slotSetDataSource");
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
+
+	if (newdatasource == data_source) return;
 
 	data_source = newdatasource;
 	init_combobox_memorypage();
@@ -368,10 +375,10 @@ void MemoryInspector::slotSetDataSource(int newdatasource)
 	default: IERR();
 	case AsSeenByCpu: data = Page(0, 0, 64 kB); break;
 	case AllRam:
-		data = Page(0, 0, machine->ram.count());
+		data = Page(0, 0, NV(machine->ram).count());
 		if (data.size <= 0xc000) data.baseaddress = 0x4000;
 		break;
-	case AllRom: data = Page(0, 0, machine->rom.count()); break;
+	case AllRom: data = Page(0, 0, NV(machine->rom).count()); break;
 	case RamPages:
 		data = ramPage(ram_page_idx);
 		assert(data.size);
@@ -386,7 +393,6 @@ void MemoryInspector::slotSetDataSource(int newdatasource)
 	setScrollOffset(0);
 	emit signalSizeConstraintsChanged();
 }
-
 
 void MemoryInspector::init_combobox_memorypage()
 {
@@ -423,17 +429,17 @@ void MemoryInspector::init_combobox_memorypage()
 	else { action_memorypage->setVisible(no); }
 }
 
-
-// slot für combobox_memorypage:
-// diese Funktion ist bei gleichem Index nicht 'abweisend',
-// weil sie auch nach Data Source Change oder Memory Config Change aufgerufen werden kann.
 void MemoryInspector::slotSetMemoryPage(int newpage)
 {
+	// slot für combobox_memorypage:
+	// diese Funktion ist bei gleichem Index nicht 'abweisend',
+	// weil sie auch nach Data Source Change oder Memory Config Change aufgerufen werden kann.
+
+	xlogIn("MemoryInspector.slotSetMemoryPage");
+
 	if (newpage < 0) return; // empty comboBox
 	assert(data_source == RamPages || data_source == RomPages);
 	if (newpage == (data_source == RamPages ? ram_page_idx : rom_page_idx)) return;
-
-	xlogIn("MemoryInspector.slotSetMemoryPage");
 
 	if (data_source == RomPages)
 	{
@@ -453,12 +459,13 @@ void MemoryInspector::slotSetMemoryPage(int newpage)
 	emit signalSizeConstraintsChanged();
 }
 
-
 void MemoryInspector::updateWidgets()
 {
-	xxlogIn("MemoryInspector.updateWidgets");
+	// timer
 
-	if (!machine || !object) return;
+	xxlogIn("MemoryInspector::updateWidgets");
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
 
 	if (old_baseaddress != data.baseaddress + scroll_offset)
 	{
@@ -471,14 +478,13 @@ void MemoryInspector::updateWidgets()
 	assert(data_source != RamPages || data.baseoffset == ramPage(combobox_memorypage->currentIndex()).baseoffset);
 }
 
-
-/*	calculate start and size of ram page #i
- */
 Page MemoryInspector::ramPage(int i)
 {
+	// calculate start and size of ram page #i
+
 	assert(i >= 0);
 
-	int32 ramsize = machine->ram.count();
+	uint32 ramsize = NV(machine->ram).count();
 
 	if (machine->isA(isa_MachineJupiter)) // Jupiter: 3kB + n*16 kB
 	{
@@ -494,59 +500,57 @@ Page MemoryInspector::ramPage(int i)
 	else if (ramsize >= 64 kB) // paged memory
 	{
 		assert((ramsize & 0x3fff) == 0);
-		if (i < ramsize / 0x4000) return Page(i * 0x4000, i * 0x4000, 0x4000);
+		if (uint(i) < ramsize / 0x4000) return Page(i * 0x4000, i * 0x4000, 0x4000);
 	}
 
 	else if (ramsize >= 16 kB) // ≥ 16 kB: ZX Spectrum or ZX80 etc. with Ram Extension ≥ 16 kB
 	{
 		assert((ramsize & 0x3fff) == 0);
-		if (i < ramsize / 0x4000) return Page(0x4000 + i * 0x4000, i * 0x4000, 0x4000);
+		if (uint(i) < ramsize / 0x4000) return Page(0x4000 + i * 0x4000, i * 0x4000, 0x4000);
 	}
 
 	else // if(ramsize <= 4 kB)		// ZX80 etc. with ≤ 4kB ram: 1 page only
 	{
-		if (i == 0) return Page(0x4000, 0, ramsize);
+		if (i == 0) return Page(0x4000, 0, int(ramsize));
 	}
 
 	return Page();
 }
 
-
-/*	calculate start and size of rom page #i
- */
 Page MemoryInspector::romPage(int i)
 {
+	// calculate start and size of rom page #i
+
 	assert(i >= 0);
 
-	int32 romsize = machine->rom.count();
+	uint32 romsize = NV(machine->rom).count();
 
 	if (romsize <= 16 kB)
 	{
-		if (i == 0) return Page(0, 0, romsize); // 1 page only
+		if (i == 0) return Page(0, 0, int(romsize)); // 1 page only
 	}
 	else if (romsize < 32 kB) // TC2068
 	{
 		if (i == 0) return Page(0, 0, 0x4000);
-		if (i == 1) return Page(0, 0x4000, romsize - 0x4000);
+		if (i == 1) return Page(0, 0x4000, int(romsize) - 0x4000);
 	}
 	else
 	{
 		assert((romsize & 0x3fff) == 0);
-		if (i < romsize / 0x4000) return Page(0, i * 0x4000, 0x4000);
+		if (uint(i) < romsize / 0x4000) return Page(0, i * 0x4000, 0x4000);
 	}
 
 	return Page();
 }
 
-
-/*	find ram page index for CPU address a
-	returns -1 if address a does not point into ram
-	used by setAddressFromRegister()
-*/
 int MemoryInspector::ramPageIndexForCpuAddress(uint16 a)
 {
-	CoreByte*				 rdptr = machine->cpu->rdPtr(a);
-	const volatile CoreByte* ram   = &machine->ram[0];
+	// find ram page index for CPU address a
+	// returns -1 if address a does not point into ram
+	// used by setAddressFromRegister()
+
+	CoreByte*				 rdptr = NV(machine->cpu)->rdPtr(a);
+	const volatile CoreByte* ram   = &NV(machine->ram)[0];
 
 	for (int i = 0;; i++)
 	{
@@ -556,15 +560,14 @@ int MemoryInspector::ramPageIndexForCpuAddress(uint16 a)
 	}
 }
 
-
-/*	find rom page index for CPU address a
-	returns -1 if address a does not point into rom
-	used by setAddressFromRegister()
-*/
 int MemoryInspector::romPageIndexForCpuAddress(uint16 a)
 {
-	CoreByte*				 rdptr = machine->cpu->rdPtr(a);
-	const volatile CoreByte* rom   = &machine->rom[0];
+	// find rom page index for CPU address a
+	// returns -1 if address a does not point into rom
+	// used by setAddressFromRegister()
+
+	CoreByte*				 rdptr = NV(machine->cpu)->rdPtr(a);
+	const volatile CoreByte* rom   = &NV(machine->rom)[0];
 
 	for (int i = 0;; i++)
 	{
@@ -574,15 +577,53 @@ int MemoryInspector::romPageIndexForCpuAddress(uint16 a)
 	}
 }
 
-
-// returns -1 if outside of this page
 int32 MemoryInspector::pageOffsetForCpuAddress(uint16 addr)
 {
+	// returns -1 if outside of this page
+
 	if (data_source == AsSeenByCpu) return addr; // 64kB => always inside
 
-	CoreByte*				 p	  = machine->cpu->rdPtr(addr);
-	const volatile CoreByte* page = data_source == RamPages || data_source == AllRam ? &machine->ram[data.baseoffset] :
-																					   &machine->rom[data.baseoffset];
+	CoreByte*				 p	  = NV(machine->cpu)->rdPtr(addr);
+	const volatile CoreByte* page = data_source == RamPages || data_source == AllRam ?
+										&NV(machine->ram)[data.baseoffset] :
+										&NV(machine->rom)[data.baseoffset];
 
 	return p >= page && p < page + data.size ? p - page : -1;
 }
+
+} // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

@@ -17,6 +17,7 @@
 #include "kio/util/msbit.h"
 #include "unix/FD.h"
 #include "unix/files.h"
+#include "version.h"
 #include "zasm/Source/Z80Assembler.h"
 #include <QNetworkAccessManager>
 #include <QPainter>
@@ -48,13 +49,17 @@ class MyProxyStyle : public QProxyStyle
 #endif
 
 
+cstr appl_path		= nullptr; // set by main()
+cstr appl_rsrc_path = nullptr; // set by main()
+
+
+namespace gui
+{
+
 // ==========================================================
 // global data
 //
 Application* appl = nullptr;
-
-cstr appl_path		= nullptr; // set by main()
-cstr appl_rsrc_path = nullptr; // set by main()
 
 QString		   Application::filepath;
 bool		   Application::is_active_application;
@@ -96,7 +101,11 @@ Application::Application(int argc, char* argv[]) : QApplication(argc, argv)
 	if (APPL_VERSION_BETA)
 	{
 		QFont font2("Arial", 32, QFont::DemiBold, true /*italic*/);
+#if QT_VERSION < 0x050b00
 		x += QFontMetrics(font1).width(APPL_VERSION_STR) + 5;
+#else
+		x += QFontMetrics(font1).horizontalAdvance(APPL_VERSION_STR) + 5;
+#endif
 		painter.setFont(font2);
 		painter.drawText(QPoint(x, y), "beta");
 	}
@@ -113,11 +122,18 @@ Application::Application(int argc, char* argv[]) : QApplication(argc, argv)
 	// catch 'open' events for double clicked file:
 	processEvents();
 
-	// not started vie double click on snapshot file => show splash screen:
+	// not started via double click on snapshot file => show splash screen:
 	if (filepath.isEmpty())
 	{
 		about_screen->show();
-		QTimer::singleShot(2500, about_screen, SLOT(close()));
+		QTimer::singleShot(2500, [] {
+			about_screen->close();
+			if (ne(settings.get_str(key_new_version_info), APPL_VERSION_STR))
+			{
+				settings.setValue(key_new_version_info, APPL_VERSION_STR);
+				showInfo(startup_info_message);
+			}
+		});
 	}
 
 	// create 'recent files' menu:
@@ -136,7 +152,7 @@ Application::Application(int argc, char* argv[]) : QApplication(argc, argv)
 	//	}
 
 	// start core audio == start running the machine:
-	Dsp::startCoreAudio(settings.get_bool(key_warn_if_audio_in_fails, yes));
+	os::startCoreAudio(settings.get_bool(key_warn_if_audio_in_fails, yes));
 
 	// open tool windows if set so in preferences:
 	if (settings.get_bool(key_save_and_restore_session, no)) {} // TODO
@@ -150,7 +166,7 @@ Application::Application(int argc, char* argv[]) : QApplication(argc, argv)
 Application::~Application()
 {
 	xlogIn("~Application()");
-	Dsp::stopCoreAudio();
+	os::stopCoreAudio();
 	xlogline(".done");
 }
 
@@ -188,6 +204,24 @@ bool cmdKeyDown()
 	return QGuiApplication::keyboardModifiers() & Qt::ControlModifier;
 #endif
 }
+
+
+void Application::showPreferences()
+{
+	xlogIn("Application:showPreferences");
+
+	QWidget*	 parent		 = nullptr; // front_machine_controller;
+	QMainWindow* window		 = new QMainWindow(parent, Qt::Tool);
+	QWidget*	 preferences = new Preferences(nullptr);
+	window->setCentralWidget(preferences);
+	window->setWindowTitle("zxsp Settings");
+	preferences->setFocus();
+	window->setAttribute(Qt::WA_DeleteOnClose, 1);
+	window->setFocusPolicy(Qt::StrongFocus);
+	window->show();
+}
+
+} // namespace gui
 
 
 // ==========================================================
@@ -326,8 +360,8 @@ int main(int argc, char* argv[])
 	logNl();
 
 	// *DOIT*
-	TempMemPool t; // new flushable pool, preserving some temp strings from above
-	Application app(argc, argv);
+	TempMemPool		 t; // new flushable pool, preserving some temp strings from above
+	gui::Application app(argc, argv);
 	std::setlocale(LC_ALL, "en_US"); // decimal POINT!  ((bestimmt kann man Application selbst tweaken…))
 
 #if QT_VERSION >= 0x050000 && QT_VERSION < 0x050300
@@ -343,20 +377,4 @@ int main(int argc, char* argv[])
 		logline("\nzxsp: Unhandled exception:\n%s (%i)\n", e.what(), e.error());
 		return 112; // error
 	}
-}
-
-
-void Application::showPreferences()
-{
-	xlogIn("Application:showPreferences");
-
-	QWidget*	 parent		 = nullptr; // front_machine_controller;
-	QMainWindow* window		 = new QMainWindow(parent, Qt::Tool);
-	QWidget*	 preferences = new Preferences(nullptr);
-	window->setCentralWidget(preferences);
-	window->setWindowTitle("zxsp Settings");
-	preferences->setFocus();
-	window->setAttribute(Qt::WA_DeleteOnClose, 1);
-	window->setFocusPolicy(Qt::StrongFocus);
-	window->show();
 }

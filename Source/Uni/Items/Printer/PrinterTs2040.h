@@ -6,12 +6,14 @@
 #include "Printer.h"
 
 
-class PrinterTs2040 : public Printer
+class PrinterTs2040 final : public Printer
 {
 public:
 	explicit PrinterTs2040(Machine*);
 
 protected:
+	~PrinterTs2040() override = default;
+
 	// Item interface:
 	// void	powerOn			( /*t=0*/ int32 cc ) override;
 	// void	reset			( Time t, int32 cc ) override;

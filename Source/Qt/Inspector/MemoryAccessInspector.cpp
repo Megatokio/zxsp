@@ -29,6 +29,9 @@
 #include <Templates/Array.h>
 
 
+namespace gui
+{
+
 // offset mouse pointer hotspot -> 'feeled' hotspot
 #define mouse_x_offset -2
 #define mouse_y_offset -2
@@ -54,22 +57,25 @@ public:
 	int		x, y, w; // highlight position
 
 protected:
-	virtual void resizeEvent(QResizeEvent*);
-	virtual void paintEvent(QPaintEvent*);
+	virtual void resizeEvent(QResizeEvent*) override;
+	virtual void paintEvent(QPaintEvent*) override;
 
 public:
 	GWidgetRGB(QWidget* parent, int w, int h);
-	~GWidgetRGB() { delete canvas; }
-	QRgb* scanLine(int r) { return (QRgb*)canvas->scanLine(r); }
+	~GWidgetRGB() override { delete canvas; }
+	QRgb* scanLine(int r) { return reinterpret_cast<QRgb*>(canvas->scanLine(r)); }
 };
 
-/*	Creator:
+
+/*	Constructor:
 	GWidget gleich mit canvas in benötigter Größe erzeugen,
 	weil wir das resizeEvent() erst sehr spät kriegen,
 	insbes. erst nach Inspector.updateWidgets().
 */
 GWidgetRGB::GWidgetRGB(QWidget* parent, int w, int h) :
-	QWidget(parent), canvas(new QImage(QSize(w, h), QImage::Format_RGB32)), w(1)
+	QWidget(parent),
+	canvas(new QImage(QSize(w, h), QImage::Format_RGB32)),
+	w(1)
 {}
 
 void GWidgetRGB::resizeEvent(QResizeEvent* e)
@@ -98,7 +104,9 @@ void GWidgetRGB::paintEvent(QPaintEvent*)
 
 
 MemoryAccessInspector::MemoryAccessInspector(QWidget* parent, MachineController* mc, volatile IsaObject* item) :
-	MemoryInspector(parent, mc, item, MemAccess), rom_pixels(machine->rom.count()), ram_pixels(machine->ram.count()),
+	MemoryInspector(parent, mc, item, MemAccess),
+	rom_pixels(NV(machine->rom).count()),
+	ram_pixels(NV(machine->ram).count()),
 	decay_mode(settings.get_int(key_memoryview_access_decaymode, modeDecayFast)),
 	pixel_size(settings.get_int(key_memoryview_access_pixelsize, MIN_PIXEL_SIZE))
 {
@@ -151,7 +159,9 @@ MemoryAccessInspector::MemoryAccessInspector(QWidget* parent, MachineController*
 					  << "Accumulate");
 	combobox_decaymode->setCurrentIndex(decay_mode);
 	combobox_decaymode->setFocusPolicy(Qt::NoFocus);
-	bool f = connect(combobox_decaymode, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSetDecayMode(int)));
+	connect(
+		combobox_decaymode, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
+		&MemoryAccessInspector::slotSetDecayMode);
 	toolbar->addWidget(combobox_decaymode);
 
 	combobox_pixelzoom = new QComboBox(nullptr);
@@ -162,7 +172,9 @@ MemoryAccessInspector::MemoryAccessInspector(QWidget* parent, MachineController*
 					  << "4x4"); // MIN_PIXEL_SIZE .. MAX_PIXEL_SIZE
 	combobox_pixelzoom->setCurrentIndex(pixel_size - MIN_PIXEL_SIZE);
 	combobox_pixelzoom->setFocusPolicy(Qt::NoFocus);
-	f = f && connect(combobox_pixelzoom, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSetPixelSize(int)));
+	connect(
+		combobox_pixelzoom, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
+		&MemoryAccessInspector::slotSetPixelSize);
 	toolbar->addWidget(combobox_pixelzoom);
 
 	combobox_bytes_per_row = new QComboBox(nullptr);
@@ -175,10 +187,11 @@ MemoryAccessInspector::MemoryAccessInspector(QWidget* parent, MachineController*
 					  << "512"); // MIN_BYTES_PER_ROW .. MAX_BYTES_PER_ROW
 	combobox_bytes_per_row->setCurrentIndex(msbit(bytes_per_row / MIN_BYTES_PER_ROW));
 	combobox_bytes_per_row->setFocusPolicy(Qt::NoFocus);
-	f = f && connect(combobox_bytes_per_row, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSetBytesPerRow(int)));
-	toolbar->addWidget(combobox_bytes_per_row);
+	connect(
+		combobox_bytes_per_row, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
+		&MemoryAccessInspector::slotSetBytesPerRow);
 
-	assert(f);
+	toolbar->addWidget(combobox_bytes_per_row);
 }
 
 
@@ -239,11 +252,11 @@ void MemoryAccessInspector::validate_scrollposition()
 	scroll_offset = max(scroll_offset, 0);
 }
 
-
-// copy cpu_access bits from memory to buffer
-// and clear access bits in memory
 void MemoryAccessInspector::copy_access_bits_to_pixels(MemoryPtr mem, Array<QRgb>& dest)
 {
+	// copy cpu_access bits from memory to buffer
+	// and clear access bits in memory
+
 	assert(mem.count() == dest.count());
 
 	// color definition for read, write, execute and alpha:
@@ -263,10 +276,11 @@ void MemoryAccessInspector::copy_access_bits_to_pixels(MemoryPtr mem, Array<QRgb
 	}
 }
 
-// prepare buffer for display in fast decay mode:
-// fast decaying subtracts 5 and must hit 0 for end condition
 void MemoryAccessInspector::prepare_for_fast_decay(Array<QRgb>& mem)
 {
+	// prepare buffer for display in fast decay mode:
+	// fast decaying subtracts 5 and must hit 0 for end condition
+
 	QRgb pixel, *a = mem.getData(), *e = a + mem.count();
 
 	while (a < e)
@@ -281,11 +295,12 @@ void MemoryAccessInspector::prepare_for_fast_decay(Array<QRgb>& mem)
 	}
 }
 
-// decay pixels in buffer:
-// color components must be a multiple of 'decay'
-// or overfow to other color component will occur
 void MemoryAccessInspector::decay_pixel(Array<QRgb>& mem, int decay)
 {
+	// decay pixels in buffer:
+	// color components must be a multiple of 'decay'
+	// or overfow to other color component will occur
+
 	QRgb pixel, *a = mem.getData(), *e = a + mem.count();
 
 	QRgb r = decay << 16;
@@ -304,18 +319,18 @@ void MemoryAccessInspector::decay_pixel(Array<QRgb>& mem, int decay)
 	}
 }
 
-// set pixels in Array to 0x00000000 (~ full transparent black)
-//
 inline void MemoryAccessInspector::clear_pixel(Array<QRgb>& mem)
 {
+	// set pixels in Array to 0x00000000 (~ full transparent black)
 	memset(mem.getData(), 0, mem.count() * sizeof(QRgb));
 }
 
-// adjust brightness of color components for display:
-// green and red are much brighter than blue and are therefore dimmed
-// for a balanced brightness experience
 inline QRgb weighted_color(QRgb pixel)
 {
+	// adjust brightness of color components for display:
+	// green and red are much brighter than blue and are therefore dimmed
+	// for a balanced brightness experience
+
 	if (pixel & 0x00ff0000) pixel -= (pixel & 0x00fc0000) / 4;							   // red		 -1/4
 	if (pixel & 0x0000ff00) pixel -= (pixel & 0x0000fc00) / 4 + (pixel & 0x0000f000) / 16; // green  ~  -1/3
 	return pixel;
@@ -327,10 +342,10 @@ inline QRgb weighted_color(QRgb pixel)
 // ==============================================================================
 
 
-//	Qt callback: this widget was resized:
-//
 void MemoryAccessInspector::resizeEvent(QResizeEvent* e)
 {
+	//	Qt callback: this widget was resized
+
 	xlogIn("MemoryAccessInspector::resizeEvent");
 
 	MemoryInspector::resizeEvent(e);
@@ -348,13 +363,12 @@ void MemoryAccessInspector::resizeEvent(QResizeEvent* e)
 	updateWidgets();
 }
 
-
-//	callback from ToolWindow:
-//	please check, align and limit size
-//	you'll be resized to it!
-//
 void MemoryAccessInspector::adjustSize(QSize& size)
 {
+	//	callback from ToolWindow:
+	//	please check, align and limit size
+	//	you'll be resized to it!
+
 	validate_rows();
 	validate_scrollposition();
 
@@ -365,25 +379,24 @@ void MemoryAccessInspector::adjustSize(QSize& size)
 	size.setHeight(height_for_rows(rows));
 }
 
-
-//	some memory has been attached / removed / resized
-//
 void MemoryAccessInspector::slotMemoryConfigChanged(Memory* m, uint how)
 {
-	xlogIn("MemoryAccessInspector.slotMemoryConfigChanged");
-	if (!machine || !object) return;
+	//	some memory has been attached / removed / resized
 
-	rom_pixels.resize(machine->rom.count());
-	ram_pixels.resize(machine->ram.count());
+	xlogIn("MemoryAccessInspector.slotMemoryConfigChanged");
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
+
+	rom_pixels.resize(NV(machine->rom).count());
+	ram_pixels.resize(NV(machine->ram).count());
 	MemoryInspector::slotMemoryConfigChanged(m, how);
 }
 
-
-//	slot for combobox_decaymode
-//	argument is index in combobox
-//
 void MemoryAccessInspector::slotSetDecayMode(int m)
 {
+	//	slot for combobox_decaymode
+	//	argument is index in combobox
+
 	if (m != decay_mode)
 	{
 		if (m == modeDecayFast)
@@ -395,12 +408,11 @@ void MemoryAccessInspector::slotSetDecayMode(int m)
 	}
 }
 
-
-//	slot for combobox_pixelzoom
-//	argument is index in combobox
-//
 void MemoryAccessInspector::slotSetPixelSize(int i)
 {
+	//	slot for combobox_pixelzoom
+	//	argument is index in combobox
+
 	if (MIN_PIXEL_SIZE + i == pixel_size) return;
 
 	pixel_size = MIN_PIXEL_SIZE + i;
@@ -410,12 +422,11 @@ void MemoryAccessInspector::slotSetPixelSize(int i)
 	emit signalSizeConstraintsChanged();
 }
 
-
-//	slot for combobox_bytes_per_row
-//	argument is index in combobox
-//
 void MemoryAccessInspector::slotSetBytesPerRow(int i)
 {
+	//	slot for combobox_bytes_per_row
+	//	argument is index in combobox
+
 	if (MIN_BYTES_PER_ROW << i == bytes_per_row) return;
 
 	bytes_per_row = MIN_BYTES_PER_ROW << i;
@@ -426,14 +437,14 @@ void MemoryAccessInspector::slotSetBytesPerRow(int i)
 	emit signalSizeConstraintsChanged();
 }
 
-
-// timer: refresh displayed data
 void MemoryAccessInspector::updateWidgets()
 {
-	if (!machine || !object || !isVisible()) return;
+	// timer:
 
-	assert(rom_pixels.count() == machine->rom.count());
-	assert(ram_pixels.count() == machine->ram.count());
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
+	assert(rom_pixels.count() == NV(machine->rom).count());
+	assert(ram_pixels.count() == NV(machine->ram).count());
 
 	// these might happen in a race condition after slotSetXxx:
 	if (graphics_view->canvas->width() != bytes_per_row * pixel_size + 1)
@@ -481,9 +492,9 @@ void MemoryAccessInspector::updateWidgets()
 
 	// update with new access bits:
 	{
-		NVPtr<Machine> machine(this->machine);
-		copy_access_bits_to_pixels(machine->rom, rom_pixels);
-		copy_access_bits_to_pixels(machine->ram, ram_pixels);
+		// no need to lock because we are on the main thread which is the only allowed to add/remove items
+		copy_access_bits_to_pixels(NV(machine->rom), rom_pixels);
+		copy_access_bits_to_pixels(NV(machine->ram), ram_pixels);
 	}
 
 	// create map for row -> pixels[]
@@ -492,16 +503,17 @@ void MemoryAccessInspector::updateWidgets()
 	{
 	case AsSeenByCpu:
 	{
-		const volatile CoreByte* romptr	 = machine->rom.getData();
-		int32					 romsize = machine->rom.count();
-		const volatile CoreByte* ramptr	 = machine->ram.getData();
-		int32					 ramsize = machine->ram.count();
-		Z80*					 cpu	 = machine->cpu;
+		// no need to lock because we are on the main thread which is the only allowed to add/remove items
+		const CoreByte* romptr	= NV(machine->rom).getData();
+		uint32			romsize = NV(machine->rom).count();
+		const CoreByte* ramptr	= NV(machine->ram).getData();
+		uint32			ramsize = NV(machine->ram).count();
+		Z80*			cpu		= NV(machine->cpu);
+
 		for (int r = min(rows, (0x10000 - scroll_offset) / bytes_per_row); r--;)
 		{
 			CoreByte* p = cpu->rdPtr(scroll_offset + r * bytes_per_row);
-			if (p >= romptr && p < romptr + romsize)
-				pixelrows[r] = rom_pixels.getData() + (p - romptr);
+			if (p >= romptr && p < romptr + romsize) pixelrows[r] = rom_pixels.getData() + (p - romptr);
 			else if (p >= ramptr && p < ramptr + ramsize)
 				pixelrows[r] = ram_pixels.getData() + (p - ramptr); // else unmapped cpu address -> nullptr
 		}
@@ -609,15 +621,14 @@ void MemoryAccessInspector::updateWidgets()
 	}
 
 	// update tooltip:
-	updateTooltip();
+	update_tooltip();
 
 	// paint canvas into graphics widget:
 	// note: after update_tooltip, because update_tooltip updates graphics_view.x, y and w
 	graphics_view->update();
 }
 
-
-void MemoryAccessInspector::updateTooltip()
+void MemoryAccessInspector::update_tooltip()
 {
 	graphics_view->x = -99;
 
@@ -642,8 +653,48 @@ void MemoryAccessInspector::updateTooltip()
 	if (offset >= data.size) return;
 
 	uint byte = data_source == AsSeenByCpu						 ? machine->cpu->peek(offset) :
-				data_source == RomPages || data_source == AllRom ? uint8(machine->rom[data.baseoffset + offset]) :
-																   uint8(machine->ram[data.baseoffset + offset]);
+				data_source == RomPages || data_source == AllRom ? uint8(NV(machine->rom)[data.baseoffset + offset]) :
+																   uint8(NV(machine->ram)[data.baseoffset + offset]);
 
 	QToolTip::showText(gpos, usingstr("$%04X: $%02X", data.baseaddress + offset, byte), graphics_view, QRect());
 }
+
+} // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

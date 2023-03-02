@@ -57,7 +57,7 @@ UlaZx80::UlaZx80(Machine* m, isa_id _id, cstr oaddr, cstr iaddr) :
 	tv_decoder(dynamic_cast<IScreenMono&>(*screen), int32(m->model_info->cpu_cycles_per_second))
 {}
 
-UlaZx80::UlaZx80(Machine* m) : UlaZx80(m, isa_UlaZx80, o_addr, i_addr) {}
+UlaZx80::UlaZx80(Machine* m, bool is60hz) : UlaZx80(m, isa_UlaZx80, o_addr, i_addr) { UlaZx80::set60Hz(is60hz); }
 
 void UlaZx80::powerOn(int32 cc)
 {
@@ -102,7 +102,7 @@ void UlaZx80::enableMicOut(bool f)
 
 void UlaZx80::mic_out(Time now, int32 cc, bool bit)
 {
-	Dsp::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
+	os::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
 	beeper_last_sample_time = now;
 	beeper_current_sample	= bit ? beeper_volume : -beeper_volume;
 
@@ -123,7 +123,7 @@ bool UlaZx80::mic_in(Time now, int32 cc)
 			assert(int32(a) >= 0);
 			showAlert("Sample input beyond dsp buffer: +%i\n", int(a - DSP_SAMPLES_PER_BUFFER));
 		}
-		else { return Dsp::audio_in_buffer[a] >= threshold; }
+		else { return os::audio_in_buffer[a] >= threshold; }
 	}
 
 	return 0 >= threshold;

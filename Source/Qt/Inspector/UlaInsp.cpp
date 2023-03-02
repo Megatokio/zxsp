@@ -21,6 +21,9 @@
 #include <QTimer>
 
 
+namespace gui
+{
+
 #define l60	 45 // most left column line edits
 #define r20	 15
 #define r60	 48
@@ -30,7 +33,7 @@
 
 static QFont ff("Monaco" /*"Andale Mono"*/, 12);
 
-static QLineEdit* new_led(cstr s, uint width)
+static QLineEdit* new_led(cstr s, int width)
 {
 	QLineEdit* e = new QLineEdit(s);
 	e->setAlignment(Qt::AlignHCenter);
@@ -42,15 +45,13 @@ static QLineEdit* new_led(cstr s, uint width)
 	return e;
 }
 
-UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Machine* m) :
-	Inspector(w, mc, m->ula, "/Backgrounds/light-150-s.jpg")
+UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Ula* ula, volatile Mmu* mmu) :
+	Inspector(w, mc, ula, "/Backgrounds/light-150-s.jpg"),
+	ula(ula),
+	mmu(mmu)
 {
-	uint width	= 300;
-	uint height = 230;
-
-	mmu = m->mmu;
-	assert(mmu->isA(isa_Mmu));
-	assert(object->isA(isa_Ula));
+	int width  = 300;
+	int height = 230;
 
 	QGridLayout* g = new QGridLayout(this);
 	g->setContentsMargins(10, 10, 10, 10);
@@ -60,7 +61,6 @@ UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Machine* m) :
 	g->setColumnStretch(2, 0);
 	g->setColumnStretch(3, 0);
 	g->setColumnStretch(4, 50);
-
 
 	// Clocks:
 
@@ -137,7 +137,9 @@ UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Machine* m) :
 	inputs.checkbox_enable_cpu_waitcycles = nullptr;
 	inputs.waitmap_offset				  = nullptr;
 	inputs.waitmap						  = nullptr;
-	if (ula()->isA(isa_UlaZxsp) && UlaZxspPtr(ula())->hasWaitmap())
+
+	auto* ulazxsp = dynamic_cast<volatile UlaZxsp*>(ula);
+	if (ulazxsp && ulazxsp->hasWaitmap())
 	{
 		values.checkbox_enable_cpu_waitcycles = yes;
 		inputs.checkbox_enable_cpu_waitcycles = new QCheckBox("cpu waitcycles (contended video ram)");
@@ -160,7 +162,7 @@ UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Machine* m) :
 
 	// The ULA Byte: Border, Era & Mic:
 
-	values.border_color = -1;
+	values.border_color = 0xff;
 	inputs.border_color = new_led("", l60);
 	values.mic_bit		= 0;
 	inputs.mic_bit		= new_led("0", r20);
@@ -282,34 +284,32 @@ UlaInsp::UlaInsp(QWidget* w, MachineController* mc, volatile Machine* m) :
 	timer->start(1000 / 20);
 }
 
+bool UlaInsp::validReference(volatile Ula* ula, volatile Mmu* mmu)
+{
+	assert(isMainThread());
+	assert(machine == controller->getMachine());
+	assert(machine->ula == ula);
+	assert(machine->mmu == mmu);
+	return true;
+}
+
 void UlaInsp::updateWidgets()
 {
 	xxlogIn("UlaInsp::updateWidgets");
+	assert(validReference(ula, mmu));
 
-	if (!object)
-	{
-		timer->stop();
-		return;
-	}
-	if (!mmu)
-	{
-		timer->stop();
-		return;
-	}
+	bool f;
+	uint i;
 
-	volatile Ula* ula = this->ula();
-	bool		  f;
-	uint		  i;
-
-	if (inputs.port_1ffd != nullptr)
+	if (auto* mmu = dynamic_cast<const volatile MmuPlus3*>(this->mmu))
 	{
+		assert(inputs.port_1ffd != nullptr);
+
 		if (values.port_1ffd != mmu->getPort1ffd())
 		{
 			values.port_1ffd = mmu->getPort1ffd();
 			inputs.port_1ffd->setText(catstr("$", hexstr(values.port_1ffd, 2)));
 		}
-
-		volatile MmuPlus3* mmu = MmuPlus3Ptr(this->mmu);
 
 		if (inputs.checkbox_ram_only->isChecked() != (f = mmu->isRamOnlyMode()))
 		{
@@ -328,15 +328,15 @@ void UlaInsp::updateWidgets()
 		}
 	}
 
-	if (inputs.port_7ffd != nullptr)
+	if (auto* mmu = dynamic_cast<const volatile Mmu128k*>(this->mmu))
 	{
+		assert(inputs.port_7ffd != nullptr);
+
 		if (values.port_7ffd != mmu->getPort7ffd())
 		{
 			values.port_7ffd = mmu->getPort7ffd();
 			inputs.port_7ffd->setText(catstr("$", hexstr(values.port_7ffd, 2)));
 		}
-
-		volatile Mmu128k* mmu = Mmu128kPtr(this->mmu);
 
 		if (values.page_c000 != (i = mmu->getPageC000()))
 		{
@@ -369,22 +369,22 @@ void UlaInsp::updateWidgets()
 		}
 	}
 
-	// if cpu_clock changes then update:
-	// cpu_clock, ula_clock, cpu_clock_predivider and cpu_clock_overdrive
-	//
-	if (values.cpu_clock != machine->cpu_clock)
+	if (uint(values.cpu_clock) != uint(machine->cpu_clock))
 	{
-		uint32	cpu_clock = values.cpu_clock = machine->cpu_clock;
-		float64 overdrive					 = (float64)cpu_clock / machine->model_info->cpu_cycles_per_second;
+		// if cpu_clock changes then update:
+		// cpu_clock, ula_clock, cpu_clock_predivider and cpu_clock_overdrive
+
+		uint32 cpu_clock = values.cpu_clock = uint32(machine->cpu_clock);
+		double overdrive					= double(cpu_clock) / machine->model_info->cpu_cycles_per_second;
 
 		uint32 predivider = machine->model_info->cpuClockPredivider();
 		for (uint o = uint(overdrive + 0.2); o > 1; o >>= 1)
 		{
-			if (predivider > 1) predivider >>= 1;
-		} // speed menu: 200%, 400%, 800%
+			if (predivider > 1) predivider >>= 1; // speed menu: 200%, 400%, 800%
+		}
 
 		uint32 ula_clock = cpu_clock * predivider;
-		overdrive *= 100; // percent
+		overdrive *= 100; // -> percent
 
 		xlogline("UlaInsp: overdrive = %5g%%", double(overdrive));
 		xlogline("UlaInsp: cpu_clock = %u", uint(cpu_clock));
@@ -456,24 +456,21 @@ void UlaInsp::updateWidgets()
 	if (values.frames_per_second != float(values.cpu_clock) / ula->getCcPerFrame())
 	{
 		values.frames_per_second = float(values.cpu_clock) / ula->getCcPerFrame();
-		char* s					 = tempstr(15);
+		char s[16];
 		sprintf(s, "%.4g", double(values.frames_per_second));
 		inputs.frames_per_second->setText(s);
 		xlogline("UlaInsp: frames_per_second = %s", s);
 	}
 
-	if (ula->isA(isa_UlaZxsp))
+	if (auto* zxula = dynamic_cast<const volatile UlaZxsp*>(ula))
 	{
-		UlaZxsp* zxula = (UlaZxsp*)ula;
-
-
 		if (zxula->hasWaitmap())
 		{
 			if (inputs.checkbox_enable_cpu_waitcycles->isChecked() != zxula->hasWaitmap())
 			{
 				inputs.checkbox_enable_cpu_waitcycles->setChecked(zxula->hasWaitmap());
 			}
-			if (values.waitmap_offset != uint(zxula->getWaitmapStart()) - zxula->getScreenStart())
+			if (values.waitmap_offset != zxula->getWaitmapStart() - zxula->getScreenStart())
 			{
 				values.waitmap_offset = zxula->getWaitmapStart() - zxula->getScreenStart();
 				inputs.waitmap_offset->setText(tostr(int(values.waitmap_offset)));
@@ -499,9 +496,7 @@ void UlaInsp::updateWidgets()
 			uint b = values.border_color = zxula->getBorderColor();
 			//  inputs.border_color->setAutoFillBackground(true);
 			cstr s = usingstr(
-				"QLineEdit { background-color: rgba(%i,%i,%i); }",
-				b & 2 ? 222 : 22,
-				b & 4 ? 222 : 22,
+				"QLineEdit { background-color: rgba(%i,%i,%i); }", b & 2 ? 222 : 22, b & 4 ? 222 : 22,
 				b & 1 ? 222 : 22);
 			inputs.border_color->setStyleSheet(s);
 			inputs.border_color->setText(tostr(values.border_color));
@@ -531,3 +526,33 @@ void UlaInsp::updateWidgets()
 		inputs.frames_hit->setText(catstr(tostr(values.frames_hit), "%"));
 	}
 }
+
+} // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

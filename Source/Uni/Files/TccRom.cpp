@@ -111,9 +111,21 @@ void read_buffer(FD& fd, CoreByte zbu[0x2000], uint64& hash)
 	HOME banks werden ins interne Rom und ggf. Ram geladen, das zuvor nach rom[] gerettet wird.
 */
 TccRom::TccRom(Machine* machine, cstr path) :
-	machine(machine), fpath(newcopy(path)),
-	id(TccUnknown), exrom {0, 0, 0, 0, 0, 0, 0, 0}, dock {0, 0, 0, 0, 0, 0, 0, 0}, rom(nullptr), exrom_r(0), exrom_w(0),
-	exrom_d(0), dock_r(0), dock_w(0), dock_d(0), home_r(0), home_w(0), home_d(0)
+	machine(machine),
+	fpath(newcopy(path)),
+	id(TccUnknown),
+	exrom {0, 0, 0, 0, 0, 0, 0, 0},
+	dock {0, 0, 0, 0, 0, 0, 0, 0},
+	rom(nullptr),
+	exrom_r(0),
+	exrom_w(0),
+	exrom_d(0),
+	dock_r(0),
+	dock_w(0),
+	dock_d(0),
+	home_r(0),
+	home_w(0),
+	home_d(0)
 {
 	xlogline("new TccRom(\"%s\")", path);
 
@@ -200,10 +212,8 @@ TccRom::TccRom(Machine* machine, cstr path) :
 					if (d & (1 << i)) // read init data
 					{
 						xlogline("  reading block");
-						if (i < 2)
-							read_buffer(fd, &machine->rom[0x2000 * i], hash);
-						else
-							read_buffer(fd, &machine->ram[0x2000 * (i - 2)], hash);
+						if (i < 2) read_buffer(fd, &machine->rom[0x2000 * i], hash);
+						else read_buffer(fd, &machine->ram[0x2000 * (i - 2)], hash);
 					}
 				}
 			}
@@ -219,8 +229,8 @@ TccRom::TccRom(Machine* machine, cstr path) :
 		}
 		if (hash32 && id == TccUnknown) logline("Tcc Rom Cartridge \"%s\" with unknown hash: %08X", path, hash32);
 
-		addRecentFile(RecentTccRoms, path);
-		addRecentFile(RecentFiles, path);
+		addRecentFile(gui::RecentTccRoms, path);
+		addRecentFile(gui::RecentFiles, path);
 	}
 	catch (AnyError& e)
 	{
@@ -266,10 +276,10 @@ void TccRom::saveAs(cstr filepath)
 		save_as(filepath);
 		delete[] fpath;
 		fpath = newcopy(filepath);
-		addRecentFile(RecentTccRoms, filepath);
-		addRecentFile(RecentFiles, filepath);
+		addRecentFile(gui::RecentTccRoms, filepath);
+		addRecentFile(gui::RecentFiles, filepath);
 	}
-	catch (FileError e)
+	catch (FileError& e)
 	{
 		showAlert("Writing to file \"%s\" failed:\n%s", filename_from_path(filepath), e.what());
 	}
@@ -292,10 +302,8 @@ void TccRom::save_as(cstr fpath)
 		{
 			if (d & (1 << i))
 			{
-				if (i < 2)
-					Z80::c2b(&machine->rom[0x2000 * i], bu, 0x2000);
-				else
-					Z80::c2b(&machine->ram[0x2000 * (i - 2)], bu, 0x2000);
+				if (i < 2) Z80::c2b(&machine->rom[0x2000 * i], bu, 0x2000);
+				else Z80::c2b(&machine->ram[0x2000 * (i - 2)], bu, 0x2000);
 				fd.write_bytes(bu, 0x2000);
 			}
 		}

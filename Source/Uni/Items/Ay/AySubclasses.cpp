@@ -89,8 +89,10 @@ void AyForTc2068::portAOutputValueChanged(Time, uint8 newbyte)
 	uint8 oldbyte = getOutputValueAtPortA();
 	if ((oldbyte ^ newbyte) & (1 << 5))
 	{
+		assert(dynamic_cast<MmuTc2068*>(machine->mmu));
+
 		bool f = (oldbyte >> 5) & 1; // old=1 <=> new=0 <=> enabled=1
-		MmuTc2068Ptr(machine->mmu)->selectBusExpansionUnit(f);
+		static_cast<MmuTc2068*>(machine->mmu)->selectBusExpansionUnit(f);
 	}
 }
 

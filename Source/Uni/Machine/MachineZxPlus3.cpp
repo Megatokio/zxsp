@@ -10,19 +10,19 @@
 #include "Ula/UlaPlus3.h"
 
 
-MachineZxPlus3::MachineZxPlus3(MachineController* m, Model model) : MachineZxPlus2a(m, model, isa_MachineZxPlus3)
+MachineZxPlus3::MachineZxPlus3(gui::MachineController* m, Model model) : MachineZxPlus2a(m, model, isa_MachineZxPlus3)
 {
 	assert(model == zxplus3 || model == zxplus3_span);
 
-	cpu			 = new Z80(this);	   // must be 1st item
-	ula			 = new UlaPlus3(this); // should be 2nd item
-	mmu			 = new MmuPlus3(this);
-	keyboard	 = new KeyboardZxPlus(this);
-	ay			 = new AyForZx128(this);
-	joystick	 = new ZxPlus3Joy(this);
-	fdc			 = new FdcPlus3(this);
-	printer		 = new PrinterPlus3(this);
-	taperecorder = new Walkman(this);
+	addItem(new Z80(this));		 // must be 1st item
+	addItem(new UlaPlus3(this)); // should be 2nd item
+	addItem(new MmuPlus3(this));
+	addItem(new KeyboardZxPlus(this));
+	addItem(new AyForZx128(this));
+	addItem(new ZxPlus3Joy(this));
+	addItem(new FdcPlus3(this));
+	addItem(new PrinterPlus3(this));
+	addItem(new Walkman(this));
 }
 
 void MachineZxPlus3::insertDisk(cstr fpath, char side)

@@ -212,4 +212,4 @@ public:
 };
 
 
-typedef TapeFile* TapeFilePtr;
+using TapeFilePtr = TapeFile*;

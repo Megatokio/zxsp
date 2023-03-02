@@ -9,9 +9,11 @@
 #include <QSplashScreen>
 
 
+namespace gui
+{
+
 class Application : public QApplication
 {
-	Q_OBJECT
 	Q_DISABLE_COPY(Application)
 
 	static QString		  filepath; // during 'open file'
@@ -20,7 +22,7 @@ class Application : public QApplication
 
 public:
 	Application(int, char**);
-	~Application();
+	~Application() override;
 
 	static bool isActiveApplication() { return is_active_application; }
 	static void showPreferences();
@@ -30,5 +32,7 @@ public:
 	// void		saveState(QSessionManager&)		{}
 
 private:
-	virtual bool event(QEvent* e);
+	virtual bool event(QEvent* e) override;
 };
+
+} // namespace gui

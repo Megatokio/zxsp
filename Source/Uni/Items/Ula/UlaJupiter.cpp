@@ -143,8 +143,10 @@ UlaJupiter::~UlaJupiter()
 	delete[] frame_data2;
 }
 
-UlaJupiter::UlaJupiter(Machine* m, uint fps) :
-	Ula(m, isa_UlaJupiter, o_addr, i_addr), frame_data(nullptr), frame_data2(nullptr)
+UlaJupiter::UlaJupiter(Machine* m, bool is60hz) :
+	Ula(m, isa_UlaJupiter, o_addr, i_addr),
+	frame_data(nullptr),
+	frame_data2(nullptr)
 {
 	audio_mode	 = mixed_audio; // or: read from prefs?
 	border_color = 0x00;		// black
@@ -154,7 +156,7 @@ UlaJupiter::UlaJupiter(Machine* m, uint fps) :
 	frame_data	= new uint8[frame_data_alloc];
 	frame_data2 = new uint8[frame_data_alloc];
 
-	set60Hz(fps == 60);
+	UlaJupiter::set60Hz(is60hz);
 }
 
 void UlaJupiter::set60Hz(bool is_60hz)
@@ -235,7 +237,8 @@ int32 UlaJupiter::doFrameFlyback(int32 /*cc*/)
 
 	machine->cpu->setInterrupt(0, 8 * cc_per_line);
 
-	bool new_buffer_in_use = ScreenMonoPtr(screen)->ffb_or_vbi(
+	assert(dynamic_cast<gui::ScreenMono*>(screen));
+	bool new_buffer_in_use = static_cast<gui::ScreenMono*>(screen)->ffb_or_vbi(
 		frame_data, frame_w * 8, lines_per_frame, screen_w * 8, lines_in_screen, screen_x0 * 8, lines_before_screen, 0);
 	if (new_buffer_in_use) std::swap(frame_data, frame_data2);
 
@@ -267,7 +270,7 @@ void UlaJupiter::output(Time now, int32 cc, uint16 addr, uint8 byte)
 																			  0.0;
 	if (new_sample != beeper_current_sample)
 	{
-		Dsp::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
+		os::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
 		beeper_last_sample_time = now;
 		beeper_current_sample	= new_sample;
 	}
@@ -294,7 +297,7 @@ void UlaJupiter::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask
 	//		mixed_audio:	set audio-out to OFF
 	if (beeper_current_sample != 0.0 && audio_mode != mic_out_only)
 	{
-		Dsp::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
+		os::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
 		beeper_last_sample_time = now;
 		beeper_current_sample	= 0.0;
 	}
@@ -304,10 +307,8 @@ void UlaJupiter::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask
 
 	if (machine->taperecorder->isPlaying())
 	{
-		if (machine->taperecorder->input(cc))
-			byte |= EAR_IN_MASK;
-		else
-			byte &= ~EAR_IN_MASK;
+		if (machine->taperecorder->input(cc)) byte |= EAR_IN_MASK;
+		else byte &= ~EAR_IN_MASK;
 	}
 	else if (machine->audio_in_enabled)
 	{
@@ -321,9 +322,8 @@ void UlaJupiter::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask
 		}
 		else
 		{
-			if (Dsp::audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
+			if (os::audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
 		}
 	}
-	else
-		byte &= ~EAR_IN_MASK;
+	else byte &= ~EAR_IN_MASK;
 }

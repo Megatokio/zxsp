@@ -4,9 +4,16 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Inspector.h"
+#include "Printer/PrinterLprint3.h"
+
+
+namespace gui
+{
 
 class PrinterLprint3Insp : public Inspector
 {
 public:
-	PrinterLprint3Insp(QWidget*, MachineController*, volatile IsaObject*);
+	PrinterLprint3Insp(QWidget*, MachineController*, volatile PrinterLprint3*);
 };
+
+} // namespace gui

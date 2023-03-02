@@ -7,7 +7,6 @@
 #include "MassStorage.h"
 #include "Memory.h"
 #include "Z80/Z80.h"
-class OverlayJoystick;
 
 
 class Sio
@@ -39,15 +38,15 @@ enum FlashCommandState {
 };
 
 
-class SmartSDCard : public MassStorage
+class SmartSDCard final : public MassStorage
 {
 	MemoryPtr ram;
 	MemoryPtr rom;
 
-	Joystick*		 joystick;
-	OverlayJoystick* overlay;
-	SDCard*			 sd_card;
-	Sio*			 sio;
+	Joystick*			  joystick;
+	gui::OverlayJoystick* overlay;
+	SDCard*				  sd_card;
+	Sio*				  sio;
 
 	// i/o registers:
 	// ram_config = config & 0x00FF
@@ -74,8 +73,8 @@ class SmartSDCard : public MassStorage
 	uint8			  flash_byte_written; // byte seen during flash write
 
 public:
-	explicit SmartSDCard(Machine* m);
-	virtual ~SmartSDCard();
+	enum Dip { JoystickEnabled = 1, MemoryEnabled = 2, ForceBankB = 4, FlashWriteEnabled = 8 };
+	explicit SmartSDCard(Machine* m, uint dip_switches);
 
 	// DIP switches:
 	void setMemoryEnabled(bool);
@@ -88,6 +87,8 @@ public:
 	JoystickID getJoystickID() const volatile { return indexof(joystick); }
 
 protected:
+	~SmartSDCard() override;
+
 	// Item interface:
 	void  powerOn(/*t=0*/ int32 cc) override;
 	void  reset(Time t, int32 cc) override;

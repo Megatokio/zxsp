@@ -10,8 +10,7 @@
 class UlaZx80 : public Ula
 {
 public:
-	explicit UlaZx80(Machine*);
-	virtual ~UlaZx80() override;
+	UlaZx80(Machine*, bool is60hz);
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
@@ -42,6 +41,8 @@ public:
 
 protected:
 	UlaZx80(Machine* m, isa_id id, cstr oaddr, cstr iaddr);
+	~UlaZx80() override;
+
 	void mic_out(Time, int32 cc, bool bit);
 	bool mic_in(Time, int32 cc);
 

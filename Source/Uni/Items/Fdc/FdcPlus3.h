@@ -6,12 +6,14 @@
 #include "Fdc765.h"
 
 
-class FdcPlus3 : public Fdc765
+class FdcPlus3 final : public Fdc765
 {
 public:
 	explicit FdcPlus3(Machine*);
 
 protected:
+	~FdcPlus3() override = default;
+
 	// Item interface:
 	// void	init			(/*t=0*/ int32 cc) override;
 	// void	reset			(Time, int32 cc) override;
@@ -20,7 +22,7 @@ protected:
 	// void	audioBufferEnd	(Time) override;
 	// void	videoFrameEnd	(int32 cc) override;
 
-	void attachDiskDrive(uint n, FloppyDiskDrive*) override;
+	void attachDiskDrive(uint n, std::shared_ptr<FloppyDiskDrive>) override;
 	void removeDiskDrive(uint n) override;
 
 private:

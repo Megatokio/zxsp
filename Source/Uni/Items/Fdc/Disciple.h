@@ -6,8 +6,11 @@
 #include "Fdc.h"
 
 
-class Disciple : public Fdc
+class Disciple final : public Fdc
 {
 public:
 	explicit Disciple(Machine*);
+
+protected:
+	~Disciple() override = default;
 };

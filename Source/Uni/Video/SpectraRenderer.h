@@ -15,29 +15,22 @@
 class SpectraRenderer : public ZxspRenderer
 {
 public:
-	static const int h_border = 64, // pixel, must be N*8
-		v_border			  = 48, // pixel, must be N*8
-		screen_width = 256, screen_height = 192,
-					 width = screen_width + 2 * h_border,  // width of bits[]
-		height			   = screen_height + 2 * v_border, // height of bits[]
+	static constexpr int h_border	   = 64; // pixel, must be N*8
+	static constexpr int v_border	   = 48; // pixel, must be N*8
+	static constexpr int screen_width  = 256;
+	static constexpr int screen_height = 192;
+	static constexpr int width		   = screen_width + 2 * h_border;  // width of bits[]
+	static constexpr int height		   = screen_height + 2 * v_border; // height of bits[]
 
-		pixel_per_cc = 2,
+	static constexpr int pixel_per_cc = 2;
+	static constexpr int cc_screen	  = screen_width / pixel_per_cc; // 128 -> 256 pixel
+	static constexpr int cc_h_border  = h_border / pixel_per_cc;	 // 32  -> 64 pixel
 
-					 cc_screen = screen_width / pixel_per_cc, // 128 -> 256 pixel
-		cc_h_border			   = h_border / pixel_per_cc;	  // 32  -> 64 pixel
-
-	explicit SpectraRenderer(QObject* p) :
-		ZxspRenderer(p, isa_ZxspRenderer, screen_width, screen_height, h_border, v_border)
-	{}
+	explicit SpectraRenderer() : ZxspRenderer(isa_ZxspRenderer, screen_width, screen_height, h_border, v_border) {}
 
 	void drawScreen(
-		IoInfo* ioinfo,
-		uint	ioinfo_count,
-		uint8*	attr_pixels,
-		uint	cc_per_scanline,
-		uint32	cc_start_of_screenfile,
-		bool	flashphase,
-		uint32	cc_vbi) override;
+		IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
+		bool flashphase, uint32 cc_vbi) override;
 };
 
 
@@ -49,25 +42,21 @@ public:
 class SpectraGifWriter : public ZxspGifWriter
 {
 public:
-	static const int h_border = 32, // pixel, must be N*8
-		v_border			  = 24, // pixel, must be N*8
-		screen_width = 256, screen_height = 192,
-					 width = screen_width + 2 * h_border,  // width of bits[]
-		height			   = screen_height + 2 * v_border, // height of bits[]
+	static constexpr int h_border	   = 32; // pixel, must be N*8
+	static constexpr int v_border	   = 24; // pixel, must be N*8
+	static constexpr int screen_width  = 256;
+	static constexpr int screen_height = 192;
+	static constexpr int width		   = screen_width + 2 * h_border;  // width of bits[]
+	static constexpr int height		   = screen_height + 2 * v_border; // height of bits[]
 
-		pixel_per_cc = 2,
-
-					 cc_screen = screen_width / pixel_per_cc, // 128 -> 256 pixel
-		cc_h_border			   = h_border / pixel_per_cc;	  // 32  -> 64 pixel
+	static constexpr int pixel_per_cc = 2;
+	static constexpr int cc_screen	  = screen_width / pixel_per_cc; // 128 -> 256 pixel
+	static constexpr int cc_h_border  = h_border / pixel_per_cc;	 // 32  -> 64 pixel
 
 public:
-	SpectraGifWriter(QObject* p, bool update_border, uint frames_per_second = 50);
+	SpectraGifWriter(bool update_border, uint frames_per_second);
 
 	void drawScreen(
-		IoInfo* ioinfo,
-		uint	ioinfo_count,
-		uint8*	attr_pixels,
-		uint	cc_per_scanline,
-		uint32	cc_start_of_screenfile,
-		bool	flashphase) override;
+		IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
+		bool flashphase) override;
 };

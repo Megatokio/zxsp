@@ -10,4 +10,7 @@ class MmuTk85 : public MmuZx81
 {
 public:
 	explicit MmuTk85(Machine*);
+
+protected:
+	~MmuTk85() override = default;
 };

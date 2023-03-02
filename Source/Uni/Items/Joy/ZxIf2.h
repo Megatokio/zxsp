@@ -15,7 +15,7 @@ class ZxIf2 : public SinclairJoy
 
 public:
 	explicit ZxIf2(Machine*);
-	virtual ~ZxIf2();
+	virtual ~ZxIf2() override;
 
 	bool isLoaded() const volatile
 	{

@@ -10,4 +10,7 @@ class MmuInves : public MmuZxsp
 {
 public:
 	explicit MmuInves(Machine*);
+
+protected:
+	~MmuInves() override = default;
 };

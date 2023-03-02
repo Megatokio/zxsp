@@ -405,13 +405,9 @@ void MmuTc2068::set_port_f4(uint8 f4_neu, uint8 toggled)
 				cpu->mapRom(addr, 0x2000, xmem[i].getData(), waitmap, mapsize); // Rom (or ram) in cartridge
 			else if (f && i == 0)
 				cpu->mapRom(
-					addr,
-					0x2000,
-					&rom[0x4000],
-					waitmap,
+					addr, 0x2000, &rom[0x4000], waitmap,
 					mapsize); // EXROM: map internal 8k EXROM		TODO: SMAS guide indicates bank #0 only
-			else
-				goto h; // map home bank
+			else goto h;	  // map home bank
 			// else			cpu->unmapRom(addr,0x2000);									// no memory here
 
 			// writing:
@@ -421,8 +417,7 @@ void MmuTc2068::set_port_f4(uint8 f4_neu, uint8 toggled)
 			else if (i >= 2)
 				cpu->mapWom(
 					addr, 0x2000, &ram[addr - 0x4000], waitmap, mapsize); //					TODO: evtl. don't write
-			else
-				cpu->unmapWom(addr, 0x2000); // Rom
+			else cpu->unmapWom(addr, 0x2000);							  // Rom
 		}
 		else // HOME bank
 		{	 // in den unteren 16K können Ram und Rom liegen
@@ -434,15 +429,11 @@ void MmuTc2068::set_port_f4(uint8 f4_neu, uint8 toggled)
 			if (i < 2) // internal rom address range
 			{		   // Im Cartridge könnte hier Ram sein:
 				cpu->mapRom(
-					addr,
-					0x2000,
-					&rom[addr],
-					nullptr,
+					addr, 0x2000, &rom[addr], nullptr,
 					0); // immer lesbar: entweder aus dem Cartridge oder aus dem internen Rom
 				if (home_w & mask)
 					cpu->mapWom(addr, 0x2000, &rom[addr], nullptr, 0); // auch schreibbar? (also: Ram im Cartridge)
-				else
-					cpu->unmapWom(addr, 0x2000); // nicht schreibbar
+				else cpu->unmapWom(addr, 0x2000);					   // nicht schreibbar
 			}
 			else // internal ram address range
 			{	 // immer in/aus dem internen Ram!

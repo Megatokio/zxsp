@@ -74,10 +74,8 @@ inline void Mmu128k::page_rom_128k()
 inline void Mmu128k::page_ram_128k()
 {
 	int n = port_7ffd & 0x07;
-	if (n & 1)
-		cpu->mapRam(3 * 0x4000, 0x4000, &ram[n * 0x4000], ula_zxsp->getWaitmap(), ula_zxsp->getWaitmapSize());
-	else
-		cpu->mapRam(3 * 0x4000, 0x4000, &ram[n * 0x4000], nullptr, 0);
+	if (n & 1) cpu->mapRam(3 * 0x4000, 0x4000, &ram[n * 0x4000], ula_zxsp->getWaitmap(), ula_zxsp->getWaitmapSize());
+	else cpu->mapRam(3 * 0x4000, 0x4000, &ram[n * 0x4000], nullptr, 0);
 }
 
 
@@ -100,9 +98,11 @@ inline void Mmu128k::page_mem_128k()
 */
 void Mmu128k::setPort7ffd(uint8 byte)
 {
+	assert(dynamic_cast<Ula128k*>(ula));
+
 	port_7ffd = byte;
 	page_mem_128k();
-	Ula128kPtr(ula)->setPort7ffd(byte);
+	static_cast<Ula128k*>(ula)->setPort7ffd(byte);
 }
 
 

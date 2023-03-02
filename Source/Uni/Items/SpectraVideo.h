@@ -7,12 +7,12 @@
 #include "Memory.h"
 #include "Ula/Crtc.h"
 #include "unix/files.h"
-#include <QObject>
-class OverlayJoystick;
 
 
 class SpectraVideo : public Crtc
 {
+	friend class Machine;
+
 public:
 	bool	  has_port_7ffd; // SPECTRA zxsp or zx128k model
 	bool	  new_video_modes_enabled;
@@ -21,24 +21,23 @@ public:
 	bool	  shadowram_ever_used;
 	MemoryPtr shadowram;
 
-	Joystick*		 joystick; // Joystick
-	OverlayJoystick* overlay;
-	uint			 port_254;				// border
-	uint8			 port_239;				// RS232
-	uint8			 port_247;				// RS232
-	bool			 rs232_enabled;			// RS232
-	bool			 joystick_enabled;		// Joystick
-	bool			 if1_rom_hooks_enabled; // ROM
-	MemoryPtr		 rom;
-	cstr			 filepath;
-	// bool		romdis_in;				// rear-side input state		--> Item
+	Joystick*			  joystick; // Joystick
+	gui::OverlayJoystick* overlay;
+	uint				  port_254;				 // border
+	uint8				  port_239;				 // RS232
+	uint8				  port_247;				 // RS232
+	bool				  rs232_enabled;		 // RS232
+	bool				  joystick_enabled;		 // Joystick
+	bool				  if1_rom_hooks_enabled; // ROM
+	MemoryPtr			  rom;
+	cstr				  filepath;
+	// bool romdis_in;	   // rear-side input state --> Item
 	bool own_romdis_state; // own state
 
 	// CRTC:
 	int32  current_frame; // counter, used for flash phase
 	int32  ccx;			  // next cc for reading from video ram
 	uint8* attr_pixel;	  // screen attribute and pixel triples
-	// uint		bytes_per_octet;		// triples = 3
 
 	// IoInfo*	ioinfo;					--> Item
 	// uint		ioinfo_count;			""
@@ -46,10 +45,9 @@ public:
 	uint8*	alt_attr_pixel; // alternate data set
 	uint	alt_ioinfo_size;
 	IoInfo* alt_ioinfo;
-	// ScreenZxsp* screen;
-	int cc_per_side_border; // cc_per_line - 32 * cc_per_byte
-	int cc_frame_end;		// lines_per_frame * cc_per_line
-	int cc_screen_start;	// lines_before_screen*cc_per_line
+	int		cc_per_side_border; // cc_per_line - 32 * cc_per_byte
+	int		cc_frame_end;		// lines_per_frame * cc_per_line
+	int		cc_screen_start;	// lines_before_screen*cc_per_line
 
 private:
 	void activate_hooks();
@@ -62,9 +60,13 @@ private:
 	void _reset();
 
 public:
-	explicit SpectraVideo(Machine* m);
-	~SpectraVideo();
+	// same as in file .z80:
+	enum DipSwitches { EnableNewVideoModes = 1, EnableRs232 = 2, EnableJoystick = 4, EnableIf1RomHooks = 8 };
 
+	explicit SpectraVideo(Machine* m, uint dip_switches);
+
+protected:
+	~SpectraVideo() override;
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
@@ -74,11 +76,11 @@ public:
 	// void	audioBufferEnd	(Time t)override;
 	// void	videoFrameEnd	(int32 cc)override;
 
-
+public:
 	// ROM handling:
 	cstr getRomFilepath() const volatile { return filepath; }
 	cstr getRomFilename() const volatile { return basename_from_path(filepath); }
-	bool isRomInserted() const volatile { return rom.isnot(nullptr); }
+	bool isRomInserted() const volatile { return rom; }
 	bool isRomPagedIn() const volatile { return own_romdis_state; }
 
 	void activateRom();
@@ -97,7 +99,7 @@ public:
 
 	// Joystick handling:
 	void	   setJoystickEnabled(bool);
-	void	   insertJoystick(int id) volatile;
+	void	   insertJoystick(int id);
 	JoystickID getJoystickID() const volatile { return indexof(joystick); }
 
 	// CRTC:

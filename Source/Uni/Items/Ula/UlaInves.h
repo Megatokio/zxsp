@@ -10,9 +10,10 @@ class UlaInves : public UlaZxsp
 {
 public:
 	explicit UlaInves(Machine*);
-	virtual ~UlaInves();
 
 protected:
+	~UlaInves() override;
+
 	// Item interface:
 	// void	powerOn			(/*t=0*/ int32 cc) override;
 	// void	reset			(Time t, int32 cc) override;

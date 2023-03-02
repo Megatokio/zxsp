@@ -70,8 +70,8 @@ enum BitMask {
 	NotWriteable =
 		1 << 1,			// Not writeable:	WRITE DATA, WRITE DELETED DATA or Write ID: Line WProt from FDD was activated
 	MissingAM = 1 << 0, // Missing Address Mark:	 the FDC does not detect the IDAM before 2 index pulses.
-						//							 or the FDC cannot find the DAM or DDAM after the IDAM is found, then bit
-						//MD of ST2 is also set.
+						//							 or the FDC cannot find the DAM or DDAM after the IDAM is found, then
+						//bit MD of ST2 is also set.
 
 	// SR2:
 	ControlMark = 1 << 6,	  // READ DATA or SCAN: the FDC encountered a Sector with a DDAM
@@ -156,8 +156,7 @@ uint8 Fdc765::readDataRegister(Time t)
 		xxlog("<<%02X ", uint(byte));
 		return byte;
 	}
-	else
-		logline("FDC: byte from FDC read, but there was no byte available");
+	else logline("FDC: byte from FDC read, but there was no byte available");
 	return 0xff; // hm hm ... input() mask wird gesetzt ...
 }
 
@@ -172,8 +171,7 @@ void Fdc765::writeDataRegister(Time t, uint8 b)
 		byte = b;
 		xxlog(">>%02X ", uint(b));
 	}
-	else
-		logline("FDC: byte to FDC lost: %i", int(b));
+	else logline("FDC: byte to FDC lost: %i", int(b));
 }
 
 void Fdc765::audioBufferEnd(Time t)
@@ -221,39 +219,54 @@ uint8 Fdc765::SR3()
 
 
 //	Tricky co-routine macros:
-#define BEGIN                                                                                                          \
-  switch (sm_state)                                                                                                    \
-  {                                                                                                                    \
-  default: IERR();                                                                                                     \
+#define BEGIN       \
+  switch (sm_state) \
+  {                 \
+  default: IERR();  \
   case 0:
-#define WAIT                                                                                                           \
-  do {                                                                                                                 \
-	sm_state = __LINE__;                                                                                               \
-	return;                                                                                                            \
-  case __LINE__:;                                                                                                      \
-  }                                                                                                                    \
+
+#define WAIT             \
+  do {                   \
+	sm_state = __LINE__; \
+	return;              \
+  case __LINE__:;        \
+  }                      \
   while (0)
+
 #define FINISH }
-#define GOSUB(PROC)                                                                                                    \
-  do {                                                                                                                 \
-	sm_stack[sm_sp++] = __LINE__;                                                                                      \
-	goto PROC;                                                                                                         \
-  case __LINE__:;                                                                                                      \
-  }                                                                                                                    \
+
+#define GOSUB(PROC)               \
+  do {                            \
+	sm_stack[sm_sp++] = __LINE__; \
+	goto PROC;                    \
+  case __LINE__:;                 \
+  }                               \
   while (0)
+
 #define RETURN goto ret
 
-#define send_a_byte_to_cpu(BYTE)                                                                                       \
-  MSR  = msrFdcBusy | msrRQR;                                                                                          \
-  byte = BYTE;                                                                                                         \
-  while (MSR & msrRQM) WAIT;
-#define read_a_byte_from_cpu(BYTE)                                                                                     \
-  MSR = msrFdcBusy | msrRQW;                                                                                           \
-  while (MSR & msrRQM) WAIT;                                                                                           \
-  BYTE = byte;
-#define read_byte_from_cpu()                                                                                           \
-  MSR = msrFdcBusy | msrRQW;                                                                                           \
-  while (MSR & msrRQM) WAIT;
+#define send_a_byte_to_cpu(BYTE) \
+  do {                           \
+	MSR	 = msrFdcBusy | msrRQR;  \
+	byte = BYTE;                 \
+	while (MSR & msrRQM) WAIT;   \
+  }                              \
+  while (0)
+
+#define read_a_byte_from_cpu(BYTE) \
+  do {                             \
+	MSR = msrFdcBusy | msrRQW;     \
+	while (MSR & msrRQM) WAIT;     \
+	BYTE = byte;                   \
+  }                                \
+  while (0)
+
+#define read_byte_from_cpu()   \
+  do {                         \
+	MSR = msrFdcBusy | msrRQW; \
+	while (MSR & msrRQM) WAIT; \
+  }                            \
+  while (0)
 
 
 void Fdc765::run_statemachine(Time t)
@@ -534,10 +547,8 @@ aa:
 
 				if ((SR0 & IC) == ICok && (CMD & mScanXX))
 				{
-					if (eq)
-						SR2 |= ScanEqualHit;
-					else if (!scan_satisfied())
-						SR2 |= ScanFailed;
+					if (eq) SR2 |= ScanEqualHit;
+					else if (!scan_satisfied()) SR2 |= ScanFailed;
 				}
 			}
 			else if (CMD == mRdTr) // READ_TRACK:		02+m+s HU TR HD ?? SZ NM GP SL  <R>  S0 S1 S2 TR HD NM SZ
@@ -696,8 +707,7 @@ aa:
 				byte = 0x4E;
 				while (!indexpulses) { GOSUB(write_byte_to_fdd); } // Gap4B up to track end
 			}
-			else
-				IERR();
+			else IERR();
 		}
 
 		// standard result phase:
@@ -846,10 +856,8 @@ io_sector: // ( -- )
 		eq = le = ge = true;
 		for (n = 0; n < size; n++)
 		{
-			if (CMD & mScanXX)
-				GOSUB(compare_byte_from_host_and_fdd);
-			else
-				GOSUB(copy_byte_from_fdd_to_host);
+			if (CMD & mScanXX) GOSUB(compare_byte_from_host_and_fdd);
+			else GOSUB(copy_byte_from_fdd_to_host);
 		}
 
 		// read and skip unwanted data bytes:

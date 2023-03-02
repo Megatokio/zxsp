@@ -2,18 +2,18 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-
 #include "Tk85JoyInsp.h"
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
 
-Tk85JoyInsp::Tk85JoyInsp(QWidget* p, MachineController* mc, volatile IsaObject* j) :
-	JoyInsp(p, mc, j, "/Images/tk85_joy.jpg")
+namespace gui
 {
-	assert(object->isA(isa_Tk85Joy));
 
+Tk85JoyInsp::Tk85JoyInsp(QWidget* p, MachineController* mc, volatile Tk85Joy* joy) :
+	JoyInsp(p, mc, joy, "/Images/tk85_joy.jpg")
+{
 	QLabel* label = new QLabel("Buttons:");
 
 	QGridLayout* g = new QGridLayout(this);
@@ -30,3 +30,5 @@ Tk85JoyInsp::Tk85JoyInsp(QWidget* p, MachineController* mc, volatile IsaObject* 
 	g->addWidget(lineedit_display[0], 2, 1);
 	g->addWidget(button_scan_usb, 2, 2, Qt::AlignHCenter | Qt::AlignVCenter);
 }
+
+} // namespace gui

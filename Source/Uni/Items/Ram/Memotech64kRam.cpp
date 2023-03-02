@@ -8,10 +8,7 @@
 #include "Items/Ula/UlaZx81.h"
 #include "Machine.h"
 #include "Memory.h"
-#include "Qt/Settings.h"
 #include "Z80/Z80.h"
-#include <QSettings>
-#include <QVariant>
 
 
 /*  To set top of RAM at 64K type:
@@ -41,11 +38,11 @@
 */
 
 
-Memotech64kRam::Memotech64kRam(Machine* m) : ExternalRam(m, isa_Memotech64kRam)
+Memotech64kRam::Memotech64kRam(Machine* m, uint dip_switches) :
+	ExternalRam(m, isa_Memotech64kRam),
+	dip_switches(dip_switches)
 {
 	machine->ram.grow(64 kB);
-	dip_switches = settings.get_int(key_memotech64k_dip_switches, 0x06);
-
 	machine->mmu->mapMem(); // map new memory to cpu & to set videoram
 	map_dip_switched_ram();
 }
@@ -72,8 +69,6 @@ void Memotech64kRam::setDipSwitches(uint sw)
 
 	if (sw == dip_switches) return;
 	dip_switches = sw;
-
-	settings.setValue(key_memotech64k_dip_switches, dip_switches);
 
 	map_dip_switched_ram();
 }

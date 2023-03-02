@@ -7,8 +7,11 @@
 #include "MemoryInspector.h"
 #include "Templates/Array.h"
 class QComboBox;
-class GWidgetRGB;
 
+
+namespace gui
+{
+class GWidgetRGB;
 
 class MemoryAccessInspector : public MemoryInspector
 {
@@ -26,29 +29,29 @@ class MemoryAccessInspector : public MemoryInspector
 
 public:
 	MemoryAccessInspector(QWidget* parent, MachineController* mc, volatile IsaObject*);
-	~MemoryAccessInspector();
+	~MemoryAccessInspector() override;
 
 protected:
 	void resizeEvent(QResizeEvent*) override;
-	// void		wheelEvent(QWheelEvent*) override;
-	// void		paintEvent(QPaintEvent*) override;
-	// void		mousePressEvent(QMouseEvent*) override;
-	// void		mouseMoveEvent(QMouseEvent*) override;
-	// bool		event(QEvent*) override;
-	// void		keyPressEvent(QKeyEvent*) override;
-	// void		keyReleaseEvent(QKeyEvent*) override;
-	// void		showEvent(QShowEvent*) override;
-	// void		hideEvent(QHideEvent*) override;
+	// void wheelEvent(QWheelEvent*) override;
+	// void paintEvent(QPaintEvent*) override;
+	// void mousePressEvent(QMouseEvent*) override;
+	// void mouseMoveEvent(QMouseEvent*) override;
+	// bool event(QEvent*) override;
+	// void keyPressEvent(QKeyEvent*) override;
+	// void keyReleaseEvent(QKeyEvent*) override;
+	// void showEvent(QShowEvent*) override;
+	// void hideEvent(QHideEvent*) override;
 
 	void saveSettings() override;
 	void adjustSize(QSize&) override;
-	// void		adjustMaxSizeDuringResize() override;
+	// void adjustMaxSizeDuringResize() override;
 
 	void updateWidgets() override; // timer
 
-	// void		slotSetMemoryPage(int) override;	// combobox_memorypage
-	// void		setScrollPosition(int) override;	// scrollbar
-	// void		slotSetDataSource(int) override;	// combobox_datasource
+	// void slotSetMemoryPage(int) override;	// combobox_memorypage
+	// void setScrollPosition(int) override;	// scrollbar
+	// void slotSetDataSource(int) override;	// combobox_datasource
 	void slotMemoryConfigChanged(Memory*, uint how) override;
 
 private:
@@ -64,8 +67,10 @@ private:
 	void validate_rows();
 	void validate_bytes_per_row();
 	void validate_scrollposition();
-	void updateTooltip();
+	void update_tooltip();
 	void slotSetDecayMode(int);	  // combobox_decaymode
 	void slotSetPixelSize(int);	  // combobox_pixelzoom
 	void slotSetBytesPerRow(int); // combobox_bytes_per_row
 };
+
+} // namespace gui

@@ -8,10 +8,14 @@
 #include <QObject>
 
 
+namespace gui
+{
+
 class FdcPlus3Insp : public Inspector
 {
 	volatile FdcPlus3* fdc;
-	FloppyDiskDrive*   drive;
+
+	std::shared_ptr<FloppyDiskDrive> drive;
 
 	QPixmap overlay_disk_A_ejected;
 	QPixmap overlay_disk_A_inserted;
@@ -33,8 +37,8 @@ class FdcPlus3Insp : public Inspector
 	bool led_on;
 
 public:
-	FdcPlus3Insp(QWidget*, MachineController*, volatile IsaObject*);
-	~FdcPlus3Insp();
+	FdcPlus3Insp(QWidget*, MachineController*, volatile FdcPlus3*);
+	~FdcPlus3Insp() override;
 
 protected:
 	void paintEvent(QPaintEvent*) override;
@@ -44,8 +48,6 @@ protected:
 	void fillContextMenu(QMenu*) override;
 
 private:
-	bool motor_on();
-	bool side_B_up();
 	cstr get_save_filename(cstr msg = "Save +3 disc as…");
 	cstr get_load_filename(cstr msg = "Load +3 disc file…");
 	void set_disk_state(DiskState);
@@ -60,3 +62,5 @@ private:
 	void save_as();
 	void toggle_wprot(bool);
 };
+
+} // namespace gui

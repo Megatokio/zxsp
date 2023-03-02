@@ -217,8 +217,7 @@ static void classify_audio(const int16* samples, uint32 count, uint32 samples_pe
 				{
 					if ((i - last_i) & 1)
 						assert((samples[ranges[last_i].end - 1] > 0) != (samples[ranges[i].start] > 0));
-					else
-						assert((samples[ranges[last_i].end - 1] > 0) == (samples[ranges[i].start] > 0));
+					else assert((samples[ranges[last_i].end - 1] > 0) == (samples[ranges[i].start] > 0));
 				}
 				last_i = i;
 			}
@@ -237,7 +236,12 @@ static void classify_audio(const int16* samples, uint32 count, uint32 samples_pe
 	create empty audio data
 */
 AudioData::AudioData() :
-	TapeData(isa_AudioData), stereo(no), samples_per_second(0), audio_decoder(), adc_start_pos(), adc_end_pos()
+	TapeData(isa_AudioData),
+	stereo(no),
+	samples_per_second(0),
+	audio_decoder(),
+	adc_start_pos(),
+	adc_end_pos()
 {}
 
 
@@ -249,17 +253,26 @@ AudioData::~AudioData() {}
 /*	Creator from audio file
 	This does not actually read any samples into float_samples[] or int16_samples[]!
 */
-AudioData::AudioData(AudioDecoder* ad, uint32 a, uint32 e) :
-	TapeData(isa_AudioData), stereo(no), samples_per_second(ad->samplesPerSecond()), audio_decoder(ad),
-	adc_start_pos(a), adc_end_pos(e)
+AudioData::AudioData(std::shared_ptr<AudioDecoder> ad, uint32 a, uint32 e) :
+	TapeData(isa_AudioData),
+	stereo(no),
+	samples_per_second(ad->samplesPerSecond()),
+	audio_decoder(ad),
+	adc_start_pos(a),
+	adc_end_pos(e)
 {}
 
 
 /*	Copy Creator
  */
 AudioData::AudioData(const AudioData& q) :
-	TapeData(isa_AudioData), float_samples(q.float_samples), int16_samples(q.int16_samples), stereo(q.stereo),
-	samples_per_second(q.samples_per_second), audio_decoder(q.audio_decoder), adc_start_pos(q.adc_start_pos),
+	TapeData(isa_AudioData),
+	float_samples(q.float_samples),
+	int16_samples(q.int16_samples),
+	stereo(q.stereo),
+	samples_per_second(q.samples_per_second),
+	audio_decoder(q.audio_decoder),
+	adc_start_pos(q.adc_start_pos),
 	adc_end_pos(q.adc_end_pos)
 {}
 
@@ -271,7 +284,12 @@ AudioData::AudioData(const AudioData& q) :
 	TODO: specify sample rate -> possible use for sample rate conversion
 */
 AudioData::AudioData(const TapeData& q) :
-	TapeData(isa_AudioData), stereo(no), samples_per_second(0), audio_decoder(), adc_start_pos(), adc_end_pos()
+	TapeData(isa_AudioData),
+	stereo(no),
+	samples_per_second(0),
+	audio_decoder(),
+	adc_start_pos(),
+	adc_end_pos()
 {
 	xlogIn("AudioData(TapeData)");
 
@@ -293,7 +311,12 @@ AudioData::AudioData(const TapeData& q) :
 	stores mono audio data in int16_samples[]
 */
 AudioData::AudioData(const CswBuffer& q, uint32 sps) :
-	TapeData(isa_AudioData), stereo(no), samples_per_second(sps), audio_decoder(), adc_start_pos(), adc_end_pos()
+	TapeData(isa_AudioData),
+	stereo(no),
+	samples_per_second(sps),
+	audio_decoder(),
+	adc_start_pos(),
+	adc_end_pos()
 {
 	xlogIn("AudioData(CswBuffer)");
 
@@ -362,7 +385,16 @@ AudioData::AudioData(const CswBuffer& q, uint32 sps) :
 	If this is not true then read the audiofile in qa first!
 */
 CswBuffer::CswBuffer(const AudioData& qa, uint32 ccps) :
-	data(nullptr), max(0), end(0), cc_end(0), ccps(ccps), recording(no), pos(0), cc_pos(0), phase(0), cc_offset(0)
+	data(nullptr),
+	max(0),
+	end(0),
+	cc_end(0),
+	ccps(ccps),
+	recording(no),
+	pos(0),
+	cc_pos(0),
+	phase(0),
+	cc_offset(0)
 {
 	xlogIn("CswBuffer(AudioData)");
 
@@ -416,7 +448,7 @@ CswBuffer::CswBuffer(const AudioData& qa, uint32 ccps) :
 			}
 		}
 	}
-	else if (qa.audio_decoder.ptr() && (count = qa.adc_num_samples())) // audiofile exists:
+	else if (qa.audio_decoder && (count = qa.adc_num_samples())) // audiofile exists:
 	{
 		try
 		{
@@ -675,7 +707,7 @@ void AudioData::readFile(cstr fpath, TapeFile& tapeblocks) noexcept(false) // fi
 	assert(tapeblocks.count() == 0);
 
 	// create and open AudioFile:
-	AudioDecoder* decoder = new AudioDecoder();
+	std::shared_ptr<AudioDecoder> decoder {new AudioDecoder()};
 	decoder->open(fpath); // throws
 
 	// read audio data in one giant chunk: (10MB/minute)

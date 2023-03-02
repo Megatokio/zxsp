@@ -9,21 +9,15 @@
 #include "kio/kio.h"
 
 
-typedef double Time;	  // time	[s]
-typedef double Frequency; // frequency [1/s]
+using Time		= double; // time	[s]
+using Frequency = double; // frequency [1/s]
 
-typedef float		 Sample;
-typedef const Sample cSample;
+using Sample = float;
 class StereoSample;
-typedef const StereoSample cStereoSample;
 
 class FD;
 
-typedef uint8 uchar32[32];
-typedef uint8 uchar64[64];
-typedef uint8 uchar256[256];
-
-typedef uint32 CoreByte; // Z80
+using CoreByte = uint32; // Z80
 
 
 enum KbdMode {	// preferred keyboard translation:		((Kbd.h))
@@ -34,27 +28,19 @@ enum KbdMode {	// preferred keyboard translation:		((Kbd.h))
 };
 
 
-class Application;
-class WindowMenu;
-class ZxItemsMenu;
 class TempMemPool;
 
 // physical joysticks: usb/kbd-emu/none:
 class Joystick;
-typedef const Joystick cJoystick;
 class KbdJoystick;
 class UsbJoystick;
 
 class GifEncoder;
 class Pixelmap;
-typedef const Pixelmap cPixelmap;
 class ZxPixelmap;
-typedef uchar	   Comp;
-typedef const Comp cComp;
+using Comp = uchar;
 class Colormap;
-typedef const Colormap cColormap;
 struct ZxInfo;
-typedef const ZxInfo cZxInfo;
 
 class TapeFile;
 class TapeRecorder;
@@ -66,17 +52,7 @@ class AudioData;
 class RlesData;
 class CswBuffer;
 
-class MachineController;
 class Memory;
-
-class Screen;
-class ScreenMono;
-class ScreenZxsp;
-
-class ToolWindowController;
-class ToolWindow;
-class Inspector;
-class Lenslok;
 
 class IsaObject;
 class Renderer;
@@ -182,6 +158,27 @@ class SpectraVideo;
 class DivIDE;
 class CurrahMicroSpeech;
 
+namespace gui
+{
+class Application;
+class WindowMenu;
+class ZxItemsMenu;
+class Overlay;
+class OverlayJoystick;
+class OverlayRecord;
+class OverlayPlay;
+
+class MachineController;
+
+class Screen;
+class ScreenMono;
+class ScreenZxsp;
+
+class ToolWindowController;
+class ToolWindow;
+class Lenslok;
+
+class Inspector;
 class UlaInsp;
 class JoyInsp;
 class TapeRecorderInsp;
@@ -229,3 +226,4 @@ class Memotech64kRamInsp;
 class MemoryInspector;
 class SpectraVideoInspector;
 class DivIDEInspector;
+} // namespace gui

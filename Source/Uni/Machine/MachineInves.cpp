@@ -12,15 +12,12 @@
 #include "Ula/UlaInves.h"
 
 
-MachineInves::MachineInves(MachineController* m) : MachineZxsp(m, inves, isa_MachineInves)
+MachineInves::MachineInves(gui::MachineController* m) : MachineZxsp(m, inves, isa_MachineInves)
 {
-	cpu		 = new Z80(this);	   // must be 1st item
-	ula		 = new UlaInves(this); // should be 2nd item
-	mmu		 = new MmuInves(this);
-	keyboard = new KeyboardZxPlus(this);
-	// ay		=
-	joystick = new InvesJoy(this);
-	// fdc		=
-	// printer	=
-	taperecorder = new Walkman(this);
+	addItem(new Z80(this));		 // must be 1st item
+	addItem(new UlaInves(this)); // should be 2nd item
+	addItem(new MmuInves(this));
+	addItem(new KeyboardZxPlus(this));
+	addItem(new InvesJoy(this));
+	addItem(new Walkman(this));
 }

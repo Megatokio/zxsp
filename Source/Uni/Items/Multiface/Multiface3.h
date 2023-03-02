@@ -6,9 +6,9 @@
 #include "Multiface.h"
 
 
-class Multiface3 : public Multiface
+class Multiface3 final : public Multiface
 {
-	friend class Multiface3Insp;
+	friend class gui::Multiface3Insp;
 
 	bool  mf_enabled; // camouflage FF
 	bool  all_ram;	  // port 1FFD.bit0
@@ -18,6 +18,8 @@ public:
 	explicit Multiface3(Machine*);
 
 protected:
+	~Multiface3() override = default;
+
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
 	void reset(Time t, int32 cc) override;

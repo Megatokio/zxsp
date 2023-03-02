@@ -12,8 +12,8 @@
 class MachineZxPlus2a : public MachineZx128
 {
 protected:
-	MachineZxPlus2a(MachineController*, Model, isa_id);
+	MachineZxPlus2a(gui::MachineController*, Model, isa_id);
 
 public:
-	MachineZxPlus2a(MachineController*, Model);
+	MachineZxPlus2a(gui::MachineController*, Model);
 };

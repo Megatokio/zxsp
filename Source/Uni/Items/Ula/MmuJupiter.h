@@ -11,6 +11,9 @@ class MmuJupiter : public Mmu
 public:
 	explicit MmuJupiter(Machine*);
 
+protected:
+	~MmuJupiter() override = default;
+
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
 };

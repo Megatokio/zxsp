@@ -16,7 +16,7 @@
 // Frequency	samples_per_second	= 44100;
 
 
-namespace Dsp
+namespace os
 {
 
 // ---- core audio interrupt ----
@@ -105,8 +105,8 @@ inline void ReadInputData(const AudioBufferList* inInputData)
 		//	for( uint i=2; i<inInputData->mNumberBuffers; i++ ) {}
 
 		// copy audio-in buffers to audio_in_buffer to  (stereo -> stereo):
-		cSample* q0 = (cSample*)inInputData->mBuffers[0].mData;
-		cSample* q1 = (cSample*)inInputData->mBuffers[1].mData;
+		const Sample* q0 = (const Sample*)inInputData->mBuffers[0].mData;
+		const Sample* q1 = (const Sample*)inInputData->mBuffers[1].mData;
 		while (z < e) { *z++ = StereoSample(*q0++, *q1++); }
 	}
 	break;
@@ -120,21 +120,21 @@ inline void ReadInputData(const AudioBufferList* inInputData)
 		{
 		case 1: // mono
 		{
-			cSample* q = (cSample*)inInputData->mBuffers[0].mData;
+			const Sample* q = (const Sample*)inInputData->mBuffers[0].mData;
 			while (z < e) { *z++ = *q++; }
 		}
 		break;
 
 		case 2: // interleaved stereo ((99% of cases))
 		{
-			cStereoSample* q = (cStereoSample*)inInputData->mBuffers[0].mData;
+			const StereoSample* q = (const StereoSample*)inInputData->mBuffers[0].mData;
 			while (z < e) { *z++ = *q++; }
 		}
 		break;
 
 		default: // e.g. 6 channels: dolby 5.1?  l/r channel seem to be buffer[0/1]
 		{
-			cSample* q = (cSample*)inInputData->mBuffers[0].mData;
+			const Sample* q = (const Sample*)inInputData->mBuffers[0].mData;
 			while (z < e)
 			{
 				*z++ = *(StereoSample*)(q);
@@ -194,9 +194,9 @@ inline void WriteOutputData(AudioBufferList* outOutputData)
 		assert(buffers == 1 || channels == 1);
 	})
 
-	cStereoSample* q	  = audio_out_buffer;
-	cStereoSample* e	  = q + DSP_SAMPLES_PER_BUFFER;
-	Sample		   volume = audio_output_volume;
+	const StereoSample* q	   = audio_out_buffer;
+	const StereoSample* e	   = q + DSP_SAMPLES_PER_BUFFER;
+	Sample				volume = audio_output_volume;
 
 	switch (buffers)
 	{
@@ -269,12 +269,8 @@ inline void WriteOutputData(AudioBufferList* outOutputData)
 //	-that's what it's all about-
 //
 static OSStatus audioDeviceIOProc(
-	AudioDeviceID /*inDevice*/,
-	const AudioTimeStamp* /*inNow*/,
-	const AudioBufferList* inInputData,
-	const AudioTimeStamp*  inInputTime,
-	AudioBufferList*	   outOutputData,
-	const AudioTimeStamp*  inOutputTime,
+	AudioDeviceID /*inDevice*/, const AudioTimeStamp* /*inNow*/, const AudioBufferList* inInputData,
+	const AudioTimeStamp* inInputTime, AudioBufferList* outOutputData, const AudioTimeStamp* inOutputTime,
 	void* /*inClientData*/
 )
 {
@@ -282,7 +278,7 @@ static OSStatus audioDeviceIOProc(
 
 	TT; // Test Timer
 
-	PLocker lock(audio_callback_lock); // 2006-11-16 kio
+	PLocker<PLock> lock(audio_callback_lock); // 2006-11-16 kio
 
 	try
 	{
@@ -291,8 +287,7 @@ static OSStatus audioDeviceIOProc(
 			static float64 lasttime = 0;
 			if (inInputTime->mSampleTime - lasttime != DSP_SAMPLES_PER_BUFFER && lasttime != 0.0)
 				logline(
-					"WARNING audio-in at sample %lu: Δ samples = %lu",
-					(ulong)inInputTime->mSampleTime,
+					"WARNING audio-in at sample %lu: Δ samples = %lu", (ulong)inInputTime->mSampleTime,
 					(ulong)(inInputTime->mSampleTime - lasttime));
 			lasttime = inInputTime->mSampleTime;
 
@@ -302,8 +297,7 @@ static OSStatus audioDeviceIOProc(
 				ReadInputData(inInputData);
 				if (0) HighpassInputBuffer();
 			}
-			else
-				ClearInputBuffer();
+			else ClearInputBuffer();
 		}
 		else // audio-out-only callback for systems with different audio-in and -out device IDs
 		{
@@ -320,8 +314,7 @@ static OSStatus audioDeviceIOProc(
 			static float64 lasttime = 0;
 			if (inOutputTime->mSampleTime - lasttime != DSP_SAMPLES_PER_BUFFER && lasttime != 0.0)
 				logline(
-					"WARNING audio-out at sample %lu: Δ samples = %lu",
-					(ulong)inOutputTime->mSampleTime,
+					"WARNING audio-out at sample %lu: Δ samples = %lu", (ulong)inOutputTime->mSampleTime,
 					(ulong)(inOutputTime->mSampleTime - lasttime));
 			lasttime = inOutputTime->mSampleTime;
 
@@ -356,9 +349,7 @@ static OSStatus audioDeviceIOProc(
 						if (t > max) max = t;
 					}
 					xlogline(
-						"audio-out interrupt: min %.3f msec, max %.3f msec, average %.3f msec",
-						min * 1000,
-						max * 1000,
+						"audio-out interrupt: min %.3f msec, max %.3f msec, average %.3f msec", min * 1000, max * 1000,
 						time);
 				}
 			}
@@ -388,9 +379,7 @@ static OSStatus audioDeviceIOProc(
 						if (t > max) max = t;
 					}
 					xlogline(
-						"audio-in  interrupt: min %.3f msec, max %.3f msec, average %.3f msec",
-						min * 1000,
-						max * 1000,
+						"audio-in  interrupt: min %.3f msec, max %.3f msec, average %.3f msec", min * 1000, max * 1000,
 						time);
 				}
 			}
@@ -421,7 +410,7 @@ void stopCoreAudio()
 	(void)AudioDeviceStop(output_device_id, audio_out_ioProcID); // kio 2012-08-08
 
 	// wait for any current sound callback to finish:
-	PLocker lock(audio_callback_lock);
+	PLocker<PLock> lock(audio_callback_lock);
 	//    waitDelay(0.01);
 }
 
@@ -449,7 +438,7 @@ void startCoreAudio(bool input_enabled) //, int playthrough_mode)
 #endif
 
 	// block audio interrupt until setup completed:
-	PLocker lock(audio_callback_lock);
+	PLocker<PLock> lock(audio_callback_lock);
 
 	// clear stitching samples: (required?)
 	for (int i = 0; i < DSP_SAMPLES_STITCHING; i++)
@@ -473,9 +462,7 @@ void startCoreAudio(bool input_enabled) //, int playthrough_mode)
 		status			  = AudioObjectGetPropertyData(
 			   kAudioObjectSystemObject,
 			   &address, // kio 2012-04-29
-			   0,
-			   nullptr,
-			   &propertySize,
+			   0, nullptr, &propertySize,
 			   &output_device_id); // kio 2012-04-29
 
 		if (status) throw AnyError("GetDefaultOutputDevice");
@@ -568,9 +555,7 @@ void startCoreAudio(bool input_enabled) //, int playthrough_mode)
 		address.mElement  = kAudioObjectPropertyElementMaster;		  // kio 2012-04-29
 
 		status = AudioObjectGetPropertyData(
-			kAudioObjectSystemObject,
-			&address,
-			0,
+			kAudioObjectSystemObject, &address, 0,
 			nullptr, // kio 2012-04-29
 			&propertySize,
 			&input_device_id); // kio 2012-04-29
@@ -654,7 +639,7 @@ void startCoreAudio(bool input_enabled) //, int playthrough_mode)
 	}
 	catch (AnyError& e)
 	{
-		if (settings.get_bool(key_warn_if_audio_in_fails, yes))
+		if (gui::settings.get_bool(gui::key_warn_if_audio_in_fails, yes))
 		{
 			xlogline("Dsp: Audio input setup failed:");
 			xlogline(status ? "Dsp: %s: error = %ld." : "Dsp: %s.", e.what(), status);
@@ -704,4 +689,4 @@ void startCoreAudio(bool input_enabled) //, int playthrough_mode)
 //	}
 //}
 
-} // namespace Dsp
+} // namespace os

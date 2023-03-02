@@ -7,8 +7,13 @@
 #include <QComboBox>
 #include <QLineEdit>
 
+namespace gui
+{
+
 class AyInsp : public Inspector
 {
+	volatile Ay* const ay;
+
 	QLineEdit *clock, *pitch_a, *pitch_b, *pitch_c, *mixer, *vol_a, *vol_b, *vol_c, *pitch_n, *pitch_e, *shape_e,
 		*port_a, *port_b;
 
@@ -22,13 +27,15 @@ class AyInsp : public Inspector
 	} value;
 
 public:
-	AyInsp(QWidget*, MachineController*, volatile IsaObject*);
+	AyInsp(QWidget*, MachineController*, volatile Ay*);
 
 protected:
 	void updateWidgets() override;
 
 private:
 	QLineEdit* new_led(cstr);
-	void	   set_register(uint, uint);
+	void	   set_register(volatile Ay* ay, uint, uint8);
 	void	   handle_return_in_led(QLineEdit*);
 };
+
+} // namespace gui

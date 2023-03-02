@@ -627,8 +627,7 @@ void TzxBlock15::write(CswBuffer& bu) const
 			i++;
 			j = 0;
 		}
-		if (b == bit)
-			n++;
+		if (b == bit) n++;
 		else
 		{
 			bu.writePulse(n * sps, bit);
@@ -638,10 +637,8 @@ void TzxBlock15::write(CswBuffer& bu) const
 	}
 	bu.writePulse(n * sps, bit);
 
-	if (pause_ms)
-		bu.writeTzxPause(pause_ms * 0.001);
-	else
-		bu.writePulseCc(0); // -> current level := not toggled
+	if (pause_ms) bu.writeTzxPause(pause_ms * 0.001);
+	else bu.writePulseCc(0); // -> current level := not toggled
 }
 
 
@@ -767,10 +764,8 @@ void TzxBlock18::write(CswBuffer& bu) const
 		}
 	}
 
-	if (pause_ms)
-		bu.writeTzxPause(pause_ms * 0.001);
-	else
-		bu.writePulseCc(0); // last pulse level := don't toggle
+	if (pause_ms) bu.writeTzxPause(pause_ms * 0.001);
+	else bu.writePulseCc(0); // last pulse level := don't toggle
 }
 
 
@@ -1939,11 +1934,12 @@ TzxBlock11::TzxBlock11(const TapData& q) : TzxBlock(0x11, yes), data(nullptr)
 		bu.count=0 & last_pulse_is_pause=0 => pause_ms=0:  omit block or toggle polarity with Block2B 'set polarity'
 */
 TzxBlock18::TzxBlock18(const CswBuffer& bu, bool last_pulse_is_pause) :
-	TzxBlock(0x18, yes), blen(10 + bu.getTotalPulses()), // block length (without these 4 bytes)
-	pause_ms(0),										 // no pause after this block
-	sam_per_sec((bu.ccPerSecond() + 8) >> 4),			 // sps/16
-	compression(1),										 // 0x01=RLE, 0x02=Z-compressed RLE
-	num_pulses(bu.getTotalPulses()),					 // Number of stored pulses: after decompression, for validation
+	TzxBlock(0x18, yes),
+	blen(10 + bu.getTotalPulses()),			  // block length (without these 4 bytes)
+	pause_ms(0),							  // no pause after this block
+	sam_per_sec((bu.ccPerSecond() + 8) >> 4), // sps/16
+	compression(1),							  // 0x01=RLE, 0x02=Z-compressed RLE
+	num_pulses(bu.getTotalPulses()),		  // Number of stored pulses: after decompression, for validation
 	data(nullptr)
 {
 	xlogIn("TzxBlock: new Block18(CswBuffer)");
@@ -2042,7 +2038,11 @@ TzxBlock18::TzxBlock18(const CswBuffer& bu, bool last_pulse_is_pause) :
 	erkannt werden! Alle Daten würden verschoben geladen und die ganze Warterei war umsonst…
 */
 TzxBlock19::TzxBlock19(const O80Data& q) :
-	TzxBlock(0x19, yes), p_symdef(nullptr), p_data(nullptr), d_symdef(nullptr), d_data(nullptr)
+	TzxBlock(0x19, yes),
+	p_symdef(nullptr),
+	p_data(nullptr),
+	d_symdef(nullptr),
+	d_data(nullptr)
 {
 	// pilot: one low pulse for 1/4 sec:
 	p_symdef_cnt = 1;			  // Number of symbols in the pilot alphabet table (0=256)
@@ -2075,26 +2075,8 @@ TzxBlock19::TzxBlock19(const O80Data& q) :
 	const uint lopuls = 520 * 350 / 325;
 	const uint bitgap = 4689 * 350 / 325;
 
-	uint16 qdata[19] = {
-		hipuls,
-		lopuls,
-		hipuls,
-		lopuls,
-		hipuls,
-		lopuls,
-		hipuls,
-		lopuls,
-		hipuls,
-		lopuls,
-		hipuls,
-		lopuls,
-		hipuls,
-		lopuls,
-		hipuls,
-		lopuls,
-		hipuls,
-		bitgap,
-		0};
+	uint16 qdata[19] = {hipuls, lopuls, hipuls, lopuls, hipuls, lopuls, hipuls, lopuls, hipuls, lopuls,
+						hipuls, lopuls, hipuls, lopuls, hipuls, lopuls, hipuls, bitgap, 0};
 
 	d_symdef = new SymDef[2]; // if d_data_cnt>0: symdef[d_symdef_cnt]
 
@@ -2185,6 +2167,7 @@ void TzxData::writeFile(cstr fpath, TapeFile& tapeblocks, TzxConversionStyle sty
 
 		case TzxConversionDefault:
 			if (tzxdata) break;
+			FALLTHROUGH
 
 		case TzxConversionIdealize:
 			tzxdata = (tapdata = block->getTapData()) && tapdata->trust_level >= conversion_success ?
@@ -2358,7 +2341,8 @@ TzxData::TzxData(const O80Data& q) : TapeData(isa_TzxData, q.trust_level), data(
 	• if num_pulses = 1 then a Block20 'pause' is returned instead
 */
 TzxData::TzxData(const CswBuffer& bu, TzxConversionStyle /*currently ignored TODO*/) :
-	TapeData(isa_TzxData), data(nullptr)
+	TapeData(isa_TzxData),
+	data(nullptr)
 {
 	assert(bu.getTotalCc() > 0);
 	assert(bu.is_normalized());
@@ -2366,8 +2350,7 @@ TzxData::TzxData(const CswBuffer& bu, TzxConversionStyle /*currently ignored TOD
 	data = new TzxBlock2B(bu.getPhase0()); // set polarity
 
 	TzxBlock18* dat = new TzxBlock18(bu, yes);
-	if (dat->num_pulses)
-		data->append(dat);
+	if (dat->num_pulses) data->append(dat);
 	else
 	{
 		TzxBlock20* gap = new TzxBlock20(dat->pause_ms);

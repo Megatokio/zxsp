@@ -56,45 +56,45 @@
 #define CC_WAIT_W(CC) cc += pg.waitmap_w[(CC) % pg.waitmap_w_size]
 
 
-#define OUTPUT(A, R)                                                                                                   \
-  do {                                                                                                                 \
-	cpu_cycle = cc += 3;                                                                                               \
-	machine->outputAtCycle(cc, A, R); /* cc of bus cycle */                                                            \
-	cc	   = cpu_cycle + 1;                                                                                            \
-	cc_max = min(cc_max, cc_nmi);                                                                                      \
-  }                                                                                                                    \
+#define OUTPUT(A, R)                                        \
+  do {                                                      \
+	cpu_cycle = cc += 3;                                    \
+	machine->outputAtCycle(cc, A, R); /* cc of bus cycle */ \
+	cc	   = cpu_cycle + 1;                                 \
+	cc_max = min(cc_max, cc_nmi);                           \
+  }                                                         \
   while (0)
 
-#define INPUT(A, R)                                                                                                    \
-  do {                                                                                                                 \
-	cpu_cycle = cc += 3;                                                                                               \
-	R		  = machine->inputAtCycle(cc, A); /* cc of bus cycle */                                                    \
-	cc		  = cpu_cycle + 1;                                                                                         \
-  }                                                                                                                    \
+#define INPUT(A, R)                                                 \
+  do {                                                              \
+	cpu_cycle = cc += 3;                                            \
+	R		  = machine->inputAtCycle(cc, A); /* cc of bus cycle */ \
+	cc		  = cpu_cycle + 1;                                      \
+  }                                                                 \
   while (0)
 
 
-#define PEEK(R, A)                                                                                                     \
-  do {                                                                                                                 \
-	PgInfo& pg = getPage(A);                                                                                           \
-	z32		   = pg.both_r(A);                                                                                         \
-	c		   = uint8(z32);                                                                                           \
-	if ((z32 &= options))                                                                                              \
-	{                                                                                                                  \
-	  if (z32 & cpu_break_r)                                                                                           \
-	  {                                                                                                                \
-		break_addr = A;                                                                                                \
-		result	   = cpu_exit_r;                                                                                       \
-		ic_max	   = 0;                                                                                                \
-	  }                                                                                                                \
-	  if (z32 & cpu_waitmap) { CC_WAIT_R(cc + 2); }                                                                    \
-	  if (z32 & cpu_r_access) { pg.both_r(A) -= cpu_r_access; }                                                        \
-	  if (z32 & cpu_floating_bus) { c = machine->ula->getFloatingBusByte(cc); }                                        \
-	  if (z32 & cpu_memmapped_r) { c = machine->readMemMappedPort(cc + 2, A, c); }                                     \
-	};                                                                                                                 \
-	cc += 3;                                                                                                           \
-	R = c;                                                                                                             \
-  }                                                                                                                    \
+#define PEEK(R, A)                                                                 \
+  do {                                                                             \
+	PgInfo& pg = getPage(A);                                                       \
+	z32		   = pg.both_r(A);                                                     \
+	c		   = uint8(z32);                                                       \
+	if ((z32 &= options))                                                          \
+	{                                                                              \
+	  if (z32 & cpu_break_r)                                                       \
+	  {                                                                            \
+		break_addr = A;                                                            \
+		result	   = cpu_exit_r;                                                   \
+		ic_max	   = 0;                                                            \
+	  }                                                                            \
+	  if (z32 & cpu_waitmap) { CC_WAIT_R(cc + 2); }                                \
+	  if (z32 & cpu_r_access) { pg.both_r(A) -= cpu_r_access; }                    \
+	  if (z32 & cpu_floating_bus) { c = machine->ula->getFloatingBusByte(cc); }    \
+	  if (z32 & cpu_memmapped_r) { c = machine->readMemMappedPort(cc + 2, A, c); } \
+	};                                                                             \
+	cc += 3;                                                                       \
+	R = c;                                                                         \
+  }                                                                                \
   while (0)
 
 /*	write byte to ram:
@@ -102,152 +102,152 @@
 	write to secondary page_w2 if not null
 	wait cycles are only added for primary page
 */
-#define POKE(A, R)                                                                                                     \
-  do {                                                                                                                 \
-	cc += 2;                                                                                                           \
-	PgInfo& pg = getPage(A);                                                                                           \
-	if ((z32 = pg.both_w(A) & options))                                                                                \
-	{                                                                                                                  \
-	  if (z32 & cpu_waitmap) { CC_WAIT_W(cc); }                                                                        \
-	  if (z32 & cpu_break_w)                                                                                           \
-	  {                                                                                                                \
-		break_addr = A;                                                                                                \
-		result	   = cpu_exit_w;                                                                                       \
-		ic_max	   = 0;                                                                                                \
-	  }                                                                                                                \
-	  if (z32 & cpu_crtc)                                                                                              \
-	  {                                                                                                                \
-		if (cc >= cc_crtc) cc_crtc = crtc->updateScreenUpToCycle(cc);                                                  \
-	  }                                                                                                                \
-	  if (z32 & cpu_w_access) { pg.both_w(A) -= cpu_w_access; }                                                        \
-	  if (z32 & cpu_memmapped_w) { machine->writeMemMappedPort(cc, A, R); }                                            \
-	};                                                                                                                 \
-	if (pg.core_w2)                                                                                                    \
-	{                                                                                                                  \
-	  if ((z32 = pg.both_w2(A) & options))                                                                             \
-	  {                                                                                                                \
-		if (z32 & cpu_break_w)                                                                                         \
-		{                                                                                                              \
-		  break_addr = A;                                                                                              \
-		  result	 = cpu_exit_w;                                                                                     \
-		  ic_max	 = 0;                                                                                              \
-		}                                                                                                              \
-		if (z32 & cpu_crtc)                                                                                            \
-		{                                                                                                              \
-		  if (cc >= cc_crtc) cc_crtc = crtc->updateScreenUpToCycle(cc);                                                \
-		}                                                                                                              \
-		if (z32 & cpu_w_access) { pg.both_w(A) -= cpu_w_access; }                                                      \
-		if (z32 & cpu_memmapped_w) { machine->writeMemMappedPort(cc, A, R); }                                          \
-	  }                                                                                                                \
-	  pg.data_w2(A) = R;                                                                                               \
-	}                                                                                                                  \
-	pg.data_w(A) = R;                                                                                                  \
-	cc += 1;                                                                                                           \
-  }                                                                                                                    \
+#define POKE(A, R)                                                            \
+  do {                                                                        \
+	cc += 2;                                                                  \
+	PgInfo& pg = getPage(A);                                                  \
+	if ((z32 = pg.both_w(A) & options))                                       \
+	{                                                                         \
+	  if (z32 & cpu_waitmap) { CC_WAIT_W(cc); }                               \
+	  if (z32 & cpu_break_w)                                                  \
+	  {                                                                       \
+		break_addr = A;                                                       \
+		result	   = cpu_exit_w;                                              \
+		ic_max	   = 0;                                                       \
+	  }                                                                       \
+	  if (z32 & cpu_crtc)                                                     \
+	  {                                                                       \
+		if (cc >= cc_crtc) cc_crtc = crtc->updateScreenUpToCycle(cc);         \
+	  }                                                                       \
+	  if (z32 & cpu_w_access) { pg.both_w(A) -= cpu_w_access; }               \
+	  if (z32 & cpu_memmapped_w) { machine->writeMemMappedPort(cc, A, R); }   \
+	};                                                                        \
+	if (pg.core_w2)                                                           \
+	{                                                                         \
+	  if ((z32 = pg.both_w2(A) & options))                                    \
+	  {                                                                       \
+		if (z32 & cpu_break_w)                                                \
+		{                                                                     \
+		  break_addr = A;                                                     \
+		  result	 = cpu_exit_w;                                            \
+		  ic_max	 = 0;                                                     \
+		}                                                                     \
+		if (z32 & cpu_crtc)                                                   \
+		{                                                                     \
+		  if (cc >= cc_crtc) cc_crtc = crtc->updateScreenUpToCycle(cc);       \
+		}                                                                     \
+		if (z32 & cpu_w_access) { pg.both_w(A) -= cpu_w_access; }             \
+		if (z32 & cpu_memmapped_w) { machine->writeMemMappedPort(cc, A, R); } \
+	  }                                                                       \
+	  pg.data_w2(A) = R;                                                      \
+	}                                                                         \
+	pg.data_w(A) = R;                                                         \
+	cc += 1;                                                                  \
+  }                                                                           \
   while (0)
 
-#define PEEK_INSTR(R)                                                                                                  \
-  do {                                                                                                                 \
-	PgInfo& pg = getPage(pc);                                                                                          \
-	z32		   = pg.both_r(pc);                                                                                        \
-	R		   = uint8(z32);                                                                                           \
-	if ((z32 & options & cpu_crtc_zx81) && (pc & 0x8000))                                                              \
-	{                                                                                                                  \
-	  R = peek(pc & 0x7fff);                                                                                           \
-	  if (~R & 0x40) R = NOP;                                                                                          \
-	};                                                                                                                 \
-  }                                                                                                                    \
+#define PEEK_INSTR(R)                                     \
+  do {                                                    \
+	PgInfo& pg = getPage(pc);                             \
+	z32		   = pg.both_r(pc);                           \
+	R		   = uint8(z32);                              \
+	if ((z32 & options & cpu_crtc_zx81) && (pc & 0x8000)) \
+	{                                                     \
+	  R = peek(pc & 0x7fff);                              \
+	  if (~R & 0x40) R = NOP;                             \
+	};                                                    \
+  }                                                       \
   while (0)
 
 /* get the first instruction byte:
  */
-#define GET_INSTR(R)                                                                                                   \
-  do {                                                                                                                 \
-	PgInfo& pg = getPage(pc);                                                                                          \
-	z32		   = pg.both_r(pc);                                                                                        \
-	R		   = uint8(z32);                                                                                           \
-	if ((z32 &= options))                                                                                              \
-	{                                                                                                                  \
-	  if (z32 & cpu_break_x)                                                                                           \
-	  {                                                                                                                \
-		if (machine->break_ptr == &pg.both_r(pc)) { machine->break_ptr = nullptr; }                                    \
-		else                                                                                                           \
-		{                                                                                                              \
-		  break_addr = pc;                                                                                             \
-		  result	 = cpu_exit_x;                                                                                     \
-		  EXIT;                                                                                                        \
-		}                                                                                                              \
-	  }                                                                                                                \
-	  if (z32 & cpu_patch)                                                                                             \
-	  {                                                                                                                \
-		SAVE_REGISTERS;                                                                                                \
-		R = machine->handleRomPatch(pc, R);                                                                            \
-		LOAD_REGISTERS;                                                                                                \
-	  }                                                                                                                \
-	  if (z32 & cpu_waitmap) { CC_WAIT_R(cc + 2); }                                                                    \
-	  if (z32 & cpu_crtc_zx81)                                                                                         \
-	  {                                                                                                                \
-		if (pc & 0x8000)                                                                                               \
-		{                                                                                                              \
-		  R = peek(pc & 0x7fff);                                                                                       \
-		  if (~R & 0x40)                                                                                               \
-		  {                                                                                                            \
-			UlaZx80Ptr(crtc)->crtcRead(cc, R);                                                                         \
-			R = NOP;                                                                                                   \
-		  }                                                                                                            \
-		}                                                                                                              \
-		if (~r & 0x40 && IFF1 == enabled)                                                                              \
-		{                                                                                                              \
-		  cc_irpt_on  = cc + 2;                                                                                        \
-		  cc_irpt_off = cc + 5;                                                                                        \
-		  cc_max	  = cc;                                                                                            \
-		}                                                                                                              \
-	  }                                                                                                                \
-	  if (z32 & cpu_x_access) { pg.both_r(pc) -= cpu_x_access; }                                                       \
-	}                                                                                                                  \
-	ic += 1;                                                                                                           \
-	cc += 4;                                                                                                           \
-	pc += 1;                                                                                                           \
-	r += 1;                                                                                                            \
-  }                                                                                                                    \
+#define GET_INSTR(R)                                                                \
+  do {                                                                              \
+	PgInfo& pg = getPage(pc);                                                       \
+	z32		   = pg.both_r(pc);                                                     \
+	R		   = uint8(z32);                                                        \
+	if ((z32 &= options))                                                           \
+	{                                                                               \
+	  if (z32 & cpu_break_x)                                                        \
+	  {                                                                             \
+		if (machine->break_ptr == &pg.both_r(pc)) { machine->break_ptr = nullptr; } \
+		else                                                                        \
+		{                                                                           \
+		  break_addr = pc;                                                          \
+		  result	 = cpu_exit_x;                                                  \
+		  EXIT;                                                                     \
+		}                                                                           \
+	  }                                                                             \
+	  if (z32 & cpu_patch)                                                          \
+	  {                                                                             \
+		SAVE_REGISTERS;                                                             \
+		R = machine->handleRomPatch(pc, R);                                         \
+		LOAD_REGISTERS;                                                             \
+	  }                                                                             \
+	  if (z32 & cpu_waitmap) { CC_WAIT_R(cc + 2); }                                 \
+	  if (z32 & cpu_crtc_zx81)                                                      \
+	  {                                                                             \
+		if (pc & 0x8000)                                                            \
+		{                                                                           \
+		  R = peek(pc & 0x7fff);                                                    \
+		  if (~R & 0x40)                                                            \
+		  {                                                                         \
+			static_cast<UlaZx80*>(crtc)->crtcRead(cc, R);                           \
+			R = NOP;                                                                \
+		  }                                                                         \
+		}                                                                           \
+		if (~r & 0x40 && IFF1 == enabled)                                           \
+		{                                                                           \
+		  cc_irpt_on  = cc + 2;                                                     \
+		  cc_irpt_off = cc + 5;                                                     \
+		  cc_max	  = cc;                                                         \
+		}                                                                           \
+	  }                                                                             \
+	  if (z32 & cpu_x_access) { pg.both_r(pc) -= cpu_x_access; }                    \
+	}                                                                               \
+	ic += 1;                                                                        \
+	cc += 4;                                                                        \
+	pc += 1;                                                                        \
+	r += 1;                                                                         \
+  }                                                                                 \
   while (0)
 
 /* get the second instruction byte after ED, CB or XY opcode:
    note: ic+=1 required for .rzx support
 */
-#define GET_INSTR2(R)                                                                                                  \
-  do {                                                                                                                 \
-	PgInfo& pg = getPage(pc);                                                                                          \
-	z32		   = pg.both_r(pc);                                                                                        \
-	R		   = uint8(z32);                                                                                           \
-	if ((z32 &= options))                                                                                              \
-	{                                                                                                                  \
-	  if (z32 & cpu_waitmap) { CC_WAIT_R(cc + 2); }                                                                    \
-	  if (z32 & cpu_crtc_zx81)                                                                                         \
-	  {                                                                                                                \
-		if (pc & 0x8000)                                                                                               \
-		{                                                                                                              \
-		  R = peek(pc & 0x7fff);                                                                                       \
-		  if (~R & 0x40)                                                                                               \
-		  {                                                                                                            \
-			UlaZx80Ptr(crtc)->crtcRead(cc, R);                                                                         \
-			R = NOP;                                                                                                   \
-		  }                                                                                                            \
-		}                                                                                                              \
-		if (~r & 0x40 && IFF1 == enabled)                                                                              \
-		{                                                                                                              \
-		  cc_irpt_on  = cc + 2;                                                                                        \
-		  cc_irpt_off = cc + 5;                                                                                        \
-		  cc_max	  = cc;                                                                                            \
-		}                                                                                                              \
-	  }                                                                                                                \
-	  if (z32 & cpu_x_access) { pg.both_r(pc) -= cpu_x_access; }                                                       \
-	}                                                                                                                  \
-	ic += 1;                                                                                                           \
-	cc += 4;                                                                                                           \
-	pc += 1;                                                                                                           \
-	r += 1;                                                                                                            \
-  }                                                                                                                    \
+#define GET_INSTR2(R)                                            \
+  do {                                                           \
+	PgInfo& pg = getPage(pc);                                    \
+	z32		   = pg.both_r(pc);                                  \
+	R		   = uint8(z32);                                     \
+	if ((z32 &= options))                                        \
+	{                                                            \
+	  if (z32 & cpu_waitmap) { CC_WAIT_R(cc + 2); }              \
+	  if (z32 & cpu_crtc_zx81)                                   \
+	  {                                                          \
+		if (pc & 0x8000)                                         \
+		{                                                        \
+		  R = peek(pc & 0x7fff);                                 \
+		  if (~R & 0x40)                                         \
+		  {                                                      \
+			static_cast<UlaZx80*>(crtc)->crtcRead(cc, R);        \
+			R = NOP;                                             \
+		  }                                                      \
+		}                                                        \
+		if (~r & 0x40 && IFF1 == enabled)                        \
+		{                                                        \
+		  cc_irpt_on  = cc + 2;                                  \
+		  cc_irpt_off = cc + 5;                                  \
+		  cc_max	  = cc;                                      \
+		}                                                        \
+	  }                                                          \
+	  if (z32 & cpu_x_access) { pg.both_r(pc) -= cpu_x_access; } \
+	}                                                            \
+	ic += 1;                                                     \
+	cc += 4;                                                     \
+	pc += 1;                                                     \
+	r += 1;                                                      \
+  }                                                              \
   while (0)
 
 #define GET_ED_OP(R) GET_INSTR2(R)
@@ -256,44 +256,44 @@
 
 /* NMI starts with a fake opcode fetch:
  */
-#define GET_INSTR_FOR_NMI()                                                                                            \
-  do {                                                                                                                 \
-	cc_nmi	   = machine->nmiAtCycle(cc);                                                                              \
-	PgInfo& pg = getPage(pc);                                                                                          \
-	z32		   = pg.both_r(pc) & options;                                                                              \
-	if (z32 & cpu_waitmap) { CC_WAIT_R(cc + 2); }                                                                      \
-	cc += 5;                                                                                                           \
-	r += 1;                                                                                                            \
-  }                                                                                                                    \
+#define GET_INSTR_FOR_NMI()                       \
+  do {                                            \
+	cc_nmi	   = machine->nmiAtCycle(cc);         \
+	PgInfo& pg = getPage(pc);                     \
+	z32		   = pg.both_r(pc) & options;         \
+	if (z32 & cpu_waitmap) { CC_WAIT_R(cc + 2); } \
+	cc += 5;                                      \
+	r += 1;                                       \
+  }                                               \
   while (0)
 
 /*	get next byte (ip++)
  */
-#define GET_BYTE(R)                                                                                                    \
-  do {                                                                                                                 \
-	PgInfo& pg = getPage(pc);                                                                                          \
-	z32		   = pg.both_r(pc);                                                                                        \
-	R		   = uint8(z32);                                                                                           \
-	if ((z32 &= options))                                                                                              \
-	{                                                                                                                  \
-	  if (z32 & cpu_waitmap) { CC_WAIT_R(cc + 2); }                                                                    \
-	  if (z32 & cpu_x_access) { pg.both_r(pc) -= cpu_x_access; }                                                       \
-	};                                                                                                                 \
-	pc += 1;                                                                                                           \
-	cc += 3;                                                                                                           \
-  }                                                                                                                    \
+#define GET_BYTE(R)                                              \
+  do {                                                           \
+	PgInfo& pg = getPage(pc);                                    \
+	z32		   = pg.both_r(pc);                                  \
+	R		   = uint8(z32);                                     \
+	if ((z32 &= options))                                        \
+	{                                                            \
+	  if (z32 & cpu_waitmap) { CC_WAIT_R(cc + 2); }              \
+	  if (z32 & cpu_x_access) { pg.both_r(pc) -= cpu_x_access; } \
+	};                                                           \
+	pc += 1;                                                     \
+	cc += 3;                                                     \
+  }                                                              \
   while (0)
 
-#define GET_N(R)                                                                                                       \
-  do {                                                                                                                 \
-	GET_BYTE(R);                                                                                                       \
-  }                                                                                                                    \
+#define GET_N(R) \
+  do {           \
+	GET_BYTE(R); \
+  }              \
   while (0)
-#define GET_XYCB_OP(R)                                                                                                 \
-  do {                                                                                                                 \
-	GET_BYTE(R);                                                                                                       \
-	SKIP_2X1CC(pc - 1);                                                                                                \
-  }                                                                                                                    \
+#define GET_XYCB_OP(R)  \
+  do {                  \
+	GET_BYTE(R);        \
+	SKIP_2X1CC(pc - 1); \
+  }                     \
   while (0)
 
 
@@ -307,16 +307,16 @@
 	XYCB rlc:	pc:4, pc+1:4, pc+2:3, pc+3:3,2, ix+n:3,1, ix+n:3
 	XYCB set:	pc:4, pc+1:4, pc+2:3, pc+3:3,2, ix+n:3,1, ix+n:3
 */
-#define SKIP_1CC(A)                                                                                                    \
-  do {                                                                                                                 \
-	cc += 1;                                                                                                           \
-	if (options & cpu_ula_sinclair)                                                                                    \
-	{                                                                                                                  \
-	  PgInfo& pg = getPage(A);                                                                                         \
-	  z32		 = pg.both_r(A);                                                                                       \
-	  if (z32 & options & cpu_waitmap) { CC_WAIT_R(cc + 1); }                                                          \
-	}                                                                                                                  \
-  }                                                                                                                    \
+#define SKIP_1CC(A)                                           \
+  do {                                                        \
+	cc += 1;                                                  \
+	if (options & cpu_ula_sinclair)                           \
+	{                                                         \
+	  PgInfo& pg = getPage(A);                                \
+	  z32		 = pg.both_r(A);                              \
+	  if (z32 & options & cpu_waitmap) { CC_WAIT_R(cc + 1); } \
+	}                                                         \
+  }                                                           \
   while (0)
 
 
@@ -328,20 +328,20 @@
 	ld (ix),n	pc:4, pc+1:4, pc+2:3, pc+3:3,2x1, ix+n:3
 	GET_XYCB_OP
 */
-#define SKIP_2X1CC(A)                                                                                                  \
-  do {                                                                                                                 \
-	cc += 2;                                                                                                           \
-	if (options & cpu_ula_sinclair)                                                                                    \
-	{                                                                                                                  \
-	  PgInfo& pg = getPage(A);                                                                                         \
-	  z32		 = pg.both_r(A);                                                                                       \
-	  if (z32 & options & cpu_waitmap)                                                                                 \
-	  {                                                                                                                \
-		CC_WAIT_R(cc + 0);                                                                                             \
-		CC_WAIT_R(cc + 1);                                                                                             \
-	  }                                                                                                                \
-	}                                                                                                                  \
-  }                                                                                                                    \
+#define SKIP_2X1CC(A)                  \
+  do {                                 \
+	cc += 2;                           \
+	if (options & cpu_ula_sinclair)    \
+	{                                  \
+	  PgInfo& pg = getPage(A);         \
+	  z32		 = pg.both_r(A);       \
+	  if (z32 & options & cpu_waitmap) \
+	  {                                \
+		CC_WAIT_R(cc + 0);             \
+		CC_WAIT_R(cc + 1);             \
+	  }                                \
+	}                                  \
+  }                                    \
   while (0)
 
 
@@ -349,22 +349,22 @@
 	rld		pc:4, pc+1:4, hl:3,4*1, hl:3
 	rrd		pc:4, pc+1:4, hl:3,4*1, hl:3
 */
-#define SKIP_4X1CC(A)                                                                                                  \
-  do {                                                                                                                 \
-	cc += 4;                                                                                                           \
-	if (options & cpu_ula_sinclair)                                                                                    \
-	{                                                                                                                  \
-	  PgInfo& pg = getPage(A);                                                                                         \
-	  z32		 = pg.both_r(A);                                                                                       \
-	  if (z32 & options & cpu_waitmap)                                                                                 \
-	  {                                                                                                                \
-		CC_WAIT_R(cc - 2);                                                                                             \
-		CC_WAIT_R(cc - 1);                                                                                             \
-		CC_WAIT_R(cc - 0);                                                                                             \
-		CC_WAIT_R(cc + 1);                                                                                             \
-	  }                                                                                                                \
-	}                                                                                                                  \
-  }                                                                                                                    \
+#define SKIP_4X1CC(A)                  \
+  do {                                 \
+	cc += 4;                           \
+	if (options & cpu_ula_sinclair)    \
+	{                                  \
+	  PgInfo& pg = getPage(A);         \
+	  z32		 = pg.both_r(A);       \
+	  if (z32 & options & cpu_waitmap) \
+	  {                                \
+		CC_WAIT_R(cc - 2);             \
+		CC_WAIT_R(cc - 1);             \
+		CC_WAIT_R(cc - 0);             \
+		CC_WAIT_R(cc + 1);             \
+	  }                                \
+	}                                  \
+  }                                    \
   while (0)
 
 
@@ -379,70 +379,70 @@
 	dec (ix+d)	pc:4, pc+1:4, pc+2:3, pc+2:1x5, ix+n:3,1, ix+n:3
 	cp a,(ix+d)	pc:4, pc+1:4, pc+2:3, pc+2:1x5, ix+n:3
 */
-#define SKIP_5X1CC(A)                                                                                                  \
-  do {                                                                                                                 \
-	cc += 5;                                                                                                           \
-	if (options & cpu_ula_sinclair)                                                                                    \
-	{                                                                                                                  \
-	  PgInfo& pg = getPage(A);                                                                                         \
-	  z32		 = pg.both_r(A);                                                                                       \
-	  if (z32 & options & cpu_waitmap)                                                                                 \
-	  {                                                                                                                \
-		CC_WAIT_R(cc - 3);                                                                                             \
-		CC_WAIT_R(cc - 2);                                                                                             \
-		CC_WAIT_R(cc - 1);                                                                                             \
-		CC_WAIT_R(cc + 0);                                                                                             \
-		CC_WAIT_R(cc + 1);                                                                                             \
-	  }                                                                                                                \
-	}                                                                                                                  \
-  }                                                                                                                    \
+#define SKIP_5X1CC(A)                  \
+  do {                                 \
+	cc += 5;                           \
+	if (options & cpu_ula_sinclair)    \
+	{                                  \
+	  PgInfo& pg = getPage(A);         \
+	  z32		 = pg.both_r(A);       \
+	  if (z32 & options & cpu_waitmap) \
+	  {                                \
+		CC_WAIT_R(cc - 3);             \
+		CC_WAIT_R(cc - 2);             \
+		CC_WAIT_R(cc - 1);             \
+		CC_WAIT_R(cc + 0);             \
+		CC_WAIT_R(cc + 1);             \
+	  }                                \
+	}                                  \
+  }                                    \
   while (0)
 
 
 /*	7 cc with wait test in all cycles
 	ldir	pc:4, pc+1:4, hl:3, de:3,2x1 [de:5x1]
 */
-#define SKIP_7X1CC(A)                                                                                                  \
-  do {                                                                                                                 \
-	cc += 7;                                                                                                           \
-	if (options & cpu_ula_sinclair)                                                                                    \
-	{                                                                                                                  \
-	  PgInfo& pg = getPage(A);                                                                                         \
-	  z32		 = pg.both_r(A);                                                                                       \
-	  if (z32 & options & cpu_waitmap)                                                                                 \
-	  {                                                                                                                \
-		CC_WAIT_R(cc - 5);                                                                                             \
-		CC_WAIT_R(cc - 4);                                                                                             \
-		CC_WAIT_R(cc - 3);                                                                                             \
-		CC_WAIT_R(cc - 2);                                                                                             \
-		CC_WAIT_R(cc - 1);                                                                                             \
-		CC_WAIT_R(cc - 0);                                                                                             \
-		CC_WAIT_R(cc + 1);                                                                                             \
-	  }                                                                                                                \
-	}                                                                                                                  \
-  }                                                                                                                    \
+#define SKIP_7X1CC(A)                  \
+  do {                                 \
+	cc += 7;                           \
+	if (options & cpu_ula_sinclair)    \
+	{                                  \
+	  PgInfo& pg = getPage(A);         \
+	  z32		 = pg.both_r(A);       \
+	  if (z32 & options & cpu_waitmap) \
+	  {                                \
+		CC_WAIT_R(cc - 5);             \
+		CC_WAIT_R(cc - 4);             \
+		CC_WAIT_R(cc - 3);             \
+		CC_WAIT_R(cc - 2);             \
+		CC_WAIT_R(cc - 1);             \
+		CC_WAIT_R(cc - 0);             \
+		CC_WAIT_R(cc + 1);             \
+	  }                                \
+	}                                  \
+  }                                    \
   while (0)
 
 
-#define GET_NN(RR)                                                                                                     \
-  do {                                                                                                                 \
-	GET_N(RR);                                                                                                         \
-	uint16 w_nn;                                                                                                       \
-	GET_N(w_nn);                                                                                                       \
-	RR += 256 * w_nn;                                                                                                  \
-  }                                                                                                                    \
+#define GET_NN(RR)    \
+  do {                \
+	GET_N(RR);        \
+	uint16 w_nn;      \
+	GET_N(w_nn);      \
+	RR += 256 * w_nn; \
+  }                   \
   while (0)
-#define POP(R)                                                                                                         \
-  do {                                                                                                                 \
-	PEEK(R, SP);                                                                                                       \
-	SP++;                                                                                                              \
-  }                                                                                                                    \
+#define POP(R)   \
+  do {           \
+	PEEK(R, SP); \
+	SP++;        \
+  }              \
   while (0)
-#define PUSH(R)                                                                                                        \
-  do {                                                                                                                 \
-	--SP;                                                                                                              \
-	POKE(SP, R);                                                                                                       \
-  }                                                                                                                    \
+#define PUSH(R)  \
+  do {           \
+	--SP;        \
+	POKE(SP, R); \
+  }              \
   while (0)
 
 
@@ -450,12 +450,12 @@
 
 #define Z80_INFO_EX_HL_xSP Z80_INFO_POP /* called after opcode execution */
 #define Z80_INFO_RET	   Z80_INFO_POP /* called after opcode execution */
-#define Z80_INFO_POP                                                                                                   \
-  if (options & cpu_break_sp && SP == stack_breakpoint) /* called after opcode execution */                            \
-  {                                                                                                                    \
-	break_addr = SP;                                                                                                   \
-	result	   = cpu_exit_sp;                                                                                          \
-	ic_max	   = 0;                                                                                                    \
+#define Z80_INFO_POP                                                                        \
+  if (options & cpu_break_sp && SP == stack_breakpoint) /* called after opcode execution */ \
+  {                                                                                         \
+	break_addr = SP;                                                                        \
+	result	   = cpu_exit_sp;                                                               \
+	ic_max	   = 0;                                                                         \
   }
 
 /* ZX81 has a waitmap for /WAIT during /NMI		*/
@@ -465,23 +465,23 @@
 /*												*/
 /* TODO: audio buffer overshoot !!!				*/
 /* (but we have 8 samples overshoot buffer ~ 160µs ~ 540cc ~ 2 scanlines) */
-#define Z80_INFO_HALT                                                                                                  \
-  do {                                                                                                                 \
-	if (~options & (cpu_waitmap | cpu_crtc_zx81)) LOOP;                                                                \
-	if (cc_nmi >= 1 << 30 && IFF1 == disabled) LOOP;                                                                   \
-	while (cc < cc_nmi && (IFF1 == disabled || cc < cc_irpt_on || cc >= cc_irpt_off))                                  \
-	{                                                                                                                  \
-	  if (~r & 0x40)                                                                                                   \
-	  {                                                                                                                \
-		cc_irpt_on	= cc + 2;                                                                                          \
-		cc_irpt_off = cc + 5;                                                                                          \
-	  }                                                                                                                \
-	  ic += 1;                                                                                                         \
-	  cc += 4;                                                                                                         \
-	  r += 1;                                                                                                          \
-	}                                                                                                                  \
-	cc_max = cc;                                                                                                       \
-  }                                                                                                                    \
+#define Z80_INFO_HALT                                                                 \
+  do {                                                                                \
+	if (~options & (cpu_waitmap | cpu_crtc_zx81)) LOOP;                               \
+	if (cc_nmi >= 1 << 30 && IFF1 == disabled) LOOP;                                  \
+	while (cc < cc_nmi && (IFF1 == disabled || cc < cc_irpt_on || cc >= cc_irpt_off)) \
+	{                                                                                 \
+	  if (~r & 0x40)                                                                  \
+	  {                                                                               \
+		cc_irpt_on	= cc + 2;                                                         \
+		cc_irpt_off = cc + 5;                                                         \
+	  }                                                                               \
+	  ic += 1;                                                                        \
+	  cc += 4;                                                                        \
+	  r += 1;                                                                         \
+	}                                                                                 \
+	cc_max = cc;                                                                      \
+  }                                                                                   \
   while (0)
 
 #define Z80_INFO_RETI			 /* nop */
@@ -509,58 +509,58 @@
 			clear	N=0, H=0
 			pres.	none
 */
-#define M_RLC(R)                                                                                                       \
-  rf = R >> 7;                                                                                                         \
-  R	 = (R << 1) + rf;                                                                                                  \
+#define M_RLC(R)      \
+  rf = R >> 7;        \
+  R	 = (R << 1) + rf; \
   rf |= zlog_flags[R]
 
-#define M_RRC(R)                                                                                                       \
-  rf = R & 0x01;                                                                                                       \
-  R	 = (R >> 1) + (rf << 7);                                                                                           \
+#define M_RRC(R)             \
+  rf = R & 0x01;             \
+  R	 = (R >> 1) + (rf << 7); \
   rf |= zlog_flags[R]
 
-#define M_RL(R)                                                                                                        \
-  if (R & 0x80)                                                                                                        \
-  {                                                                                                                    \
-	R  = (R << 1) + (rf & 0x01);                                                                                       \
-	rf = zlog_flags[R] + C_FLAG;                                                                                       \
-  }                                                                                                                    \
-  else                                                                                                                 \
-  {                                                                                                                    \
-	R  = (R << 1) + (rf & 0x01);                                                                                       \
-	rf = zlog_flags[R];                                                                                                \
+#define M_RL(R)                  \
+  if (R & 0x80)                  \
+  {                              \
+	R  = (R << 1) + (rf & 0x01); \
+	rf = zlog_flags[R] + C_FLAG; \
+  }                              \
+  else                           \
+  {                              \
+	R  = (R << 1) + (rf & 0x01); \
+	rf = zlog_flags[R];          \
   }
 
-#define M_RR(R)                                                                                                        \
-  if (R & 0x01)                                                                                                        \
-  {                                                                                                                    \
-	R  = (R >> 1) + (rf << 7);                                                                                         \
-	rf = zlog_flags[R] + C_FLAG;                                                                                       \
-  }                                                                                                                    \
-  else                                                                                                                 \
-  {                                                                                                                    \
-	R  = (R >> 1) + (rf << 7);                                                                                         \
-	rf = zlog_flags[R];                                                                                                \
+#define M_RR(R)                  \
+  if (R & 0x01)                  \
+  {                              \
+	R  = (R >> 1) + (rf << 7);   \
+	rf = zlog_flags[R] + C_FLAG; \
+  }                              \
+  else                           \
+  {                              \
+	R  = (R >> 1) + (rf << 7);   \
+	rf = zlog_flags[R];          \
   }
 
-#define M_SLA(R)                                                                                                       \
-  rf = R >> 7;                                                                                                         \
-  R <<= 1;                                                                                                             \
+#define M_SLA(R) \
+  rf = R >> 7;   \
+  R <<= 1;       \
   rf |= zlog_flags[R]
 
-#define M_SRA(R)                                                                                                       \
-  rf = R & 0x01;                                                                                                       \
-  R	 = (R & 0x80) + (R >> 1);                                                                                          \
+#define M_SRA(R)              \
+  rf = R & 0x01;              \
+  R	 = (R & 0x80) + (R >> 1); \
   rf |= zlog_flags[R]
 
-#define M_SLL(R)                                                                                                       \
-  rf = R >> 7;                                                                                                         \
-  R	 = (R << 1) + 1;                                                                                                   \
+#define M_SLL(R)     \
+  rf = R >> 7;       \
+  R	 = (R << 1) + 1; \
   rf |= zlog_flags[R]
 
-#define M_SRL(R)                                                                                                       \
-  rf = R & 0x01;                                                                                                       \
-  R >>= 1;                                                                                                             \
+#define M_SRL(R) \
+  rf = R & 0x01; \
+  R >>= 1;       \
   rf |= zlog_flags[R]
 
 
@@ -575,33 +575,33 @@
 /*	ADD ... CP:	set/clr	Z, S, V, C, N, H
 				pres	none
 */
-#define M_ADD(R)                                                                                                       \
-  wm = ra + R;                                                                                                         \
-  rf = wmh + (wml ? 0 : Z_FLAG) + (wml & S_FLAG) + (~(ra ^ R) & (wml ^ ra) & 0x80 ? V_FLAG : 0) +                      \
-	   ((ra ^ R ^ wml) & H_FLAG);                                                                                      \
+#define M_ADD(R)                                                                                  \
+  wm = ra + R;                                                                                    \
+  rf = wmh + (wml ? 0 : Z_FLAG) + (wml & S_FLAG) + (~(ra ^ R) & (wml ^ ra) & 0x80 ? V_FLAG : 0) + \
+	   ((ra ^ R ^ wml) & H_FLAG);                                                                 \
   ra = wml
 
-#define M_SUB(R)                                                                                                       \
-  wm = ra - R;                                                                                                         \
-  rf = -wmh + (wml ? 0 : Z_FLAG) + (wml & S_FLAG) + ((ra ^ R) & (wml ^ ra) & 0x80 ? V_FLAG : 0) +                      \
-	   ((ra ^ R ^ wml) & H_FLAG) + N_FLAG;                                                                             \
+#define M_SUB(R)                                                                                  \
+  wm = ra - R;                                                                                    \
+  rf = -wmh + (wml ? 0 : Z_FLAG) + (wml & S_FLAG) + ((ra ^ R) & (wml ^ ra) & 0x80 ? V_FLAG : 0) + \
+	   ((ra ^ R ^ wml) & H_FLAG) + N_FLAG;                                                        \
   ra = wml
 
-#define M_ADC(R)                                                                                                       \
-  wm = ra + R + (rf & C_FLAG);                                                                                         \
-  rf = wmh + (wml ? 0 : Z_FLAG) + (wml & S_FLAG) + (~(ra ^ R) & (wml ^ ra) & 0x80 ? V_FLAG : 0) +                      \
-	   ((ra ^ R ^ wml) & H_FLAG);                                                                                      \
+#define M_ADC(R)                                                                                  \
+  wm = ra + R + (rf & C_FLAG);                                                                    \
+  rf = wmh + (wml ? 0 : Z_FLAG) + (wml & S_FLAG) + (~(ra ^ R) & (wml ^ ra) & 0x80 ? V_FLAG : 0) + \
+	   ((ra ^ R ^ wml) & H_FLAG);                                                                 \
   ra = wml
 
-#define M_SBC(R)                                                                                                       \
-  wm = ra - R - (rf & C_FLAG);                                                                                         \
-  rf = -wmh + (wml ? 0 : Z_FLAG) + (wml & S_FLAG) + ((ra ^ R) & (wml ^ ra) & 0x80 ? V_FLAG : 0) +                      \
-	   ((ra ^ R ^ wml) & H_FLAG) + N_FLAG;                                                                             \
+#define M_SBC(R)                                                                                  \
+  wm = ra - R - (rf & C_FLAG);                                                                    \
+  rf = -wmh + (wml ? 0 : Z_FLAG) + (wml & S_FLAG) + ((ra ^ R) & (wml ^ ra) & 0x80 ? V_FLAG : 0) + \
+	   ((ra ^ R ^ wml) & H_FLAG) + N_FLAG;                                                        \
   ra = wml
 
-#define M_CP(R)                                                                                                        \
-  wm = ra - R;                                                                                                         \
-  rf = -wmh + (wml ? 0 : Z_FLAG) + (wml & S_FLAG) + ((ra ^ R) & (wml ^ ra) & 0x80 ? V_FLAG : 0) +                      \
+#define M_CP(R)                                                                                   \
+  wm = ra - R;                                                                                    \
+  rf = -wmh + (wml ? 0 : Z_FLAG) + (wml & S_FLAG) + ((ra ^ R) & (wml ^ ra) & 0x80 ? V_FLAG : 0) + \
 	   ((ra ^ R ^ wml) & H_FLAG) + N_FLAG;
 
 
@@ -609,16 +609,16 @@
 					clear	C=0, N=0, H=0/1 (OR,XOR/AND)
 					pres	none
 */
-#define M_AND(R)                                                                                                       \
-  ra &= R;                                                                                                             \
+#define M_AND(R) \
+  ra &= R;       \
   rf = H_FLAG | zlog_flags[ra]
 
-#define M_OR(R)                                                                                                        \
-  ra |= R;                                                                                                             \
+#define M_OR(R) \
+  ra |= R;      \
   rf = zlog_flags[ra]
 
-#define M_XOR(R)                                                                                                       \
-  ra ^= R;                                                                                                             \
+#define M_XOR(R) \
+  ra ^= R;       \
   rf = zlog_flags[ra]
 
 
@@ -626,13 +626,13 @@
 					clear	N=0/1 (INC/DEC)
 					pres	C
 */
-#define M_INC(R)                                                                                                       \
-  R++;                                                                                                                 \
+#define M_INC(R) \
+  R++;           \
   rf = (rf & C_FLAG) + (R ? 0 : Z_FLAG) + (R & S_FLAG) + (R == 0x80 ? V_FLAG : 0) + (R & 0x0F ? 0 : H_FLAG)
 
-#define M_DEC(R)                                                                                                       \
-  R--;                                                                                                                 \
-  rf = (rf & C_FLAG) + (R ? 0 : Z_FLAG) + (R & S_FLAG) + (R == 0x7F ? V_FLAG : 0) + (((R + 1) & 0x0F) ? 0 : H_FLAG) +  \
+#define M_DEC(R)                                                                                                      \
+  R--;                                                                                                                \
+  rf = (rf & C_FLAG) + (R ? 0 : Z_FLAG) + (R & S_FLAG) + (R == 0x7F ? V_FLAG : 0) + (((R + 1) & 0x0F) ? 0 : H_FLAG) + \
 	   N_FLAG
 
 
@@ -641,9 +641,9 @@
 			pres	Z, P, S
 			unkn	H
 */
-#define M_ADDW(R1, R2)                                                                                                 \
-  rf &= ~(N_FLAG + C_FLAG);                                                                                            \
-  rf |= ((uint32)R1 + (uint32)R2) >> 16;                                                                               \
+#define M_ADDW(R1, R2)                   \
+  rf &= ~(N_FLAG + C_FLAG);              \
+  rf |= ((uint32)R1 + (uint32)R2) >> 16; \
   R1 += R2;
 
 
@@ -652,16 +652,16 @@
 			unkn	H
 			pres	none
 */
-#define M_ADCW(R)                                                                                                      \
-  wm = HL + R + (rf & C_FLAG);                                                                                         \
-  rf = (((uint32)HL + (uint32)R + (rf & C_FLAG)) >> 16) + (wm ? 0 : Z_FLAG) + (wmh & S_FLAG) +                         \
-	   (~(HL ^ R) & (wm ^ HL) & 0x8000 ? V_FLAG : 0);                                                                  \
+#define M_ADCW(R)                                                                              \
+  wm = HL + R + (rf & C_FLAG);                                                                 \
+  rf = (((uint32)HL + (uint32)R + (rf & C_FLAG)) >> 16) + (wm ? 0 : Z_FLAG) + (wmh & S_FLAG) + \
+	   (~(HL ^ R) & (wm ^ HL) & 0x8000 ? V_FLAG : 0);                                          \
   HL = wm
 
-#define M_SBCW(R)                                                                                                      \
-  wm = HL - R - (rf & C_FLAG);                                                                                         \
-  rf = (((uint32)HL - (uint32)R - (rf & C_FLAG)) >> 31) + (wm ? 0 : Z_FLAG) + (wmh & S_FLAG) +                         \
-	   ((HL ^ R) & (wm ^ HL) & 0x8000 ? V_FLAG : 0) + N_FLAG;                                                          \
+#define M_SBCW(R)                                                                              \
+  wm = HL - R - (rf & C_FLAG);                                                                 \
+  rf = (((uint32)HL - (uint32)R - (rf & C_FLAG)) >> 31) + (wm ? 0 : Z_FLAG) + (wmh & S_FLAG) + \
+	   ((HL ^ R) & (wm ^ HL) & 0x8000 ? V_FLAG : 0) + N_FLAG;                                  \
   HL = wm
 
 
@@ -669,6 +669,6 @@
 		clear	N=0
 		pres	C
 */
-#define M_IN(R)                                                                                                        \
-  INPUT(BC, R);                                                                                                        \
+#define M_IN(R) \
+  INPUT(BC, R); \
   rf = (rf & C_FLAG) + zlog_flags[R]

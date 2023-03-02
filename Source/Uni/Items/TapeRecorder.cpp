@@ -7,12 +7,9 @@
 #include "Audio/TapeFileDataBlock.h"
 #include "DspTime.h"
 #include "Machine.h"
-#include "Qt/Settings.h"
+#include "RecentFilesMenu.h"
 #include "ZxInfo.h"
 #include "cpp/cppthreads.h"
-#include <QSettings>
-// #include <Templates/SharedArray.h>
-#include "RecentFilesMenu.h"
 #include "globals.h"
 #include "unix/files.h"
 #include <Templates/Array.h>
@@ -23,25 +20,15 @@
 
 /*	Sounds für TS2020:
  */
-cstr ts2020_fname[] = {
-	"ts2020/open lid empty",
-	"ts2020/open lid loaded",
-	"ts2020/close lid empty",
-	"ts2020/close lid loaded",
-	"ts2020/pause dn",
-	"ts2020/pause up",
-	"ts2020/play dn",
-	"ts2020/play up",
-	"ts2020/ff dn",
-	"ts2020/ff up",
-	"ts2020/rewind dn",
-	"ts2020/rewind up",
-	"ts2020/record dn",
-	"ts2020/record up",
-	"ts2020/motor empty",
-	"ts2020/motor play loaded",
-	"ts2020/motor ff loaded",
-	"ts2020/motor rewind loaded"};
+cstr ts2020_fname[] = {"ts2020/open lid empty",	 "ts2020/open lid loaded",
+					   "ts2020/close lid empty", "ts2020/close lid loaded",
+					   "ts2020/pause dn",		 "ts2020/pause up",
+					   "ts2020/play dn",		 "ts2020/play up",
+					   "ts2020/ff dn",			 "ts2020/ff up",
+					   "ts2020/rewind dn",		 "ts2020/rewind up",
+					   "ts2020/record dn",		 "ts2020/record up",
+					   "ts2020/motor empty",	 "ts2020/motor play loaded",
+					   "ts2020/motor ff loaded", "ts2020/motor rewind loaded"};
 
 /*	Sounds für Plus2 tape recorder:
 	some sounds are borrowed from TS2020
@@ -94,23 +81,27 @@ static const cstr walkman_fname[] = {
 // C'tor & D'tor:
 
 
-TapeRecorder::TapeRecorder(Machine* machine, isa_id id, const cstr audio_names[]) :
-	Item(machine, id, isa_TapeRecorder, (Internal)machine->model_info->has_tape_drive, nullptr, nullptr),
-	auto_start_stop_tape(settings.get_bool(key_auto_start_stop_tape, no)),
-	instant_load_tape(settings.get_bool(key_fast_load_tape, no)),
-	machine_ccps(machine->model_info->cpu_cycles_per_second), state(stopped), record_is_down(no), pause_is_down(no),
-	stop_position(0.0), tapefile(nullptr)
+TapeRecorder::TapeRecorder(Machine* machine, isa_id id, const cstr audio_names[], bool auto_start, bool fast_load) :
+	Item(machine, id, isa_TapeRecorder, Internal(machine->model_info->has_tape_drive), nullptr, nullptr),
+	auto_start_stop_tape(auto_start),
+	instant_load_tape(fast_load),
+	machine_ccps(machine->model_info->cpu_cycles_per_second),
+	state(stopped),
+	record_is_down(no),
+	pause_is_down(no),
+	stop_position(0.0),
+	tapefile(nullptr)
 {
-	list_id = machine->isA(isa_MachineZxsp)	   ? RecentZxspTapes :
-			  machine->isA(isa_MachineZx81)	   ? RecentZx81Tapes :
-			  machine->isA(isa_MachineZx80)	   ? RecentZx80Tapes :
-			  machine->isA(isa_MachineJupiter) ? RecentJupiterTapes :
-												 RecentFiles;
+	list_id = machine->isA(isa_MachineZxsp)	   ? gui::RecentZxspTapes :
+			  machine->isA(isa_MachineZx81)	   ? gui::RecentZx81Tapes :
+			  machine->isA(isa_MachineZx80)	   ? gui::RecentZx80Tapes :
+			  machine->isA(isa_MachineJupiter) ? gui::RecentJupiterTapes :
+												 gui::RecentFiles;
 
-	if (list_id == RecentFiles)
+	if (list_id == gui::RecentFiles)
 	{
 		showWarning("TapeRecorder: unknown machine");
-		list_id = RecentZxspTapes;
+		list_id = gui::RecentZxspTapes;
 	}
 
 	// sounds:
@@ -145,13 +136,21 @@ TapeRecorder::TapeRecorder(Machine* machine, isa_id id, const cstr audio_names[]
 }
 
 
-Walkman::Walkman(Machine* machine) : TapeRecorder(machine, isa_Walkman, walkman_fname) {}
+Walkman::Walkman(Machine* machine, bool auto_start, bool fast_load) :
+	TapeRecorder(machine, isa_Walkman, walkman_fname, auto_start, fast_load)
+{}
 
-TS2020::TS2020(Machine* machine) : TapeRecorder(machine, isa_TS2020, ts2020_fname) {}
+TS2020::TS2020(Machine* machine, bool auto_start, bool fast_load) :
+	TapeRecorder(machine, isa_TS2020, ts2020_fname, auto_start, fast_load)
+{}
 
-Plus2TapeRecorder::Plus2TapeRecorder(Machine* machine) : TapeRecorder(machine, isa_Plus2Tapedeck, plus2_fname) {}
+Plus2TapeRecorder::Plus2TapeRecorder(Machine* machine, bool auto_start, bool fast_load) :
+	TapeRecorder(machine, isa_Plus2Tapedeck, plus2_fname, auto_start, fast_load)
+{}
 
-Plus2aTapeRecorder::Plus2aTapeRecorder(Machine* machine) : TapeRecorder(machine, isa_Plus2aTapedeck, plus2_fname) {}
+Plus2aTapeRecorder::Plus2aTapeRecorder(Machine* machine, bool auto_start, bool fast_load) :
+	TapeRecorder(machine, isa_Plus2aTapedeck, plus2_fname, auto_start, fast_load)
+{}
 
 
 TapeRecorder::~TapeRecorder()
@@ -235,10 +234,8 @@ void TapeRecorder::autoStart(CC cc) noexcept
 	if (pause_is_down) play_sound(sound_pause_up);
 	pause_is_down = no;
 
-	if (record_is_down)
-		tapefile_record(cc);
-	else
-		tapefile_play(cc);
+	if (record_is_down) tapefile_record(cc);
+	else tapefile_play(cc);
 }
 
 
@@ -284,7 +281,7 @@ void TapeRecorder::audioBufferEnd(Time)
 			qi -= zi;
 		}																		 // dest index in audio_out_buffer[]
 		int32 ze = min(uint(DSP_SAMPLES_PER_BUFFER), zi + sound_count[id] - qi); // dest end index
-		while (zi < ze) { Dsp::audio_out_buffer[zi++] += data[qi++]; }			 // copy audio data
+		while (zi < ze) { os::audio_out_buffer[zi++] += data[qi++]; }			 // copy audio data
 
 		active_sound[i].index = qi;
 		if (uint32(qi) >= sound_count[id]) active_sound.remove(i--); // sound finished
@@ -304,7 +301,7 @@ void TapeRecorder::audioBufferEnd(Time)
 		int32 zi = 0; // dest index in audio_out_buffer[]
 	r:
 		int32 ze = min(uint(DSP_SAMPLES_PER_BUFFER), zi + sound_count[id] - qi); // dest end index
-		while (zi < ze) { Dsp::audio_out_buffer[zi++] += data[qi++]; }			 // copy audio data
+		while (zi < ze) { os::audio_out_buffer[zi++] += data[qi++]; }			 // copy audio data
 		if (qi == sound_count[id])
 		{
 			qi = 0;
@@ -436,7 +433,7 @@ void TapeRecorder::play_block()
 	while (block < tapefile->cnt)
 	{
 		CswBuffer* bu = (*tapefile)[block]->cswdata;
-		bu->addToAudioBuffer(Dsp::audio_out_buffer, count, ::samples_per_second, zpos, qpos, qoffs, speaker.volume);
+		bu->addToAudioBuffer(os::audio_out_buffer, count, ::samples_per_second, zpos, qpos, qoffs, speaker.volume);
 		if (zpos == count) return;
 		block++;
 		qpos  = 0;
@@ -593,26 +590,19 @@ TapeRecorder* TapeRecorder::pause(bool f)
 
 	if (state == playing)
 	{
-		if (pause_is_down)
-			tapefile_stop(current_cc()); // suspend playing or recording
-		else if (record_is_down)
-			tapefile_record(current_cc()); // resume recording
-		else
-			tapefile_play(current_cc()); // resume playing
+		if (pause_is_down) tapefile_stop(current_cc());			// suspend playing or recording
+		else if (record_is_down) tapefile_record(current_cc()); // resume recording
+		else tapefile_play(current_cc());						// resume playing
 	}
 	else if (state == winding)
 	{
-		if (pause_is_down)
-			stop_position = tapefile->getEndOfBlock(); // => stop at block end
-		else
-			stop_position = tapefile->getTotalPlaytime(); // => stop at tape end
+		if (pause_is_down) stop_position = tapefile->getEndOfBlock(); // => stop at block end
+		else stop_position = tapefile->getTotalPlaytime();			  // => stop at tape end
 	}
 	else if (state == rewinding)
 	{
-		if (pause_is_down)
-			stop_position = tapefile->getStartOfBlock(); // => stop at block start
-		else
-			stop_position = 0.0; // stop at tape start
+		if (pause_is_down) stop_position = tapefile->getStartOfBlock(); // => stop at block start
+		else stop_position = 0.0;										// stop at tape start
 	}
 
 	return this;
@@ -640,8 +630,7 @@ void TapeRecorder::wind()
 			stop_position = tapefile->getEndOfBlock();
 			if (tapefile->current_block->isEmpty()) tapefile->seekStartOfNextBlock();
 		}
-		else
-			stop_position = tapefile->getTotalPlaytime();
+		else stop_position = tapefile->getTotalPlaytime();
 	}
 
 	state = winding;
@@ -670,8 +659,7 @@ void TapeRecorder::rewind()
 			if (tapefile->isAtStartOfBlock()) tapefile->seekEndOfPrevBlock();
 			stop_position = tapefile->getStartOfBlock();
 		}
-		else
-			stop_position = 0.0;
+		else stop_position = 0.0;
 	}
 
 	state = rewinding;
@@ -696,10 +684,8 @@ void TapeRecorder::play()
 	if (tapefile && !pause_is_down)
 	{
 		assert(tapefile->isStopped());
-		if (record_is_down)
-			tapefile_record(current_cc());
-		else
-			tapefile_play(current_cc());
+		if (record_is_down) tapefile_record(current_cc());
+		else tapefile_play(current_cc());
 	}
 
 	state = playing;

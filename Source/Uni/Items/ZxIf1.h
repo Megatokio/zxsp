@@ -12,4 +12,7 @@ public:
 	explicit ZxIf1(Machine*);
 
 	bool isRomPagedIn() const { return no; }
+
+protected:
+	~ZxIf1() override = default;
 };

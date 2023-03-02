@@ -14,9 +14,13 @@ class QLineEdit;
 class QLabel;
 
 
+namespace gui
+{
+
 class UlaInsp : public Inspector
 {
-	volatile Mmu* mmu;
+	volatile Ula* const ula;
+	volatile Mmu* const mmu;
 
 	QPushButton* btn_restore_defaults;
 
@@ -67,25 +71,22 @@ class UlaInsp : public Inspector
 
 	struct
 	{
-		// float	cpu_clock_overdrive;
-		// uint32 ula_clock;
-		// uint	cpu_clock_predivider;
 		uint32 cpu_clock;
 		int	   top_rows;
 		int	   screen_rows;
 		int	   bottom_rows;
 		int	   screen_columns;
 		int	   bytes_per_row;
-		uint   cpu_cycles_per_row;
+		int	   cpu_cycles_per_row;
 		float  frames_per_second;
-		uint32 cpu_cycles_per_frame;
+		int32  cpu_cycles_per_frame;
 		bool   checkbox_enable_cpu_waitcycles;
-		uint   waitmap_offset;
+		int	   waitmap_offset;
 		uint8  waitmap;
 		uint8  border_color;
 		uint8  mic_bit;
 		uint8  ear_bit;
-		float  frames_hit;
+		uint   frames_hit;
 		uint8  port_7ffd;
 		uint8  port_1ffd;
 		uint   page_c000;
@@ -100,8 +101,11 @@ class UlaInsp : public Inspector
 	} values;
 
 public:
-	UlaInsp(QWidget*, MachineController*, volatile Machine*);
+	UlaInsp(QWidget*, MachineController*, volatile Ula*, volatile Mmu*);
 
 protected:
 	void updateWidgets() override;
+	bool validReference(volatile Ula*, volatile Mmu*);
 };
+
+} // namespace gui

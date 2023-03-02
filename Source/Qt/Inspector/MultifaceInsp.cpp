@@ -3,17 +3,19 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "MultifaceInsp.h"
-#include "Machine.h"
 #include "Multiface/Multiface.h"
 #include "Templates/NVPtr.h"
 #include <QLabel>
 #include <QMouseEvent>
 #include <QTimer>
 
+namespace gui
+{
 
 MultifaceInsp::MultifaceInsp(
-	QWidget* p, MachineController* mc, volatile IsaObject* o, cstr image, const QRect& btnbox) :
+	QWidget* p, MachineController* mc, volatile Multiface* o, cstr image, const QRect& btnbox) :
 	Inspector(p, mc, o, image),
+	mf(o),
 	buttonbox(btnbox)
 {
 	QWidget* button = new QWidget(this);
@@ -30,12 +32,11 @@ MultifaceInsp::MultifaceInsp(
 	timer->start(1000 / 60); // --> updateWidgets()
 }
 
-
-/*	Mouse click handler:
-	- press the red button
-*/
 void MultifaceInsp::mousePressEvent(QMouseEvent* e)
 {
+	// Mouse click handler:
+	// - press the red button
+
 	if (e->button() != Qt::LeftButton)
 	{
 		Inspector::mousePressEvent(e);
@@ -47,16 +48,52 @@ void MultifaceInsp::mousePressEvent(QMouseEvent* e)
 	if (buttonbox.contains(e->pos())) pressRedButton();
 }
 
+void MultifaceInsp::pressRedButton()
+{
+	xlogIn("MultifaceInspector::pressRedButton");
+	assert(validReference(mf));
 
-void MultifaceInsp::pressRedButton() { NVPtr<Multiface>(multiface())->triggerNmi(); }
-
+	nvptr(mf)->triggerNmi();
+}
 
 void MultifaceInsp::updateWidgets()
 {
-	if (label_nmi_pending->isVisible() != multiface()->nmi_pending)
-	{
-		label_nmi_pending->setVisible(multiface()->nmi_pending);
-	}
+	// timer
 
-	if (label_paged_in->isVisible() != multiface()->paged_in) { label_paged_in->setVisible(multiface()->paged_in); }
+	xxlogIn("MultifaceInspector::updateWidgets");
+	assert(validReference(mf));
+
+	if (label_nmi_pending->isVisible() != mf->nmi_pending) label_nmi_pending->setVisible(mf->nmi_pending);
+	if (label_paged_in->isVisible() != mf->paged_in) label_paged_in->setVisible(mf->paged_in);
 }
+
+} // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

@@ -7,8 +7,11 @@
 
 
 Multiface::Multiface(Machine* m, isa_id id, cstr romfile, cstr o_addr, cstr i_addr) :
-	Item(m, id, isa_Multiface, external, o_addr, i_addr), rom(m, catstr(isa_names[id], " Rom"), 8 kB),
-	ram(m, catstr(isa_names[id], " Ram"), 8 kB), nmi_pending(no), paged_in(no)
+	Item(m, id, isa_Multiface, external, o_addr, i_addr),
+	rom(m, catstr(isa_names[id], " Rom"), 8 kB),
+	ram(m, catstr(isa_names[id], " Ram"), 8 kB),
+	nmi_pending(no),
+	paged_in(no)
 {
 	uint8 bu[8 kB];
 	FD	  fd(catstr(appl_rsrc_path, romfile));

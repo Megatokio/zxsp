@@ -4,7 +4,6 @@
 
 #include "AyInsp.h"
 #include "Ay/Ay.h"
-#include "Machine.h"
 #include "Templates/NVPtr.h"
 #include "Uni/util.h"
 #include <QGridLayout>
@@ -12,34 +11,20 @@
 #include <QLineEdit>
 #include <QtGui>
 
+namespace gui
+{
 
-static cstr es[] = {
-	"\\＿＿＿",
-	"\\＿＿＿",
-	"\\＿＿＿",
-	"\\＿＿＿",
-	"/＿＿＿",
-	"/＿＿＿",
-	"/＿＿＿",
-	"/＿＿＿",
-	"\\\\\\\\\\\\",
-	"\\＿＿＿",
-	"\\/\\/\\/",
-	"\\￣￣￣",
-	"//////",
-	"/￣￣￣",
-	"/\\/\\/\\",
-	"/＿＿＿"};
+static cstr es[] = {"\\＿＿＿",		"\\＿＿＿", "\\＿＿＿",	 "\\＿＿＿", "/＿＿＿", "/＿＿＿", "/＿＿＿",	"/＿＿＿",
+					"\\\\\\\\\\\\", "\\＿＿＿", "\\/\\/\\/", "\\￣￣￣", "//////",	"/￣￣￣", "/\\/\\/\\", "/＿＿＿"};
 
 static const QFont ff("Monaco" /*"Andale Mono"*/, 12);
 
 
-AyInsp::AyInsp(QWidget* w, MachineController* mc, volatile IsaObject* item) :
-	Inspector(w, mc, item, "/Backgrounds/light-150-s.jpg"), value {
-																0, 0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
+AyInsp::AyInsp(QWidget* w, MachineController* mc, volatile Ay* ay) :
+	Inspector(w, mc, ay, "/Backgrounds/light-150-s.jpg"),
+	ay(ay),
+	value {0, 0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 {
-	assert(item->isA(isa_Ay));
-
 	clock	= new_led("0.0 MHz");
 	pitch_a = new_led("0000");
 	pitch_b = new_led("0000");
@@ -59,10 +44,11 @@ AyInsp::AyInsp(QWidget* w, MachineController* mc, volatile IsaObject* item) :
 	stereo->addItem("Mono"); // Reihenfolge muss Ay::StereoMix entsprechen!
 	stereo->addItem("ABC Stereo - Western Europe");
 	stereo->addItem("ACB Stereo - Eastern Europe");
-	value.stereo = ay()->getStereoMix();
+	value.stereo = ay->getStereoMix();
 	stereo->setCurrentIndex(value.stereo);
-	connect(stereo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=](int i) {
-		ay()->setStereoMix(Ay::StereoMix(i));
+	connect(stereo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this](int i) {
+		assert(validReference(this->ay));
+		NV(this->ay)->setStereoMix(Ay::StereoMix(i));
 	});
 
 	QGridLayout* g = new QGridLayout(this);
@@ -107,14 +93,9 @@ AyInsp::AyInsp(QWidget* w, MachineController* mc, volatile IsaObject* item) :
 void AyInsp::updateWidgets()
 {
 	xxlogIn("AyInsp::update");
+	assert(validReference(ay));
 
-	if (!object)
-	{
-		timer->stop();
-		return;
-	}
-	volatile Ay*		  ay   = this->ay();
-	uint8 const volatile* regs = ay->getRegisters();
+	const volatile uint8* regs = ay->getRegisters();
 
 	if (value.clock != ay->getClock() && !clock->hasFocus())
 	{
@@ -137,18 +118,21 @@ void AyInsp::updateWidgets()
 		case 0:
 			if (!pitch_a->hasFocus()) value.regs[1] = regs[1];
 			i++;
+			FALLTHROUGH
 		case 1:
 			if (!pitch_a->hasFocus()) pitch_a->setText(tostr(value.regs[0] + 256 * value.regs[1]));
 			break;
 		case 2:
 			if (!pitch_b->hasFocus()) value.regs[3] = regs[3];
 			i++;
+			FALLTHROUGH
 		case 3:
 			if (!pitch_b->hasFocus()) pitch_b->setText(tostr(value.regs[2] + 256 * value.regs[3]));
 			break;
 		case 4:
 			if (!pitch_c->hasFocus()) value.regs[5] = regs[5];
 			i++;
+			FALLTHROUGH
 		case 5:
 			if (!pitch_c->hasFocus()) pitch_c->setText(tostr(value.regs[4] + 256 * value.regs[5]));
 			break;
@@ -170,6 +154,7 @@ void AyInsp::updateWidgets()
 		case 11:
 			if (!pitch_e->hasFocus()) value.regs[12] = regs[12];
 			i++;
+			FALLTHROUGH
 		case 12:
 			if (!pitch_e->hasFocus()) pitch_e->setText(tostr(value.regs[11] + 256u * value.regs[12]));
 			break;
@@ -188,34 +173,32 @@ void AyInsp::updateWidgets()
 
 QLineEdit* AyInsp::new_led(cstr s)
 {
-	QLineEdit* e = new QLineEdit(s);
-	e->setAlignment(Qt::AlignHCenter);
-	e->setFrame(0);
-	e->setFont(ff);
-	connect(e, &QLineEdit::returnPressed, this, [=] { handle_return_in_led(e); });
-	return e;
+	QLineEdit* led = new QLineEdit(s);
+	led->setAlignment(Qt::AlignHCenter);
+	led->setFrame(0);
+	led->setFont(ff);
+	connect(led, &QLineEdit::returnPressed, this, [=] { handle_return_in_led(led); });
+	return led;
 }
 
-void AyInsp::set_register(uint r, uint n)
+void AyInsp::set_register(volatile Ay* ay, uint r, uint8 n)
 {
-	NVPtr<Ay>(ay())->setRegister(r, n);
+	nvptr(ay)->setRegister(r, n);
 	value.regs[r] = n;
 }
 
-static int32 int_value_for_volume(cstr s)
+static uint8 int_value_for_volume(cstr s)
 {
-	if ((s[0] | 0x20) == 'e')
-		return 16; // envelope
-	else
-		return intValue(s) & 0x0f;
+	if ((s[0] | 0x20) == 'e') return 16; // envelope
+	else return intValue(s) & 0x0f;
 }
 
-static int32 int_value_for_envelope_shape(cstr e)
+static uint8 int_value_for_envelope_shape(cstr e)
 {
 	//	Bestimme Hüllkurvennummer aus Buchstabengrafik
 	//	Signifikant sind die ersten beiden Buchstaben
 
-	int n = strlen(e);
+	size_t n = strlen(e);
 
 	if (n >= 4)
 	{
@@ -251,9 +234,11 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 	//	Eingabe in einem QLineEdit wurde mit 'Return' beendet:
 	//	must only be called from AyInspector's QLineEdits
 
+	assert(validReference(ay));
+
 	cstr text = led->text().toUtf8().data();
-	int	 n;
-	int	 r;
+	uint n;
+	uint r;
 
 	if (led == pitch_e)
 	{
@@ -261,80 +246,83 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 		r = 11;
 		goto pe;
 	}
-	if (led == pitch_b)
+
+	else if (led == pitch_b)
 	{
 		r = 2;
 		goto pa;
 	}
-	if (led == pitch_c)
+
+	else if (led == pitch_c)
 	{
 		r = 4;
 		goto pa;
 	}
-	if (led == pitch_a)
+
+	else if (led == pitch_a)
 	{
 		r = 0;
 	pa:
 		n = intValue(text) & 0x0fff;
 	pe:
-		set_register(r, n % 256);
+		set_register(ay, r, uint8(n));
 		r++;
-		set_register(r, n / 256);
+		set_register(ay, r, uint16(n) >> 8);
 		led->setText(tostr(n));
 	}
 
-	if (led == pitch_n)
+	else if (led == pitch_n)
 	{
-		n = intValue(text) & 0x001f;
-		set_register(6, n);
+		uint8 n = intValue(text) & 0x001f;
+		set_register(ay, 6, n);
 		led->setText(tostr(n));
 	}
 
-	if (led == vol_b)
+	else if (led == vol_b)
 	{
 		r = 9;
 		goto va;
 	}
-	if (led == vol_c)
+	else if (led == vol_c)
 	{
 		r = 10;
 		goto va;
 	}
-	if (led == vol_a)
+	else if (led == vol_a)
 	{
 		r = 8;
 	va:
-		n = int_value_for_volume(text);
-		set_register(r, n);
+		uint8 n = int_value_for_volume(text);
+		set_register(ay, r, n);
 		led->setText(n & 0x10 ? "Envelope" : tostr(n));
 	}
 
-	if (led == port_b)
+	else if (led == port_b)
 	{
 		r = 15;
 		goto oa;
 	}
-	if (led == port_a)
+	else if (led == port_a)
 	{
 		r = 14;
 	oa:
-		n = intValue(text) & 0x00ff;
-		set_register(r, n);
+		uint8 n = intValue(text) & 0x00ff;
+		set_register(ay, r, n);
 		led->setText(catstr("$", hexstr(uint(n), 2)));
 	}
 
-	if (led == shape_e)
+	else if (led == shape_e)
 	{
-		n = int_value_for_envelope_shape(text);
-		set_register(13, n);
+		uint8 n = int_value_for_envelope_shape(text);
+		set_register(ay, 13, n);
 		led->setText(es[n]);
 	}
 
-	if (led == mixer) // "ooabcABC"
+	else if (led == mixer) // "ooabcABC"
 	{
-		uint n	  = ay()->getRegister(7) | 0x3F;
-		uint len  = strlen(text);
-		uint port = 0x40;
+		uint8 n	   = ay->getRegister(7) | 0x3F;
+		int	  len  = int(strlen(text));
+		uint  port = 0x40;
 
 		//  scan text for ooabcABC
 		//  abc = enable noise on channel
@@ -348,17 +336,19 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 		for (int i = len - 1; i >= 0; i--)
 		{
 			char c = text[i];
-			if (c == 'A') n &= ~0x01; // '0' == enabled
-			if (c == 'B') n &= ~0x02;
-			if (c == 'C') n &= ~0x04;
-			if (c == 'a') n &= ~0x08;
-			if (c == 'b') n &= ~0x10;
-			if (c == 'c') n &= ~0x20;
+			if (c == 'A') n &= ~0x01u; // '0' == enabled
+			if (c == 'B') n &= ~0x02u;
+			if (c == 'C') n &= ~0x04u;
+			if (c == 'a') n &= ~0x08u;
+			if (c == 'b') n &= ~0x10u;
+			if (c == 'c') n &= ~0x20u;
+
 			if (c == 'i' || c == 'I')
 			{
 				n &= ~port;
 				port *= 2;
 			} // '0' == input
+
 			if (c == 'o' || c == 'O')
 			{
 				n |= port;
@@ -366,19 +356,53 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 			}
 		}
 
-		set_register(7, n);
+		set_register(ay, 7, n);
 		led->setText(binstr(n, "iicbaCBA", "oo------"));
 	}
 
 	if (led == clock)
 	{
-		n = mhzValue(text);
-		if (n > 0)
-			limit(1000000, n, 4000000);
-		else
-			n = ay()->getClock();
-		NVPtr<Ay>(ay())->setClock(n);
+		Frequency n = mhzValue(text);
+		if (n > 0) limit(1000000.0, n, 4000000.0);
+		else n = ay->getClock();
+		nvptr(ay)->setClock(n);
 		led->setText(MHzStr(n));
 		value.clock = n;
 	}
 }
+
+} // namespace gui
+
+
+/*
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

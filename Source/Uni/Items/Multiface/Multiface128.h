@@ -6,9 +6,9 @@
 #include "Multiface.h"
 
 
-class Multiface128 : public Multiface
+class Multiface128 final : public Multiface
 {
-	friend class Multiface128Insp;
+	friend class gui::Multiface128Insp;
 
 	bool  mf_enabled;
 	uint8 videopage; // video page bit in port 7FFD
@@ -17,6 +17,8 @@ public:
 	explicit Multiface128(Machine*);
 
 protected:
+	~Multiface128() override = default;
+
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
 	void reset(Time t, int32 cc) override;

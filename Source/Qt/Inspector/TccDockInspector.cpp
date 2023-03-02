@@ -8,6 +8,7 @@
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
 #include "RecentFilesMenu.h"
+#include "Templates/NVPtr.h"
 #include "Ula/MmuTc2048.h"
 #include "globals.h"
 #include "unix/files.h"
@@ -17,6 +18,9 @@
 #include <QPushButton>
 #include <QTimer>
 
+
+namespace gui
+{
 
 // Positionen & Dimensionen für Unipolbrit 2086:
 static QRect box_slot_u(92, 94, 138, 100);				 // Slot => "Insert Cartridge"
@@ -39,12 +43,14 @@ static QRect box_front_label_ejected_tc(99, 176, 131, 11);
 static QFont font_label("Arial Black", 9); // Geneva (weiter), Arial oder Gill Sans (enger)
 
 
-/*	Creator
- */
-TccDockInspector::TccDockInspector(QWidget* parent, MachineController* mc, volatile IsaObject* i) :
-	Inspector(parent, mc, i, i->isA(isa_MmuU2086) ? "/Images/u2086/open.jpg" : "/Images/tc2068/open.jpg"),
-	u(i->isA(isa_MmuU2086)), button_insert(new QPushButton("Insert Cartridge", this)), x_overlay(u ? 72 : 73),
-	y_overlay(89), imgdirpath(newcopy(catstr(appl_rsrc_path, "Images/", u ? "u2086/" : "tc2068/"))),
+TccDockInspector::TccDockInspector(QWidget* parent, MachineController* mc, volatile MmuTc2068* mmu) :
+	Inspector(parent, mc, mmu, mmu->isA(isa_MmuU2086) ? "/Images/u2086/open.jpg" : "/Images/tc2068/open.jpg"),
+	dock(mmu),
+	u(mmu->isA(isa_MmuU2086)),
+	button_insert(new QPushButton("Insert Cartridge", this)),
+	x_overlay(u ? 72 : 73),
+	y_overlay(89),
+	imgdirpath(newcopy(catstr(appl_rsrc_path, "Images/", u ? "u2086/" : "tc2068/"))),
 	overlay_zxspemu_ejected(catstr(imgdirpath, "zxspemu_ejected.jpg")),
 	overlay_zxspemu_inserted(catstr(imgdirpath, "zxspemu_inserted.jpg")),
 	overlay_game_ejected(catstr(imgdirpath, "game_ejected.jpg")),
@@ -54,7 +60,9 @@ TccDockInspector::TccDockInspector(QWidget* parent, MachineController* mc, volat
 	//	box_top_module_ejected (u ? box_top_module_ejected_u  : box_top_module_ejected_tc),
 	//	box_front_module_inserted(u ? box_front_module_inserted_u : box_front_module_inserted_tc),
 	//	box_front_module_ejected (u ? box_front_module_ejected_u  : box_front_module_ejected_tc),
-	cartridge_state(Invalid), current_fpath(nullptr), current_id(TccUnknown)
+	cartridge_state(Invalid),
+	current_fpath(nullptr),
+	current_id(TccUnknown)
 {
 	// Bereich des leeren Docks, in das man klicken kann, um ein neues Cartridge zu laden:
 	dock_slot = new QWidget(this);
@@ -96,13 +104,13 @@ TccDockInspector::~TccDockInspector()
 	delete[] current_fpath;
 }
 
-/*	Timer slot:
- */
 void TccDockInspector::updateWidgets()
 {
-	if (!object) return;
+	// timer
 
-	CartridgeState new_state = dock()->isLoaded() ? RomInserted : current_fpath ? RomEjected : NoCartridge;
+	assert(validReference(dock));
+
+	CartridgeState new_state = dock->isLoaded() ? RomInserted : current_fpath ? RomEjected : NoCartridge;
 
 	if (cartridge_state != new_state)
 	{
@@ -112,10 +120,10 @@ void TccDockInspector::updateWidgets()
 			new_state == RomInserted ? "Eject Cartridge" :
 			new_state == RomEjected	 ? "Remove Cartridge" :
 									   "Insert Cartridge");
-		if (!current_fpath && dock()->isLoaded())
+		if (!current_fpath && dock->isLoaded())
 		{
-			current_fpath = newcopy(dock()->getFilepath());
-			current_id	  = dock()->getTccId();
+			current_fpath = newcopy(dock->getFilepath());
+			current_id	  = dock->getTccId();
 		}
 
 		dock_slot->setVisible(new_state == NoCartridge);
@@ -128,12 +136,11 @@ void TccDockInspector::updateWidgets()
 	}
 }
 
-
-// virtual
-void TccDockInspector::paintEvent(QPaintEvent*) // Qt callback
+void TccDockInspector::paintEvent(QPaintEvent*)
 {
 	xlogIn("TccInspector:paintEvent");
 	QPainter p(this);
+
 	//	p.setPen(Qt::blue);
 	//	p.setFont(QFont("Arial", 30));
 	//	p.drawText(rect(), Qt::AlignCenter, "Qt");
@@ -149,8 +156,7 @@ void TccDockInspector::paintEvent(QPaintEvent*) // Qt callback
 			p.setFont(font_label);
 			p.setPen(QColor(Qt::white));
 			p.drawText(
-				u ? box_front_label_ejected_u : box_front_label_ejected_tc,
-				Qt::AlignTop | Qt::TextSingleLine,
+				u ? box_front_label_ejected_u : box_front_label_ejected_tc, Qt::AlignTop | Qt::TextSingleLine,
 				basename_from_path(current_fpath));
 		}
 		break;
@@ -161,8 +167,7 @@ void TccDockInspector::paintEvent(QPaintEvent*) // Qt callback
 			p.setFont(font_label);
 			p.setPen(QColor(Qt::white));
 			p.drawText(
-				u ? box_front_label_inserted_u : box_front_label_inserted_tc,
-				Qt::AlignTop | Qt::TextSingleLine,
+				u ? box_front_label_inserted_u : box_front_label_inserted_tc, Qt::AlignTop | Qt::TextSingleLine,
 				basename_from_path(current_fpath));
 		}
 		break;
@@ -171,21 +176,17 @@ void TccDockInspector::paintEvent(QPaintEvent*) // Qt callback
 	}
 }
 
-
-// helper
 cstr TccDockInspector::getSaveFilename()
 {
 	static cstr filter = "TCC Cartridges (*.dck);;All Files (*)";
 	return selectSaveFile(this, "Save Cartridge as…", filter);
 }
 
-// helper
 cstr TccDockInspector::getLoadFilename()
 {
 	cstr filter = "TCC Cartridge (*.dck);;All Files (*)";
 	return selectLoadFile(this, "Insert Cartridge …", filter);
 }
-
 
 void TccDockInspector::fillContextMenu(QMenu* menu)
 {
@@ -195,31 +196,32 @@ void TccDockInspector::fillContextMenu(QMenu* menu)
 	{
 	case RomInserted:
 		menu->addAction("Eject cartridge", this, &TccDockInspector::eject_cartridge);
-		if (1) menu->addAction("Save as …", this, &TccDockInspector::save_as);
+		menu->addAction("Save as …", this, &TccDockInspector::save_as);
 		break;
 
 	case RomEjected:
 		menu->addAction("Remove cartridge", this, &TccDockInspector::remove_cartridge);
 		menu->addAction("Insert again", this, &TccDockInspector::insert_again);
+		FALLTHROUGH
 
 	case NoCartridge:
-		menu->addAction("Insert cartridge …", [=] { insert_cartridge(); });
+		menu->addAction("Insert cartridge …", [=]() { insert_cartridge(); });
 		menu->addAction("Recent cartridges …")->setMenu(new RecentFilesMenu(RecentTccRoms, this, [=](cstr fpath) {
 			insert_cartridge(fpath);
 		}));
+		break;
 
 	case Invalid: break;
 	}
 }
 
-
-/*	Mouse click handler:
-	- eject cartridge
-	- remove ejected cartridge
-	- insert ejected cartridge again
-*/
 void TccDockInspector::mousePressEvent(QMouseEvent* e)
 {
+	// Mouse click handler:
+	// - eject cartridge
+	// - remove ejected cartridge
+	// - insert ejected cartridge again
+
 	if (e->button() != Qt::LeftButton)
 	{
 		Inspector::mousePressEvent(e);
@@ -248,44 +250,23 @@ void TccDockInspector::mousePressEvent(QMouseEvent* e)
 	}
 }
 
-
-/*	Slot für "Insert/Eject" Button:
- */
 void TccDockInspector::insert_or_eject_cartridge()
 {
-	if (dock()->isLoaded()) eject_cartridge();
+	// Slot für "Insert/Eject" Button:
 
-	if (current_fpath)
-		remove_cartridge();
-	else
-		insert_cartridge();
+	assert(validReference(dock));
+
+	if (dock->isLoaded()) eject_cartridge();
+	if (current_fpath) remove_cartridge();
+	else insert_cartridge();
 }
-
-
-/*void TccDockInspector::slotInsertCartridge()
-{
-	cstr filepath = getLoadFilename();
-	if(!filepath) return;
-
-	cartridge_state = Invalid;
-	delete[] current_fpath;
-	current_fpath = nullptr;
-
-	bool f = machine->powerOff();
-
-		MmuTc2068* dock = NV(this->dock());
-		dock->insertCartridge(filepath);
-
-		current_fpath = newcopy(filepath);
-		current_id = dock->getTccId();
-
-	if(f) machine->powerOn();
-}*/
 
 void TccDockInspector::insert_cartridge(cstr filepath)
 {
 	// called from menu: "Load..."        -> filepath==NULL -> query user
 	// called from menu: "Load recent..." -> filepath!=NULL
+
+	assert(validReference(dock));
 
 	if (!filepath) filepath = getLoadFilename();
 	if (!filepath) return;
@@ -296,8 +277,7 @@ void TccDockInspector::insert_cartridge(cstr filepath)
 
 	bool f = machine->powerOff();
 
-	MmuTc2068* dock = NV(this->dock());
-	dock->insertCartridge(filepath);
+	NV(dock)->insertCartridge(filepath);
 
 	current_fpath = newcopy(filepath);
 	current_id	  = dock->getTccId();
@@ -305,27 +285,29 @@ void TccDockInspector::insert_cartridge(cstr filepath)
 	if (f) machine->powerOn();
 }
 
-
-/*	Context menu:
- */
 void TccDockInspector::eject_cartridge()
 {
-	if (dock()->isLoaded())
+	// Context menu:
+
+	assert(validReference(dock));
+
+	if (dock->isLoaded())
 	{
 		cartridge_state = Invalid;
 
 		bool f = machine->powerOff();
-		NV(dock())->ejectCartridge();
+		NV(dock)->ejectCartridge();
 		if (f) machine->powerOn();
 	}
 }
 
-
-/*	Context menu:
- */
 void TccDockInspector::remove_cartridge()
 {
-	if (!dock()->isLoaded())
+	// Context menu:
+
+	assert(validReference(dock));
+
+	if (!dock->isLoaded())
 	{
 		cartridge_state = Invalid;
 		delete[] current_fpath;
@@ -333,31 +315,66 @@ void TccDockInspector::remove_cartridge()
 	}
 }
 
-
-/*	Context menu:
- */
 void TccDockInspector::insert_again()
 {
+	// Context menu:
+
+	assert(validReference(dock));
+
 	if (current_fpath)
 	{
-		cartridge_state = Invalid;
 		bool f			= machine->powerOff();
-		NV(this->dock())->insertCartridge(current_fpath);
+		cartridge_state = Invalid;
+		NV(dock)->insertCartridge(current_fpath);
 		if (f) machine->powerOn();
 	}
 }
 
-
-/*	Context menu:
- */
 void TccDockInspector::save_as()
 {
+	// Context menu:
+
+	assert(validReference(dock));
+
 	cstr filepath = getSaveFilename();
 	if (filepath)
 	{
-		cartridge_state = Invalid;
 		bool f			= machine->suspend();
-		NV(this->dock())->saveCartridgeAs(filepath);
+		cartridge_state = Invalid;
+		NV(dock)->saveCartridgeAs(filepath);
 		if (f) machine->resume();
 	}
 }
+
+} // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

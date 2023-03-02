@@ -56,14 +56,21 @@ INCLUDEPATH += \
 macx: SOURCES += \
 	Source/OS/Mac/UsbJoystick.cpp \
 	Source/OS/Mac/MacDsp.cpp \
-	Source/OS/Mac/MacMouse.cpp \
 	Source/OS/Mac/UsbDevice.cpp \
 	Source/OS/Mac/mac_util.cpp \
-	Libraries/audio/AudioDecoder.cpp \
+	Libraries/audio/macos/AudioDecoder.cpp \
+	Libraries/audio/macos/CAStreamBasicDescription.cpp \
+
+macx: HEADERS += \
+	Libraries/audio/macos/CADebugMacros.h \
+	Libraries/audio/macos/CAStreamBasicDescription.h \
+	Libraries/audio/macos/CAMath.h \
+	Libraries/audio/macos/CADebugPrintf.h \
 
 
 unix:!macx: SOURCES += \
 	Source/OS/Linux/missing_definitions.cpp \
+	Libraries/audio/Linux/AudioDecoder.cpp \
 
 
 SOURCES += \
@@ -72,6 +79,7 @@ SOURCES += \
 
 
 SOURCES +=	\
+	Libraries/audio/convert_audio.cpp \
 	Libraries/kio/exceptions.cpp \
 	Libraries/cstrings/cstrings.cpp \
 	Libraries/graphics/gif/Colormap.cpp \
@@ -86,9 +94,7 @@ SOURCES +=	\
 	Libraries/unix/files.cpp \
 	Libraries/unix/n-compress.cpp \
 	Libraries/kio/TestTimer.cpp \
-	Libraries/audio/audio.cpp \
 	Libraries/audio/WavFile.cpp \
-	Libraries/audio/CAStreamBasicDescription.cpp \
 	Libraries/Z80/goodies/z80_clock_cycles.cpp \
 	Libraries/Z80/goodies/z80_opcode_length.cpp \
 	Libraries/Z80/goodies/z80_disass.cpp \
@@ -128,6 +134,7 @@ SOURCES +=	\
 	Source/Qt/MySimpleToggleButton.cpp \
 	Source/Qt/RecentFilesMenu.cpp \
 	Source/Qt/Lenslok.cpp \
+	Source/Qt/Mouse.cpp \
 	\
 	Source/Qt/Screen/Screen.cpp \
 	Source/Qt/Screen/ScreenMono.cpp \
@@ -256,6 +263,7 @@ SOURCES +=	\
 	Source/Uni/Items/Fdc/FdcPlusD.cpp \
 	Source/Uni/Items/Fdc/FdcD80.cpp \
 	Source/Uni/Items/Fdc/FdcJLO.cpp \
+	Source/Uni/Items/Fdc/MGT.cpp \
 	Source/Uni/Items/Fdc/OpusDiscovery.cpp \
 	Source/Uni/Items/Fdc/Disciple.cpp \
 	Source/Uni/Items/Fdc/SmartSDCard.cpp \
@@ -326,6 +334,7 @@ SOURCES +=	\
 # Library Headers:
 
 HEADERS += \
+	Libraries/audio/convert_audio.h \
 	Libraries/kio/kio.h \
 	Libraries/kio/auto_config.h \
 	Libraries/kio/detect_configuration.h \
@@ -337,12 +346,15 @@ HEADERS += \
 	Libraries/kio/util/msbit.h \
 	Libraries/kio/util/count1bits.h \
 	Libraries/kio/TestTimer.h \
+	Source/version.h \
 	\
 	Libraries/unix/log.h \
-	Libraries/cpp/cppthreads.h \
 	Libraries/unix/os_utilities.h \
 	Libraries/unix/FD.h \
 	Libraries/unix/files.h \
+	Libraries/unix/n-compress.h \
+	\
+	Libraries/cpp/cppthreads.h \
 	\
 	Libraries/graphics/gif/Colormap.h \
 	Libraries/graphics/gif/Pixelmap.h \
@@ -364,11 +376,6 @@ HEADERS += \
 	Libraries/hash/sdbm_hash.h \
 	\
 	Libraries/audio/AudioDecoder.h \
-	Libraries/audio/CADebugMacros.h \
-	Libraries/audio/CAStreamBasicDescription.h \
-	Libraries/audio/CAMath.h \
-	Libraries/audio/CADebugPrintf.h \
-	Libraries/audio/audio.h \
 	Libraries/audio/WavFile.h \
 	\
 	Libraries/Z80/goodies/z80_opcodes.h \
@@ -396,11 +403,10 @@ HEADERS += \
 	zasm/Source/Value.cpp \
 
 
-# zxsp Headers - OS stuff (AudioIO, Joysticks, Mouse):
+# zxsp Headers - OS stuff (AudioIO, Joysticks):
 
 HEADERS += \
 	Source/settings.h \
-	Source/OS/Mouse.h \
 	Source/OS/StereoSample.h \
 	Source/OS/DspTime.h \
 	Source/OS/Dsp.h \
@@ -473,6 +479,7 @@ HEADERS += \
 	Source/Qt/Dialogs/ConfigureKeyboardJoystickDialog.h \
 	Source/Qt/Overlays/Overlay.h \
 	\
+	Source/Qt/Mouse.h \
 	Source/Qt/CheckUpdate.h \
 	Source/Qt/qt_util.h \
 	Source/Qt/Settings.h \
@@ -560,6 +567,7 @@ HEADERS += \
 	Source/Uni/Items/Fdc/FdcPlusD.h \
 	Source/Uni/Items/Fdc/FdcD80.h \
 	Source/Uni/Items/Fdc/FdcJLO.h \
+	Source/Uni/Items/Fdc/MGT.h \
 	Source/Uni/Items/Fdc/Fdc.h \
 	Source/Uni/Items/Fdc/DivIDE.h \
 	Source/Uni/Items/Fdc/FloppyDiskDrive.h \

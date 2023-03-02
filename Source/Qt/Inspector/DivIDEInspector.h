@@ -6,8 +6,13 @@
 #include "Inspector.h"
 
 
+namespace gui
+{
+
 class DivIDEInspector : public Inspector
 {
+	volatile DivIDE* divide;
+
 	QPixmap overlay_jumper_E;
 	QPixmap overlay_jumper_A;
 	QPixmap overlay_jumper_EA;
@@ -33,8 +38,8 @@ class DivIDEInspector : public Inspector
 
 
 public:
-	DivIDEInspector(QWidget*, MachineController* mc, volatile IsaObject*);
-	~DivIDEInspector();
+	DivIDEInspector(QWidget*, MachineController* mc, volatile DivIDE*);
+	~DivIDEInspector() override;
 
 protected:
 	void paintEvent(QPaintEvent*) override;
@@ -52,11 +57,10 @@ private:
 	void load_rom();
 	void save_rom();
 	void toggle_jumper_E();
-	void insert_new_16M();
-	void insert_new_128M();
 	void insert_disk();
 	void eject_disk();
 	void toggle_disk_wprot();
-	void set_ram_32k();
-	void set_ram_512k();
+	void set_ram(uint size);
 };
+
+} // namespace gui

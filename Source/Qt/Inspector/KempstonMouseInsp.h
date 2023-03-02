@@ -4,13 +4,19 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Inspector.h"
+#include "KempstonMouse.h"
 class QLineEdit;
 class QComboBox;
 class QPushButton;
 
 
-class KempstonMouseInsp : public Inspector
+namespace gui
 {
+
+class KempstonMouseInsp final : public Inspector
+{
+	volatile KempstonMouse* const mif;
+
 	// widgets:
 	QLineEdit*	 display_x;
 	QLineEdit*	 display_y;
@@ -20,12 +26,14 @@ class KempstonMouseInsp : public Inspector
 
 	// widgets state:
 	uint8 old_x, old_y; // displayed x/y position
-	int	  old_buttons;	// displayed button state
+	uint  old_buttons;	// displayed button state
 	bool  old_grabbed;
 
 public:
-	KempstonMouseInsp(QWidget*, MachineController*, volatile IsaObject*);
+	KempstonMouseInsp(QWidget*, MachineController*, volatile KempstonMouse*);
 
 protected:
 	void updateWidgets() override;
 };
+
+} // namespace gui

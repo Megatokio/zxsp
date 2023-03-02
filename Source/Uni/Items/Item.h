@@ -5,9 +5,7 @@
 
 #include "IoInfo.h"
 #include "IsaObject.h"
-#include "kio/peekpoke.h"
-#include "zxsp_types.h"
-#include <QObject>
+
 
 extern uint16 bitsForSpec(cstr s);
 extern uint16 maskForSpec(cstr s);
@@ -18,12 +16,12 @@ enum Internal { internal = 1, external = 0 };
 
 class Item : public IsaObject
 {
-	Item(const Item&)			 = delete;
-	Item& operator=(const Item&) = delete;
+	NO_COPY_MOVE(Item);
 
 protected:
 	Machine* machine;
-	Item *	 _next, *_prev;
+	Item*	 _next;
+	Item*	 _prev;
 	uint16	 in_mask;
 	uint16	 in_bits;
 	uint16	 out_mask;
@@ -34,7 +32,6 @@ protected:
 	uint	ioinfo_count;
 	uint	ioinfo_size;
 
-protected:
 	bool ramdis_in; // RAMCS state    ZX80/81
 	bool romdis_in; // ROMCS state    ZX81/ZXSP/128/+2/+2A/+3
 
@@ -44,27 +41,24 @@ protected:
 	void grow_ioinfo();
 	void record_ioinfo(int32 cc, uint16 addr, uint8 byte, uint8 mask = 0xff);
 
-	bool event(QEvent* e);
-
 
 	// ---------------- P U B L I C -------------------
 
 public:
-	virtual ~Item();
+	virtual ~Item() override; // making friend with a shared_ptr is left as an exercise to the reader...
 
-	Item*	 prev() const { return _prev; }
-	Item*	 next() const { return _next; }
-	Machine* getMachine() const { return machine; }
-	void	 linkBehind(Item*);
-	void	 unlink();
-	bool	 matchesIn(uint16 addr) { return (addr & in_mask) == in_bits; }
-	bool	 matchesOut(uint16 addr) { return (addr & out_mask) == out_bits; }
-	bool	 isInternal() { return _internal; }
-	bool	 isExternal() { return !_internal; }
+public:
+	Item* prev() const { return _prev; }
+	Item* next() const { return _next; }
+	bool  matchesIn(uint16 addr) { return (addr & in_mask) == in_bits; }
+	bool  matchesOut(uint16 addr) { return (addr & out_mask) == out_bits; }
+	bool  isInternal() { return _internal; }
+	bool  isExternal() { return !_internal; }
 
 	bool is_locked() const volatile;
 	void lock() const volatile;
 	void unlock() const volatile;
+
 
 	// Item interface:
 	virtual void  powerOn(/*t=0*/ int32 cc);
@@ -78,10 +72,10 @@ public:
 	virtual void  videoFrameEnd(int32 cc);
 	virtual void  triggerNmi();
 
-	// Behandlung von daisy-chain bus-signalen
-	// Default: einfach durchleiten
-	//			dann werden auch ramdis und romdis nicht aktualisiert!
-	//			ein Item das romdis benutzt, muss logischerweise auch romCS() ersetzen.
+	// Handling of daisy chain bus signals
+	// Default: just forward the signal
+	//			in this case ramdis and romdis are not updated!
+	//			an Item that uses romdis must override romCS().
 	virtual void ramCS(bool active); // RAM_CS:  ZX80, ZX81
 	virtual void romCS(bool active); // ROM_CS:  ZX81, ZXSP, ZX128, +2; ROMCS1+ROMCS2: +2A, +3
 };

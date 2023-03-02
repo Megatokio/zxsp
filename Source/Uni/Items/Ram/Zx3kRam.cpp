@@ -6,9 +6,6 @@
 #include "Items/Ula/Mmu.h"
 #include "Machine.h"
 #include "Memory.h"
-#include "Qt/Settings.h"
-#include <QSettings>
-#include <QVariant>
 
 
 // Sinclair ZX 1-3K RAM Memory Extension
@@ -20,10 +17,10 @@
 Zx3kRam::Zx3kRam(Machine* m, uint sz) : ExternalRam(m, isa_Zx3kRam)
 {
 	xlogIn("new Zx3kRam");
+	assert(sz == 1 kB || sz == 2 kB || sz == 3 kB);
 
-	size = sz ? sz : settings.get_uint(key_zx3k_ramsize, 3 kB); // set in setRamSize()
-
-	machine->ram.grow(1 kB + size);
+	size = sz;
+	machine->ram.grow(1 kB + sz);
 	machine->mmu->mapMem(); // map new memory to cpu & set videoram
 }
 
@@ -49,18 +46,16 @@ Zx3kRam::~Zx3kRam()
 //
 void Zx3kRam::setRamSize(uint sz)
 {
-	assert(is_locked());
-
 	xlogIn("Zx3kRam.setRamSize");
 
-	if (sz == size) return;
+	assert(machine->isPowerOff());
+	assert(sz == 1 kB || sz == 2 kB || sz == 3 kB);
 
-	settings.setValue(key_zx3k_ramsize, sz);
+	if (sz == size) return;
 
 	if (sz < size) machine->ram.shrink(1 kB + sz);
 	if (sz > size) machine->ram.grow(1 kB + sz);
 	size = sz;
 
 	machine->mmu->mapMem(); // map new memory to cpu & to set videoram
-							// machine->powerOn();		// initAllItems()
 }

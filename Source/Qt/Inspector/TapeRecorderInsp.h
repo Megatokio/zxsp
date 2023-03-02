@@ -13,6 +13,10 @@
 #include <QRect>
 #include <QTimer>
 
+
+namespace gui
+{
+
 enum CassBody { BlueBody };			 // available cassette bodies
 enum HeadPos { head_up, head_down }; // magnetic head position
 
@@ -41,7 +45,7 @@ struct Cassette
 
 	int reel_symmetries;
 
-	float ppmm;
+	double ppmm;
 
 	Cassette(CassBody, HeadPos);
 
@@ -57,8 +61,10 @@ struct Cassette
 // base class:
 class TapeRecorderInsp : public Inspector
 {
-	// buttons:
 protected:
+	volatile TapeRecorder* const tr;
+
+	// buttons:
 	MySimpleToggleButton* btn_record;
 	MySimpleToggleButton* btn_play;
 	MySimpleToggleButton* btn_back;
@@ -69,7 +75,6 @@ protected:
 	MySimpleToggleButton* btn_pause;
 
 	// labels:
-protected:
 	cstr	   major_block_info; // displayed value
 	cstr	   minor_block_info; // displayed value
 	int		   tape_position;	 // displayed value
@@ -79,7 +84,6 @@ protected:
 	cstr	   tape_filepath;
 
 	// animation:
-protected:
 	QImage			tr_image;		 // tape recorder image (skin)
 	QImage			tr_window_image; // tape recorder window image
 	QRect			tr_window_rect;	 // tape recorder window rect
@@ -116,22 +120,10 @@ protected:
 
 protected:
 	TapeRecorderInsp(
-		QWidget*,
-		MachineController*,
-		volatile IsaObject*,
-		QPoint majorinfopos,
-		QPoint minorinfopos,
-		QPoint tapecounterpos,
-
-		cstr	hdgr_image_filename,
-		cstr	tray_image_filename,
-		QPoint	tray_position,
+		QWidget*, MachineController*, volatile TapeRecorder*, QPoint majorinfopos, QPoint minorinfopos,
+		QPoint tapecounterpos, cstr hdgr_image_filename, cstr tray_image_filename, QPoint tray_position,
 		HeadPos head_position, // head_up, head_down
-		cstr	axis_image_filename,
-		int		axis_symmetries,
-		int		tr_axis_x1,
-		int		tr_axis_x2,
-		int		tr_axis_y);
+		cstr axis_image_filename, int axis_symmetries, int tr_axis_x1, int tr_axis_x2, int tr_axis_y);
 
 	void updateAnimation();
 	void updateWidgets() override;			// timer
@@ -141,7 +133,7 @@ protected:
 
 	void handleEjectButton();
 
-	NVPtr<TapeRecorder> nv_taperecorder() { return NVPtr<TapeRecorder>(tape_recorder()); }
+	//NVPtr<TapeRecorder> nv_taperecorder() { return NVPtr<TapeRecorder>(dynamic_cast<volatile TapeRecorder&>(*object)); }
 
 private:
 	void insert_tape(cstr filepath);
@@ -160,7 +152,7 @@ private:
 class TS2020Inspector : public TapeRecorderInsp
 {
 public:
-	TS2020Inspector(QWidget* parent, MachineController*, volatile IsaObject* item);
+	TS2020Inspector(QWidget* parent, MachineController*, volatile TS2020* item);
 };
 
 class PlusTapeRecorderInsp : public TapeRecorderInsp
@@ -168,17 +160,19 @@ class PlusTapeRecorderInsp : public TapeRecorderInsp
 	// Base class for +2 and +2A tape recorder
 	// same geometry and behaviour, just different shades of grey
 protected:
-	PlusTapeRecorderInsp(QWidget*, MachineController*, volatile IsaObject*, cstr hdgr, cstr lid, cstr btns);
+	PlusTapeRecorderInsp(QWidget*, MachineController*, volatile TapeRecorder*, cstr hdgr, cstr lid, cstr btns);
 };
 
 class Plus2TapeRecorderInsp : public PlusTapeRecorderInsp
 {
 public:
-	Plus2TapeRecorderInsp(QWidget*, MachineController*, volatile IsaObject*);
+	Plus2TapeRecorderInsp(QWidget*, MachineController*, volatile Plus2TapeRecorder*);
 };
 
 class Plus2aTapeRecorderInsp : public PlusTapeRecorderInsp
 {
 public:
-	Plus2aTapeRecorderInsp(QWidget*, MachineController*, volatile IsaObject*);
+	Plus2aTapeRecorderInsp(QWidget*, MachineController*, volatile Plus2aTapeRecorder*);
 };
+
+} // namespace gui

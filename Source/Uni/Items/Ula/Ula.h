@@ -24,6 +24,7 @@ public:
 
 protected:
 	Ula(Machine*, isa_id, cstr o_addr, cstr i_addr);
+	~Ula() override = default;
 
 	uint8		 readKeyboard(uint16 addr); // read bits from keyboard matrix
 	virtual void setupTiming() = 0;

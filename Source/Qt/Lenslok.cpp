@@ -17,9 +17,12 @@
 #include <QRect>
 #include <QRectF>
 #include <math.h>
-#define y0 _y0 // <math.h>
-#define y1 _y1 // <math.h>
+// #define y0 _y0 // <math.h>
+// #define y1 _y1 // <math.h>
 
+
+namespace gui
+{
 
 /*	7 ZX Spectrum games which used the Lenslok protection system:
  */
@@ -80,10 +83,14 @@ static uint get_game_id(cstr name);
 
 
 Lenslok::Lenslok(MachineController* mc, cstr name1, cstr name2) :
-	QWidget(mc), controller(mc),
+	QWidget(mc),
+	controller(mc),
 	background_a(catstr(appl_rsrc_path, "Images/Lenslok-1a-100.png"), nullptr, Qt::NoOpaqueDetection),
 	background_b(catstr(appl_rsrc_path, "Images/Lenslok-1b-100.png"), nullptr, Qt::NoOpaqueDetection),
-	background(&background_a), contextmenu(new QMenu(this)), timer(new QTimer(this)), ignore_focusout(no)
+	background(&background_a),
+	contextmenu(new QMenu(this)),
+	timer(new QTimer(this)),
+	ignore_focusout(no)
 {
 	xlogIn("new Lenslok");
 
@@ -188,7 +195,7 @@ static uint32 blur_color(const Renderer& renderer, const QRect& box)
 */
 void Lenslok::draw_prism(QPainter& painter, QRectF qbox, const QRectF& zbox)
 {
-	Renderer& renderer = *ZxspRendererPtr(controller->getScreen()->getScreenRenderer());
+	Renderer& renderer = dynamic_cast<ZxspRenderer&>(*controller->getScreen()->getScreenRenderer());
 
 	// Koordinaten der auf Integer ausgeweiteten Quell-Box:
 	int l = floor(qbox.left());
@@ -271,7 +278,7 @@ void Lenslok::paintEvent(QPaintEvent*)
 	// Lenslok flipped => decoding mode:
 
 	Screen*	  screen		  = controller->getScreen();
-	Renderer* screen_renderer = ZxspRendererPtr(screen->getScreenRenderer());
+	Renderer* screen_renderer = screen->getScreenRenderer();
 	qreal	  vzoom			  = screen->getZoom();
 	qreal	  hzoom			  = vzoom / screen->getHF();
 
@@ -279,9 +286,9 @@ void Lenslok::paintEvent(QPaintEvent*)
 	// integer!
 	//=> Probleme…
 
-	QRect prism_box(::prism_box.translated(geometry().topLeft())); // Lenslok prism box in glob. coord.
-	QRect window_box(controller->geometry());					   // Specci screen box in glob. coord.
-	if (!window_box.intersects(prism_box)) return;				   // Lenslok komplett außerhalb des Specci-Fensters
+	QRect prism_box(gui::prism_box.translated(geometry().topLeft())); // Lenslok prism box in glob. coord.
+	QRect window_box(controller->geometry());						  // Specci screen box in glob. coord.
+	if (!window_box.intersects(prism_box)) return;					  // Lenslok komplett außerhalb des Specci-Fensters
 
 	// Lenslok over Specci window:
 
@@ -302,9 +309,9 @@ void Lenslok::paintEvent(QPaintEvent*)
 
 	for (int i = 0; i < 4; i++)
 	{
-		static int L[] = {::x0, x2, x4, x6};
+		static int L[] = {gui::x0, x2, x4, x6};
 		int		   x0  = L[i];
-		static int R[] = {::x1, x3, x5, x7};
+		static int R[] = {gui::x1, x3, x5, x7};
 		int		   x1  = R[i];
 
 		qreal l = ceil((geometry().x() + x0 - window_box.x()) / hzoom);
@@ -411,10 +418,8 @@ void Lenslok::moveEvent(QMoveEvent*)
 */
 void Lenslok::focusOutEvent(QFocusEvent*)
 {
-	if (ignore_focusout)
-		ignore_focusout = false;
-	else
-		deleteLater();
+	if (ignore_focusout) ignore_focusout = false;
+	else deleteLater();
 }
 
 bool Lenslok::event(QEvent* e)
@@ -484,3 +489,5 @@ void Lenslok::select_game()
 	game_id = actionAdd->data().toInt();
 	update();
 }
+
+} // namespace gui

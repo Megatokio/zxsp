@@ -4,12 +4,12 @@
 
 #include "ZxIf2Insp.h"
 #include "Item.h"
-#include "Joy/ZxIf2.h"
 #include "Machine.h"
 #include "MachineController.h"
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
 #include "RecentFilesMenu.h"
+#include "Templates/NVPtr.h"
 #include "Z80/Z80.h"
 #include <QGridLayout>
 #include <QLabel>
@@ -18,14 +18,17 @@
 #include <QtGui>
 
 
-ZxIf2Insp::ZxIf2Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
-	SinclairJoyInsp(w, mc, i, "/Images/zxif2.jpg"), old_romfilepath(nullptr)
+namespace gui
 {
-	assert(object->isA(isa_ZxIf2));
 
+ZxIf2Insp::ZxIf2Insp(QWidget* w, MachineController* mc, volatile ZxIf2* zxif2) :
+	SinclairJoyInsp(w, mc, zxif2, "/Images/zxif2.jpg"),
+	zxif2(zxif2),
+	old_romfilepath(nullptr)
+{
 	button_insert_eject = new QPushButton("Insert", this);
 	button_insert_eject->setMinimumWidth(100);
-	connect(button_insert_eject, &QPushButton::clicked, this, &ZxIf2Insp::insert_or_eject_rom);
+	connect(button_insert_eject, &QPushButton::clicked, this, &ZxIf2Insp::slotInsertEjectRom);
 
 	label_romfilename = new QLabel(this);
 	label_romfilename->move(150, 51);
@@ -57,15 +60,15 @@ ZxIf2Insp::ZxIf2Insp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
 	//	timer->start(1000/15);			// started by JoyInsp()
 }
 
-
-// slot
-void ZxIf2Insp::insert_or_eject_rom()
+void ZxIf2Insp::slotInsertEjectRom()
 {
-	if (zxif2()->isLoaded())
+	assert(validReference(zxif2));
+
+	if (zxif2->isLoaded())
 	{
 		xlogIn("ZxIf2Insp::eject()");
 		bool f = machine->powerOff();
-		NV(zxif2())->ejectRom();
+		NV(zxif2)->ejectRom();
 		if (f) machine->powerOn();
 	}
 	else
@@ -77,21 +80,19 @@ void ZxIf2Insp::insert_or_eject_rom()
 		if (!filepath) return;
 
 		bool f = machine->powerOff();
-		NV(zxif2())->insertRom(filepath);
+		NV(zxif2)->insertRom(filepath);
 		if (f) machine->powerOn();
 	}
 }
 
-
 void ZxIf2Insp::updateWidgets()
 {
 	xlogIn("ZxIf2Insp::updateWidgets");
-
-	if (!object) return;
+	assert(validReference(zxif2));
 
 	SinclairJoyInsp::updateWidgets();
 
-	cstr new_romfilepath = zxif2()->getFilepath();
+	cstr new_romfilepath = zxif2->getFilepath();
 	if (old_romfilepath != new_romfilepath)
 	{
 		label_romfilename->setText(new_romfilepath ? basename_from_path(new_romfilepath) : nullptr);
@@ -113,30 +114,33 @@ void ZxIf2Insp::updateWidgets()
 	}
 }
 
-
-/*	fill context menu for right-click
-	called by Inspector::contextMenuEvent()
-	items inserted here are inserted at the to of the popup menu
-*/
 void ZxIf2Insp::fillContextMenu(QMenu* menu)
 {
+	// fill context menu for right-click
+	// called by Inspector::contextMenuEvent()
+	// items inserted here are inserted at the to of the popup menu
+
+	assert(validReference(zxif2));
+
 	Inspector::fillContextMenu(menu); // NOP
 
-	if (zxif2()->isLoaded()) { menu->addAction("Eject Rom", this, &ZxIf2Insp::insert_or_eject_rom); }
+	if (zxif2->isLoaded()) { menu->addAction("Eject Rom", this, &ZxIf2Insp::slotInsertEjectRom); }
 	else
 	{
-		menu->addAction("Insert Rom", this, &ZxIf2Insp::insert_or_eject_rom);
+		menu->addAction("Insert Rom", this, &ZxIf2Insp::slotInsertEjectRom);
 		menu->addAction("Recent Roms …")->setMenu(new RecentFilesMenu(RecentIf2Roms, this, [=](cstr fpath) {
 			insertRom(fpath);
 		}));
 	}
 }
 
-
 void ZxIf2Insp::insertRom(cstr filepath)
 {
+	assert(validReference(zxif2));
+
 	bool f = machine->powerOff();
-	if (zxif2()->isLoaded()) NV(zxif2())->ejectRom();
-	NV(zxif2())->insertRom(filepath);
+	NV(zxif2)->insertRom(filepath);
 	if (f) machine->powerOn();
 }
+
+} // namespace gui

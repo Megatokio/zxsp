@@ -3,7 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "RzxFile.h"
-#include "Settings.h"
 #include "Z80Head.h"
 #include "ZxInfo/ZxInfo.h"
 #include "kio/kio.h"
@@ -11,9 +10,8 @@
 #include "zasm/Source/Z80Assembler.h"
 
 
-Model bestModelForFile(cstr fpath)
+Model bestModelForFile(cstr fpath, Model default_model)
 {
-	Model default_model = settings.get_Model(key_startup_model, zxsp_i3);
 	if (!fpath) return default_model;
 	Language language = zx_info[default_model].language;
 	cstr	 ext	  = lowerstr(extension_from_path(fpath));
@@ -32,10 +30,8 @@ Model bestModelForFile(cstr fpath)
 	if (eq(ext, ".sna"))
 	{
 		const uint snalen = 27;
-		if (file_size(fpath) <= 0x4000 + snalen)
-			return zxsp_i1;
-		else
-			goto dflt_zxsp;
+		if (file_size(fpath) <= 0x4000 + snalen) return zxsp_i1;
+		else goto dflt_zxsp;
 	}
 
 	if (eq(ext, ".z80"))
@@ -51,20 +47,16 @@ Model bestModelForFile(cstr fpath)
 
 	if (eq(ext, ".p") || eq(ext, ".81") || eq(ext, ".p81"))
 	{
-		if (zx_info[default_model].isA(isa_MachineZx81))
-			return default_model;
-		else
-			goto dflt_zx81;
+		if (zx_info[default_model].isA(isa_MachineZx81)) return default_model;
+		else goto dflt_zx81;
 	}
 
 	if (eq(ext, ".ace")) { return jupiter; }
 
 	if (eq(ext, ".scr"))
 	{
-		if (zx_info[default_model].isA(isa_MachineZxsp))
-			return default_model;
-		else
-			goto dflt_zxsp;
+		if (zx_info[default_model].isA(isa_MachineZxsp)) return default_model;
+		else goto dflt_zxsp;
 	}
 
 	if (eq(ext, ".rom"))
@@ -78,8 +70,7 @@ Model bestModelForFile(cstr fpath)
 		case 8 kB:
 			if (zx_info[default_model].isA(isa_MachineZx80))
 				return default_model; // note: might be loaded into ZX80 as well
-			else
-				goto dflt_zx81;
+			else goto dflt_zx81;
 		case 16 kB: goto dflt_zxsp;
 		case 32 kB: return language == spanish ? zx128_span : zx128;
 		case 64 kB: return language == spanish ? zxplus3_span : zxplus3;
@@ -89,16 +80,14 @@ Model bestModelForFile(cstr fpath)
 
 	if (eq(ext, ".hdf") || eq(ext, ".img") || eq(ext, ".dmg") || eq(ext, ".iso"))
 	{
-		if (zx_info[default_model].canAttachDivIDE())
-			return default_model;
-		else
-			return language == spanish ? zx128_span : zx128;
+		if (zx_info[default_model].canAttachDivIDE()) return default_model;
+		else return language == spanish ? zx128_span : zx128;
 	}
 
 	if (eq(ext, "rzx"))
 	{
 		fpath = RzxFile::getFirstSnapshot(fpath);
-		return fpath ? bestModelForFile(fpath) : default_model;
+		return fpath ? bestModelForFile(fpath, default_model) : default_model;
 	}
 
 	if (eq(ext, ".src") || eq(ext, ".asm") || eq(ext, ".ass") || eq(ext, ".s"))
@@ -116,10 +105,8 @@ Model bestModelForFile(cstr fpath)
 			'b',	  // deststyle: 0=none, 'b'=binary
 			no);	  // clean?
 
-		if (ass.numErrors())
-			return default_model;
-		else
-			return bestModelForFile(ass.targetFilepath());
+		if (ass.numErrors()) return default_model;
+		else return bestModelForFile(ass.targetFilepath(), default_model);
 	}
 
 	// if(eq(ext,".tzx"))
@@ -131,15 +118,11 @@ Model bestModelForFile(cstr fpath)
 
 dflt_zxsp:
 	return language == spanish	  ? inves :
-		   language == portuguese ? tk95
-									//	 : language==american ? ts2068			TODO
-									:
+		   language == portuguese ? tk95 : // language==american ? ts2068			TODO									
 									zxsp_i3;
 
 dflt_zx81:
 	return language == american	  ? ts1000 :
-		   language == portuguese ? tk85
-									//	 : language==spanish ? zx81
-									:
+		   language == portuguese ? tk85 : // language==spanish ? zx81
 									zx81;
 }

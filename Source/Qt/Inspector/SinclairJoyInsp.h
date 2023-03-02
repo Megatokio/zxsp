@@ -8,11 +8,16 @@
 #include <QLineEdit>
 #include <QObject>
 
+namespace gui
+{
+
 class SinclairJoyInsp : public JoyInsp
 {
 public:
-	SinclairJoyInsp(QWidget*, MachineController*, volatile IsaObject*, cstr img_path);
+	SinclairJoyInsp(QWidget*, MachineController*, volatile SinclairJoy*, cstr img_path);
 
 protected:
 	void updateWidgets() override;
 };
+
+} // namespace gui

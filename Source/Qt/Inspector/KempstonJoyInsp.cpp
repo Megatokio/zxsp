@@ -3,18 +3,18 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "KempstonJoyInsp.h"
-#include "Joy/KempstonJoy.h"
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
 
 
-KempstonJoyInsp::KempstonJoyInsp(QWidget* w, MachineController* mc, volatile IsaObject* j) :
+namespace gui
+{
+
+KempstonJoyInsp::KempstonJoyInsp(QWidget* w, MachineController* mc, volatile KempstonJoy* j) :
 	JoyInsp(w, mc, j, "/Images/kempston_js_if.jpg")
 {
-	assert(object->isA(isa_KempstonJoy));
-
 	QLabel* label = new QLabel("Buttons:");
 
 	QGridLayout* g = new QGridLayout(this);
@@ -31,3 +31,5 @@ KempstonJoyInsp::KempstonJoyInsp(QWidget* w, MachineController* mc, volatile Isa
 	g->addWidget(lineedit_display[0], 2, 1);
 	g->addWidget(button_scan_usb, 2, 2, Qt::AlignHCenter | Qt::AlignVCenter);
 }
+
+} // namespace gui

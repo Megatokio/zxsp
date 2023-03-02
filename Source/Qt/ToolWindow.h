@@ -10,6 +10,9 @@
 #include <QMenu>
 #include <QTimer>
 
+namespace gui
+{
+class MachineController;
 
 class ToolWindow : public QMainWindow
 {
@@ -25,7 +28,8 @@ class ToolWindow : public QMainWindow
 	int						 toolbar_height;
 	isa_id					 grp_id; // of item
 
-	void init(volatile IsaObject* = nullptr, QAction* showaction = nullptr);
+	void init();
+	void init(volatile IsaObject*, QAction* showaction);
 	void kill();
 	void save_window_position();
 	void restore_window_position();
@@ -48,6 +52,8 @@ private:
 	ToolWindow(MachineController*, volatile IsaObject* item, QAction* showaction);
 
 public:
-	~ToolWindow();
+	~ToolWindow() override;
 	void fillContextMenu(QMenu*);
 };
+
+} // namespace gui

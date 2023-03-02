@@ -8,6 +8,8 @@
 class QMainWindow;
 class QAction;
 
+namespace gui
+{
 
 /*
 	This QMenu subclass implements a "Window" menu
@@ -30,8 +32,10 @@ class WindowMenu : public QMenu
 
 public:
 	WindowMenu(QMainWindow*);
-	~WindowMenu();
+	~WindowMenu() override;
 
 	void checkWindows();
 	void setTitle();
 };
+
+} // namespace gui

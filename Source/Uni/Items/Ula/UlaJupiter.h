@@ -22,13 +22,14 @@ private:
 	uint8* frame_data2; // frame buffer for decoded monochrome video signal
 
 public:
-	UlaJupiter(Machine*, uint fps);
-	~UlaJupiter() override;
+	UlaJupiter(Machine*, bool is60hz);
 
 	void	  setAudioMode(AudioMode m) { audio_mode = m; }
 	AudioMode getAudioMode() { return audio_mode; }
 
 protected:
+	~UlaJupiter() override;
+
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
 	void reset(Time t, int32 cc) override;

@@ -126,9 +126,17 @@ bit indicates if a floppy is present in the floppy drive. Here it has no meaning
 
 
 IdeDevice::IdeDevice(cstr fpath, DeviceType dtyp, bool is_master) :
-	devicetype(dtyp), is_master(is_master), is_cfa(dtyp == CFCard), is_packet(dtyp == CDRom), is_general(!is_packet),
-	can_write(dtyp != CDRom), max_sectors_per_multiple(MAX_SECTORS_PER_MULTIPLE), status_register(0), filepath(nullptr),
-	io_mode(io_none), hd_mode(hd_invalid) // damit wir nicht vorzeitig in hd_mode schreiben
+	devicetype(dtyp),
+	is_master(is_master),
+	is_cfa(dtyp == CFCard),
+	is_packet(dtyp == CDRom),
+	is_general(!is_packet),
+	can_write(dtyp != CDRom),
+	max_sectors_per_multiple(MAX_SECTORS_PER_MULTIPLE),
+	status_register(0),
+	filepath(nullptr),
+	io_mode(io_none),
+	hd_mode(hd_invalid) // damit wir nicht vorzeitig in hd_mode schreiben
 {
 	// Timing constants
 	reset_delay	 = 1e-3;  // not-RDY after reset
@@ -442,8 +450,7 @@ void IdeDevice::increment_sector_count_and_number()
 	{
 		if ((++lba_address & 0x0fffffff) == 0) lba_address -= 0x10000000; // really security only...
 	}
-	else
-		++sector_number;
+	else ++sector_number;
 }
 
 // helper: test whether sector id is valid
@@ -455,14 +462,14 @@ bool IdeDevice::sector_id_is_valid()
 	else
 	{
 		return sector_number && sector_number <= num_sectors && // note: sector ids start at 1
-			   (cylinder_low + 256 * cylinder_high) < num_cylinders && (drive_head & 0x0f) < num_heads;
+			   uint(cylinder_low + 256 * cylinder_high) < num_cylinders && (drive_head & 0x0f) < num_heads;
 	}
 }
 
 
 // ATA5 pg.20: LBA = (((cylinder_number * heads_per_cylinder) + head_number) * sectors_per_track) + sector_number - 1
 #define calc_LBA_from_CHS(C, H, S) ((uint32(((C)*num_heads) + (H)) * num_sectors) + (S)-1)
-#define calc_CHS_from_LBA(A, C, H, S)                                                                                  \
+#define calc_CHS_from_LBA(A, C, H, S) \
   S = (A) % num_sectors + 1, H = ((A) / num_sectors) % num_heads, C = (A) / (num_sectors * num_heads)
 
 
@@ -605,8 +612,8 @@ void IdeDevice::create_identify_drive_page()
 	//	53		bit field: bit 0: words 54-58 are valid					0x0007
 	//					   bit 1: words 64-70 are valid.
 	//							  A device that supports PIO mode 3 or above or Multiword DMA mode 1 or above must set
-	// bit 1. 					   bit 2: the device supports Ultra DMA and the values reported in word 88 are valid. 	54		Current
-	// number of cylinders								16383 	55		Current number of heads 16
+	// bit 1. 					   bit 2: the device supports Ultra DMA and the values reported in word 88 are valid.
+	// 54 Current number of cylinders								16383 	55		Current number of heads 16
 	//	56		Current number of sectors per track						63
 	//	57-58 	Current CHS capacity									16514064		ATA5 pg.110
 	//	60-61 	Default LBA capacity									268435455
@@ -791,10 +798,8 @@ void IdeDevice::writeData(Time t, uint16 value) // CS0=0, CS1=1, rrr=0
 
 	if (buffer_ptr >= 512)
 	{
-		if (command_register == WRITE_BUFFER)
-			end_command();
-		else
-			write_buffer_to_disk(t);
+		if (command_register == WRITE_BUFFER) end_command();
+		else write_buffer_to_disk(t);
 	}
 }
 
@@ -835,12 +840,9 @@ uint16 IdeDevice::readData(Time t) // CS0=0, CS1=1, rrr=0
 	if (buffer_ptr >= 512) // this input fetches the last word
 	{
 		increment_sector_count_and_number();
-		if (sector_count == 0)
-			end_command();
-		else if (sector_id_is_valid())
-			read_buffer_from_disk(t);
-		else
-			end_command(error_ABORT_mask);
+		if (sector_count == 0) end_command();
+		else if (sector_id_is_valid()) read_buffer_from_disk(t);
+		else end_command(error_ABORT_mask);
 	}
 	return rval;
 }
@@ -893,11 +895,11 @@ void IdeDevice::writeRegister(Time t, uint reg, uint8 value)
 
 	//														ATA5 pg.50++
 	//	!SEL,  BSY		 => ignored.
-	//	 SEL,  BSY		 => indeterminate.					CmdReg: if the device supports the DEVICE RESET command, exit
-	//the interrupt pending state.
+	//	 SEL,  BSY		 => indeterminate.					CmdReg: if the device supports the DEVICE RESET command,
+	// exit the interrupt pending state.
 	//
-	//	 SEL, !BSY,  DRQ => ignored.						CmdReg: if the device supports the DEVICE RESET command, exit
-	//the interrupt pending state.
+	//	 SEL, !BSY,  DRQ => ignored.						CmdReg: if the device supports the DEVICE RESET command,
+	// exit the interrupt pending state.
 	//
 	//	!SEL, !BSY		 => Place data into the register.	CmdReg: Do not execute except EXECUTE DEVICE DIAGNOSTICS.
 	//	 SEL, !BSY, !DRQ => Place data into the register.	CmdReg: execute command (exit the interrupt pending State).
@@ -910,10 +912,10 @@ void IdeDevice::writeRegister(Time t, uint reg, uint8 value)
 	}
 
 	// now:
-	//	 SEL, !BSY,  DRQ => ignored.						CmdReg: if the device supports the DEVICE RESET command, exit
-	//the interrupt pending state.
-	//	!SEL, !BSY		 => Place data into the register.	CmdReg: Do not execute except EXECUTE DEVICE DIAGNOSTICS.
-	//	 SEL, !BSY, !DRQ => Place data into the register.	CmdReg: execute command (exit the interrupt pending State).
+	//	 SEL, !BSY,  DRQ => ignored.						CmdReg: if the device supports the DEVICE RESET command,
+	// exit the interrupt pending state. 	!SEL, !BSY		 => Place data into the register.	CmdReg: Do not execute
+	// except EXECUTE DEVICE DIAGNOSTICS. 	 SEL, !BSY, !DRQ => Place data into the register.	CmdReg: execute command
+	//(exit the interrupt pending State).
 
 	if (is_selected && is_drq()) // => ignore except if PACKET + CMD=DEVICE_RESET
 	{
@@ -962,8 +964,7 @@ uint8 IdeDevice::getStatusRegister(Time t)
 		assert((io_mode == io_read_buffer || io_mode == io_write_buffer) == is_drq());
 	}
 
-	else
-		switch (io_mode) // t≥busy_until && hd_mode==hd_idle
+	else switch (io_mode) // t≥busy_until && hd_mode==hd_idle
 		{
 		default: // io_none: no data transfer in progress
 		{
@@ -989,10 +990,8 @@ uint8 IdeDevice::getStatusRegister(Time t)
 			else if (command_register == READ_VERIFY_SECTORS) // VERIFY finished => kein Datentransfer zum Host
 			{
 				increment_sector_count_and_number();
-				if (sector_count == 0)
-					end_command();
-				else
-					read_buffer_from_disk(t);
+				if (sector_count == 0) end_command();
+				else read_buffer_from_disk(t);
 			}
 
 			else if (command_register == CFA_TRANSLATE_SECTOR) // read sector for test for erased => now transfer the
@@ -1003,8 +1002,7 @@ uint8 IdeDevice::getStatusRegister(Time t)
 					create_cfa_translate_sector_page();
 					read_data_from_buffer();
 				}
-				else
-					end_command(error_ABORT_mask);
+				else end_command(error_ABORT_mask);
 			}
 
 			else // Starte Datenübertragung zum Host
@@ -1025,13 +1023,10 @@ uint8 IdeDevice::getStatusRegister(Time t)
 			else
 			{
 				increment_sector_count_and_number();
-				if (sector_count == 0)
-					end_command(); // letzter Sektor geschrieben => fertig
-				else			   // weitere Sektoren schreiben:
-					if (command_register == CFA_ERASE_SECTORS)
-						write_buffer_to_disk(t); // nächsten Sektor löschen
-					else
-						write_data_to_buffer(); // Datentransfer Host -> Buffer restarten
+				if (sector_count == 0) end_command(); // letzter Sektor geschrieben => fertig
+				else								  // weitere Sektoren schreiben:
+					if (command_register == CFA_ERASE_SECTORS) write_buffer_to_disk(t); // nächsten Sektor löschen
+					else write_data_to_buffer(); // Datentransfer Host -> Buffer restarten
 			}
 
 			break;
@@ -1073,45 +1068,45 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 	{			 // NAME: Protocol, GeneralFeatureSet, PacketFeatureSet
 
 	case 0x00: // NOP: no-data, optional, MANDATORY		General: wir sagen in der identify_drive_page, dass wir's
-			   // unterstützen
-			   //	feature_register:
-			   //	00h NOP				Return command aborted and abort any outstanding queued commands.
-			   //	01h	NOP	Auto Poll	Return command aborted and do not abort any outstanding queued commands.
-			   //	02h-FFh	Reserved	Return command aborted and do not abort any outstanding queued commands.
+		// unterstützen
+		//	feature_register:
+		//	00h NOP				Return command aborted and abort any outstanding queued commands.
+		//	01h	NOP	Auto Poll	Return command aborted and do not abort any outstanding queued commands.
+		//	02h-FFh	Reserved	Return command aborted and do not abort any outstanding queued commands.
 		error_register |= error_ABORT_mask;
 		status_register |= status_ERROR_mask;
 		return;
 
 	case 0x03: // CFA REQUEST EXTENDED ERROR: no-data, CFA, prohibited		ATA4++		ATA5 pg.68
-			   // puts an extended error code in the error_register
-			   // status.ERR cleared
-			   //		00h		No error detected / no additional information
-			   //		01h		Self-test passed
-			   //		03h		Write / Erase failed
-			   //		05h		Self-test or diagnostic failed
-			   //		09h		Miscellaneous error
-			   //		0Ch		Corrupted media format
-			   //		10h		ID Not Found / ID Error
-			   //		11h		Uncorrectable ECC error
-			   //		14h		ID Not Found
-			   //		18h		Corrected ECC error
-			   //		1Fh		Data transfer error / command aborted
-			   //		20h		Invalid command
-			   //		21h		Invalid address
-			   //		27h		Write protect violation
-			   //		2Fh		Address overflow (address too large)
-			   //		30-34h	Self-test or diagnostic failed
-			   //		35h,36h	Supply or generated voltage out of tolerance
-			   //		37h,3Eh	Self-test or diagnostic failed
-			   //		38h		Corrupted media format
-			   //		3Ah		Spare sectors exhausted
-			   //		3Bh,3Ch,3Fh Corrupted media format
+		// puts an extended error code in the error_register
+		// status.ERR cleared
+		//		00h		No error detected / no additional information
+		//		01h		Self-test passed
+		//		03h		Write / Erase failed
+		//		05h		Self-test or diagnostic failed
+		//		09h		Miscellaneous error
+		//		0Ch		Corrupted media format
+		//		10h		ID Not Found / ID Error
+		//		11h		Uncorrectable ECC error
+		//		14h		ID Not Found
+		//		18h		Corrected ECC error
+		//		1Fh		Data transfer error / command aborted
+		//		20h		Invalid command
+		//		21h		Invalid address
+		//		27h		Write protect violation
+		//		2Fh		Address overflow (address too large)
+		//		30-34h	Self-test or diagnostic failed
+		//		35h,36h	Supply or generated voltage out of tolerance
+		//		37h,3Eh	Self-test or diagnostic failed
+		//		38h		Corrupted media format
+		//		3Ah		Spare sectors exhausted
+		//		3Bh,3Ch,3Fh Corrupted media format
 		if (!is_cfa) break;
 		error_register = 0; // TODO
 		return;
 
 	case 0x08: // DEVICE RESET: no-data, prohibited, MANDATORY	ATA3++		ATA5 pg.78
-			   // reset the selected device
+		// reset the selected device
 		if (!is_packet) break;
 		io_mode = io_none;
 		// hd_mode = hd_idle;					// => Overrun bei Worker-Thread-Kommandos wäre möglich
@@ -1124,8 +1119,8 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		return;
 
 		//	case 0x10	// RECALIBRATE:												up to ATA3; obsolete since ATA4
-		//	case 0x1_:	// RECALIBRATE:												up to ATA2; obsolete in ATA3; retired
-		//since ATA4
+		//	case 0x1_:	// RECALIBRATE:												up to ATA2; obsolete in ATA3;
+		// retired since ATA4
 
 	case 0x20: // READ SECTOR(S): PIO-in, MANDATORY, MANDATORY				ATA1++
 		if (is_packet)
@@ -1161,7 +1156,7 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		// optional, prohibited		ATA6++
 
 	case 0x38: // CFA WRITE SECTORS WITHOUT ERASE, PIO-out, CFA, prohibited ATA4++		ATA5 pg. 75
-			   // TODO: wir könnten die Daten jetzt rein-UNDen...
+		// TODO: wir könnten die Daten jetzt rein-UNDen...
 		if (!is_cfa) break;
 		write_data_to_buffer();
 		return;
@@ -1175,8 +1170,8 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		//	case 0x3F:	// WRITE LOG EXT: PIO-out, optional, optional				ATA6++
 
 	case 0x40: // READ VERIFY SECTOR(S): no-data, MANDATORY, prohibited	ATA1++
-			   // This command is identical to the READ SECTOR(S) command,
-			   // except that the DRQ bit is never set to one, and no data is transferred to the host.
+		// This command is identical to the READ SECTOR(S) command,
+		// except that the DRQ bit is never set to one, and no data is transferred to the host.
 		if (is_packet) break;
 		read_buffer_from_disk(t);
 		return;
@@ -1194,12 +1189,12 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		//	case 0x5F:	// TRUSTED SEND DMA: Packet, optional, MANDATORY			ATA8 (draft)
 
 	case 0x70: //	SEEK TRACK:	no-data, MANDATORY, prohibited				up to ATA6, obsolete since ATA7		ATA5
-			   // pg.162 	in: HCS or LBA set
+		// pg.162 	in: HCS or LBA set
 		if (is_packet) break;
 		return; //	TODO: evtl. könnten wir bei einem HDD berechnete Wartezeiten einbauen.
 
-		//	case 0x7_:	// SEEK TRACK:												up to ATA2; obsolete in ATA3; retired
-		//since ATA4
+		//	case 0x7_:	// SEEK TRACK:												up to ATA2; obsolete in ATA3;
+		// retired since ATA4
 
 	case 0x87: // CFA TRANSLATE SECTOR: PIO-in, CFA, prohibited			ATA4++		ATA5 pg. 71
 		if (!is_cfa) break;
@@ -1209,9 +1204,9 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 
 
 	case 0x90: // EXECUTE DEVICE DIAGNOSTIC: no-data, MANDATORY, MANDATORY	ATA1++		ATA5 pg.81
-			   // This command shall perform the internal diagnostic tests implemented by the device.
-			   // The DEV bit in the Device/Head register is ignored.
-			   // Both devices, if present, shall execute this command regardless of which device is selected.
+		// This command shall perform the internal diagnostic tests implemented by the device.
+		// The DEV bit in the Device/Head register is ignored.
+		// Both devices, if present, shall execute this command regardless of which device is selected.
 		error_register = 0x01;			  // 0x01 = OK
 		busy_until	   = t + reset_delay; // => BSY			TODO: see ATA5 pg.279
 		status_register |= status_BSY_mask;
@@ -1219,7 +1214,7 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		return;
 
 	case 0x91: //	INITIALISE DEVICE PARAMETERS:	no-data, MANDATORY, prohibited		up to ATA5, obsolete since ATA6
-			   // ATA5 pg.120
+		// ATA5 pg.120
 		if (is_packet) break;
 		if (!supports_CHS) break;
 		if (sector_count < 8) break; // abort wg. parameter error
@@ -1230,14 +1225,14 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 
 		//	case 0x92:	// DOWNLOAD MICROCODE: PIO-out, optional, prohibited		ATA2++
 		//	case 0x94:	// STANDBY IMMEDIATE:		up to ATA3; retired since ATA4  -->  ATA8 pg.394		same
-		//function: 0xE0 	case 0x95:	// IDLE IMMEDIATE:			up to ATA3; retired since ATA4  -->  ATA8 pg.394
-		//same function: 0xE1
+		// function: 0xE0 	case 0x95:	// IDLE IMMEDIATE:			up to ATA3; retired since ATA4  -->  ATA8 pg.394
+		// same function: 0xE1
 		//	case 0x96:	// STANDBY:					up to ATA3; retired since ATA4  -->  ATA8 pg.394		same
-		//function: 0xE2
+		// function: 0xE2
 		//	case 0x97:	// IDLE:					up to ATA3; retired since ATA4  -->  ATA8 pg.394		same
-		//function: 0xE3 	case 0x98:	// CHECK POWER MODE:		up to ATA3; retired since ATA4  -->  ATA8 pg.394
-		//same function: 0xE5 	case 0x99:	// SET SLEEP MODE:			up to ATA3; retired since ATA4  -->  ATA8 pg.394
-		//same function:
+		// function: 0xE3 	case 0x98:	// CHECK POWER MODE:		up to ATA3; retired since ATA4  -->  ATA8 pg.394
+		// same function: 0xE5 	case 0x99:	// SET SLEEP MODE:			up to ATA3; retired since ATA4  -->  ATA8 pg.394
+		// same function:
 		// 0xE6 	case 0xA0:	// PACKET: Packet, prohibited, MANDATORY					ATA3++	TODO ATAPI ESXDOS
 		// case 0xA1:	// IDENTIFY PACKET DEVICE: PIO-in, prohibited, MANDATORY	ATA3++	TODO ATAPI ESXDOS
 		// case 0xA2:	//
@@ -1246,23 +1241,23 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		// ATA6++ 	case 0xB6:	// NV CACHE: optional, prohibited, optional					ATA8++ (draft)
 
 	case 0xC0: // CFA ERASE SECTORS: no-data, CFA, prohibited				ATA4++		ATA5 pg. 66
-			   // pre-erase 1..256 sectors starting at LBA / CSH
+		// pre-erase 1..256 sectors starting at LBA / CSH
 		if (!is_cfa) break;
 		memset(buffer, 0xff, 512);
 		write_buffer_to_disk(t);
 		return;
 
 	case 0xC4: // READ MULTIPLE: PIO-in, MANDATORY, prohibited				ATA1++			ATA5 pg.142
-			   // unterscheidet sich von READ SECTORS im Wesentlichen nur in den Interrupts, und die behandeln wir eh
-			   // (noch) nicht
+		// unterscheidet sich von READ SECTORS im Wesentlichen nur in den Interrupts, und die behandeln wir eh
+		// (noch) nicht
 		if (is_packet) break;
 		if (sectors_per_multiple == 0) break;
 		read_buffer_from_disk(t);
 		return;
 
 	case 0xC5: // WRITE MULTIPLE: PIO-out, MANDATORY, prohibited			ATA1++
-			   // unterscheidet sich von WRITE SECTORS im Wesentlichen nur in den Interrupts, und die behandeln wir eh
-			   // (noch) nicht
+		// unterscheidet sich von WRITE SECTORS im Wesentlichen nur in den Interrupts, und die behandeln wir eh
+		// (noch) nicht
 		if (is_packet) break;
 		if (sectors_per_multiple == 0) break;
 		write_data_to_buffer();
@@ -1296,8 +1291,8 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		//	case 0xCC:	// WRITE DMA QUEUED: DMA-queued, optional, prohibited		ATA4++
 
 	case 0xCD: // CFA WRITE MULTIPLE WITHOUT ERASE: PIO-out, CFA, prohibited	ATA5++		ATA5 pg. 73
-			   // TODO: assert SET MULTIPLE MODE was called...
-			   // TODO: wir könnten die Daten jetzt rein-UNDen...
+		// TODO: assert SET MULTIPLE MODE was called...
+		// TODO: wir könnten die Daten jetzt rein-UNDen...
 		if (!is_cfa) break;
 		write_data_to_buffer();
 		return;
@@ -1306,58 +1301,58 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		//	case 0xD1:	// CHECK MEDIA CARD TYPE: no-data, optional, prohibited		ATA6++
 
 	case 0xE0: // STANDBY IMMEDIATE: no-data, MANDATORY, MANDATORY			ATA1++
-			   // Power Management feature set.
-			   // Power Management feature set is mandatory when power management is not implemented by a PACKET power
-			   // management feature set. This command is mandatory when the Power Management feature set is
-			   // implemented. This command causes the device to immediately enter the Standby mode: e.g. spin down the
-			   // drive at once.
+		// Power Management feature set.
+		// Power Management feature set is mandatory when power management is not implemented by a PACKET power
+		// management feature set. This command is mandatory when the Power Management feature set is
+		// implemented. This command causes the device to immediately enter the Standby mode: e.g. spin down the
+		// drive at once.
 		powermode = Standby;
 		return;
 
 	case 0xE1: // IDLE IMMEDIATE: no-data, MANDATORY, MANDATORY			ATA1++
-			   // Power Management feature set.
-			   // Power Management feature set is mandatory when power management is not implemented by a PACKET power
-			   // management feature set. This command is mandatory when the Power Management feature set is
-			   // implemented. The IDLE IMMEDIATE command allows the host to immediately place the device in the Idle
-			   // mode.
+		// Power Management feature set.
+		// Power Management feature set is mandatory when power management is not implemented by a PACKET power
+		// management feature set. This command is mandatory when the Power Management feature set is
+		// implemented. The IDLE IMMEDIATE command allows the host to immediately place the device in the Idle
+		// mode.
 		powermode = Idle;
 		return;
 
 	case 0xE2: // STANDBY: no-data, MANDATORY, optional					ATA1++
-			   // Power Management feature set.
-			   // Power Management feature set is mandatory when power management is not implemented by a PACKET power
-			   // management feature set. This command is mandatory when the Power Management feature set is implemented
-			   // when the PACKET Command feature set is not implemented.
-			   //
-			   // The value in the Sector Count register shall determine the time period programmed into the Standby
-			   // timer. see table below
-			   //
-			   // This command causes the device to enter the Standby mode.
-			   // If the Sector Count register is non-zero then the Standby timer shall be enabled.
-			   // The value in the Sector Count register shall be used to determine the time programmed into the Standby
-			   // timer If the Sector Count register is zero then the Standby timer is disabled.
-			   //
-			   // sector count register = time of non-activity after which the disk will spin-down.
-			   // The disk will automatically spin-up again when you issue read/write commands.
-			   //
-			   //	0			Timeout disabled
-			   //	1-240		(value ∗ 5) s
-			   //	241-251		((value - 240) ∗30) min
-			   //	252			21 min
-			   //	253			Period between 8 and 12 hrs
-			   //	254			Reserved
-			   //	255			21 min 15 s
+		// Power Management feature set.
+		// Power Management feature set is mandatory when power management is not implemented by a PACKET power
+		// management feature set. This command is mandatory when the Power Management feature set is implemented
+		// when the PACKET Command feature set is not implemented.
+		//
+		// The value in the Sector Count register shall determine the time period programmed into the Standby
+		// timer. see table below
+		//
+		// This command causes the device to enter the Standby mode.
+		// If the Sector Count register is non-zero then the Standby timer shall be enabled.
+		// The value in the Sector Count register shall be used to determine the time programmed into the Standby
+		// timer If the Sector Count register is zero then the Standby timer is disabled.
+		//
+		// sector count register = time of non-activity after which the disk will spin-down.
+		// The disk will automatically spin-up again when you issue read/write commands.
+		//
+		//	0			Timeout disabled
+		//	1-240		(value ∗ 5) s
+		//	241-251		((value - 240) ∗30) min
+		//	252			21 min
+		//	253			Period between 8 and 12 hrs
+		//	254			Reserved
+		//	255			21 min 15 s
 		powermode = Standby;
 		return;
 
 	case 0xE3: // IDLE: no-data, MANDATORY, optional						ATA1++
-			   // Power Management feature set.
-			   // Power Management feature set is mandatory when power management is not implemented by a PACKET power
-			   // management feature set. This command is mandatory when the Power Management feature set is implemented
-			   // and the PACKET Command feature set is not implemented.
-			   //
-			   // The IDLE command allows the host to place the device in the Idle mode and also set the Standby timer.
-			   // sector count register = time of non-activity after which the disk will spin-down. see table above.
+		// Power Management feature set.
+		// Power Management feature set is mandatory when power management is not implemented by a PACKET power
+		// management feature set. This command is mandatory when the Power Management feature set is implemented
+		// and the PACKET Command feature set is not implemented.
+		//
+		// The IDLE command allows the host to place the device in the Idle mode and also set the Standby timer.
+		// sector count register = time of non-activity after which the disk will spin-down. see table above.
 		powermode = Idle;
 		return;
 
@@ -1368,39 +1363,39 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		return;
 
 	case 0xE5: // CHECK POWER MODE: no-data, MANDATORY, MANDATORY			ATA1++
-			   // Power Management feature set.
-			   // Power Management feature set is mandatory when power management is not implemented by a PACKET power
-			   // management feature set. This command is mandatory when the Power Management feature set is
-			   // implemented.
-			   //
-			   // The CHECK POWER MODE command allows the host to determine the current power mode of the device.
-			   // The CHECK POWER MODE command shall not cause the device to change power or affect the operation of the
-			   // Standby timer.
-			   //
-			   // return value in Sector Count result value –
-			   //	00h – device is in Standby mode.
-			   //	80h – device is in Idle mode.
-			   //	FFh – device is in Active mode or Idle mode.
+		// Power Management feature set.
+		// Power Management feature set is mandatory when power management is not implemented by a PACKET power
+		// management feature set. This command is mandatory when the Power Management feature set is
+		// implemented.
+		//
+		// The CHECK POWER MODE command allows the host to determine the current power mode of the device.
+		// The CHECK POWER MODE command shall not cause the device to change power or affect the operation of the
+		// Standby timer.
+		//
+		// return value in Sector Count result value –
+		//	00h – device is in Standby mode.
+		//	80h – device is in Idle mode.
+		//	FFh – device is in Active mode or Idle mode.
 		sector_count = powermode == Standby ? 0x00 : powermode == Idle ? 0x80 : 0xFF;
 		return;
 
 	case 0xE6: // SLEEP: no-data, MANDATORY, MANDATORY						ATA1++
-			   // Power Management feature set.
-			   // Power Management feature set is mandatory when power management is not implemented by a PACKET power
-			   // management feature set. This command is mandatory when the Power Management feature set is
-			   // implemented.
-			   //
-			   // This command is the only way to cause the device to enter Sleep mode.
-			   // This command causes the device to set the BSY bit to one, prepare to enter Sleep mode, clear the BSY
-			   // bit to zero and assert INTRQ. The host shall read the Status register in order to clear the interrupt
-			   // pending and allow the device to enter Sleep mode. In Sleep mode, the device only responds to the
-			   // assertion of the RESET signal and the writing of the SRST bit in the Device Control register and
-			   // releases the device driven signal lines. The host shall not attempt to access the Command Block
-			   // registers while the device is in Sleep mode. Because some host systems may not read the Status
-			   // register and clear the interrupt pending, a device may automatically release INTRQ and enter Sleep
-			   // mode after a vendor specific time period of not less than 2 s. The only way to recover from Sleep mode
-			   // is with a software reset, a hardware reset, or a DEVICE RESET command. A device shall not power-on in
-			   // Sleep mode nor remain in Sleep mode following a reset sequence.
+		// Power Management feature set.
+		// Power Management feature set is mandatory when power management is not implemented by a PACKET power
+		// management feature set. This command is mandatory when the Power Management feature set is
+		// implemented.
+		//
+		// This command is the only way to cause the device to enter Sleep mode.
+		// This command causes the device to set the BSY bit to one, prepare to enter Sleep mode, clear the BSY
+		// bit to zero and assert INTRQ. The host shall read the Status register in order to clear the interrupt
+		// pending and allow the device to enter Sleep mode. In Sleep mode, the device only responds to the
+		// assertion of the RESET signal and the writing of the SRST bit in the Device Control register and
+		// releases the device driven signal lines. The host shall not attempt to access the Command Block
+		// registers while the device is in Sleep mode. Because some host systems may not read the Status
+		// register and clear the interrupt pending, a device may automatically release INTRQ and enter Sleep
+		// mode after a vendor specific time period of not less than 2 s. The only way to recover from Sleep mode
+		// is with a software reset, a hardware reset, or a DEVICE RESET command. A device shall not power-on in
+		// Sleep mode nor remain in Sleep mode following a reset sequence.
 		busy_until		= t + 24 * 60 * 60;
 		status_register = 0; // !RDY.  das müsste funktionieren...
 		return;
@@ -1425,43 +1420,43 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 		return;
 
 	case 0xEF: // SET FEATURES: no-data, MANDATORY, MANDATORY				ATA1++
-			   // General feature set
-			   // Mandatory for all devices.
-			   // Set transfer mode subcommand is mandatory.
-			   // Enable/disable write cache subcommands are mandatory when a write cache is implemented.
-			   // Enable/Disable Media Status Notification sub commands are mandatory if the Removable Media feature set
-			   // is implemented. All other subcommands are optional.
-			   //
-			   // feature_register = subcommand code
-			   // sector count, sector, cylinder low & high : may contain arguments for subcommand
-			   //
-			   //	01h		Enable 8-bit PIO transfer mode (CFA feature set only)
-			   //	02h		Enable write cache											--> we have no write cache
-			   //	03h		Set transfer mode based on value in Sector Count register.
-			   //				PIO default mode				%00000000
-			   //				PIO default mode, disable IORDY	%00000001
-			   //				PIO flow control transfer mode	%00001mod
-			   //				Multiword DMA mode				%00100mod
-			   //				Ultra DMA mode					%01000mod		mod = transfer mode number
-			   //	05h		Enable advanced power management
-			   //	06h		Enable Power-Up In Standby feature set.
-			   //	07h		Power-Up In Standby feature set device spin-up.
-			   //	0Ah		Enable CFA power mode 1
-			   //	31h		Disable Media Status Notification
-			   //	55h		Disable read look-ahead feature
-			   //	5Dh		Enable release interrupt
-			   //	5Eh		Enable SERVICE interrupt
-			   //	66h		Disable reverting to power-on defaults
-			   //	81h		Disable 8-bit PIO transfer mode (CFA feature set only)
-			   //	82h		Disable write cache
-			   //	85h		Disable advanced power management
-			   //	86h		Disable Power-Up In Standby feature set.
-			   //	8Ah		Disable CFA power mode 1
-			   //	95h		Enable Media Status Notification
-			   //	AAh		Enable read look-ahead feature
-			   //	CCh		Enable reverting to power-on defaults
-			   //	DDh		Disable release interrupt
-			   //	DEh		Disable SERVICE interrupt
+		// General feature set
+		// Mandatory for all devices.
+		// Set transfer mode subcommand is mandatory.
+		// Enable/disable write cache subcommands are mandatory when a write cache is implemented.
+		// Enable/Disable Media Status Notification sub commands are mandatory if the Removable Media feature set
+		// is implemented. All other subcommands are optional.
+		//
+		// feature_register = subcommand code
+		// sector count, sector, cylinder low & high : may contain arguments for subcommand
+		//
+		//	01h		Enable 8-bit PIO transfer mode (CFA feature set only)
+		//	02h		Enable write cache											--> we have no write cache
+		//	03h		Set transfer mode based on value in Sector Count register.
+		//				PIO default mode				%00000000
+		//				PIO default mode, disable IORDY	%00000001
+		//				PIO flow control transfer mode	%00001mod
+		//				Multiword DMA mode				%00100mod
+		//				Ultra DMA mode					%01000mod		mod = transfer mode number
+		//	05h		Enable advanced power management
+		//	06h		Enable Power-Up In Standby feature set.
+		//	07h		Power-Up In Standby feature set device spin-up.
+		//	0Ah		Enable CFA power mode 1
+		//	31h		Disable Media Status Notification
+		//	55h		Disable read look-ahead feature
+		//	5Dh		Enable release interrupt
+		//	5Eh		Enable SERVICE interrupt
+		//	66h		Disable reverting to power-on defaults
+		//	81h		Disable 8-bit PIO transfer mode (CFA feature set only)
+		//	82h		Disable write cache
+		//	85h		Disable advanced power management
+		//	86h		Disable Power-Up In Standby feature set.
+		//	8Ah		Disable CFA power mode 1
+		//	95h		Enable Media Status Notification
+		//	AAh		Enable read look-ahead feature
+		//	CCh		Enable reverting to power-on defaults
+		//	DDh		Disable release interrupt
+		//	DEh		Disable SERVICE interrupt
 		switch (feature_register)
 		{
 		case 0x01: // Enable 8-bit PIO transfer mode (CFA feature set only)
@@ -1486,30 +1481,30 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 					// power-on defaults is set. 	Enabling CFA Power Mode 1 does not spin up rotating media devices.
 					// CFA devices may consume up to 75 mA maximum average RMS current for 3.3V or 100 mA maximum
 					// average RMS current
-					// for 5V operation in Power Mode 0. 	A device in Power Mode 0 shall accept the following commands:
-					// − IDENTIFY DEVICE 	− SET FEATURES (function codes 0Ah and 8Ah) 	− STANDBY 	− STANDBY
-					// IMMEDIATE 	− SLEEP 	− CHECK POWER MODE 	− EXECUTE DEVICE DIAGNOSTICS 	− CFA REQUEST EXTENDED ERROR
+					// for 5V operation in Power Mode 0. 	A device in Power Mode 0 shall accept the following
+					// commands: − IDENTIFY DEVICE 	− SET FEATURES (function codes 0Ah and 8Ah) 	− STANDBY 	−
+					// STANDBY
+					// IMMEDIATE 	− SLEEP 	− CHECK POWER MODE 	− EXECUTE DEVICE DIAGNOSTICS 	− CFA REQUEST
+					// EXTENDED ERROR
 					//	A device in Power Mode 0 may accept any command that the device is capable of executing within
 					// the Power Mode 0 current restrictions. 	Commands that require more current than specified for
 					// Power Mode 0 shall be rejected with an abort error.
 
-		case 0x03: // Set transfer mode based on value in Sector Count register.
-			if (sector_count <= 0x0F)
-				return; // PIO mode. whatever
-			else
-				break;
+		case 0x03:							  // Set transfer mode based on value in Sector Count register.
+			if (sector_count <= 0x0F) return; // PIO mode. whatever
+			else break;
 		}
 		break; // unsupported sub command or unsupported transfer mode
 
 		//	case 0xF1:	// SECURITY SET PASSWORD: PIO-out, optional, optional		ATA3++
 		//	case 0xF2:	// SECURITY UNLOCK: PIO-out, optional, optional				ATA3++	vendor specific up to ATA2;
-		//e.g. similar to 0xE2 (STANDBY) 	case 0xF3:	// SECURITY ERASE PREPARE: no-data, optional, optional
+		// e.g. similar to 0xE2 (STANDBY) 	case 0xF3:	// SECURITY ERASE PREPARE: no-data, optional, optional
 		// ATA3++ vendor specific up to ATA2; e.g. similar to 0xE3 (IDLE) 	case 0xF4:	// SECURITY ERASE UNIT: PIO-out,
-		//optional, optional			ATA3++ 	case 0xF5:	// SECURITY FREEZE LOCK: no-data, optional, optional
-		//ATA3++ 	case 0xF6:	// SECURITY DISABLE PASSWORD: PIO-out, optional, optional	ATA3++ 	case 0xF7:	// vendor
-		//specific in all ATA versions						e.g. FORMAT UNIT 	case 0xF8:	// READ NATIVE MAX ADDRESS:
-		//no-data, optional, optional		ATA4++ 	case 0xF9:	// SET MAX ADDRESS: no-data, optional, optional
-		//ATA4++
+		// optional, optional			ATA3++ 	case 0xF5:	// SECURITY FREEZE LOCK: no-data, optional, optional
+		// ATA3++ 	case 0xF6:	// SECURITY DISABLE PASSWORD: PIO-out, optional, optional	ATA3++ 	case 0xF7:	//
+		// vendor specific in all ATA versions						e.g. FORMAT UNIT 	case 0xF8:	// READ NATIVE MAX
+		// ADDRESS: no-data, optional, optional		ATA4++ 	case 0xF9:	// SET MAX ADDRESS: no-data, optional, optional
+		// ATA4++
 
 	default: break; // command error / TODO
 	}

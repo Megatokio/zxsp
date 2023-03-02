@@ -10,4 +10,7 @@ class WafaDrive : public Item
 {
 public:
 	explicit WafaDrive(Machine*);
+
+protected:
+	~WafaDrive() override = default;
 };

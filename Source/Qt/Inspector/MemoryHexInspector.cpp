@@ -5,10 +5,12 @@
 #include "MemoryHexInspector.h"
 #include "Application.h"
 #include "Machine.h"
+#include "MachineController.h"
 #include "MemoryInspector.h"
 #include "MyLineEdit.h"
 #include "Qt/Settings.h"
 #include "SimpleTerminal.h"
+#include "Templates/NVPtr.h"
 #include "Uni/util.h"
 #include "Z80/Z80.h"
 #include <QCheckBox>
@@ -24,6 +26,8 @@
 #include <QToolTip>
 #include <QWidget>
 
+namespace gui
+{
 
 /*	The "MemoryBytesInspector"
 
@@ -62,11 +66,34 @@ static const int MAX_ROWS		   = 100;
 
 
 MemoryHexInspector::MemoryHexInspector(QWidget* parent, MachineController* mc, volatile IsaObject* item) :
-	MemoryInspector(parent, mc, item, Bytes), address_view(nullptr), hex_view(nullptr), ascii_view(nullptr),
-	checkbox_words(nullptr), show_words(no), widget_edit_mode(nullptr), button_breakpoint_r(nullptr),
-	button_breakpoint_w(nullptr), button_breakpoint_x(nullptr), ascii_edit_offset(0), hex_edit_offset(0),
-	hex_edit_nibble(0), edit_flashphase(0), edit_flashtime(0), cw(0), rh(0), pc(-1), bc(-1), de(-1), hl(-1), ix(-1),
-	iy(-1), sp(-1), edit_mode(EDITMODE_VIEW), breakpoint_mask(0), first_valid_row(0), last_valid_row(0)
+	MemoryInspector(parent, mc, item, Bytes),
+	address_view(nullptr),
+	hex_view(nullptr),
+	ascii_view(nullptr),
+	checkbox_words(nullptr),
+	show_words(no),
+	widget_edit_mode(nullptr),
+	button_breakpoint_r(nullptr),
+	button_breakpoint_w(nullptr),
+	button_breakpoint_x(nullptr),
+	ascii_edit_offset(0),
+	hex_edit_offset(0),
+	hex_edit_nibble(0),
+	edit_flashphase(0),
+	edit_flashtime(0),
+	cw(0),
+	rh(0),
+	pc(-1),
+	bc(-1),
+	de(-1),
+	hl(-1),
+	ix(-1),
+	iy(-1),
+	sp(-1),
+	edit_mode(EDITMODE_VIEW),
+	breakpoint_mask(0),
+	first_valid_row(0),
+	last_valid_row(0)
 {
 	xlogIn("new MemoryHexInspector");
 
@@ -166,16 +193,14 @@ MemoryHexInspector::MemoryHexInspector(QWidget* parent, MachineController* mc, v
 MemoryHexInspector::~MemoryHexInspector()
 {
 	xlogIn("~MemoryHexInspector");
-	save_settings();
+	settings.setValue(key_memoryview_hex_is_words, show_words);
 }
 
 void MemoryHexInspector::saveSettings()
 {
+	settings.setValue(key_memoryview_hex_is_words, show_words);
 	MemoryInspector::saveSettings();
-	save_settings();
 }
-
-void MemoryHexInspector::save_settings() { settings.setValue(key_memoryview_hex_is_words, show_words); }
 
 
 // ==============================================================================
@@ -230,12 +255,12 @@ inline QColor pen_color_for_corebyte(CoreByte cb)
 			   QColor(Qt::lightGray); // all bits set: light grey, not white for readability
 }
 
-/*	Print a single byte at row, col
-	into the hex and ascii view
-	Used to update data in the memory view
-*/
 void MemoryHexInspector::print_byte(int row, int col, CoreByte cb)
 {
+	// Print a single byte at row, col
+	// into the hex and ascii view
+	// Used to update data in the memory view
+
 	if (cb & cpu_break_rwx)
 	{
 		hex_view->setPenColor(pen_color_for_corebyte(cb));
@@ -253,24 +278,24 @@ void MemoryHexInspector::print_byte(int row, int col, CoreByte cb)
 	if (cb & 0x80) ascii_view->clearAttributes(INVERTED);
 }
 
-/*	Print rows [a..[e to textedit widgets.
-	Used to print data after clear or scroll screen.
-	Prints:
-		address into textedit_address,
-		hex codes into textedit_hex and
-		ascii characters into textedit_ascii.
-
-	row_a	first row
-	row_e	last row +1
-	address	address to print for row_a
-	bytes	pointer to first data byte
-	cnt		data byte count
-
-	if cnt < bytes_per_row * (row_e-row_a)
-			-> the last line ends with some spaces
-*/
 void MemoryHexInspector::print_rows(int row_a, int row_e, uint address, const volatile CoreByte* bytes, int cnt)
 {
+	// Print rows [a..[e to textedit widgets.
+	// Used to print data after clear or scroll screen.
+	// Prints:
+	// 	 address into textedit_address,
+	// 	 hex codes into textedit_hex and
+	// 	 ascii characters into textedit_ascii.
+	//
+	// row_a	first row
+	// row_e	last row +1
+	// address	address to print for row_a
+	// bytes	pointer to first data byte
+	// cnt		data byte count
+	//
+	// if cnt < bytes_per_row * (row_e-row_a)
+	// 		-> the last line ends with some spaces
+
 	assert(row_a <= row_e);
 	assert(row_a >= 0);
 	assert(row_e <= rows);
@@ -333,8 +358,8 @@ void MemoryHexInspector::print_byte_seen_by_cpu(uint16 addr)
 
 	if (data_source != AsSeenByCpu)
 	{
-		const CoreByte* page = data_source == RamPages || data_source == AllRam ? &machine->ram[data.baseoffset] :
-																				  &machine->rom[data.baseoffset];
+		const CoreByte* page = data_source == RamPages || data_source == AllRam ? &NV(machine->ram)[data.baseoffset] :
+																				  &NV(machine->rom)[data.baseoffset];
 
 		if (size_t(p - page) >= uint32(data.size)) return;
 
@@ -358,12 +383,9 @@ void MemoryHexInspector::step_left_in_hex()
 	{
 		if ((addr - scroll_offset) & 1) // im high byte?
 		{
-			if (addr >= 3)
-				addr -= 3; // step left => low byte des vorhergehenden wortes
-			else if (addr >= 2)
-				addr -= 2; // sonst high byte des vorhergehenden wortes
-			else
-				hex_edit_nibble ^= 1; // sonst stop
+			if (addr >= 3) addr -= 3;	   // step left => low byte des vorhergehenden wortes
+			else if (addr >= 2) addr -= 2; // sonst high byte des vorhergehenden wortes
+			else hex_edit_nibble ^= 1;	   // sonst stop
 		}
 		else // im low byte
 		{
@@ -374,10 +396,8 @@ void MemoryHexInspector::step_left_in_hex()
 	}
 	else // bytes
 	{
-		if (addr)
-			addr -= 1;
-		else
-			hex_edit_nibble ^= 1;
+		if (addr) addr -= 1;
+		else hex_edit_nibble ^= 1;
 	}
 }
 
@@ -396,20 +416,15 @@ void MemoryHexInspector::step_right_in_hex()
 		}
 		else // im low byte
 		{
-			if (addr + 3 < uint32(data.size))
-				addr += 3; // step right => high byte des nächsten wortes
-			else if (addr + 2 < uint32(data.size))
-				addr += 2; // sonst low byte des nächsten wortes
-			else
-				hex_edit_nibble ^= 1; // sonst stop
+			if (addr + 3 < uint32(data.size)) addr += 3;	  // step right => high byte des nächsten wortes
+			else if (addr + 2 < uint32(data.size)) addr += 2; // sonst low byte des nächsten wortes
+			else hex_edit_nibble ^= 1;						  // sonst stop
 		}
 	}
 	else // bytes
 	{
-		if (addr + 1 < uint32(data.size))
-			addr += 1;
-		else
-			hex_edit_nibble ^= 1;
+		if (addr + 1 < uint32(data.size)) addr += 1;
+		else hex_edit_nibble ^= 1;
 	}
 }
 
@@ -458,23 +473,19 @@ void MemoryHexInspector::show_cursor()
 {
 	edit_flashphase = 1;
 	edit_flashtime	= system_time;
-	if (is_editing_in_hex())
-		show_hex_cursor(1);
-	else if (is_editing_in_ascii())
-		show_ascii_cursor(1);
+	if (is_editing_in_hex()) show_hex_cursor(1);
+	else if (is_editing_in_ascii()) show_ascii_cursor(1);
 }
 
-// remove cursor blob
-// resets pen color and attributes in affected view
-//
 void MemoryHexInspector::hide_cursor()
 {
+	// remove cursor blob
+	// resets pen color and attributes in affected view
+
 	if (edit_flashphase)
 	{
-		if (is_editing_in_hex())
-			show_hex_cursor(0);
-		else if (is_editing_in_ascii())
-			show_ascii_cursor(0);
+		if (is_editing_in_hex()) show_hex_cursor(0);
+		else if (is_editing_in_ascii()) show_ascii_cursor(0);
 		edit_flashphase = 0;
 	}
 }
@@ -515,13 +526,13 @@ void MemoryHexInspector::resizeEvent(QResizeEvent* e)
 	updateWidgets();
 }
 
-/*	we catch the showEvent to call updateWidgets
-	because the child views were not resized by QT until now
-	and their current contents is invalid
-	and we don't want them to draw invalid contents in their first paintEvent
-*/
 void MemoryHexInspector::showEvent(QShowEvent* e)
 {
+	// we catch the showEvent to call updateWidgets
+	// because the child views were not resized by QT until now
+	// and their current contents is invalid
+	// and we don't want them to draw invalid contents in their first paintEvent
+
 	xlogIn("MemoryHexInspector::showEvent");
 
 	MemoryInspector::showEvent(e);
@@ -529,12 +540,12 @@ void MemoryHexInspector::showEvent(QShowEvent* e)
 	updateWidgets();
 }
 
-/*	callback for ToolWindow during user resize operation
-	we have no fixed max width and height, instead max width and height always depend on current height and width.
-	after a 1 sec timeout ToolWindow will call adjustSize so that we can set the max size for the Maximize button.
-*/
 void MemoryHexInspector::adjustMaxSizeDuringResize()
 {
+	// callback for ToolWindow during user resize operation
+	// we have no fixed max width and height, instead max width and height always depend on current height and width.
+	// after a 1 sec timeout ToolWindow will call adjustSize so that we can set the max size for the Maximize button.
+
 	xxlogIn("MemoryHexInspector::adjustMaxSizeDuringResize");
 
 	/*	wir limitieren nur die Zeilenzahl auf das aktuelle Maximum gem. aktueller Breite
@@ -543,20 +554,19 @@ void MemoryHexInspector::adjustMaxSizeDuringResize()
 	int maxrows = (data.size + bytes_per_row - 1) / bytes_per_row;
 	limit(MIN_ROWS, maxrows, MAX_ROWS);
 
+	// begrenze Höhe, aber nicht unter aktuelle Höhe, weil sonst die Fensteroberkante wandert...
 	setMaximumSize(
 		width_for_bytes(MAX_BYTES_PER_ROW), // erlaube Maximalbreite
-		max(height(),
-			height_for_rows(
-				maxrows))); // begrenze Höhe, aber nicht unter aktuelle Höhe, weil sonst die Fensteroberkante wandert...
+		max(height(), height_for_rows(maxrows)));
 }
 
-/*	adjust size:
-	called from toolwindow to finalize size after resizing
-	Justiert size auf ein Vielfaches der Zellengröße und
-	setzt maxSize so dass Maximize nur vertikal vergrößert.
-*/
 void MemoryHexInspector::adjustSize(QSize& size)
 {
+	// adjust size:
+	// called from toolwindow to finalize size after resizing
+	// Justiert size auf ein Vielfaches der Zellengröße und
+	// setzt maxSize so dass Maximize nur vertikal vergrößert.
+
 	xlogIn("MemoryHexInspector::adjustSize");
 
 	validate_bytes_per_row();
@@ -575,11 +585,11 @@ void MemoryHexInspector::adjustSize(QSize& size)
 	size.setHeight(height_for_rows(rows));
 }
 
-/*	slot für combobox_datasource:
-	also clears focus in hex and ascii view
-*/
 void MemoryHexInspector::slotSetDataSource(int newdatasource)
 {
+	// slot for combobox_datasource:
+	// also clears focus in hex and ascii view
+
 	if (newdatasource == data_source) return;
 
 	xlogIn("MemoryHexInspector.slotSetDataSource");
@@ -589,11 +599,11 @@ void MemoryHexInspector::slotSetDataSource(int newdatasource)
 	ascii_view->clearFocus();
 }
 
-/*	slot for combobox_memorypage
-	also clears focus in hex and ascii view
-*/
 void MemoryHexInspector::slotSetMemoryPage(int newpage)
 {
+	// slot for combobox_memorypage
+	// also clears focus in hex and ascii view
+
 	if (newpage < 0) return; // empty comboBox
 	assert(data_source == RamPages || data_source == RomPages);
 	if (newpage == (data_source == RamPages ? ram_page_idx : rom_page_idx)) return;
@@ -634,14 +644,15 @@ void MemoryHexInspector::slotSetWordMode(bool words)
 	if (words) bytes_per_row &= ~1;
 	updateAll();
 	setMinimumWidth(
-		width_for_bytes(MIN_BYTES_PER_ROW)); // set limits => resize mit alter size auf queued connection => scheiße
+		width_for_bytes(MIN_BYTES_PER_ROW)); // set limits => resize with old size on queued connection => bullshit
 	setMaximumWidth(width_for_bytes(MAX_BYTES_PER_ROW));
 	emit signalSizeConstraintsChanged();
 }
 
-// note: may be called for data source change => don't fast quit if new addr == old addr
 void MemoryHexInspector::setScrollOffset(int32 new_scroll_offset)
 {
+	// note: may be called if data source changed => don't fast quit if new addr == old addr
+
 	int32 old_scroll_offset = scroll_offset;
 	scroll_offset			= new_scroll_offset;
 	validate_scrollposition();
@@ -680,9 +691,12 @@ void MemoryHexInspector::setScrollOffset(int32 new_scroll_offset)
 
 void MemoryHexInspector::updateWidgets()
 {
-	if (!machine || !object || !isVisible()) return;
+	// timer: refresh displayed data
 
-	assert(machine);
+	xxlogIn("MemoryHexInspector::updateWidgets");
+	assert(isMainThread());
+	assert(controller->getMachine() == machine);
+
 	assert(first_valid_row >= 0 || update_all);
 	assert(last_valid_row <= rows || update_all);
 	assert(scroll_offset >= 0);
@@ -710,11 +724,12 @@ void MemoryHexInspector::updateWidgets()
 	if (data_source == AsSeenByCpu)
 	{
 		newdata = new CoreByte[cnt];
-		machine->cpu->copyRamToBuffer(scroll_offset, (CoreByte*)newdata, cnt);
+		NV(machine->cpu)->copyRamToBuffer(scroll_offset, (CoreByte*)newdata, cnt);
 	}
 	else
 	{
-		newdata = (data_source == RamPages || data_source == AllRam ? machine->ram.getData() : machine->rom.getData()) +
+		newdata = (data_source == RamPages || data_source == AllRam ? NV(machine->ram).getData() :
+																	  NV(machine->rom).getData()) +
 				  data.baseoffset + scroll_offset;
 	}
 
@@ -804,21 +819,19 @@ void MemoryHexInspector::updateWidgets()
 		edit_flashtime += 0.35;
 		edit_flashphase ^= 1;
 	}
-	if (is_editing_in_hex())
-		show_hex_cursor(edit_flashphase);
-	else if (is_editing_in_ascii())
-		show_ascii_cursor(edit_flashphase);
+	if (is_editing_in_hex()) show_hex_cursor(edit_flashphase);
+	else if (is_editing_in_ascii()) show_ascii_cursor(edit_flashphase);
 
 	// tooltip:
 	updateTooltip();
 }
 
-/*	Tooltip aktualisieren:
-	aber nur, wenn die Maus über dem MemoryView hovert
-	da QToolTip::showText(…) die App zwangsweise in den Vordergrund (zurück-) bringt.
-*/
 void MemoryHexInspector::updateTooltip()
 {
+	// Tooltip aktualisieren:
+	// aber nur, wenn die Maus über dem MemoryView hovert
+	// da QToolTip::showText(…) die App zwangsweise in den Vordergrund (zurück-) bringt.
+
 	xlogIn("updateTooltip");
 
 	return; // TODO: remove
@@ -847,17 +860,13 @@ void MemoryHexInspector::updateTooltip()
 
 		if (show_words)
 		{
-			if (x % 5 == 4)
-				goto X;
-			else
-				x = x / 5 * 2 + (x % 5 < 2);
+			if (x % 5 == 4) goto X;
+			else x = x / 5 * 2 + (x % 5 < 2);
 		}
 		else
 		{
-			if (x % 3 == 2)
-				goto X;
-			else
-				x = x / 3;
+			if (x % 3 == 2) goto X;
+			else x = x / 3;
 		}
 		in_hex = yes;
 	}
@@ -879,24 +888,17 @@ void MemoryHexInspector::updateTooltip()
 	if (offset < data.size)
 	{
 		CoreByte byte = data_source == AsSeenByCpu						 ? *machine->cpu->rdPtr(offset) :
-						data_source == RomPages || data_source == AllRom ? machine->rom[data.baseoffset + offset] :
-																		   machine->ram[data.baseoffset + offset];
+						data_source == RomPages || data_source == AllRom ? NV(machine->rom)[data.baseoffset + offset] :
+																		   NV(machine->ram)[data.baseoffset + offset];
 
 		cstr fmt = "$%04X";
-		if (pageOffsetForCpuAddress(pc) == offset)
-			fmt = "pc -> $%04X";
-		else if (pageOffsetForCpuAddress(sp) == offset)
-			fmt = "sp -> $%04X";
-		else if (pageOffsetForCpuAddress(hl) == offset)
-			fmt = "hl -> $%04X";
-		else if (pageOffsetForCpuAddress(de) == offset)
-			fmt = "de -> $%04X";
-		else if (pageOffsetForCpuAddress(ix) == offset)
-			fmt = "ix -> $%04X";
-		else if (pageOffsetForCpuAddress(iy) == offset)
-			fmt = "iy -> $%04X";
-		else if (pageOffsetForCpuAddress(bc) == offset)
-			fmt = "bc -> $%04X";
+		if (pageOffsetForCpuAddress(pc) == offset) fmt = "pc -> $%04X";
+		else if (pageOffsetForCpuAddress(sp) == offset) fmt = "sp -> $%04X";
+		else if (pageOffsetForCpuAddress(hl) == offset) fmt = "hl -> $%04X";
+		else if (pageOffsetForCpuAddress(de) == offset) fmt = "de -> $%04X";
+		else if (pageOffsetForCpuAddress(ix) == offset) fmt = "ix -> $%04X";
+		else if (pageOffsetForCpuAddress(iy) == offset) fmt = "iy -> $%04X";
+		else if (pageOffsetForCpuAddress(bc) == offset) fmt = "bc -> $%04X";
 
 		if (in_hex)
 		{
@@ -932,10 +934,10 @@ void MemoryHexInspector::slotSetEditMode(bool f)
 	ascii_view->setCursor(f ? Qt::IBeamCursor : Qt::ArrowCursor);
 }
 
-/* Common handler for slots: setBreakpoint…()
- */
 void MemoryHexInspector::setBreakpoint(CoreByte mask, bool f)
 {
+	// Common handler for slots: setBreakpoint…()
+
 	breakpoint_mask &= ~mask;
 	if (f)
 	{
@@ -979,17 +981,13 @@ void MemoryHexInspector::mousePressEvent(QMouseEvent* e)
 
 		if (show_words)
 		{
-			if (x % 5 == 4)
-				return;
-			else
-				x = x / 5 * 2;
+			if (x % 5 == 4) return;
+			else x = x / 5 * 2;
 		}
 		else
 		{
-			if (x % 3 == 2)
-				return;
-			else
-				x = x / 3;
+			if (x % 3 == 2) return;
+			else x = x / 3;
 		}
 	}
 	else // if(in_ascii)
@@ -1056,10 +1054,8 @@ void MemoryHexInspector::keyPressEvent(QKeyEvent* e)
 			if (is_hex_digit(e->key()))
 			{
 				uint8& byte = dataReadPtrForOffset(hex_edit_offset)->data;
-				if (hex_edit_nibble)
-					byte = (byte & 0xF0) + (hex_digit_value(e->key()));
-				else
-					byte = (byte & 0x0F) + (hex_digit_value(e->key()) << 4);
+				if (hex_edit_nibble) byte = (byte & 0xF0) + (hex_digit_value(e->key()));
+				else byte = (byte & 0x0F) + (hex_digit_value(e->key()) << 4);
 				step_right_in_hex();
 			}
 		X:
@@ -1110,8 +1106,7 @@ void MemoryHexInspector::keyPressEvent(QKeyEvent* e)
 			break;
 		}
 	}
-	else
-		MemoryInspector::keyPressEvent(e);
+	else MemoryInspector::keyPressEvent(e);
 }
 
 void MemoryHexInspector::slotFocusChanged(bool f)
@@ -1120,9 +1115,51 @@ void MemoryHexInspector::slotFocusChanged(bool f)
 
 	if (edit_flashphase)
 	{
-		if (sender == hex_view)
-			show_hex_cursor(f);
-		else if (sender == ascii_view)
-			show_ascii_cursor(f);
+		if (sender == hex_view) show_hex_cursor(f);
+		else if (sender == ascii_view) show_ascii_cursor(f);
 	}
 }
+
+} // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

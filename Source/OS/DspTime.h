@@ -20,9 +20,9 @@
 
 // Realzeit:
 
-typedef double Time;
-typedef double Frequency;
-typedef float  Sample;
+using Time		= double;
+using Frequency = double;
+using Sample	= float;
 
 extern Frequency samples_per_second; // DSP-Konstante & Zeitbasis des Systems: samples/second
 extern Time		 system_time;		 // Realzeit [seconds]

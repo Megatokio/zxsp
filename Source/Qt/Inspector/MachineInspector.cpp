@@ -7,6 +7,11 @@
 #include "Machine.h"
 
 
+namespace gui
+{
+
 MachineInspector::MachineInspector(QWidget* p, MachineController* mc, volatile Machine* m) :
 	Inspector(p, mc, m, catstr("Images/", m->model_info->image_filename))
 {}
+
+} // namespace gui

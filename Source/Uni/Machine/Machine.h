@@ -3,11 +3,17 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "Fdc/DivIDE.h"
 #include "Files/RzxFile.h"
 #include "IsaObject.h"
+#include "Joy/ZxIf2.h"
 #include "Memory.h"
+#include "Multiface/Multiface1.h"
 #include "Overlays/Overlay.h"
+#include "Ram/ExternalRam.h"
+#include "SpectraVideo.h"
 #include "StereoSample.h"
+#include "Templates/NVPtr.h"
 #include "Templates/RCPtr.h"
 #include "Ula/Ula.h"
 #include "Ula/UlaZx80.h"
@@ -19,18 +25,62 @@
 #include "zxsp_types.h"
 #include <math.h>
 
+class Items : private Array<std::shared_ptr<Item>>
+{
+public:
+	using Array::append;
+	using Array::count;
+	using Array::drop;
+	using Array::last;
+	using Array::remove;
+	using Array::operator[];
+	using Array::indexof;
+
+	uint indexof(const volatile Item* item) const
+	{
+		uint i = count();
+		while (i-- && data[i].get() != item) {}
+		return i; // i = ~0u if not found
+	}
+
+	bool contains(const volatile Item* item) { return indexof(item) != ~0u; }
+
+	void remove(Item* item)
+	{
+		uint i = indexof(item);
+		if (i != ~0u) remove(i);
+	}
+
+	template<typename ITEM>
+	ITEM* find()
+	{
+		for (uint i = count(); --i;)
+		{
+			if (ITEM* item = dynamic_cast<ITEM*>(data[i].get())) return item;
+		}
+		return nullptr;
+	}
+};
+
 
 class Machine : public IsaObject
 {
+	NO_COPY_MOVE(Machine);
+
 	friend void runMachinesForSound();
-	friend class MachineController;
+	friend class gui::MachineController;
 	friend class Item;
 	friend class Z80;
 
 public:
-	PLock _lock;
+	std::timed_mutex mutex;
 
-	volatile MachineController* controller;
+	void lock() volatile { NV(mutex).lock(); }
+	void unlock() volatile { NV(mutex).unlock(); }
+	bool trylock() volatile { return NV(mutex).try_lock(); }
+	bool trylock(int timeout_nsec) volatile { return NV(mutex).try_lock_for(std::chrono::nanoseconds(timeout_nsec)); }
+
+	volatile gui::MachineController* controller;
 
 	// general info
 	Model		  model;
@@ -46,26 +96,32 @@ private:
 	bool is_suspended;
 
 	class RzxFile* rzx_file; // Rzx Replay and Recording
-	Overlay*	   overlay_rzx_play;
-	Overlay*	   overlay_rzx_record;
-	void		   show_overlay_play();
-	void		   show_overlay_record();
-	void		   hide_overlay_play();
-	void		   hide_overlay_record();
-	void		   rzx_load_snapshot(int32& cc_final, int32& ic_end);
-	void		   rzx_store_snapshot();
+	gui::Overlay*  overlay_rzx_play;
+	gui::Overlay*  overlay_rzx_record;
+	void		   showOverlayPlay();
+	void		   showOverlayRecord();
+	void		   hideOverlayPlay();
+	void		   hideOverlayRecord();
+	void		   rzxLoadSnapshot(int32& cc_final, int32& ic_end);
+	void		   rzxStoreSnapshot();
 
 public:
 	// all memory in the machine:
 	Array<Memory*> memory; // updated by memoryAdded() / memoryRemoved()
-	void		   memoryAdded(Memory*);
-	void		   memoryRemoved(Memory*);
-	void		   memoryModified(Memory*, uint how = 2); // 0=added, 1=removed, 2=modified
+	MemoryPtr	   rom;	   // rom pages
+	MemoryPtr	   ram;	   // ram pages
 
-	// Built-in components:
-	MemoryPtr	  rom; // rom pages
-	MemoryPtr	  ram; // ram pages
-	class Z80*	  cpu; // the cpu: always first in list of items
+	void memoryAdded(Memory*);
+	void memoryRemoved(Memory*);
+	void memoryModified(Memory*, uint how = 2); // 0=added, 1=removed, 2=modified
+
+
+public:
+	// All components:
+	Items all_items;
+
+	// Mostly internal components:
+	Z80*		  cpu; // the cpu: always first in list of items
 	Ula*		  ula;
 	Mmu*		  mmu;
 	Keyboard*	  keyboard;
@@ -74,8 +130,42 @@ public:
 	TapeRecorder* taperecorder;
 	Fdc*		  fdc;
 	Printer*	  printer;
-	Crtc*		  crtc;		// mostly same as ula
-	Item*		  lastitem; // list of all items: maintained by Item
+	Crtc*		  crtc; // mostly same as ula. not update by addItem()/removeItem()!
+	Item*		  last_item() const { return all_items.count() ? all_items.last().get() : nullptr; }
+
+public:
+	Item*		  addItem(Item*);
+	Item*		  addExternalItem(isa_id);
+	ExternalRam*  addExternalRam(isa_id, uint size_or_options = 0);
+	SpectraVideo* addSpectraVideo(uint dip_switches);
+	DivIDE*		  addDivIDE(uint ramsize, cstr romfile);
+	Multiface1*	  addMultiface1(bool joystick_enabled);
+
+	void removeItem(Item*);
+	void removeItem(isa_id id) { removeItem(findItem(id)); }
+	void removeSpectraVideo();
+
+	template<typename ITEM>
+	void remove()
+	{
+		removeItem(find<ITEM>());
+	}
+
+	template<typename ITEM>
+	ITEM* find()
+	{
+		return all_items.find<ITEM>(); // nullptr if not found
+	}
+
+	Item*		  findItem(isa_id id); // kind of an Item
+	ZxIf2*		  findZxIf2() { return find<ZxIf2>(); }
+	SpectraVideo* findSpectraVideo() { return find<SpectraVideo>(); }
+	DivIDE*		  findDivIDE() { return find<DivIDE>(); }
+
+	bool contains(const volatile Item* item) { return all_items.contains(item); }
+
+	void setCrtc(Crtc* c) { cpu->setCrtc(crtc = c); }
+
 
 	// virtual machine time:
 	//	 there are two scales: cpu T cycle count cc and time in seconds.
@@ -89,22 +179,20 @@ public:
 	double total_realtime; // information: accumulated time[sec] until now
 
 	Frequency cpu_clock; // cpu T cycles per second: cpu speed and conversion cc <-> time
-	// int32			cpu->cc;			// now[cc] = total_cc + cpu->cc
-	double tcc0; // realtime t (biased to total_realtime) at current frame start (cc=0)
+	double	  tcc0;		 // realtime t (biased to total_realtime) at current frame start (cc=0)
 
-	uint  beam_cnt; // für drawVideoBeamIndicator()
+	uint  beam_cnt; // for drawVideoBeamIndicator()
 	int32 beam_cc;	// ""
 
 protected:
-	Time t_for_cc(int32 cc) { return tcc0 + cc / cpu_clock; }
-	Time t_for_cc_lim(int32 cc) { return min(t_for_cc(cc), seconds_per_dsp_buffer_max()); }
-	// int32			cc					()				{ return cpu->cpuCycle(); }
+	Time   t_for_cc(int32 cc) { return tcc0 + cc / cpu_clock; }
+	Time   t_for_cc_lim(int32 cc) { return min(t_for_cc(cc), seconds_per_dsp_buffer_max()); }
 	double cc_for_t(Time t) { return (t - tcc0) * cpu_clock; }
 	int32  cc_dn_for_t(Time t) { return int32(floor(cc_for_t(t))); }
 	int32  cc_up_for_t(Time t) { return int32(ceil(cc_for_t(t))); }
 
 	// machine state
-	void		  clear_break_ptr();
+	void		  clearBreakPtr();
 	uint8		  handleRomPatch(uint16, uint8); // Z80options.h
 	void		  outputAtCycle(int32 cc, uint16, uint8);
 	uchar		  inputAtCycle(int32 cc, uint16);
@@ -114,6 +202,8 @@ protected:
 	virtual bool  handleSaveTapePatch() = 0;
 	uint8		  readMemMappedPort(int32 cc, uint16, uint8);  // for memory mapped i/o
 	void		  writeMemMappedPort(int32 cc, uint16, uint8); // for memory mapped i/o
+	void		  videoFrameEnd(int32 cc);
+	void		  audioBufferEnd(Time t);
 
 	bool rzxIsLoaded() const volatile { return rzx_file != nullptr; }
 	bool rzxIsPlaying() const { return rzx_file != nullptr && rzx_file->isPlaying(); }
@@ -123,15 +213,10 @@ protected:
 	void rzxDispose();
 	void rzxStartRecording(cstr msg = nullptr, bool yellow = no);
 	void rzxStopRecording(cstr msg = nullptr, bool yellow = no);
-	void rzxStopPlaying(cstr msg = nullptr, bool yellow = no)
-	{
-		(void)msg;
-		(void)yellow;
-		TODO();
-	}
+	void rzxStopPlaying(cstr msg = nullptr, bool yellow = no);
 	void rzxOutOfSync(cstr msg, bool alert = no);
 
-	Machine(MachineController*, Model, isa_id);
+	Machine(gui::MachineController*, Model, isa_id);
 
 private:
 	void init_contended_ram();
@@ -148,8 +233,7 @@ private:
 	virtual void saveO80(FD& fd);			// MachineZx80.cpp
 	virtual void loadP81(FD& fd, bool p81); // MachineZx81.cpp
 	virtual void saveP81(FD& fd, bool p81); // MachineZx81.cpp
-
-	// virtual void		loadTap			(FD& fd);						// MachineZxsp.cpp
+	// virtual void loadTap(FD& fd);		// MachineZxsp.cpp
 
 	void loadZ80(FD& fd); // file_z80.cpp
 	void saveZ80(FD& fd); // file_z80.cpp
@@ -162,57 +246,14 @@ private:
 	// ---- P U B L I C ----------------------------------------------------
 
 public:
-	virtual ~Machine();
+	static std::shared_ptr<Machine> newMachine(gui::MachineController*, Model);
+
+	~Machine() override;
 
 	void saveAs(cstr filepath);
 
-	// Components:
-	Item* findItem(isa_id id)
-	{
-		for (Item* i = lastitem; i; i = i->prev())
-		{
-			if (i->isaId() == id) return i;
-		}
-		return 0;
-	}
-	Item* findIsaItem(isa_id id)
-	{
-		for (Item* i = lastitem; i; i = i->prev())
-		{
-			if (i->isA(id)) return i;
-		}
-		return 0;
-	}
-	// Item const* findIsaItem		(isa_id id) const {return const_cast<Machine*>(this)->findIsaItem(id); }
-	Item* findInternalItem(isa_id id)
-	{
-		for (Item* i = firstItem(); i; i = i->next())
-		{
-			if (i->isA(id) && i->isInternal()) return i;
-		}
-		return 0;
-	}
-	Item*		  lastItem() volatile { return lastitem; }
-	Item*		  firstItem() { return cpu; }
-	ZxIf2*		  findZxIf2() { return ZxIf2Ptr(findIsaItem(isa_ZxIf2)); }
-	SpectraVideo* findSpectraVideo() { return SpectraVideoPtr(findIsaItem(isa_SpectraVideo)); }
-	void		  setCrtc(Crtc* c)
-	{
-		crtc = c;
-		cpu->setCrtc(c);
-	}
-
-	Item*		  addExternalItem(isa_id);
-	void		  removeItem(Item* item) { delete item; }
-	void		  removeItem(isa_id id) { delete findItem(id); }
-	void		  removeIsaItem(isa_id id) { delete findIsaItem(id); }
-	SpectraVideo* addSpectraVideo(bool add = yes);
-
-	void itemAdded(Item*);	 // callback from Item c'tor
-	void itemRemoved(Item*); // callback from Item d'tor
-
-	OverlayJoystick* addOverlay(Joystick*, cstr idf, Overlay::Position);
-	void			 removeOverlay(Overlay*);
+	gui::OverlayJoystick* addOverlay(Joystick*, cstr idf, gui::Overlay::Position);
+	void				  removeOverlay(gui::Overlay*);
 
 	// Time & Utilities:
 	int32 current_cc() { return cpu->cpuCycle(); }
@@ -220,14 +261,12 @@ public:
 	Time  now_lim() { return t_for_cc_lim(cpu->cpuCycle()); }
 
 	// Control & Run the Machine:
-	void lock() volatile { _lock.lock(); }
-	void unlock() volatile { _lock.unlock(); }
 	bool is_locked() volatile
 	{
 		if (!is_power_on) return yes;
 		if (is_suspended) return yes;
-		bool f = _lock.trylock();
-		if (f) _lock.unlock();
+		bool f = NV(mutex).try_lock();
+		if (f) NV(mutex).unlock();
 		return !f;
 	}
 
@@ -264,3 +303,6 @@ public:
 	void set50Hz() { set60Hz(0); } // 100%, ~50fps, stored in prefs
 	void set60Hz(bool = 1);		   // 100%, ~60fps, stored in prefs
 };
+
+
+// =============================================================================================

@@ -425,8 +425,7 @@ a:
 			{
 				while (cnt--) { buffer.writeCC(dur); }
 			}
-			else if (cnt & 1)
-				buffer.write(0); // if cnt==1 and dur==0 then toggle phase
+			else if (cnt & 1) buffer.write(0); // if cnt==1 and dur==0 then toggle phase
 		}
 	}
 		goto a;

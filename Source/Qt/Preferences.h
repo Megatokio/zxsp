@@ -9,6 +9,9 @@
 #include <QWidget>
 
 
+namespace gui
+{
+
 class Preferences : public QWidget
 {
 	int modelList[num_models];
@@ -36,3 +39,5 @@ private:
 	void setSnapshotKeyboardMode(int);
 	void setCheckForUpdate(bool);
 };
+
+} // namespace gui

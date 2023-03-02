@@ -8,8 +8,15 @@
 
 class UlaZx81 : public UlaZx80
 {
+	friend class MachineZx81;
+
 public:
+	static constexpr uint waitmap_size = 207; // cc
+
 	explicit UlaZx81(Machine*);
+	uint8* getWaitmap() { return u8ptr(waitmap); }
+
+protected:
 	~UlaZx81() override;
 
 	// Item interface:
@@ -24,15 +31,12 @@ public:
 	uint8 interruptAtCycle(int32, uint16) override;
 	int32 nmiAtCycle(int32 cc_nmi);
 
-	static constexpr uint waitmap_size = 207; // cc
-	uint8*				  getWaitmap() { return u8ptr(waitmap); }
-
 private:
 	uint8 waitmap[waitmap_size];
-	// uint lcntr = 0;			// 3 bit line counter
+	// uint lcntr    = 0;  // 3 bit line counter
 	bool nmi_enabled = no; // state of the NMI_enable flipflop
 	bool sync		 = no; // state of the combined sync output
-	// bool vsync = no;			// state of the vsync flipflop
+	// bool vsync    = no; // state of the vsync flipflop
 	bool				   hsync		   = no; // state of the hsync generator
 	int32				   cc_hsync_next   = 16; // next sheduled toggle
 	static constexpr int32 cc_hsync_period = 207;

@@ -6,8 +6,12 @@
 #include "Ay/Ay.h"
 
 
-ZonxBoxInsp::ZonxBoxInsp(QWidget* w, MachineController* mc, volatile IsaObject* i) :
-	Inspector(w, mc, i, "/Images/zonx.jpg")
+namespace gui
+{
+
+ZonxBoxInsp::ZonxBoxInsp(QWidget* w, MachineController* mc, volatile Ay* i) : Inspector(w, mc, i, "/Images/zonx.jpg")
 {
 	assert(i->isA(isa_ZonxBox) || i->isA(isa_ZonxBox81));
 }
+
+} // namespace gui

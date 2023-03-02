@@ -10,10 +10,10 @@ class MmuZxsp : public Mmu
 {
 public:
 	explicit MmuZxsp(Machine*);
-	virtual ~MmuZxsp();
 
 protected:
 	MmuZxsp(Machine*, isa_id, cstr o_addr, cstr i_addr);
+	~MmuZxsp() override;
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;

@@ -13,5 +13,5 @@
 class MemObject : public IsaObject
 {
 public:
-	MemObject(QObject* p, isa_id id) : IsaObject(p, id, id) {} // note: group == id
+	MemObject(isa_id id) : IsaObject(id, id) {} // note: group == id
 };

@@ -5,14 +5,15 @@
 
 #include "MemoryInspector.h"
 #include "Templates/Array.h"
-#include "kio/kio.h"
 class Machine;
-class MemoryInspector;
-class SimpleTerminal;
 class QPushButton;
 class QLineEdit;
-class CoreByteDisassembler;
 
+
+namespace gui
+{
+class SimpleTerminal;
+class CoreByteDisassembler;
 
 struct DisassData
 {
@@ -64,21 +65,21 @@ class MemoryDisassInspector : public MemoryInspector
 
 public:
 	MemoryDisassInspector(QWidget*, MachineController*, volatile IsaObject*);
-	~MemoryDisassInspector();
+	~MemoryDisassInspector() override;
 
 protected:
 	void resizeEvent(QResizeEvent*) override;
-	// void		wheelEvent(QWheelEvent*) override;
-	// void		paintEvent(QPaintEvent*) override;
+	// void wheelEvent(QWheelEvent*) override;
+	// void	paintEvent(QPaintEvent*) override;
 	void mousePressEvent(QMouseEvent*) override;
-	// bool		event(QEvent*) override;
+	// bool	event(QEvent*) override;
 	void keyPressEvent(QKeyEvent*) override;
-	// void		keyReleaseEvent(QKeyEvent*) override;
-	// void		saveSettings() override;
+	// void	keyReleaseEvent(QKeyEvent*) override;
+	// void	saveSettings() override;
 	void showEvent(QShowEvent*) override;
 
 	void updateScrollbar() override;
-	// void		adjustMaxSizeDuringResize() override;
+	// void	adjustMaxSizeDuringResize() override;
 	void adjustSize(QSize&) override;
 	void setScrollOffset(int32 new_base_address) override;
 
@@ -121,3 +122,5 @@ private:
 	int	  width_for_disass_cols(int n);
 	void  slotFocusChanged(bool);
 };
+
+} // namespace gui

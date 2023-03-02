@@ -9,5 +9,5 @@
 class MachineTk90x : public MachineZxsp
 {
 public:
-	explicit MachineTk90x(MachineController*);
+	MachineTk90x(gui::MachineController*, bool is60hz = false);
 };

@@ -9,6 +9,10 @@
 #include <QTimer>
 #include <QWidget>
 
+
+namespace gui
+{
+
 class Lenslok : public QWidget
 {
 	MachineController* controller;
@@ -29,7 +33,7 @@ class Lenslok : public QWidget
 
 public:
 	Lenslok(MachineController*, cstr name1, cstr name2);
-	~Lenslok();
+	~Lenslok() override;
 
 protected:
 	void paintEvent(QPaintEvent*) override;
@@ -49,3 +53,5 @@ private:
 	void draw_prism(QPainter&, QRectF, const QRectF&);
 	void select_game();
 };
+
+} // namespace gui

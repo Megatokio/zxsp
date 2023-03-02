@@ -6,8 +6,11 @@
 #include "KempstonJoy.h"
 
 
-class InvesJoy : public KempstonJoy
+class InvesJoy final : public KempstonJoy
 {
 public:
 	explicit InvesJoy(Machine*);
+
+protected:
+	~InvesJoy() override = default;
 };

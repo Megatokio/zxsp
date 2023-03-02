@@ -12,6 +12,9 @@
 #include <QRect>
 
 
+namespace gui
+{
+
 /*	TODO
 
 	Cursor Blob
@@ -211,10 +214,8 @@ void SimpleTerminal::handle_h_overflow()
  */
 void SimpleTerminal::handle_v_overflow()
 {
-	if (row >= rows)
-		scrollScreen(row - rows + 1);
-	else if (row < 0)
-		scrollScreen(row);
+	if (row >= rows) scrollScreen(row - rows + 1);
+	else if (row < 0) scrollScreen(row);
 }
 
 
@@ -434,10 +435,8 @@ void SimpleTerminal::print(QChar c, int n)
 	hideBlob();	  // and force inside
 	n = (int16)n; // security
 
-	if (n == 1)
-		draw_text(QString(c));
-	else if (n > 1)
-		print(QString(n, c));
+	if (n == 1) draw_text(QString(c));
+	else if (n > 1) print(QString(n, c));
 }
 
 void SimpleTerminal::print(QString s, int n)
@@ -569,3 +568,5 @@ void SimpleTerminal::resize_canvas(int w, int h)
 		set_colors();			// get reset by begin()
 	}
 }
+
+} // namespace gui

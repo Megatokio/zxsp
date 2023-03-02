@@ -8,6 +8,9 @@
 #include <QLineEdit>
 
 
+namespace gui
+{
+
 /*	Unterschiede zu QLineEdit:
 
 	Bestätigte Änderungen (ENTER/RETURN/TAB) werden mit Signal returnPressed() gemeldet.
@@ -42,3 +45,5 @@ protected:
 	void focusOutEvent(QFocusEvent*) override;
 	bool event(QEvent*) override;
 };
+
+} // namespace gui

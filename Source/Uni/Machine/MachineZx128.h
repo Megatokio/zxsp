@@ -10,8 +10,8 @@
 class MachineZx128 : public MachineZxsp
 {
 protected:
-	MachineZx128(MachineController*, Model, isa_id id);
+	MachineZx128(gui::MachineController*, Model, isa_id id);
 
 public:
-	MachineZx128(MachineController*, Model);
+	MachineZx128(gui::MachineController*, Model);
 };

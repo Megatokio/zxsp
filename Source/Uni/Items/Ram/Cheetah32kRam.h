@@ -10,5 +10,7 @@ class Cheetah32kRam : public ExternalRam
 {
 public:
 	explicit Cheetah32kRam(Machine*);
-	virtual ~Cheetah32kRam();
+
+protected:
+	virtual ~Cheetah32kRam() override;
 };

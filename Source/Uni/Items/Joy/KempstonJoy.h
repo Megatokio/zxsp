@@ -10,13 +10,12 @@ class KempstonJoy : public Joy
 {
 public:
 	explicit KempstonJoy(
-		Machine*,
-		isa_id		= isa_KempstonJoy,
-		Internal	= external,
+		Machine*, isa_id = isa_KempstonJoy, Internal = external,
 		cstr i_addr = "----.----.000-.----" /*Kempston Issue 4*/);
-	virtual ~KempstonJoy();
 
 protected:
+	~KempstonJoy() override;
+
 	// Item interface
 	void input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
 };

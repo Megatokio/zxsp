@@ -14,13 +14,14 @@
 
    ##################################################################### */
 
-typedef uint32_t uint32;
+using uint32 = uint32_t;
 
 #define CPU_PAGEBITS 10
 
 
 // cpu.Run() options:
 enum Z80Option : uint32 {
+	cpu_options_none = 0u,
 	cpu_fastest		 = 0u,		 // no gimmicks
 	cpu_waitmap		 = 1u << 8,	 // add wait cycles from pg.[rw]waitmap
 	cpu_ula_sinclair = 1u << 9,	 // Sinclair ZX Spectrum wait style (ULA generates lots of superfluous wait cycles)

@@ -11,4 +11,5 @@ class ExternalRam : public Item
 {
 protected:
 	ExternalRam(Machine*, isa_id);
+	~ExternalRam() override = default;
 };
