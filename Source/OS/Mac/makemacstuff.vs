@@ -138,7 +138,7 @@ file "zxsp.app/Contents/Info.plist" =
 	# BundleForFile( {"dck"},			"Files/dck.icns",		"application/zxsp-dck",		"Timex Command Cartridge",	"DOCK", "Viewer" )
 	# BundleForFile( {"scr"},			"Files/scr.icns",		"application/zxsp-scr",		"ZX Spectrum Screenshot",	"SCR",	"Viewer" )
 	# BundleForFile( {"ass","asm","src","s"}, "Files/ass.icns",	"text/x-asm",				"Assembler Source",			"TEXT", "Viewer" )
-	# BundleForFile( {"rzx"},			"Files/blank.icns",		"application/zxsp-rzx",		"ZX Spectrum Recording",	"RZX!",	"Editor" )
+	# BundleForFile( {"rzx"},			"Files/rzx.icns",		"application/zxsp-rzx",		"ZX Spectrum Recording",	"RZX!",	"Editor" )
 	# BundleForFile( {"gif"},			"Files/blank.icns",		"image/gif",				"GIF Image",				"GIF",	"Viewer" )
 	# BundleForFile( {"c"},				"Files/blank.icns",		"text/x-c",					"C Source",					"TEXT",	"Viewer" )
 	# BundleForFile( {"img"},			"Files/img.icns",		"application/zxsp-img",		"Hard Disk Image",			"IMG",	"Editor" )
