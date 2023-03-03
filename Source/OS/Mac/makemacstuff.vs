@@ -37,7 +37,7 @@
 
 // zxsp version:
 //
-var version = "0.8.29 beta"
+var version = "0.8.30 beta"
 log "TODO: should read version from settings.h",nl
 //exit 1
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2013 - 2023 kio@little-bat.de
+// Copyright (c) 2023 - 2023 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -6,8 +6,8 @@
 
 #define APPL_VERSION_H	  0
 #define APPL_VERSION_M	  8
-#define APPL_VERSION_L	  29
-#define APPL_VERSION_STR  "0.8.29"
+#define APPL_VERSION_L	  30
+#define APPL_VERSION_STR  "0.8.30"
 #define APPL_VERSION_BETA true
 
 static constexpr char startup_info_message[] =
