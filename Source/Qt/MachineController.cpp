@@ -1962,7 +1962,7 @@ static QAction* find_action_for_item(QList<QAction*>& array, const volatile IsaO
 	return nullptr;
 }
 
-void MachineController::itemAdded(Item* item) volatile
+void MachineController::itemAdded(std::shared_ptr<Item> item) volatile
 {
 	// callback from Item c'tor
 
@@ -1970,11 +1970,12 @@ void MachineController::itemAdded(Item* item) volatile
 	assert(isMainThread());
 
 	// we delay the updates because in case of a new machine it is not yet stored in this->machine:
-	bool force = !in_machine_ctor;
-	QTimer::singleShot(0, NV(this), [=] { NV(this)->item_added(item, force); });
+	bool				force = !in_machine_ctor;
+	std::weak_ptr<Item> item_wp {item};
+	QTimer::singleShot(0, NV(this), [=] { NV(this)->item_added(item_wp, force); });
 }
 
-void MachineController::item_added(Item* item, bool force)
+void MachineController::item_added(std::weak_ptr<Item> item_wp, bool force)
 {
 	// we manage the 'Extensions' menu here.
 	// 'add' and 'show' actions are un|checked and dis|enabled
@@ -1982,26 +1983,21 @@ void MachineController::item_added(Item* item, bool force)
 	// Assumptions:
 	// 	 external item: the 'add' action exists (and is visible in the menu)
 
-	// Ula and Mmu are handled as one:
+	// if zxsp is started with a file to load then the initial default machine
+	// may be unsuitable and is immediately destroyed and the required one is created.
+	// then we get itemAdded events for items which no longer exist.
+	Item* item = item_wp.lock().get();
+	if (!item) return;
+	assert(NV(machine)->all_items.contains(item));
+
+	// Ula and Mmu are handled as one item:
 	if (dynamic_cast<Mmu*>(item)) return;
-	if (dynamic_cast<Ula*>(item)) assert(machine->mmu != nullptr);
+	assert(dynamic_cast<Ula*>(item) == nullptr || machine->mmu != nullptr);
 
-	// wenn mehrere Files gleichzeitig gestartet werden,
-	// werden die ohne Unterbrechung in die Maschine geladen,
-	// die dafür ggf. zerstört und neu erzeugt wird.
-	// dadurch sind Items, für die wir hier ein delayed Event bekommen
-	// vielleicht schon wieder zerstört.
-	// => prüfen, ob die noch existieren, sonst crash!
-	if (!NV(machine)->all_items.contains(item)) return;
-
-	assert(item); //wg. bogus warning
+	assert(item); //wg. bogus lint warning
 	int g = item->grp_id;
 
-	if (item->isInternal() || g == isa_TapeRecorder)
-	{
-		if (g == isa_Mmu) return; // MMU wird mit ULA zusammengefasst
-	}
-	else
+	if (item->isExternal() && g != isa_TapeRecorder)
 	{
 		QAction* addAction = find_action_for_item(add_actions, item);
 		if (addAction == nullptr) { showAlert("no addAction found for item %s", item->name); }

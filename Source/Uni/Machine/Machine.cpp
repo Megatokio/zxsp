@@ -647,7 +647,7 @@ Item* Machine::addItem(Item* item)
 	if (auto* i = dynamic_cast<Printer*>(item)) printer = i;
 	if (auto* i = dynamic_cast<TapeRecorder*>(item)) taperecorder = i;
 
-	controller->itemAdded(item);
+	controller->itemAdded(all_items.last());
 
 	if (isPowerOn()) item->powerOn(cpu->cpuCycle());
 	return item;

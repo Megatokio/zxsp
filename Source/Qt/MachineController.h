@@ -132,8 +132,8 @@ private:
 	void		showAllToolwindows();													   // changeEvent()
 	void		hideAllToolwindows();													   // changeEvent()
 
-	void item_added(Item*, bool force);	  // callback from Item c'tor
-	void item_removed(Item*, bool force); // callback from Item d'tor
+	void item_added(std::weak_ptr<Item>, bool force); // callback from Item c'tor
+	void item_removed(Item*, bool force);			  // callback from Item d'tor
 
 protected:
 	void contextMenuEvent(QContextMenuEvent*) override;
@@ -168,7 +168,7 @@ public:
 	void memoryModified(Memory* m, uint how) volatile; // callback from machine
 	void machineSuspendStateChanged() volatile;		   // callback from machine
 	void rzxStateChanged() volatile;				   // callback from machine
-	void itemAdded(Item*) volatile;					   // callback from machine
+	void itemAdded(std::shared_ptr<Item>) volatile;	   // callback from machine
 	void itemRemoved(Item*) volatile;				   // callback from machine
 
 signals:
