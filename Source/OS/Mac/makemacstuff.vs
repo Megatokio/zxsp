@@ -1,51 +1,20 @@
 #!/usr/local/bin/vipsi
 
-
-/*	Copyright  (c)	Günter Woigk 2009 - 2017
-					mailto:kio@little-bat.de
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-	Permission to use, copy, modify, distribute, and sell this software and
-	its documentation for any purpose is hereby granted without fee, provided
-	that the above copyright notice appear in all copies and that both that
-	copyright notice and this permission notice appear in supporting
-	documentation, and that the name of the copyright holder not be used
-	in advertising or publicity pertaining to distribution of the software
-	without specific, written prior permission.  The copyright holder makes no
-	representations about the suitability of this software for any purpose.
-	It is provided "as is" without express or implied warranty.
-
-	THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-	INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
-	EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-	CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
-	DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-	TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-	PERFORMANCE OF THIS SOFTWARE.
-
+/*	Copyright (c) 2009 - 2023 kio@little-bat.de
+	BSD-2-Clause license
+	https://opensource.org/licenses/BSD-2-Clause
 
 	this script must be started in folder
-		zxsp-osx/build-qt580-debug
+		zxsp/build-qt59-debug
 	(or similar)
-
-	increment version below!
 */
 
 
-// zxsp version:
-//
-var version = "0.8.30 beta"
-log "TODO: should read version from settings.h",nl
-//exit 1
-
-
 var t0 = now
-
 var projectdir = "../"
 var sdccdir = projectdir#"zasm/sdcc/"
+var versionfile = projectdir # "Source/version.h"
+
 
 if !exists dir "zxsp.app/" new dir "zxsp.app/" then
 if !exists dir "zxsp.app/Contents/" new dir "zxsp.app/Contents/" then
@@ -66,6 +35,38 @@ var resources = { "Roms/*.rom",
 				  "Audio/*.raw"
 				 }
 
+
+
+proc ReadVersion()
+{
+	var text = file versionfile
+	split text
+	var beta = 1
+	var h="",m="",l="",str=""
+	var i=0
+	do
+	while ++i <= count(text)
+		var s = text[i]
+		if s[to 7] != "#define" next then
+		replace s,"\t"," "
+		split s," "
+		var k = s[2]
+		var v = s[count s]
+		if k == "APPL_VERSION_H"	  h = v
+		elif k == "APPL_VERSION_M"    m = v
+		elif k == "APPL_VERSION_L"    l = v
+		elif k == "APPL_VERSION_STR"  str = eval(v)
+		elif k == "APPL_VERSION_BETA" beta = s=="true" || s=="yes" || s=="1"
+		then
+	loop
+
+	if h# "." #m# "." #l != str
+		log "version.h: version mismatch: " #h# "." #m# "." #l# " versus " #str# nl
+		end 1
+	then
+
+	return str # (beta ? " beta" : "")
+}
 
 proc StringForText(t)
 {
@@ -106,6 +107,11 @@ proc BundleForFile(extensions,icon,mimetypes,mimetext,ostypes,role)
 			# "\t<key>LSTypeIsPackage</key>\n\t<false/>\n"
 		# "\t</dict>\n"
 }
+
+
+// zxsp version:
+//
+var version = ReadVersion()
 
 
 // create PkgInfo file:
