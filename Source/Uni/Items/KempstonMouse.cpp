@@ -5,7 +5,6 @@
 #include "KempstonMouse.h"
 #include "Machine.h"
 #include "MachineController.h"
-#include "Qt/Screen/Screen.h"
 
 
 /*	acc. to schematics on k1.spdns.de:

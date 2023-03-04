@@ -3,9 +3,9 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "Interfaces/IScreen.h"
 #include "Item.h"
 #include "kio/kio.h"
-
 
 class Crtc : public Item
 {
@@ -13,7 +13,7 @@ class Crtc : public Item
 
 protected:
 	const ZxInfo* info; // machine info
-	gui::Screen*  screen;
+	IScreen*	  screen;
 	CoreByte*	  video_ram; // current video ram
 
 	static constexpr int cc_per_byte = 4; // ula cycles per 8 pixels
@@ -31,7 +31,7 @@ public:
 	uint8		 getBorderColor() const volatile { return border_color; }
 	virtual void setBorderColor(uint8) {}
 	CoreByte*	 getVideoRam() { return video_ram; }
-	gui::Screen* getScreen() { return screen; }
+	IScreen*	 getScreen() { return screen; }
 
 	bool is60Hz() const volatile { return is60hz; }
 	bool is50Hz() const volatile { return !is60hz; }
@@ -46,7 +46,7 @@ public:
 	int			  getBytesPerLine() const volatile { return cc_per_line / cc_per_byte; } // nominal
 	virtual int32 getCcPerFrame() const volatile { return lines_per_frame * cc_per_line; }
 
-	void		  attachToScreen(gui::Screen*);
+	void		  attachToScreen(IScreen*);
 	virtual void  drawVideoBeamIndicator(int32 cc) = 0;
 	virtual int32 doFrameFlyback(int32 cc)		   = 0;
 	virtual int32 cpuCycleOfNextCrtRead()		   = 0;

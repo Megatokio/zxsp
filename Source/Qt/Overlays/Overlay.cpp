@@ -18,7 +18,7 @@
 namespace gui
 {
 
-Overlay::Overlay(Screen* scr, isa_id id, Position p) :
+Overlay::Overlay(IScreen* scr, isa_id id, Position p) :
 	IsaObject(id, isa_Overlay),
 	screen(scr),
 	position(p),
@@ -45,7 +45,7 @@ void Overlay::setZoom(int z)
 // ===================================================================
 
 
-OverlayPlay::OverlayPlay(Screen* s, Position pos) :
+OverlayPlay::OverlayPlay(IScreen* s, Position pos) :
 	Overlay(s, isa_OverlayPlay, pos),
 	background(catstr(appl_rsrc_path, "Overlays/play.png"))
 {
@@ -66,7 +66,7 @@ void OverlayPlay::draw(QPainter& p) { p.drawPixmap(x, y, w, h, background); }
 // ===================================================================
 
 
-OverlayRecord::OverlayRecord(Screen* s, Position pos) :
+OverlayRecord::OverlayRecord(IScreen* s, Position pos) :
 	Overlay(s, isa_OverlayRecord, pos),
 	background(catstr(appl_rsrc_path, "Overlays/record.png"))
 {
@@ -97,7 +97,7 @@ QColor text_color(0xccffffff);
 
 #define SZ 3 // raster size
 
-OverlayJoystick::OverlayJoystick(Screen* s, Joystick* joy, cstr idf, Position pos) :
+OverlayJoystick::OverlayJoystick(IScreen* s, Joystick* joy, cstr idf, Position pos) :
 	Overlay(s, isa_OverlayJoystick, pos),
 	joystick(joy),
 	idf(idf),
@@ -135,7 +135,7 @@ void OverlayJoystick::setZoom(int z)
 
 void OverlayJoystick::draw(QPainter& p)
 {
-	if (screen->windowState() & Qt::WindowActive && joystick->isConnected())
+	if (screen->isActive() && joystick->isConnected())
 	{
 		p.setPen(shadow_pen);
 		p.drawPolygon(arrowL);

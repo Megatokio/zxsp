@@ -14,7 +14,7 @@ static inline void memset(void* z, int byte, T size)
 }
 
 
-TVDecoderMono::TVDecoderMono(IScreenMono& screen, int32 cc_per_sec, uint8 background_color) :
+TVDecoderMono::TVDecoderMono(IScreen* screen, int32 cc_per_sec, uint8 background_color) :
 	screen(screen),
 	cc_per_sec(cc_per_sec),
 	typ_cc_per_line(int32(cc_per_sec * sec_per_scanline + 0.5f)),
@@ -33,7 +33,7 @@ TVDecoderMono::TVDecoderMono(IScreenMono& screen, int32 cc_per_sec, uint8 backgr
 {
 	frame_data	= new uint8[(max_lines_per_frame + 1) * fb_bytes_per_line];
 	frame_data2 = new uint8[(max_lines_per_frame + 1) * fb_bytes_per_line];
-	reset();
+	reset(screen);
 }
 
 TVDecoderMono::~TVDecoderMono()
@@ -42,8 +42,10 @@ TVDecoderMono::~TVDecoderMono()
 	delete[] frame_data2;
 }
 
-void TVDecoderMono::reset()
+void TVDecoderMono::reset(IScreen* s)
 {
+	screen = s;
+
 	cc_pixel_offset			= 0;
 	cc_frame_start			= 0;
 	cc_line_start			= 0;
@@ -259,7 +261,7 @@ void TVDecoderMono::send_frame(int32 cc)
 	zxsp::Size frame_size {fb_bytes_per_line << 3, max_lines_per_frame};
 	zxsp::Rect screen_rect {screen_position, zxsp::Size {256, 192}};
 
-	bool swapped = screen.sendFrame(frame_data, frame_size, screen_rect);
+	bool swapped = screen->sendFrame(frame_data, frame_size, screen_rect);
 	if (swapped) std::swap(frame_data, frame_data2);
 
 	current_line   = 0;

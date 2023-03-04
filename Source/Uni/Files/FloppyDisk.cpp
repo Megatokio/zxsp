@@ -3,7 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "FloppyDisk.h"
-#include "Qt/qt_util.h"
 #include "globals.h"
 #include "kio/peekpoke.h"
 #include "unix/files.h"

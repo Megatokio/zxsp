@@ -138,6 +138,7 @@ SOURCES +=	\
 	\
 	Source/Qt/Screen/Screen.cpp \
 	Source/Qt/Screen/ScreenMono.cpp \
+	Source/Qt/Screen/ScreenZxsp.cpp \
 	\
 	Source/Qt/Inspector/SpectraVideoInspector.cpp \
 	Source/Qt/Inspector/WalkmanInspector.cpp \
@@ -346,7 +347,6 @@ HEADERS += \
 	Libraries/kio/util/msbit.h \
 	Libraries/kio/util/count1bits.h \
 	Libraries/kio/TestTimer.h \
-	Source/Uni/Interfaces/IMachineController.h \
 	Source/version.h \
 	\
 	Libraries/unix/log.h \
@@ -474,6 +474,7 @@ HEADERS += \
 	Source/Qt/Inspector/SmartSDCardInspector.h \
 	\
 	Source/Qt/Screen/ScreenMono.h \
+	Source/Qt/Screen/ScreenZxsp.h \
 	Source/Qt/Screen/Screen.h \
 	\
 	Source/Qt/Dialogs/ConfigDialog.h \
@@ -499,7 +500,8 @@ HEADERS += \
 # zxsp Headers - ZX Spectrum Machine & Item Models:
 
 HEADERS += \
-	Source/Uni/Interfaces/IScreenMono.h \
+	Source/Uni/Interfaces/IMachineController.h \
+	Source/Uni/Interfaces/IScreen.h \
 	\
 	Source/Uni/Machine/Machine.h \
 	Source/Uni/Machine/MachineZx80.h \

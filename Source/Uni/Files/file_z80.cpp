@@ -19,13 +19,11 @@
 #include "Ram/Memotech64kRam.h"
 #include "Ram/Zx16kRam.h"
 #include "Ram/Zx3kRam.h"
-#include "Screen/Screen.h"
 #include "Ula/Mmu128k.h"
 #include "Z80/Z80.h"
 #include "Z80Head.h"
 #include "ZxIf1.h"
 #include "unix/FD.h"
-#include <QWidget>
 
 
 /* ----	write compressed .z80 block -------------------------------------------

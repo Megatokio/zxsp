@@ -7,7 +7,6 @@
 #include "Joystick.h" // physical joysticks
 #include "Machine.h"
 #include "RecentFilesMenu.h"
-#include "Screen/Screen.h"
 #include "Ula/Mmu.h"
 #include "Ula/Ula.h"
 #include "Ula/UlaZxsp.h"
@@ -546,8 +545,7 @@ int32 SpectraVideo::doFrameFlyback(int32 /*cc*/) // called from runForSound()
 		ccx = lines_before_screen * cc_per_line; // update_screen_cc
 
 		record_ioinfo(cc_frame_end, 0xfe, 0x00); // for 60Hz models: remainder of screen is black
-		assert(dynamic_cast<gui::ScreenZxsp*>(screen));
-		bool new_buffers_in_use = static_cast<gui::ScreenZxsp*>(screen)->ffb_or_vbi(
+		bool new_buffers_in_use = screen->ffb_or_vbi(
 			ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, get_flash_phase(),
 			90000 /*cc_frame_end*/);
 
@@ -572,8 +570,7 @@ void SpectraVideo::drawVideoBeamIndicator(int32 cc) // called from runForSound()
 	if (screen)
 	{
 		updateScreenUpToCycle(cc);
-		assert(dynamic_cast<gui::ScreenZxsp*>(screen));
-		bool new_buffers_in_use = static_cast<gui::ScreenZxsp*>(screen)->ffb_or_vbi(
+		bool new_buffers_in_use = screen->ffb_or_vbi(
 			ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, get_flash_phase(), cc);
 
 		if (new_buffers_in_use)

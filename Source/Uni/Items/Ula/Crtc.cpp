@@ -6,8 +6,6 @@
 #include "Item.h"
 #include "Machine.h"
 #include "MachineController.h"
-#include "Screen/Screen.h"
-#include "kio/kio.h"
 
 
 Crtc::Crtc(Machine* m, isa_id id, isa_id grp, Internal i, cstr o_addr, cstr i_addr) :
@@ -27,6 +25,7 @@ Crtc::Crtc(Machine* m, isa_id id, isa_id grp, Internal i, cstr o_addr, cstr i_ad
 
 void Crtc::powerOn(int32 cc)
 {
+	assert(screen != nullptr || this != machine->crtc);
 	Item::powerOn(cc);
 	border_color = 0;
 }
@@ -38,7 +37,7 @@ void Crtc::reset(Time t, int32 cc)
 }
 
 
-void Crtc::attachToScreen(gui::Screen* newscreen)
+void Crtc::attachToScreen(IScreen* newscreen)
 {
 	if (newscreen) // may be NULL to disconnect from any screen
 	{

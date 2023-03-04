@@ -5,17 +5,13 @@
 
 #include "IsaObject.h"
 #include <QFont>
-#include <QMainWindow>
-#include <QObject>
 #include <QPen>
 #include <QPixmap>
 #include <QPolygon>
-
+class IScreen;
 
 namespace gui
 {
-class Screen;
-class MachineController;
 
 /*
 M(		isa_OverlayPlay,		isa_Overlay,		"Overlay \"Play\"" ),
@@ -54,14 +50,14 @@ public:
 		BelowAll = Bottom, // at bottom, full width, below BottomCenter
 	};
 
-	Screen*	 screen;
+	IScreen* screen;
 	Position position;
 	int		 x, y, w, h;
 	int		 zoom;
 
 
 protected:
-	Overlay(Screen*, isa_id, Position);
+	Overlay(IScreen*, isa_id, Position);
 
 public:
 	~Overlay() override {}
@@ -77,7 +73,7 @@ public:
 	QPixmap background;
 
 public:
-	explicit OverlayPlay(Screen*, Position = TopLeft);
+	explicit OverlayPlay(IScreen*, Position = TopLeft);
 	void draw(QPainter&) override;
 };
 
@@ -88,7 +84,7 @@ public:
 	QPixmap background;
 
 public:
-	explicit OverlayRecord(Screen*, Position = TopLeft);
+	explicit OverlayRecord(IScreen*, Position = TopLeft);
 	void draw(QPainter&) override;
 };
 
@@ -108,7 +104,7 @@ public:
 	QRect	 fire;
 
 public:
-	explicit OverlayJoystick(Screen*, Joystick*, cstr idf, Position);
+	explicit OverlayJoystick(IScreen*, Joystick*, cstr idf, Position);
 	void draw(QPainter&) override;
 	void setZoom(int) override;
 };

@@ -65,7 +65,6 @@
 #include "Ram/Memotech64kRam.h"
 #include "Ram/Zx16kRam.h"
 #include "Ram/Zx3kRam.h"
-#include "Screen/Screen.h"
 #include "SpectraVideo.h"
 #include "TapeRecorder.h"
 #include "Templates/NVPtr.h"
@@ -804,7 +803,7 @@ void Machine::removeSpectraVideo()
 	if (!spectra) return;
 
 	assert(crtc);
-	gui::Screen* screen = crtc->getScreen();
+	IScreen* screen = crtc->getScreen();
 	removeItem(spectra);
 
 	if (crtc == spectra)
@@ -832,7 +831,7 @@ SpectraVideo* Machine::addSpectraVideo(uint dip_switches)
 	if (spectra) return spectra;
 
 	assert(crtc);
-	gui::Screen* screen = crtc->getScreen();
+	IScreen* screen = crtc->getScreen();
 	crtc->attachToScreen(nullptr);
 
 	spectra = find<SpectraVideo>();

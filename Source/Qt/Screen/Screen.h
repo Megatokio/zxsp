@@ -3,9 +3,10 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "Interfaces/IScreen.h"
 #include "Item.h"
 #include "Overlays/Overlay.h"
-#include "Tc2048Renderer.h"
+#include "Renderer.h"
 #include "zxsp_types.h"
 #include <QGLWidget>
 #include <QMutex>
@@ -20,7 +21,7 @@ namespace gui
 #define V_BORDER_MAX 48
 
 
-class Screen : public QGLWidget
+class Screen : public QGLWidget, public IScreen
 {
 	class RenderThread* render_thread;
 	friend class RenderThread;
@@ -70,7 +71,14 @@ protected:
 public:
 	~Screen() override;
 
-	void setFlavour(isa_id);
+	// Interface IScreen:
+	void setFlavour(isa_id) override;
+	int	 getZoom() const override { return zoom; /*minmax(1, min(width()/256, height()/192), 4); */ }
+	void addOverlay(Overlay*) override { logline("Screen:addOverlay(): TODO"); }
+	void removeOverlay(Overlay*) override { logline("Screen:removeOverlay(): TODO"); }
+	bool isActive() const override { return windowState() & Qt::WindowActive; }
+
+
 	void repaint();
 
 	void saveScreenshot(cstr path);
@@ -85,15 +93,12 @@ public:
 		return i == j;
 	}
 
-	int		  getZoom() const { return zoom; /*minmax(1, min(width()/256, height()/192), 4); */ }
 	uint	  getFramesHit() const { return uint(frames_hit_percent + 0.5f); }
 	Renderer* getScreenRenderer() const { return screen_renderer; }
 	int		  getLeftBorder() const { return ((width() + zoom - 1) / zoom + 1 - 256) / 2 * zoom; }
 	int		  getTopBorder() const { return ((height() + zoom - 1) / zoom + 1 - 192) / 2 * zoom; }
 	int		  getHF() const { return (screen_renderer->width - 2 * screen_renderer->h_border) / 256; }
 
-
-public:
 	union
 	{
 		Overlay* overlays[2];
@@ -110,37 +115,35 @@ public:
 	void	 hideOverlayPlay() { showOverlayPlay(false); }
 	void	 showOverlayRecord(bool = true);
 	void	 hideOverlayRecord() { showOverlayRecord(false); }
-	void	 addOverlay(Overlay*) { logline("Screen:addOverlay(): TODO"); }
-	void	 removeOverlay(Overlay*) { logline("Screen:removeOverlay(): TODO"); }
-};
-
-
-// ==========================================================
-//			Sub Classes
-// ==========================================================
-
-
-class ScreenZxsp : public Screen
-{
-	uint8*	_attrpixels;
-	IoInfo* _ioinfo;
-	uint	_ioinfo_count;
-	uint	_cc_per_scanline;
-	uint32	_cc_start_of_screenfile;
-	uint32	_cc;
-	bool	_flashphase;
-
-protected:
-	void do_ffb_or_vbi() override;
-
-public:
-	explicit ScreenZxsp(QWidget* owner, isa_id id = isa_ScreenZxsp) : Screen(owner, id) {}
-	ScreenZxsp(const ScreenZxsp&)			 = delete;
-	ScreenZxsp& operator=(const ScreenZxsp&) = delete;
-
-	bool ffb_or_vbi(
-		IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint32 cc_start_of_screenfile, uint cc_per_scanline,
-		bool flashphase, uint32 cc);
 };
 
 } // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

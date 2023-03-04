@@ -3,13 +3,12 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "Interfaces/IScreenMono.h"
 #include "Screen.h"
 
 namespace gui
 {
 
-class ScreenMono : public Screen, public IScreenMono
+class ScreenMono : public Screen
 {
 	// uint16*	_attrpixels;
 	// IoInfo*	_ioinfo;
@@ -27,18 +26,26 @@ class ScreenMono : public Screen, public IScreenMono
 	uint32 _cc;
 
 protected:
-	// ScreenMono(QWidget*p,isa_id id) :Screen(p,id){}
 	void do_ffb_or_vbi() override;
 	void paint_screen(bool draw_passepartout = yes) override;
 
 public:
+	NO_COPY(ScreenMono);
 	explicit ScreenMono(QWidget* p) : Screen(p, isa_ScreenMono) {}
-	ScreenMono(const ScreenMono&)			 = delete;
-	ScreenMono& operator=(const ScreenMono&) = delete;
+
+	// Interface IScreen:
+
+	// void setFlavour(isa_id id)
+	// int  getZoom() const
+	// void addOverlay(Overlay* o)
+	// void removeOverlay(Overlay* o)
+	// bool isActive() const
 
 	__attribute__((__deprecated__)) bool
-	ffb_or_vbi(uint8* new_pixels, int frame_w, int frame_h, int scrn_w, int scrn_h, int x0, int y0, uint32 cc);
-	virtual bool sendFrame(uint8* frame_data, const zxsp::Size& frame_size, const zxsp::Rect& screen) override;
+	ffb_or_vbi(uint8* new_pixels, int frame_w, int frame_h, int scrn_w, int scrn_h, int x0, int y0, uint32 cc) override;
+	bool sendFrame(uint8* frame_data, const zxsp::Size& frame_size, const zxsp::Rect& screen) override;
+
+	bool ffb_or_vbi(IoInfo*, uint, uint8*, uint32, uint, bool, uint32) override { IERR(); } // color only
 };
 
 } // namespace gui
