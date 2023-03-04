@@ -3,7 +3,7 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #pragma once
-#include "IScreenMono.h"
+#include "Interfaces/IScreenMono.h"
 #include "kio/kio.h"
 
 /*

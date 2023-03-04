@@ -95,6 +95,7 @@ std::shared_ptr<Machine> MachineController::newMachineForModel(Model model)
 	assert(in_machine_ctor);
 
 	std::shared_ptr<Machine> m = Machine::newMachine(this, model);
+	m->crtc->attachToScreen(screen);
 
 	switch (model)
 	{
@@ -504,7 +505,7 @@ void MachineController::loadSnapshot(cstr filename)
 		if (rzx) // wir haben ein rzx file und der snapshot wurde geladen
 		{		 // der state nach getSnapshot() ist playing oder endoffile
 			assert(!machine->rzxIsLoaded());
-			machine->rzxPlayFile(rzx);
+			machine->rzxPlayFile(rzx, action_RzxRecordAutostart->isChecked());
 			if (rzx->isPlaying())
 			{
 				action_RzxRecord->setChecked(false);
@@ -516,7 +517,7 @@ void MachineController::loadSnapshot(cstr filename)
 			else
 			{
 				showWarning("The rzx file only contained a snapshot. Recording to rzx file started!");
-				action_RzxRecord->setChecked(false);
+				action_RzxRecord->setChecked(true);
 			}
 		}
 	}
@@ -1924,6 +1925,7 @@ void MachineController::setRzxAutostartRecording(bool f)
 {
 	// toggle setting for "during rzx playback autostart recording on any key press":
 
+	machine->rzxSetAutoStartRecording(f);
 	settings.setValue(key_rzx_autostart_recording, f);
 }
 

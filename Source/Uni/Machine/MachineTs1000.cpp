@@ -9,7 +9,7 @@
 #include "TapeRecorder.h"
 
 
-MachineTs1000::MachineTs1000(gui::MachineController* m) : MachineZx81(m, isa_MachineTs1000, ts1000)
+MachineTs1000::MachineTs1000(IMachineController* m) : MachineZx81(m, isa_MachineTs1000, ts1000)
 {
 	addItem(new Z80(this));		// must be 1st item
 	addItem(new UlaZx81(this)); // should be 2nd item

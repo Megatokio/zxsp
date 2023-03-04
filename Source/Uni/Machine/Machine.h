@@ -5,6 +5,7 @@
 
 #include "Fdc/DivIDE.h"
 #include "Files/RzxFile.h"
+#include "Interfaces/IMachineController.h"
 #include "IsaObject.h"
 #include "Joy/ZxIf2.h"
 #include "Memory.h"
@@ -68,7 +69,7 @@ class Machine : public IsaObject
 	NO_COPY_MOVE(Machine);
 
 	friend void runMachinesForSound();
-	friend class gui::MachineController;
+	friend class IMachineController;
 	friend class Item;
 	friend class Z80;
 
@@ -80,7 +81,7 @@ public:
 	bool trylock() volatile { return NV(mutex).try_lock(); }
 	bool trylock(int timeout_nsec) volatile { return NV(mutex).try_lock_for(std::chrono::nanoseconds(timeout_nsec)); }
 
-	volatile gui::MachineController* controller;
+	volatile IMachineController* controller;
 
 	// general info
 	Model		  model;
@@ -95,7 +96,8 @@ private:
 	bool is_power_on;
 	bool is_suspended;
 
-	class RzxFile* rzx_file; // Rzx Replay and Recording
+	bool		   rzx_auto_start_recording = no; // TODO: auto start recording should be fully handled by controller
+	class RzxFile* rzx_file;					  // Rzx Replay and Recording
 	gui::Overlay*  overlay_rzx_play;
 	gui::Overlay*  overlay_rzx_record;
 	void		   showOverlayPlay();
@@ -205,22 +207,18 @@ protected:
 	void		  videoFrameEnd(int32 cc);
 	void		  audioBufferEnd(Time t);
 
+public:
 	bool rzxIsLoaded() const volatile { return rzx_file != nullptr; }
 	bool rzxIsPlaying() const { return rzx_file != nullptr && rzx_file->isPlaying(); }
 	bool rzxIsRecording() const { return rzx_file != nullptr && rzx_file->isRecording(); }
 
-	void rzxPlayFile(RzxFile*); // take-over and play the supplied RzxFile
+	void rzxPlayFile(RzxFile*, bool auto_start_recording); // take-over and play the supplied RzxFile
 	void rzxDispose();
 	void rzxStartRecording(cstr msg = nullptr, bool yellow = no);
 	void rzxStopRecording(cstr msg = nullptr, bool yellow = no);
 	void rzxStopPlaying(cstr msg = nullptr, bool yellow = no);
 	void rzxOutOfSync(cstr msg, bool alert = no);
-
-	Machine(gui::MachineController*, Model, isa_id);
-
-private:
-	void init_contended_ram();
-	void load_rom();
+	void rzxSetAutoStartRecording(bool f) volatile { rzx_auto_start_recording = f; }
 
 	// in Files/*.cpp:
 	virtual void loadAce(FD& fd);			// MachineJupiter.cpp
@@ -240,13 +238,20 @@ private:
 	void loadRom(FD& fd);
 	void saveRom(FD& fd);
 
+protected:
+	Machine(IMachineController*, Model, isa_id);
+
+private:
+	void init_contended_ram();
+	void load_rom();
+
 	void loadZ80_attach_joysticks(uint); // helper
 
 
 	// ---- P U B L I C ----------------------------------------------------
 
 public:
-	static std::shared_ptr<Machine> newMachine(gui::MachineController*, Model);
+	static std::shared_ptr<Machine> newMachine(IMachineController*, Model);
 
 	~Machine() override;
 

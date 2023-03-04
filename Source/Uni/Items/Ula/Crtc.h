@@ -31,6 +31,7 @@ public:
 	uint8		 getBorderColor() const volatile { return border_color; }
 	virtual void setBorderColor(uint8) {}
 	CoreByte*	 getVideoRam() { return video_ram; }
+	gui::Screen* getScreen() { return screen; }
 
 	bool is60Hz() const volatile { return is60hz; }
 	bool is50Hz() const volatile { return !is60hz; }

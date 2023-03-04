@@ -11,7 +11,7 @@
 class MachineZxPlus3 : public MachineZxPlus2a
 {
 public:
-	MachineZxPlus3(gui::MachineController*, Model);
+	MachineZxPlus3(IMachineController*, Model);
 
 	void insertDisk(cstr fpath, char side = 'A');
 };

@@ -10,7 +10,7 @@
 #include "Ula/MmuTk85.h"
 
 
-MachineTk85::MachineTk85(gui::MachineController* m, bool is60hz) : MachineZx81(m, isa_MachineTk85, tk85)
+MachineTk85::MachineTk85(IMachineController* m, bool is60hz) : MachineZx81(m, isa_MachineTk85, tk85)
 {
 	addItem(new Z80(this));
 	addItem(new UlaZx81(this));

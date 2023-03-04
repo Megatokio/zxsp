@@ -3,13 +3,13 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "Interfaces/IMachineController.h"
 #include "IsaObject.h"
 #include "ZxInfo/ZxInfo.h"
 #include "cpp/cppthreads.h"
 #include "zxsp_types.h"
 #include <QActionGroup>
 #include <QMainWindow>
-
 
 namespace gui
 {
@@ -23,7 +23,7 @@ extern void showWarning(cstr msg, ...) __printflike(1, 2); // thread-safe  "yell
 extern void showInfo(cstr msg, ...) __printflike(1, 2);	   // thread-safe  a friendly information alert
 
 
-class MachineController : public QMainWindow
+class MachineController : public QMainWindow, public IMachineController
 {
 	Q_OBJECT
 	Q_DISABLE_COPY(MachineController)
@@ -165,11 +165,11 @@ public:
 	QList<QAction*> getKeyboardActions();
 	ToolWindow*		findToolWindowForItem(const volatile IsaObject* item);
 
-	void memoryModified(Memory* m, uint how) volatile; // callback from machine
-	void machineSuspendStateChanged() volatile;		   // callback from machine
-	void rzxStateChanged() volatile;				   // callback from machine
-	void itemAdded(std::shared_ptr<Item>) volatile;	   // callback from machine
-	void itemRemoved(Item*) volatile;				   // callback from machine
+	void memoryModified(Memory* m, uint how) volatile override; // callback from machine
+	void machineSuspendStateChanged() volatile override;		// callback from machine
+	void rzxStateChanged() volatile override;					// callback from machine
+	void itemAdded(std::shared_ptr<Item>) volatile override;	// callback from machine
+	void itemRemoved(Item*) volatile override;					// callback from machine
 
 signals:
 	void signal_keymapModified();

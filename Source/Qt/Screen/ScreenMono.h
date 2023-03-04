@@ -3,7 +3,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "IScreenMono.h"
+#include "Interfaces/IScreenMono.h"
 #include "Screen.h"
 
 namespace gui

@@ -346,6 +346,7 @@ HEADERS += \
 	Libraries/kio/util/msbit.h \
 	Libraries/kio/util/count1bits.h \
 	Libraries/kio/TestTimer.h \
+	Source/Uni/Interfaces/IMachineController.h \
 	Source/version.h \
 	\
 	Libraries/unix/log.h \
@@ -498,6 +499,8 @@ HEADERS += \
 # zxsp Headers - ZX Spectrum Machine & Item Models:
 
 HEADERS += \
+	Source/Uni/Interfaces/IScreenMono.h \
+	\
 	Source/Uni/Machine/Machine.h \
 	Source/Uni/Machine/MachineZx80.h \
 	Source/Uni/Machine/MachineZx81.h \
@@ -626,7 +629,6 @@ HEADERS += \
 	Source/Uni/Video/Renderer.h \
 	Source/Uni/Video/MonoRenderer.h \
 	Source/Uni/Video/SpectraRenderer.h \
-	Source/Uni/Video/IScreenMono.h \
 	Source/Uni/Video/TVDecoderMono.h \
 	\
 	Source/Uni/ZxInfo/ZxInfo.h \

@@ -10,7 +10,7 @@
 #include "Ula/UlaPlus3.h"
 
 
-MachineZxPlus3::MachineZxPlus3(gui::MachineController* m, Model model) : MachineZxPlus2a(m, model, isa_MachineZxPlus3)
+MachineZxPlus3::MachineZxPlus3(IMachineController* m, Model model) : MachineZxPlus2a(m, model, isa_MachineZxPlus3)
 {
 	assert(model == zxplus3 || model == zxplus3_span);
 

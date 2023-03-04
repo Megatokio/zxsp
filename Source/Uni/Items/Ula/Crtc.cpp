@@ -13,7 +13,7 @@
 Crtc::Crtc(Machine* m, isa_id id, isa_id grp, Internal i, cstr o_addr, cstr i_addr) :
 	Item(m, id, grp, i, o_addr, i_addr),
 	info(m->model_info),
-	screen(machine->controller->getScreen()),
+	screen(nullptr), //(machine->controller->getScreen()),
 	video_ram(machine->ram.getData()),
 	lines_in_screen(info->lines_in_screen),
 	lines_before_screen(info->lines_before_screen),

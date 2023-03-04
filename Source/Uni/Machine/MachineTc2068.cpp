@@ -13,7 +13,7 @@
 #include "ZxInfo.h"
 
 
-MachineTc2068::MachineTc2068(gui::MachineController* m, Model model) : MachineTc2048(m, model, isa_MachineTc2068)
+MachineTc2068::MachineTc2068(IMachineController* m, Model model) : MachineTc2048(m, model, isa_MachineTc2068)
 {
 	addItem(new Z80(this));						 // must be 1st item
 	addItem(new UlaTc2048(this, isa_UlaTc2068)); // should be 2nd item

@@ -12,13 +12,13 @@
 class MachineZx81 : public Machine
 {
 protected:
-	MachineZx81(gui::MachineController* parent, isa_id id, Model);
+	MachineZx81(IMachineController* parent, isa_id id, Model);
 
 	bool handleSaveTapePatch() override;
 	bool handleLoadTapePatch() override;
 
 public:
-	explicit MachineZx81(gui::MachineController*);
+	explicit MachineZx81(IMachineController*);
 
 	int32 nmiAtCycle(int32 cc_nmi) override { return static_cast<UlaZx81*>(ula)->nmiAtCycle(cc_nmi); }
 

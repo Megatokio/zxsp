@@ -152,7 +152,7 @@ void runMachinesForSound()
 // ########################################################################
 
 
-std::shared_ptr<Machine> Machine::newMachine(gui::MachineController* mc, Model model)
+std::shared_ptr<Machine> Machine::newMachine(IMachineController* mc, Model model)
 {
 	// create Machine instance for model
 	// the machine is not powered on.
@@ -205,7 +205,7 @@ std::shared_ptr<Machine> Machine::newMachine(gui::MachineController* mc, Model m
 	IERR();
 }
 
-Machine::Machine(gui::MachineController* parent, Model model, isa_id id) :
+Machine::Machine(IMachineController* parent, Model model, isa_id id) :
 	IsaObject(id, isa_Machine),
 	mutex(), //_lock(PLock::recursive),
 	controller(parent),
@@ -803,6 +803,8 @@ void Machine::removeSpectraVideo()
 	auto* spectra = find<SpectraVideo>();
 	if (!spectra) return;
 
+	assert(crtc);
+	gui::Screen* screen = crtc->getScreen();
 	removeItem(spectra);
 
 	if (crtc == spectra)
@@ -810,7 +812,7 @@ void Machine::removeSpectraVideo()
 		crtc = find<Crtc>();
 		if (crtc)
 		{
-			crtc->attachToScreen(controller->getScreen());
+			crtc->attachToScreen(screen);
 			cpu->setCrtc(crtc);
 			if (isPowerOn()) crtc->powerOn(cpu->cpuCycle());
 		}
@@ -830,12 +832,13 @@ SpectraVideo* Machine::addSpectraVideo(uint dip_switches)
 	if (spectra) return spectra;
 
 	assert(crtc);
+	gui::Screen* screen = crtc->getScreen();
 	crtc->attachToScreen(nullptr);
 
 	spectra = find<SpectraVideo>();
 	if (!spectra) addItem(spectra = new SpectraVideo(this, dip_switches));
 
-	spectra->attachToScreen(controller->getScreen());
+	spectra->attachToScreen(screen);
 	cpu->setCrtc(spectra);
 	if (isPowerOn()) spectra->powerOn(cpu->cpuCycle());
 
@@ -1105,7 +1108,7 @@ void Machine::runForSound(int32 cc_final)
 						if (rzx_file->isPlaying()) continue;
 					}
 
-					if (controller->isRzxAutostartRecording()) { rzxStartRecording(); }
+					if (rzx_auto_start_recording) { rzxStartRecording(); }
 					else // no autoStartRecording => OutOfSync
 					{
 						rzxStopPlaying("RZX file playback ended.");
@@ -1462,14 +1465,14 @@ void Machine::drawVideoBeamIndicator()
 
 gui::OverlayJoystick* Machine::addOverlay(Joystick* joy, cstr idf, gui::Overlay::Position pos)
 {
-	gui::OverlayJoystick* o = new gui::OverlayJoystick(controller->getScreen(), joy, idf, pos);
-	controller->getScreen()->addOverlay(o);
+	gui::OverlayJoystick* o = new gui::OverlayJoystick(crtc->getScreen(), joy, idf, pos);
+	crtc->getScreen()->addOverlay(o);
 	return o;
 }
 
 void Machine::removeOverlay(gui::Overlay* o)
 {
-	if (o) controller->getScreen()->removeOverlay(o);
+	if (o) crtc->getScreen()->removeOverlay(o);
 }
 
 void Machine::hideOverlayPlay()
@@ -1488,16 +1491,16 @@ void Machine::showOverlayPlay()
 {
 	hideOverlayRecord();
 	if (overlay_rzx_play) return;
-	overlay_rzx_play = new gui::OverlayPlay(controller->getScreen());
-	controller->getScreen()->addOverlay(overlay_rzx_play);
+	overlay_rzx_play = new gui::OverlayPlay(crtc->getScreen());
+	crtc->getScreen()->addOverlay(overlay_rzx_play);
 }
 
 void Machine::showOverlayRecord()
 {
 	hideOverlayPlay();
 	if (overlay_rzx_record) return;
-	overlay_rzx_record = new gui::OverlayRecord(controller->getScreen());
-	controller->getScreen()->addOverlay(overlay_rzx_record);
+	overlay_rzx_record = new gui::OverlayRecord(crtc->getScreen());
+	crtc->getScreen()->addOverlay(overlay_rzx_record);
 }
 
 void Machine::rzxLoadSnapshot(int32& cc_final, int32& ic_end)
@@ -1620,11 +1623,12 @@ void Machine::rzxStopPlaying(cstr msg, bool yellow)
 	rzxDispose();
 }
 
-void Machine::rzxPlayFile(RzxFile* rzx)
+void Machine::rzxPlayFile(RzxFile* rzx, bool auto_start_recording)
 {
 	// store the passed RzxFile and start playing
 	// eventually immediately switch to recording, if the file is at end
 
+	rzx_auto_start_recording = auto_start_recording;
 	if (rzxIsLoaded()) rzxDispose();
 	rzx_file = rzx;
 

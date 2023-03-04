@@ -26,7 +26,7 @@ kio: so i believe this TK90X info also applies:
 	and NTSC (60 Hz) as used in USA and many other countries.
 */
 
-MachineTk95::MachineTk95(gui::MachineController* m, bool is60hz) : MachineZxsp(m, tk95, isa_MachineTk95)
+MachineTk95::MachineTk95(IMachineController* m, bool is60hz) : MachineZxsp(m, tk95, isa_MachineTk95)
 {
 	addItem(new Z80(this));
 	addItem(new UlaTk90x(this, is60hz));

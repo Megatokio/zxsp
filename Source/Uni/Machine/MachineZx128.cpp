@@ -13,9 +13,9 @@
 #include "ZxInfo.h"
 
 
-MachineZx128::MachineZx128(gui::MachineController* m, Model model, isa_id id) : MachineZxsp(m, model, id) {}
+MachineZx128::MachineZx128(IMachineController* m, Model model, isa_id id) : MachineZxsp(m, model, id) {}
 
-MachineZx128::MachineZx128(gui::MachineController* m, Model model) : MachineZxsp(m, model, zx_info[model].id)
+MachineZx128::MachineZx128(IMachineController* m, Model model) : MachineZxsp(m, model, zx_info[model].id)
 {
 	assert(model == zx128 || model == zx128_span);
 	assert(model_info->id == isa_MachineZx128);
