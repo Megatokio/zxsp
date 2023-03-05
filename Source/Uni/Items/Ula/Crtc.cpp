@@ -39,14 +39,6 @@ void Crtc::reset(Time t, int32 cc)
 
 void Crtc::attachToScreen(IScreen* newscreen)
 {
-	if (newscreen) // may be NULL to disconnect from any screen
-	{
-		if (this->isA(isa_UlaZxsp)) newscreen->setFlavour(this->isA(isa_UlaTc2048) ? isa_ScreenTc2048 : isa_ScreenZxsp);
-		else if (this->isA(isa_UlaJupiter)) newscreen->setFlavour(isa_ScreenMono); // just for safety
-		else if (this->isA(isa_UlaZx80)) newscreen->setFlavour(isa_ScreenMono);	   // there's no choice for b&w
-		else if (this->isA(isa_SpectraVideo)) newscreen->setFlavour(isa_ScreenSpectra);
-		else IERR();
-	}
 	screen = newscreen;
-	markVideoRam();
+	if (screen) markVideoRam();
 }

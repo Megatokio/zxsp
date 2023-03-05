@@ -71,8 +71,7 @@ protected:
 public:
 	~Screen() override;
 
-	// Interface IScreen:
-	void setFlavour(isa_id) override;
+	void setFlavour(isa_id);
 	int	 getZoom() const { return zoom; /*minmax(1, min(width()/256, height()/192), 4); */ }
 	void addOverlay(Overlay*) { logline("Screen:addOverlay(): TODO"); }
 	void removeOverlay(Overlay*) { logline("Screen:removeOverlay(): TODO"); }

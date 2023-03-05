@@ -1884,8 +1884,13 @@ void MachineController::addSpectraVideo(bool add)
 		if (settings.get_bool(key_spectra_enable_new_video_modes, true)) dip_switches |= Dip::EnableNewVideoModes;
 
 		nvptr(machine)->addSpectraVideo(dip_switches);
+		screen->setFlavour(isa_ScreenSpectra);
 	}
-	else nvptr(machine)->removeSpectraVideo();
+	else
+	{
+		nvptr(machine)->removeSpectraVideo();
+		screen->setFlavour(machine->isA(isa_UlaTc2048) ? isa_ScreenTc2048 : isa_ScreenZxsp);
+	}
 
 	if (f) machine->powerOn();
 
@@ -2150,7 +2155,6 @@ void MachineController::removeOverlayJoy(Item* item)
 	default: break;
 	}
 }
-
 
 void MachineController::rzxStateChanged() volatile
 {

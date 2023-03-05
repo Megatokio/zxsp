@@ -26,9 +26,8 @@ using Rect	= geometry::Rect<coord>;
 class IScreen
 {
 public:
-	IScreen() noexcept				= default;
-	virtual ~IScreen() noexcept		= default;
-	virtual void setFlavour(isa_id) = 0;
+	IScreen() noexcept			= default;
+	virtual ~IScreen() noexcept = default;
 
 	// function to send a frame
 	// all metrics in pixels.
@@ -50,7 +49,6 @@ public:
 class NoScreen : public IScreen
 {
 public:
-	void setFlavour(isa_id) override {}
 	bool ffb_or_vbi(uint8*, int, int, int, int, int, int, uint32) override { return true; }
 	bool sendFrame(uint8*, const zxsp::Size&, const zxsp::Rect&) override { return true; }
 	bool ffb_or_vbi(IoInfo*, uint, uint8*, uint32, uint, bool, uint32) override { return true; }
