@@ -43,10 +43,9 @@ class SmartSDCard final : public MassStorage
 	MemoryPtr ram;
 	MemoryPtr rom;
 
-	Joystick*			  joystick;
-	gui::OverlayJoystick* overlay;
-	SDCard*				  sd_card;
-	Sio*				  sio;
+	Joystick* joystick;
+	SDCard*	  sd_card;
+	Sio*	  sio;
 
 	// i/o registers:
 	// ram_config = config & 0x00FF
@@ -82,9 +81,11 @@ public:
 	void enableFlashWrite(bool);
 
 	// Joystick handling:
-	void	   setJoystickEnabled(bool);
-	void	   insertJoystick(int id) volatile;
-	JoystickID getJoystickID() const volatile { return indexof(joystick); }
+	void			setJoystickEnabled(bool);
+	void			insertJoystick(int id) volatile;
+	JoystickID		getJoystickID() const volatile { return indexof(joystick); }
+	const Joystick* getJoystick() const { return dip_joystick_enabled & JoystickEnabled ? joystick : nullptr; }
+	cstr			getIdf() const volatile { return "K"; }
 
 protected:
 	~SmartSDCard() override;

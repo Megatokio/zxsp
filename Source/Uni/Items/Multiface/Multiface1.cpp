@@ -97,13 +97,12 @@ static constexpr cstr i_addr = "----.----.-001.--1-"; // nmi-taster wieder schar
 Multiface1::Multiface1(Machine* m, bool enable_joystick) :
 	Multiface(m, isa_Multiface1, "Roms/mf1.rom", o_addr, i_addr),
 	joystick(nullptr),
-	overlay(nullptr),
 	joystick_enabled(enable_joystick)
 {
 	insertJoystick(usb_joystick0);
 }
 
-Multiface1::~Multiface1() { machine->removeOverlay(overlay); }
+Multiface1::~Multiface1() {}
 
 
 void Multiface1::powerOn(/*t=0*/ int32 cc)
@@ -185,15 +184,4 @@ void Multiface1::triggerNmi()
 }
 
 
-void Multiface1::insertJoystick(int id)
-{
-	if (joystick == joysticks[id]) return;
-
-	if (overlay)
-	{
-		machine->removeOverlay(overlay);
-		overlay = nullptr;
-	}
-	joystick = joysticks[id];
-	if (id != no_joystick) overlay = machine->addOverlay(joystick, "K", gui::Overlay::TopRight);
-}
+void Multiface1::insertJoystick(int id) { joystick = joysticks[id]; }

@@ -8,6 +8,7 @@
 #include "Dialogs/ConfigureKeyboardJoystickDialog.h"
 #include "Fdc/DivIDE.h"
 #include "Fdc/Fdc.h"
+#include "Fdc/SmartSDCard.h"
 #include "Files/RzxFile.h"
 #include "Files/Z80Head.h"
 #include "Items/Ay/Ay.h"
@@ -2047,8 +2048,11 @@ void MachineController::item_added(std::weak_ptr<Item> item_wp, bool force)
 	case isa_Joy:
 		showaction->setShortcut(CTRL | Qt::Key_J);
 		showaction->setIcon(
-			QIcon(dynamic_cast<Joy&>(*item).getNumPorts() == 1 ? ":/Icons/joystick-1.gif" : ":/Icons/joystick-2.gif"));
-		break;
+			QIcon(dynamic_cast<Joy*>(item)->getNumPorts() == 1 ? ":/Icons/joystick-1.gif" : ":/Icons/joystick-2.gif"));
+		FALLTHROUGH
+	case isa_SpectraVideo:
+	case isa_Multiface1:
+	case isa_SmartSDCard: addOverlayJoy(item); break;
 	}
 
 	window_menu->insertAction(separator, showaction);
@@ -2088,7 +2092,65 @@ void MachineController::item_removed(Item* item, bool force)
 		addAction->setEnabled(true);
 		addAction->blockSignals(false);
 	}
+
+	removeOverlayJoy(item);
 }
+
+void MachineController::addOverlayJoy(Item* item)
+{
+	switch (item->grp_id)
+	{
+	case isa_Joy:
+	{
+		auto* joy = dynamic_cast<Joy*>(item);
+		assert(joy);
+		for (uint i = 0; i < joy->getNumPorts(); i++)
+		{
+			if (auto* j = joy->getJoystick(i))
+				screen->addOverlay(new OverlayJoystick(screen, j, joy->getIdf(i), gui::Overlay::TopRight));
+		}
+		break;
+	}
+	case isa_SpectraVideo:
+	{
+		auto* spectra = dynamic_cast<SpectraVideo*>(item);
+		assert(spectra);
+		if (auto* j = spectra->getJoystick())
+			screen->addOverlay(new OverlayJoystick(screen, j, spectra->getIdf(), gui::Overlay::TopRight));
+		break;
+	}
+	case isa_Multiface1:
+	{
+		auto* mf1 = dynamic_cast<Multiface1*>(item);
+		assert(mf1);
+		if (auto* j = mf1->getJoystick())
+			screen->addOverlay(new OverlayJoystick(screen, j, mf1->getIdf(), gui::Overlay::TopRight));
+		break;
+	}
+	case isa_SmartSDCard:
+	{
+		auto* sdcard = dynamic_cast<SmartSDCard*>(item);
+		assert(sdcard);
+		if (auto* j = sdcard->getJoystick())
+			screen->addOverlay(new OverlayJoystick(screen, j, sdcard->getIdf(), gui::Overlay::TopRight));
+		break;
+	}
+	default: break;
+	}
+}
+
+void MachineController::removeOverlayJoy(Item* item)
+{
+	switch (item->grp_id)
+	{
+	case isa_SpectraVideo:
+	case isa_Multiface1:
+	case isa_SmartSDCard:
+	case isa_Joy:
+	default: break;
+	}
+}
+
 
 void MachineController::rzxStateChanged() volatile
 {
@@ -2096,9 +2158,44 @@ void MachineController::rzxStateChanged() volatile
 
 	QTimer::singleShot(0, NV(this), [this] {
 		assert(isMainThread());
+
+		bool is_recording, is_playing;
+		{
+			NVPtr<Machine> m(NV(machine).get());
+			is_recording = m->rzxIsRecording();
+			is_playing	 = m->rzxIsPlaying();
+		}
+
 		action_RzxRecord->blockSignals(true);
-		action_RzxRecord->setChecked(nvptr(NV(this)->machine)->rzxIsRecording());
+		action_RzxRecord->setChecked(is_recording);
 		action_RzxRecord->blockSignals(false);
+
+		if (!!overlay_rzx_record != is_recording)
+		{
+			if (overlay_rzx_record)
+			{
+				screen->removeOverlay(overlay_rzx_record);
+				overlay_rzx_record = nullptr;
+			}
+			else
+			{
+				overlay_rzx_record = new OverlayRecord(screen);
+				screen->addOverlay(overlay_rzx_record);
+			}
+		}
+		if (!!overlay_rzx_play != is_playing)
+		{
+			if (overlay_rzx_play)
+			{
+				screen->removeOverlay(overlay_rzx_play);
+				overlay_rzx_play = nullptr;
+			}
+			else
+			{
+				overlay_rzx_play = new OverlayPlay(screen);
+				screen->addOverlay(overlay_rzx_play);
+			}
+		}
 	});
 }
 

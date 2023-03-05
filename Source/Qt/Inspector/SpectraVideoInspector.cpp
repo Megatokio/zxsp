@@ -8,6 +8,7 @@
 #include "Items/SpectraVideo.h"
 #include "Joystick.h" // physical joysticks
 #include "Machine.h"
+#include "MachineController.h"
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
 #include "RecentFilesMenu.h"
@@ -18,7 +19,6 @@
 #include <QMenu>
 #include <QPushButton>
 #include <QTimer>
-
 
 namespace gui
 {
@@ -49,15 +49,15 @@ SpectraVideoInspector::SpectraVideoInspector(QWidget* w, MachineController* mc, 
 	js_selector->setFixedWidth(110);
 	connect(
 		js_selector, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
-		&SpectraVideoInspector::slot_js_selector_selected);
+		&SpectraVideoInspector::slotJoystickSelected);
 
 	button_scan_usb = new QPushButton("Scan USB", this);
 	button_scan_usb->setMinimumWidth(100);
-	connect(button_scan_usb, &QPushButton::clicked, this, &SpectraVideoInspector::slot_find_usb_joysticks);
+	connect(button_scan_usb, &QPushButton::clicked, this, &SpectraVideoInspector::slotFindUsbJoysticks);
 
 	button_set_keys = new QPushButton("Set Keys", this);
 	button_set_keys->setMinimumWidth(100);
-	connect(button_set_keys, &QPushButton::clicked, this, &SpectraVideoInspector::slot_set_keyboard_joystick_keys);
+	connect(button_set_keys, &QPushButton::clicked, this, &SpectraVideoInspector::slotSetKeyboardJoystickKeys);
 
 	int x1 = 20 - 5, x2 = 130 - 7, x3 = 208 - 10, x4 = 290;
 
@@ -66,15 +66,15 @@ SpectraVideoInspector::SpectraVideoInspector(QWidget* w, MachineController* mc, 
 	int ya = 227 + 3, yb = ya + dy, yc = yb + dy, yd = yc + dy; // checkboxes
 
 	checkbox_if1_rom_hooks = new QCheckBox("IF1Rom hooks", this);
-	connect(checkbox_if1_rom_hooks, &QCheckBox::toggled, this, &SpectraVideoInspector::slot_enable_if1_rom_hooks);
+	connect(checkbox_if1_rom_hooks, &QCheckBox::toggled, this, &SpectraVideoInspector::slotEnableIf1RomHooks);
 	checkbox_rs232 = new QCheckBox("RS232", this);
-	connect(checkbox_rs232, &QCheckBox::toggled, this, &SpectraVideoInspector::slot_enable_rs232);
+	connect(checkbox_rs232, &QCheckBox::toggled, this, &SpectraVideoInspector::slotEnableRS232);
 	checkbox_joystick = new QCheckBox("Joystick", this);
-	connect(checkbox_joystick, &QCheckBox::toggled, this, &SpectraVideoInspector::slot_enable_joystick);
+	connect(checkbox_joystick, &QCheckBox::toggled, this, &SpectraVideoInspector::slotEnableJoystick);
 	checkbox_new_video_modes = new QCheckBox("New colours", this);
-	connect(checkbox_new_video_modes, &QCheckBox::toggled, this, &SpectraVideoInspector::slot_enable_new_displaymodes);
+	connect(checkbox_new_video_modes, &QCheckBox::toggled, this, &SpectraVideoInspector::slotEnableNewDisplaymodes);
 	button_insert_rom = new QPushButton(spectra->isRomInserted() ? "Eject Rom" : "Insert Rom", this);
-	connect(button_insert_rom, &QPushButton::clicked, this, &SpectraVideoInspector::slot_insert_or_eject_rom);
+	connect(button_insert_rom, &QPushButton::clicked, this, &SpectraVideoInspector::slotInsertOrEjectRom);
 
 	button_set_keys->setFixedWidth(80);
 	button_scan_usb->setFixedWidth(80 + 12);
@@ -107,12 +107,12 @@ SpectraVideoInspector::SpectraVideoInspector(QWidget* w, MachineController* mc, 
 	f = spectra->if1_rom_hooks_enabled;
 	checkbox_if1_rom_hooks->setChecked(f);
 
-	update_js_selector();
+	update_joystick_selector();
 
 	timer->start(1000 / 15);
 }
 
-void SpectraVideoInspector::slot_enable_if1_rom_hooks(bool f)
+void SpectraVideoInspector::slotEnableIf1RomHooks(bool f)
 {
 	assert(validReference(spectra));
 
@@ -120,7 +120,7 @@ void SpectraVideoInspector::slot_enable_if1_rom_hooks(bool f)
 	settings.setValue(key_spectra_enable_if1_rom_hooks, f);
 }
 
-void SpectraVideoInspector::slot_enable_rs232(bool f)
+void SpectraVideoInspector::slotEnableRS232(bool f)
 {
 	assert(validReference(spectra));
 
@@ -128,7 +128,7 @@ void SpectraVideoInspector::slot_enable_rs232(bool f)
 	settings.setValue(key_spectra_enable_rs232, f);
 }
 
-void SpectraVideoInspector::slot_enable_new_displaymodes(bool f)
+void SpectraVideoInspector::slotEnableNewDisplaymodes(bool f)
 {
 	assert(validReference(spectra));
 
@@ -136,7 +136,7 @@ void SpectraVideoInspector::slot_enable_new_displaymodes(bool f)
 	settings.setValue(key_spectra_enable_new_video_modes, f);
 }
 
-void SpectraVideoInspector::slot_enable_joystick(bool f)
+void SpectraVideoInspector::slotEnableJoystick(bool f)
 {
 	assert(validReference(spectra));
 
@@ -150,15 +150,15 @@ void SpectraVideoInspector::slot_enable_joystick(bool f)
 	settings.setValue(key_spectra_enable_joystick, f);
 }
 
-void SpectraVideoInspector::slot_find_usb_joysticks()
+void SpectraVideoInspector::slotFindUsbJoysticks()
 {
 	xlogIn("SpectraVideoInspector::scanUSB");
 
 	findUsbJoysticks();
-	update_js_selector();
+	update_joystick_selector();
 }
 
-void SpectraVideoInspector::slot_set_keyboard_joystick_keys()
+void SpectraVideoInspector::slotSetKeyboardJoystickKeys()
 {
 	xlogIn("SpectraVideoInspector::setKeys");
 	//	getKbdJoystick()->setKeys();
@@ -167,16 +167,17 @@ void SpectraVideoInspector::slot_set_keyboard_joystick_keys()
 	d->show();
 }
 
-void SpectraVideoInspector::slot_js_selector_selected()
+void SpectraVideoInspector::slotJoystickSelected()
 {
 	xlogIn("SpectraVideoInspector::joySelected");
 	assert(validReference(spectra));
 
 	int j = js_selector->currentIndex();
 	nvptr(spectra)->insertJoystick(js_selector->itemData(j).toInt());
+	controller->addOverlayJoy(nvptr(spectra));
 }
 
-void SpectraVideoInspector::update_js_selector()
+void SpectraVideoInspector::update_joystick_selector()
 {
 	xlogIn("SpectraVideoInspector::update_js_selector");
 	assert(validReference(spectra));
@@ -210,7 +211,7 @@ void SpectraVideoInspector::update_js_selector()
 	if (i == js_selector->count()) { js_selector->setCurrentIndex(i - 1); }
 }
 
-void SpectraVideoInspector::slot_insert_or_eject_rom()
+void SpectraVideoInspector::slotInsertOrEjectRom()
 {
 	xlogIn("SpectraVideoInspector::slot_insert_or_eject_rom()");
 	assert(validReference(spectra));
@@ -306,11 +307,11 @@ void SpectraVideoInspector::fillContextMenu(QMenu* menu)
 
 	if (spectra->isRomInserted())
 	{
-		menu->addAction("Eject Rom", this, &SpectraVideoInspector::slot_insert_or_eject_rom); //
+		menu->addAction("Eject Rom", this, &SpectraVideoInspector::slotInsertOrEjectRom); //
 	}
 	else
 	{
-		menu->addAction("Insert Rom", this, &SpectraVideoInspector::slot_insert_or_eject_rom);
+		menu->addAction("Insert Rom", this, &SpectraVideoInspector::slotInsertOrEjectRom);
 		menu->addAction("Recent Roms …")->setMenu(new RecentFilesMenu(RecentIf2Roms, this, [=](cstr fpath) {
 			insertRom(fpath);
 		}));

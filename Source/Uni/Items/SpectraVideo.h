@@ -21,16 +21,15 @@ public:
 	bool	  shadowram_ever_used;
 	MemoryPtr shadowram;
 
-	Joystick*			  joystick; // Joystick
-	gui::OverlayJoystick* overlay;
-	uint				  port_254;				 // border
-	uint8				  port_239;				 // RS232
-	uint8				  port_247;				 // RS232
-	bool				  rs232_enabled;		 // RS232
-	bool				  joystick_enabled;		 // Joystick
-	bool				  if1_rom_hooks_enabled; // ROM
-	MemoryPtr			  rom;
-	cstr				  filepath;
+	Joystick* joystick;				 // Joystick
+	uint	  port_254;				 // border
+	uint8	  port_239;				 // RS232
+	uint8	  port_247;				 // RS232
+	bool	  rs232_enabled;		 // RS232
+	bool	  joystick_enabled;		 // Joystick
+	bool	  if1_rom_hooks_enabled; // ROM
+	MemoryPtr rom;
+	cstr	  filepath;
 	// bool romdis_in;	   // rear-side input state --> Item
 	bool own_romdis_state; // own state
 
@@ -98,9 +97,11 @@ public:
 	void setPort247(Time t, uint8 byte); // data
 
 	// Joystick handling:
-	void	   setJoystickEnabled(bool);
-	void	   insertJoystick(int id);
-	JoystickID getJoystickID() const volatile { return indexof(joystick); }
+	void			setJoystickEnabled(bool);
+	void			insertJoystick(int id);
+	JoystickID		getJoystickID() const volatile { return indexof(joystick); }
+	const Joystick* getJoystick() const { return joystick_enabled ? joystick : nullptr; }
+	cstr			getIdf() const volatile { return "K"; }
 
 	// CRTC:
 	int32 cpuCycleOfNextCrtRead() override { return ccx; }

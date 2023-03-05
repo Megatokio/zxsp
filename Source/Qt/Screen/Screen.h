@@ -73,10 +73,10 @@ public:
 
 	// Interface IScreen:
 	void setFlavour(isa_id) override;
-	int	 getZoom() const override { return zoom; /*minmax(1, min(width()/256, height()/192), 4); */ }
-	void addOverlay(Overlay*) override { logline("Screen:addOverlay(): TODO"); }
-	void removeOverlay(Overlay*) override { logline("Screen:removeOverlay(): TODO"); }
-	bool isActive() const override { return windowState() & Qt::WindowActive; }
+	int	 getZoom() const { return zoom; /*minmax(1, min(width()/256, height()/192), 4); */ }
+	void addOverlay(Overlay*) { logline("Screen:addOverlay(): TODO"); }
+	void removeOverlay(Overlay*) { logline("Screen:removeOverlay(): TODO"); }
+	bool isActive() const { return windowState() & Qt::WindowActive; }
 
 
 	void repaint();

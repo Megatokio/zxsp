@@ -171,8 +171,6 @@ SpectraVideo::~SpectraVideo()
 	delete[] attr_pixel;
 	delete[] alt_attr_pixel;
 	delete[] alt_ioinfo;
-
-	machine->removeOverlay(overlay);
 }
 
 
@@ -188,7 +186,6 @@ SpectraVideo::SpectraVideo(Machine* m, uint dip_switches) :
 	// shadowram_ever_used(no),
 	shadowram(new Memory(m, "SPECTRA Video Ram", 0x8000)),
 	joystick(nullptr),
-	overlay(nullptr),
 	// port_254(0),
 	// port_239(0),
 	// port_247(0),
@@ -869,15 +866,4 @@ void SpectraVideo::markVideoRam()
 }
 
 
-void SpectraVideo::insertJoystick(int id)
-{
-	if (joystick == joysticks[id]) return;
-
-	if (overlay)
-	{
-		machine->removeOverlay(overlay);
-		overlay = nullptr;
-	}
-	joystick = joysticks[id];
-	if (id != no_joystick) overlay = machine->addOverlay(joystick, "K", gui::Overlay::TopRight);
-}
+void SpectraVideo::insertJoystick(int id) { joystick = joysticks[id]; }

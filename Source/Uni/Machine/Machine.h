@@ -10,7 +10,6 @@
 #include "Joy/ZxIf2.h"
 #include "Memory.h"
 #include "Multiface/Multiface1.h"
-#include "Overlays/Overlay.h"
 #include "Ram/ExternalRam.h"
 #include "SpectraVideo.h"
 #include "StereoSample.h"
@@ -98,12 +97,6 @@ private:
 
 	bool		   rzx_auto_start_recording = no; // TODO: auto start recording should be fully handled by controller
 	class RzxFile* rzx_file;					  // Rzx Replay and Recording
-	gui::Overlay*  overlay_rzx_play;
-	gui::Overlay*  overlay_rzx_record;
-	void		   showOverlayPlay();
-	void		   showOverlayRecord();
-	void		   hideOverlayPlay();
-	void		   hideOverlayRecord();
 	void		   rzxLoadSnapshot(int32& cc_final, int32& ic_end);
 	void		   rzxStoreSnapshot();
 
@@ -256,9 +249,6 @@ public:
 	~Machine() override;
 
 	void saveAs(cstr filepath);
-
-	gui::OverlayJoystick* addOverlay(Joystick*, cstr idf, gui::Overlay::Position);
-	void				  removeOverlay(gui::Overlay*);
 
 	// Time & Utilities:
 	int32 current_cc() { return cpu->cpuCycle(); }

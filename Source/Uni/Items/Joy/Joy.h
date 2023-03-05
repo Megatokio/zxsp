@@ -12,20 +12,20 @@ class Joy : public Item
 	friend class AyForTc2068;
 
 protected:
-	Joystick*			  joy[3];
-	cstr				  idf[3];
-	gui::OverlayJoystick* overlays[3];
-	uint				  num_ports;
+	Joystick* joy[3];
+	cstr	  idf[3];
+	uint	  num_ports;
 
 public:
 	void insertJoystick(uint i, int id);
 	void insertJoystick(int id) { insertJoystick(0, id); }
 
 	JoystickID		getJoystickID(uint i = 0) const { return indexof(joy[i]); }
-	const Joystick* joystick(int i = 0) const { return joy[i]; }
+	const Joystick* getJoystick(uint i = 0) const { return joy[i]; }
+	cstr			getIdf(uint i) const volatile { return idf[i]; }
 
 	uint8 getState(uint i = 0) const { return joy[i]->getState(no); }
-	bool  isConnected(int i = 0) const { return joy[i]->isConnected(); }
+	bool  isConnected(uint i = 0) const { return joy[i]->isConnected(); }
 	uint  getNumPorts() const { return num_ports; }
 
 protected:

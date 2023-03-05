@@ -50,14 +50,14 @@ public:
 		BelowAll = Bottom, // at bottom, full width, below BottomCenter
 	};
 
-	IScreen* screen;
+	Screen*	 screen;
 	Position position;
 	int		 x, y, w, h;
 	int		 zoom;
 
 
 protected:
-	Overlay(IScreen*, isa_id, Position);
+	Overlay(Screen*, isa_id, Position);
 
 public:
 	~Overlay() override {}
@@ -73,7 +73,7 @@ public:
 	QPixmap background;
 
 public:
-	explicit OverlayPlay(IScreen*, Position = TopLeft);
+	explicit OverlayPlay(Screen*, Position = TopLeft);
 	void draw(QPainter&) override;
 };
 
@@ -84,7 +84,7 @@ public:
 	QPixmap background;
 
 public:
-	explicit OverlayRecord(IScreen*, Position = TopLeft);
+	explicit OverlayRecord(Screen*, Position = TopLeft);
 	void draw(QPainter&) override;
 };
 
@@ -92,8 +92,8 @@ public:
 class OverlayJoystick : public Overlay
 {
 public:
-	Joystick* joystick;
-	cstr	  idf; // 1 or 2 char identifier
+	const Joystick* joystick;
+	cstr			idf; // 1 or 2 char identifier
 
 	QPen	 shadow_pen; // pen & font: subject to zoom scaling!
 	QPen	 hilite_pen;
@@ -104,7 +104,7 @@ public:
 	QRect	 fire;
 
 public:
-	explicit OverlayJoystick(IScreen*, Joystick*, cstr idf, Position);
+	explicit OverlayJoystick(Screen*, const Joystick*, cstr idf, Position);
 	void draw(QPainter&) override;
 	void setZoom(int) override;
 };

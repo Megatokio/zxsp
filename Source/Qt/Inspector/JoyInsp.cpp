@@ -7,6 +7,7 @@
 #include "Dialogs/ConfigureKeyboardJoystickDialog.h"
 #include "Joy/Joy.h"
 #include "Joystick.h"
+#include "MachineController.h"
 #include "Templates/NVPtr.h"
 #include <QComboBox>
 #include <QPushButton>
@@ -38,24 +39,24 @@ JoyInsp::JoyInsp(QWidget* w, MachineController* mc, volatile Joy* joy, cstr imgp
 		joystick_selectors[i]->setMinimumWidth(80);
 		connect(
 			joystick_selectors[i], static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
-			&JoyInsp::slot_joystick_selected);
+			&JoyInsp::slotJoystickSelected);
 	}
 
 	update_joystick_selectors();
 
 	button_scan_usb = new QPushButton("Scan USB", this);
 	button_scan_usb->setMinimumWidth(100);
-	connect(button_scan_usb, &QPushButton::clicked, this, &JoyInsp::slot_find_usb_joysticks);
+	connect(button_scan_usb, &QPushButton::clicked, this, &JoyInsp::slotFindUsbJoysticks);
 
 	button_set_keys = new QPushButton("Set Keys", this);
 	button_set_keys->setMinimumWidth(100);
-	connect(button_set_keys, &QPushButton::clicked, this, &JoyInsp::slot_set_keyboard_joystick_keys);
+	connect(button_set_keys, &QPushButton::clicked, this, &JoyInsp::slotSetKeyboardJoystickKeys);
 
 	timer->start(1000 / 10);
 }
 
 
-void JoyInsp::slot_find_usb_joysticks()
+void JoyInsp::slotFindUsbJoysticks()
 {
 	xlogIn("JoyInsp::scanUSB");
 	assert(validReference(joy));
@@ -64,7 +65,7 @@ void JoyInsp::slot_find_usb_joysticks()
 	update_joystick_selectors();
 }
 
-void JoyInsp::slot_set_keyboard_joystick_keys()
+void JoyInsp::slotSetKeyboardJoystickKeys()
 {
 	xlogIn("JoyInsp::setKeys");
 
@@ -72,7 +73,7 @@ void JoyInsp::slot_set_keyboard_joystick_keys()
 	d->show();
 }
 
-void JoyInsp::slot_joystick_selected()
+void JoyInsp::slotJoystickSelected()
 {
 	xlogIn("JoyInsp::joySelected");
 	assert(validReference(joy));
@@ -81,6 +82,7 @@ void JoyInsp::slot_joystick_selected()
 	{
 		int j = joystick_selectors[i]->currentIndex();
 		nvptr(joy)->insertJoystick(i, joystick_selectors[i]->itemData(j).toInt());
+		controller->addOverlayJoy(nvptr(joy));
 	}
 }
 

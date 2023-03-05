@@ -216,8 +216,6 @@ Machine::Machine(IMachineController* parent, Model model, isa_id id) :
 	is_power_on(no),
 	is_suspended(no), // must be initialized before memory
 	rzx_file(nullptr),
-	overlay_rzx_play(nullptr),
-	overlay_rzx_record(nullptr),
 	rom(this, "Internal Rom", model_info->rom_size),
 	ram(this, "Internal Ram", model_info->ram_size),
 	cpu(nullptr),
@@ -1462,46 +1460,6 @@ void Machine::drawVideoBeamIndicator()
 	crtc->drawVideoBeamIndicator(beam_cc);
 }
 
-gui::OverlayJoystick* Machine::addOverlay(Joystick* joy, cstr idf, gui::Overlay::Position pos)
-{
-	gui::OverlayJoystick* o = new gui::OverlayJoystick(crtc->getScreen(), joy, idf, pos);
-	crtc->getScreen()->addOverlay(o);
-	return o;
-}
-
-void Machine::removeOverlay(gui::Overlay* o)
-{
-	if (o) crtc->getScreen()->removeOverlay(o);
-}
-
-void Machine::hideOverlayPlay()
-{
-	removeOverlay(overlay_rzx_play);
-	overlay_rzx_play = nullptr;
-}
-
-void Machine::hideOverlayRecord()
-{
-	removeOverlay(overlay_rzx_record);
-	overlay_rzx_record = nullptr;
-}
-
-void Machine::showOverlayPlay()
-{
-	hideOverlayRecord();
-	if (overlay_rzx_play) return;
-	overlay_rzx_play = new gui::OverlayPlay(crtc->getScreen());
-	crtc->getScreen()->addOverlay(overlay_rzx_play);
-}
-
-void Machine::showOverlayRecord()
-{
-	hideOverlayPlay();
-	if (overlay_rzx_record) return;
-	overlay_rzx_record = new gui::OverlayRecord(crtc->getScreen());
-	crtc->getScreen()->addOverlay(overlay_rzx_record);
-}
-
 void Machine::rzxLoadSnapshot(int32& cc_final, int32& ic_end)
 {
 	// Snapshot -> Playing | EndOfFile | OutOfSync
@@ -1593,8 +1551,6 @@ void Machine::rzxOutOfSync(cstr msg, bool red)
 	}
 
 	rzx_file->setOutOfSync();
-	hideOverlayPlay();
-	hideOverlayRecord();
 	controller->rzxStateChanged();
 }
 
@@ -1604,8 +1560,6 @@ void Machine::rzxDispose()
 	delete rzx_file;
 	rzx_file = nullptr;
 
-	hideOverlayPlay();
-	hideOverlayRecord();
 	controller->rzxStateChanged();
 }
 
@@ -1640,7 +1594,7 @@ void Machine::rzxPlayFile(RzxFile* rzx, bool auto_start_recording)
 	case RzxFile::Snapshot: break;
 	}
 
-	int32 cc_final, ic_end;			   // dummy
+	int32 cc_final = 0, ic_end = 0;	   // dummy
 	rzxLoadSnapshot(cc_final, ic_end); // --> Playing | EndOfFile | OutOfSync
 	switch (rzx->state)
 	{
@@ -1655,7 +1609,6 @@ void Machine::rzxPlayFile(RzxFile* rzx, bool auto_start_recording)
 			tcc0 -= dcc / cpu_clock;
 			cc += dcc;
 		}
-		showOverlayPlay();
 		controller->rzxStateChanged();
 		return;
 	}
@@ -1688,7 +1641,6 @@ void Machine::rzxStartRecording(cstr msg, bool yellow)
 		break;
 	}
 
-	showOverlayRecord();
 	controller->rzxStateChanged();
 }
 

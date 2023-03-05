@@ -47,6 +47,12 @@ class MachineController : public QMainWindow, public IMachineController
 	Screen*							  screen; // ScreenZxsp* or ScreenMono*
 	IsaObject*						  mem[4];
 	Lenslok*						  lenslok;
+	Overlay*						  overlay_rzx_play		  = nullptr;
+	Overlay*						  overlay_rzx_record	  = nullptr;
+	Overlay*						  overlay_joy[3]		  = {nullptr};
+	Overlay*						  overlay_joy_spectra	  = nullptr;
+	Overlay*						  overlay_joy_multiface1  = nullptr;
+	Overlay*						  overlay_joy_smartsdcard = nullptr;
 
 	uint8 keyjoy_keys[5];		  // (RLDUF) Qt keycode to use for keyboard joystick up-down-left-right-fire
 	cstr  keyjoy_fnmatch_pattern; // the filename pattern, for which the keys were set
@@ -170,6 +176,9 @@ public:
 	void rzxStateChanged() volatile override;					// callback from machine
 	void itemAdded(std::shared_ptr<Item>) volatile override;	// callback from machine
 	void itemRemoved(Item*) volatile override;					// callback from machine
+
+	void addOverlayJoy(Item*);
+	void removeOverlayJoy(Item*);
 
 signals:
 	void signal_keymapModified();

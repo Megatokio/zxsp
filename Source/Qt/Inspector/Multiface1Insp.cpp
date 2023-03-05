@@ -3,7 +3,10 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Multiface1Insp.h"
+#include "MachineController.h"
 #include "Multiface/Multiface1.h"
+#include "Overlays/Overlay.h"
+#include "Screen/Screen.h"
 #include "Settings.h"
 #include "Templates/NVPtr.h"
 #include <QCheckBox>
@@ -18,13 +21,13 @@ Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile Multi
 	MultifaceInsp(w, mc, mf, "Images/multiface1.jpg", QRect(224, 20, 30, 30)) // red button		x y w h
 {
 	chkbox_joystick_enabled = new QCheckBox("Joystick", this);
-	connect(chkbox_joystick_enabled, &QCheckBox::clicked, this, &Multiface1Insp::enable_joystick);
+	connect(chkbox_joystick_enabled, &QCheckBox::clicked, this, &Multiface1Insp::slotEnableJoystick);
 
 	joystick_selector = new QComboBox(this);
 	joystick_selector->setFocusPolicy(Qt::NoFocus);
 	connect(
 		joystick_selector, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
-		&Multiface1Insp::joystick_selected);
+		&Multiface1Insp::slotJoystickSelected);
 	update_joystick_selector();
 
 	lineedit_display = new QLineEdit("%--------", this);
@@ -33,7 +36,7 @@ Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile Multi
 	lineedit_state = 0;
 
 	button_scan_usb = new QPushButton("Scan USB", this);
-	connect(button_scan_usb, &QPushButton::clicked, this, &Multiface1Insp::find_usb_joysticks);
+	connect(button_scan_usb, &QPushButton::clicked, this, &Multiface1Insp::slotFindUsbJoysticks);
 
 
 	chkbox_joystick_enabled->move(7, 191);
@@ -45,19 +48,18 @@ Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile Multi
 	lineedit_display->move(223, 212);
 	lineedit_display->setFixedWidth(86);
 
-	enable_joystick(mf->joystick_enabled);
+	slotEnableJoystick(mf->joystick_enabled);
 }
 
 void Multiface1Insp::updateWidgets() // Kempston
 {
 	xlogIn("Multiface1Insp::updateWidgets");
-	//assert(validReference(mf3));
 
 	MultifaceInsp::updateWidgets();
 
 	bool f = mf1->joystick_enabled;
-	if (chkbox_joystick_enabled->isChecked() != f) enable_joystick(f); // safety
-	if (!f) return;													   // disabled
+	if (chkbox_joystick_enabled->isChecked() != f) slotEnableJoystick(f); // safety
+	if (!f) return;														  // disabled
 
 	uint8 newstate = mf1->joystick->getState(no);
 	if (lineedit_state == newstate) return; // no change
@@ -72,7 +74,7 @@ void Multiface1Insp::updateWidgets() // Kempston
 	lineedit_display->setText(s);
 }
 
-void Multiface1Insp::enable_joystick(bool f)
+void Multiface1Insp::slotEnableJoystick(bool f)
 {
 	settings.setValue(key_multiface1_enable_joystick, f);
 
@@ -88,20 +90,21 @@ void Multiface1Insp::enable_joystick(bool f)
 	}
 }
 
-void Multiface1Insp::find_usb_joysticks()
+void Multiface1Insp::slotFindUsbJoysticks()
 {
 	xlogIn("Multiface1Insp::scanUSB");
 	findUsbJoysticks();
 	update_joystick_selector();
 }
 
-void Multiface1Insp::joystick_selected()
+void Multiface1Insp::slotJoystickSelected()
 {
 	xlogIn("Multiface1Insp::joystick_selected");
 	assert(validReference(mf1));
 
 	int j = joystick_selector->currentIndex();
 	nvptr(mf1)->insertJoystick(joystick_selector->itemData(j).toInt());
+	controller->addOverlayJoy(nvptr(mf1));
 }
 
 void Multiface1Insp::update_joystick_selector()

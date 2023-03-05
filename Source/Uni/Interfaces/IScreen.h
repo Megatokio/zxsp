@@ -16,11 +16,6 @@ using Dist	= geometry::Dist<coord>;
 using Rect	= geometry::Rect<coord>;
 } // namespace zxsp
 
-namespace gui
-{
-class Overlay;
-}
-
 
 /*
 	Interface for real screens (widget or window)
@@ -31,14 +26,9 @@ class Overlay;
 class IScreen
 {
 public:
-	IScreen() noexcept						  = default;
-	virtual ~IScreen() noexcept				  = default;
-	virtual void setFlavour(isa_id)			  = 0;
-	virtual void addOverlay(gui::Overlay*)	  = 0;
-	virtual void removeOverlay(gui::Overlay*) = 0;
-	virtual int	 getZoom() const			  = 0;
-	virtual bool isActive() const			  = 0; // has keyboard focus
-
+	IScreen() noexcept				= default;
+	virtual ~IScreen() noexcept		= default;
+	virtual void setFlavour(isa_id) = 0;
 
 	// function to send a frame
 	// all metrics in pixels.
@@ -61,11 +51,6 @@ class NoScreen : public IScreen
 {
 public:
 	void setFlavour(isa_id) override {}
-	void addOverlay(gui::Overlay*) override {}
-	void removeOverlay(gui::Overlay*) override {}
-	int	 getZoom() const override { return 1; }
-	bool isActive() const override { return no; }
-
 	bool ffb_or_vbi(uint8*, int, int, int, int, int, int, uint32) override { return true; }
 	bool sendFrame(uint8*, const zxsp::Size&, const zxsp::Rect&) override { return true; }
 	bool ffb_or_vbi(IoInfo*, uint, uint8*, uint32, uint, bool, uint32) override { return true; }

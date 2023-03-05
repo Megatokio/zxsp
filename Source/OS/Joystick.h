@@ -42,14 +42,14 @@ inline JoystickID indexof(Joystick** p) { return JoystickID(p - joysticks); }
 class Joystick : public IsaObject
 {
 protected:
-	Time  last_time; // for activity monitoring
-	uint8 state;	 // %000FUDLR
+	mutable Time last_time; // for activity monitoring
+	uint8		 state;		// %000FUDLR
 
 	explicit Joystick(isa_id id) : IsaObject(id, isa_Joystick), last_time(0), state(0) {}
 	~Joystick() override {}
 
 public:
-	virtual uint8 getState(bool update_last_time = yes) volatile = 0;
+	virtual uint8 getState(bool update_last_time = yes) const volatile = 0;
 	virtual bool  isConnected() const volatile { return yes; }
 	uint		  isActive() const volatile { return system_time < last_time + 2.0; }
 
@@ -72,7 +72,7 @@ class NoJoystick : public Joystick
 {
 public:
 	NoJoystick() : Joystick(isa_Joystick) {}
-	uint8 getState(bool) volatile override { return 0x00; } // no keys pressed
+	uint8 getState(bool) const volatile override { return 0x00; } // no keys pressed
 };
 
 
@@ -85,7 +85,7 @@ class KbdJoystick : public Joystick
 public:
 	KbdJoystick() : Joystick(isa_KbdJoystick) {}
 
-	uint8 getState(bool f) volatile override
+	uint8 getState(bool f) const volatile override
 	{
 		if (f) last_time = system_time;
 		return state;

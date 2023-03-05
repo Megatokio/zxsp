@@ -41,15 +41,15 @@ protected:
 	void updateWidgets() override;
 
 private:
-	void update_js_selector();
-	void slot_js_selector_selected();
-	void slot_find_usb_joysticks();
-	void slot_set_keyboard_joystick_keys();
-	void slot_enable_if1_rom_hooks(bool);
-	void slot_enable_rs232(bool);
-	void slot_enable_joystick(bool);
-	void slot_enable_new_displaymodes(bool);
-	void slot_insert_or_eject_rom();
+	void update_joystick_selector();
+	void slotJoystickSelected();
+	void slotFindUsbJoysticks();
+	void slotSetKeyboardJoystickKeys();
+	void slotEnableIf1RomHooks(bool);
+	void slotEnableRS232(bool);
+	void slotEnableJoystick(bool);
+	void slotEnableNewDisplaymodes(bool);
+	void slotInsertOrEjectRom();
 };
 
 } // namespace gui

@@ -3,7 +3,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "Items/Joy/Joy.h"
+#include "Joy/Joy.h"
 #include "Memory.h"
 #include "Multiface.h"
 #include "Templates/Array.h"
@@ -14,16 +14,17 @@ class Multiface1 final : public Multiface
 	friend class gui::Multiface1Insp;
 	friend class Machine;
 
-	Joystick*			  joystick;
-	gui::OverlayJoystick* overlay;
-	bool				  joystick_enabled;
+	Joystick* joystick;
+	bool	  joystick_enabled;
 
 public:
 	Multiface1(Machine*, bool enable_joystick);
 
-	void	   insertJoystick(int id);
-	JoystickID getJoystickID() const volatile { return indexof(joystick); }
-	void	   enableJoystick(bool f) volatile { joystick_enabled = f; }
+	void			insertJoystick(int id);
+	JoystickID		getJoystickID() const volatile { return indexof(joystick); }
+	void			enableJoystick(bool f) volatile { joystick_enabled = f; }
+	const Joystick* getJoystick() const { return joystick_enabled ? joystick : nullptr; }
+	cstr			getIdf() const volatile { return "K"; }
 
 protected:
 	~Multiface1() override;

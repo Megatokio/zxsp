@@ -330,7 +330,6 @@ SmartSDCard::SmartSDCard(Machine* m, uint dip_switches) :
 	ram(m, "SMART card Ram", 128 kB),
 	rom(m, "SMART card Flash Ram", 256 kB),
 	joystick(nullptr),
-	overlay(nullptr),
 	sd_card(nullptr),
 	sio(nullptr),
 	config(),
@@ -371,7 +370,6 @@ SmartSDCard::~SmartSDCard()
 {
 	delete sd_card;
 	delete sio;
-	machine->removeOverlay(overlay);
 
 	// TODO: save modifiactions to rom
 }
@@ -1033,15 +1031,4 @@ void SmartSDCard::enableFlashWrite(bool) {}
 void SmartSDCard::setJoystickEnabled(bool) {}
 
 
-void SmartSDCard::insertJoystick(int id) volatile
-{
-	if (joystick == joysticks[id]) return;
-
-	if (overlay)
-	{
-		machine->removeOverlay(overlay);
-		overlay = nullptr;
-	}
-	joystick = joysticks[id];
-	if (id != no_joystick) overlay = machine->addOverlay(joystick, "K", gui::Overlay::TopRight);
-}
+void SmartSDCard::insertJoystick(int id) volatile { joystick = joysticks[id]; }
