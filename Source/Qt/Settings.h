@@ -106,15 +106,15 @@ public:
 	Settings();
 	~Settings() override;
 
-	cstr	get_cstr(cstr key, cstr dflt = nullptr); // also takes care of putting the result in temp men...
-	str		get_str(cstr key, cstr dflt = nullptr);	 // also takes care of putting the result in temp men...
-	int		get_int(cstr key, int dflt);
-	Model	get_Model(cstr key, Model dflt);
-	KbdMode get_KbdMode(cstr key, KbdMode dflt);
-	uint	get_uint(cstr key, uint dflt);
-	bool	get_bool(cstr key, bool dflt);
-	double	get_double(cstr key, double dflt);
-	void	get_QStringList(cstr key, QStringList& result);
+	cstr		 get_cstr(cstr key, cstr dflt = nullptr); // also takes care of putting the result in temp men...
+	str			 get_str(cstr key, cstr dflt = nullptr);  // also takes care of putting the result in temp men...
+	int			 get_int(cstr key, int dflt);
+	Model		 get_Model(cstr key, Model dflt);
+	KeyboardMode get_KbdMode(cstr key, KeyboardMode dflt);
+	uint		 get_uint(cstr key, uint dflt);
+	bool		 get_bool(cstr key, bool dflt);
+	double		 get_double(cstr key, double dflt);
+	void		 get_QStringList(cstr key, QStringList& result);
 
 	void get_StrArray(cstr key, StrArray& result);
 	void set_StrArray(cstr key, StrArray& value);

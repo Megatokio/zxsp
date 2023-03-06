@@ -127,7 +127,7 @@ private:
 	void	 setRzxAppendSnapshots(bool);
 	void	 startupOpenToolwindows();
 	void	 setFilepath(cstr);
-	void	 setKeyboardMode(KbdMode);
+	void	 setKeyboardMode(KeyboardMode);
 	void	 enableAudioIn(bool);
 	void	 allKeysUp();
 

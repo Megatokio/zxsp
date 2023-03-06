@@ -672,11 +672,10 @@ void KeyboardInspector::updateWidgets()
 	// called by timer
 	// and directly after known key state change
 
-	if (!machine || !object) return;
-	auto* kbd = dynamic_cast<volatile Keyboard*>(object);
-	if (!kbd) return;
+	xlogIn("KeyboardInspector::updateWidgets");
+	assert(validReference(kbd));
 
-	Keymap newkeys = const_cast<Keymap&>(kbd->keymap);
+	Keymap newkeys = kbd->getKeymap();
 	if (newkeys.allrows == keymap.allrows) return;
 
 	for (int i = 0; i < 8; i++)

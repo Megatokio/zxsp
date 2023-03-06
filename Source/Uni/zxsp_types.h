@@ -20,10 +20,17 @@ class FD;
 using CoreByte = uint32; // Z80
 
 
-enum KbdMode {	// preferred keyboard translation:		((Kbd.h))
-	kbdgame,	// prefer physical translation (from scan code)
-	kbdbasic,	// use logical translation (from character code)
-	kbdbtzxkbd, // game mode on the "Recreated ZX Keyboard"
+enum KeyboardModifiers // modifier key masks:
+{
+	ShiftKeyMask   = 1, // caps shift key
+	ControlKeyMask = 2, // control key
+	AltKeyMask	   = 4	// alt/option key: used as an auxilliary caps shift key
+};
+
+enum KeyboardMode { // preferred keyboard translation:		((Kbd.h))
+	kbdgame,		// prefer physical translation (from scan code)
+	kbdbasic,		// use logical translation (from character code)
+	kbdbtzxkbd,		// game mode on the "Recreated ZX Keyboard"
 	num_kbdmodes
 };
 

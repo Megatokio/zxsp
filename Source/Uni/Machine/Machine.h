@@ -83,8 +83,8 @@ public:
 	volatile IMachineController* controller;
 
 	// general info
-	Model		  model;
-	const ZxInfo* model_info; // generic model info
+	const Model			model;
+	const ZxInfo* const model_info; // generic model info
 
 	// options
 	uint32	  cpu_options; // cpu_waitmap | cpu_crtc | cpu_break_sp | cpu_break_rwx

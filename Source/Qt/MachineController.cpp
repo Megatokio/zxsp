@@ -1509,13 +1509,13 @@ bool MachineController::event(QEvent* e)
 	//	return 0;	// not processed
 }
 
-static KbdModifiers zxmodifiers(uint32 qtm) // helper
+static KeyboardModifiers zxmodifiers(uint32 qtm) // helper
 {
 	uint zxm = 0;
-	if (qtm & Qt::ShiftModifier) zxm |= KbdModifiers::ShiftKeyMask;
-	if (qtm & Qt::MetaModifier) zxm |= KbdModifiers::ControlKeyMask;
-	if (qtm & Qt::AltModifier) zxm |= KbdModifiers::AltKeyMask;
-	return KbdModifiers(zxm);
+	if (qtm & Qt::ShiftModifier) zxm |= KeyboardModifiers::ShiftKeyMask;
+	if (qtm & Qt::MetaModifier) zxm |= KeyboardModifiers::ControlKeyMask;
+	if (qtm & Qt::AltModifier) zxm |= KeyboardModifiers::AltKeyMask;
+	return KeyboardModifiers(zxm);
 }
 
 void MachineController::allKeysUp()
@@ -1703,7 +1703,7 @@ void MachineController::recordMovie(bool f) // controlMenu
 	else { screen->stopRecording(); }
 }
 
-void MachineController::setKeyboardMode(KbdMode mode)
+void MachineController::setKeyboardMode(KeyboardMode mode)
 {
 	xlogIn("MachineController:set_keyboard_mode");
 	machine->keyboard->setKbdMode(mode);

@@ -458,31 +458,10 @@ void Keyboard::allKeysUp()
 	machine->ula->keymap.clear();
 }
 
-void Keyboard::setKbdMode(KbdMode newmode)
+void Keyboard::setKbdMode(KeyboardMode newmode)
 {
 	xlogIn("Keyboard::setKbdMode");
 	mode = newmode;
-	allKeysUp();
-}
-
-void Keyboard::setKbdGame()
-{
-	xlogIn("Keyboard::setKbdGame");
-	mode = kbdgame;
-	allKeysUp();
-}
-
-void Keyboard::setKbdBtZxKbd()
-{
-	xlogIn("Keyboard::setKbdBtZxKbd");
-	mode = kbdbtzxkbd;
-	allKeysUp();
-}
-
-void Keyboard::setKbdBasic()
-{
-	xlogIn("Keyboard::setKbdBasic");
-	mode = kbdbasic;
 	allKeysUp();
 }
 
@@ -695,7 +674,7 @@ void Keyboard::specciKeyUp(uint8 zxkey)
 	update_keymap();
 }
 
-void Keyboard::realKeyDown(uint16 unicode, uint8 oskeycode, KbdModifiers modifiers)
+void Keyboard::realKeyDown(uint16 unicode, uint8 oskeycode, KeyboardModifiers modifiers)
 {
 	// key down notification
 	// called by MachineController
@@ -744,7 +723,7 @@ x:
 	update_keymap();
 }
 
-void Keyboard::keyBtZxKbd(uint16 unicode, uint8 oskeycode, KbdModifiers modifiers)
+void Keyboard::keyBtZxKbd(uint16 unicode, uint8 oskeycode, KeyboardModifiers modifiers)
 {
 	xlogline(
 		"key down event: '%s', unicode=%u, modifiers=$%04x on BtZxKbd",
@@ -791,7 +770,7 @@ x:
 	update_keymap();
 }
 
-void Keyboard::realKeyUp(uint16 unicode, uint8 oskeycode, KbdModifiers modifiers)
+void Keyboard::realKeyUp(uint16 unicode, uint8 oskeycode, KeyboardModifiers modifiers)
 {
 	// key up notification
 	// called by MachineController
