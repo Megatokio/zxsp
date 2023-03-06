@@ -6,8 +6,8 @@
 
 #define APPL_VERSION_H	  0
 #define APPL_VERSION_M	  8
-#define APPL_VERSION_L	  30
-#define APPL_VERSION_STR  "0.8.30"
+#define APPL_VERSION_L	  31
+#define APPL_VERSION_STR  "0.8.31"
 #define APPL_VERSION_BETA true
 
 static constexpr char startup_info_message[] =
@@ -17,4 +17,4 @@ static constexpr char startup_info_message[] =
 	"Please report any issue at\n"
 	"github.com/Megatokio/zxsp/issues.";
 
-static constexpr char check_update_url[] = "http://k1.spdns.de/cgi-bin/zxsp-check-update.cgi?version=";
+static constexpr char check_update_url[] = "https://k1.spdns.de/cgi-bin/zxsp-check-update.cgi?version=";
