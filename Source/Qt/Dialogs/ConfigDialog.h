@@ -75,9 +75,9 @@ protected:
 };
 
 extern void showDialog(QWidget*, cstr title, cstr text, uint style);
-extern void showInfoDialog(QWidget*, cstr title, cstr text);
-extern void showWarningDialog(QWidget*, cstr title, cstr text);
-extern void showAlertDialog(QWidget*, cstr title, cstr text);
+extern void showInfoDialog(QWidget* parent, cstr title, cstr text);
+extern void showWarningDialog(QWidget* parent, cstr title, cstr text);
+extern void showAlertDialog(QWidget* parent, cstr title, cstr text);
 extern void showAlert(cstr msg, ...) __printflike(1, 2);
 extern void showWarning(cstr msg, ...) __printflike(1, 2);
 extern void showInfo(cstr msg, ...) __printflike(1, 2);

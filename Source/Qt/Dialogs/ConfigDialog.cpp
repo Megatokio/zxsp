@@ -14,9 +14,9 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QPen>
+#include <QScreen>
 #include <QTimer>
 #include <QWidget>
-
 
 namespace gui
 {
@@ -91,10 +91,20 @@ ConfigDialog::ConfigDialog(QWidget* mc, int w, int h, uint style) :
 
 	this->resize(w + 2 * x0, h + 2 * y0);
 
-	QRect		 obox = mc->rect();
-	QPoint		 oo	  = mc->mapToGlobal(obox.topLeft());
-	const QRect& ibox = this->rect();
-	this->move(oo.x() + (obox.width() - ibox.width()) / 2, oo.y() + (obox.height() - ibox.height()) / 3);
+	if (mc)
+	{
+		QRect		 obox = mc->rect();
+		QPoint		 oo	  = mc->mapToGlobal(obox.topLeft());
+		const QRect& ibox = this->rect();
+		move(oo.x() + (obox.width() - ibox.width()) / 2, oo.y() + (obox.height() - ibox.height()) / 3);
+	}
+	else
+	{
+		QSize		 sz	  = QApplication::primaryScreen()->size();
+		QPoint		 oo	  = QPoint(0, 0);
+		const QRect& ibox = this->rect();
+		move(oo.x() + (sz.width() - ibox.width()) / 2, oo.y() + (sz.height() - ibox.height()) / 3);
+	}
 
 	// setFocusPolicy(Qt::ClickFocus);
 	setFocus();
@@ -213,7 +223,7 @@ void ConfigDialog::keyPressEvent(QKeyEvent* e)
 	xlogIn("ConfigDialog:keyPressEvent");
 
 	if ((style & CloseOnEsc) && e->key() == Qt::Key_Escape) this->deleteLater();
-	if (style & PropagateKeys) QApplication::sendEvent(controller, e);
+	if (style & PropagateKeys && controller != nullptr) QApplication::sendEvent(controller, e);
 }
 
 
@@ -223,7 +233,7 @@ void ConfigDialog::keyPressEvent(QKeyEvent* e)
 void ConfigDialog::keyReleaseEvent(QKeyEvent* e)
 {
 	xlogIn("ConfigDialog:keyReleaseEvent");
-	if (style & PropagateKeys)
+	if (style & PropagateKeys && controller != nullptr)
 		//		controller->keyReleaseEvent(e);
 		QApplication::sendEvent(controller, e);
 }
@@ -234,7 +244,7 @@ void ConfigDialog::keyReleaseEvent(QKeyEvent* e)
 // ============================================================
 
 
-void showDialog(QWidget* p, cstr title, cstr text, uint style)
+void showDialog(QWidget* parent, cstr title, cstr text, uint style)
 {
 	logline("%s", text);
 
@@ -254,29 +264,29 @@ void showDialog(QWidget* p, cstr title, cstr text, uint style)
 		te->move(0, 28);
 		te->setFixedWidth(300);
 
-		ConfigDialog* d = new ConfigDialog(p, w, style);
-		d->show();
+		QWidget* p = parent ? parent : QApplication::activeWindow();
+		(new ConfigDialog(p, w, style))->show();
 	});
 }
 
-void showInfoDialog(QWidget* p, cstr title, cstr text)
+void showInfoDialog(QWidget* parent, cstr title, cstr text)
 {
 	showDialog(
-		p, title, text,
+		parent, title, text,
 		ConfigDialog::Blue + ConfigDialog::Border2 + ConfigDialog::CloseOnClick + ConfigDialog::CloseOnEsc);
 }
 
-void showWarningDialog(QWidget* p, cstr title, cstr text)
+void showWarningDialog(QWidget* parent, cstr title, cstr text)
 {
 	showDialog(
-		p, title, text,
+		parent, title, text,
 		ConfigDialog::Yellow + ConfigDialog::Border2 + ConfigDialog::CloseOnClick + ConfigDialog::CloseOnEsc);
 }
 
-void showAlertDialog(QWidget* p, cstr title, cstr text)
+void showAlertDialog(QWidget* parent, cstr title, cstr text)
 {
 	showDialog(
-		p, title, text,
+		parent, title, text,
 		ConfigDialog::Red + ConfigDialog::Border2 + ConfigDialog::CloseOnClick + ConfigDialog::CloseOnEsc);
 }
 
@@ -287,7 +297,7 @@ void showInfo(cstr msg, ...)
 	str text = usingstr(msg, va);
 	va_end(va);
 
-	showInfoDialog(QApplication::activeWindow(), "Information:", text);
+	showInfoDialog(nullptr, "Information:", text);
 }
 
 void showWarning(cstr msg, ...)
@@ -297,7 +307,7 @@ void showWarning(cstr msg, ...)
 	str text = usingstr(msg, va);
 	va_end(va);
 
-	showWarningDialog(QApplication::activeWindow(), "Problem:", text);
+	showWarningDialog(nullptr, "Problem:", text);
 }
 
 void showAlert(cstr msg, ...)
@@ -307,7 +317,7 @@ void showAlert(cstr msg, ...)
 	str text = usingstr(msg, va);
 	va_end(va);
 
-	showAlertDialog(QApplication::activeWindow(), "Alert:", text);
+	showAlertDialog(nullptr, "Alert:", text);
 }
 
 } // namespace gui
