@@ -40,6 +40,7 @@ static QFont font_label("Geneva", 10);	  // Geneva (weiter), Arial oder Gill San
 
 DivIDEInspector::DivIDEInspector(QWidget* o, MachineController* mc, volatile DivIDE* divide) :
 	Inspector(o, mc, divide, "/Images/divide.jpg"),
+	divide(divide),
 	overlay_jumper_E(":/Icons/divide-j10.png"),
 	overlay_jumper_A(":/Icons/divide-j01.png"),
 	overlay_jumper_EA(":/Icons/divide-j11.png"),
@@ -401,24 +402,24 @@ cstr DivIDEInspector::getCustomTitle()
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */
