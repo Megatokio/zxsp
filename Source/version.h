@@ -6,8 +6,8 @@
 
 #define APPL_VERSION_H	  0
 #define APPL_VERSION_M	  8
-#define APPL_VERSION_L	  31
-#define APPL_VERSION_STR  "0.8.31"
+#define APPL_VERSION_L	  32
+#define APPL_VERSION_STR  "0.8.32"
 #define APPL_VERSION_BETA true
 
 static constexpr char startup_info_message[] =
