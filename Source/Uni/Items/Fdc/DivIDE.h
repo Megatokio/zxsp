@@ -81,6 +81,8 @@ protected:
 	void  romCS(bool f) override;
 
 private:
+	void map_memory();
+	void unmap_memory();
 	bool mapram_is_set() { return control_register & 0x40; }
 	bool conmem_is_set() { return control_register & 0x80; }
 	uint mapped_rampage() { return control_register & ((ram.count() >> 13) - 1); }

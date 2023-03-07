@@ -30,7 +30,7 @@ static constexpr uint CONMEM_bit_mask = 1 << 7; // bit in DivIDE ctl reg
 DivIDE::DivIDE(Machine* machine, uint ramsize, cstr romfile) :
 	MassStorage(machine, isa_DivIDE, external, o_addr, i_addr),
 	rom(machine, "DivIDE Rom", 8 kB),
-	ram(machine, "DivIDE Ram", ramsize == 16 kB ? 16 kB : 32 kB),
+	ram(machine, "DivIDE Ram", ramsize == 512 kB ? 512 kB : 32 kB),
 	cf_card(nullptr),
 	ide_data_latch_state(random() & 1),
 	control_register(0),						 // All bits are reset to '0' after power-on.
@@ -72,6 +72,55 @@ void DivIDE::powerOn(int32 cc)
 	if (cf_card) cf_card->reset(0.0);
 }
 
+void DivIDE::map_memory()
+{
+	// map ram at $2000:
+
+	uint rampage = mapped_rampage();
+	if (rampage != 3 || conmem_is_set() || !mapram_is_set()) // ram writable
+	{
+		machine->cpu->mapRam(0x2000 /*addr*/, 8 kB /*size*/, &ram[rampage << 13], nullptr, 0);
+	}
+	else // ram page #3 write protected
+	{
+		machine->cpu->mapRom(0x2000 /*addr*/, 8 kB /*size*/, &ram[3 << 13], nullptr, 0);
+		machine->cpu->unmapWom(0x2000 /*addr*/, 8 kB /*size*/, nullptr, 0);
+	}
+
+	// map ram, rom or nothing at $0000:
+
+	if (mapram_is_set() && !conmem_is_set()) // write protected ram#3 at 0x0000
+	{
+		machine->cpu->mapRom(0, 8 kB, &ram[3 << 13], nullptr, 0);
+		machine->cpu->unmapWom(0 /*addr*/, 8 kB /*size*/, nullptr, 0);
+	}
+	else if (conmem_is_set() && !jumper_E) // rom writable
+	{
+		machine->cpu->mapRam(0 /*addr*/, 8 kB /*size*/, &rom[0], nullptr, 0);
+	}
+	else // rom write protected
+	{
+		machine->cpu->mapRom(0 /*addr*/, 8 kB /*size*/, &rom[0], nullptr, 0);
+		machine->cpu->unmapWom(0 /*addr*/, 8 kB /*size*/, nullptr, 0);
+	}
+}
+
+void DivIDE::unmap_memory()
+{
+	// no need to unmap our readable memory: caller will map it's own rom
+	// but we probably must actively unmap our writable memory:
+
+	CoreByte* roma = rom.getData();
+	CoreByte* rama = ram.getData();
+	CoreByte* rame = rama + ram.count();
+
+	CoreByte* p = machine->cpu->wrPtr(0);
+	if (p == roma || (p >= rama && p < rame)) machine->cpu->unmapWom(0x0000 /*addr*/, 8 kB /*size*/);
+
+	p = machine->cpu->wrPtr(0x2000);
+	if (p >= rama && p < rame) machine->cpu->unmapWom(0x2000 /*addr*/, 8 kB /*size*/);
+}
+
 void DivIDE::romCS(bool f)
 {
 	// Handle change at rearside ROMCS input
@@ -94,16 +143,7 @@ void DivIDE::romCS(bool f)
 
 		// no need to unmap our readable memory: caller will map it's own rom
 		// but we probably must actively unmap our writable memory:
-
-		CoreByte* roma = rom.getData();
-		CoreByte* rama = ram.getData();
-		CoreByte* rame = rama + ram.count();
-
-		CoreByte* p = machine->cpu->wrPtr(0);
-		if (p == roma || (p >= rama && p < rame)) machine->cpu->unmapWom(0x0000 /*addr*/, 8 kB /*size*/);
-
-		p = machine->cpu->rdPtr(0x2000);
-		if (p >= rama && p < rame) machine->cpu->unmapWom(0x2000 /*addr*/, 8 kB /*size*/);
+		unmap_memory();
 	}
 	else // paged in!
 	{
@@ -160,51 +200,14 @@ void DivIDE::mapMemory()
 
 	if (own_romdis_state) // on:
 	{
-		// map ram at $2000:
-		{
-			int rampage = mapped_rampage();
-			if (rampage != 3 || conmem_is_set() || !mapram_is_set()) // ram writable
-			{
-				machine->cpu->mapRam(0x2000 /*addr*/, 8 kB /*size*/, &ram[rampage << 13], nullptr, 0);
-			}
-			else // ram page #3 write protected
-			{
-				machine->cpu->mapRom(0x2000 /*addr*/, 8 kB /*size*/, &ram[3 << 13], nullptr, 0);
-				machine->cpu->unmapWom(0x2000 /*addr*/, 8 kB /*size*/, nullptr, 0);
-			}
-		}
-
-		// map ram, rom or nothing at $0000:
-
-		if (mapram_is_set() && !conmem_is_set()) // write protected ram#3 at 0x0000
-		{
-			machine->cpu->mapRom(0, 8 kB, &ram[3 << 13], nullptr, 0);
-			machine->cpu->unmapWom(0 /*addr*/, 8 kB /*size*/, nullptr, 0);
-		}
-		else if (conmem_is_set() && !jumper_E) // rom writable
-		{
-			machine->cpu->mapRam(0 /*addr*/, 8 kB /*size*/, &rom[0], nullptr, 0);
-		}
-		else // rom write protected
-		{
-			machine->cpu->mapRom(0 /*addr*/, 8 kB /*size*/, &rom[0], nullptr, 0);
-			machine->cpu->unmapWom(0 /*addr*/, 8 kB /*size*/, nullptr, 0);
-		}
+		map_memory();
 	}
 
 	else // off:
-	{	 // the mmu will already have unmapped our readable memory
-		 // but we still need to unmap our writable memory:
-
-		CoreByte* roma = rom.getData();
-		CoreByte* rama = ram.getData();
-		CoreByte* rame = rama + ram.count();
-
-		CoreByte* p = machine->cpu->wrPtr(0);
-		if (p == roma || (p >= rama && p < rame)) machine->cpu->unmapWom(0x0000 /*addr*/, 8 kB /*size*/);
-
-		p = machine->cpu->rdPtr(0x2000);
-		if (p >= rama && p < rame) machine->cpu->unmapWom(0x2000 /*addr*/, 8 kB /*size*/);
+	{
+		// the mmu will already have unmapped our readable memory
+		// but we still need to unmap our writable memory:
+		unmap_memory();
 	}
 }
 
@@ -367,10 +370,6 @@ void DivIDE::saveRom(FD& fd)
 {
 	assert(rom.count() == 8 kB);
 	write_mem(fd, rom.getData(), 8 kB);
-
-	//	settings.setValue(key_divide_rom_file,fd.filepath());
-	//	delete[] romfilepath;
-	//	romfilepath = newcopy(path);
 }
 
 cstr DivIDE::insertRom(cstr path)
@@ -381,12 +380,12 @@ cstr DivIDE::insertRom(cstr path)
 
 	try
 	{
-		FD fd(path, 'r'); // throws
+		FD fd(path, 'r');
 
-		off_t sz = fd.file_size();
-		if (sz != 8 kB) return usingstr("Rom size is 8 kByte, but file size is %lu", sz);
+		long sz = fd.file_size();
+		if (sz != rom.count()) return usingstr("Rom size is %u kByte, but file size is %lu", rom.count() >> 10, sz);
 
-		read_mem(fd, rom.getData(), 8 kB); // throws
+		read_mem(fd, rom.getData(), rom.count());
 		delete[] romfilepath;
 		romfilepath = newcopy(path);
 		applyRomPatches();
@@ -432,7 +431,7 @@ cstr DivIDE::getDiskFilename() const
 
 void DivIDE::setDiskWritable(bool f)
 {
-	if (cf_card != nullptr) cf_card->setWritable(f);
+	if (cf_card) cf_card->setWritable(f);
 }
 
 void DivIDE::setRamSize(uint sz)
