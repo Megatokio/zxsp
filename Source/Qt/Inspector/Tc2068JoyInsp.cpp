@@ -14,7 +14,8 @@ namespace gui
 {
 
 Tc2068JoyInsp::Tc2068JoyInsp(QWidget* w, MachineController* mc, volatile Tc2068Joy* joy, cstr img_path) :
-	JoyInsp(w, mc, joy, img_path)
+	JoyInsp(w, mc, joy, img_path),
+	tc2068joy(joy)
 {
 	QGridLayout* g = new QGridLayout(this);
 	g->setContentsMargins(10, 10, 10, 5);
@@ -36,14 +37,14 @@ Tc2068JoyInsp::Tc2068JoyInsp(QWidget* w, MachineController* mc, volatile Tc2068J
 void Tc2068JoyInsp::updateWidgets()
 {
 	xlogIn("Tc2068JoyInsp::updateWidgets");
-	assert(validReference(joy));
+	assert(validReference(tc2068joy));
 
 	for (uint i = 0; i < num_ports; i++)
 	{
-		uint8 newstate = AyForTc2068::ayByteForJoystickByte(NV(joy)->getState(i));
+		uint8 newstate = NV(tc2068joy)->getButtonsF111RLDU(i);
 		if (newstate == lineedit_state[i]) continue;
-		lineedit_display[i]->setText(binstr(newstate, "%F000RLDU", "%--------"));
 		lineedit_state[i] = newstate;
+		lineedit_display[i]->setText(binstr(newstate, "%F000RLDU", "%--------"));
 	}
 }
 

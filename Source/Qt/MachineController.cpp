@@ -40,6 +40,7 @@
 #include "MachineZxPlus3.h"
 #include "MachineZxsp.h"
 #include "MemObject.h"
+#include "Mouse.h"
 #include "Preferences.h"
 #include "Printer/ZxPrinter.h"
 #include "Qt/Settings.h"
@@ -54,6 +55,7 @@
 #include "Templates/RCPtr.h"
 #include "ToolWindow.h"
 #include "Ula/MmuTc2068.h"
+#include "UsbJoystick.h"
 #include "WindowMenu.h"
 #include "Z80/Z80.h"
 #include "ZxIf1.h"
@@ -70,7 +72,7 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QtGui>
-
+#include <thread>
 
 namespace gui
 {
@@ -79,6 +81,49 @@ MachineController* front_machine_controller = nullptr;
 
 static constexpr int CTRL  = Qt::CTRL; // for use with binary operators wg. Warning
 static constexpr int SHIFT = Qt::SHIFT;
+
+
+void MachineController::pollInputDevices()
+{
+	assert(isMainThread());
+	volatile Machine* m = machine.get();
+	if (!m || m != front_machine) return;
+
+	static_assert(NELEM(joysticks) == NELEM(Machine::joystick_buttons), "");
+	for (uint i = 0; i < NELEM(joysticks); i++)
+	{
+		if (auto* joy = dynamic_cast<UsbJoystick*>(joysticks[i]))
+			m->updateJoystickButtons(JoystickID(i), JoystickButtons(joy->getState(no)));
+	}
+
+	if (mouse.isGrabbed())
+	{
+		mouse.updatePosition();
+		int dx = mouse.dx;
+		int dy = mouse.dy;
+		if (dx || dy)
+		{
+			mouse.dx -= dx;
+			mouse.dy -= dy;
+			m->mouseMoved(zxsp::Dist(dx, dy));
+		}
+
+		uint mb = QApplication::mouseButtons();
+		m->updateMouseButtons(MouseButtons(mb));
+	}
+}
+
+void MachineController::startInputDeviceTimer()
+{
+	connect(input_device_timer, &QTimer::timeout, this, &MachineController::pollInputDevices);
+	input_device_timer->start(5);
+}
+
+void MachineController::stopInputDeviceTimer()
+{
+	input_device_timer->stop();
+	mouse.ungrab();
+}
 
 
 // ============================================================
@@ -967,6 +1012,7 @@ MachineController::~MachineController()
 	xlogIn("~MachineController");
 
 	in_dtor = yes;
+	stopInputDeviceTimer();
 
 	if (this == front_machine_controller)
 	{
@@ -1000,7 +1046,8 @@ MachineController::MachineController(QString filepath) :
 	mem {nullptr, nullptr, nullptr, nullptr},
 	lenslok(nullptr),
 	keyjoy_keys {0, 0, 0, 0, 0},
-	keyjoy_fnmatch_pattern(nullptr)
+	keyjoy_fnmatch_pattern(nullptr),
+	input_device_timer(new QTimer(this))
 {
 	// setup window
 	// setup menubar
@@ -1457,19 +1504,18 @@ void MachineController::changeEvent(QEvent* e)
 
 			if (this != front_machine_controller)
 			{
-				if (front_machine_controller)
-				{
-					front_machine_controller->allKeysUp();
-					front_machine_controller->hideAllToolwindows();
-				}
+				if (front_machine_controller) { front_machine_controller->hideAllToolwindows(); }
 				front_machine			 = machine.get();
 				front_machine_controller = this;
 				showAllToolwindows();
 			}
+			startInputDeviceTimer();
 		}
 		else // deactivated
 		{
 			xlogline("window deactivated");
+			stopInputDeviceTimer();
+			allKeysUp();
 		}
 		window_menu->checkWindows();
 	}
@@ -1520,8 +1566,7 @@ static KeyboardModifiers zxmodifiers(uint32 qtm) // helper
 
 void MachineController::allKeysUp()
 {
-	if (machine && machine->keyboard) machine->keyboard->allKeysUp();
-	keyboardJoystick->allKeysUp();
+	if (machine) nvptr(machine)->allKeysAndButtonsUp();
 }
 
 inline bool cmdkey_involved(QKeyEvent* e)
@@ -1602,7 +1647,7 @@ void MachineController::keyPressEvent(QKeyEvent* e)
 					return;
 				}
 
-		if (machine && machine->keyboard) machine->keyboard->realKeyDown(charcode, keycode, zxmodifiers(modifiers));
+		if (machine) NV(machine)->keyDown(charcode, keycode, zxmodifiers(modifiers));
 	}
 
 	emit signal_keymapModified();
@@ -1626,7 +1671,7 @@ void MachineController::keyReleaseEvent(QKeyEvent* e)
 					keyboardJoystick->keyUp(1 << i);
 					return;
 				}
-		if (machine && machine->keyboard) machine->keyboard->realKeyUp(charcode, keycode, zxmodifiers(modifiers));
+		if (machine) NV(machine)->keyUp(charcode, keycode, zxmodifiers(modifiers));
 	}
 
 	emit signal_keymapModified();
@@ -2111,33 +2156,37 @@ void MachineController::addOverlayJoy(Item* item)
 		assert(joy);
 		for (uint i = 0; i < joy->getNumPorts(); i++)
 		{
-			if (auto* j = joy->getJoystick(i))
-				screen->addOverlay(new OverlayJoystick(screen, j, joy->getIdf(i), gui::Overlay::TopRight));
+			if (joy->getJoystickID(i) != no_joystick)
+				screen->addOverlay(new OverlayJoystick(
+					screen, joysticks[joy->getJoystickID(i)], joy->getIdf(i), gui::Overlay::TopRight));
 		}
 		break;
 	}
 	case isa_SpectraVideo:
 	{
-		auto* spectra = dynamic_cast<SpectraVideo*>(item);
-		assert(spectra);
-		if (auto* j = spectra->getJoystick())
-			screen->addOverlay(new OverlayJoystick(screen, j, spectra->getIdf(), gui::Overlay::TopRight));
+		auto* joy = dynamic_cast<SpectraVideo*>(item);
+		assert(joy);
+		if (joy->isJoystickEnabled() && joy->getJoystickID() != no_joystick)
+			screen->addOverlay(
+				new OverlayJoystick(screen, joysticks[joy->getJoystickID()], joy->getIdf(), gui::Overlay::TopRight));
 		break;
 	}
 	case isa_Multiface1:
 	{
-		auto* mf1 = dynamic_cast<Multiface1*>(item);
-		assert(mf1);
-		if (auto* j = mf1->getJoystick())
-			screen->addOverlay(new OverlayJoystick(screen, j, mf1->getIdf(), gui::Overlay::TopRight));
+		auto* joy = dynamic_cast<Multiface1*>(item);
+		assert(joy);
+		if (joy->isJoystickEnabled() && joy->getJoystickID() != no_joystick)
+			screen->addOverlay(
+				new OverlayJoystick(screen, joysticks[joy->getJoystickID()], joy->getIdf(), gui::Overlay::TopRight));
 		break;
 	}
 	case isa_SmartSDCard:
 	{
-		auto* sdcard = dynamic_cast<SmartSDCard*>(item);
-		assert(sdcard);
-		if (auto* j = sdcard->getJoystick())
-			screen->addOverlay(new OverlayJoystick(screen, j, sdcard->getIdf(), gui::Overlay::TopRight));
+		auto* joy = dynamic_cast<SmartSDCard*>(item);
+		assert(joy);
+		if (joy->isJoystickEnabled() && joy->getJoystickID() != no_joystick)
+			screen->addOverlay(
+				new OverlayJoystick(screen, joysticks[joy->getJoystickID()], joy->getIdf(), gui::Overlay::TopRight));
 		break;
 	}
 	default: break;

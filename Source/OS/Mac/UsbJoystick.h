@@ -25,7 +25,7 @@ public:
 	UsbJoystick();
 	~UsbJoystick();
 
-	virtual uint8 getState(bool) volatile;
+	virtual uint8 getState(bool) const volatile;
 	virtual bool  isConnected() const volatile { return dev_if != 0; }
 
 private:

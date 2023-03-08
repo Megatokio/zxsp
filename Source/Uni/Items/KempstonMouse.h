@@ -4,33 +4,26 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Item.h"
-#include "Mouse.h"
-#include "globals.h"
-
 
 class KempstonMouse : public Item
 {
-	int scale;
-	int x;
-	int y;
+	int	   scale;
+	int&   x;
+	int&   y;
+	uint8& buttons;
 
 protected:
-	~KempstonMouse() override;
+	~KempstonMouse() override = default;
 
 	// Item interface:
-	void powerOn(/*t=0*/ int32 cc) override;
-	// void	reset(Time t, int32 cc) override;
 	void input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
-	// void	output(Time t, int32 cc, uint16 addr, uint8 byte) override;
-	// void	audioBufferEnd(Time t) override;
-	// void	videoFrameEnd(int32 cc) override;
 
 public:
 	explicit KempstonMouse(Machine*);
 
 	void  setScale(int n);
 	int	  getScale() const volatile { return scale; }
-	uint8 getXPos();
-	uint8 getYPos();
-	uint8 getButtons() const;
+	uint8 getXPos() const volatile { return uint8(x / scale); }
+	uint8 getYPos() const volatile { return uint8(y / scale); }
+	uint8 getButtons() const volatile { return buttons & 3; }
 };

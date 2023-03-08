@@ -61,20 +61,17 @@ void SinclairJoy::input(Time, int32, uint16 addr, uint8& byte, uint8& mask)
 {
 	uint8 jbyte;
 
-	if (machine == front_machine)
-	{
-		if ((~addr & 0x0800) && (jbyte = joy[0]->getState())) // state =     %000FUDLR active high
-		{													  // Sinclair 1: %000FUDRL active low
-			jbyte = calcS1ForJoy(jbyte);					  //                 54321
-			byte &= jbyte;
-			mask |= ~jbyte; // oK: pull down only.
-		}
+	if ((~addr & 0x0800) && (jbyte = getButtonsFUDLR(0))) // state =     %000FUDLR active high
+	{													  // Sinclair 1: %000FUDRL active low
+		jbyte = calcS1FromFUDLR(jbyte);					  //                 54321
+		byte &= jbyte;
+		mask |= ~jbyte; // oK: pull down only.
+	}
 
-		if ((~addr & 0x1000) && (jbyte = joy[1]->getState())) // state =     %000FUDLR active high
-		{													  // Sinclair 2: %000LRDUF active low
-			jbyte = calcS2ForJoy(jbyte);					  //                 67890
-			byte &= jbyte;
-			mask |= ~jbyte; // oK: pull down only.
-		}
+	if ((~addr & 0x1000) && (jbyte = getButtonsFUDLR(1))) // state =     %000FUDLR active high
+	{													  // Sinclair 2: %000LRDUF active low
+		jbyte = calcS2FromFUDLR(jbyte);					  //                 67890
+		byte &= jbyte;
+		mask |= ~jbyte; // oK: pull down only.
 	}
 }

@@ -18,14 +18,14 @@ protected:
 public:
 	// calc Sinclair 1/2 keyboard byte for joystick() byte:
 	// note: keyboard bits are active-low and oK
-	static uint8 calcS1ForJoy(uint8 joy) // %000FUDLR active high -> %000FUDRL active low (54321)
+	static uint8 calcS1FromFUDLR(uint8 joy) // %000FUDLR active high -> %000FUDRL active low (54321)
 	{
-		return uint8(~((joy & 0x1cu) | ((joy & 0x02u) >> 1) | ((joy & 0x01u) << 1)));
+		return ~((joy & 0x1c) | ((joy >> 1) & 1) | ((joy << 1) & 2));
 	}
 
-	static uint8 calcS2ForJoy(uint8 joy) // %000FUDLR active high -> %000LRDUF active low (67890)
+	static uint8 calcS2FromFUDLR(uint8 joy) // %000FUDLR active high -> %000LRDUF active low (67890)
 	{
-		return uint8(~(((joy & 0x10u) >> 4) | ((joy & 0x08u) >> 2) | (joy & 0x04u) | ((joy & 0x03u) << 3)));
+		return ~(((joy >> 4) & 1) | ((joy >> 2) & 2) | (joy & 4) | ((joy << 3) & 0x18));
 	}
 };
 

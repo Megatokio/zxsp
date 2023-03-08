@@ -5,6 +5,7 @@
 #include "Multiface1Insp.h"
 #include "MachineController.h"
 #include "Multiface/Multiface1.h"
+#include "OS/Joystick.h"
 #include "Overlays/Overlay.h"
 #include "Screen/Screen.h"
 #include "Settings.h"
@@ -61,17 +62,10 @@ void Multiface1Insp::updateWidgets() // Kempston
 	if (chkbox_joystick_enabled->isChecked() != f) slotEnableJoystick(f); // safety
 	if (!f) return;														  // disabled
 
-	uint8 newstate = mf1->joystick->getState(no);
-	if (lineedit_state == newstate) return; // no change
+	uint8 newstate = NV(mf1)->getJoystickButtonsFUDLR();
+	if (lineedit_state == newstate) return;
 	lineedit_state = newstate;
-
-	char s[] = "%111FUDLR";
-	for (int j = 0; j < 8; j++)
-	{
-		if (((~newstate) << j) & 0x80) s[j + 1] = '-';
-	}
-
-	lineedit_display->setText(s);
+	lineedit_display->setText(binstr(newstate, "--------", "111FUDLR"));
 }
 
 void Multiface1Insp::slotEnableJoystick(bool f)
@@ -103,7 +97,7 @@ void Multiface1Insp::slotJoystickSelected()
 	assert(validReference(mf1));
 
 	int j = joystick_selector->currentIndex();
-	nvptr(mf1)->insertJoystick(joystick_selector->itemData(j).toInt());
+	nvptr(mf1)->insertJoystick(JoystickID(joystick_selector->itemData(j).toInt()));
 	controller->addOverlayJoy(nvptr(mf1));
 }
 

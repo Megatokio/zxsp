@@ -3,11 +3,11 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Application.h"
-#include "Dsp.h"
 #include "Files/RzxFile.h"
 #include "Files/Z80Head.h"
 #include "Machine.h"
 #include "MachineController.h"
+#include "OS/Dsp.h"
 #include "Preferences.h"
 #include "Qt/Settings.h"
 #include "WindowMenu.h"

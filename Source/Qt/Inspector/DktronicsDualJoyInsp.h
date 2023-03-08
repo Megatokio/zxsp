@@ -10,10 +10,15 @@
 namespace gui
 {
 
-class DktronicsDualJoyInsp : public JoyInsp
+class DktronicsDualJoyInsp final : public JoyInsp
 {
+	volatile DktronicsDualJoy* const dkjoy;
+
 public:
 	DktronicsDualJoyInsp(QWidget*, MachineController*, volatile DktronicsDualJoy*);
+
+protected:
+	void updateWidgets() override;
 };
 
 } // namespace gui

@@ -58,7 +58,7 @@ void CursorJoyInsp::updateWidgets()
 	xlogIn("CursorJoyInsp::updateWidgets");
 	assert(validReference(joy));
 
-	uint8 newstate = NV(joy)->getState();
+	uint8 newstate = NV(joy)->getButtonsFUDLR(0);
 	if (newstate != lineedit_state[0])
 	{
 		lineedit_state[0] = newstate;

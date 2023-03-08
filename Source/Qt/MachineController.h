@@ -57,6 +57,11 @@ class MachineController : public QMainWindow, public IMachineController
 	uint8 keyjoy_keys[5];		  // (RLDUF) Qt keycode to use for keyboard joystick up-down-left-right-fire
 	cstr  keyjoy_fnmatch_pattern; // the filename pattern, for which the keys were set
 
+	QTimer* input_device_timer = nullptr;
+	void	startInputDeviceTimer();
+	void	stopInputDeviceTimer();
+	void	pollInputDevices();
+
 	// GUI:
 	// ToolWindowController*	tool_windows;
 	QList<QAction*>	   add_actions; // note: objects get not owned by the array
@@ -89,7 +94,6 @@ private:
 	QActionGroup* model_actiongroup; // --> model menu
 	QMenu *context_menu, *file_menu, *model_menu, *options_menu, *items_menu, *control_menu, *memory_menu, *speed_menu;
 	WindowMenu* window_menu;
-
 
 	//	static Model best_model_for_file(cstr filepath);
 	Screen*					 newScreenForModel(Model);
@@ -171,11 +175,12 @@ public:
 	QList<QAction*> getKeyboardActions();
 	ToolWindow*		findToolWindowForItem(const volatile IsaObject* item);
 
-	void memoryModified(Memory* m, uint how) volatile override; // callback from machine
-	void machineSuspendStateChanged() volatile override;		// callback from machine
-	void rzxStateChanged() volatile override;					// callback from machine
-	void itemAdded(std::shared_ptr<Item>) volatile override;	// callback from machine
-	void itemRemoved(Item*) volatile override;					// callback from machine
+	// IMachineController interface:
+	void memoryModified(Memory* m, uint how) volatile override;
+	void machineSuspendStateChanged() volatile override;
+	void rzxStateChanged() volatile override;
+	void itemAdded(std::shared_ptr<Item>) volatile override;
+	void itemRemoved(Item*) volatile override;
 
 	void addOverlayJoy(Item*);
 	void removeOverlayJoy(Item*);

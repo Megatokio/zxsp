@@ -329,7 +329,7 @@ SmartSDCard::SmartSDCard(Machine* m, uint dip_switches) :
 	MassStorage(m, isa_SmartSDCard, external, o_addr, i_addr),
 	ram(m, "SMART card Ram", 128 kB),
 	rom(m, "SMART card Flash Ram", 256 kB),
-	joystick(nullptr),
+	joystick_id(usb_joystick0),
 	sd_card(nullptr),
 	sio(nullptr),
 	config(),
@@ -676,7 +676,7 @@ void SmartSDCard::input(Time t, int32, uint16 addr, uint8& byte, uint8& mask)
 	{
 		// Input: %000FUDLR  active high
 		mask = 0xff;
-		byte &= machine == front_machine ? joystick->getState(yes) : 0x00;
+		byte &= machine->getJoystickButtons(joystick_id);
 		return;
 	}
 }
@@ -1028,7 +1028,7 @@ void SmartSDCard::setForceBankB(bool) {}
 
 void SmartSDCard::enableFlashWrite(bool) {}
 
-void SmartSDCard::setJoystickEnabled(bool) {}
-
-
-void SmartSDCard::insertJoystick(int id) volatile { joystick = joysticks[id]; }
+uint8 SmartSDCard::getJoystickButtonsFUDLR() const
+{
+	return dip_joystick_enabled ? machine->getJoystickButtons(joystick_id) : 0x00;
+}

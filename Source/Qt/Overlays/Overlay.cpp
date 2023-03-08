@@ -4,6 +4,7 @@
 
 #include "Overlay.h"
 #include "Joy/Joy.h"
+#include "Joystick.h"
 #include "Machine.h"
 #include "MachineController.h"
 #include "Screen/Screen.h"
@@ -13,7 +14,6 @@
 #include <QFont>
 #include <QPainter>
 #include <QPen>
-
 
 namespace gui
 {
@@ -148,11 +148,11 @@ void OverlayJoystick::draw(QPainter& p)
 		if (state)
 		{
 			p.setPen(hilite_pen);
-			if (state & Joystick::button_left_mask) p.drawPolygon(arrowL);
-			if (state & Joystick::button_right_mask) p.drawPolygon(arrowR);
-			if (state & Joystick::button_up_mask) p.drawPolygon(arrowU);
-			if (state & Joystick::button_down_mask) p.drawPolygon(arrowD);
-			if (state & Joystick::button1_mask) p.drawEllipse(fire);
+			if (state & JoystickButtons::button_left_mask) p.drawPolygon(arrowL);
+			if (state & JoystickButtons::button_right_mask) p.drawPolygon(arrowR);
+			if (state & JoystickButtons::button_up_mask) p.drawPolygon(arrowU);
+			if (state & JoystickButtons::button_down_mask) p.drawPolygon(arrowD);
+			if (state & JoystickButtons::button_fire1_mask) p.drawEllipse(fire);
 		}
 
 		p.setPen(line_pen);

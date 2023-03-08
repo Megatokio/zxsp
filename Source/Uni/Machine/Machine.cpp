@@ -1658,6 +1658,26 @@ void Machine::rzxStopRecording(cstr msg, bool yellow)
 }
 
 
+void Machine::allKeysAndButtonsUp()
+{
+	if (keyboard) keyboard->allKeysUp();
+	mouse_buttons = 0;
+	memset(joystick_buttons, 0, sizeof(joystick_buttons));
+}
+
+void Machine::keyDown(uint16 unicode, uint8 oskeycode, KeyboardModifiers modifiers)
+{
+	assert(keyboard);
+	keyboard->realKeyDown(unicode, oskeycode, modifiers);
+}
+
+void Machine::keyUp(uint16 unicode, uint8 oskeycode, KeyboardModifiers modifiers)
+{
+	assert(keyboard);
+	keyboard->realKeyUp(unicode, oskeycode, modifiers);
+}
+
+
 /*
 
 

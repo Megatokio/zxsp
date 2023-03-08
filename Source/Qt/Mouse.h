@@ -10,18 +10,17 @@
 #include <Qt>
 
 
-class Mouse : public QObject
+class Mouse
 {
-	QWidget* grabber;
-	QTimer*	 mouse_tracker_timer;
+	QWidget* grabber = nullptr;
 
 public:
-	int dx;
-	int dy;
+	int dx = 0;
+	int dy = 0;
 
 public:
-	Mouse();
-	~Mouse() override;
+	Mouse() noexcept;
+	~Mouse() noexcept;
 
 	void	 grab(QWidget*);
 	void	 ungrab();
@@ -31,9 +30,7 @@ public:
 	bool getLeftButton() { return QApplication::mouseButtons() & Qt::LeftButton; }
 	bool getMiddleButton() { return QApplication::mouseButtons() & Qt::MidButton; }
 	bool getRightButton() { return QApplication::mouseButtons() & Qt::RightButton; }
-
-private:
-	void mouse_tracker(); // timer
+	void updatePosition();
 };
 
 

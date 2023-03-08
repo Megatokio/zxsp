@@ -81,7 +81,7 @@ void JoyInsp::slotJoystickSelected()
 	for (uint i = 0; i < num_ports; i++)
 	{
 		int j = joystick_selectors[i]->currentIndex();
-		nvptr(joy)->insertJoystick(i, joystick_selectors[i]->itemData(j).toInt());
+		nvptr(joy)->insertJoystick(i, JoystickID(joystick_selectors[i]->itemData(j).toInt()));
 		controller->addOverlayJoy(nvptr(joy));
 	}
 }
@@ -93,16 +93,10 @@ void JoyInsp::updateWidgets() // Kempston
 
 	for (uint i = 0; i < num_ports; i++)
 	{
-		uint8 newstate = NV(joy)->getState(i);
+		uint8 newstate = NV(joy)->getButtonsFUDLR(i);
 		if (newstate == lineedit_state[i]) continue;
-
-		char s[] = "%111FUDLR";
-		for (int j = 0; j < 8; j++)
-		{
-			if (((~newstate) << j) & 0x80) s[j + 1] = '-';
-		}
-		lineedit_display[i]->setText(s);
 		lineedit_state[i] = newstate;
+		lineedit_display[i]->setText(binstr(newstate, "--------", "111FUDLR"));
 	}
 }
 

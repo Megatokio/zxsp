@@ -6,9 +6,9 @@
 #include "Dialogs/ConfigureKeyboardJoystickDialog.h"
 #include "Items/Joy/Joy.h"
 #include "Items/SpectraVideo.h"
-#include "Joystick.h" // physical joysticks
 #include "Machine.h"
 #include "MachineController.h"
+#include "OS/Joystick.h" // physical joysticks
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
 #include "RecentFilesMenu.h"
@@ -173,7 +173,7 @@ void SpectraVideoInspector::slotJoystickSelected()
 	assert(validReference(spectra));
 
 	int j = js_selector->currentIndex();
-	nvptr(spectra)->insertJoystick(js_selector->itemData(j).toInt());
+	nvptr(spectra)->insertJoystick(JoystickID(js_selector->itemData(j).toInt()));
 	controller->addOverlayJoy(nvptr(spectra));
 }
 
@@ -243,16 +243,11 @@ void SpectraVideoInspector::updateWidgets()
 	xlogIn("SpectraVideoInspector::updateWidgets");
 	assert(validReference(spectra));
 
-	uint8 newstate = spectra->joystick->getState(no);
+	uint8 newstate = NV(spectra)->getJoystickButtonsFUDLR();
 	if (js_state != newstate)
 	{
 		js_state = newstate;
-		char s[] = "%111FUDLR";
-		for (int j = 0; j < 8; j++)
-		{
-			if (((~newstate) << j) & 0x80) s[j + 1] = '-';
-		}
-		js_display->setText(s);
+		js_display->setText(binstr(newstate, "--------", "111FUDLR"));
 	}
 
 	cstr new_romfile = spectra->filepath;

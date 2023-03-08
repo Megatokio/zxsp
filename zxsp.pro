@@ -52,6 +52,9 @@ INCLUDEPATH += \
 	Libraries \
 	zasm/Source \
 
+macx: INCLUDEPATH += Source/OS/Mac 
+unix:!macx: INCLUDEPATH += Source/OS/Linux
+
 
 macx: SOURCES += \
 	Source/OS/Mac/UsbJoystick.cpp \
@@ -62,6 +65,9 @@ macx: SOURCES += \
 	Libraries/audio/macos/CAStreamBasicDescription.cpp \
 
 macx: HEADERS += \
+	Source/OS/Mac/UsbJoystick.h \
+	Source/OS/Mac/UsbDevice.h \
+	Source/OS/Mac/mac_util.h \
 	Libraries/audio/macos/CADebugMacros.h \
 	Libraries/audio/macos/CAStreamBasicDescription.h \
 	Libraries/audio/macos/CAMath.h \
@@ -69,13 +75,17 @@ macx: HEADERS += \
 
 
 unix:!macx: SOURCES += \
+	Source/OS/Linux/UsbJoystick.cpp \
 	Source/OS/Linux/missing_definitions.cpp \
 	Libraries/audio/Linux/AudioDecoder.cpp \
+
+unix:!macx: HEADERS += \
+	Source/OS/Linux/UsbJoystick.h \
 
 
 SOURCES += \
 	Source/OS/Joystick.cpp \
-	Source/OS/Dsp.cpp
+	Source/OS/Dsp.cpp \
 
 
 SOURCES +=	\
@@ -412,9 +422,6 @@ HEADERS += \
 	Source/OS/DspTime.h \
 	Source/OS/Dsp.h \
 	Source/OS/Joystick.h \
-	Source/OS/Mac/UsbJoystick.h \
-	Source/OS/Mac/UsbDevice.h \
-	Source/OS/Mac/mac_util.h \
 
 
 # zxsp Headers - Qt GUI stuff:

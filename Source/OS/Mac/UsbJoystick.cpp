@@ -176,7 +176,7 @@ void UsbJoystick::disconnect()
 /* ----	Get Joystick buttons state ------------
 		returns result = %000FUDLR
 */
-uint8 UsbJoystick::getState(bool mark_active) volatile
+uint8 UsbJoystick::getState(bool mark_active) const volatile
 {
 	xxlogIn("UsbJoystick:getState");
 
@@ -224,7 +224,7 @@ uint8 UsbJoystick::get_state() const
 	static uint8 xval[] = {button_left_mask, 0, 0, button_right_mask};
 	static uint8 yval[] = {button_up_mask, 0, 0, button_down_mask};
 
-	return (b1 ? button1_mask : 0) | xval[x >> 6] | yval[y >> 6];
+	return (b1 ? button_fire1_mask : 0) | xval[x >> 6] | yval[y >> 6];
 
 // error:
 xx:

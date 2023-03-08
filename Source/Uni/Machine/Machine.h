@@ -10,9 +10,9 @@
 #include "Joy/ZxIf2.h"
 #include "Memory.h"
 #include "Multiface/Multiface1.h"
+#include "OS/StereoSample.h"
 #include "Ram/ExternalRam.h"
 #include "SpectraVideo.h"
-#include "StereoSample.h"
 #include "Templates/NVPtr.h"
 #include "Templates/RCPtr.h"
 #include "Ula/Ula.h"
@@ -297,6 +297,23 @@ public:
 
 	void set50Hz() { set60Hz(0); } // 100%, ~50fps, stored in prefs
 	void set60Hz(bool = 1);		   // 100%, ~60fps, stored in prefs
+
+	//Handle Input Devices:
+	uint8		joystick_buttons[num_joystick_ids] = {0}; // state of real-world joysticks
+	uint8		mouse_buttons					   = 0;
+	zxsp::Point mouse_position					   = {0, 0};
+
+	void keyDown(uint16 unicode, uint8 oskeycode, KeyboardModifiers);
+	void keyUp(uint16 unicode, uint8 oskeycode, KeyboardModifiers);
+	void allKeysAndButtonsUp();
+	void updateJoystickButtons(JoystickID id, JoystickButtons btns) volatile { joystick_buttons[id] = btns; }
+	void updateMouseButtons(MouseButtons btns) volatile { mouse_buttons = btns; }
+	void mouseMoved(zxsp::Dist d) volatile { NV(mouse_position) += d; }
+
+	Keymap		getKeymap() const volatile;
+	uint8		getJoystickButtons(JoystickID id) const volatile { return joystick_buttons[id]; } // FUDLR
+	uint8		getMouseButtons() const volatile { return mouse_buttons; }
+	zxsp::Point getMousePosition() const volatile { return NV(mouse_position); }
 };
 
 

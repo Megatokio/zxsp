@@ -19,14 +19,12 @@
 #include "zxsp_types.h"
 
 
-enum JoystickID { usb_joystick0 = 0, usb_joystick1 = 1, usb_yoystick2 = 2, kbd_joystick = 3, no_joystick = 4 };
-
 const int num_usb = 3;
 const int max_joy = 5;
 
 extern Joystick* joysticks[max_joy];
-#define usbJoystick(N)	 reinterpret_cast<UsbJoystick*>(joysticks[N])
-#define keyboardJoystick reinterpret_cast<KbdJoystick*>(joysticks[kbd_joystick])
+#define usbJoystick(N)	 static_cast<UsbJoystick*>(joysticks[N])
+#define keyboardJoystick static_cast<KbdJoystick*>(joysticks[kbd_joystick])
 #define noJoystick		 (joysticks[no_joystick])
 
 extern void		  findUsbJoysticks();
@@ -42,8 +40,8 @@ inline JoystickID indexof(Joystick** p) { return JoystickID(p - joysticks); }
 class Joystick : public IsaObject
 {
 protected:
-	mutable Time last_time; // for activity monitoring
-	uint8		 state;		// %000FUDLR
+	mutable Time  last_time; // for activity monitoring
+	mutable uint8 state;	 // %000FUDLR
 
 	explicit Joystick(isa_id id) : IsaObject(id, isa_Joystick), last_time(0), state(0) {}
 	~Joystick() override {}
@@ -52,15 +50,6 @@ public:
 	virtual uint8 getState(bool update_last_time = yes) const volatile = 0;
 	virtual bool  isConnected() const volatile { return yes; }
 	uint		  isActive() const volatile { return system_time < last_time + 2.0; }
-
-	enum Button //	= %000FUDLR
-	{
-		button1_mask	  = 0x10,
-		button_up_mask	  = 0x08,
-		button_down_mask  = 0x04,
-		button_left_mask  = 0x02,
-		button_right_mask = 0x01
-	};
 };
 
 

@@ -18,9 +18,10 @@ protected:
 
 class AyForTc2068 final : public Ay
 {
+	Tc2068Joy* const tc2068joy;
+
 public:
-	explicit AyForTc2068(Machine*);
-	static uint8 ayByteForJoystickByte(uint8 joy);
+	AyForTc2068(Machine*, Tc2068Joy*);
 
 protected:
 	~AyForTc2068() override = default;

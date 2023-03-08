@@ -185,7 +185,7 @@ SpectraVideo::SpectraVideo(Machine* m, uint dip_switches) :
 	// port_7ffd(0),
 	// shadowram_ever_used(no),
 	shadowram(new Memory(m, "SPECTRA Video Ram", 0x8000)),
-	joystick(nullptr),
+	joystick_id(usb_joystick0),
 	// port_254(0),
 	// port_239(0),
 	// port_247(0),
@@ -208,7 +208,6 @@ SpectraVideo::SpectraVideo(Machine* m, uint dip_switches) :
 	assert(machine->isA(isa_MachineZxsp));
 
 	video_ram = &shadowram[0];
-	if (joystick_enabled) insertJoystick(usb_joystick0);
 }
 
 
@@ -282,7 +281,7 @@ void SpectraVideo::input(Time /*t*/, int32 /*cc*/, uint16 addr, uint8& byte, uin
 	{
 		// Input: %000FUDLR  active high
 		mask = 0xff;
-		byte &= machine == front_machine ? joystick->getState(yes) : 0x00;
+		byte &= machine->getJoystickButtons(joystick_id);
 	}
 
 	// RS232 port 239:
@@ -866,4 +865,7 @@ void SpectraVideo::markVideoRam()
 }
 
 
-void SpectraVideo::insertJoystick(int id) { joystick = joysticks[id]; }
+uint8 SpectraVideo::getJoystickButtonsFUDLR() const
+{
+	return joystick_enabled ? machine->getJoystickButtons(joystick_id) : 0x00;
+}

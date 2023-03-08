@@ -3,7 +3,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "DspTime.h"
+#include "OS/DspTime.h"
 #include "Uni/Language.h"
 #include "isa_id.h"
 #include "kio/kio.h"
@@ -34,6 +34,31 @@ enum KeyboardMode { // preferred keyboard translation:		((Kbd.h))
 	num_kbdmodes
 };
 
+enum JoystickID // physical joysticks
+{
+	usb_joystick0	 = 0,
+	usb_joystick1	 = 1,
+	usb_yoystick2	 = 2,
+	kbd_joystick	 = 3,
+	no_joystick		 = 4,
+	num_joystick_ids = 5
+};
+
+enum JoystickButtons //	as for Kempston joystick interface: %000FUDLR
+{
+	button_fire1_mask = 0x10,
+	button_up_mask	  = 0x08,
+	button_down_mask  = 0x04,
+	button_left_mask  = 0x02,
+	button_right_mask = 0x01
+};
+
+enum MouseButtons // same as Qt
+{
+	left_button	  = 1,
+	right_button  = 2,
+	middle_button = 4,
+};
 
 class TempMemPool;
 

@@ -3,17 +3,15 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #pragma once
-#include "kio/kio.h"
+#include "zxsp_types.h"
 #include <memory>
-class Memory;
-class Item;
 
 
 class IMachineController
 {
 public:
-	IMachineController() {}
-	virtual ~IMachineController() {}
+	IMachineController() noexcept = default;
+	virtual ~IMachineController() = default;
 
 	virtual void memoryModified(Memory* m, uint how) volatile = 0;
 	virtual void machineSuspendStateChanged() volatile		  = 0;
