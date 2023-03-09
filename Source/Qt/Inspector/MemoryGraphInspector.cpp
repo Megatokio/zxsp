@@ -301,6 +301,7 @@ void MemoryGraphInspector::updateWidgets()
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
 
+	if (!graphics_view->canvas) return;
 	assert(graphics_view->canvas);
 	assert(graphics_view->canvas->width() == bytes_per_row * 8);
 	assert(graphics_view->canvas->height() >= rows);
@@ -399,41 +400,41 @@ void MemoryGraphInspector::update_tooltip()
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */
