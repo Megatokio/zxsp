@@ -210,7 +210,7 @@ void Application::showPreferences()
 {
 	xlogIn("Application:showPreferences");
 
-	QWidget*	 parent		 = nullptr; // front_machine_controller;
+	QWidget*	 parent		 = nullptr;
 	QMainWindow* window		 = new QMainWindow(parent, Qt::Tool);
 	QWidget*	 preferences = new Preferences(nullptr);
 	window->setCentralWidget(preferences);

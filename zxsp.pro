@@ -130,6 +130,7 @@ SOURCES +=	\
 	zasm/Source/Z180.cpp \
 	zasm/Source/Value.cpp \
 	\
+	Source/Qt/MachineList.cpp \
 	Source/Qt/qt_util.cpp \
 	Source/Qt/Settings.cpp \
 	Source/Qt/SimpleTerminal.cpp \
@@ -488,6 +489,7 @@ HEADERS += \
 	Source/Qt/Dialogs/ConfigureKeyboardJoystickDialog.h \
 	Source/Qt/Overlays/Overlay.h \
 	\
+	Source/Qt/MachineList.h \
 	Source/Qt/Mouse.h \
 	Source/Qt/CheckUpdate.h \
 	Source/Qt/qt_util.h \

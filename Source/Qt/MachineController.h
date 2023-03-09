@@ -28,9 +28,6 @@ class MachineController : public QMainWindow, public IMachineController
 	Q_OBJECT
 	Q_DISABLE_COPY(MachineController)
 
-	friend void runMachinesForSound();
-	friend void setFrontMachineController(MachineController*);
-	friend void setFrontMachine(Machine*);
 	friend class ScreenTc2048; // --> gif_recorder(); TODO: bereinigen
 	friend class ToolWindow;   // maintained by ToolWindow
 	friend class ConfigureKeyboardJoystickDialog;

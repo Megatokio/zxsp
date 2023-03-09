@@ -27,9 +27,6 @@ using gui::showInfo;
 using gui::showWarning;
 
 
-extern void			  runMachinesForSound();
-extern volatile void* front_machine; // only for comparison with this etc.
-
 extern cstr QEventTypeStr(int n); // Util/QEventTypes.cpp
 
 extern cstr appl_path;		// Application.cpp

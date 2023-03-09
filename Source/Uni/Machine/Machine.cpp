@@ -4,7 +4,6 @@
 
 #define LOGLEVEL 0
 #include "Machine.h"
-#include "Application.h"
 #include "Audio/TapeFile.h"
 #include "Ay/Ay.h"
 #include "Ay/AySubclasses.h"
@@ -34,7 +33,6 @@
 #include "KempstonMouse.h"
 #include "Keyboard.h"
 #include "Libraries/kio/TestTimer.h"
-#include "MachineController.h"
 #include "MachineInves.h"
 #include "MachineJupiter.h"
 #include "MachinePentagon128.h"
@@ -94,56 +92,6 @@
 #include "ZxIf1.h"
 #include "ZxInfo.h"
 #include "unix/FD.h"
-
-
-class MachineList : private Array<volatile Machine*>
-{
-	using Array::cnt;
-	using Array::data;
-
-public:
-	PLock mutex;
-
-	void append(volatile Machine* m)
-	{
-		PLocker<PLock> z(mutex);
-		Array::append(m);
-	}
-	void remove(volatile Machine* m)
-	{
-		PLocker<PLock> z(mutex);
-		Array::remove(m);
-	}
-
-	using Array::count;
-	using Array::operator[];
-};
-
-
-static MachineList machine_list;
-volatile void*	   front_machine = nullptr;
-
-
-void runMachinesForSound()
-{
-	PLocker<PLock> z(machine_list.mutex);
-
-	for (uint i = 0; i < machine_list.count(); i++)
-	{
-		NVPtr<Machine> machine(machine_list[i], 50 * 1000); // 50 µs
-
-		if (machine->isPowerOn())
-		{
-			if (machine->isRunning()) // not suspended
-			{
-				machine->runForSound();
-				if (machine->cpu_clock > 100000) continue;
-			}
-
-			machine->drawVideoBeamIndicator();
-		}
-	}
-}
 
 
 // ########################################################################
@@ -262,9 +210,6 @@ Machine::Machine(IMachineController* parent, Model model, isa_id id) :
 
 	// Items:
 	//	items are added by subclass c'tor
-
-	// add machine to machine_list[]:
-	machine_list.append(this);
 }
 
 void Machine::init_contended_ram()
@@ -311,9 +256,6 @@ void Machine::load_rom()
 Machine::~Machine()
 {
 	xlogIn("~Machine");
-
-	if (this == front_machine) front_machine = nullptr;
-	machine_list.remove(this);
 
 	is_power_on = no;
 

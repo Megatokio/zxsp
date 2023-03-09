@@ -201,6 +201,7 @@ class OverlayRecord;
 class OverlayPlay;
 
 class MachineController;
+class MachineList;
 
 class Screen;
 class ScreenMono;

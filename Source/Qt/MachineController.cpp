@@ -24,6 +24,7 @@
 #include "Machine.h"
 #include "MachineInves.h"
 #include "MachineJupiter.h"
+#include "MachineList.h"
 #include "MachinePentagon128.h"
 #include "MachineTc2048.h"
 #include "MachineTc2068.h"
@@ -86,8 +87,9 @@ static constexpr int SHIFT = Qt::SHIFT;
 void MachineController::pollInputDevices()
 {
 	assert(isMainThread());
+	if (this != front_machine_controller) return;
 	volatile Machine* m = machine.get();
-	if (!m || m != front_machine) return;
+	if (!m) return;
 
 	static_assert(NELEM(joysticks) == NELEM(Machine::joystick_buttons), "");
 	for (uint i = 0; i < NELEM(joysticks); i++)
@@ -122,7 +124,7 @@ void MachineController::startInputDeviceTimer()
 void MachineController::stopInputDeviceTimer()
 {
 	input_device_timer->stop();
-	mouse.ungrab();
+	mouse.ungrab(); //safety
 }
 
 
@@ -133,7 +135,6 @@ void MachineController::stopInputDeviceTimer()
 std::shared_ptr<Machine> MachineController::newMachineForModel(Model model)
 {
 	// create Machine instance for model
-	// if ramsize==0 then default ramsize is used.
 	// machine.parent := this
 	// the machine is not powered on.
 	// the machine is not suspended.
@@ -160,6 +161,7 @@ std::shared_ptr<Machine> MachineController::newMachineForModel(Model model)
 
 	m->taperecorder->setAutoStartStopTape(auto_start);
 	m->taperecorder->setInstantLoadTape(fast_load);
+	m->installRomPatches();
 
 	return m;
 }
@@ -1016,15 +1018,14 @@ MachineController::~MachineController()
 
 	if (this == front_machine_controller)
 	{
+		front_machine_controller = nullptr;
+
 		// note: pos() as required for move() and size() as required for resize()
 		//       this is neither geometry() nor frameGeometry().    :-/
 		xlogline("pos = %i,%i", pos().x(), pos().y());
 		xlogline("geo = %i,%i", geometry().x(), geometry().y());
 		xlogline("frm = %i,%i", frameGeometry().x(), frameGeometry().y());
 		settings.setValue(catstr(key_mainwindow_position, tostr(screen->getZoom())), QRect(pos(), size()));
-
-		front_machine_controller = nullptr;
-		front_machine			 = nullptr;
 	}
 
 	while (tool_windows.count()) { delete tool_windows.last(); }
@@ -1051,7 +1052,7 @@ MachineController::MachineController(QString filepath) :
 {
 	// setup window
 	// setup menubar
-	// init with default machine: zxsp_i3
+	// init with default machine
 	// link into MachineList => GO!
 
 	xlogIn("new MachineController(\"%s\")", filepath.toUtf8().data());
@@ -1117,6 +1118,7 @@ void MachineController::killMachine()
 
 	xlogIn("MachineController:kill_machine");
 
+	nvptr(&machine_list)->remove(machine);
 	in_machine_dtor = yes;
 	machine->powerOff();
 
@@ -1140,6 +1142,7 @@ void MachineController::killMachine()
 	hideInspector(NV(machine), no);
 
 	//delete machine:
+	assert(machine.unique());
 	machine.reset();
 
 	delete screen;
@@ -1221,11 +1224,9 @@ Machine* MachineController::initMachine(
 	model_info			= machine->model_info;
 	if (XSAFE)
 		foreach (ToolWindow* toolwindow, tool_windows) { assert(toolwindow->item == nullptr); }
-	machine->installRomPatches();
 	action_enable_breakpoints->setChecked(true);
 
 	setFilepath(nullptr);
-	if (this == front_machine_controller) front_machine = machine.get();
 
 	setKeyboardMode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
 	enableAudioIn(settings.get_bool(key_new_machine_audioin_enabled, machine->audio_in_enabled));
@@ -1362,8 +1363,8 @@ Machine* MachineController::initMachine(
 
 	machine->suspend();
 	machine->powerOn();
-
 	in_machine_ctor = was_in_machine_ctor;
+	nvptr(&machine_list)->append(machine);
 	return machine.get();
 }
 
@@ -1505,7 +1506,6 @@ void MachineController::changeEvent(QEvent* e)
 			if (this != front_machine_controller)
 			{
 				if (front_machine_controller) { front_machine_controller->hideAllToolwindows(); }
-				front_machine			 = machine.get();
 				front_machine_controller = this;
 				showAllToolwindows();
 			}

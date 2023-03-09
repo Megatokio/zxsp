@@ -67,7 +67,6 @@ class Machine : public IsaObject
 {
 	NO_COPY_MOVE(Machine);
 
-	friend void runMachinesForSound();
 	friend class IMachineController;
 	friend class Item;
 	friend class Z80;
