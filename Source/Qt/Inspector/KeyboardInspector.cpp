@@ -748,7 +748,7 @@ void KeyboardInspector::mousePressEvent(QMouseEvent* e)
 	xlogIn("KbdInsp:mousePressEvent");
 	assert(validReference(kbd));
 
-	if (e->button() == Qt::LeftButton || (QGuiApplication::keyboardModifiers() & Qt::META))
+	if (e->button() == Qt::LeftButton || (QApplication::keyboardModifiers() & Qt::META))
 	{ // note: CTRL-Key + left mouse button werden von Qt (OSX?) in right mouse button umgewandelt
 		// außerdem erzeugen sie ein contextMenu event, das in event() abgefangen wird
 
@@ -812,7 +812,7 @@ bool KeyboardInspector::event(QEvent* e)
 	// this makes CTRL clicks in KeyboardInspector impossible => catch the ContextMenu event
 	// see also mousePressEvent()
 
-	if (e->type() == QEvent::ContextMenu && (QGuiApplication::keyboardModifiers() & Qt::META)) return true; // handled
+	if (e->type() == QEvent::ContextMenu && (QApplication::keyboardModifiers() & Qt::META)) return true; // handled
 
 	return Inspector::event(e);
 }

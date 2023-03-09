@@ -195,17 +195,6 @@ bool Application::event(QEvent* e)
 	//	return 0;	// not processed
 }
 
-
-bool cmdKeyDown()
-{
-#if QT_VERSION < 0x050000
-	return QApplication::keyboardModifiers() & Qt::ControlModifier;
-#else
-	return QGuiApplication::keyboardModifiers() & Qt::ControlModifier;
-#endif
-}
-
-
 void Application::showPreferences()
 {
 	xlogIn("Application:showPreferences");

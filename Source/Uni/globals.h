@@ -11,7 +11,6 @@ namespace gui
 {
 extern Application*		  appl;						// Application.cpp
 extern MachineController* front_machine_controller; // only for comparison with this etc.
-extern bool				  cmdKeyDown();				// Application.cpp
 
 extern void checkUpdate(bool verbose); // CheckUpdate.cpp
 
