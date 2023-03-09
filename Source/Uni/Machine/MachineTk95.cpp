@@ -8,6 +8,8 @@
 #include "Keyboard.h"
 #include "MachineZxsp.h"
 #include "TapeRecorder.h"
+#include "Ula/MmuZxsp.h"
+#include "Ula/UlaZxsp.h"
 
 
 /* A later model, the TK-95, which boasted an improved keyboard

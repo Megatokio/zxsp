@@ -6,8 +6,6 @@
 #include "Machine.h"
 #include "RecentFilesMenu.h"
 #include "Z80/Z80.h"
-#include "globals.h"
-#include "unix/FD.h"
 #include "zxsp_helpers.h"
 
 /*

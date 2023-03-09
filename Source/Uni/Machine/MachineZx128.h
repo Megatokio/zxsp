@@ -4,7 +4,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "MachineZxsp.h"
-#include "ZxInfo/info.h"
 
 
 class MachineZx128 : public MachineZxsp

@@ -27,4 +27,3 @@ extern cstr QEventTypeStr(int n); // Util/QEventTypes.cpp
 
 extern cstr appl_path;		// Application.cpp
 extern cstr appl_rsrc_path; // Application.cpp
-extern cstr basic_token[];	// ZxInfo/BasicTokens.cpp

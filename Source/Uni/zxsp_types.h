@@ -16,6 +16,7 @@ extern void showInfo(cstr msg, ...);	// ConfigDialog.cpp
 
 
 extern cstr appl_rsrc_path; // Application.cpp
+extern cstr basic_token[];	// ZxInfo/BasicTokens.cpp
 
 
 using CoreByte	= uint32; // Z80
@@ -64,11 +65,6 @@ enum MouseButtons // same as Qt
 	right_button  = 2,
 	middle_button = 4,
 };
-
-// physical joysticks: usb/kbd-emu/none:
-//class Joystick;
-//class KbdJoystick;
-//class UsbJoystick;
 
 class GifEncoder;
 class Pixelmap;

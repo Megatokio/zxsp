@@ -4,7 +4,6 @@
 
 #include "SpectraVideo.h"
 #include "Items/Z80/Z80options.h"
-#include "Joystick.h" // physical joysticks
 #include "Machine.h"
 #include "RecentFilesMenu.h"
 #include "Ula/Mmu.h"

@@ -4,7 +4,6 @@
 
 
 #include "SinclairJoy.h"
-#include "globals.h"
 
 
 /*

@@ -3,9 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "IdeDevice.h"
-#include "globals.h"
-#include "kio/peekpoke.h"
-#include "unix/FD.h"
 #include "unix/files.h"
 #include <fcntl.h>
 #include <pthread.h>

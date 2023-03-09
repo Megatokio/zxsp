@@ -10,7 +10,6 @@
 #include "Files/FloppyDisk.h"
 #include "RecentFilesMenu.h"
 #include "Templates/Array.h"
-#include "globals.h"
 #include <math.h>
 
 

@@ -21,7 +21,6 @@
 #include "Machine.h"
 #include "RecentFilesMenu.h"
 #include "cpp/cppthreads.h"
-#include <QMainWindow>
 
 namespace gui
 {

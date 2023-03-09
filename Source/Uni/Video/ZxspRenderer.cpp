@@ -3,14 +3,11 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "ZxspRenderer.h"
+#include "OS/DspTime.h"
 #include "Templates/Array.h"
-#include "cpp/cppthreads.h"
-#include "globals.h"
 #include "graphics/gif/GifEncoder.h"
 #include "unix/os_utilities.h"
 #include "version.h"
-#include <QImage>
-#include <QPainter>
 
 
 #define opacity 0xFFFFFFFF // e.g. 0xFFFFFF80 for fading out tv image

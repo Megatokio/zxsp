@@ -4,10 +4,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Machine.h"
-#include "Ula/MmuZxsp.h"
-#include "Ula/UlaZxsp.h"
-#include "ZxInfo/ZxInfo.h"
-#include "ZxInfo/info.h"
 
 
 class MachineZxsp : public Machine

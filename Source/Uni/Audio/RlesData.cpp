@@ -74,7 +74,6 @@ Samples!
 #include "TapeFileDataBlock.h"
 #include "TapeRecorder.h"
 #include "TzxData.h"
-#include "globals.h"
 #include <math.h>
 #include <zlib.h>
 

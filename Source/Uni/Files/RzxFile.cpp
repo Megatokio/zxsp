@@ -4,9 +4,7 @@
 
 #include "RzxFile.h"
 #include "RzxBlock.h"
-#include "Uni/globals.h"
 #include "kio/TestTimer.h"
-#include "kio/kio.h"
 #include "unix/files.h"
 #include "version.h"
 #include <stdio.h>

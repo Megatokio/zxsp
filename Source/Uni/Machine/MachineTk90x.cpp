@@ -8,6 +8,8 @@
 #include "Keyboard.h"
 #include "MachineZxsp.h"
 #include "TapeRecorder.h"
+#include "Ula/MmuZxsp.h"
+#include "Ula/UlaZxsp.h"
 
 
 MachineTk90x::MachineTk90x(IMachineController* m, bool is60hz) : MachineZxsp(m, tk90x, isa_MachineTk90x)

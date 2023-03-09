@@ -3,7 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Renderer.h"
-#include "globals.h"
 #include "graphics/gif/Colormap.h"
 #include "unix/os_utilities.h"
 #include "version.h"

@@ -3,7 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "CursorJoy.h"
-#include "globals.h"
 
 
 /*

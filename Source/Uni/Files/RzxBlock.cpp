@@ -4,8 +4,6 @@
 
 #include "RzxBlock.h"
 #include "RzxFile.h"
-#include "Uni/globals.h"
-#include "kio/kio.h"
 #include "unix/files.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -443,7 +441,7 @@ int RzxBlock::nextFrame()
 
 	if (ipos != epos && // normal frame or repeated frame
 		ipos != apos)	// frame with incount == 0
-						//		ipos!=4 )		// frame 0 with incount == 0
+		//		ipos!=4 )		// frame 0 with incount == 0
 		logline("RzxBlock::nextFrame: ipos!=epos. This may indicate OutOfSync.");
 
 	if (++current_frame == num_frames) // end of block? => don't move!

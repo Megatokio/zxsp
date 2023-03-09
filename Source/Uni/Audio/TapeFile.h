@@ -50,7 +50,6 @@ note:
 #include "TapeData.h"
 #include "TapeFileDataBlock.h"
 #include "Templates/Array.h"
-#include <QObject>
 
 
 /*  Manage a tape file

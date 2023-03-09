@@ -4,9 +4,7 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Machine.h"
-#include "Ula/MmuZx81.h"
 #include "Ula/UlaZx81.h"
-#include "ZxInfo/info.h"
 
 
 class MachineZx81 : public Machine

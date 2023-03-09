@@ -4,7 +4,6 @@
 
 #include "DktronicsDualJoy.h"
 #include "SinclairJoy.h"
-#include "globals.h"
 
 #define KI_ADDR "----.----.000-.----" // Kempston Issue 4
 #define SI_ADDR "---0.----.----.---0" // right Sinclair, Port 0xeffe

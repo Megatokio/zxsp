@@ -9,9 +9,8 @@
 #include "Ram/Memotech64kRam.h"
 #include "Ram/Zx16kRam.h"
 #include "TapeRecorder.h"
+#include "Ula/MmuZx81.h"
 #include "Z80/Z80.h"
-#include "ZxInfo.h"
-#include "unix/FD.h"
 
 
 // how much space must be left free in addition to the program loaded?

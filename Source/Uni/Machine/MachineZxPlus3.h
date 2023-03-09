@@ -3,9 +3,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "Fdc/FdcPlus3.h"
 #include "MachineZxPlus2a.h"
-#include "ZxInfo/info.h"
 
 
 class MachineZxPlus3 : public MachineZxPlus2a

@@ -3,14 +3,8 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Item.h"
-#include "Inspector/Inspector.h"
 #include "IoInfo.h"
 #include "Machine.h"
-#include "MachineController.h"
-#include "TapeRecorder.h"
-#include "globals.h"
-#include <QEvent>
-#include <QWidget>
 
 
 uint16 bitsForSpec(cstr s)

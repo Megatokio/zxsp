@@ -7,6 +7,7 @@
 #include "Keyboard.h"
 #include "MachineZx81.h"
 #include "TapeRecorder.h"
+#include "Ula/MmuZx81.h"
 
 
 MachineTs1000::MachineTs1000(IMachineController* m) : MachineZx81(m, isa_MachineTs1000, ts1000)

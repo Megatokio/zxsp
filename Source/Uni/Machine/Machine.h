@@ -6,7 +6,6 @@
 #include "Fdc/DivIDE.h"
 #include "Files/RzxFile.h"
 #include "Interfaces/IMachineController.h"
-#include "IsaObject.h"
 #include "Joy/ZxIf2.h"
 #include "Memory.h"
 #include "Multiface/Multiface1.h"
@@ -14,14 +13,9 @@
 #include "Ram/ExternalRam.h"
 #include "SpectraVideo.h"
 #include "Templates/NVPtr.h"
-#include "Templates/RCPtr.h"
 #include "Ula/Ula.h"
 #include "Ula/UlaZx80.h"
 #include "Z80/Z80.h"
-#include "ZxInfo/ZxInfo.h"
-#include "cpp/cppthreads.h"
-//#include "globals.h"
-#include "kio/kio.h"
 #include "zxsp_types.h"
 #include <math.h>
 

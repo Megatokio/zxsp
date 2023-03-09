@@ -5,6 +5,7 @@
 #include "MachineZxPlus2a.h"
 #include "Ay/AySubclasses.h"
 #include "Keyboard.h"
+#include "Printer/PrinterPlus3.h"
 #include "TapeRecorder.h"
 #include "Ula/MmuPlus3.h"
 #include "Ula/UlaPlus3.h"

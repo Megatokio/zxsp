@@ -4,12 +4,10 @@
 
 #define LOGLEVEL 1
 #include "CurrahMicroSpeech.h"
-#include "Item.h"
-#include "Items/Ula/Ula.h"
 #include "Machine.h"
 #include "Memory.h"
 #include "SP0256.h"
-#include "globals.h"
+#include "Ula/Ula.h"
 
 
 #define uspeech_rom "Roms/µspeech.rom"

@@ -3,13 +3,10 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "SpectraRenderer.h"
+#include "OS/DspTime.h"
 #include "Templates/Array.h"
-#include "cpp/cppthreads.h"
-#include "globals.h"
 #include "graphics/gif/GifEncoder.h"
 #include "unix/os_utilities.h"
-#include <QImage>
-#include <QPainter>
 
 
 // Display mode register bit masks:

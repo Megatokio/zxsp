@@ -5,7 +5,6 @@
 #include "CswBuffer.h"
 #include "StereoSample.h"
 #include "TapeData.h"
-#include "globals.h"
 
 
 /*

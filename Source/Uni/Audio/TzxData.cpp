@@ -10,13 +10,8 @@
 #include "TapData.h"
 #include "TapeFile.h"
 #include "TapeFileDataBlock.h"
-#include "globals.h"
-#include "kio/peekpoke.h"
-#include "kio/standard_types.h"
-#include "kio/util/count1bits.h"
 #include <math.h>
 #include <zlib.h>
-class FD;
 
 
 // timing constants:

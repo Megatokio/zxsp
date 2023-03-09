@@ -8,6 +8,7 @@
 #include "Keyboard.h"
 #include "SpectraVideo.h"
 #include "TapeRecorder.h"
+#include "Ula/MmuZxsp.h"
 #include "Ula/UlaZxsp.h"
 #include "Z80/Z80.h"
 #include "Z80/Z80opcodes.h"

@@ -8,6 +8,7 @@
 #include "Dialogs/ConfigureKeyboardJoystickDialog.h"
 #include "Fdc/DivIDE.h"
 #include "Fdc/Fdc.h"
+#include "Fdc/FdcPlus3.h"
 #include "Fdc/SmartSDCard.h"
 #include "Files/RzxFile.h"
 #include "Files/Z80Head.h"
