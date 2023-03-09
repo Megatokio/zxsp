@@ -51,7 +51,7 @@ bool MachineZx80::handleSaveTapePatch()
 	// sanity test:
 	if (datalen < 0x28 || datalen > ram.count())
 	{
-		gui::showWarning("Illegal sysvar E_LINE ($400A): %u\nThe programme was NOT saved!", uint(dataend));
+		showWarning("Illegal sysvar E_LINE ($400A): %u\nThe programme was NOT saved!", uint(dataend));
 		return 1; // handled
 	}
 

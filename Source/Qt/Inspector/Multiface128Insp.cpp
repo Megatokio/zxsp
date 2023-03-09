@@ -30,7 +30,7 @@ void Multiface128Insp::updateWidgets()
 
 	MultifaceInsp::updateWidgets();
 
-	if (label_visibility->isVisible() != mf128->mf_enabled) label_visibility->setVisible(mf128->mf_enabled);
+	if (label_visibility->isVisible() != mf128->isEnabled()) label_visibility->setVisible(mf128->isEnabled());
 }
 
 } // namespace gui

@@ -29,27 +29,25 @@ public:
 	bool isRamOnlyMode() const volatile noexcept { return port_1ffd & 0x01; }
 
 protected:
-	friend class gui::UlaInsp;
-
 	~MmuPlus3() override = default;
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
 	void reset(Time t, int32 cc) override;
-	// void	input			(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
 	void output(Time t, int32 cc, uint16 addr, uint8 byte) override;
-	// void	audioBufferEnd	(Time t) override;
-	// void	videoFrameEnd	(int32 cc) override;
 
 	// Mmu interface:
 	void romCS(bool disable) override; // from rear-item: daisy chain
-	bool hasPort7ffd() const volatile noexcept override { return yes; }
-	bool hasPort1ffd() const volatile noexcept override { return yes; }
-	// bool	hasPortF4()	volatile const noexcept override	{ return no; }
-	uint8 getPort1ffd() const volatile override { return port_1ffd; }
-	void  setPort7ffd(uint8 n) override { set_port_7ffd_and_1ffd(n, port_1ffd); }
-	void  setPort1ffd(uint8 n) override { set_port_7ffd_and_1ffd(port_7ffd, n); }
+	void setPort1ffd(uint8 n) override { set_port_7ffd_and_1ffd(port_7ffd, n); }
+	void setPort7ffd(uint8 n) override { set_port_7ffd_and_1ffd(n, port_1ffd); }
 
+public:
+	// bool hasPortF4() const volatile noexcept override { return no; }
+	bool  hasPort7ffd() const volatile noexcept override { return yes; }
+	bool  hasPort1ffd() const volatile noexcept override { return yes; }
+	uint8 getPort1ffd() const volatile override { return port_1ffd; }
+
+protected:
 	// Mmu128 interface:
 	void setMmuLocked(bool f) override { setPort7ffd(f ? port_7ffd | 0x20 : port_7ffd & ~0x20); }
 	uint getPageC000() const volatile noexcept override;

@@ -20,7 +20,7 @@ class ToolWindow : public QMainWindow
 
 	MachineController* const machine_controller;
 	volatile IsaObject*		 item; // item or machine
-	Inspector*				 inspector;
+	class Inspector*		 inspector;
 	QAction*				 show_action;
 	QMenu					 contextmenu;		// not used
 	QTimer					 adjust_size_timer; // check size

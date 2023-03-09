@@ -49,7 +49,7 @@ Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile Multi
 	lineedit_display->move(223, 212);
 	lineedit_display->setFixedWidth(86);
 
-	slotEnableJoystick(mf->joystick_enabled);
+	slotEnableJoystick(mf->isJoystickEnabled());
 }
 
 void Multiface1Insp::updateWidgets() // Kempston
@@ -58,7 +58,7 @@ void Multiface1Insp::updateWidgets() // Kempston
 
 	MultifaceInsp::updateWidgets();
 
-	bool f = mf1->joystick_enabled;
+	bool f = mf1->isJoystickEnabled();
 	if (chkbox_joystick_enabled->isChecked() != f) slotEnableJoystick(f); // safety
 	if (!f) return;														  // disabled
 

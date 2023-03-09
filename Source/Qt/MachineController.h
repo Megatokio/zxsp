@@ -7,6 +7,7 @@
 #include "IsaObject.h"
 #include "ZxInfo/ZxInfo.h"
 #include "cpp/cppthreads.h"
+#include "gui_types.h"
 #include "zxsp_types.h"
 #include <QActionGroup>
 #include <QMainWindow>
@@ -16,11 +17,6 @@ namespace gui
 
 class Overlay;
 class ToolWindow;
-
-
-extern void showAlert(cstr msg, ...) __printflike(1, 2);   // thread-safe  "red" alert:	stop sign
-extern void showWarning(cstr msg, ...) __printflike(1, 2); // thread-safe  "yellow" alert: attention sign
-extern void showInfo(cstr msg, ...) __printflike(1, 2);	   // thread-safe  a friendly information alert
 
 
 class MachineController : public QMainWindow, public IMachineController

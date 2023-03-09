@@ -23,6 +23,11 @@
 #include "cpp/cppthreads.h"
 #include <QMainWindow>
 
+namespace gui
+{
+class TapeRecorderInsp;
+class WalkmanInspector;
+} // namespace gui
 
 /*  Implementation Notes
 
@@ -60,8 +65,8 @@
 
 class TapeRecorder : public Item
 {
-	friend class gui::TapeRecorderInsp;
-	friend class gui::WalkmanInspector;
+	friend class gui::TapeRecorderInsp; //for now
+	friend class gui::WalkmanInspector; //for now
 
 public:
 	bool		 auto_start_stop_tape; // switch			read/write should be safe from any thread

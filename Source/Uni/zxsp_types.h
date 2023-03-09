@@ -8,6 +8,9 @@
 #include "isa_id.h"
 #include "kio/kio.h"
 
+namespace gui
+{}
+
 
 using Time		= double; // time	[s]
 using Frequency = double; // frequency [1/s]
@@ -15,9 +18,18 @@ using Frequency = double; // frequency [1/s]
 using Sample = float;
 class StereoSample;
 
-class FD;
-
 using CoreByte = uint32; // Z80
+
+
+extern void showAlert(cstr msg, ...);	// ConfigDialog.cpp: "red" alert:    stop sign
+extern void showWarning(cstr msg, ...); // ConfigDialog.cpp: "yellow" alert: attention sign
+extern void showInfo(cstr msg, ...);	// ConfigDialog.cpp: a friendly information alert
+
+extern void write_mem(FD& fd, const CoreByte* q, uint32 cnt); // MachineZxsp.cpp
+extern void read_mem(FD& fd, CoreByte* z, uint32 cnt);		  // MachineZxsp.cpp
+
+
+extern cstr appl_rsrc_path; // Application.cpp
 
 
 enum KeyboardModifiers // modifier key masks:
@@ -59,8 +71,6 @@ enum MouseButtons // same as Qt
 	right_button  = 2,
 	middle_button = 4,
 };
-
-class TempMemPool;
 
 // physical joysticks: usb/kbd-emu/none:
 class Joystick;
@@ -189,74 +199,3 @@ class KempstonMouse;
 class SpectraVideo;
 class DivIDE;
 class CurrahMicroSpeech;
-
-namespace gui
-{
-class Application;
-class WindowMenu;
-class ZxItemsMenu;
-class Overlay;
-class OverlayJoystick;
-class OverlayRecord;
-class OverlayPlay;
-
-class MachineController;
-class MachineList;
-
-class Screen;
-class ScreenMono;
-class ScreenZxsp;
-
-class ToolWindowController;
-class ToolWindow;
-class Lenslok;
-
-class Inspector;
-class UlaInsp;
-class JoyInsp;
-class TapeRecorderInsp;
-class Plus2TapeRecorderInsp;
-class WalkmanInspector;
-class KeyboardInspector;
-class Z80Insp;
-class Tk85JoyInsp;
-class Tk95JoyInsp;
-class Tk90xJoyInsp;
-class KempstonJoyInsp;
-class Tc2048JoyInsp;
-class DktronicsDualJoyInsp;
-class CursorJoyInsp;
-class ProtekJoyInsp;
-class SinclairJoyInsp;
-class Tc2068JoyInsp;
-class IcTesterInsp;
-class KempstonMouseInsp;
-class FullerBoxInsp;
-class ZxIf2Insp;
-class ZxIf1Insp;
-class ZxPrinterInsp;
-class PrinterAercoInsp;
-class PrinterLprint3Insp;
-class PrinterPlus3Insp;
-class PrinterTs2040Insp;
-class ZonxBoxInsp;
-class AyInsp;
-class DidaktikMelodikInsp;
-class FdcBeta128Insp;
-class FdcD80Insp;
-class FdcJLOInsp;
-class FdcPlus3Insp;
-class FdcPlusDInsp;
-class GrafPadInsp;
-class MultifaceInsp;
-class Multiface1Insp;
-class Multiface128Insp;
-class Multiface3Insp;
-class Jupiter16kRamInsp;
-class Zx16kInsp;
-class Zx3kInsp;
-class Memotech64kRamInsp;
-class MemoryInspector;
-class SpectraVideoInspector;
-class DivIDEInspector;
-} // namespace gui

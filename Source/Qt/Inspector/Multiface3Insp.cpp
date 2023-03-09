@@ -32,8 +32,8 @@ void Multiface3Insp::updateWidgets()
 
 	MultifaceInsp::updateWidgets();
 
-	if (label_visible->isVisible() != mf3->mf_enabled) label_visible->setVisible(mf3->mf_enabled);
-	if (label_ramonly->isVisible() != mf3->all_ram) label_ramonly->setVisible(mf3->all_ram);
+	if (label_visible->isVisible() != mf3->isEnabled()) label_visible->setVisible(mf3->isEnabled());
+	if (label_ramonly->isVisible() != mf3->isAllRam()) label_ramonly->setVisible(mf3->isAllRam());
 }
 
 } // namespace gui

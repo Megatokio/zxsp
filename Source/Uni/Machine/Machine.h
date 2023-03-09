@@ -20,7 +20,7 @@
 #include "Z80/Z80.h"
 #include "ZxInfo/ZxInfo.h"
 #include "cpp/cppthreads.h"
-#include "globals.h"
+//#include "globals.h"
 #include "kio/kio.h"
 #include "zxsp_types.h"
 #include <math.h>

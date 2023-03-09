@@ -8,6 +8,7 @@
 #include "Machine.h"
 #include "MachineController.h"
 #include "Screen/Screen.h"
+#include "globals.h"
 #include "kio/kio.h"
 #include <QBrush>
 #include <QColor>

@@ -11,9 +11,6 @@
 
 class Multiface1 final : public Multiface
 {
-	friend class gui::Multiface1Insp;
-	friend class Machine;
-
 	JoystickID joystick_id;
 	bool	   joystick_enabled;
 

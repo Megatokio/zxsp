@@ -489,6 +489,7 @@ HEADERS += \
 	Source/Qt/Dialogs/ConfigureKeyboardJoystickDialog.h \
 	Source/Qt/Overlays/Overlay.h \
 	\
+	Source/Qt/gui_types.h \
 	Source/Qt/MachineList.h \
 	Source/Qt/Mouse.h \
 	Source/Qt/CheckUpdate.h \

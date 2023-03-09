@@ -63,8 +63,8 @@ void MultifaceInsp::updateWidgets()
 	xxlogIn("MultifaceInspector::updateWidgets");
 	assert(validReference(mf));
 
-	if (label_nmi_pending->isVisible() != mf->nmi_pending) label_nmi_pending->setVisible(mf->nmi_pending);
-	if (label_paged_in->isVisible() != mf->paged_in) label_paged_in->setVisible(mf->paged_in);
+	if (label_nmi_pending->isVisible() != mf->isNmiPending()) label_nmi_pending->setVisible(mf->isNmiPending());
+	if (label_paged_in->isVisible() != mf->isPagedIn()) label_paged_in->setVisible(mf->isPagedIn());
 }
 
 } // namespace gui

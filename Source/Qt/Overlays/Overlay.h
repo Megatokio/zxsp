@@ -4,6 +4,7 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "IsaObject.h"
+#include "gui_types.h"
 #include <QFont>
 #include <QPen>
 #include <QPixmap>
