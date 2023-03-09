@@ -22,7 +22,7 @@
 const int num_usb = 3;
 const int max_joy = 5;
 
-extern Joystick* joysticks[max_joy];
+extern class Joystick* joysticks[max_joy];
 #define usbJoystick(N)	 static_cast<UsbJoystick*>(joysticks[N])
 #define keyboardJoystick static_cast<KbdJoystick*>(joysticks[kbd_joystick])
 #define noJoystick		 (joysticks[no_joystick])

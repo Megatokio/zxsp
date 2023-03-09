@@ -10,6 +10,12 @@
 #include "kio/kio.h"
 
 
+// physical joysticks: usb/kbd-emu/none:
+class Joystick;
+class KbdJoystick;
+class UsbJoystick;
+
+
 namespace gui
 {
 class Application;

@@ -332,11 +332,11 @@ SOURCES +=	\
 	Source/Uni/Files/Z80Head.cpp \
 	Source/Uni/Files/RzxBlock.cpp \
 	Source/Uni/Files/RzxFile.cpp \
-	Source/Uni/Files/bestModelForFile.cpp \
 	\
 	Source/Uni/ZxInfo/ZxInfo.cpp \
 	Source/Uni/ZxInfo/BasicTokens.cpp \
 	\
+	Source/Uni/zxsp_helpers.cpp \
 	Source/Uni/IoInfo.cpp \
 	Source/Uni/Memory.cpp \
 	Source/Uni/util.cpp \
@@ -653,6 +653,7 @@ HEADERS += \
 	Source/Uni/Files/RzxFile.h \
 	Source/Uni/Files/RzxBlock.h \
 	\
+	Source/Uni/zxsp_helpers.h \
 	Source/Uni/custom_errors.h \
 	Source/Uni/Language.h \
 	Source/Uni/globals.h \

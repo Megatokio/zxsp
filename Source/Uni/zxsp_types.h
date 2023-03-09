@@ -5,31 +5,24 @@
 
 #include "OS/DspTime.h"
 #include "Uni/Language.h"
+#include "ZxInfo/ZxInfo.h"
 #include "isa_id.h"
 #include "kio/kio.h"
 
-namespace gui
-{}
 
-
-using Time		= double; // time	[s]
-using Frequency = double; // frequency [1/s]
-
-using Sample = float;
-class StereoSample;
-
-using CoreByte = uint32; // Z80
-
-
-extern void showAlert(cstr msg, ...);	// ConfigDialog.cpp: "red" alert:    stop sign
-extern void showWarning(cstr msg, ...); // ConfigDialog.cpp: "yellow" alert: attention sign
-extern void showInfo(cstr msg, ...);	// ConfigDialog.cpp: a friendly information alert
-
-extern void write_mem(FD& fd, const CoreByte* q, uint32 cnt); // MachineZxsp.cpp
-extern void read_mem(FD& fd, CoreByte* z, uint32 cnt);		  // MachineZxsp.cpp
+extern void showAlert(cstr msg, ...);	// ConfigDialog.cpp
+extern void showWarning(cstr msg, ...); // ConfigDialog.cpp
+extern void showInfo(cstr msg, ...);	// ConfigDialog.cpp
 
 
 extern cstr appl_rsrc_path; // Application.cpp
+
+
+using CoreByte	= uint32; // Z80
+using Time		= double; // time [s]
+using Frequency = double; // frequency [1/s]
+using Sample	= float;
+class StereoSample;
 
 
 enum KeyboardModifiers // modifier key masks:
@@ -73,9 +66,9 @@ enum MouseButtons // same as Qt
 };
 
 // physical joysticks: usb/kbd-emu/none:
-class Joystick;
-class KbdJoystick;
-class UsbJoystick;
+//class Joystick;
+//class KbdJoystick;
+//class UsbJoystick;
 
 class GifEncoder;
 class Pixelmap;

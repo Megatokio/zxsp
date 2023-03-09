@@ -5,6 +5,7 @@
 
 #include "IoInfo.h"
 #include "IsaObject.h"
+#include "zxsp_types.h"
 
 
 extern uint16 bitsForSpec(cstr s);

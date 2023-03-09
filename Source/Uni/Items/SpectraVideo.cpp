@@ -11,6 +11,7 @@
 #include "Ula/Ula.h"
 #include "Ula/UlaZxsp.h"
 #include "Z80/Z80.h"
+#include "zxsp_helpers.h"
 
 
 /*	this class represents a SPECTRA video interface.

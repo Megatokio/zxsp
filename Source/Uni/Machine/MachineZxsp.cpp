@@ -11,6 +11,7 @@
 #include "Ula/UlaZxsp.h"
 #include "Z80/Z80.h"
 #include "Z80/Z80opcodes.h"
+#include "zxsp_helpers.h"
 
 
 MachineZxsp::MachineZxsp(IMachineController* m, Model model, isa_id id) : Machine(m, model, id) {}
@@ -258,26 +259,6 @@ void MachineZxsp::loadScr(FD& fd)
 }
 
 #define snalen 27
-
-void write_mem(FD& fd, const CoreByte* q, uint32 cnt)
-{
-	std::unique_ptr<uint8[]> bu {new uint8[cnt]};
-	Z80::c2b(q, bu.get(), cnt);
-	fd.write_bytes(bu.get(), cnt);
-}
-
-void read_mem(FD& fd, CoreByte* z, uint32 cnt)
-{
-	std::unique_ptr<uint8[]> bu {new uint8[cnt]};
-	fd.read_bytes(bu.get(), cnt);
-	Z80::b2c(bu.get(), z, cnt); // copy data, preserve flags
-}
-
-Model modelForSna(FD& fd)
-{
-	uint32 ramsize = uint32(fd.file_size()) - snalen;
-	return ramsize > 0x4000 ? zxsp_i3 : zxsp_i1;
-}
 
 struct SnaHead
 {

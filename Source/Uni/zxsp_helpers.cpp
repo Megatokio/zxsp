@@ -2,13 +2,43 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "RzxFile.h"
-#include "Z80Head.h"
-#include "ZxInfo/ZxInfo.h"
-#include "kio/kio.h"
+#include "zxsp_helpers.h"
+#include "Files/RzxFile.h"
+#include "Files/Z80Head.h"
 #include "unix/files.h"
 #include "zasm/Source/Z80Assembler.h"
 
+constexpr uint snalen = 27;
+
+bool ZxInfo::isA(isa_id i) const
+{
+	isa_id j = id;
+	do {
+		if (i == j) return yes;
+	}
+	while ((j = isa_pid[j]));
+	return no;
+}
+
+void write_mem(FD& fd, const CoreByte* q, uint32 cnt)
+{
+	std::unique_ptr<uint8[]> bu {new uint8[cnt]};
+	Z80::c2b(q, bu.get(), cnt);
+	fd.write_bytes(bu.get(), cnt);
+}
+
+void read_mem(FD& fd, CoreByte* z, uint32 cnt)
+{
+	std::unique_ptr<uint8[]> bu {new uint8[cnt]};
+	fd.read_bytes(bu.get(), cnt);
+	Z80::b2c(bu.get(), z, cnt); // copy data, preserve flags
+}
+
+Model modelForSna(FD& fd)
+{
+	uint32 ramsize = uint32(fd.file_size()) - snalen;
+	return ramsize > 0x4000 ? zxsp_i3 : zxsp_i1;
+}
 
 Model bestModelForFile(cstr fpath, Model default_model)
 {
@@ -29,7 +59,6 @@ Model bestModelForFile(cstr fpath, Model default_model)
 
 	if (eq(ext, ".sna"))
 	{
-		const uint snalen = 27;
 		if (file_size(fpath) <= 0x4000 + snalen) return zxsp_i1;
 		else goto dflt_zxsp;
 	}

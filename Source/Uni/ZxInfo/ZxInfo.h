@@ -94,20 +94,11 @@ struct ZxInfo
 	bool	 has_kempston_joystick_ports;
 	bool	 has_sinclair_joystick_ports;
 	bool	 hasWaitmap() const { return waitmap != 0; }
-	float	 psgCyclesPerSample() const { return ay_cycles_per_second / samples_per_second; }
 	uint32	 cpuClockPredivider() const { return ula_cycles_per_second / cpu_cycles_per_second; }
-	bool	 isA(isa_id i) const
-	{
-		isa_id j = id;
-		do {
-			if (i == j) return yes;
-		}
-		while ((j = isa_pid[j]));
-		return no;
-	}
-	bool canAttachDivIDE() const { return has_zxsp_bus && !isA(isa_MachineTc2068); }
-	bool canAttachZxIf2() const { return has_zxsp_bus && !isA(isa_MachineTc2068) && !isA(isa_MachineZxPlus2a); }
-	bool canAttachSpectraVideo() const { return model <= zxplus2a_span && model != inves; }
+	bool	 isA(isa_id i) const; // -> zxsp_helpers.cpp
+	bool	 canAttachDivIDE() const { return has_zxsp_bus && !isA(isa_MachineTc2068); }
+	bool	 canAttachZxIf2() const { return has_zxsp_bus && !isA(isa_MachineTc2068) && !isA(isa_MachineZxPlus2a); }
+	bool	 canAttachSpectraVideo() const { return model <= zxplus2a_span && model != inves; }
 };
 
 extern ZxInfo zx_info[num_models];

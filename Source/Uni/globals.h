@@ -28,6 +28,3 @@ extern cstr QEventTypeStr(int n); // Util/QEventTypes.cpp
 extern cstr appl_path;		// Application.cpp
 extern cstr appl_rsrc_path; // Application.cpp
 extern cstr basic_token[];	// ZxInfo/BasicTokens.cpp
-
-extern Model modelForSna(FD& fd);								// MachineZxsp.cpp
-extern Model bestModelForFile(cstr fpath, Model default_model); // Uni/Files/bestModelForFile.cpp

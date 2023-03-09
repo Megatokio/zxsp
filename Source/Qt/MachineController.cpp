@@ -65,6 +65,7 @@
 #include "globals.h"
 #include "unix/FD.h"
 #include "zasm/Source/Z80Assembler.h"
+#include "zxsp_helpers.h"
 #include <QAction>
 #include <QDesktopWidget>
 #include <QEvent>

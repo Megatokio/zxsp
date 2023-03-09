@@ -92,6 +92,7 @@
 #include "ZxIf1.h"
 #include "ZxInfo.h"
 #include "unix/FD.h"
+#include "zxsp_helpers.h"
 
 
 // ########################################################################
