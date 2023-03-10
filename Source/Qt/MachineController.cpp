@@ -1507,17 +1507,22 @@ void MachineController::changeEvent(QEvent* e)
 
 			if (this != front_machine_controller)
 			{
-				if (front_machine_controller) { front_machine_controller->hideAllToolwindows(); }
+				if (front_machine_controller)
+				{
+					front_machine_controller->stopInputDeviceTimer();
+					front_machine_controller->allKeysUp();
+					front_machine_controller->hideAllToolwindows();
+				}
 				front_machine_controller = this;
 				showAllToolwindows();
+				startInputDeviceTimer();
 			}
-			startInputDeviceTimer();
 		}
 		else // deactivated
 		{
 			xlogline("window deactivated");
-			stopInputDeviceTimer();
-			allKeysUp();
+			// the window is also deactivated if one of it's tool windows is activated
+			// so we do nothing here but everything in the 'if(activated)' branch
 		}
 		window_menu->checkWindows();
 	}
