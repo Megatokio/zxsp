@@ -244,7 +244,7 @@ void SpectraVideoInspector::updateWidgets()
 	xlogIn("SpectraVideoInspector::updateWidgets");
 	assert(validReference(spectra));
 
-	uint8 newstate = NV(spectra)->getJoystickButtonsFUDLR();
+	uint8 newstate = spectra->peekJoystickButtonsFUDLR();
 	if (js_state != newstate)
 	{
 		js_state = newstate;
@@ -328,34 +328,34 @@ void SpectraVideoInspector::insertRom(cstr filepath)
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

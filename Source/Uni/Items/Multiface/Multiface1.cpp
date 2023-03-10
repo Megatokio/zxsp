@@ -171,7 +171,12 @@ void Multiface1::triggerNmi()
 	machine->cpu->triggerNmi();
 }
 
-uint8 Multiface1::getJoystickButtonsFUDLR() const
+uint8 Multiface1::getJoystickButtonsFUDLR()
 {
 	return joystick_enabled ? machine->getJoystickButtons(joystick_id) : 0x00;
+}
+
+uint8 Multiface1::peekJoystickButtonsFUDLR() const volatile
+{
+	return joystick_enabled ? machine->peekJoystickButtons(joystick_id) : 0x00;
 }

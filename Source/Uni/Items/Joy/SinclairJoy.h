@@ -33,7 +33,7 @@ public:
 class ZxPlus2Joy final : public SinclairJoy
 {
 public:
-	explicit ZxPlus2Joy(Machine* m) : SinclairJoy(m, isa_ZxPlus2Joy, internal) {}
+	explicit ZxPlus2Joy(Machine* m);
 
 protected:
 	~ZxPlus2Joy() override = default;
@@ -43,7 +43,7 @@ protected:
 class ZxPlus2AJoy final : public SinclairJoy
 {
 public:
-	explicit ZxPlus2AJoy(Machine* m) : SinclairJoy(m, isa_ZxPlus2AJoy, internal) {}
+	explicit ZxPlus2AJoy(Machine* m);
 
 protected:
 	~ZxPlus2AJoy() override = default;
@@ -53,7 +53,7 @@ protected:
 class ZxPlus3Joy final : public SinclairJoy
 {
 public:
-	explicit ZxPlus3Joy(Machine* m) : SinclairJoy(m, isa_ZxPlus3Joy, internal) {}
+	explicit ZxPlus3Joy(Machine* m);
 
 protected:
 	~ZxPlus3Joy() override = default;
@@ -62,13 +62,8 @@ protected:
 
 class Tk90xJoy final : public SinclairJoy
 {
-	//	TK90X:
-	//	Anscheinend wurden beide Joysticks über den einen Port herausgeführt:
-	//	primär rechter Joystick (67890) mit COMMON an Pin 8
-	//	über Adapter auch linker Joystick (12345) mit COMMON an Pin 7.
-
 public:
-	explicit Tk90xJoy(Machine* m) : SinclairJoy(m, isa_Tk90xJoy, internal) {}
+	explicit Tk90xJoy(Machine* m);
 
 protected:
 	~Tk90xJoy() override = default;
@@ -81,7 +76,7 @@ class Tk95Joy final : public SinclairJoy
 	//	Anscheinend wie TK90X
 
 public:
-	explicit Tk95Joy(Machine* m) : SinclairJoy(m, isa_Tk95Joy, internal) {}
+	explicit Tk95Joy(Machine* m);
 
 protected:
 	~Tk95Joy() override = default;

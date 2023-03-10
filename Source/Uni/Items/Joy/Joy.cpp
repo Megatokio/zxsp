@@ -22,4 +22,5 @@ Joy::Joy(Machine* m, isa_id id, Internal internal, cstr o_addr, cstr i_addr, cst
 	if (idf3) insertJoystick(2, usb_yoystick2);
 }
 
-uint8 Joy::getButtonsFUDLR(uint i) const { return machine->getJoystickButtons(joystick_id[i]); }
+uint8 Joy::getButtonsFUDLR(uint i) { return machine->getJoystickButtons(joystick_id[i]); }
+uint8 Joy::peekButtonsFUDLR(uint i) const volatile { return machine->peekJoystickButtons(joystick_id[i]); }

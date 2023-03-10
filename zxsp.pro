@@ -52,7 +52,7 @@ INCLUDEPATH += \
 	Libraries \
 	zasm/Source \
 
-macx: INCLUDEPATH += Source/OS/Mac 
+macx: INCLUDEPATH += Source/OS/Mac
 unix:!macx: INCLUDEPATH += Source/OS/Linux
 
 
@@ -242,6 +242,7 @@ SOURCES +=	\
 	Source/Uni/Items/Joy/SinclairJoy.cpp \
 	Source/Uni/Items/Joy/KempstonJoy.cpp \
 	Source/Uni/Items/Joy/Tc2048Joy.cpp \
+	Source/Uni/Items/Joy/Tc2068Joy.cpp \
 	Source/Uni/Items/Joy/InvesJoy.cpp \
 	Source/Uni/Items/Joy/CursorJoy.cpp \
 	Source/Uni/Items/Joy/Tk85Joy.cpp \

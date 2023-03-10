@@ -51,14 +51,14 @@ void SinclairJoyInsp::updateWidgets()
 	xlogIn("SinclairJoyInsp::updateWidgets");
 	assert(validReference(joy));
 
-	uint8 newstate = NV(joy)->getButtonsFUDLR(0); // Sinclair 1
+	uint8 newstate = joy->peekButtonsFUDLR(0); // Sinclair 1
 	if (newstate != lineedit_state[0])
 	{
 		lineedit_state[0] = newstate;
 		lineedit_display[0]->setText(binstr(SinclairJoy::calcS1FromFUDLR(newstate), "%000FUDRL", "%--------"));
 	}
 
-	newstate = NV(joy)->getButtonsFUDLR(1); // Sinclair 2
+	newstate = joy->peekButtonsFUDLR(1); // Sinclair 2
 	if (newstate != lineedit_state[1])
 	{
 		lineedit_state[1] = newstate;

@@ -58,7 +58,7 @@ void CursorJoyInsp::updateWidgets()
 	xlogIn("CursorJoyInsp::updateWidgets");
 	assert(validReference(joy));
 
-	uint8 newstate = NV(joy)->getButtonsFUDLR(0);
+	uint8 newstate = joy->peekButtonsFUDLR(0);
 	if (newstate != lineedit_state[0])
 	{
 		lineedit_state[0] = newstate;
@@ -72,5 +72,11 @@ void CursorJoyInsp::updateWidgets()
 		lineedit_display[0]->setText(binstr(mybyte, "%-----:-----", "&L----:DUR-F"));
 	}
 }
+
+
+ProtekJoyInsp::ProtekJoyInsp(QWidget* w, MachineController* mc, volatile ProtekJoy* j) :
+	CursorJoyInsp(w, mc, j, "/Images/protek_js_if.jpg")
+{}
+
 
 } // namespace gui

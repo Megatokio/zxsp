@@ -865,7 +865,12 @@ void SpectraVideo::markVideoRam()
 }
 
 
-uint8 SpectraVideo::getJoystickButtonsFUDLR() const
+uint8 SpectraVideo::getJoystickButtonsFUDLR()
 {
 	return joystick_enabled ? machine->getJoystickButtons(joystick_id) : 0x00;
+}
+
+uint8 SpectraVideo::peekJoystickButtonsFUDLR() const volatile
+{
+	return joystick_enabled ? machine->peekJoystickButtons(joystick_id) : 0x00;
 }

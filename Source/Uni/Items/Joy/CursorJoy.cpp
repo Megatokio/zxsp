@@ -57,3 +57,6 @@ void CursorJoy::input(Time, int32, uint16 addr, uint8& byte, uint8& mask)
 		mask |= mybyte;
 	}
 }
+
+
+ProtekJoy::ProtekJoy(Machine* m) : CursorJoy(m, isa_ProtekJoy) {}

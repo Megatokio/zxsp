@@ -93,7 +93,7 @@ void JoyInsp::updateWidgets() // Kempston
 
 	for (uint i = 0; i < num_ports; i++)
 	{
-		uint8 newstate = NV(joy)->getButtonsFUDLR(i);
+		uint8 newstate = joy->peekButtonsFUDLR(i);
 		if (newstate == lineedit_state[i]) continue;
 		lineedit_state[i] = newstate;
 		lineedit_display[i]->setText(binstr(newstate, "--------", "111FUDLR"));
@@ -122,7 +122,7 @@ void JoyInsp::update_joystick_selectors()
 
 	// first call or a joystick has been plugged / unplugged:
 
-	static cstr jname[5] = {"USB Joystick 1", "USB Joystick 2", "USB Joystick 3", "Keyboard", "no Joystick"};
+	static constexpr cstr jname[5] = {"USB Joystick 1", "USB Joystick 2", "USB Joystick 3", "Keyboard", "no Joystick"};
 
 	// if selectors send events then slotSelectJoystick() will mess up the settings:
 	for (uint s = 0; s < num_ports; s++) { joystick_selectors[s]->blockSignals(1); }

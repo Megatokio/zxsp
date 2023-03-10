@@ -21,11 +21,13 @@ public:
 	JoystickID getJoystickID() const volatile { return joystick_id; }
 	void	   enableJoystick(bool f) volatile { joystick_enabled = f; }
 	cstr	   getIdf() const volatile { return "K"; } // Kempston joystick
-	uint8	   getJoystickButtonsFUDLR() const;
+	uint8	   peekJoystickButtonsFUDLR() const volatile;
 	bool	   isJoystickEnabled() const volatile { return joystick_enabled; }
 
 protected:
 	~Multiface1() override = default;
+
+	uint8 getJoystickButtonsFUDLR();
 
 	// Item interface:
 	void  powerOn(int32 cc) override;

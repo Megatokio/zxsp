@@ -84,7 +84,7 @@ public:
 	void	   insertJoystick(JoystickID id) { joystick_id = id; }
 	JoystickID getJoystickID() const volatile { return joystick_id; }
 	cstr	   getIdf() const volatile { return "K"; }
-	uint8	   getJoystickButtonsFUDLR() const;
+	uint8	   peekJoystickButtonsFUDLR() const volatile;
 	bool	   isJoystickEnabled() const volatile { return dip_joystick_enabled; }
 
 protected:

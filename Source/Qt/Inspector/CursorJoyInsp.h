@@ -22,9 +22,7 @@ protected:
 class ProtekJoyInsp : public CursorJoyInsp
 {
 public:
-	ProtekJoyInsp(QWidget* w, MachineController* mc, volatile ProtekJoy* j) :
-		CursorJoyInsp(w, mc, j, "/Images/protek_js_if.jpg")
-	{}
+	ProtekJoyInsp(QWidget* w, MachineController* mc, volatile ProtekJoy* j);
 };
 
 } // namespace gui

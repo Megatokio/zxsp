@@ -62,7 +62,7 @@ void Multiface1Insp::updateWidgets() // Kempston
 	if (chkbox_joystick_enabled->isChecked() != f) slotEnableJoystick(f); // safety
 	if (!f) return;														  // disabled
 
-	uint8 newstate = NV(mf1)->getJoystickButtonsFUDLR();
+	uint8 newstate = mf1->peekJoystickButtonsFUDLR();
 	if (lineedit_state == newstate) return;
 	lineedit_state = newstate;
 	lineedit_display->setText(binstr(newstate, "--------", "111FUDLR"));
@@ -145,37 +145,37 @@ void Multiface1Insp::update_joystick_selector()
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

@@ -21,13 +21,15 @@ public:
 	JoystickID getJoystickID(uint i) const volatile { return joystick_id[i]; }
 	cstr	   getIdf(uint i) const volatile { return joystick_idf[i]; }
 
-	uint8 getButtonsFUDLR(uint i) const;									  // buttons FUDLR as for Kempston
+	uint8 peekButtonsFUDLR(uint i) const volatile;							  // buttons FUDLR as for Kempston
 	bool  isConnected(uint i) const { return joystick_id[i] != no_joystick; } // meaning changed -> rename?
 	uint  getNumPorts() const { return num_ports; }
 
 protected:
 	Joy(Machine*, isa_id, Internal, cstr o_addr, cstr i_addr, cstr idf1, cstr idf2 = nullptr, cstr idf3 = nullptr);
 	~Joy() override = default;
+
+	uint8 getButtonsFUDLR(uint i); // buttons FUDLR as for Kempston
 
 	// Item interface
 	void input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override = 0;

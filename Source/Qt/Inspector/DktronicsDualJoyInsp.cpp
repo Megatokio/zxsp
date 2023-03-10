@@ -37,14 +37,14 @@ void DktronicsDualJoyInsp::updateWidgets()
 	xlogIn("DktronicsDualJoyInsp::updateWidgets");
 	assert(validReference(dkjoy));
 
-	uint8 newstate = NV(dkjoy)->getButtonsFUDLR(0); // Port 1 = Kempston
+	uint8 newstate = dkjoy->peekButtonsFUDLR(0); // Port 1 = Kempston
 	if (newstate != lineedit_state[0])
 	{
 		lineedit_state[0] = newstate;
 		lineedit_display[0]->setText(binstr(newstate, "--------", "111FUDLR"));
 	}
 
-	newstate = NV(dkjoy)->getButtonsFUDLR(1); // Port 2 = Sinclair 2
+	newstate = dkjoy->peekButtonsFUDLR(1); // Port 2 = Sinclair 2
 	if (newstate != lineedit_state[1])
 	{
 		lineedit_state[1] = newstate;

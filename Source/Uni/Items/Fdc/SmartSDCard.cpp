@@ -1028,7 +1028,7 @@ void SmartSDCard::setForceBankB(bool) {}
 
 void SmartSDCard::enableFlashWrite(bool) {}
 
-uint8 SmartSDCard::getJoystickButtonsFUDLR() const
+uint8 SmartSDCard::peekJoystickButtonsFUDLR() const volatile
 {
-	return dip_joystick_enabled ? machine->getJoystickButtons(joystick_id) : 0x00;
+	return dip_joystick_enabled ? machine->peekJoystickButtons(joystick_id) : 0x00;
 }

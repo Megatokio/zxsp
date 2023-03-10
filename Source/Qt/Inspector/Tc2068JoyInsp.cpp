@@ -41,7 +41,7 @@ void Tc2068JoyInsp::updateWidgets()
 
 	for (uint i = 0; i < num_ports; i++)
 	{
-		uint8 newstate = NV(tc2068joy)->getButtonsF111RLDU(i);
+		uint8 newstate = tc2068joy->peekButtonsF111RLDU(i);
 		if (newstate == lineedit_state[i]) continue;
 		lineedit_state[i] = newstate;
 		lineedit_display[i]->setText(binstr(newstate, "%F000RLDU", "%--------"));

@@ -293,6 +293,7 @@ public:
 
 	//Handle Input Devices:
 	uint8		joystick_buttons[num_joystick_ids] = {0}; // state of real-world joysticks
+	uint8		joystick_active[num_joystick_ids]  = {0}; // set to ff whenever read
 	uint8		mouse_buttons					   = 0;
 	zxsp::Point mouse_position					   = {0, 0};
 
@@ -303,8 +304,13 @@ public:
 	void updateMouseButtons(MouseButtons btns) volatile { mouse_buttons = btns; }
 	void mouseMoved(zxsp::Dist d) volatile { NV(mouse_position) += d; }
 
-	Keymap		getKeymap() const volatile;
-	uint8		getJoystickButtons(JoystickID id) const volatile { return joystick_buttons[id]; } // FUDLR
+	Keymap getKeymap() const volatile;
+	uint8  getJoystickButtons(JoystickID id) // FUDLR
+	{
+		joystick_active[id] = true;
+		return joystick_buttons[id];
+	}
+	uint8		peekJoystickButtons(JoystickID id) const volatile { return joystick_buttons[id]; } // FUDLR
 	uint8		getMouseButtons() const volatile { return mouse_buttons; }
 	zxsp::Point getMousePosition() const volatile { return NV(mouse_position); }
 };

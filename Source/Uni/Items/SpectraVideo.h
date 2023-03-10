@@ -71,8 +71,8 @@ protected:
 	void reset(Time t, int32 cc) override;
 	void input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
 	void output(Time t, int32 cc, uint16 addr, uint8 byte) override;
-	// void	audioBufferEnd	(Time t)override;
-	// void	videoFrameEnd	(int32 cc)override;
+
+	uint8 getJoystickButtonsFUDLR();
 
 public:
 	// ROM handling:
@@ -100,7 +100,7 @@ public:
 	void	   insertJoystick(JoystickID id) { joystick_id = id; }
 	JoystickID getJoystickID() const volatile { return joystick_id; }
 	cstr	   getIdf() const volatile { return "K"; } // Kempston joystick
-	uint8	   getJoystickButtonsFUDLR() const;
+	uint8	   peekJoystickButtonsFUDLR() const volatile;
 	bool	   isJoystickEnabled() const volatile { return joystick_enabled; }
 
 	// CRTC:
