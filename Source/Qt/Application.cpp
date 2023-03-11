@@ -10,6 +10,7 @@
 #include "OS/Dsp.h"
 #include "Preferences.h"
 #include "Qt/Settings.h"
+#include "UsbJoystick.h"
 #include "WindowMenu.h"
 #include "ZxInfo.h"
 #include "about_text.h"
@@ -112,6 +113,8 @@ Application::Application(int argc, char* argv[]) : QApplication(argc, argv)
 
 	about_screen = new QSplashScreen(pm, Qt::WindowStaysOnTopHint);
 	about_screen->showMessage(ABOUT_TEXT, Qt::AlignLeft | Qt::AlignBottom);
+
+	findUsbJoysticks();
 
 	// post 'open file' event if file path is passed as cmd line option (mostly during development)
 	for (int i = 1; i < argc; i++)

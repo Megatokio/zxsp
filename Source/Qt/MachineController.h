@@ -175,7 +175,7 @@ public:
 	void itemAdded(std::shared_ptr<Item>) volatile override;
 	void itemRemoved(Item*) volatile override;
 
-	void addOverlayJoy(Item*);
+	void addOverlayJoy(volatile Item*);
 	void removeOverlayJoy(Item*);
 
 signals:

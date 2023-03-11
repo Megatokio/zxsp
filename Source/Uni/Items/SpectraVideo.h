@@ -97,7 +97,7 @@ public:
 
 	// Joystick handling:
 	void	   setJoystickEnabled(bool);
-	void	   insertJoystick(JoystickID id) { joystick_id = id; }
+	void	   insertJoystick(JoystickID id) volatile { joystick_id = id; }
 	JoystickID getJoystickID() const volatile { return joystick_id; }
 	cstr	   getIdf() const volatile { return "K"; } // Kempston joystick
 	uint8	   peekJoystickButtonsFUDLR() const volatile;

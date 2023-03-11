@@ -19,7 +19,7 @@ Joy::Joy(Machine* m, isa_id id, Internal internal, cstr o_addr, cstr i_addr, cst
 
 	insertJoystick(0, usb_joystick0);
 	if (idf2) insertJoystick(1, usb_joystick1);
-	if (idf3) insertJoystick(2, usb_yoystick2);
+	if (idf3) insertJoystick(2, usb_joystick2);
 }
 
 uint8 Joy::getButtonsFUDLR(uint i) { return machine->getJoystickButtons(joystick_id[i]); }

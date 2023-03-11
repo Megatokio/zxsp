@@ -84,7 +84,6 @@ unix:!macx: HEADERS += \
 
 
 SOURCES += \
-	Source/OS/Joystick.cpp \
 	Source/OS/Dsp.cpp \
 
 
@@ -359,7 +358,6 @@ HEADERS += \
 	Libraries/kio/util/msbit.h \
 	Libraries/kio/util/count1bits.h \
 	Libraries/kio/TestTimer.h \
-	Source/version.h \
 	\
 	Libraries/unix/log.h \
 	Libraries/unix/os_utilities.h \
@@ -420,10 +418,10 @@ HEADERS += \
 
 HEADERS += \
 	Source/settings.h \
+	Source/version.h \
 	Source/OS/StereoSample.h \
 	Source/OS/DspTime.h \
 	Source/OS/Dsp.h \
-	Source/OS/Joystick.h \
 
 
 # zxsp Headers - Qt GUI stuff:

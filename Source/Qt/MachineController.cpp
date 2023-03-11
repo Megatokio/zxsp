@@ -18,7 +18,6 @@
 #include "Items/Ula/Mmu.h"
 #include "Joy/KempstonJoy.h"
 #include "Joy/ZxIf2.h"
-#include "Joystick.h"
 #include "KempstonMouse.h"
 #include "Keyboard.h"
 #include "Lenslok.h"
@@ -93,12 +92,12 @@ void MachineController::pollInputDevices()
 	volatile Machine* m = machine.get();
 	if (!m) return;
 
-	static_assert(NELEM(joysticks) == NELEM(Machine::joystick_buttons), "");
-	for (uint i = 0; i < NELEM(joysticks); i++)
+	for (uint i = 0; i < num_usb_joysticks; i++) //
 	{
-		if (auto* joy = dynamic_cast<UsbJoystick*>(joysticks[i]))
-			m->updateJoystickButtons(JoystickID(i), JoystickButtons(joy->getState(no)));
+		m->joystick_buttons[2 + i] = NV(&usb_joysticks[i])->getState();
 	}
+
+	if (m->kbd_joystick_active) m->kbd_joystick_active -= 1;
 
 	if (mouse.isGrabbed())
 	{
@@ -1634,27 +1633,27 @@ void MachineController::keyPressEvent(QKeyEvent* e)
 	xlogIn("MachineController:keyPressEvent");
 
 	if (cmdkey_involved(e)) { allKeysUp(); }
-	else
+	else if (machine)
 	{
 		uint32 modifiers = e->modifiers();
 		uint8  keycode	 = uint8(e->nativeVirtualKey());
 		uint16 charcode	 = get_charcode(e);
 
-		if (machine && machine->rzxIsLoaded() && action_RzxRecordAutostart->isChecked())
+		if (machine->rzxIsLoaded() && action_RzxRecordAutostart->isChecked())
 		{
-			NVPtr<Machine> machine(this->machine.get());
-			if (machine->rzxIsPlaying()) machine->rzxStartRecording(); // -> callback rzxStateChanged()
+			NVPtr<Machine> m(machine.get());
+			if (m->rzxIsPlaying()) m->rzxStartRecording(); // -> callback rzxStateChanged()
 		}
 
-		if (charcode && keyboardJoystick->isActive())
-			for (uint i = 0; i < 5; i++)
+		if (charcode)
+			for (uint i = 0; i < NELEM(keyjoy_keys); i++)
 				if (keyjoy_keys[i] == keycode)
 				{
-					keyboardJoystick->keyDown(1 << i);
-					return;
+					machine->joystick_buttons[kbd_joystick] |= 1 << i;
+					if (machine->kbd_joystick_active) return;
 				}
 
-		if (machine) NV(machine)->keyDown(charcode, keycode, zxmodifiers(modifiers));
+		NV(machine)->keyDown(charcode, keycode, zxmodifiers(modifiers));
 	}
 
 	emit signal_keymapModified();
@@ -1665,20 +1664,21 @@ void MachineController::keyReleaseEvent(QKeyEvent* e)
 	xlogIn("MachineController:keyReleaseEvent");
 
 	if (cmdkey_involved(e)) { allKeysUp(); }
-	else
+	else if (machine)
 	{
 		uint32 modifiers = e->modifiers();
 		uint8  keycode	 = uint8(e->nativeVirtualKey());
 		uint16 charcode	 = get_charcode(e);
 
-		if (charcode && keyboardJoystick->isActive())
-			for (uint i = 0; i < 5; i++)
+		if (charcode)
+			for (uint i = 0; i < NELEM(keyjoy_keys); i++)
 				if (keyjoy_keys[i] == keycode)
 				{
-					keyboardJoystick->keyUp(1 << i);
-					return;
+					machine->joystick_buttons[kbd_joystick] &= ~(1 << i);
+					//if (machine->kbd_joystick_active) return;
 				}
-		if (machine) NV(machine)->keyUp(charcode, keycode, zxmodifiers(modifiers));
+
+		NV(machine)->keyUp(charcode, keycode, zxmodifiers(modifiers));
 	}
 
 	emit signal_keymapModified();
@@ -2153,8 +2153,11 @@ void MachineController::item_removed(Item* item, bool force)
 	removeOverlayJoy(item);
 }
 
-void MachineController::addOverlayJoy(Item* item)
+void MachineController::addOverlayJoy(volatile Item* item)
 {
+	xlogline("MachineController::addOverlayJoy: TODO");
+
+#if 0
 	switch (item->grp_id)
 	{
 	case isa_Joy:
@@ -2198,6 +2201,7 @@ void MachineController::addOverlayJoy(Item* item)
 	}
 	default: break;
 	}
+#endif
 }
 
 void MachineController::removeOverlayJoy(Item* item)

@@ -292,10 +292,10 @@ public:
 	void set60Hz(bool = 1);		   // 100%, ~60fps, stored in prefs
 
 	//Handle Input Devices:
-	uint8		joystick_buttons[num_joystick_ids] = {0}; // state of real-world joysticks
-	uint8		joystick_active[num_joystick_ids]  = {0}; // set to ff whenever read
-	uint8		mouse_buttons					   = 0;
-	zxsp::Point mouse_position					   = {0, 0};
+	uint8		joystick_buttons[MAX_USB_JOYSTICKS + 2] = {0}; // state of real-world joysticks
+	uint8		kbd_joystick_active						= 0;   // set to ff whenever read
+	uint8		mouse_buttons							= 0;
+	zxsp::Point mouse_position							= {0, 0};
 
 	void keyDown(uint16 unicode, uint8 oskeycode, KeyboardModifiers);
 	void keyUp(uint16 unicode, uint8 oskeycode, KeyboardModifiers);
@@ -307,7 +307,7 @@ public:
 	Keymap getKeymap() const volatile;
 	uint8  getJoystickButtons(JoystickID id) // FUDLR
 	{
-		joystick_active[id] = true;
+		if (id == kbd_joystick) kbd_joystick_active = 255;
 		return joystick_buttons[id];
 	}
 	uint8		peekJoystickButtons(JoystickID id) const volatile { return joystick_buttons[id]; } // FUDLR

@@ -8,11 +8,11 @@
 #include "Items/SpectraVideo.h"
 #include "Machine.h"
 #include "MachineController.h"
-#include "OS/Joystick.h" // physical joysticks
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
 #include "RecentFilesMenu.h"
 #include "Templates/NVPtr.h"
+#include "UsbJoystick.h"
 #include "globals.h"
 #include <QCheckBox>
 #include <QComboBox>
@@ -153,7 +153,7 @@ void SpectraVideoInspector::slotEnableJoystick(bool f)
 
 void SpectraVideoInspector::slotFindUsbJoysticks()
 {
-	xlogIn("SpectraVideoInspector::scanUSB");
+	xlogIn("SpectraVideoInspector::slotFindUsbJoysticks");
 
 	findUsbJoysticks();
 	update_joystick_selector();
@@ -161,8 +161,7 @@ void SpectraVideoInspector::slotFindUsbJoysticks()
 
 void SpectraVideoInspector::slotSetKeyboardJoystickKeys()
 {
-	xlogIn("SpectraVideoInspector::setKeys");
-	//	getKbdJoystick()->setKeys();
+	xlogIn("SpectraVideoInspector::slotSetKeyboardJoystickKeys");
 
 	ConfigDialog* d = new ConfigureKeyboardJoystickDialog(controller);
 	d->show();
@@ -170,12 +169,11 @@ void SpectraVideoInspector::slotSetKeyboardJoystickKeys()
 
 void SpectraVideoInspector::slotJoystickSelected()
 {
-	xlogIn("SpectraVideoInspector::joySelected");
+	xlogIn("SpectraVideoInspector::slotJoystickSelected");
 	assert(validReference(spectra));
 
-	int j = js_selector->currentIndex();
-	nvptr(spectra)->insertJoystick(JoystickID(js_selector->itemData(j).toInt()));
-	controller->addOverlayJoy(nvptr(spectra));
+	spectra->insertJoystick(JoystickID(js_selector->currentIndex()));
+	controller->addOverlayJoy(spectra);
 }
 
 void SpectraVideoInspector::update_joystick_selector()
@@ -183,38 +181,28 @@ void SpectraVideoInspector::update_joystick_selector()
 	xlogIn("SpectraVideoInspector::update_js_selector");
 	assert(validReference(spectra));
 
-	char f[max_joy];
-	int	 i;
-	for (i = 0; i < max_joy; i++) f[i] = joysticks[i]->isConnected() ? '1' : '0';
-	for (i = 0; i < js_selector->count(); i++) f[js_selector->itemData(i).toInt()] += 2;
-	for (i = 0; i < max_joy; i++)
-		if (f[i] != '0' && f[i] != '3') break;
-	if (i == max_joy) return; // no change
+	int num_needed = 2 + int(num_usb_joysticks);
 
-	static constexpr cstr jname[5] = {"USB Joystick 1", "USB Joystick 2", "USB Joystick 3", "Keyboard", "no Joystick"};
+	while (js_selector->count() > num_needed) { js_selector->removeItem(num_needed); }
 
-	while (js_selector->count()) { js_selector->removeItem(0); }
-	for (i = 0; i < max_joy; i++)
+	for (int i = js_selector->count(); i < num_needed; i++)
 	{
-		if (f[i] != '0') js_selector->addItem(jname[i], i);
-	}
-
-	int id = spectra->getJoystickID();
-	for (i = 0; i < js_selector->count(); i++)
-	{
-		if (js_selector->itemData(i).toInt() == id)
+		if (i == 0) { js_selector->addItem("no Joystick"); }
+		else if (i == 1) { js_selector->addItem("Keyboard"); }
+		else
 		{
-			js_selector->setCurrentIndex(i);
-			break;
+			char idf[] = "USB Joystick #";
+			idf[13]	   = char('0' + i - 2);
+			js_selector->addItem(idf);
 		}
 	}
 
-	if (i == js_selector->count()) { js_selector->setCurrentIndex(i - 1); }
+	js_selector->setCurrentIndex(spectra->getJoystickID());
 }
 
 void SpectraVideoInspector::slotInsertOrEjectRom()
 {
-	xlogIn("SpectraVideoInspector::slot_insert_or_eject_rom()");
+	xlogIn("SpectraVideoInspector::slotInsertOrEjectRom()");
 	assert(validReference(spectra));
 
 	if (spectra->isRomInserted())

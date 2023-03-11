@@ -4,7 +4,6 @@
 
 #include "SinclairJoyInsp.h"
 #include "Joy/SinclairJoy.h"
-#include "Joystick.h"
 #include "Templates/NVPtr.h"
 #include <QGridLayout>
 #include <QPushButton>

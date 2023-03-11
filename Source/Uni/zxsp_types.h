@@ -42,12 +42,12 @@ enum KeyboardMode { // preferred keyboard translation:		((Kbd.h))
 
 enum JoystickID // physical joysticks
 {
-	usb_joystick0	 = 0,
-	usb_joystick1	 = 1,
-	usb_yoystick2	 = 2,
-	kbd_joystick	 = 3,
-	no_joystick		 = 4,
-	num_joystick_ids = 5
+	no_joystick	  = 0,
+	kbd_joystick  = 1,
+	usb_joystick0 = 2 + 0,
+	usb_joystick1 = 2 + 1,
+	usb_joystick2 = 2 + 2,
+	// etc.
 };
 
 enum JoystickButtons //	as for Kempston joystick interface: %000FUDLR

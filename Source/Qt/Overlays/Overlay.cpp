@@ -4,10 +4,10 @@
 
 #include "Overlay.h"
 #include "Joy/Joy.h"
-#include "Joystick.h"
 #include "Machine.h"
 #include "MachineController.h"
 #include "Screen/Screen.h"
+#include "UsbJoystick.h"
 #include "globals.h"
 #include "kio/kio.h"
 #include <QBrush>
@@ -107,8 +107,9 @@ OverlayJoystick::OverlayJoystick(Screen* s, const Joystick* joy, cstr idf, Posit
 	arrowU(3),
 	arrowD(3)
 {
-	assert(idf);
-	assert(joy != noJoystick);
+	//TODO
+	//assert(idf);
+	//assert(joy != noJoystick);
 
 	w = h = 8 * SZ;
 	OverlayJoystick::setZoom(zoom);
@@ -136,6 +137,7 @@ void OverlayJoystick::setZoom(int z)
 
 void OverlayJoystick::draw(QPainter& p)
 {
+#if 0
 	if (screen->isActive() && joystick->isConnected())
 	{
 		p.setPen(shadow_pen);
@@ -167,6 +169,7 @@ void OverlayJoystick::draw(QPainter& p)
 		p.setFont(text_font);
 		p.drawText(x, y + zoom * 9, idf);
 	}
+#endif
 }
 
 } // namespace gui

@@ -17,7 +17,7 @@ class Multiface1 final : public Multiface
 public:
 	Multiface1(Machine*, bool enable_joystick);
 
-	void	   insertJoystick(JoystickID id) { joystick_id = id; }
+	void	   insertJoystick(JoystickID id) volatile { joystick_id = id; }
 	JoystickID getJoystickID() const volatile { return joystick_id; }
 	void	   enableJoystick(bool f) volatile { joystick_enabled = f; }
 	cstr	   getIdf() const volatile { return "K"; } // Kempston joystick
