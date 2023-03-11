@@ -9,9 +9,8 @@
 #include "Ram/Memotech64kRam.h"
 #include "Ram/Zx16kRam.h"
 #include "TapeRecorder.h"
+#include "Ula/MmuZx81.h"
 #include "Z80/Z80.h"
-#include "ZxInfo.h"
-#include "unix/FD.h"
 
 
 // how much space must be left free in addition to the program loaded?
@@ -37,12 +36,12 @@ inline int progname_len(cu8ptr p, int n)
 	return n;
 }
 
-MachineZx81::MachineZx81(gui::MachineController* m, isa_id id, Model model) : Machine(m, model, id)
+MachineZx81::MachineZx81(IMachineController* m, isa_id id, Model model) : Machine(m, model, id)
 {
 	audio_in_enabled = no; // default. MachineController will override if flag set in settings
 }
 
-MachineZx81::MachineZx81(gui::MachineController* m) : Machine(m, zx81, isa_MachineZx81)
+MachineZx81::MachineZx81(IMachineController* m) : Machine(m, zx81, isa_MachineZx81)
 {
 	addItem(new Z80(this));		// must be 1st item
 	addItem(new UlaZx81(this)); // should be 2nd item

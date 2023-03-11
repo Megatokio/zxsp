@@ -3,7 +3,6 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "Joystick.h"
 #include "Memory.h"
 #include "Ula/Crtc.h"
 #include "unix/files.h"
@@ -21,16 +20,15 @@ public:
 	bool	  shadowram_ever_used;
 	MemoryPtr shadowram;
 
-	Joystick*			  joystick; // Joystick
-	gui::OverlayJoystick* overlay;
-	uint				  port_254;				 // border
-	uint8				  port_239;				 // RS232
-	uint8				  port_247;				 // RS232
-	bool				  rs232_enabled;		 // RS232
-	bool				  joystick_enabled;		 // Joystick
-	bool				  if1_rom_hooks_enabled; // ROM
-	MemoryPtr			  rom;
-	cstr				  filepath;
+	JoystickID joystick_id;			  // Joystick
+	uint	   port_254;			  // border
+	uint8	   port_239;			  // RS232
+	uint8	   port_247;			  // RS232
+	bool	   rs232_enabled;		  // RS232
+	bool	   joystick_enabled;	  // Joystick
+	bool	   if1_rom_hooks_enabled; // ROM
+	MemoryPtr  rom;
+	cstr	   filepath;
 	// bool romdis_in;	   // rear-side input state --> Item
 	bool own_romdis_state; // own state
 
@@ -73,8 +71,8 @@ protected:
 	void reset(Time t, int32 cc) override;
 	void input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
 	void output(Time t, int32 cc, uint16 addr, uint8 byte) override;
-	// void	audioBufferEnd	(Time t)override;
-	// void	videoFrameEnd	(int32 cc)override;
+
+	uint8 getJoystickButtonsFUDLR();
 
 public:
 	// ROM handling:
@@ -99,8 +97,11 @@ public:
 
 	// Joystick handling:
 	void	   setJoystickEnabled(bool);
-	void	   insertJoystick(int id);
-	JoystickID getJoystickID() const volatile { return indexof(joystick); }
+	void	   insertJoystick(JoystickID id) volatile { joystick_id = id; }
+	JoystickID getJoystickID() const volatile { return joystick_id; }
+	cstr	   getIdf() const volatile { return "K"; } // Kempston joystick
+	uint8	   peekJoystickButtonsFUDLR() const volatile;
+	bool	   isJoystickEnabled() const volatile { return joystick_enabled; }
 
 	// CRTC:
 	int32 cpuCycleOfNextCrtRead() override { return ccx; }

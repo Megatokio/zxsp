@@ -4,13 +4,9 @@
 
 #include "MonoRenderer.h"
 #include "Templates/Array.h"
-#include "cpp/cppthreads.h"
-#include "globals.h"
 #include "graphics/gif/GifEncoder.h"
 #include "unix/os_utilities.h"
 #include "version.h"
-#include <QImage>
-#include <QPainter>
 
 
 /*	rendere Ausgaben der B&W Ula in mono_octets[].

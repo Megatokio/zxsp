@@ -3,37 +3,68 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "DspTime.h"
+#include "OS/DspTime.h"
 #include "Uni/Language.h"
+#include "ZxInfo/ZxInfo.h"
 #include "isa_id.h"
 #include "kio/kio.h"
 
 
-using Time		= double; // time	[s]
-using Frequency = double; // frequency [1/s]
+extern void showAlert(cstr msg, ...);	// ConfigDialog.cpp
+extern void showWarning(cstr msg, ...); // ConfigDialog.cpp
+extern void showInfo(cstr msg, ...);	// ConfigDialog.cpp
 
-using Sample = float;
+
+extern cstr appl_rsrc_path; // Application.cpp
+extern cstr basic_token[];	// ZxInfo/BasicTokens.cpp
+
+
+using CoreByte	= uint32; // Z80
+using Time		= double; // time [s]
+using Frequency = double; // frequency [1/s]
+using Sample	= float;
 class StereoSample;
 
-class FD;
 
-using CoreByte = uint32; // Z80
+enum KeyboardModifiers // modifier key masks:
+{
+	ShiftKeyMask   = 1, // caps shift key
+	ControlKeyMask = 2, // control key
+	AltKeyMask	   = 4	// alt/option key: used as an auxilliary caps shift key
+};
 
-
-enum KbdMode {	// preferred keyboard translation:		((Kbd.h))
-	kbdgame,	// prefer physical translation (from scan code)
-	kbdbasic,	// use logical translation (from character code)
-	kbdbtzxkbd, // game mode on the "Recreated ZX Keyboard"
+enum KeyboardMode { // preferred keyboard translation:		((Kbd.h))
+	kbdgame,		// prefer physical translation (from scan code)
+	kbdbasic,		// use logical translation (from character code)
+	kbdbtzxkbd,		// game mode on the "Recreated ZX Keyboard"
 	num_kbdmodes
 };
 
+enum JoystickID // physical joysticks
+{
+	no_joystick	  = 0,
+	kbd_joystick  = 1,
+	usb_joystick0 = 2 + 0,
+	usb_joystick1 = 2 + 1,
+	usb_joystick2 = 2 + 2,
+	// etc.
+};
 
-class TempMemPool;
+enum JoystickButtons //	as for Kempston joystick interface: %000FUDLR
+{
+	button_fire1_mask = 0x10,
+	button_up_mask	  = 0x08,
+	button_down_mask  = 0x04,
+	button_left_mask  = 0x02,
+	button_right_mask = 0x01
+};
 
-// physical joysticks: usb/kbd-emu/none:
-class Joystick;
-class KbdJoystick;
-class UsbJoystick;
+enum MouseButtons // same as Qt
+{
+	left_button	  = 1,
+	right_button  = 2,
+	middle_button = 4,
+};
 
 class GifEncoder;
 class Pixelmap;
@@ -157,73 +188,3 @@ class KempstonMouse;
 class SpectraVideo;
 class DivIDE;
 class CurrahMicroSpeech;
-
-namespace gui
-{
-class Application;
-class WindowMenu;
-class ZxItemsMenu;
-class Overlay;
-class OverlayJoystick;
-class OverlayRecord;
-class OverlayPlay;
-
-class MachineController;
-
-class Screen;
-class ScreenMono;
-class ScreenZxsp;
-
-class ToolWindowController;
-class ToolWindow;
-class Lenslok;
-
-class Inspector;
-class UlaInsp;
-class JoyInsp;
-class TapeRecorderInsp;
-class Plus2TapeRecorderInsp;
-class WalkmanInspector;
-class KeyboardInspector;
-class Z80Insp;
-class Tk85JoyInsp;
-class Tk95JoyInsp;
-class Tk90xJoyInsp;
-class KempstonJoyInsp;
-class Tc2048JoyInsp;
-class DktronicsDualJoyInsp;
-class CursorJoyInsp;
-class ProtekJoyInsp;
-class SinclairJoyInsp;
-class Tc2068JoyInsp;
-class IcTesterInsp;
-class KempstonMouseInsp;
-class FullerBoxInsp;
-class ZxIf2Insp;
-class ZxIf1Insp;
-class ZxPrinterInsp;
-class PrinterAercoInsp;
-class PrinterLprint3Insp;
-class PrinterPlus3Insp;
-class PrinterTs2040Insp;
-class ZonxBoxInsp;
-class AyInsp;
-class DidaktikMelodikInsp;
-class FdcBeta128Insp;
-class FdcD80Insp;
-class FdcJLOInsp;
-class FdcPlus3Insp;
-class FdcPlusDInsp;
-class GrafPadInsp;
-class MultifaceInsp;
-class Multiface1Insp;
-class Multiface128Insp;
-class Multiface3Insp;
-class Jupiter16kRamInsp;
-class Zx16kInsp;
-class Zx3kInsp;
-class Memotech64kRamInsp;
-class MemoryInspector;
-class SpectraVideoInspector;
-class DivIDEInspector;
-} // namespace gui

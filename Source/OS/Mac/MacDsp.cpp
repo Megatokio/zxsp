@@ -4,13 +4,13 @@
 
 #include "Application.h"
 #include "Dsp.h"
+#include "MachineList.h"
 #include "Qt/Settings.h"
 #include "StereoSample.h"
 #include "cpp/cppthreads.h"
 #include "cstrings/tempmem.h"
 #include "kio/TestTimer.h"
 #include <CoreAudio/CoreAudio.h>
-
 
 // Time		system_time			= 0.0;
 // Frequency	samples_per_second	= 44100;
@@ -320,7 +320,7 @@ static OSStatus audioDeviceIOProc(
 
 			ShiftOutputStitching();
 			CopyInputToOutputBuffer();
-			runMachinesForSound(); // DOIT!
+			nvptr(&gui::machine_list)->runMachinesForSound(); // DOIT!
 			if (audio_output_device_enabled && audio_output_volume > 0.0)
 			{
 				if (0) HighpassOutputBuffer();

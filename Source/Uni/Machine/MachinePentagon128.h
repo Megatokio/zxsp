@@ -4,11 +4,10 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "MachineZx128.h"
-#include "kio/kio.h"
 
 
 class MachinePentagon128 : public MachineZx128
 {
 public:
-	explicit MachinePentagon128(gui::MachineController*);
+	explicit MachinePentagon128(IMachineController*);
 };

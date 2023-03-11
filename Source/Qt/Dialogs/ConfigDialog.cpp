@@ -290,6 +290,8 @@ void showAlertDialog(QWidget* parent, cstr title, cstr text)
 		ConfigDialog::Red + ConfigDialog::Border2 + ConfigDialog::CloseOnClick + ConfigDialog::CloseOnEsc);
 }
 
+} // namespace gui
+
 void showInfo(cstr msg, ...)
 {
 	va_list va;
@@ -297,7 +299,7 @@ void showInfo(cstr msg, ...)
 	str text = usingstr(msg, va);
 	va_end(va);
 
-	showInfoDialog(nullptr, "Information:", text);
+	gui::showInfoDialog(nullptr, "Information:", text);
 }
 
 void showWarning(cstr msg, ...)
@@ -307,7 +309,7 @@ void showWarning(cstr msg, ...)
 	str text = usingstr(msg, va);
 	va_end(va);
 
-	showWarningDialog(nullptr, "Problem:", text);
+	gui::showWarningDialog(nullptr, "Problem:", text);
 }
 
 void showAlert(cstr msg, ...)
@@ -317,7 +319,5 @@ void showAlert(cstr msg, ...)
 	str text = usingstr(msg, va);
 	va_end(va);
 
-	showAlertDialog(nullptr, "Alert:", text);
+	gui::showAlertDialog(nullptr, "Alert:", text);
 }
-
-} // namespace gui

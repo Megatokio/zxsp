@@ -7,8 +7,11 @@
 #include "Items/Ram/Memotech64kRam.h"
 #include "Items/Ram/Zx16kRam.h"
 #include "Items/Ram/Zx3kRam.h"
+#include "Keyboard.h"
 #include "MachineController.h"
 #include "TapeRecorder.h"
+#include "Ula/MmuZx80.h"
+#include "Ula/UlaZx80.h"
 #include "Z80/Z80.h"
 #include "ZxInfo.h"
 #include "unix/FD.h"
@@ -20,7 +23,7 @@
 #define MIN_FREE (24 * 33 + 32) // full screen + edit line + some spare bytes...
 
 
-MachineZx80::MachineZx80(gui::MachineController* parent, bool is60hz) : Machine(parent, zx80, isa_MachineZx80)
+MachineZx80::MachineZx80(IMachineController* parent, bool is60hz) : Machine(parent, zx80, isa_MachineZx80)
 {
 	addItem(new Z80(this));
 	addItem(new UlaZx80(this, is60hz));
@@ -51,7 +54,7 @@ bool MachineZx80::handleSaveTapePatch()
 	// sanity test:
 	if (datalen < 0x28 || datalen > ram.count())
 	{
-		gui::showWarning("Illegal sysvar E_LINE ($400A): %u\nThe programme was NOT saved!", uint(dataend));
+		showWarning("Illegal sysvar E_LINE ($400A): %u\nThe programme was NOT saved!", uint(dataend));
 		return 1; // handled
 	}
 

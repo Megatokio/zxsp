@@ -6,7 +6,6 @@
 #include "O80Data.h"
 #include "TapData.h"
 #include "TzxData.h"
-#include "globals.h"
 
 
 void TapeFileDataBlock::purge()

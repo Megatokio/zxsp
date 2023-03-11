@@ -3,13 +3,14 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Application.h"
-#include "Dsp.h"
 #include "Files/RzxFile.h"
 #include "Files/Z80Head.h"
 #include "Machine.h"
 #include "MachineController.h"
+#include "OS/Dsp.h"
 #include "Preferences.h"
 #include "Qt/Settings.h"
+#include "UsbJoystick.h"
 #include "WindowMenu.h"
 #include "ZxInfo.h"
 #include "about_text.h"
@@ -113,6 +114,8 @@ Application::Application(int argc, char* argv[]) : QApplication(argc, argv)
 	about_screen = new QSplashScreen(pm, Qt::WindowStaysOnTopHint);
 	about_screen->showMessage(ABOUT_TEXT, Qt::AlignLeft | Qt::AlignBottom);
 
+	findUsbJoysticks();
+
 	// post 'open file' event if file path is passed as cmd line option (mostly during development)
 	for (int i = 1; i < argc; i++)
 	{
@@ -195,22 +198,11 @@ bool Application::event(QEvent* e)
 	//	return 0;	// not processed
 }
 
-
-bool cmdKeyDown()
-{
-#if QT_VERSION < 0x050000
-	return QApplication::keyboardModifiers() & Qt::ControlModifier;
-#else
-	return QGuiApplication::keyboardModifiers() & Qt::ControlModifier;
-#endif
-}
-
-
 void Application::showPreferences()
 {
 	xlogIn("Application:showPreferences");
 
-	QWidget*	 parent		 = nullptr; // front_machine_controller;
+	QWidget*	 parent		 = nullptr;
 	QMainWindow* window		 = new QMainWindow(parent, Qt::Tool);
 	QWidget*	 preferences = new Preferences(nullptr);
 	window->setCentralWidget(preferences);

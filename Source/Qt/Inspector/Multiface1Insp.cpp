@@ -3,9 +3,13 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Multiface1Insp.h"
+#include "MachineController.h"
 #include "Multiface/Multiface1.h"
+#include "Overlays/Overlay.h"
+#include "Screen/Screen.h"
 #include "Settings.h"
 #include "Templates/NVPtr.h"
+#include "UsbJoystick.h"
 #include <QCheckBox>
 #include <QComboBox>
 #include <QLineEdit>
@@ -18,13 +22,13 @@ Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile Multi
 	MultifaceInsp(w, mc, mf, "Images/multiface1.jpg", QRect(224, 20, 30, 30)) // red button		x y w h
 {
 	chkbox_joystick_enabled = new QCheckBox("Joystick", this);
-	connect(chkbox_joystick_enabled, &QCheckBox::clicked, this, &Multiface1Insp::enable_joystick);
+	connect(chkbox_joystick_enabled, &QCheckBox::clicked, this, &Multiface1Insp::slotEnableJoystick);
 
 	joystick_selector = new QComboBox(this);
 	joystick_selector->setFocusPolicy(Qt::NoFocus);
 	connect(
 		joystick_selector, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
-		&Multiface1Insp::joystick_selected);
+		&Multiface1Insp::slotJoystickSelected);
 	update_joystick_selector();
 
 	lineedit_display = new QLineEdit("%--------", this);
@@ -33,7 +37,7 @@ Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile Multi
 	lineedit_state = 0;
 
 	button_scan_usb = new QPushButton("Scan USB", this);
-	connect(button_scan_usb, &QPushButton::clicked, this, &Multiface1Insp::find_usb_joysticks);
+	connect(button_scan_usb, &QPushButton::clicked, this, &Multiface1Insp::slotFindUsbJoysticks);
 
 
 	chkbox_joystick_enabled->move(7, 191);
@@ -45,34 +49,26 @@ Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile Multi
 	lineedit_display->move(223, 212);
 	lineedit_display->setFixedWidth(86);
 
-	enable_joystick(mf->joystick_enabled);
+	slotEnableJoystick(mf->isJoystickEnabled());
 }
 
 void Multiface1Insp::updateWidgets() // Kempston
 {
 	xlogIn("Multiface1Insp::updateWidgets");
-	//assert(validReference(mf3));
 
 	MultifaceInsp::updateWidgets();
 
-	bool f = mf1->joystick_enabled;
-	if (chkbox_joystick_enabled->isChecked() != f) enable_joystick(f); // safety
-	if (!f) return;													   // disabled
+	bool f = mf1->isJoystickEnabled();
+	if (chkbox_joystick_enabled->isChecked() != f) slotEnableJoystick(f); // safety
+	if (!f) return;														  // disabled
 
-	uint8 newstate = mf1->joystick->getState(no);
-	if (lineedit_state == newstate) return; // no change
+	uint8 newstate = mf1->peekJoystickButtonsFUDLR();
+	if (lineedit_state == newstate) return;
 	lineedit_state = newstate;
-
-	char s[] = "%111FUDLR";
-	for (int j = 0; j < 8; j++)
-	{
-		if (((~newstate) << j) & 0x80) s[j + 1] = '-';
-	}
-
-	lineedit_display->setText(s);
+	lineedit_display->setText(binstr(newstate, "--------", "111FUDLR"));
 }
 
-void Multiface1Insp::enable_joystick(bool f)
+void Multiface1Insp::slotEnableJoystick(bool f)
 {
 	settings.setValue(key_multiface1_enable_joystick, f);
 
@@ -88,20 +84,20 @@ void Multiface1Insp::enable_joystick(bool f)
 	}
 }
 
-void Multiface1Insp::find_usb_joysticks()
+void Multiface1Insp::slotFindUsbJoysticks()
 {
-	xlogIn("Multiface1Insp::scanUSB");
+	xlogIn("Multiface1Insp::slotFindUsbJoysticks");
 	findUsbJoysticks();
 	update_joystick_selector();
 }
 
-void Multiface1Insp::joystick_selected()
+void Multiface1Insp::slotJoystickSelected()
 {
-	xlogIn("Multiface1Insp::joystick_selected");
+	xlogIn("Multiface1Insp::slotJoystickSelected");
 	assert(validReference(mf1));
 
-	int j = joystick_selector->currentIndex();
-	nvptr(mf1)->insertJoystick(joystick_selector->itemData(j).toInt());
+	mf1->insertJoystick(JoystickID(joystick_selector->currentIndex()));
+	controller->addOverlayJoy(mf1);
 }
 
 void Multiface1Insp::update_joystick_selector()
@@ -109,76 +105,60 @@ void Multiface1Insp::update_joystick_selector()
 	xlogIn("Multiface1Insp::update_joystick_selector");
 	assert(validReference(mf1));
 
-	char f[max_joy];
-	int	 i;
+	int num_needed = 2 + int(num_usb_joysticks);
 
-	for (i = 0; i < max_joy; i++) { f[i] = joysticks[i]->isConnected() ? '1' : '0'; }
+	while (joystick_selector->count() > num_needed) { joystick_selector->removeItem(num_needed); }
 
-	for (i = 0; i < joystick_selector->count(); i++) { f[joystick_selector->itemData(i).toInt()] += 2; }
-
-	for (i = 0; i < max_joy; i++)
+	for (int i = joystick_selector->count(); i < num_needed; i++)
 	{
-		if (f[i] != '0' && f[i] != '3') break;
-	}
-	if (i == max_joy) return; // no change
-
-	static constexpr cstr jname[5] = {"USB Joystick 1", "USB Joystick 2", "USB Joystick 3", "Keyboard", "no Joystick"};
-
-	joystick_selector->blockSignals(1);
-	while (joystick_selector->count()) { joystick_selector->removeItem(0); }
-	for (i = 0; i < max_joy; i++)
-	{
-		if (f[i] != '0') joystick_selector->addItem(jname[i], i);
-	}
-	joystick_selector->blockSignals(0);
-
-	int id = mf1->getJoystickID();
-	for (i = 0; i < joystick_selector->count(); i++)
-	{
-		if (joystick_selector->itemData(i).toInt() == id)
+		if (i == 0) { joystick_selector->addItem("no Joystick"); }
+		else if (i == 1) { joystick_selector->addItem("Keyboard"); }
+		else
 		{
-			joystick_selector->setCurrentIndex(i);
-			break;
+			char idf[] = "USB Joystick #";
+			idf[13]	   = char('0' + i - 2);
+			joystick_selector->addItem(idf);
 		}
 	}
-	if (i == joystick_selector->count()) { joystick_selector->setCurrentIndex(i - 1); }
+
+	joystick_selector->setCurrentIndex(mf1->getJoystickID());
 }
 
 } // namespace gui
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

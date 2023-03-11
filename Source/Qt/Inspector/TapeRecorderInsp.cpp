@@ -8,6 +8,7 @@
 #include "RecentFilesMenu.h"
 #include "TapeRecorder.h"
 #include "Templates/NVPtr.h"
+#include "globals.h"
 #include "unix/files.h"
 #include <QAction>
 #include <QMatrix>

@@ -14,6 +14,7 @@
 
 namespace gui
 {
+class MachineController;
 
 class Inspector : public QWidget
 {

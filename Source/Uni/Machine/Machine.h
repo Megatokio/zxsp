@@ -5,23 +5,17 @@
 
 #include "Fdc/DivIDE.h"
 #include "Files/RzxFile.h"
-#include "IsaObject.h"
+#include "Interfaces/IMachineController.h"
 #include "Joy/ZxIf2.h"
 #include "Memory.h"
 #include "Multiface/Multiface1.h"
-#include "Overlays/Overlay.h"
+#include "OS/StereoSample.h"
 #include "Ram/ExternalRam.h"
 #include "SpectraVideo.h"
-#include "StereoSample.h"
 #include "Templates/NVPtr.h"
-#include "Templates/RCPtr.h"
 #include "Ula/Ula.h"
 #include "Ula/UlaZx80.h"
 #include "Z80/Z80.h"
-#include "ZxInfo/ZxInfo.h"
-#include "cpp/cppthreads.h"
-#include "globals.h"
-#include "kio/kio.h"
 #include "zxsp_types.h"
 #include <math.h>
 
@@ -67,8 +61,7 @@ class Machine : public IsaObject
 {
 	NO_COPY_MOVE(Machine);
 
-	friend void runMachinesForSound();
-	friend class gui::MachineController;
+	friend class IMachineController;
 	friend class Item;
 	friend class Z80;
 
@@ -80,11 +73,11 @@ public:
 	bool trylock() volatile { return NV(mutex).try_lock(); }
 	bool trylock(int timeout_nsec) volatile { return NV(mutex).try_lock_for(std::chrono::nanoseconds(timeout_nsec)); }
 
-	volatile gui::MachineController* controller;
+	volatile IMachineController* controller;
 
 	// general info
-	Model		  model;
-	const ZxInfo* model_info; // generic model info
+	const Model			model;
+	const ZxInfo* const model_info; // generic model info
 
 	// options
 	uint32	  cpu_options; // cpu_waitmap | cpu_crtc | cpu_break_sp | cpu_break_rwx
@@ -95,13 +88,8 @@ private:
 	bool is_power_on;
 	bool is_suspended;
 
-	class RzxFile* rzx_file; // Rzx Replay and Recording
-	gui::Overlay*  overlay_rzx_play;
-	gui::Overlay*  overlay_rzx_record;
-	void		   showOverlayPlay();
-	void		   showOverlayRecord();
-	void		   hideOverlayPlay();
-	void		   hideOverlayRecord();
+	bool		   rzx_auto_start_recording = no; // TODO: auto start recording should be fully handled by controller
+	class RzxFile* rzx_file;					  // Rzx Replay and Recording
 	void		   rzxLoadSnapshot(int32& cc_final, int32& ic_end);
 	void		   rzxStoreSnapshot();
 
@@ -205,22 +193,18 @@ protected:
 	void		  videoFrameEnd(int32 cc);
 	void		  audioBufferEnd(Time t);
 
+public:
 	bool rzxIsLoaded() const volatile { return rzx_file != nullptr; }
 	bool rzxIsPlaying() const { return rzx_file != nullptr && rzx_file->isPlaying(); }
 	bool rzxIsRecording() const { return rzx_file != nullptr && rzx_file->isRecording(); }
 
-	void rzxPlayFile(RzxFile*); // take-over and play the supplied RzxFile
+	void rzxPlayFile(RzxFile*, bool auto_start_recording); // take-over and play the supplied RzxFile
 	void rzxDispose();
 	void rzxStartRecording(cstr msg = nullptr, bool yellow = no);
 	void rzxStopRecording(cstr msg = nullptr, bool yellow = no);
 	void rzxStopPlaying(cstr msg = nullptr, bool yellow = no);
 	void rzxOutOfSync(cstr msg, bool alert = no);
-
-	Machine(gui::MachineController*, Model, isa_id);
-
-private:
-	void init_contended_ram();
-	void load_rom();
+	void rzxSetAutoStartRecording(bool f) volatile { rzx_auto_start_recording = f; }
 
 	// in Files/*.cpp:
 	virtual void loadAce(FD& fd);			// MachineJupiter.cpp
@@ -240,20 +224,24 @@ private:
 	void loadRom(FD& fd);
 	void saveRom(FD& fd);
 
+protected:
+	Machine(IMachineController*, Model, isa_id);
+
+private:
+	void init_contended_ram();
+	void load_rom();
+
 	void loadZ80_attach_joysticks(uint); // helper
 
 
 	// ---- P U B L I C ----------------------------------------------------
 
 public:
-	static std::shared_ptr<Machine> newMachine(gui::MachineController*, Model);
+	static std::shared_ptr<Machine> newMachine(IMachineController*, Model);
 
 	~Machine() override;
 
 	void saveAs(cstr filepath);
-
-	gui::OverlayJoystick* addOverlay(Joystick*, cstr idf, gui::Overlay::Position);
-	void				  removeOverlay(gui::Overlay*);
 
 	// Time & Utilities:
 	int32 current_cc() { return cpu->cpuCycle(); }
@@ -302,6 +290,29 @@ public:
 
 	void set50Hz() { set60Hz(0); } // 100%, ~50fps, stored in prefs
 	void set60Hz(bool = 1);		   // 100%, ~60fps, stored in prefs
+
+	//Handle Input Devices:
+	uint8		joystick_buttons[MAX_USB_JOYSTICKS + 2] = {0}; // state of real-world joysticks
+	uint8		kbd_joystick_active						= 0;   // set to ff whenever read
+	uint8		mouse_buttons							= 0;
+	zxsp::Point mouse_position							= {0, 0};
+
+	void keyDown(uint16 unicode, uint8 oskeycode, KeyboardModifiers);
+	void keyUp(uint16 unicode, uint8 oskeycode, KeyboardModifiers);
+	void allKeysAndButtonsUp();
+	void updateJoystickButtons(JoystickID id, JoystickButtons btns) volatile { joystick_buttons[id] = btns; }
+	void updateMouseButtons(MouseButtons btns) volatile { mouse_buttons = btns; }
+	void mouseMoved(zxsp::Dist d) volatile { NV(mouse_position) += d; }
+
+	Keymap getKeymap() const volatile;
+	uint8  getJoystickButtons(JoystickID id) // FUDLR
+	{
+		if (id == kbd_joystick) kbd_joystick_active = 255;
+		return joystick_buttons[id];
+	}
+	uint8		peekJoystickButtons(JoystickID id) const volatile { return joystick_buttons[id]; } // FUDLR
+	uint8		getMouseButtons() const volatile { return mouse_buttons; }
+	zxsp::Point getMousePosition() const volatile { return NV(mouse_position); }
 };
 
 

@@ -23,24 +23,21 @@ public:
 	bool		 port7ffdIsLocked() const volatile noexcept { return port_7ffd & 0x20; }
 
 protected:
-	friend class gui::UlaInsp;
-
 	Mmu128k(Machine*, isa_id, cstr o_addr, cstr i_addr);
 	~Mmu128k() override = default;
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
 	void reset(Time t, int32 cc) override;
-	// void	input			(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
 	void output(Time t, int32 cc, uint16 addr, uint8 byte) override;
-	// void	audioBufferEnd	(Time t) override;
-	// void	videoFrameEnd	(int32 cc) override;
 
 	// Mmu interface:
-	void  romCS(bool active) override; // from rear-item: daisy chain
+	void romCS(bool active) override; // from rear-item: daisy chain
+	void setPort7ffd(uint8) override;
+
+public:
 	bool  hasPort7ffd() const volatile noexcept override { return yes; }
 	uint8 getPort7ffd() const volatile override { return port_7ffd; }
-	void  setPort7ffd(uint8) override;
 
 private:
 	void page_rom_128k();

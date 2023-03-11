@@ -5,7 +5,6 @@
 #include "KempstonMouse.h"
 #include "Machine.h"
 #include "MachineController.h"
-#include "Qt/Screen/Screen.h"
 
 
 /*	acc. to schematics on k1.spdns.de:
@@ -41,28 +40,12 @@
 KempstonMouse::KempstonMouse(Machine* m) :
 	Item(m, isa_KempstonMouse, isa_Mouse, external, o_addr, i_addr),
 	scale(2),
-	x(0),
-	y(0)
+	x(m->mouse_position.x),
+	y(m->mouse_position.y),
+	buttons(m->mouse_buttons)
 {
 	xlogIn("new KempstonMouse");
 }
-
-
-KempstonMouse::~KempstonMouse()
-{
-	xlogIn("~KempstonMouse");
-	mouse.ungrab();
-}
-
-
-void KempstonMouse::powerOn(int32 cc)
-{
-	Item::powerOn(cc);
-
-	//	if(machine->controller->isFullScreen())		//	da müssen wir erst wieder die rechte Maustaste abfangen
-	//		mouse->grab(machine->controller);		//	außerdem bräuchten wir wohl einen Menüeintrag für "Grab Mouse"
-} //	wobei grabMouse(QWidget*) nur *über* dem Grabber-Widget funktioniert...
-
 
 void KempstonMouse::input(Time, int32, uint16 address, uint8& byte, uint8& mask)
 {
@@ -95,31 +78,32 @@ void KempstonMouse::setScale(int n)
 	scale = n;
 }
 
-uint8 KempstonMouse::getXPos()
-{
-	if (machine == front_machine)
-	{
-		int dx = mouse.dx;
-		mouse.dx -= dx;
-		x += dx;
-	}
-	return uint8(x / scale);
-}
 
-uint8 KempstonMouse::getYPos()
-{
-	if (machine == front_machine)
-	{
-		int dy = mouse.dy;
-		mouse.dy -= dy;
-		y += dy;
-	}
-	return uint8(y / scale);
-}
-
-uint8 KempstonMouse::getButtons() const
-{
-	return mouse.isGrabbed() && machine == front_machine ?
-			   0xff - (mouse.getLeftButton() * 2) - mouse.getRightButton() : // 2-button version
-			   0xff;
-}
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

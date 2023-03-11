@@ -9,7 +9,10 @@
 #define i_addr nullptr // TODO
 
 
-Tk85Joy::Tk85Joy(Machine* m) : Joy(m, isa_Tk85Joy, internal, nullptr, i_addr, "?") {}
+Tk85Joy::Tk85Joy(Machine* m) : Joy(m, isa_Tk85Joy, internal, nullptr, i_addr, "?")
+{
+	logline("TODO: Tk85Joy"); //
+}
 
 
 void Tk85Joy::input(Time /*t*/, int32 /*cc*/, uint16 addr, uint8& byte, uint8& mask)

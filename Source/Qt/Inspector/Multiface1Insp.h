@@ -29,9 +29,9 @@ protected:
 
 private:
 	void update_joystick_selector();
-	void find_usb_joysticks();
-	void joystick_selected();
-	void enable_joystick(bool);
+	void slotFindUsbJoysticks();
+	void slotJoystickSelected();
+	void slotEnableJoystick(bool);
 };
 
 } // namespace gui

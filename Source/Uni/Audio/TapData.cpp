@@ -12,10 +12,7 @@
 #include "TzxData.h"
 #include "Z80/Z80.h"
 #include "Z80/Z80opcodes.h"
-#include "ZxInfo.h"
-#include "globals.h"
-#include "kio/util/count1bits.h"
-#include "unix/FD.h"
+#include "zxsp_types.h"
 
 
 /*	Timing				ZX Spectrum		Jupiter Ace:

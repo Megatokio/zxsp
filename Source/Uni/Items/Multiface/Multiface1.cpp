@@ -96,14 +96,9 @@ static constexpr cstr i_addr = "----.----.-001.--1-"; // nmi-taster wieder schar
 
 Multiface1::Multiface1(Machine* m, bool enable_joystick) :
 	Multiface(m, isa_Multiface1, "Roms/mf1.rom", o_addr, i_addr),
-	joystick(nullptr),
-	overlay(nullptr),
+	joystick_id(usb_joystick0),
 	joystick_enabled(enable_joystick)
-{
-	insertJoystick(usb_joystick0);
-}
-
-Multiface1::~Multiface1() { machine->removeOverlay(overlay); }
+{}
 
 
 void Multiface1::powerOn(/*t=0*/ int32 cc)
@@ -114,30 +109,22 @@ void Multiface1::powerOn(/*t=0*/ int32 cc)
 }
 
 
-// void Multiface1::reset( Time t, int32 cc )
-//{
-//	Multiface::reset(t,cc);
-// }
-
-
-/*	Input at registered address: 0x1F (only 4 bits decoded)
-	read Kempston Joystick
-	page ram+rom if bit7=1
-*/
 void Multiface1::input(Time, int32, uint16 addr, uint8& byte, uint8& mask)
 {
+	// Input at registered address: 0x1F (only 4 bits decoded)
+	// read Kempston Joystick
+	// page ram+rom if bit7=1
+
 	assert((addr & 0x72) == 0x12);
 
 	// read joystick: %000FUDLR active high
 	// Jumper wirkt laut Schaltplan nur auf Bit 6 und 7!
 	// Laut MF1 Instructions aber auf den ganzen Port. => Schaltplan Fehler?
-	uint8 js_byte = machine == front_machine ? joystick->getState(yes) : 0x00;
 	if (joystick_enabled)
 	{
 		mask = 0xff;
-		byte = js_byte;
+		byte = machine->getJoystickButtons(joystick_id);
 	}
-	// else				 { mask |= 0x3f; byte &= js_byte | 0xC0; }		wir glauben mal dem Manual
 
 	// page memory in/out:
 	if (addr & 0x80)
@@ -171,7 +158,7 @@ uint8 Multiface1::handleRomPatch(uint16 pc, uint8 o)
 	if ((pc | 1) != 0x0067 || !nmi_pending) return prev()->handleRomPatch(pc, o); // not me
 
 	if (!paged_in) page_in();
-	return rom[pc];
+	return uint8(rom[pc]);
 }
 
 
@@ -184,16 +171,12 @@ void Multiface1::triggerNmi()
 	machine->cpu->triggerNmi();
 }
 
-
-void Multiface1::insertJoystick(int id)
+uint8 Multiface1::getJoystickButtonsFUDLR()
 {
-	if (joystick == joysticks[id]) return;
+	return joystick_enabled ? machine->getJoystickButtons(joystick_id) : 0x00;
+}
 
-	if (overlay)
-	{
-		machine->removeOverlay(overlay);
-		overlay = nullptr;
-	}
-	joystick = joysticks[id];
-	if (id != no_joystick) overlay = machine->addOverlay(joystick, "K", gui::Overlay::TopRight);
+uint8 Multiface1::peekJoystickButtonsFUDLR() const volatile
+{
+	return joystick_enabled ? machine->peekJoystickButtons(joystick_id) : 0x00;
 }

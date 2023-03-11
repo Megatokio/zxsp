@@ -33,9 +33,9 @@ protected:
 
 private:
 	void update_joystick_selectors();
-	void slot_find_usb_joysticks();
-	void slot_set_keyboard_joystick_keys();
-	void slot_joystick_selected();
+	void slotFindUsbJoysticks();
+	void slotSetKeyboardJoystickKeys();
+	void slotJoystickSelected();
 };
 
 } // namespace gui

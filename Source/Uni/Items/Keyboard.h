@@ -17,14 +17,6 @@ using AsciiToZxkeyMap = uint8[0x80]; // Unicode     -> enum ZxspKey	(mapping 'by
 using OskeyToZxkeyMap = uint8[0x40]; // OSX keycode -> enum ZxspKey	(mapping 'by key position')
 
 
-enum KbdModifiers // modifier key masks:
-{
-	ShiftKeyMask   = 1, // realworld caps shift key
-	ControlKeyMask = 2, // realworld control key
-	AltKeyMask	   = 4	// realworld alt/option key: used as an auxilliary caps shift key
-};
-
-
 /* ========================================================================
  */
 class Keyboard : public Item
@@ -40,44 +32,32 @@ protected:
 	OskeyToZxkeyMap oskey2zxkey_map;
 
 	// state:
-	KbdMode mode;	   // prefer physical or logical key translation ?
-	uint	modifiers; // modifiers down on realworld keyboard
-	uint	numkeys;   // keys pressed on real and virtual keyboard
-	uint8	zxkeys[16];
-	uint8	oskeys[16];
-	uint	stickykeys;
+	KeyboardMode mode;		// prefer physical or logical key translation ?
+	uint		 modifiers; // modifiers down on realworld keyboard
+	uint		 numkeys;	// keys pressed on real and virtual keyboard
+	uint8		 zxkeys[16];
+	uint8		 oskeys[16];
+	uint		 stickykeys;
+	Keymap		 keymap; // map of depressed keys as seen by user (incl. compound keys)
 
 public:
-	Keymap keymap; // map of depressed keys as seen by user
-				   // Keymap	ula->keymap;		// keyboard matrix as seen by ula
+	Keymap getKeymap() const volatile { return const_cast<Keymap&>(keymap); }
+	void   specciKeyDown(uint8 zxkey); // called from KeyboardInspector
+	void   specciKeyUp(uint8 zxkey);   // called from KeyboardInspector
 
+	void realKeyDown(uint16 unicode, uint8 oskeycode, KeyboardModifiers); // called from MachineController
+	void realKeyUp(uint16 unicode, uint8 oskeycode, KeyboardModifiers);	  // called from MachineController
+	void keyBtZxKbd(uint16 unicode, uint8 oskeycode, KeyboardModifiers);  // handle Recreated ZX Keyboard
+
+	void setKbdMode(KeyboardMode);
+	void allKeysUp();
 
 protected:
 	Keyboard(Machine*, isa_id, const AsciiToZxkeyMap, const OskeyToZxkeyMap);
 	~Keyboard() override = default;
 
-public:
 	// Item interface:
-	void powerOn(/*t=0*/ int32 cc) override;
-	// void	reset			(Time t, int32 cc) override;
-	// void	input			(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
-	// void	output			(Time t, int32 cc, uint16 addr, uint8 byte) override;
-	// void	audioBufferEnd	(Time t) override;
-	// void	videoFrameEnd	(int32 cc) override;
-
-	Keymap& getKeymap() { return keymap; }
-	void	specciKeyDown(uint8 zxkey); // called from KeyboardInspector
-	void	specciKeyUp(uint8 zxkey);	// called from KeyboardInspector
-
-	void realKeyDown(uint16 unicode, uint8 oskeycode, KbdModifiers); // called from MachineController
-	void realKeyUp(uint16 unicode, uint8 oskeycode, KbdModifiers);	 // called from MachineController
-	void keyBtZxKbd(uint16 unicode, uint8 oskeycode, KbdModifiers);	 // handle Recreated ZX Keyboard
-
-	void setKbdGame();
-	void setKbdBasic();
-	void setKbdBtZxKbd();
-	void setKbdMode(KbdMode);
-	void allKeysUp();
+	void powerOn(int32 cc) override;
 
 private:
 	virtual void convert_to_matrix(Keymap&) {}

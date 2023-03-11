@@ -3,11 +3,9 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "FloppyDisk.h"
-#include "Qt/qt_util.h"
-#include "globals.h"
-#include "kio/peekpoke.h"
 #include "unix/files.h"
 #include "version.h"
+#include "zxsp_types.h"
 
 static const uint8 DAM	= 0xFB; // data address mark
 static const uint8 DDAM = 0xF8; // deleted data address mark

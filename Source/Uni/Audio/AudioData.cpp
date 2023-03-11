@@ -17,7 +17,6 @@
 #include "TapeFileDataBlock.h"
 #include "TzxData.h"
 #include "audio/AudioDecoder.h"
-#include "globals.h"
 #include <cmath>
 
 

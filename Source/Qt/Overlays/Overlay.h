@@ -4,18 +4,15 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "IsaObject.h"
+#include "gui_types.h"
 #include <QFont>
-#include <QMainWindow>
-#include <QObject>
 #include <QPen>
 #include <QPixmap>
 #include <QPolygon>
-
+class IScreen;
 
 namespace gui
 {
-class Screen;
-class MachineController;
 
 /*
 M(		isa_OverlayPlay,		isa_Overlay,		"Overlay \"Play\"" ),
@@ -96,8 +93,8 @@ public:
 class OverlayJoystick : public Overlay
 {
 public:
-	Joystick* joystick;
-	cstr	  idf; // 1 or 2 char identifier
+	const Joystick* joystick;
+	cstr			idf; // 1 or 2 char identifier
 
 	QPen	 shadow_pen; // pen & font: subject to zoom scaling!
 	QPen	 hilite_pen;
@@ -108,7 +105,7 @@ public:
 	QRect	 fire;
 
 public:
-	explicit OverlayJoystick(Screen*, Joystick*, cstr idf, Position);
+	explicit OverlayJoystick(Screen*, const Joystick*, cstr idf, Position);
 	void draw(QPainter&) override;
 	void setZoom(int) override;
 };

@@ -8,6 +8,8 @@
 #include "Dialogs/ConfigureKeyboardJoystickDialog.h"
 #include "Fdc/DivIDE.h"
 #include "Fdc/Fdc.h"
+#include "Fdc/FdcPlus3.h"
+#include "Fdc/SmartSDCard.h"
 #include "Files/RzxFile.h"
 #include "Files/Z80Head.h"
 #include "Items/Ay/Ay.h"
@@ -16,13 +18,13 @@
 #include "Items/Ula/Mmu.h"
 #include "Joy/KempstonJoy.h"
 #include "Joy/ZxIf2.h"
-#include "Joystick.h"
 #include "KempstonMouse.h"
 #include "Keyboard.h"
 #include "Lenslok.h"
 #include "Machine.h"
 #include "MachineInves.h"
 #include "MachineJupiter.h"
+#include "MachineList.h"
 #include "MachinePentagon128.h"
 #include "MachineTc2048.h"
 #include "MachineTc2068.h"
@@ -39,20 +41,22 @@
 #include "MachineZxPlus3.h"
 #include "MachineZxsp.h"
 #include "MemObject.h"
+#include "Mouse.h"
 #include "Preferences.h"
 #include "Printer/ZxPrinter.h"
-#include "Qt/Screen/Screen.h"
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
 #include "Ram/Zx3kRam.h"
 #include "RecentFilesMenu.h"
 #include "Screen/ScreenMono.h"
+#include "Screen/ScreenZxsp.h"
 #include "Settings.h"
 #include "SpectraVideo.h"
 #include "Templates/NVPtr.h"
 #include "Templates/RCPtr.h"
 #include "ToolWindow.h"
 #include "Ula/MmuTc2068.h"
+#include "UsbJoystick.h"
 #include "WindowMenu.h"
 #include "Z80/Z80.h"
 #include "ZxIf1.h"
@@ -61,6 +65,7 @@
 #include "globals.h"
 #include "unix/FD.h"
 #include "zasm/Source/Z80Assembler.h"
+#include "zxsp_helpers.h"
 #include <QAction>
 #include <QDesktopWidget>
 #include <QEvent>
@@ -69,7 +74,7 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QtGui>
-
+#include <thread>
 
 namespace gui
 {
@@ -80,6 +85,50 @@ static constexpr int CTRL  = Qt::CTRL; // for use with binary operators wg. Warn
 static constexpr int SHIFT = Qt::SHIFT;
 
 
+void MachineController::pollInputDevices()
+{
+	assert(isMainThread());
+	if (this != front_machine_controller) return;
+	volatile Machine* m = machine.get();
+	if (!m) return;
+
+	for (uint i = 0; i < num_usb_joysticks; i++) //
+	{
+		m->joystick_buttons[2 + i] = NV(&usb_joysticks[i])->getState();
+	}
+
+	if (m->kbd_joystick_active) m->kbd_joystick_active -= 1;
+
+	if (mouse.isGrabbed())
+	{
+		mouse.updatePosition();
+		int dx = mouse.dx;
+		int dy = mouse.dy;
+		if (dx || dy)
+		{
+			mouse.dx -= dx;
+			mouse.dy -= dy;
+			m->mouseMoved(zxsp::Dist(dx, dy));
+		}
+
+		uint mb = QApplication::mouseButtons();
+		m->updateMouseButtons(MouseButtons(mb));
+	}
+}
+
+void MachineController::startInputDeviceTimer()
+{
+	connect(input_device_timer, &QTimer::timeout, this, &MachineController::pollInputDevices);
+	input_device_timer->start(5);
+}
+
+void MachineController::stopInputDeviceTimer()
+{
+	input_device_timer->stop();
+	mouse.ungrab(); //safety
+}
+
+
 // ============================================================
 //			Create & Destroy:
 // ============================================================
@@ -87,7 +136,6 @@ static constexpr int SHIFT = Qt::SHIFT;
 std::shared_ptr<Machine> MachineController::newMachineForModel(Model model)
 {
 	// create Machine instance for model
-	// if ramsize==0 then default ramsize is used.
 	// machine.parent := this
 	// the machine is not powered on.
 	// the machine is not suspended.
@@ -95,6 +143,7 @@ std::shared_ptr<Machine> MachineController::newMachineForModel(Model model)
 	assert(in_machine_ctor);
 
 	std::shared_ptr<Machine> m = Machine::newMachine(this, model);
+	m->crtc->attachToScreen(screen);
 
 	switch (model)
 	{
@@ -113,6 +162,7 @@ std::shared_ptr<Machine> MachineController::newMachineForModel(Model model)
 
 	m->taperecorder->setAutoStartStopTape(auto_start);
 	m->taperecorder->setInstantLoadTape(fast_load);
+	m->installRomPatches();
 
 	return m;
 }
@@ -504,7 +554,7 @@ void MachineController::loadSnapshot(cstr filename)
 		if (rzx) // wir haben ein rzx file und der snapshot wurde geladen
 		{		 // der state nach getSnapshot() ist playing oder endoffile
 			assert(!machine->rzxIsLoaded());
-			machine->rzxPlayFile(rzx);
+			machine->rzxPlayFile(rzx, action_RzxRecordAutostart->isChecked());
 			if (rzx->isPlaying())
 			{
 				action_RzxRecord->setChecked(false);
@@ -516,7 +566,7 @@ void MachineController::loadSnapshot(cstr filename)
 			else
 			{
 				showWarning("The rzx file only contained a snapshot. Recording to rzx file started!");
-				action_RzxRecord->setChecked(false);
+				action_RzxRecord->setChecked(true);
 			}
 		}
 	}
@@ -965,18 +1015,18 @@ MachineController::~MachineController()
 	xlogIn("~MachineController");
 
 	in_dtor = yes;
+	stopInputDeviceTimer();
 
 	if (this == front_machine_controller)
 	{
+		front_machine_controller = nullptr;
+
 		// note: pos() as required for move() and size() as required for resize()
 		//       this is neither geometry() nor frameGeometry().    :-/
 		xlogline("pos = %i,%i", pos().x(), pos().y());
 		xlogline("geo = %i,%i", geometry().x(), geometry().y());
 		xlogline("frm = %i,%i", frameGeometry().x(), frameGeometry().y());
 		settings.setValue(catstr(key_mainwindow_position, tostr(screen->getZoom())), QRect(pos(), size()));
-
-		front_machine_controller = nullptr;
-		front_machine			 = nullptr;
 	}
 
 	while (tool_windows.count()) { delete tool_windows.last(); }
@@ -998,11 +1048,12 @@ MachineController::MachineController(QString filepath) :
 	mem {nullptr, nullptr, nullptr, nullptr},
 	lenslok(nullptr),
 	keyjoy_keys {0, 0, 0, 0, 0},
-	keyjoy_fnmatch_pattern(nullptr)
+	keyjoy_fnmatch_pattern(nullptr),
+	input_device_timer(new QTimer(this))
 {
 	// setup window
 	// setup menubar
-	// init with default machine: zxsp_i3
+	// init with default machine
 	// link into MachineList => GO!
 
 	xlogIn("new MachineController(\"%s\")", filepath.toUtf8().data());
@@ -1068,6 +1119,7 @@ void MachineController::killMachine()
 
 	xlogIn("MachineController:kill_machine");
 
+	nvptr(&machine_list)->remove(machine);
 	in_machine_dtor = yes;
 	machine->powerOff();
 
@@ -1091,6 +1143,7 @@ void MachineController::killMachine()
 	hideInspector(NV(machine), no);
 
 	//delete machine:
+	assert(machine.unique());
 	machine.reset();
 
 	delete screen;
@@ -1172,11 +1225,9 @@ Machine* MachineController::initMachine(
 	model_info			= machine->model_info;
 	if (XSAFE)
 		foreach (ToolWindow* toolwindow, tool_windows) { assert(toolwindow->item == nullptr); }
-	machine->installRomPatches();
 	action_enable_breakpoints->setChecked(true);
 
 	setFilepath(nullptr);
-	if (this == front_machine_controller) front_machine = machine.get();
 
 	setKeyboardMode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
 	enableAudioIn(settings.get_bool(key_new_machine_audioin_enabled, machine->audio_in_enabled));
@@ -1313,8 +1364,8 @@ Machine* MachineController::initMachine(
 
 	machine->suspend();
 	machine->powerOn();
-
 	in_machine_ctor = was_in_machine_ctor;
+	nvptr(&machine_list)->append(machine);
 	return machine.get();
 }
 
@@ -1457,17 +1508,20 @@ void MachineController::changeEvent(QEvent* e)
 			{
 				if (front_machine_controller)
 				{
+					front_machine_controller->stopInputDeviceTimer();
 					front_machine_controller->allKeysUp();
 					front_machine_controller->hideAllToolwindows();
 				}
-				front_machine			 = machine.get();
 				front_machine_controller = this;
 				showAllToolwindows();
+				startInputDeviceTimer();
 			}
 		}
 		else // deactivated
 		{
 			xlogline("window deactivated");
+			// the window is also deactivated if one of it's tool windows is activated
+			// so we do nothing here but everything in the 'if(activated)' branch
 		}
 		window_menu->checkWindows();
 	}
@@ -1507,19 +1561,18 @@ bool MachineController::event(QEvent* e)
 	//	return 0;	// not processed
 }
 
-static KbdModifiers zxmodifiers(uint32 qtm) // helper
+static KeyboardModifiers zxmodifiers(uint32 qtm) // helper
 {
 	uint zxm = 0;
-	if (qtm & Qt::ShiftModifier) zxm |= KbdModifiers::ShiftKeyMask;
-	if (qtm & Qt::MetaModifier) zxm |= KbdModifiers::ControlKeyMask;
-	if (qtm & Qt::AltModifier) zxm |= KbdModifiers::AltKeyMask;
-	return KbdModifiers(zxm);
+	if (qtm & Qt::ShiftModifier) zxm |= KeyboardModifiers::ShiftKeyMask;
+	if (qtm & Qt::MetaModifier) zxm |= KeyboardModifiers::ControlKeyMask;
+	if (qtm & Qt::AltModifier) zxm |= KeyboardModifiers::AltKeyMask;
+	return KeyboardModifiers(zxm);
 }
 
 void MachineController::allKeysUp()
 {
-	if (machine && machine->keyboard) machine->keyboard->allKeysUp();
-	keyboardJoystick->allKeysUp();
+	if (machine) nvptr(machine)->allKeysAndButtonsUp();
 }
 
 inline bool cmdkey_involved(QKeyEvent* e)
@@ -1580,27 +1633,27 @@ void MachineController::keyPressEvent(QKeyEvent* e)
 	xlogIn("MachineController:keyPressEvent");
 
 	if (cmdkey_involved(e)) { allKeysUp(); }
-	else
+	else if (machine)
 	{
 		uint32 modifiers = e->modifiers();
 		uint8  keycode	 = uint8(e->nativeVirtualKey());
 		uint16 charcode	 = get_charcode(e);
 
-		if (machine && machine->rzxIsLoaded() && action_RzxRecordAutostart->isChecked())
+		if (machine->rzxIsLoaded() && action_RzxRecordAutostart->isChecked())
 		{
-			NVPtr<Machine> machine(this->machine.get());
-			if (machine->rzxIsPlaying()) machine->rzxStartRecording(); // -> callback rzxStateChanged()
+			NVPtr<Machine> m(machine.get());
+			if (m->rzxIsPlaying()) m->rzxStartRecording(); // -> callback rzxStateChanged()
 		}
 
-		if (charcode && keyboardJoystick->isActive())
-			for (uint i = 0; i < 5; i++)
+		if (charcode)
+			for (uint i = 0; i < NELEM(keyjoy_keys); i++)
 				if (keyjoy_keys[i] == keycode)
 				{
-					keyboardJoystick->keyDown(1 << i);
-					return;
+					machine->joystick_buttons[kbd_joystick] |= 1 << i;
+					if (machine->kbd_joystick_active) return;
 				}
 
-		if (machine && machine->keyboard) machine->keyboard->realKeyDown(charcode, keycode, zxmodifiers(modifiers));
+		NV(machine)->keyDown(charcode, keycode, zxmodifiers(modifiers));
 	}
 
 	emit signal_keymapModified();
@@ -1611,20 +1664,21 @@ void MachineController::keyReleaseEvent(QKeyEvent* e)
 	xlogIn("MachineController:keyReleaseEvent");
 
 	if (cmdkey_involved(e)) { allKeysUp(); }
-	else
+	else if (machine)
 	{
 		uint32 modifiers = e->modifiers();
 		uint8  keycode	 = uint8(e->nativeVirtualKey());
 		uint16 charcode	 = get_charcode(e);
 
-		if (charcode && keyboardJoystick->isActive())
-			for (uint i = 0; i < 5; i++)
+		if (charcode)
+			for (uint i = 0; i < NELEM(keyjoy_keys); i++)
 				if (keyjoy_keys[i] == keycode)
 				{
-					keyboardJoystick->keyUp(1 << i);
-					return;
+					machine->joystick_buttons[kbd_joystick] &= ~(1 << i);
+					//if (machine->kbd_joystick_active) return;
 				}
-		if (machine && machine->keyboard) machine->keyboard->realKeyUp(charcode, keycode, zxmodifiers(modifiers));
+
+		NV(machine)->keyUp(charcode, keycode, zxmodifiers(modifiers));
 	}
 
 	emit signal_keymapModified();
@@ -1701,7 +1755,7 @@ void MachineController::recordMovie(bool f) // controlMenu
 	else { screen->stopRecording(); }
 }
 
-void MachineController::setKeyboardMode(KbdMode mode)
+void MachineController::setKeyboardMode(KeyboardMode mode)
 {
 	xlogIn("MachineController:set_keyboard_mode");
 	machine->keyboard->setKbdMode(mode);
@@ -1882,8 +1936,13 @@ void MachineController::addSpectraVideo(bool add)
 		if (settings.get_bool(key_spectra_enable_new_video_modes, true)) dip_switches |= Dip::EnableNewVideoModes;
 
 		nvptr(machine)->addSpectraVideo(dip_switches);
+		screen->setFlavour(isa_ScreenSpectra);
 	}
-	else nvptr(machine)->removeSpectraVideo();
+	else
+	{
+		nvptr(machine)->removeSpectraVideo();
+		screen->setFlavour(machine->isA(isa_UlaTc2048) ? isa_ScreenTc2048 : isa_ScreenZxsp);
+	}
 
 	if (f) machine->powerOn();
 
@@ -1924,6 +1983,7 @@ void MachineController::setRzxAutostartRecording(bool f)
 {
 	// toggle setting for "during rzx playback autostart recording on any key press":
 
+	machine->rzxSetAutoStartRecording(f);
 	settings.setValue(key_rzx_autostart_recording, f);
 }
 
@@ -2045,8 +2105,11 @@ void MachineController::item_added(std::weak_ptr<Item> item_wp, bool force)
 	case isa_Joy:
 		showaction->setShortcut(CTRL | Qt::Key_J);
 		showaction->setIcon(
-			QIcon(dynamic_cast<Joy&>(*item).getNumPorts() == 1 ? ":/Icons/joystick-1.gif" : ":/Icons/joystick-2.gif"));
-		break;
+			QIcon(dynamic_cast<Joy*>(item)->getNumPorts() == 1 ? ":/Icons/joystick-1.gif" : ":/Icons/joystick-2.gif"));
+		FALLTHROUGH
+	case isa_SpectraVideo:
+	case isa_Multiface1:
+	case isa_SmartSDCard: addOverlayJoy(item); break;
 	}
 
 	window_menu->insertAction(separator, showaction);
@@ -2086,6 +2149,71 @@ void MachineController::item_removed(Item* item, bool force)
 		addAction->setEnabled(true);
 		addAction->blockSignals(false);
 	}
+
+	removeOverlayJoy(item);
+}
+
+void MachineController::addOverlayJoy(volatile Item* item)
+{
+	xlogline("MachineController::addOverlayJoy: TODO");
+
+#if 0
+	switch (item->grp_id)
+	{
+	case isa_Joy:
+	{
+		auto* joy = dynamic_cast<Joy*>(item);
+		assert(joy);
+		for (uint i = 0; i < joy->getNumPorts(); i++)
+		{
+			if (joy->getJoystickID(i) != no_joystick)
+				screen->addOverlay(new OverlayJoystick(
+					screen, joysticks[joy->getJoystickID(i)], joy->getIdf(i), gui::Overlay::TopRight));
+		}
+		break;
+	}
+	case isa_SpectraVideo:
+	{
+		auto* joy = dynamic_cast<SpectraVideo*>(item);
+		assert(joy);
+		if (joy->isJoystickEnabled() && joy->getJoystickID() != no_joystick)
+			screen->addOverlay(
+				new OverlayJoystick(screen, joysticks[joy->getJoystickID()], joy->getIdf(), gui::Overlay::TopRight));
+		break;
+	}
+	case isa_Multiface1:
+	{
+		auto* joy = dynamic_cast<Multiface1*>(item);
+		assert(joy);
+		if (joy->isJoystickEnabled() && joy->getJoystickID() != no_joystick)
+			screen->addOverlay(
+				new OverlayJoystick(screen, joysticks[joy->getJoystickID()], joy->getIdf(), gui::Overlay::TopRight));
+		break;
+	}
+	case isa_SmartSDCard:
+	{
+		auto* joy = dynamic_cast<SmartSDCard*>(item);
+		assert(joy);
+		if (joy->isJoystickEnabled() && joy->getJoystickID() != no_joystick)
+			screen->addOverlay(
+				new OverlayJoystick(screen, joysticks[joy->getJoystickID()], joy->getIdf(), gui::Overlay::TopRight));
+		break;
+	}
+	default: break;
+	}
+#endif
+}
+
+void MachineController::removeOverlayJoy(Item* item)
+{
+	switch (item->grp_id)
+	{
+	case isa_SpectraVideo:
+	case isa_Multiface1:
+	case isa_SmartSDCard:
+	case isa_Joy:
+	default: break;
+	}
 }
 
 void MachineController::rzxStateChanged() volatile
@@ -2094,9 +2222,44 @@ void MachineController::rzxStateChanged() volatile
 
 	QTimer::singleShot(0, NV(this), [this] {
 		assert(isMainThread());
+
+		bool is_recording, is_playing;
+		{
+			NVPtr<Machine> m(NV(machine).get());
+			is_recording = m->rzxIsRecording();
+			is_playing	 = m->rzxIsPlaying();
+		}
+
 		action_RzxRecord->blockSignals(true);
-		action_RzxRecord->setChecked(nvptr(NV(this)->machine)->rzxIsRecording());
+		action_RzxRecord->setChecked(is_recording);
 		action_RzxRecord->blockSignals(false);
+
+		if (!!overlay_rzx_record != is_recording)
+		{
+			if (overlay_rzx_record)
+			{
+				screen->removeOverlay(overlay_rzx_record);
+				overlay_rzx_record = nullptr;
+			}
+			else
+			{
+				overlay_rzx_record = new OverlayRecord(screen);
+				screen->addOverlay(overlay_rzx_record);
+			}
+		}
+		if (!!overlay_rzx_play != is_playing)
+		{
+			if (overlay_rzx_play)
+			{
+				screen->removeOverlay(overlay_rzx_play);
+				overlay_rzx_play = nullptr;
+			}
+			else
+			{
+				overlay_rzx_play = new OverlayPlay(screen);
+				screen->addOverlay(overlay_rzx_play);
+			}
+		}
 	});
 }
 

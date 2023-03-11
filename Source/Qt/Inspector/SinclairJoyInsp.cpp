@@ -4,7 +4,6 @@
 
 #include "SinclairJoyInsp.h"
 #include "Joy/SinclairJoy.h"
-#include "Joystick.h"
 #include "Templates/NVPtr.h"
 #include <QGridLayout>
 #include <QPushButton>
@@ -51,18 +50,18 @@ void SinclairJoyInsp::updateWidgets()
 	xlogIn("SinclairJoyInsp::updateWidgets");
 	assert(validReference(joy));
 
-	uint8 newstate = NV(joy)->getState(0); // Sinclair 1
+	uint8 newstate = joy->peekButtonsFUDLR(0); // Sinclair 1
 	if (newstate != lineedit_state[0])
 	{
-		lineedit_state[0] = newstate = SinclairJoy::calcS1ForJoy(newstate);
-		lineedit_display[0]->setText(binstr(newstate, "%000FUDRL", "%--------"));
+		lineedit_state[0] = newstate;
+		lineedit_display[0]->setText(binstr(SinclairJoy::calcS1FromFUDLR(newstate), "%000FUDRL", "%--------"));
 	}
 
-	newstate = NV(joy)->getState(1); // Sinclair 2
+	newstate = joy->peekButtonsFUDLR(1); // Sinclair 2
 	if (newstate != lineedit_state[1])
 	{
-		lineedit_state[1] = newstate = SinclairJoy::calcS2ForJoy(newstate);
-		lineedit_display[1]->setText(binstr(newstate, "%000LRDUF", "%--------"));
+		lineedit_state[1] = newstate;
+		lineedit_display[1]->setText(binstr(SinclairJoy::calcS2FromFUDLR(newstate), "%000LRDUF", "%--------"));
 	}
 }
 

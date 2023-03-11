@@ -41,10 +41,12 @@ KempstonMouseInsp::KempstonMouseInsp(QWidget* w, MachineController* mc, volatile
 					  << "1:3"
 					  << "1:4");
 	combobox_scale->setMinimumWidth(80);
-	connect(combobox_scale, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this](int index) {
-		assert(validReference(this->mif));
-		nvptr(this->mif)->setScale(index + 1);
-	});
+	connect(
+		combobox_scale, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
+		[this](int index) {
+			assert(validReference(this->mif));
+			nvptr(this->mif)->setScale(index + 1);
+		});
 
 	button_grab_mouse->setMinimumWidth(100);
 	connect(button_grab_mouse, &QPushButton::clicked, this, [this] {
@@ -60,8 +62,8 @@ KempstonMouseInsp::KempstonMouseInsp(QWidget* w, MachineController* mc, volatile
 	//	g->setColumnStretch(1,0);	// [X]
 	//	g->setColumnStretch(2,0);	// Y=
 	//	g->setColumnStretch(3,0);	// [Y]
-	g->setColumnStretch(4, 100); // spacer
-								 //	g->setColumnStretch(5,0);	// (btn)
+	g->setColumnStretch(4, 100); /* spacer */
+	//	g->setColumnStretch(5,0);	// (btn)
 
 	g->addWidget(new QLabel("X ="), 1, 0);
 	g->addWidget(display_x, 1, 1);
@@ -80,11 +82,25 @@ KempstonMouseInsp::KempstonMouseInsp(QWidget* w, MachineController* mc, volatile
 	KempstonMouseInsp::updateWidgets(); // once, assumes class is final
 }
 
+void KempstonMouseInsp::hideEvent(QHideEvent* e)
+{
+	xlogline("KempstonMouseInsp::hideEvent");
+	mouse.ungrab();
+	Inspector::hideEvent(e);
+}
+
+KempstonMouseInsp::~KempstonMouseInsp()
+{
+	xlogline("~KempstonMouseInsp");
+	mouse.ungrab();
+}
 
 void KempstonMouseInsp::updateWidgets()
 {
 	xxlogIn("KempstonMouseInsp:updateWidgets");
 	assert(validReference(mif));
+
+	if (QApplication::keyboardModifiers() & Qt::CTRL) { mouse.ungrab(); }
 
 	uint8 newx, newy;
 	uint  newbuttons;

@@ -4,14 +4,13 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "MachineZxsp.h"
-#include "ZxInfo/info.h"
 
 
 class MachineZx128 : public MachineZxsp
 {
 protected:
-	MachineZx128(gui::MachineController*, Model, isa_id id);
+	MachineZx128(IMachineController*, Model, isa_id id);
 
 public:
-	MachineZx128(gui::MachineController*, Model);
+	MachineZx128(IMachineController*, Model);
 };

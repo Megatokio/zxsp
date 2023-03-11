@@ -3,13 +3,14 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "Interfaces/IMachineController.h"
 #include "IsaObject.h"
 #include "ZxInfo/ZxInfo.h"
 #include "cpp/cppthreads.h"
+#include "gui_types.h"
 #include "zxsp_types.h"
 #include <QActionGroup>
 #include <QMainWindow>
-
 
 namespace gui
 {
@@ -18,19 +19,11 @@ class Overlay;
 class ToolWindow;
 
 
-extern void showAlert(cstr msg, ...) __printflike(1, 2);   // thread-safe  "red" alert:	stop sign
-extern void showWarning(cstr msg, ...) __printflike(1, 2); // thread-safe  "yellow" alert: attention sign
-extern void showInfo(cstr msg, ...) __printflike(1, 2);	   // thread-safe  a friendly information alert
-
-
-class MachineController : public QMainWindow
+class MachineController : public QMainWindow, public IMachineController
 {
 	Q_OBJECT
 	Q_DISABLE_COPY(MachineController)
 
-	friend void runMachinesForSound();
-	friend void setFrontMachineController(MachineController*);
-	friend void setFrontMachine(Machine*);
 	friend class ScreenTc2048; // --> gif_recorder(); TODO: bereinigen
 	friend class ToolWindow;   // maintained by ToolWindow
 	friend class ConfigureKeyboardJoystickDialog;
@@ -47,9 +40,20 @@ class MachineController : public QMainWindow
 	Screen*							  screen; // ScreenZxsp* or ScreenMono*
 	IsaObject*						  mem[4];
 	Lenslok*						  lenslok;
+	Overlay*						  overlay_rzx_play		  = nullptr;
+	Overlay*						  overlay_rzx_record	  = nullptr;
+	Overlay*						  overlay_joy[3]		  = {nullptr};
+	Overlay*						  overlay_joy_spectra	  = nullptr;
+	Overlay*						  overlay_joy_multiface1  = nullptr;
+	Overlay*						  overlay_joy_smartsdcard = nullptr;
 
 	uint8 keyjoy_keys[5];		  // (RLDUF) Qt keycode to use for keyboard joystick up-down-left-right-fire
 	cstr  keyjoy_fnmatch_pattern; // the filename pattern, for which the keys were set
+
+	QTimer* input_device_timer = nullptr;
+	void	startInputDeviceTimer();
+	void	stopInputDeviceTimer();
+	void	pollInputDevices();
 
 	// GUI:
 	// ToolWindowController*	tool_windows;
@@ -83,7 +87,6 @@ private:
 	QActionGroup* model_actiongroup; // --> model menu
 	QMenu *context_menu, *file_menu, *model_menu, *options_menu, *items_menu, *control_menu, *memory_menu, *speed_menu;
 	WindowMenu* window_menu;
-
 
 	//	static Model best_model_for_file(cstr filepath);
 	Screen*					 newScreenForModel(Model);
@@ -121,7 +124,7 @@ private:
 	void	 setRzxAppendSnapshots(bool);
 	void	 startupOpenToolwindows();
 	void	 setFilepath(cstr);
-	void	 setKeyboardMode(KbdMode);
+	void	 setKeyboardMode(KeyboardMode);
 	void	 enableAudioIn(bool);
 	void	 allKeysUp();
 
@@ -165,11 +168,15 @@ public:
 	QList<QAction*> getKeyboardActions();
 	ToolWindow*		findToolWindowForItem(const volatile IsaObject* item);
 
-	void memoryModified(Memory* m, uint how) volatile; // callback from machine
-	void machineSuspendStateChanged() volatile;		   // callback from machine
-	void rzxStateChanged() volatile;				   // callback from machine
-	void itemAdded(std::shared_ptr<Item>) volatile;	   // callback from machine
-	void itemRemoved(Item*) volatile;				   // callback from machine
+	// IMachineController interface:
+	void memoryModified(Memory* m, uint how) volatile override;
+	void machineSuspendStateChanged() volatile override;
+	void rzxStateChanged() volatile override;
+	void itemAdded(std::shared_ptr<Item>) volatile override;
+	void itemRemoved(Item*) volatile override;
+
+	void addOverlayJoy(volatile Item*);
+	void removeOverlayJoy(Item*);
 
 signals:
 	void signal_keymapModified();

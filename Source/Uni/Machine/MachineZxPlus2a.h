@@ -3,17 +3,14 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "Joy/SinclairJoy.h"
 #include "MachineZx128.h"
-#include "Printer/PrinterPlus3.h"
-#include "ZxInfo/info.h"
 
 
 class MachineZxPlus2a : public MachineZx128
 {
 protected:
-	MachineZxPlus2a(gui::MachineController*, Model, isa_id);
+	MachineZxPlus2a(IMachineController*, Model, isa_id);
 
 public:
-	MachineZxPlus2a(gui::MachineController*, Model);
+	MachineZxPlus2a(IMachineController*, Model);
 };

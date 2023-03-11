@@ -9,10 +9,10 @@
 class MachineTc2048 : public MachineZxsp
 {
 protected:
-	MachineTc2048(gui::MachineController*, Model, isa_id);
+	MachineTc2048(IMachineController*, Model, isa_id);
 
 public:
-	explicit MachineTc2048(gui::MachineController*);
+	explicit MachineTc2048(IMachineController*);
 
 	void loadScr(FD&) override;
 };

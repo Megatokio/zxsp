@@ -3,7 +3,6 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "Joystick.h" // physical joysticks
 #include "MassStorage.h"
 #include "Memory.h"
 #include "Z80/Z80.h"
@@ -43,10 +42,9 @@ class SmartSDCard final : public MassStorage
 	MemoryPtr ram;
 	MemoryPtr rom;
 
-	Joystick*			  joystick;
-	gui::OverlayJoystick* overlay;
-	SDCard*				  sd_card;
-	Sio*				  sio;
+	JoystickID joystick_id;
+	SDCard*	   sd_card;
+	Sio*	   sio;
 
 	// i/o registers:
 	// ram_config = config & 0x00FF
@@ -82,9 +80,12 @@ public:
 	void enableFlashWrite(bool);
 
 	// Joystick handling:
-	void	   setJoystickEnabled(bool);
-	void	   insertJoystick(int id) volatile;
-	JoystickID getJoystickID() const volatile { return indexof(joystick); }
+	void	   enableJoystick(bool f) { dip_joystick_enabled = f; }
+	void	   insertJoystick(JoystickID id) { joystick_id = id; }
+	JoystickID getJoystickID() const volatile { return joystick_id; }
+	cstr	   getIdf() const volatile { return "K"; }
+	uint8	   peekJoystickButtonsFUDLR() const volatile;
+	bool	   isJoystickEnabled() const volatile { return dip_joystick_enabled; }
 
 protected:
 	~SmartSDCard() override;

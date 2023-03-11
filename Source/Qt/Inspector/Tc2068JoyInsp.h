@@ -11,6 +11,8 @@ namespace gui
 
 class Tc2068JoyInsp : public JoyInsp
 {
+	volatile Tc2068Joy* const tc2068joy;
+
 public:
 	Tc2068JoyInsp(QWidget*, MachineController*, volatile Tc2068Joy*, cstr img_path);
 

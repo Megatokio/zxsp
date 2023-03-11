@@ -4,13 +4,14 @@
 
 #include "MachineZxPlus3.h"
 #include "Ay/AySubclasses.h"
+#include "Fdc/FdcPlus3.h"
 #include "Keyboard.h"
+#include "Printer/PrinterPlus3.h"
 #include "TapeRecorder.h"
 #include "Ula/MmuPlus3.h"
 #include "Ula/UlaPlus3.h"
 
-
-MachineZxPlus3::MachineZxPlus3(gui::MachineController* m, Model model) : MachineZxPlus2a(m, model, isa_MachineZxPlus3)
+MachineZxPlus3::MachineZxPlus3(IMachineController* m, Model model) : MachineZxPlus2a(m, model, isa_MachineZxPlus3)
 {
 	assert(model == zxplus3 || model == zxplus3_span);
 

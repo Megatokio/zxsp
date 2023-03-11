@@ -7,13 +7,14 @@
 #include "Machine.h"
 #include "MachineController.h"
 #include "Screen/Screen.h"
+#include "UsbJoystick.h"
+#include "globals.h"
 #include "kio/kio.h"
 #include <QBrush>
 #include <QColor>
 #include <QFont>
 #include <QPainter>
 #include <QPen>
-
 
 namespace gui
 {
@@ -90,14 +91,14 @@ void OverlayRecord::draw(QPainter& p) { p.drawPixmap(x, y, w, h, background); }
 //			Overlay "Joystick"
 // ===================================================================
 
-QColor shadow_color(0x66000000); // argb
-QColor line_color(0xccffffff);
-QColor hilite_color(0xccffcc00);
-QColor text_color(0xccffffff);
+static QColor shadow_color(0x66000000); // argb
+static QColor line_color(0xccffffff);
+static QColor hilite_color(0xccffcc00);
+static QColor text_color(0xccffffff);
 
 #define SZ 3 // raster size
 
-OverlayJoystick::OverlayJoystick(Screen* s, Joystick* joy, cstr idf, Position pos) :
+OverlayJoystick::OverlayJoystick(Screen* s, const Joystick* joy, cstr idf, Position pos) :
 	Overlay(s, isa_OverlayJoystick, pos),
 	joystick(joy),
 	idf(idf),
@@ -106,11 +107,12 @@ OverlayJoystick::OverlayJoystick(Screen* s, Joystick* joy, cstr idf, Position po
 	arrowU(3),
 	arrowD(3)
 {
-	assert(idf);
-	assert(joy != noJoystick);
+	//TODO
+	//assert(idf);
+	//assert(joy != noJoystick);
 
 	w = h = 8 * SZ;
-	setZoom(zoom);
+	OverlayJoystick::setZoom(zoom);
 }
 
 
@@ -135,7 +137,8 @@ void OverlayJoystick::setZoom(int z)
 
 void OverlayJoystick::draw(QPainter& p)
 {
-	if (screen->windowState() & Qt::WindowActive && joystick->isConnected())
+#if 0
+	if (screen->isActive() && joystick->isConnected())
 	{
 		p.setPen(shadow_pen);
 		p.drawPolygon(arrowL);
@@ -148,11 +151,11 @@ void OverlayJoystick::draw(QPainter& p)
 		if (state)
 		{
 			p.setPen(hilite_pen);
-			if (state & Joystick::button_left_mask) p.drawPolygon(arrowL);
-			if (state & Joystick::button_right_mask) p.drawPolygon(arrowR);
-			if (state & Joystick::button_up_mask) p.drawPolygon(arrowU);
-			if (state & Joystick::button_down_mask) p.drawPolygon(arrowD);
-			if (state & Joystick::button1_mask) p.drawEllipse(fire);
+			if (state & JoystickButtons::button_left_mask) p.drawPolygon(arrowL);
+			if (state & JoystickButtons::button_right_mask) p.drawPolygon(arrowR);
+			if (state & JoystickButtons::button_up_mask) p.drawPolygon(arrowU);
+			if (state & JoystickButtons::button_down_mask) p.drawPolygon(arrowD);
+			if (state & JoystickButtons::button_fire1_mask) p.drawEllipse(fire);
 		}
 
 		p.setPen(line_pen);
@@ -166,6 +169,7 @@ void OverlayJoystick::draw(QPainter& p)
 		p.setFont(text_font);
 		p.drawText(x, y + zoom * 9, idf);
 	}
+#endif
 }
 
 } // namespace gui

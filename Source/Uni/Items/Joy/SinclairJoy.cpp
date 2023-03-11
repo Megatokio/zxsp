@@ -4,7 +4,6 @@
 
 
 #include "SinclairJoy.h"
-#include "globals.h"
 
 
 /*
@@ -61,20 +60,29 @@ void SinclairJoy::input(Time, int32, uint16 addr, uint8& byte, uint8& mask)
 {
 	uint8 jbyte;
 
-	if (machine == front_machine)
-	{
-		if ((~addr & 0x0800) && (jbyte = joy[0]->getState())) // state =     %000FUDLR active high
-		{													  // Sinclair 1: %000FUDRL active low
-			jbyte = calcS1ForJoy(jbyte);					  //                 54321
-			byte &= jbyte;
-			mask |= ~jbyte; // oK: pull down only.
-		}
+	if ((~addr & 0x0800) && (jbyte = getButtonsFUDLR(0))) // state =     %000FUDLR active high
+	{													  // Sinclair 1: %000FUDRL active low
+		jbyte = calcS1FromFUDLR(jbyte);					  //                 54321
+		byte &= jbyte;
+		mask |= ~jbyte; // oK: pull down only.
+	}
 
-		if ((~addr & 0x1000) && (jbyte = joy[1]->getState())) // state =     %000FUDLR active high
-		{													  // Sinclair 2: %000LRDUF active low
-			jbyte = calcS2ForJoy(jbyte);					  //                 67890
-			byte &= jbyte;
-			mask |= ~jbyte; // oK: pull down only.
-		}
+	if ((~addr & 0x1000) && (jbyte = getButtonsFUDLR(1))) // state =     %000FUDLR active high
+	{													  // Sinclair 2: %000LRDUF active low
+		jbyte = calcS2FromFUDLR(jbyte);					  //                 67890
+		byte &= jbyte;
+		mask |= ~jbyte; // oK: pull down only.
 	}
 }
+
+
+ZxPlus2Joy::ZxPlus2Joy(Machine* m) : SinclairJoy(m, isa_ZxPlus2Joy, internal) {}
+ZxPlus2AJoy::ZxPlus2AJoy(Machine* m) : SinclairJoy(m, isa_ZxPlus2AJoy, internal) {}
+ZxPlus3Joy::ZxPlus3Joy(Machine* m) : SinclairJoy(m, isa_ZxPlus3Joy, internal) {}
+
+//	TK90X:
+//	Anscheinend wurden beide Joysticks über den einen Port herausgeführt:
+//	primär rechter Joystick (67890) mit COMMON an Pin 8
+//	über Adapter auch linker Joystick (12345) mit COMMON an Pin 7.
+Tk90xJoy::Tk90xJoy(Machine* m) : SinclairJoy(m, isa_Tk90xJoy, internal) {}
+Tk95Joy::Tk95Joy(Machine* m) : SinclairJoy(m, isa_Tk95Joy, internal) {}

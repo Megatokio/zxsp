@@ -6,8 +6,9 @@
 #include "Dialogs/ConfigDialog.h"
 #include "Dialogs/ConfigureKeyboardJoystickDialog.h"
 #include "Joy/Joy.h"
-#include "Joystick.h"
+#include "MachineController.h"
 #include "Templates/NVPtr.h"
+#include "UsbJoystick.h"
 #include <QComboBox>
 #include <QPushButton>
 #include <QtGui>
@@ -38,24 +39,24 @@ JoyInsp::JoyInsp(QWidget* w, MachineController* mc, volatile Joy* joy, cstr imgp
 		joystick_selectors[i]->setMinimumWidth(80);
 		connect(
 			joystick_selectors[i], static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
-			&JoyInsp::slot_joystick_selected);
+			&JoyInsp::slotJoystickSelected);
 	}
 
 	update_joystick_selectors();
 
 	button_scan_usb = new QPushButton("Scan USB", this);
 	button_scan_usb->setMinimumWidth(100);
-	connect(button_scan_usb, &QPushButton::clicked, this, &JoyInsp::slot_find_usb_joysticks);
+	connect(button_scan_usb, &QPushButton::clicked, this, &JoyInsp::slotFindUsbJoysticks);
 
 	button_set_keys = new QPushButton("Set Keys", this);
 	button_set_keys->setMinimumWidth(100);
-	connect(button_set_keys, &QPushButton::clicked, this, &JoyInsp::slot_set_keyboard_joystick_keys);
+	connect(button_set_keys, &QPushButton::clicked, this, &JoyInsp::slotSetKeyboardJoystickKeys);
 
 	timer->start(1000 / 10);
 }
 
 
-void JoyInsp::slot_find_usb_joysticks()
+void JoyInsp::slotFindUsbJoysticks()
 {
 	xlogIn("JoyInsp::scanUSB");
 	assert(validReference(joy));
@@ -64,7 +65,7 @@ void JoyInsp::slot_find_usb_joysticks()
 	update_joystick_selectors();
 }
 
-void JoyInsp::slot_set_keyboard_joystick_keys()
+void JoyInsp::slotSetKeyboardJoystickKeys()
 {
 	xlogIn("JoyInsp::setKeys");
 
@@ -72,15 +73,15 @@ void JoyInsp::slot_set_keyboard_joystick_keys()
 	d->show();
 }
 
-void JoyInsp::slot_joystick_selected()
+void JoyInsp::slotJoystickSelected()
 {
 	xlogIn("JoyInsp::joySelected");
 	assert(validReference(joy));
 
 	for (uint i = 0; i < num_ports; i++)
 	{
-		int j = joystick_selectors[i]->currentIndex();
-		nvptr(joy)->insertJoystick(i, joystick_selectors[i]->itemData(j).toInt());
+		joy->insertJoystick(i, JoystickID(joystick_selectors[i]->currentIndex()));
+		controller->addOverlayJoy(joy);
 	}
 }
 
@@ -91,66 +92,40 @@ void JoyInsp::updateWidgets() // Kempston
 
 	for (uint i = 0; i < num_ports; i++)
 	{
-		uint8 newstate = NV(joy)->getState(i);
+		uint8 newstate = joy->peekButtonsFUDLR(i);
 		if (newstate == lineedit_state[i]) continue;
-
-		char s[] = "%111FUDLR";
-		for (int j = 0; j < 8; j++)
-		{
-			if (((~newstate) << j) & 0x80) s[j + 1] = '-';
-		}
-		lineedit_display[i]->setText(s);
 		lineedit_state[i] = newstate;
+		lineedit_display[i]->setText(binstr(newstate, "--------", "111FUDLR"));
 	}
 }
 
-
 void JoyInsp::update_joystick_selectors()
 {
-	bool is_connected[max_joy];
-	int	 i;
-	bool is_in_list[max_joy] = {0, 0, 0, 0, 0};
+	xlogIn("JoyInsp::update_js_selector");
+	assert(validReference(joy));
 
-	// find real-world joysticks:
-	for (i = 0; i < max_joy; i++) { is_connected[i] = joysticks[i]->isConnected(); }
+	int num_needed = 2 + int(num_usb_joysticks);
 
-	// joysticks currently in selector list:
-	for (i = 0; i < joystick_selectors[0]->count(); i++) is_in_list[joystick_selectors[0]->itemData(i).toInt()] = true;
-
-	// compare:
-	for (i = 0; i < max_joy; i++)
+	for (uint j = 0; j < num_ports; j++)
 	{
-		if (is_connected[i] != is_in_list[i]) break;
-	}
-	if (i == max_joy) return; // no change
+		auto& js_selector = joystick_selectors[j];
 
-	// first call or a joystick has been plugged / unplugged:
+		while (js_selector->count() > num_needed) { js_selector->removeItem(num_needed); }
 
-	static cstr jname[5] = {"USB Joystick 1", "USB Joystick 2", "USB Joystick 3", "Keyboard", "no Joystick"};
-
-	// if selectors send events then slotSelectJoystick() will mess up the settings:
-	for (uint s = 0; s < num_ports; s++) { joystick_selectors[s]->blockSignals(1); }
-
-	// for all ports of this interface:
-	for (uint s = 0; s < num_ports; s++)
-	{
-		// empty selector list:
-		while (joystick_selectors[s]->count()) { joystick_selectors[s]->removeItem(0); }
-
-		// add existing real-world joysticks to selector list
-		// and select the currently selected one, default = no_joy:
-		int selected_id	 = NV(joy)->getJoystickID(s); // id of the real-world joystick
-		int selected_idx = -1;						  // index in list
-		for (i = 0; i < max_joy; i++)
+		for (int i = js_selector->count(); i < num_needed; i++)
 		{
-			if (!is_connected[i]) continue;
-			if (i == selected_id) selected_idx = joystick_selectors[s]->count();
-			joystick_selectors[s]->addItem(jname[i], i);
+			if (i == 0) { js_selector->addItem("no Joystick"); }
+			else if (i == 1) { js_selector->addItem("Keyboard"); }
+			else
+			{
+				char idf[] = "USB Joystick #";
+				idf[13]	   = char('0' + i - 2);
+				js_selector->addItem(idf);
+			}
 		}
-		joystick_selectors[s]->setCurrentIndex(selected_idx >= 0 ? selected_idx : joystick_selectors[s]->count() - 1);
-	}
 
-	for (uint s = 0; s < num_ports; s++) { joystick_selectors[s]->blockSignals(0); }
+		js_selector->setCurrentIndex(joy->getJoystickID(j));
+	}
 }
 
 } // namespace gui

@@ -3,7 +3,7 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #pragma once
-#include "IScreenMono.h"
+#include "Interfaces/IScreen.h"
 #include "kio/kio.h"
 
 /*
@@ -18,7 +18,7 @@ class TVDecoderMono
 {
 	NO_COPY_MOVE(TVDecoderMono);
 
-	IScreenMono& screen;
+	IScreen* screen;
 
 	static constexpr int32 min_lines_per_frame = 262 - 26;
 	static constexpr int32 max_lines_per_frame = 312 + 32;
@@ -74,10 +74,10 @@ public:
 	static constexpr uint8 black = 0x00;
 	static constexpr uint8 white = 0xff;
 
-	TVDecoderMono(IScreenMono&, int32 cc_per_sec, uint8 background_color = white);
+	TVDecoderMono(IScreen*, int32 cc_per_sec, uint8 background_color = white);
 	~TVDecoderMono();
 
-	void reset(); // no need to call
+	void reset(IScreen*); // no need to call
 	void setBackgroundColor(uint8 c)
 	{
 		background_color = c;

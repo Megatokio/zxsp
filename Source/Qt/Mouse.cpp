@@ -9,50 +9,28 @@
 #endif
 #include <QtGui>
 
-
-// global instance
-//
 Mouse mouse;
 
+static bool _is_grabbed = false;
 
-// security: remove grabber at App exit, e.g. on abort(…)
-//
-static void _ungrab()
+static void _ungrab() noexcept
 {
-	xlogline("Mouse:atexit:ungrab");
-	mouse.ungrab();
+	if (!_is_grabbed) return;
+	_is_grabbed = false;
+
+#ifdef _MACOSX
+	CGAssociateMouseAndMouseCursorPosition(yes);
+	CGDisplayShowCursor(kCGDirectMainDisplay);
+#else
+	// TODO
+#endif
 }
 
-
-Mouse::Mouse() : grabber(nullptr), mouse_tracker_timer(new QTimer(this)), dx(0), dy(0)
+static void _grab() noexcept
 {
-	xlogIn("new Mouse");
-	assert(this == &mouse);
+	if (_is_grabbed) return;
+	_is_grabbed = true;
 
-	connect(mouse_tracker_timer, &QTimer::timeout, this, &Mouse::mouse_tracker);
-
-	atexit(&_ungrab);
-}
-
-
-Mouse::~Mouse()
-{
-	xlogIn("~Mouse");
-	ungrab();
-}
-
-void Mouse::grab(QWidget* w)
-{
-	if (grabber) ungrab();
-	grabber = w;
-
-	connect(w, &QWidget::destroyed, this, &Mouse::ungrab);
-
-	mouse_tracker_timer->start(1000 / 100);
-
-	w->setFocus();
-	w->grabMouse();
-	w->activateWindow();
 #ifdef _MACOSX
 	CGAssociateMouseAndMouseCursorPosition(no);
 	CGDisplayHideCursor(kCGDirectMainDisplay);
@@ -61,35 +39,54 @@ void Mouse::grab(QWidget* w)
 #endif
 }
 
+static void _get_last_mouse_delta(int* dx, int* dy) noexcept
+{
+	// mouse movement since last mouseMoved event
+
+#ifdef _MACOSX
+	CGGetLastMouseDelta(dx, dy);
+#else
+	// TODO
+	*dx = 0;
+	*dy = 0;
+#endif
+}
+
+Mouse::Mouse() noexcept
+{
+	xlogline("new Mouse");
+	assert(this == &mouse);
+	atexit(&_ungrab);
+}
+
+Mouse::~Mouse() noexcept
+{
+	xlogline("~Mouse");
+	_ungrab();
+}
+
+void Mouse::grab(QWidget* w)
+{
+	if (grabber) ungrab();
+	grabber = w;
+	w->setFocus();
+	w->grabMouse();
+	w->activateWindow();
+	_grab();
+}
+
 void Mouse::ungrab()
 {
 	if (!grabber) return;
-	mouse_tracker_timer->stop();
 	grabber->releaseMouse();
-#ifdef _MACOSX
-	CGAssociateMouseAndMouseCursorPosition(yes);
-	CGDisplayShowCursor(kCGDirectMainDisplay);
-#else
-	// TODO
-#endif
-	disconnect(grabber, &QWidget::destroyed, this, &Mouse::ungrab);
 	grabber = nullptr;
+	_ungrab();
 }
 
-void Mouse::mouse_tracker()
+void Mouse::updatePosition()
 {
-	if (QApplication::keyboardModifiers() & Qt::CTRL)
-	{
-		ungrab();
-		return;
-	}
-
-#ifdef _MACOSX
 	int32_t dx, dy;
-	CGGetLastMouseDelta(&dx, &dy); // mouse movement since last mouseMoved event
+	_get_last_mouse_delta(&dx, &dy);
 	this->dx += dx;
 	this->dy -= dy;
-#else
-	// TODO
-#endif
 }

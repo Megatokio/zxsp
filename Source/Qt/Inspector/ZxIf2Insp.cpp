@@ -11,6 +11,7 @@
 #include "RecentFilesMenu.h"
 #include "Templates/NVPtr.h"
 #include "Z80/Z80.h"
+#include "globals.h"
 #include <QGridLayout>
 #include <QLabel>
 #include <QMenu>

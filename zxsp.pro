@@ -52,6 +52,9 @@ INCLUDEPATH += \
 	Libraries \
 	zasm/Source \
 
+macx: INCLUDEPATH += Source/OS/Mac
+unix:!macx: INCLUDEPATH += Source/OS/Linux
+
 
 macx: SOURCES += \
 	Source/OS/Mac/UsbJoystick.cpp \
@@ -62,6 +65,9 @@ macx: SOURCES += \
 	Libraries/audio/macos/CAStreamBasicDescription.cpp \
 
 macx: HEADERS += \
+	Source/OS/Mac/UsbJoystick.h \
+	Source/OS/Mac/UsbDevice.h \
+	Source/OS/Mac/mac_util.h \
 	Libraries/audio/macos/CADebugMacros.h \
 	Libraries/audio/macos/CAStreamBasicDescription.h \
 	Libraries/audio/macos/CAMath.h \
@@ -69,13 +75,16 @@ macx: HEADERS += \
 
 
 unix:!macx: SOURCES += \
+	Source/OS/Linux/UsbJoystick.cpp \
 	Source/OS/Linux/missing_definitions.cpp \
 	Libraries/audio/Linux/AudioDecoder.cpp \
 
+unix:!macx: HEADERS += \
+	Source/OS/Linux/UsbJoystick.h \
+
 
 SOURCES += \
-	Source/OS/Joystick.cpp \
-	Source/OS/Dsp.cpp
+	Source/OS/Dsp.cpp \
 
 
 SOURCES +=	\
@@ -120,6 +129,7 @@ SOURCES +=	\
 	zasm/Source/Z180.cpp \
 	zasm/Source/Value.cpp \
 	\
+	Source/Qt/MachineList.cpp \
 	Source/Qt/qt_util.cpp \
 	Source/Qt/Settings.cpp \
 	Source/Qt/SimpleTerminal.cpp \
@@ -138,6 +148,7 @@ SOURCES +=	\
 	\
 	Source/Qt/Screen/Screen.cpp \
 	Source/Qt/Screen/ScreenMono.cpp \
+	Source/Qt/Screen/ScreenZxsp.cpp \
 	\
 	Source/Qt/Inspector/SpectraVideoInspector.cpp \
 	Source/Qt/Inspector/WalkmanInspector.cpp \
@@ -230,6 +241,7 @@ SOURCES +=	\
 	Source/Uni/Items/Joy/SinclairJoy.cpp \
 	Source/Uni/Items/Joy/KempstonJoy.cpp \
 	Source/Uni/Items/Joy/Tc2048Joy.cpp \
+	Source/Uni/Items/Joy/Tc2068Joy.cpp \
 	Source/Uni/Items/Joy/InvesJoy.cpp \
 	Source/Uni/Items/Joy/CursorJoy.cpp \
 	Source/Uni/Items/Joy/Tk85Joy.cpp \
@@ -320,11 +332,11 @@ SOURCES +=	\
 	Source/Uni/Files/Z80Head.cpp \
 	Source/Uni/Files/RzxBlock.cpp \
 	Source/Uni/Files/RzxFile.cpp \
-	Source/Uni/Files/bestModelForFile.cpp \
 	\
 	Source/Uni/ZxInfo/ZxInfo.cpp \
 	Source/Uni/ZxInfo/BasicTokens.cpp \
 	\
+	Source/Uni/zxsp_helpers.cpp \
 	Source/Uni/IoInfo.cpp \
 	Source/Uni/Memory.cpp \
 	Source/Uni/util.cpp \
@@ -346,7 +358,6 @@ HEADERS += \
 	Libraries/kio/util/msbit.h \
 	Libraries/kio/util/count1bits.h \
 	Libraries/kio/TestTimer.h \
-	Source/version.h \
 	\
 	Libraries/unix/log.h \
 	Libraries/unix/os_utilities.h \
@@ -407,13 +418,10 @@ HEADERS += \
 
 HEADERS += \
 	Source/settings.h \
+	Source/version.h \
 	Source/OS/StereoSample.h \
 	Source/OS/DspTime.h \
 	Source/OS/Dsp.h \
-	Source/OS/Joystick.h \
-	Source/OS/Mac/UsbJoystick.h \
-	Source/OS/Mac/UsbDevice.h \
-	Source/OS/Mac/mac_util.h \
 
 
 # zxsp Headers - Qt GUI stuff:
@@ -473,12 +481,15 @@ HEADERS += \
 	Source/Qt/Inspector/SmartSDCardInspector.h \
 	\
 	Source/Qt/Screen/ScreenMono.h \
+	Source/Qt/Screen/ScreenZxsp.h \
 	Source/Qt/Screen/Screen.h \
 	\
 	Source/Qt/Dialogs/ConfigDialog.h \
 	Source/Qt/Dialogs/ConfigureKeyboardJoystickDialog.h \
 	Source/Qt/Overlays/Overlay.h \
 	\
+	Source/Qt/gui_types.h \
+	Source/Qt/MachineList.h \
 	Source/Qt/Mouse.h \
 	Source/Qt/CheckUpdate.h \
 	Source/Qt/qt_util.h \
@@ -498,6 +509,9 @@ HEADERS += \
 # zxsp Headers - ZX Spectrum Machine & Item Models:
 
 HEADERS += \
+	Source/Uni/Interfaces/IMachineController.h \
+	Source/Uni/Interfaces/IScreen.h \
+	\
 	Source/Uni/Machine/Machine.h \
 	Source/Uni/Machine/MachineZx80.h \
 	Source/Uni/Machine/MachineZx81.h \
@@ -626,7 +640,6 @@ HEADERS += \
 	Source/Uni/Video/Renderer.h \
 	Source/Uni/Video/MonoRenderer.h \
 	Source/Uni/Video/SpectraRenderer.h \
-	Source/Uni/Video/IScreenMono.h \
 	Source/Uni/Video/TVDecoderMono.h \
 	\
 	Source/Uni/ZxInfo/ZxInfo.h \
@@ -639,6 +652,7 @@ HEADERS += \
 	Source/Uni/Files/RzxFile.h \
 	Source/Uni/Files/RzxBlock.h \
 	\
+	Source/Uni/zxsp_helpers.h \
 	Source/Uni/custom_errors.h \
 	Source/Uni/Language.h \
 	Source/Uni/globals.h \

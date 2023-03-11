@@ -4,14 +4,13 @@
 
 #include "SpectraVideo.h"
 #include "Items/Z80/Z80options.h"
-#include "Joystick.h" // physical joysticks
 #include "Machine.h"
 #include "RecentFilesMenu.h"
-#include "Screen/Screen.h"
 #include "Ula/Mmu.h"
 #include "Ula/Ula.h"
 #include "Ula/UlaZxsp.h"
 #include "Z80/Z80.h"
+#include "zxsp_helpers.h"
 
 
 /*	this class represents a SPECTRA video interface.
@@ -172,8 +171,6 @@ SpectraVideo::~SpectraVideo()
 	delete[] attr_pixel;
 	delete[] alt_attr_pixel;
 	delete[] alt_ioinfo;
-
-	machine->removeOverlay(overlay);
 }
 
 
@@ -188,8 +185,7 @@ SpectraVideo::SpectraVideo(Machine* m, uint dip_switches) :
 	// port_7ffd(0),
 	// shadowram_ever_used(no),
 	shadowram(new Memory(m, "SPECTRA Video Ram", 0x8000)),
-	joystick(nullptr),
-	overlay(nullptr),
+	joystick_id(usb_joystick0),
 	// port_254(0),
 	// port_239(0),
 	// port_247(0),
@@ -212,7 +208,6 @@ SpectraVideo::SpectraVideo(Machine* m, uint dip_switches) :
 	assert(machine->isA(isa_MachineZxsp));
 
 	video_ram = &shadowram[0];
-	if (joystick_enabled) insertJoystick(usb_joystick0);
 }
 
 
@@ -286,7 +281,7 @@ void SpectraVideo::input(Time /*t*/, int32 /*cc*/, uint16 addr, uint8& byte, uin
 	{
 		// Input: %000FUDLR  active high
 		mask = 0xff;
-		byte &= machine == front_machine ? joystick->getState(yes) : 0x00;
+		byte &= machine->getJoystickButtons(joystick_id);
 	}
 
 	// RS232 port 239:
@@ -546,8 +541,7 @@ int32 SpectraVideo::doFrameFlyback(int32 /*cc*/) // called from runForSound()
 		ccx = lines_before_screen * cc_per_line; // update_screen_cc
 
 		record_ioinfo(cc_frame_end, 0xfe, 0x00); // for 60Hz models: remainder of screen is black
-		assert(dynamic_cast<gui::ScreenZxsp*>(screen));
-		bool new_buffers_in_use = static_cast<gui::ScreenZxsp*>(screen)->ffb_or_vbi(
+		bool new_buffers_in_use = screen->ffb_or_vbi(
 			ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, get_flash_phase(),
 			90000 /*cc_frame_end*/);
 
@@ -572,8 +566,7 @@ void SpectraVideo::drawVideoBeamIndicator(int32 cc) // called from runForSound()
 	if (screen)
 	{
 		updateScreenUpToCycle(cc);
-		assert(dynamic_cast<gui::ScreenZxsp*>(screen));
-		bool new_buffers_in_use = static_cast<gui::ScreenZxsp*>(screen)->ffb_or_vbi(
+		bool new_buffers_in_use = screen->ffb_or_vbi(
 			ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, get_flash_phase(), cc);
 
 		if (new_buffers_in_use)
@@ -872,15 +865,12 @@ void SpectraVideo::markVideoRam()
 }
 
 
-void SpectraVideo::insertJoystick(int id)
+uint8 SpectraVideo::getJoystickButtonsFUDLR()
 {
-	if (joystick == joysticks[id]) return;
+	return joystick_enabled ? machine->getJoystickButtons(joystick_id) : 0x00;
+}
 
-	if (overlay)
-	{
-		machine->removeOverlay(overlay);
-		overlay = nullptr;
-	}
-	joystick = joysticks[id];
-	if (id != no_joystick) overlay = machine->addOverlay(joystick, "K", gui::Overlay::TopRight);
+uint8 SpectraVideo::peekJoystickButtonsFUDLR() const volatile
+{
+	return joystick_enabled ? machine->peekJoystickButtons(joystick_id) : 0x00;
 }

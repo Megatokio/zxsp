@@ -8,10 +8,8 @@
 #include "DspTime.h"
 #include "Fdc.h"
 #include "Files/FloppyDisk.h"
-#include "Qt/qt_util.h"
 #include "RecentFilesMenu.h"
 #include "Templates/Array.h"
-#include "globals.h"
 #include <math.h>
 
 

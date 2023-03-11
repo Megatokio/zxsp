@@ -21,9 +21,9 @@
 
 #include "UlaZxsp.h"
 #include "Dsp.h"
+#include "Interfaces/IScreen.h"
 #include "Machine.h"
 #include "MachineController.h"
-#include "Qt/Screen/Screen.h"
 #include "TapeRecorder.h"
 #include "Z80/Z80.h"
 #include "ZxInfo.h"
@@ -65,7 +65,6 @@ UlaZxsp::UlaZxsp(Machine* m, isa_id id, cstr oaddr, cstr iaddr) :
 	xlogIn("new UlaZxsp");
 
 	assert(sizeof(waitmap) == MAX_BYTES_PER_LINE * cc_per_byte);
-	assert(screen && screen->isA(isa_ScreenZxsp));
 	assert(video_ram == ram.getData()); // current video ram
 	m->cpu_options |= cpu_floating_bus;
 }
@@ -100,7 +99,6 @@ void UlaZxsp::powerOn(int32 cc)
 	cpu		  = machine->cpu;
 	ram		  = machine->ram;
 	video_ram = ram.getData();
-	assert(!screen || screen->isA(isa_ScreenZxsp));
 
 	// Setup CRTC:
 	setupTiming();
@@ -426,8 +424,7 @@ int32 UlaZxsp::doFrameFlyback(int32 /*cc*/) // called from runForSound()
 		ccx = lines_before_screen * cc_per_line; // update_screen_cc
 
 		record_ioinfo(cc_frame_end, 0xfe, 0); // for 60Hz models: remainder of screen is black
-		assert(dynamic_cast<gui::ScreenZxsp*>(screen));
-		bool new_buffers_in_use = static_cast<gui::ScreenZxsp*>(screen)->ffb_or_vbi(
+		bool new_buffers_in_use = screen->ffb_or_vbi(
 			ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, getFlashPhase(),
 			90000 /*cc_frame_end*/);
 
@@ -448,8 +445,7 @@ int32 UlaZxsp::doFrameFlyback(int32 /*cc*/) // called from runForSound()
 void UlaZxsp::drawVideoBeamIndicator(int32 cc) // called from runForSound()
 {
 	updateScreenUpToCycle(cc);
-	assert(dynamic_cast<gui::ScreenZxsp*>(screen));
-	bool new_buffers_in_use = static_cast<gui::ScreenZxsp*>(screen)->ffb_or_vbi(
+	bool new_buffers_in_use = screen->ffb_or_vbi(
 		ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, getFlashPhase(), cc);
 
 	if (new_buffers_in_use)

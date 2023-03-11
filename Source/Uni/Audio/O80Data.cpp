@@ -7,7 +7,6 @@
 #include "TapeFile.h"
 #include "TapeFileDataBlock.h"
 #include "Z80/Z80.h"
-#include "globals.h"
 #include "kio/util/count1bits.h"
 #include "unix/files.h"
 

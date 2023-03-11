@@ -4,7 +4,6 @@
 
 #define LOGLEVEL 0
 #include "Machine.h"
-#include "Application.h"
 #include "Audio/TapeFile.h"
 #include "Ay/Ay.h"
 #include "Ay/AySubclasses.h"
@@ -34,7 +33,6 @@
 #include "KempstonMouse.h"
 #include "Keyboard.h"
 #include "Libraries/kio/TestTimer.h"
-#include "MachineController.h"
 #include "MachineInves.h"
 #include "MachineJupiter.h"
 #include "MachinePentagon128.h"
@@ -65,7 +63,6 @@
 #include "Ram/Memotech64kRam.h"
 #include "Ram/Zx16kRam.h"
 #include "Ram/Zx3kRam.h"
-#include "Screen/Screen.h"
 #include "SpectraVideo.h"
 #include "TapeRecorder.h"
 #include "Templates/NVPtr.h"
@@ -95,56 +92,7 @@
 #include "ZxIf1.h"
 #include "ZxInfo.h"
 #include "unix/FD.h"
-
-
-class MachineList : private Array<volatile Machine*>
-{
-	using Array::cnt;
-	using Array::data;
-
-public:
-	PLock mutex;
-
-	void append(volatile Machine* m)
-	{
-		PLocker<PLock> z(mutex);
-		Array::append(m);
-	}
-	void remove(volatile Machine* m)
-	{
-		PLocker<PLock> z(mutex);
-		Array::remove(m);
-	}
-
-	using Array::count;
-	using Array::operator[];
-};
-
-
-static MachineList machine_list;
-volatile void*	   front_machine = nullptr;
-
-
-void runMachinesForSound()
-{
-	PLocker<PLock> z(machine_list.mutex);
-
-	for (uint i = 0; i < machine_list.count(); i++)
-	{
-		NVPtr<Machine> machine(machine_list[i], 50 * 1000); // 50 µs
-
-		if (machine->isPowerOn())
-		{
-			if (machine->isRunning()) // not suspended
-			{
-				machine->runForSound();
-				if (machine->cpu_clock > 100000) continue;
-			}
-
-			machine->drawVideoBeamIndicator();
-		}
-	}
-}
+#include "zxsp_helpers.h"
 
 
 // ########################################################################
@@ -152,7 +100,7 @@ void runMachinesForSound()
 // ########################################################################
 
 
-std::shared_ptr<Machine> Machine::newMachine(gui::MachineController* mc, Model model)
+std::shared_ptr<Machine> Machine::newMachine(IMachineController* mc, Model model)
 {
 	// create Machine instance for model
 	// the machine is not powered on.
@@ -205,7 +153,7 @@ std::shared_ptr<Machine> Machine::newMachine(gui::MachineController* mc, Model m
 	IERR();
 }
 
-Machine::Machine(gui::MachineController* parent, Model model, isa_id id) :
+Machine::Machine(IMachineController* parent, Model model, isa_id id) :
 	IsaObject(id, isa_Machine),
 	mutex(), //_lock(PLock::recursive),
 	controller(parent),
@@ -217,8 +165,6 @@ Machine::Machine(gui::MachineController* parent, Model model, isa_id id) :
 	is_power_on(no),
 	is_suspended(no), // must be initialized before memory
 	rzx_file(nullptr),
-	overlay_rzx_play(nullptr),
-	overlay_rzx_record(nullptr),
 	rom(this, "Internal Rom", model_info->rom_size),
 	ram(this, "Internal Ram", model_info->ram_size),
 	cpu(nullptr),
@@ -265,9 +211,6 @@ Machine::Machine(gui::MachineController* parent, Model model, isa_id id) :
 
 	// Items:
 	//	items are added by subclass c'tor
-
-	// add machine to machine_list[]:
-	machine_list.append(this);
 }
 
 void Machine::init_contended_ram()
@@ -314,9 +257,6 @@ void Machine::load_rom()
 Machine::~Machine()
 {
 	xlogIn("~Machine");
-
-	if (this == front_machine) front_machine = nullptr;
-	machine_list.remove(this);
 
 	is_power_on = no;
 
@@ -803,6 +743,8 @@ void Machine::removeSpectraVideo()
 	auto* spectra = find<SpectraVideo>();
 	if (!spectra) return;
 
+	assert(crtc);
+	IScreen* screen = crtc->getScreen();
 	removeItem(spectra);
 
 	if (crtc == spectra)
@@ -810,7 +752,7 @@ void Machine::removeSpectraVideo()
 		crtc = find<Crtc>();
 		if (crtc)
 		{
-			crtc->attachToScreen(controller->getScreen());
+			crtc->attachToScreen(screen);
 			cpu->setCrtc(crtc);
 			if (isPowerOn()) crtc->powerOn(cpu->cpuCycle());
 		}
@@ -830,12 +772,13 @@ SpectraVideo* Machine::addSpectraVideo(uint dip_switches)
 	if (spectra) return spectra;
 
 	assert(crtc);
+	IScreen* screen = crtc->getScreen();
 	crtc->attachToScreen(nullptr);
 
 	spectra = find<SpectraVideo>();
 	if (!spectra) addItem(spectra = new SpectraVideo(this, dip_switches));
 
-	spectra->attachToScreen(controller->getScreen());
+	spectra->attachToScreen(screen);
 	cpu->setCrtc(spectra);
 	if (isPowerOn()) spectra->powerOn(cpu->cpuCycle());
 
@@ -1105,7 +1048,7 @@ void Machine::runForSound(int32 cc_final)
 						if (rzx_file->isPlaying()) continue;
 					}
 
-					if (controller->isRzxAutostartRecording()) { rzxStartRecording(); }
+					if (rzx_auto_start_recording) { rzxStartRecording(); }
 					else // no autoStartRecording => OutOfSync
 					{
 						rzxStopPlaying("RZX file playback ended.");
@@ -1460,46 +1403,6 @@ void Machine::drawVideoBeamIndicator()
 	crtc->drawVideoBeamIndicator(beam_cc);
 }
 
-gui::OverlayJoystick* Machine::addOverlay(Joystick* joy, cstr idf, gui::Overlay::Position pos)
-{
-	gui::OverlayJoystick* o = new gui::OverlayJoystick(controller->getScreen(), joy, idf, pos);
-	controller->getScreen()->addOverlay(o);
-	return o;
-}
-
-void Machine::removeOverlay(gui::Overlay* o)
-{
-	if (o) controller->getScreen()->removeOverlay(o);
-}
-
-void Machine::hideOverlayPlay()
-{
-	removeOverlay(overlay_rzx_play);
-	overlay_rzx_play = nullptr;
-}
-
-void Machine::hideOverlayRecord()
-{
-	removeOverlay(overlay_rzx_record);
-	overlay_rzx_record = nullptr;
-}
-
-void Machine::showOverlayPlay()
-{
-	hideOverlayRecord();
-	if (overlay_rzx_play) return;
-	overlay_rzx_play = new gui::OverlayPlay(controller->getScreen());
-	controller->getScreen()->addOverlay(overlay_rzx_play);
-}
-
-void Machine::showOverlayRecord()
-{
-	hideOverlayPlay();
-	if (overlay_rzx_record) return;
-	overlay_rzx_record = new gui::OverlayRecord(controller->getScreen());
-	controller->getScreen()->addOverlay(overlay_rzx_record);
-}
-
 void Machine::rzxLoadSnapshot(int32& cc_final, int32& ic_end)
 {
 	// Snapshot -> Playing | EndOfFile | OutOfSync
@@ -1591,8 +1494,6 @@ void Machine::rzxOutOfSync(cstr msg, bool red)
 	}
 
 	rzx_file->setOutOfSync();
-	hideOverlayPlay();
-	hideOverlayRecord();
 	controller->rzxStateChanged();
 }
 
@@ -1602,8 +1503,6 @@ void Machine::rzxDispose()
 	delete rzx_file;
 	rzx_file = nullptr;
 
-	hideOverlayPlay();
-	hideOverlayRecord();
 	controller->rzxStateChanged();
 }
 
@@ -1620,11 +1519,12 @@ void Machine::rzxStopPlaying(cstr msg, bool yellow)
 	rzxDispose();
 }
 
-void Machine::rzxPlayFile(RzxFile* rzx)
+void Machine::rzxPlayFile(RzxFile* rzx, bool auto_start_recording)
 {
 	// store the passed RzxFile and start playing
 	// eventually immediately switch to recording, if the file is at end
 
+	rzx_auto_start_recording = auto_start_recording;
 	if (rzxIsLoaded()) rzxDispose();
 	rzx_file = rzx;
 
@@ -1637,7 +1537,7 @@ void Machine::rzxPlayFile(RzxFile* rzx)
 	case RzxFile::Snapshot: break;
 	}
 
-	int32 cc_final, ic_end;			   // dummy
+	int32 cc_final = 0, ic_end = 0;	   // dummy
 	rzxLoadSnapshot(cc_final, ic_end); // --> Playing | EndOfFile | OutOfSync
 	switch (rzx->state)
 	{
@@ -1652,7 +1552,6 @@ void Machine::rzxPlayFile(RzxFile* rzx)
 			tcc0 -= dcc / cpu_clock;
 			cc += dcc;
 		}
-		showOverlayPlay();
 		controller->rzxStateChanged();
 		return;
 	}
@@ -1685,7 +1584,6 @@ void Machine::rzxStartRecording(cstr msg, bool yellow)
 		break;
 	}
 
-	showOverlayRecord();
 	controller->rzxStateChanged();
 }
 
@@ -1700,6 +1598,26 @@ void Machine::rzxStopRecording(cstr msg, bool yellow)
 	}
 
 	rzxOutOfSync(nullptr);
+}
+
+
+void Machine::allKeysAndButtonsUp()
+{
+	if (keyboard) keyboard->allKeysUp();
+	mouse_buttons = 0;
+	memset(joystick_buttons, 0, sizeof(joystick_buttons));
+}
+
+void Machine::keyDown(uint16 unicode, uint8 oskeycode, KeyboardModifiers modifiers)
+{
+	assert(keyboard);
+	keyboard->realKeyDown(unicode, oskeycode, modifiers);
+}
+
+void Machine::keyUp(uint16 unicode, uint8 oskeycode, KeyboardModifiers modifiers)
+{
+	assert(keyboard);
+	keyboard->realKeyUp(unicode, oskeycode, modifiers);
 }
 
 

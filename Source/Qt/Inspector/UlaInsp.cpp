@@ -520,9 +520,9 @@ void UlaInsp::updateWidgets()
 		}
 	}
 
-	if (values.frames_hit != machine->controller->getScreen()->getFramesHit())
+	if (values.frames_hit != controller->getScreen()->getFramesHit())
 	{
-		values.frames_hit = machine->controller->getScreen()->getFramesHit();
+		values.frames_hit = controller->getScreen()->getFramesHit();
 		inputs.frames_hit->setText(catstr(tostr(values.frames_hit), "%"));
 	}
 }

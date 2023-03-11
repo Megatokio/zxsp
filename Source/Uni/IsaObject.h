@@ -6,7 +6,6 @@
 #include "helpers.h"
 #include "isa_id.h"
 #include "kio/kio.h"
-#include "zxsp_types.h"
 
 
 extern isa_id isa_pid[];   // parent id of id

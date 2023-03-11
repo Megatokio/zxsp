@@ -14,18 +14,15 @@
 #include "Joy/KempstonJoy.h"
 #include "Joy/SinclairJoy.h"
 #include "Machine.h"
-#include "MachineController.h"
 #include "Ram/Cheetah32kRam.h"
 #include "Ram/Memotech64kRam.h"
 #include "Ram/Zx16kRam.h"
 #include "Ram/Zx3kRam.h"
-#include "Screen/Screen.h"
 #include "Ula/Mmu128k.h"
 #include "Z80/Z80.h"
 #include "Z80Head.h"
 #include "ZxIf1.h"
 #include "unix/FD.h"
-#include <QWidget>
 
 
 /* ----	write compressed .z80 block -------------------------------------------
@@ -409,9 +406,7 @@ void Machine::saveZ80(FD& fd)
 void Machine::loadZ80_attach_joysticks(uint z80head_im)
 {
 	assert(isMainThread());
-
-	Item* j	  = nullptr;
-	uint  idx = 0;
+	Joy* j;
 
 	switch (z80head_im >> 6)
 	{
@@ -419,28 +414,19 @@ void Machine::loadZ80_attach_joysticks(uint z80head_im)
 
 	case 1:
 		j = find<KempstonJoy>();
-		if (!j) j = addExternalItem(isa_KempstonJoy);
+		if (!j) j = static_cast<Joy*>(addExternalItem(isa_KempstonJoy));
+		if (!j->isConnected(0)) j->insertJoystick(0, usb_joystick0);
 		break;
 
-	case 3: // right (1st) IF2
-		idx = 1;
-		FALLTHROUGH
-	case 2: // left (2nd) IF2
-		j = find<SinclairJoy>();
-		if (!j) j = addExternalItem(isa_ZxIf2);
+	case 3: // right (1st) IF2 -> for zxsp this is joystick[1]
+	case 2: // left (2nd) IF2  -> for zxsp this is joystick[0]
+		uint idx = z80head_im & 1;
+		j		 = find<SinclairJoy>();
+		if (!j) j = static_cast<Joy*>(addExternalItem(isa_ZxIf2));
+		if (!j->isConnected(idx)) j->insertJoystick(idx, usb_joystick0);
 		break;
-	}
-
-	for (int i = 0; i < max_joy; i++)
-	{
-		if (joysticks[i] && joysticks[i]->isConnected())
-		{
-			static_cast<Joy*>(j)->insertJoystick(idx, i);
-			break;
-		}
 	}
 }
-
 
 /*  load .z80 snapshot file
 	the machine model must match the file!

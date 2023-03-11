@@ -67,12 +67,12 @@ Model Settings::get_Model(cstr key, Model dflt)
 	return ok && n >= 0 && n < num_models ? Model(n) : dflt;
 }
 
-KbdMode Settings::get_KbdMode(cstr key, KbdMode dflt)
+KeyboardMode Settings::get_KbdMode(cstr key, KeyboardMode dflt)
 {
 	QVariant r = value(key);
 	bool	 ok;
 	int		 n = r.toInt(&ok);
-	return ok && n >= 0 && n < num_kbdmodes ? KbdMode(n) : dflt;
+	return ok && n >= 0 && n < num_kbdmodes ? KeyboardMode(n) : dflt;
 }
 
 

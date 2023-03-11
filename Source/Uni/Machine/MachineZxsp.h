@@ -4,22 +4,18 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Machine.h"
-#include "Ula/MmuZxsp.h"
-#include "Ula/UlaZxsp.h"
-#include "ZxInfo/ZxInfo.h"
-#include "ZxInfo/info.h"
 
 
 class MachineZxsp : public Machine
 {
 protected:
-	MachineZxsp(gui::MachineController*, Model, isa_id id);
+	MachineZxsp(IMachineController*, Model, isa_id id);
 
 	bool handleSaveTapePatch() override;
 	bool handleLoadTapePatch() override;
 
 public:
-	MachineZxsp(gui::MachineController*, Model);
+	MachineZxsp(IMachineController*, Model);
 
 	void loadScr(FD& fd) override;
 	void saveScr(FD& fd) override;

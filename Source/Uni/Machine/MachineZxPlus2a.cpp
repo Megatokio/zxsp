@@ -5,14 +5,15 @@
 #include "MachineZxPlus2a.h"
 #include "Ay/AySubclasses.h"
 #include "Keyboard.h"
+#include "Printer/PrinterPlus3.h"
 #include "TapeRecorder.h"
 #include "Ula/MmuPlus3.h"
 #include "Ula/UlaPlus3.h"
 
 
-MachineZxPlus2a::MachineZxPlus2a(gui::MachineController* m, Model model, isa_id id) : MachineZx128(m, model, id) {}
+MachineZxPlus2a::MachineZxPlus2a(IMachineController* m, Model model, isa_id id) : MachineZx128(m, model, id) {}
 
-MachineZxPlus2a::MachineZxPlus2a(gui::MachineController* m, Model model) : MachineZx128(m, model, isa_MachineZxPlus2a)
+MachineZxPlus2a::MachineZxPlus2a(IMachineController* m, Model model) : MachineZx128(m, model, isa_MachineZxPlus2a)
 {
 	assert(model == zxplus2a || model == zxplus2a_span);
 

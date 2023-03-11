@@ -704,6 +704,8 @@ void MemoryHexInspector::updateWidgets()
 	// update parent:
 	MemoryInspector::updateWidgets();
 
+	if (!is_visible) return;
+
 	if (first_valid_row > last_valid_row && !update_all)
 		logline("WARNING: MemoryByteInspector: first_valid_row>last_valid_row");
 
@@ -1124,42 +1126,42 @@ void MemoryHexInspector::slotFocusChanged(bool f)
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

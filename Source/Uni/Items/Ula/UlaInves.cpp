@@ -4,8 +4,8 @@
 
 #include "UlaInves.h"
 #include "Dsp.h"
+#include "Interfaces/IScreen.h"
 #include "Machine.h"
-#include "Qt/Screen/Screen.h"
 #include "TapeRecorder.h"
 #include "Z80/Z80.h"
 #include "ZxInfo.h"

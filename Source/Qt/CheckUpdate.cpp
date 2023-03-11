@@ -119,20 +119,18 @@ void CheckUpdate::slot_finished()
 
 			request.setUrl(QUrl(url));
 			reply = network_manager->get(request);
-			IFDEBUG(bool f =)
-			connect(reply, &QNetworkReply::readyRead, [this]() {
+			connect(reply, &QNetworkReply::readyRead, this, [this]() {
 				if (!fd.is_valid()) return;
 				QByteArray data = reply->readAll();
-				fd.write_bytes(data.data(), data.count());
+				fd.write_bytes(data.data(), uint(data.count()));
 			});
-			assert(f);		 // now also readyRead() connected
 			state = dl_file; // state := download file
 			return;			 // -> slotReadyRead and slotFinished will be called (again)
 		}
 		case dl_file: // step 2: download file completed
 		{
 			QByteArray data = reply->readAll();
-			fd.write_bytes(data.data_ptr(), data.count());
+			fd.write_bytes(data.data_ptr(), uint(data.count()));
 
 			showInfo("A new version of zxsp has been placed on your desktop:\n\n\"%s\"", filename);
 			xlogline("CheckUpdate: New version of zxsp received successfully");

@@ -5,6 +5,7 @@
 
 #include "AySubclasses.h"
 #include "Joy/Joy.h"
+#include "Joy/Tc2068Joy.h"
 #include "Machine.h"
 #include "Ula/MmuTc2068.h"
 
@@ -59,33 +60,25 @@ AyForZx128::AyForZx128(Machine* m) : Ay(m, zx128s, zx128w, zx128r, m->model_info
 #define tc2068r "----.----.1111.0110" // ? read:   üblicher Port: 0xF6
 
 
-AyForTc2068::AyForTc2068(Machine* m) : Ay(m, tc2068s, tc2068w, tc2068r, m->model_info->ay_cycles_per_second, Ay::mono)
+AyForTc2068::AyForTc2068(Machine* m, Tc2068Joy* j) :
+	Ay(m, tc2068s, tc2068w, tc2068r, m->model_info->ay_cycles_per_second, Ay::mono),
+	tc2068joy(j)
 {}
 
-
-// helper: convert %000FUDLR active high -> %111FRLDU active low
-//
-uint8 AyForTc2068::ayByteForJoystickByte(uint8 joy)
-{
-	//	return ~( (joy&0x10)+((joy&8)>>3)+((joy&4)>>1)+((joy&2)<<1)+((joy&1)<<3) );
-	return ~(((joy & 0x10) << 3) + ((joy & 8) >> 3) + ((joy & 4) >> 1) + ((joy & 2) << 1) + ((joy & 1) << 3));
-}
-
-// callback from getRegister(): needs input value at port A pins:
-//
 uint8 AyForTc2068::getInputValueAtPortA(Time, uint16 addr)
 {
+	// callback from getRegister(): needs input value at port A pins:
+
 	uint8 byte = 0xff;
-	if (machine != front_machine) return byte;
-	if (addr & 0x200) byte &= ayByteForJoystickByte(machine->joystick->joy[0]->getState()); // left
-	if (addr & 0x100) byte &= ayByteForJoystickByte(machine->joystick->joy[1]->getState()); // right
+	if (addr & 0x200) byte &= tc2068joy->getButtonsF111RLDU(0); // left
+	if (addr & 0x100) byte &= tc2068joy->getButtonsF111RLDU(1); // right
 	return byte;
 }
 
-// notification from setRegister():
-//
 void AyForTc2068::portAOutputValueChanged(Time, uint8 newbyte)
 {
+	// notification from setRegister():
+
 	uint8 oldbyte = getOutputValueAtPortA();
 	if ((oldbyte ^ newbyte) & (1 << 5))
 	{

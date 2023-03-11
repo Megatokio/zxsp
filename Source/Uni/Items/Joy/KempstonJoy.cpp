@@ -41,5 +41,5 @@ void KempstonJoy::input(Time /*t*/, int32 /*cc*/, uint16 /*addr*/, uint8& byte, 
 {
 	// kempston issue 4 data bits:  %000FUDLR  =>  all bits set:  D0-D4 = 0/1 from js;  D5-D7 = 0
 	mask = 0xff;
-	byte &= machine == front_machine ? joy[0]->getState() : 0x00;
+	byte &= getButtonsFUDLR(0);
 }

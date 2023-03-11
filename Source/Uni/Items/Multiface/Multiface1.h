@@ -3,7 +3,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "Items/Joy/Joy.h"
+#include "Joy/Joy.h"
 #include "Memory.h"
 #include "Multiface.h"
 #include "Templates/Array.h"
@@ -11,32 +11,28 @@
 
 class Multiface1 final : public Multiface
 {
-	friend class gui::Multiface1Insp;
-	friend class Machine;
-
-	Joystick*			  joystick;
-	gui::OverlayJoystick* overlay;
-	bool				  joystick_enabled;
+	JoystickID joystick_id;
+	bool	   joystick_enabled;
 
 public:
 	Multiface1(Machine*, bool enable_joystick);
 
-	void	   insertJoystick(int id);
-	JoystickID getJoystickID() const volatile { return indexof(joystick); }
+	void	   insertJoystick(JoystickID id) volatile { joystick_id = id; }
+	JoystickID getJoystickID() const volatile { return joystick_id; }
 	void	   enableJoystick(bool f) volatile { joystick_enabled = f; }
+	cstr	   getIdf() const volatile { return "K"; } // Kempston joystick
+	uint8	   peekJoystickButtonsFUDLR() const volatile;
+	bool	   isJoystickEnabled() const volatile { return joystick_enabled; }
 
 protected:
-	~Multiface1() override;
+	~Multiface1() override = default;
+
+	uint8 getJoystickButtonsFUDLR();
 
 	// Item interface:
-	void powerOn(/*t=0*/ int32 cc) override;
-	// void	reset(Time t, int32 cc) override;
-	void input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
-	void output(Time t, int32 cc, uint16 addr, uint8 byte) override;
-	// void	audioBufferEnd(Time t) override;
-	// void	videoFrameEnd(int32 cc) override;
+	void  powerOn(int32 cc) override;
+	void  input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
+	void  output(Time t, int32 cc, uint16 addr, uint8 byte) override;
 	uint8 handleRomPatch(uint16 pc, uint8 o) override; // returns new opcode
 	void  triggerNmi() override;
-	// uint8 readMemory(Time t, int32 cc, uint16 addr, uint8 byte) override;  // for memory mapped i/o
-	// void	writeMemory(Time t, int32 cc, uint16 addr, uint8 byte) override;  // for memory mapped i/o
 };

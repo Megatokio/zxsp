@@ -4,14 +4,10 @@
 
 #include "Joy.h"
 #include "Machine/Machine.h"
-#include "unix/FD.h"
-
 
 Joy::Joy(Machine* m, isa_id id, Internal internal, cstr o_addr, cstr i_addr, cstr idf1, cstr idf2, cstr idf3) :
 	Item(m, id, isa_Joy, internal, o_addr, i_addr),
-	joy {nullptr, nullptr, nullptr},
-	idf {idf1, idf2, idf3},
-	overlays {nullptr, nullptr, nullptr},
+	joystick_idf {idf1, idf2, idf3},
 	num_ports(
 		idf3 ? 3 :
 		idf2 ? 2 :
@@ -21,31 +17,10 @@ Joy::Joy(Machine* m, isa_id id, Internal internal, cstr o_addr, cstr i_addr, cst
 
 	// attach kbd_joystick only on explicit request else "some keys do not react" disaster!
 
-	insertJoystick(0, 0);			// usb joystick 0 in port 0
-	if (idf2) insertJoystick(1, 1); // usb joystick 1 in port 1
-	if (idf3) insertJoystick(2, 2); // usb joystick 2 in port 2
+	insertJoystick(0, usb_joystick0);
+	if (idf2) insertJoystick(1, usb_joystick1);
+	if (idf3) insertJoystick(2, usb_joystick2);
 }
 
-
-Joy::~Joy()
-{
-	xlogIn("~Joy");
-
-	for (uint i = 0; i < NELEM(overlays); i++) { machine->removeOverlay(overlays[i]); }
-}
-
-
-void Joy::insertJoystick(uint i, int id)
-{
-	if (joy[i] == joysticks[id]) return;
-
-	if (overlays[i])
-	{
-		machine->removeOverlay(overlays[i]);
-		overlays[i] = nullptr;
-	}
-
-	joy[i] = joysticks[id];
-	if (id != no_joystick)
-		overlays[i] = machine->addOverlay(joy[i], idf[i], i & 1 ? gui::Overlay::TopLeft : gui::Overlay::TopRight);
-}
+uint8 Joy::getButtonsFUDLR(uint i) { return machine->getJoystickButtons(joystick_id[i]); }
+uint8 Joy::peekButtonsFUDLR(uint i) const volatile { return machine->peekJoystickButtons(joystick_id[i]); }

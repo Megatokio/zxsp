@@ -16,11 +16,8 @@
 #include "TapeFileDataBlock.h"
 #include "TzxData.h"
 #include "cpp/cppthreads.h"
-#include "globals.h"
 #include "unix/files.h"
 #include "zxsp_types.h"
-#include <QAudioDecoder>
-#include <QAudioFormat>
 
 
 // helper

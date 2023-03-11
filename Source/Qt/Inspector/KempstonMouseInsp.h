@@ -31,9 +31,9 @@ class KempstonMouseInsp final : public Inspector
 
 public:
 	KempstonMouseInsp(QWidget*, MachineController*, volatile KempstonMouse*);
-
-protected:
+	~KempstonMouseInsp() override;
 	void updateWidgets() override;
+	void hideEvent(QHideEvent*) override;
 };
 
 } // namespace gui

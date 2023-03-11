@@ -6,6 +6,7 @@
 #include "IdeDevice.h"
 #include "Machine/Machine.h"
 #include "Z80/Z80.h"
+#include "zxsp_helpers.h"
 
 
 /*	TODO:
