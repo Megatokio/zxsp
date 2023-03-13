@@ -21,7 +21,7 @@ public:
 	MemoryPtr shadowram;
 
 	JoystickID joystick_id;			  // Joystick
-	uint	   port_254;			  // border
+	uint8	   port_254;			  // border
 	uint8	   port_239;			  // RS232
 	uint8	   port_247;			  // RS232
 	bool	   rs232_enabled;		  // RS232
