@@ -107,7 +107,7 @@ void WalkmanInspector::updateWidgets()
 	// da die Machine ein Tape direkt einlegen kann und ich da (und sonstwo noch) nicht immer nach einem
 	// Taperecorder Inspector suchen will, wird das hier gepollt => single place.
 	// updateCustomTitle() ist mit dem ToolWindow verbunden, das danach getCustomTitle() aufruft.
-	cstr new_filepath = tr->getFilepath();
+	cstr new_filepath = NV(tr)->getFilepath();
 	if (tape_filepath != new_filepath)
 	{
 		tape_filepath = new_filepath;

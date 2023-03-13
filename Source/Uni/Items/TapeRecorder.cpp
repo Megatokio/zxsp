@@ -222,7 +222,6 @@ void TapeRecorder::videoFrameEnd(int32 cc)
 */
 void TapeRecorder::autoStart(CC cc) noexcept
 {
-	CHECK_LOCK();
 	if (!tapefile) return;								// kein Tape eingelegt
 	if (state == winding || state == rewinding) return; // Benutzer ist am spulen...
 	if (state == playing && !pause_is_down) return;		// läuft schon
@@ -263,8 +262,6 @@ void TapeRecorder::autoStop(CC cc) noexcept
 
 void TapeRecorder::audioBufferEnd(Time)
 {
-	CHECK_LOCK();
-
 	// button sounds:
 	for (uint i = 0; i < active_sound.count(); i++)
 	{
@@ -320,7 +317,7 @@ void TapeRecorder::audioBufferEnd(Time)
 	• tape recorder must be stopped, paused or playing; not fast winding
 	• does not assert that there actually is a block to load
 */
-bool TapeRecorder::can_read_block() noexcept
+bool TapeRecorder::can_read_block() const noexcept
 {
 	return tapefile != nullptr && !record_is_down && (state == stopped || state == playing);
 }
@@ -385,7 +382,7 @@ O80Data* TapeRecorder::getZx80Block() noexcept
 	}
 }
 
-bool TapeRecorder::can_store_block() noexcept
+bool TapeRecorder::can_store_block() const noexcept
 {
 	return state == playing &&
 		   //	_tapefile != nullptr &&	implied by record_is_down
@@ -550,7 +547,7 @@ void TapeRecorder::insert(cstr filepath)
 }
 
 
-void TapeRecorder::setFilename(cstr new_filename) volatile noexcept
+void TapeRecorder::setFilename(cstr new_filename) noexcept
 {
 	xlogIn("TapeRecorder.setFilename");
 	assert(isMainThread());
@@ -560,10 +557,9 @@ void TapeRecorder::setFilename(cstr new_filename) volatile noexcept
 	tapefile->setFilepath(new_filename);
 }
 
-int TapeRecorder::setWriteProtected(bool f) volatile noexcept
+int TapeRecorder::setWriteProtected(bool f) noexcept
 {
 	xlogIn("TapeRecorder.setWriteProtected");
-	assert(isMainThread());
 
 	return tapefile ? tapefile->setWriteProtected(f) : -1 /*no tape*/;
 }
