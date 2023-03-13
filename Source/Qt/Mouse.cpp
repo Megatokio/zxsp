@@ -3,7 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Mouse.h"
-#include "globals.h"
 #ifdef _MACOSX
   #include <ApplicationServices/ApplicationServices.h>
 #endif

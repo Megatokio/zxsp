@@ -5,7 +5,6 @@
 #include "ScreenMono.h"
 #include "MonoRenderer.h"
 #include "cpp/cppthreads.h"
-#include "globals.h"
 #include "graphics/gif/GifEncoder.h"
 
 

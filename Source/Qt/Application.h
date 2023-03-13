@@ -3,7 +3,6 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "globals.h"
 #include "kio/kio.h"
 #include <QApplication>
 #include <QSplashScreen>
@@ -34,5 +33,8 @@ public:
 private:
 	virtual bool event(QEvent* e) override;
 };
+
+
+extern Application* appl;
 
 } // namespace gui

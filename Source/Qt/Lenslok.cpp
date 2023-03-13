@@ -5,12 +5,11 @@
 #define LOGLEVEL 1
 #include "Lenslok.h"
 #include "MachineController.h"
+#include "Qt/QEventTypes.h"
 #include "Qt/Settings.h"
 #include "Screen/Screen.h"
 #include "ZxspRenderer.h"
 #include "cpp/cppthreads.h"
-#include "globals.h"
-#include "kio/kio.h"
 #include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>

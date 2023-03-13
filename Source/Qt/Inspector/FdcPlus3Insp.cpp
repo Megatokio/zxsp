@@ -8,7 +8,6 @@
 #include "Qt/qt_util.h"
 #include "RecentFilesMenu.h"
 #include "Templates/NVPtr.h"
-#include "globals.h"
 #include "unix/files.h"
 #include <QAction>
 #include <QLabel>

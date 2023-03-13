@@ -3,6 +3,7 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Application.h"
+#include "CheckUpdate.h"
 #include "Files/RzxFile.h"
 #include "Files/Z80Head.h"
 #include "Machine.h"
@@ -27,7 +28,6 @@
 #include <QtPlugin> // req. for static linking
 #include <clocale>
 
-
 #ifdef STATIC
 //    Q_IMPORT_PLUGIN(qjpeg)
 //    Q_IMPORT_PLUGIN(qgif)
@@ -50,7 +50,6 @@ class MyProxyStyle : public QProxyStyle
 #endif
 
 
-cstr appl_path		= nullptr; // set by main()
 cstr appl_rsrc_path = nullptr; // set by main()
 
 
@@ -298,7 +297,7 @@ int main(int argc, char* argv[])
 
 	// invocation:
 	assert(argc);
-	appl_path = argv[0];
+	cstr appl_path = argv[0];
 	assert(is_file(appl_path));
 	logline("  appl_path: %s", appl_path);
 	if (argc > 1)

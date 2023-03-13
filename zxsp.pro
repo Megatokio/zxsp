@@ -91,6 +91,7 @@ SOURCES +=	\
 	Libraries/Z80/goodies/z80_clock_cycles.cpp \
 	Libraries/Z80/goodies/z80_opcode_length.cpp \
 	Libraries/Z80/goodies/z80_disass.cpp \
+	Libraries/Qt/QEventTypes.cpp \
 	\
 	zasm/Source/Error.cpp \
 	zasm/Source/Label.cpp \
@@ -122,7 +123,6 @@ SOURCES +=	\
 	Source/Qt/Application.cpp \
 	Source/Qt/WindowMenu.cpp \
 	Source/Qt/ToolWindow.cpp \
-	Source/Qt/QEventTypes.cpp \
 	Source/Qt/MachineController.cpp \
 	Source/Qt/MyLineEdit.cpp \
 	Source/Qt/MySimpleToggleButton.cpp \
@@ -342,6 +342,7 @@ HEADERS += \
 	Libraries/kio/util/msbit.h \
 	Libraries/kio/util/count1bits.h \
 	Libraries/kio/TestTimer.h \
+	Libraries/Qt/QEventTypes.h \
 	\
 	Libraries/unix/log.h \
 	Libraries/unix/os_utilities.h \
@@ -639,7 +640,6 @@ HEADERS += \
 	Source/Uni/zxsp_helpers.h \
 	Source/Uni/custom_errors.h \
 	Source/Uni/Language.h \
-	Source/Uni/globals.h \
 	Source/Uni/zxsp_types.h \
 	Source/Uni/util.h \
 	Source/Uni/IsaObject.h \
