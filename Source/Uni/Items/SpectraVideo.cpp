@@ -5,7 +5,6 @@
 #include "SpectraVideo.h"
 #include "Items/Z80/Z80options.h"
 #include "Machine.h"
-#include "RecentFilesMenu.h"
 #include "Ula/Mmu.h"
 #include "Ula/Ula.h"
 #include "Ula/UlaZxsp.h"
@@ -322,7 +321,7 @@ void SpectraVideo::output(Time t, int32 cc, uint16 addr, uint8 byte)
 
 	if (~addr & 1) // ULA border
 	{
-		uint x	 = byte ^ port_254;
+		uint8 x	 = byte ^ port_254;
 		port_254 = byte;
 		if (x & 0xE7) record_ioinfo(cc, addr, byte);
 	}
@@ -575,7 +574,7 @@ void SpectraVideo::drawVideoBeamIndicator(int32 cc) // called from runForSound()
 			std::swap(ioinfo_size, alt_ioinfo_size);
 			std::swap(attr_pixel, alt_attr_pixel);
 
-			uint32 n = 32 * 24 * 8;
+			int32 n = 32 * 24 * 8;
 			if (ccx != 1 << 30)
 			{
 				int row = ccx / cc_per_line - lines_before_screen;
@@ -585,7 +584,7 @@ void SpectraVideo::drawVideoBeamIndicator(int32 cc) // called from runForSound()
 			}
 
 			memcpy(ioinfo, alt_ioinfo, ioinfo_count * sizeof(IoInfo));
-			memcpy(attr_pixel, alt_attr_pixel, BYTES_PER_OCTET * n);
+			memcpy(attr_pixel, alt_attr_pixel, BYTES_PER_OCTET * uint(n));
 		}
 	}
 }
@@ -652,8 +651,6 @@ void SpectraVideo::insertRom(cstr path)
 	filepath = newcopy(path);
 
 	init_rom();
-	addRecentFile(gui::RecentIf2Roms, path);
-	addRecentFile(gui::RecentFiles, path);
 }
 
 void SpectraVideo::ejectRom()
@@ -662,7 +659,7 @@ void SpectraVideo::ejectRom()
 
 	delete[] filepath;
 	filepath = nullptr;
-	if (rom.ptr() == 0) return;
+	if (rom.ptr() == nullptr) return;
 
 	deactivateRom();
 	deactivate_hooks();
