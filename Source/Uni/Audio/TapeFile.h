@@ -82,14 +82,14 @@ class TapeFile : protected Array<TapeFileDataBlock*>
 	// cached values:
 	TapeFileDataBlock* current_block; // aktueller Block; secondary pointer
 	CswBuffer*		   blk_cswbuffer; // aktueller Block; secondary pointer
-	uint32			   blk_cc_size;	  // aktueller Block; block size in tapeblock_cc's
+	int32			   blk_cc_size;	  // aktueller Block; block size in tapeblock_cc's
 	Time			   blk_starttime; // aktueller Block;
-	uint32			   blk_cc_offset; // aktueller Block; cc_base in tapeblock_cc's; valid during play/record
+	int32			   blk_cc_offset; // aktueller Block; cc_base in tapeblock_cc's; valid during play/record
 
 	// while recording:
-	bool   current_phase;
-	int32  current_cc;
-	uint32 num_data_pulses;
+	bool  current_phase;
+	int32 current_cc;
+	int32 num_data_pulses;
 
 private:
 	void purge()
@@ -143,12 +143,12 @@ public:
 	cstr getFilepath() const volatile noexcept { return filepath; }
 
 	// Tape I/O:
-	void stop(uint32 cc);
-	void startRecording(uint32 cc);
-	void startPlaying(uint32 cc);
-	bool input(uint32 cc);			  // MUST be playing
-	void output(uint32 cc, bool bit); // MUST be recording
-	void videoFrameEnd(int32 cc);	  // MUST be playing or recording
+	void stop(int32 cc);
+	void startRecording(int32 cc);
+	void startPlaying(int32 cc);
+	bool input(int32 cc);			 // MUST be playing
+	void output(int32 cc, bool bit); // MUST be recording
+	void videoFrameEnd(int32 cc);	 // MUST be playing or recording
 
 	// record/playback with system samples_per_second
 	//	void		play				( StereoSample* buffer, int count );
@@ -170,7 +170,7 @@ public:
 	bool isNearStartOfTape(Time proximity = 1.0) const { return isFirstBlock() && isNearStartOfBlock(proximity); }
 
 	// block handling:
-	int	 getTotalBlocks() { return count(); }
+	uint getTotalBlocks() { return count(); }
 	uint getCurrentBlockIndex() { return pos; }
 	Time getStartOfBlock() { return blk_starttime; }
 	Time getEndOfBlock() { return blk_starttime + current_block->getTotalTime(); }

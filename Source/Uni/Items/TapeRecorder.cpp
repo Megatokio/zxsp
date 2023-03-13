@@ -7,10 +7,9 @@
 #include "Audio/TapeFileDataBlock.h"
 #include "DspTime.h"
 #include "Machine.h"
-#include "RecentFilesMenu.h"
+#include "Templates/Array.h"
 #include "ZxInfo.h"
 #include "unix/files.h"
-#include <Templates/Array.h>
 
 
 #define WINDING_SPEED 40.0
@@ -18,20 +17,21 @@
 
 /*	Sounds für TS2020:
  */
-cstr ts2020_fname[] = {"ts2020/open lid empty",	 "ts2020/open lid loaded",
-					   "ts2020/close lid empty", "ts2020/close lid loaded",
-					   "ts2020/pause dn",		 "ts2020/pause up",
-					   "ts2020/play dn",		 "ts2020/play up",
-					   "ts2020/ff dn",			 "ts2020/ff up",
-					   "ts2020/rewind dn",		 "ts2020/rewind up",
-					   "ts2020/record dn",		 "ts2020/record up",
-					   "ts2020/motor empty",	 "ts2020/motor play loaded",
-					   "ts2020/motor ff loaded", "ts2020/motor rewind loaded"};
+static cstr ts2020_fname[] = { //
+	"ts2020/open lid empty",  "ts2020/open lid loaded",
+	"ts2020/close lid empty", "ts2020/close lid loaded",
+	"ts2020/pause dn",		  "ts2020/pause up",
+	"ts2020/play dn",		  "ts2020/play up",
+	"ts2020/ff dn",			  "ts2020/ff up",
+	"ts2020/rewind dn",		  "ts2020/rewind up",
+	"ts2020/record dn",		  "ts2020/record up",
+	"ts2020/motor empty",	  "ts2020/motor play loaded",
+	"ts2020/motor ff loaded", "ts2020/motor rewind loaded"};
 
 /*	Sounds für Plus2 tape recorder:
 	some sounds are borrowed from TS2020
 */
-cstr plus2_fname[] = {
+static cstr plus2_fname[] = {
 	"2a/open empty",
 	"2a/open loaded",
 	"2a/close empty",
@@ -81,27 +81,15 @@ static const cstr walkman_fname[] = {
 
 TapeRecorder::TapeRecorder(Machine* machine, isa_id id, const cstr audio_names[], bool auto_start, bool fast_load) :
 	Item(machine, id, isa_TapeRecorder, Internal(machine->model_info->has_tape_drive), nullptr, nullptr),
+	state(stopped),
 	auto_start_stop_tape(auto_start),
 	instant_load_tape(fast_load),
 	machine_ccps(machine->model_info->cpu_cycles_per_second),
-	state(stopped),
 	record_is_down(no),
 	pause_is_down(no),
 	stop_position(0.0),
 	tapefile(nullptr)
 {
-	list_id = machine->isA(isa_MachineZxsp)	   ? gui::RecentZxspTapes :
-			  machine->isA(isa_MachineZx81)	   ? gui::RecentZx81Tapes :
-			  machine->isA(isa_MachineZx80)	   ? gui::RecentZx80Tapes :
-			  machine->isA(isa_MachineJupiter) ? gui::RecentJupiterTapes :
-												 gui::RecentFiles;
-
-	if (list_id == gui::RecentFiles)
-	{
-		showWarning("TapeRecorder: unknown machine");
-		list_id = gui::RecentZxspTapes;
-	}
-
 	// sounds:
 	memset(sound, 0, sizeof(sound));
 	memset(sound_count, 0, sizeof(sound_count));
@@ -122,13 +110,13 @@ TapeRecorder::TapeRecorder(Machine* machine, isa_id id, const cstr audio_names[]
 		if (sound_count[i]) continue; // multiple used sound already loaded
 
 		FD	   fd(catstr(appl_rsrc_path, "Audio/", audio_names[i], ".raw"), 'r');
-		uint32 cnt = fd.file_size() >> 1;
+		off_t  cnt = fd.file_size() >> 1;
 		int16* zbu = new int16[cnt];
-		fd.read_bytes(zbu, cnt << 1);
+		fd.read_bytes(zbu, uint32(cnt) << 1);
 
 		Sample* data = sound[i] = new Sample[cnt];
-		sound_count[i]			= cnt;
-		for (uint j = 0; j < cnt; j++) data[j] = ldexpf((int16)peek2Z(zbu + j), i < sound_motor_empty ? -16 : -15);
+		sound_count[i]			= int32(cnt);
+		for (uint j = 0; j < cnt; j++) data[j] = ldexpf(int16(peek2Z(zbu + j)), i < sound_motor_empty ? -16 : -15);
 		delete[] zbu;
 	}
 }
@@ -220,7 +208,7 @@ void TapeRecorder::videoFrameEnd(int32 cc)
 /*  Handle Auto-Start of Tape:
 	Caller must have locked list_lock (e.g. when called from cpu patch)
 */
-void TapeRecorder::autoStart(CC cc) noexcept
+void TapeRecorder::autoStart(int32 cc) noexcept
 {
 	if (!tapefile) return;								// kein Tape eingelegt
 	if (state == winding || state == rewinding) return; // Benutzer ist am spulen...
@@ -239,7 +227,7 @@ void TapeRecorder::autoStart(CC cc) noexcept
 /*  Handle Auto-Stop of Tape:
 	Caller must have locked list_lock (e.g. when called from cpu patch)
 */
-void TapeRecorder::autoStop(CC cc) noexcept
+void TapeRecorder::autoStop(int32 cc) noexcept
 {
 	if (!tapefile) return;								// kein Tape eingelegt
 	if (state == winding || state == rewinding) return; // Benutzer ist am spulen...
@@ -274,12 +262,12 @@ void TapeRecorder::audioBufferEnd(Time)
 		{
 			zi = min(DSP_SAMPLES_PER_BUFFER, -qi);
 			qi -= zi;
-		}																		 // dest index in audio_out_buffer[]
-		int32 ze = min(uint(DSP_SAMPLES_PER_BUFFER), zi + sound_count[id] - qi); // dest end index
-		while (zi < ze) { os::audio_out_buffer[zi++] += data[qi++]; }			 // copy audio data
+		}																   // dest index in audio_out_buffer[]
+		int32 ze = min(DSP_SAMPLES_PER_BUFFER, zi + sound_count[id] - qi); // dest end index
+		while (zi < ze) { os::audio_out_buffer[zi++] += data[qi++]; }	   // copy audio data
 
 		active_sound[i].index = qi;
-		if (uint32(qi) >= sound_count[id]) active_sound.remove(i--); // sound finished
+		if (qi >= sound_count[id]) active_sound.remove(i--); // sound finished
 	}
 
 	// motor sound:
@@ -290,13 +278,13 @@ void TapeRecorder::audioBufferEnd(Time)
 				 state == winding ? sound_motor_ff :
 									sound_motor_rewind;
 
-		uint32	qi	 = motor_sound_pos % sound_count[id]; // an dieser position sind wir schon
+		int32	qi	 = motor_sound_pos % sound_count[id]; // an dieser position sind wir schon
 		Sample* data = sound[id];						  // -> daten dieses sounds
 
 		int32 zi = 0; // dest index in audio_out_buffer[]
 	r:
-		int32 ze = min(uint(DSP_SAMPLES_PER_BUFFER), zi + sound_count[id] - qi); // dest end index
-		while (zi < ze) { os::audio_out_buffer[zi++] += data[qi++]; }			 // copy audio data
+		int32 ze = min(DSP_SAMPLES_PER_BUFFER, zi + sound_count[id] - qi); // dest end index
+		while (zi < ze) { os::audio_out_buffer[zi++] += data[qi++]; }	   // copy audio data
 		if (qi == sound_count[id])
 		{
 			qi = 0;
@@ -442,7 +430,7 @@ void TapeRecorder::play_block()
 	This can be supressed with 'mute=1' for instant-load, though this does not help much.
 	It's just a little bit less annoying.
 */
-void TapeRecorder::tapefile_stop(CC cc, bool mute)
+void TapeRecorder::tapefile_stop(int32 cc, bool mute)
 {
 	assert(!tapefile->isStopped());
 
@@ -450,7 +438,7 @@ void TapeRecorder::tapefile_stop(CC cc, bool mute)
 	tapefile->stop(cc);
 }
 
-void TapeRecorder::tapefile_play(CC cc)
+void TapeRecorder::tapefile_play(int32 cc)
 {
 	assert(tapefile->isStopped());
 
@@ -461,7 +449,7 @@ void TapeRecorder::tapefile_play(CC cc)
 	speaker.offs = tapefile->current_block->cswdata->cc_offset;
 }
 
-void TapeRecorder::tapefile_record(CC cc)
+void TapeRecorder::tapefile_record(int32 cc)
 {
 	assert(tapefile->isStopped());
 	tapefile->startRecording(cc);
@@ -469,15 +457,13 @@ void TapeRecorder::tapefile_record(CC cc)
 
 
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-// Slots:
 
 
-/*  SLOT:
-	STOP wurde gedrückt:
-	alle Tasten raus außer PAUSE
-*/
 void TapeRecorder::stop()
 {
+	// STOP button was pressed:
+	// all buttons up except PAUSE
+
 	xlogIn("TapeRecorder.stop");
 	assert(is_locked());
 
@@ -493,15 +479,14 @@ void TapeRecorder::stop()
 	record_is_down = no;
 }
 
-
-/*  Eject tape
-	may be called when no tapefile loaded
-	returns the current tapefile, if any
-	caller must delete it and may do this outside locked machine
-	plays the "open lid" sound
-*/
 TapeFile* TapeRecorder::eject()
 {
+	// Eject tape
+	// may be called when no tapefile loaded.
+	// returns the current tapefile, if any.
+	// caller must delete it and may do this outside locked machine
+	// plays the "open lid" sound.
+
 	xlogIn("TapeRecorder.eject");
 	assert(is_locked());
 
@@ -512,13 +497,12 @@ TapeFile* TapeRecorder::eject()
 	return tf;
 }
 
-
-/*  Insert tape into the recorder
-	newtapefile may be nullptr
-	plays the "close lid" sound
-*/
 void TapeRecorder::insert(TapeFile* newtapefile)
 {
+	// Insert tape into the recorder
+	// newtapefile may be nullptr
+	// plays the "close lid" sound
+
 	xlogIn("TapeRecorder.insert(TapeFile)");
 	assert(is_locked());
 	assert(!isLoaded());
@@ -528,13 +512,25 @@ void TapeRecorder::insert(TapeFile* newtapefile)
 	play_sound(newtapefile ? sound_close_deck_loaded : sound_close_deck_empty);
 }
 
+void TapeRecorder::insert(cstr filepath) volatile
+{
+	// Insert tape into the recorder
+	// for use in machine constructor
+	// plays the "close lid" audio fx.
+	// this variant of insert() does not block the machine.
 
-/*  Insert tape into the recorder
-	for use in machine creator
-	no audio effects
-*/
+	xlogIn("TapeRecorder.insert(filepath,fx)");
+
+	TapeFile* newtapefile = filepath ? new TapeFile(machine_ccps, filepath) : nullptr;
+	nvptr(this)->insert(newtapefile);
+}
+
 void TapeRecorder::insert(cstr filepath)
 {
+	// Insert tape into the recorder
+	// for use in machine constructor
+	// no audio effects
+
 	xlogIn("TapeRecorder.insert(filepath)");
 	assert(is_locked());
 	assert(filepath != nullptr);
@@ -545,7 +541,6 @@ void TapeRecorder::insert(cstr filepath)
 	tapefile = nullptr;
 	tapefile = new TapeFile(machine_ccps, filepath);
 }
-
 
 void TapeRecorder::setFilename(cstr new_filename) noexcept
 {

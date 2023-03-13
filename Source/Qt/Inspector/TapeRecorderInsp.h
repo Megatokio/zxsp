@@ -5,6 +5,7 @@
 
 #include "Inspector.h"
 #include "MySimpleToggleButton.h"
+#include "RecentFilesMenu.h"
 #include "TapeRecorder.h"
 #include "Templates/Array.h"
 #include "Templates/NVPtr.h"
@@ -117,6 +118,8 @@ protected:
 	bool anim_tr_loaded; // cassette ist dargestellt
 	bool anim_tr_pause;	 // modifiziert ggf. anim_tr_state
 	int	 anim_tr_state;	 // '>>', '<<', '>' oder keine Animation
+
+	ListId recent_tapes_list_id; // recent files
 
 protected:
 	TapeRecorderInsp(

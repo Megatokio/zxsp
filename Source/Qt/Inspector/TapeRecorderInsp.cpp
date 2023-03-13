@@ -201,7 +201,19 @@ TapeRecorderInsp::TapeRecorderInsp(
 	anim_tr_state(TapeRecorder::stopped)
 {
 	xlogIn("new TapeRecorderInsp");
-	assert(tr->isA(isa_TapeRecorder));
+
+	recent_tapes_list_id = machine->isA(isa_MachineZxsp)	? ListId::RecentZxspTapes :
+						   machine->isA(isa_MachineZx81)	? ListId::RecentZx81Tapes :
+						   machine->isA(isa_MachineZx80)	? ListId::RecentZx80Tapes :
+						   machine->isA(isa_MachineJupiter) ? ListId::RecentJupiterTapes :
+															  ListId::RecentFiles;
+
+	if (recent_tapes_list_id == ListId::RecentFiles)
+	{
+		showWarning("TapeRecorderInsp: unknown model");
+		recent_tapes_list_id = ListId::RecentZxspTapes;
+	}
+
 
 	// tape recorder background image:
 	// this image defines the image size.
@@ -662,14 +674,14 @@ void TapeRecorderInsp::fillContextMenu(QMenu* menu)
 	{
 		menu->addAction("Insert empty tape", this, &TapeRecorderInsp::insert_empty_tape_w_anim);
 		menu->addAction("Insert tape …", this, &TapeRecorderInsp::insert_tape_w_anim);
-		menu->addAction("Recent tapes …")->setMenu(new RecentFilesMenu(tr->list_id, this, [=](cstr path) {
+		menu->addAction("Recent tapes …")->setMenu(new RecentFilesMenu(recent_tapes_list_id, this, [=](cstr path) {
 			insert_tape(path);
 		}));
 	}
 
 	QAction* instantLoadAction = new QAction("Instant load/save tape", this);
 	instantLoadAction->setCheckable(true);
-	instantLoadAction->setChecked(tr->instant_load_tape);
+	instantLoadAction->setChecked(tr->isInstantLoadEnabled());
 	connect(instantLoadAction, &QAction::toggled, this, [=](bool f) {
 		assert(validReference(tr));
 		tr->setInstantLoadTape(f);
@@ -678,7 +690,7 @@ void TapeRecorderInsp::fillContextMenu(QMenu* menu)
 
 	QAction* autoStartStopTape = new QAction("Auto start/stop tape", this);
 	autoStartStopTape->setCheckable(true);
-	autoStartStopTape->setChecked(tr->auto_start_stop_tape);
+	autoStartStopTape->setChecked(tr->isInstantLoadEnabled());
 	connect(autoStartStopTape, &QAction::toggled, this, [=](bool f) {
 		assert(validReference(tr));
 		tr->setAutoStartStopTape(f);
@@ -817,7 +829,7 @@ void TapeRecorderInsp::save_as()
 	if (filepath)
 	{
 		nvptr(tr)->setFilename(filepath);
-		addRecentFile(tr->list_id, filepath);
+		addRecentFile(recent_tapes_list_id, filepath);
 		addRecentFile(RecentFiles, filepath);
 	}
 }
@@ -857,17 +869,14 @@ void TapeRecorderInsp::insert_tape(cstr filepath)
 	assert(validReference(tr));
 	assert(!tr->isLoaded());
 
-	TapeFile* tapefile = nullptr;
+	tr->insert(filepath); // non-volatile, non-blocking version
 
-	if (filepath != nullptr)
+	if (tr->isLoaded())
 	{
-		tapefile = new TapeFile(tr->machine_ccps, filepath);
-		xlogline("%s total length = %i sec", filepath, int(tapefile->getTotalPlaytime()));
-		addRecentFile(tr->list_id, filepath);
+		xlogline("%s total length = %i sec", filepath, int(nvptr(tr)->getTotalPlaytime()));
+		addRecentFile(recent_tapes_list_id, filepath);
 		addRecentFile(RecentFiles, filepath);
 	}
-
-	nvptr(tr)->insert(tapefile);
 }
 
 void TapeRecorderInsp::eject_tape()
