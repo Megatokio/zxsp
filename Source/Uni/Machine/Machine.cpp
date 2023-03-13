@@ -834,7 +834,7 @@ uint8 Machine::handleRomPatch(uint16 pc, uint8 opcode)
 
 	if (instrptr == rom.getData() + model_info->tape_load_routine)
 	{
-		if (taperecorder->isLoaded() && taperecorder->isNotRecordDown())
+		if (taperecorder->isLoaded() && !taperecorder->isRecordDown())
 		{
 			if (taperecorder->instant_load_tape && handleLoadTapePatch()) return cpu->peek(cpu->getRegisters().pc);
 			if (taperecorder->auto_start_stop_tape) taperecorder->autoStart(cpu->cpuCycle());
