@@ -17,7 +17,3 @@ void startCoreAudio(bool input_enabled)
 
 void stopCoreAudio() { debugstr("stopCoreAudio\n"); }
 } // namespace os
-
-
-#include "Joystick.h"
-void findUsbJoysticks() { debugstr("findUsbJoysticks"); }
