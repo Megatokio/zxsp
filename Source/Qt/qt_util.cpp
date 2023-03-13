@@ -4,7 +4,6 @@
 
 #include "qt_util.h"
 #include "Settings.h"
-#include "globals.h"
 #include "kio/kio.h"
 #include "unix/files.h"
 #include "util.h"
