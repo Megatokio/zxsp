@@ -3,7 +3,7 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Dsp.h"
-#include "Uni/globals.h"
+#include "Qt/Dialogs/ConfigDialog.h"
 #include "kio/kio.h"
 #include <math.h>
 

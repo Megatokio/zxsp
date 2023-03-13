@@ -7,7 +7,6 @@
 #include "Qt/Settings.h"
 #include "Templates/Array.h"
 #include "cpp/cppthreads.h"
-#include "globals.h"
 #include "unix/FD.h"
 #include "unix/files.h"
 #include "version.h"

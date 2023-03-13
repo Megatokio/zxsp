@@ -183,4 +183,7 @@ signals:
 	void signal_memoryModified(Memory*, uint how);
 };
 
+
+extern MachineController* front_machine_controller; // only for comparison with this etc.
+
 } // namespace gui

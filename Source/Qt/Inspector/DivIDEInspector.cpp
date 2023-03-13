@@ -9,7 +9,6 @@
 #include "Qt/qt_util.h"
 #include "RecentFilesMenu.h"
 #include "Templates/NVPtr.h"
-#include "globals.h"
 #include "unix/n-compress.h"
 #include <QMenu>
 #include <QPaintEvent>
