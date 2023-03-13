@@ -77,11 +77,7 @@ void ZxIf2Insp::slotInsertEjectRom()
 
 		cstr filter	  = "IF2 Rom Cartridges (*.rom)"; //";;All Files (*)";
 		cstr filepath = selectLoadFile(this, "Select IF2 Rom Cartridge", filter);
-		if (!filepath) return;
-
-		bool f = machine->powerOff();
-		NV(zxif2)->insertRom(filepath);
-		if (f) machine->powerOn();
+		if (filepath) insertRom(filepath);
 	}
 }
 
@@ -141,6 +137,8 @@ void ZxIf2Insp::insertRom(cstr filepath)
 	bool f = machine->powerOff();
 	NV(zxif2)->insertRom(filepath);
 	if (f) machine->powerOn();
+	addRecentFile(RecentIf2Roms, filepath);
+	addRecentFile(RecentFiles, filepath);
 }
 
 } // namespace gui
