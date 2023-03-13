@@ -376,6 +376,8 @@ void FdcPlus3Insp::insert_unformatted_disk()
 	fd->setFilepath(filepath);
 	drive->insertDisk(fd);
 	set_disk_state(Loaded);
+	addRecentFile(RecentPlus3Disks, filepath);
+	addRecentFile(RecentFiles, filepath);
 }
 
 void FdcPlus3Insp::insert_formatted_disk()
@@ -403,6 +405,8 @@ void FdcPlus3Insp::insert_formatted_disk()
 	fd->setFilepath(filepath);
 	drive->insertDisk(fd);
 	set_disk_state(Loaded);
+	addRecentFile(RecentPlus3Disks, filepath);
+	addRecentFile(RecentFiles, filepath);
 }
 
 void FdcPlus3Insp::insert_again()
@@ -433,6 +437,8 @@ void FdcPlus3Insp::insert_disk()
 			delete[] current_disk;
 			current_disk = newcopy(filepath);
 			set_disk_state(Loaded);
+			addRecentFile(RecentPlus3Disks, filepath);
+			addRecentFile(RecentFiles, filepath);
 			return;
 		}
 	}
@@ -456,6 +462,8 @@ void FdcPlus3Insp::insert_disk(cstr filepath)
 		delete[] current_disk;
 		current_disk = newcopy(drive->disk->filepath);
 		set_disk_state(Loaded);
+		addRecentFile(RecentPlus3Disks, filepath);
+		addRecentFile(RecentFiles, filepath);
 		return; // ok
 	}
 

@@ -8,7 +8,6 @@
 #include "DspTime.h"
 #include "Fdc.h"
 #include "Files/FloppyDisk.h"
-#include "RecentFilesMenu.h"
 #include "Templates/Array.h"
 #include <math.h>
 
@@ -351,9 +350,6 @@ void FloppyDiskDrive::insertDisk(FloppyDisk* d, bool side_B)
 	update_signals();
 	sound_insert_index = 0;				   // start sound
 	sound_eject_index  = sound_eject_size; // stop it (if running)
-
-	addRecentFile(gui::RecentPlus3Disks, d->filepath); // TODO: andere Disk drives
-	addRecentFile(gui::RecentFiles, d->filepath);
 }
 
 void FloppyDiskDrive::insertDisk(cstr filepath, bool side_B)
@@ -370,9 +366,6 @@ void FloppyDiskDrive::insertDisk(cstr filepath, bool side_B)
 	update_signals();
 	sound_insert_index = 0;				   // start sound
 	sound_eject_index  = sound_eject_size; // stop it (if running)
-
-	addRecentFile(gui::RecentPlus3Disks, filepath); // TODO: andere Disk drives
-	addRecentFile(gui::RecentFiles, filepath);
 }
 
 void FloppyDiskDrive::ejectDisk()

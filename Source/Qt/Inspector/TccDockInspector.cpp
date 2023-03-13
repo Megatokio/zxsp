@@ -277,6 +277,8 @@ void TccDockInspector::insert_cartridge(cstr filepath)
 	bool f = machine->powerOff();
 
 	NV(dock)->insertCartridge(filepath);
+	addRecentFile(RecentTccRoms, filepath);
+	addRecentFile(RecentFiles, filepath);
 
 	current_fpath = newcopy(filepath);
 	current_id	  = dock->getTccId();
@@ -342,6 +344,8 @@ void TccDockInspector::save_as()
 		cartridge_state = Invalid;
 		NV(dock)->saveCartridgeAs(filepath);
 		if (f) machine->resume();
+		addRecentFile(RecentTccRoms, filepath);
+		addRecentFile(RecentFiles, filepath);
 	}
 }
 

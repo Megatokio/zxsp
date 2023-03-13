@@ -4,7 +4,6 @@
 
 #include "TccRom.h"
 #include "Machine.h"
-#include "RecentFilesMenu.h"
 #include "Z80/Z80.h"
 #include "unix/FD.h"
 #include "unix/files.h"
@@ -48,7 +47,7 @@
 
 
 // This must match TccRom.Id:
-uint32 hashes[] = {
+static uint32 hashes[] = {
 	0x00000000, // EmptyTcc or pure Ram TCCs
 				// these are the known official ones:
 	0x711BC8B4,
@@ -114,8 +113,8 @@ TccRom::TccRom(Machine* machine, cstr path) :
 	machine(machine),
 	fpath(newcopy(path)),
 	id(TccUnknown),
-	exrom {0, 0, 0, 0, 0, 0, 0, 0},
-	dock {0, 0, 0, 0, 0, 0, 0, 0},
+	exrom {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+	dock {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
 	rom(nullptr),
 	exrom_r(0),
 	exrom_w(0),
@@ -228,9 +227,6 @@ TccRom::TccRom(Machine* machine, cstr path) :
 			}
 		}
 		if (hash32 && id == TccUnknown) logline("Tcc Rom Cartridge \"%s\" with unknown hash: %08X", path, hash32);
-
-		addRecentFile(gui::RecentTccRoms, path);
-		addRecentFile(gui::RecentFiles, path);
 	}
 	catch (AnyError& e)
 	{
@@ -276,8 +272,6 @@ void TccRom::saveAs(cstr filepath)
 		save_as(filepath);
 		delete[] fpath;
 		fpath = newcopy(filepath);
-		addRecentFile(gui::RecentTccRoms, filepath);
-		addRecentFile(gui::RecentFiles, filepath);
 	}
 	catch (FileError& e)
 	{
