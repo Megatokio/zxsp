@@ -530,6 +530,8 @@ void MachineController::loadSnapshot(cstr filename)
 			fd.close_file(0);
 			if (m != model) machine = initMachine(m, 0, s, j, 0, d);
 			dynamic_cast<MachineZxPlus3&>(*machine).insertDisk(filename);
+			addRecentFile(RecentPlus3Disks, filename);
+			addRecentFile(RecentFiles, filename);
 		}
 
 		else if (eq(ext, ".dck"))
@@ -541,6 +543,8 @@ void MachineController::loadSnapshot(cstr filename)
 			fd.close_file(0);
 			if (m != model) machine = initMachine(m, 0, 0, 0, 0, 0);
 			dynamic_cast<MachineTc2068&>(*machine).insertCartridge(filename);
+			addRecentFile(RecentTccRoms, filename);
+			addRecentFile(RecentFiles, filename);
 		}
 
 		else // unsupported snapshot format:
