@@ -411,7 +411,7 @@ void TapeRecorderInsp::updateWidgets()
 	// Taperecorder Inspector suchen will, wird das hier gepollt => single place.
 	// updateCustomTitle() ist mit dem ToolWindow verbunden, das danach getCustomTitle() aufruft.
 	// updateWidgets() ist nochmal im WalkmanInspector überladen und dieser Code hier doppelt.
-	cstr new_filepath = tr->getFilepath();
+	cstr new_filepath = NV(tr)->getFilepath();
 	if (tape_filepath != new_filepath)
 	{
 		tape_filepath = new_filepath;
@@ -528,13 +528,13 @@ void TapeRecorderInsp::updateAnimation()
 	Time now = system_time; // seconds-based time
 
 	// pause state change results in animation change only if tape loaded and playing:
-	if (anim_tr_state != TapeRecorder::playing || !anim_tr_loaded) { anim_tr_pause = tr->pause_is_down; }
+	if (anim_tr_state != TapeRecorder::playing || !anim_tr_loaded) { anim_tr_pause = tr->isPauseDown(); }
 
 	// animation change?
-	if (anim_tr_loaded != tr->isLoaded() || anim_tr_pause != tr->pause_is_down || anim_tr_state != tr->state)
+	if (anim_tr_loaded != tr->isLoaded() || anim_tr_pause != tr->isPauseDown() || anim_tr_state != tr->state)
 	{
 		anim_tr_loaded = tr->isLoaded();
-		anim_tr_pause  = tr->pause_is_down;
+		anim_tr_pause  = tr->isPauseDown();
 		anim_tr_state  = tr->state;
 		next_time_l = next_time_r = now + 0.05;
 		update();
@@ -654,7 +654,7 @@ void TapeRecorderInsp::fillContextMenu(QMenu* menu)
 
 		QAction* action_wprot = new QAction("Write protected", menu);
 		action_wprot->setCheckable(true);
-		action_wprot->setChecked(tr->isWriteProtected());
+		action_wprot->setChecked(NV(tr)->isWriteProtected());
 		connect(action_wprot, &QAction::toggled, this, &TapeRecorderInsp::set_wprot);
 		menu->addAction(action_wprot);
 	}
@@ -685,7 +685,7 @@ void TapeRecorderInsp::fillContextMenu(QMenu* menu)
 	});
 	menu->addAction(autoStartStopTape);
 
-	if (/*tape_recorder()->isLoaded() &&*/ tr->isStopped() && !tr->isWriteProtected())
+	if (tr->isStopped() && !NV(tr)->isWriteProtected())
 	{
 		menu->addSeparator();
 		menu->addAction("Insert empty block before", this, [=] {
@@ -701,10 +701,7 @@ void TapeRecorderInsp::fillContextMenu(QMenu* menu)
 			nvptr(tr)->deleteCurrentBlock();
 		});
 
-		NVPtr<TapeRecorder> tr(this->tr);
-
-		TapeFile* tf = tr->tapefile;
-		if (tf->isLastBlock() && tf->getPlaytimeOfBlock() < 0.5)
+		if (nvptr(tr)->isNearEndOfTape(0.5))
 		{
 			a1->setEnabled(no);
 			a2->setEnabled(no);
@@ -819,7 +816,7 @@ void TapeRecorderInsp::save_as()
 	cstr filepath = get_save_filename();
 	if (filepath)
 	{
-		tr->setFilename(filepath);
+		nvptr(tr)->setFilename(filepath);
 		addRecentFile(tr->list_id, filepath);
 		addRecentFile(RecentFiles, filepath);
 	}
@@ -832,10 +829,10 @@ void TapeRecorderInsp::set_wprot(bool f)
 	// TODO: set_file_writable() currently only checks the unix file mode
 
 	assert(validReference(tr));
-	if (!tr->tapefile) return;
+	if (!tr->isLoaded()) return;
 
 	// Schreibschützen geht nicht, wenn schon was auf das Band geschrieben wurde:
-	if (f && tr->isModified())
+	if (f && NV(tr)->isModified())
 	{
 		showWarning(
 			"The tape is already modified.\n"
@@ -851,7 +848,7 @@ void TapeRecorderInsp::set_wprot(bool f)
 		return;
 	}
 
-	int err = tr->setWriteProtected(f);
+	int err = nvptr(tr)->setWriteProtected(f);
 	if (err) showAlert(errorstr(err));
 }
 
