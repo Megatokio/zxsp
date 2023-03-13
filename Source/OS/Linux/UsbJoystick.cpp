@@ -4,7 +4,8 @@
 
 #include "UsbJoystick.h"
 
-UsbJoystick::UsbJoystick() : Joystick(isa_UsbJoystick)
-{
-	xlogIn("new UsbJoystick"); //
-}
+uint				 num_usb_joysticks = 0;
+volatile UsbJoystick usb_joysticks[MAX_USB_JOYSTICKS];
+
+
+void findUsbJoysticks() { debugstr("TODO: findUsbJoysticks"); }
