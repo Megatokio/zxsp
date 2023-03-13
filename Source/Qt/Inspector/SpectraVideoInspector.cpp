@@ -13,7 +13,6 @@
 #include "RecentFilesMenu.h"
 #include "Templates/NVPtr.h"
 #include "UsbJoystick.h"
-#include "globals.h"
 #include <QCheckBox>
 #include <QComboBox>
 #include <QLabel>

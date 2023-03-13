@@ -10,7 +10,6 @@
 #include "RecentFilesMenu.h"
 #include "Templates/NVPtr.h"
 #include "Ula/MmuTc2048.h"
-#include "globals.h"
 #include "unix/files.h"
 #include <QMenu>
 #include <QMouseEvent>
