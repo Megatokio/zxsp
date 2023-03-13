@@ -22,11 +22,6 @@
 #include "RecentFilesMenu.h"
 #include "cpp/cppthreads.h"
 
-namespace gui
-{
-class TapeRecorderInsp;
-class WalkmanInspector;
-} // namespace gui
 
 /*  Implementation Notes
 
@@ -64,24 +59,16 @@ class WalkmanInspector;
 
 class TapeRecorder : public Item
 {
-	friend class gui::TapeRecorderInsp; //for now
-	friend class gui::WalkmanInspector; //for now
-
 public:
 	bool		 auto_start_stop_tape; // switch			read/write should be safe from any thread
 	bool		 instant_load_tape;	   // switch			read/write should be safe from any thread
 	gui::ListId	 list_id;			   // recent files		const
 	const uint32 machine_ccps;		   // cpu cycles per second
 
-private:
 	// tape recorder state:
-	// write access must be locked with list_lock:
-	enum TRState {
-		stopped,
-		playing,
-		winding,
-		rewinding
-	} state;			 // << > >> state	access must be locked (except for unreliable read access)
+	enum TRState { stopped, playing, winding, rewinding } state;
+
+private:
 	bool record_is_down; // record button	access must be locked (except for unreliable read access)
 	bool pause_is_down;	 // pause button	access must be locked (except for unreliable read access)
 	Time stop_position;	 // wind / rewind	access must be locked
@@ -89,17 +76,12 @@ private:
 	// tape file:
 	// data is accessed on main thread and audio interrupt
 	// mostly accessed from the audio irpt
-	// => access must be locked
-	// tapefile must only be deleted on main thread and while locked or not running!
-
+	// tapefile must only be deleted on main thread while locked.
 	TapeFile* tapefile;
 
-
-private:
 	// action sounds:
 	// data is accessed on main thread and audio interrupt
 	// => access must be locked via list_lock.
-
 	struct PlaySoundInfo
 	{
 		int	  id;
@@ -108,11 +90,7 @@ private:
 	};
 	Array<PlaySoundInfo> active_sound;	  // accessed on audio interrupt => access must be locked
 	uint				 motor_sound_pos; // access: sound irpt only; in audioBufferEnd()
-	void				 play_sound(int s)
-	{
-		CHECK_LOCK();
-		active_sound.append(PlaySoundInfo(s));
-	}
+	void				 play_sound(int s) { active_sound.append(PlaySoundInfo(s)); }
 
 protected:
 	Sample* sound[18]; // const
@@ -150,7 +128,6 @@ protected:
 	} speaker;
 
 private:
-	void  CHECK_LOCK() const volatile { assert(is_locked()); }
 	int32 current_cc() { return machine->current_cc(); }
 	void  tapefile_stop(CC, bool mute = no);
 	void  tapefile_play(CC);
@@ -161,10 +138,8 @@ protected:
 	~TapeRecorder() override;
 
 	// Item interface:
-	// overloaded methods
-
-	// void	init			(/*t=0*/ int32 cc) override;
-	// void	reset			(Time t, int32 cc) override;
+	// void	init(/*t=0*/ int32 cc) override;
+	// void	reset(Time t, int32 cc) override;
 	void input(Time, int32, uint16, uint8&, uint8&) override {}
 	void output(Time, int32, uint16, uint8) override {}
 	void audioBufferEnd(Time t) override;
@@ -176,54 +151,34 @@ public:
 	// Queries:
 
 	// reliable only while locked
-	// unreliable access anytime, e.g. for display
-	bool isPlayDown() const volatile noexcept { return state == playing; }	   // PLAY button down
-	bool isWinding() const volatile noexcept { return state == winding; }	   // WIND FORE button down
-	bool isRewinding() const volatile noexcept { return state == rewinding; }  // WIND BACK button down
-	bool isRecordDown() const volatile noexcept { return record_is_down; }	   // RECORD button down
-	bool isPauseDown() const volatile noexcept { return pause_is_down; }	   // PAUSE button down
-	bool isLoaded() const volatile noexcept { return tapefile != nullptr; }	   // Tapefile loaded
-	bool isStopped() const volatile noexcept { return state == stopped; }	   // PLAY, WIND and REWIND all up
-	bool isNotRecordDown() const volatile noexcept { return !record_is_down; } // RECORD button NOT down
+	bool isPlayDown() const volatile noexcept { return state == playing; }	  // PLAY button down
+	bool isWinding() const volatile noexcept { return state == winding; }	  // WIND FORE button down
+	bool isRewinding() const volatile noexcept { return state == rewinding; } // WIND BACK button down
+	bool isRecordDown() const volatile noexcept { return record_is_down; }	  // RECORD button down
+	bool isPauseDown() const volatile noexcept { return pause_is_down; }	  // PAUSE button down
+	bool isLoaded() const volatile noexcept { return tapefile != nullptr; }	  // Tapefile loaded
+	bool isStopped() const volatile noexcept { return state == stopped; }	  // PLAY, WIND and REWIND all up
 
-	// reliable only while locked
-	// unreliable access only from main thread (else tapefile might become void)
-	bool isWriteProtected() const volatile noexcept
-	{
-		return tapefile ? tapefile->write_protected : 1;
-	} // not loaded or tapefile is write protected
-	cstr getFilepath() const volatile noexcept { return tapefile ? tapefile->filepath : nullptr; }
-	bool isModified() const volatile noexcept { return tapefile ? tapefile->modified : no; }
+	// locked or on main thread
+	bool isWriteProtected() const noexcept { return tapefile ? tapefile->write_protected : true; }
+	cstr getFilepath() const noexcept { return tapefile ? tapefile->filepath : nullptr; }
+	bool isModified() const noexcept { return tapefile ? tapefile->modified : false; }
 
 	// access only while locked
-	Time getTotalPlaytime() const noexcept
+	Time getTotalPlaytime() const noexcept { return tapefile ? tapefile->getTotalPlaytime() : 0; }
+	Time getCurrentPosition() const noexcept { return tapefile ? tapefile->getCurrentPosition() : 0; }
+	cstr getMajorBlockInfo() const noexcept { return tapefile ? tapefile->getMajorBlockInfo() : nullptr; }
+	cstr getMinorBlockInfo() const noexcept { return tapefile ? tapefile->getMinorBlockInfo() : nullptr; }
+	bool isNearEndOfTape(Time proximity) const
 	{
-		assert(is_locked());
-		return tapefile ? tapefile->getTotalPlaytime() : 0;
-	}
-	Time getCurrentPosition() const noexcept
-	{
-		assert(is_locked());
-		return tapefile ? tapefile->getCurrentPosition() : 0;
-	}
-	cstr getMajorBlockInfo() const noexcept
-	{
-		assert(is_locked());
-		return tapefile ? tapefile->getMajorBlockInfo() : nullptr;
-	}
-	cstr getMinorBlockInfo() const noexcept
-	{
-		assert(is_locked());
-		return tapefile ? tapefile->getMinorBlockInfo() : nullptr;
+		return tapefile->isLastBlock() && tapefile->getPlaytimeOfBlock() < proximity;
 	}
 
 
 	// Input & Output:
 
-	// access only while locked
-	// typically from audio interrupt
-	bool	 can_store_block() noexcept;
-	bool	 can_read_block() noexcept;
+	bool	 can_store_block() const noexcept;
+	bool	 can_read_block() const noexcept;
 	void	 storeBlock(TapeData*) noexcept;
 	TapData* getZxspBlock() noexcept;
 	O80Data* getZx80Block() noexcept;
@@ -247,7 +202,6 @@ public:
 
 	// Actions:
 
-	// must be locked:
 	// handle tape recorder buttons, menus etc.
 	void	  insert(TapeFile*); // insert tape file
 	void	  insert(cstr);		 // insert tape file		***MAY BLOCK FOR LONGISH TIME!!!***
@@ -267,14 +221,17 @@ public:
 	void		  newBlockBeforeCurrent(); // add block before current and goto start
 	void		  newBlockAfterCurrent();  // add block after current and goto start
 
-	// from main thread only:
-	void setFilename(cstr) volatile noexcept;		  // set different filename to save to when ejected
-	int	 setWriteProtected(bool f) volatile noexcept; // toggle write protection. returns errno
+	void setFilename(cstr) noexcept;		 // set different filename to save to when ejected
+	int	 setWriteProtected(bool f) noexcept; // toggle write protection. returns errno
 
-	// safe any time any thread:
+	// any time any thread:
 	void setAutoStartStopTape(bool f) volatile noexcept { auto_start_stop_tape = f; }
 	void setInstantLoadTape(bool f) volatile noexcept { instant_load_tape = f; }
 };
+
+
+// _____________________________________________________
+//
 
 
 class Plus2TapeRecorder : public TapeRecorder
