@@ -218,11 +218,7 @@ void SpectraVideoInspector::slotInsertOrEjectRom()
 
 		cstr filter	  = "IF2 Rom Cartridges (*.rom)"; //";;All Files (*)";
 		cstr filepath = selectLoadFile(this, "Select Rom Cartridge", filter);
-		if (!filepath) return;
-
-		bool f = machine->powerOff();
-		NV(spectra)->insertRom(filepath);
-		if (f) machine->powerOn();
+		if (filepath) insertRom(filepath);
 	}
 }
 
@@ -309,6 +305,8 @@ void SpectraVideoInspector::insertRom(cstr filepath)
 	bool f = machine->powerOff();
 	NV(spectra)->insertRom(filepath);
 	if (f) machine->powerOn();
+	addRecentFile(RecentIf2Roms, filepath);
+	addRecentFile(RecentFiles, filepath);
 }
 
 } // namespace gui

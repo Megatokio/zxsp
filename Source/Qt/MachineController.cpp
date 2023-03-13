@@ -437,12 +437,16 @@ void MachineController::loadSnapshot(cstr filename)
 				{
 					fd.close_file(0);
 					zxif2->insertRom(filename);
+					addRecentFile(RecentIf2Roms, filename);
+					addRecentFile(RecentFiles, filename);
 					machine->powerCycle();
 				}
 				else if (spectra) // if attached, load into spectra video module
 				{
 					fd.close_file(0);
 					spectra->insertRom(filename);
+					addRecentFile(RecentIf2Roms, filename);
+					addRecentFile(RecentFiles, filename);
 					machine->powerCycle();
 				}
 				else { machine->loadRom(fd); }
