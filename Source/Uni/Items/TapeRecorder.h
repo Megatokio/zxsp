@@ -19,8 +19,6 @@
 #include "Dsp.h"
 #include "Item.h"
 #include "Machine.h"
-#include "RecentFilesMenu.h"
-#include "cpp/cppthreads.h"
 
 
 /*  Implementation Notes
@@ -60,15 +58,14 @@
 class TapeRecorder : public Item
 {
 public:
-	bool		 auto_start_stop_tape; // switch			read/write should be safe from any thread
-	bool		 instant_load_tape;	   // switch			read/write should be safe from any thread
-	gui::ListId	 list_id;			   // recent files		const
-	const uint32 machine_ccps;		   // cpu cycles per second
-
 	// tape recorder state:
 	enum TRState { stopped, playing, winding, rewinding } state;
 
 private:
+	bool		 auto_start_stop_tape; // switch			read/write should be safe from any thread
+	bool		 instant_load_tape;	   // switch			read/write should be safe from any thread
+	const uint32 machine_ccps;		   // cpu cycles per second
+
 	bool record_is_down; // record button	access must be locked (except for unreliable read access)
 	bool pause_is_down;	 // pause button	access must be locked (except for unreliable read access)
 	Time stop_position;	 // wind / rewind	access must be locked
@@ -89,12 +86,12 @@ private:
 		PlaySoundInfo(int i = 0) : id(i), index(0) {}
 	};
 	Array<PlaySoundInfo> active_sound;	  // accessed on audio interrupt => access must be locked
-	uint				 motor_sound_pos; // access: sound irpt only; in audioBufferEnd()
+	int32				 motor_sound_pos; // access: sound irpt only; in audioBufferEnd()
 	void				 play_sound(int s) { active_sound.append(PlaySoundInfo(s)); }
 
 protected:
 	Sample* sound[18]; // const
-	uint32	sound_count[18];
+	int32	sound_count[18];
 	enum {
 		sound_open_deck_empty,
 		sound_open_deck_loaded,
@@ -129,9 +126,9 @@ protected:
 
 private:
 	int32 current_cc() { return machine->current_cc(); }
-	void  tapefile_stop(CC, bool mute = no);
-	void  tapefile_play(CC);
-	void  tapefile_record(CC);
+	void  tapefile_stop(int32, bool mute = no);
+	void  tapefile_play(int32);
+	void  tapefile_record(int32);
 	void  play_block();
 
 protected:
@@ -158,6 +155,8 @@ public:
 	bool isPauseDown() const volatile noexcept { return pause_is_down; }	  // PAUSE button down
 	bool isLoaded() const volatile noexcept { return tapefile != nullptr; }	  // Tapefile loaded
 	bool isStopped() const volatile noexcept { return state == stopped; }	  // PLAY, WIND and REWIND all up
+	bool isInstantLoadEnabled() const volatile noexcept { return instant_load_tape; }
+	bool isAutoStartStopEnabled() const volatile noexcept { return auto_start_stop_tape; }
 
 	// locked or on main thread
 	bool isWriteProtected() const noexcept { return tapefile ? tapefile->write_protected : true; }
@@ -182,8 +181,8 @@ public:
 	void	 storeBlock(TapeData*) noexcept;
 	TapData* getZxspBlock() noexcept;
 	O80Data* getZx80Block() noexcept;
-	void	 autoStart(CC) noexcept;
-	void	 autoStop(CC) noexcept;
+	void	 autoStart(int32) noexcept;
+	void	 autoStop(int32) noexcept;
 	bool	 isPlaying() const noexcept { return tapefile && state == playing && !pause_is_down && !record_is_down; }
 	bool	 isRecording() const noexcept { return tapefile && state == playing && !pause_is_down && record_is_down; }
 	bool	 input(int32 cc)
@@ -201,12 +200,14 @@ public:
 
 
 	// Actions:
+	// TODO: the button logic should not be part of class TapeRecorder but class TapeRecorderInsp instead!
 
 	// handle tape recorder buttons, menus etc.
-	void	  insert(TapeFile*); // insert tape file
-	void	  insert(cstr);		 // insert tape file		***MAY BLOCK FOR LONGISH TIME!!!***
-	TapeFile* eject();			 // eject tape file (save file if modified)
-	void	  play();			 // push 'play': action depends on pause and record button state
+	void	  insert(TapeFile*);			  // insert tape file
+	void	  insert(cstr filename);		  // insert tape file. *** blocks the machine while tapefile is read ***
+	void	  insert(cstr filename) volatile; // insert tape file. non-blocking
+	TapeFile* eject();						  // eject tape file (save file if modified)
+	void	  play();						  // push 'play': action depends on pause and record button state
 	void	  togglePlay()
 	{
 		if (isStopped()) play();

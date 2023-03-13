@@ -836,8 +836,8 @@ uint8 Machine::handleRomPatch(uint16 pc, uint8 opcode)
 	{
 		if (taperecorder->isLoaded() && !taperecorder->isRecordDown())
 		{
-			if (taperecorder->instant_load_tape && handleLoadTapePatch()) return cpu->peek(cpu->getRegisters().pc);
-			if (taperecorder->auto_start_stop_tape) taperecorder->autoStart(cpu->cpuCycle());
+			if (taperecorder->isInstantLoadEnabled() && handleLoadTapePatch()) return cpu->peek(cpu->getRegisters().pc);
+			if (taperecorder->isAutoStartStopEnabled()) taperecorder->autoStart(cpu->cpuCycle());
 		}
 	}
 
@@ -845,8 +845,8 @@ uint8 Machine::handleRomPatch(uint16 pc, uint8 opcode)
 	{
 		if (taperecorder->isLoaded() && taperecorder->isRecordDown())
 		{
-			if (taperecorder->instant_load_tape && handleSaveTapePatch()) return cpu->peek(cpu->getRegisters().pc);
-			if (taperecorder->auto_start_stop_tape) taperecorder->autoStart(cpu->cpuCycle());
+			if (taperecorder->isInstantLoadEnabled() && handleSaveTapePatch()) return cpu->peek(cpu->getRegisters().pc);
+			if (taperecorder->isAutoStartStopEnabled()) taperecorder->autoStart(cpu->cpuCycle());
 		}
 		if (auto* ulazx80 = dynamic_cast<UlaZx80*>(ula)) ulazx80->enableMicOut(1); // ZX80 and ZX81
 	}
@@ -855,7 +855,7 @@ uint8 Machine::handleRomPatch(uint16 pc, uint8 opcode)
 	{
 		if (taperecorder->isLoaded() && taperecorder->isPlayDown())
 		{
-			if (taperecorder->auto_start_stop_tape) taperecorder->autoStop(cpu->cpuCycle());
+			if (taperecorder->isAutoStartStopEnabled()) taperecorder->autoStop(cpu->cpuCycle());
 		}
 		if (auto* ulazx80 = dynamic_cast<UlaZx80*>(ula)) ulazx80->enableMicOut(0); // ZX80 and ZX81
 	}

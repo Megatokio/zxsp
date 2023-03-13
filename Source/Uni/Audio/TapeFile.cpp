@@ -278,7 +278,7 @@ void TapeFile::writeFile(cstr path)
 /*	stop tape:
 	if currently recording, then the blockInfos are calculated
 */
-void TapeFile::stop(uint32 cc)
+void TapeFile::stop(int32 cc)
 {
 	xlogIn("TapeFile.stop()");
 
@@ -299,7 +299,7 @@ void TapeFile::stop(uint32 cc)
 	• purge this block and
 	• start recording into it
 */
-void TapeFile::startRecording(uint32 cc)
+void TapeFile::startRecording(int32 cc)
 {
 	xlogIn("TapeFile.startRecording()");
 
@@ -328,7 +328,7 @@ void TapeFile::startRecording(uint32 cc)
 
 /*	start playing:
  */
-void TapeFile::startPlaying(uint32 cc)
+void TapeFile::startPlaying(int32 cc)
 {
 	xlogIn("TapeFile.startPlaying()");
 
@@ -351,13 +351,13 @@ void TapeFile::startPlaying(uint32 cc)
 /*  input from tape:
 	tape must be playing
 */
-bool TapeFile::input(uint32 machine_cc)
+bool TapeFile::input(int32 machine_cc)
 {
 	assert(mode == playing);
 	assert(blk_cswbuffer && blk_cswbuffer == current_block->cswdata);
 
 a:
-	uint32 blk0_cc = machine_cc + blk_cc_offset;
+	int32 blk0_cc = machine_cc + blk_cc_offset;
 	if (blk0_cc <= blk_cc_size) return blk_cswbuffer->inputCc(blk0_cc);
 
 	// End of tape?
@@ -377,14 +377,14 @@ a:
 /*  output to tape
 	tape must be recording
 */
-void TapeFile::output(uint32 cc, bool bit)
+void TapeFile::output(int32 cc, bool bit)
 {
 	assert(mode == recording);
 
 	// scrutinize pulse for auto block splitting:
 	if (current_phase != bit)
 	{
-		Time d = (Time)(cc - current_cc) / machine_ccps;
+		Time d = Time(cc - current_cc) / machine_ccps;
 		if (d <= 0.001) // ≥ 500 Hz => looks like a valid data pulse => count it
 		{
 			num_data_pulses++;
