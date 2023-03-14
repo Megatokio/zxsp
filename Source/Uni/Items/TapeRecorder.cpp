@@ -3,10 +3,10 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "TapeRecorder.h"
-#include "Audio/TapeFile.h"
-#include "Audio/TapeFileDataBlock.h"
 #include "DspTime.h"
 #include "Machine.h"
+#include "TapeFile.h"
+#include "TapeFileDataBlock.h"
 #include "Templates/Array.h"
 #include "ZxInfo.h"
 #include "unix/files.h"

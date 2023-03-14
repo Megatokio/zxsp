@@ -3,9 +3,9 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "MachineZx81.h"
-#include "Audio/O80Data.h"
 #include "Keyboard.h"
 #include "MachineController.h"
+#include "O80Data.h"
 #include "Ram/Memotech64kRam.h"
 #include "Ram/Zx16kRam.h"
 #include "TapeRecorder.h"

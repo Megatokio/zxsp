@@ -4,9 +4,9 @@
 
 #include "WalkmanInspector.h"
 #include "Application.h"
-#include "Audio/TapeFileDataBlock.h"
 #include "MachineController.h"
 #include "Qt/qt_util.h"
+#include "TapeFileDataBlock.h"
 #include "TapeRecorder.h"
 #include "Templates/NVPtr.h"
 #include "Templates/RCPtr.h"

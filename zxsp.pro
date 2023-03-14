@@ -27,7 +27,7 @@ INCLUDEPATH += \
 	Source/Qt \
 	Source/OS \
 	Source/Uni \
-	Source/Uni/Audio \
+	Source/Uni/TapeFile \
 	Source/Uni/Video \
 	Source/Uni/Machine \
 	Source/Uni/Items \
@@ -191,15 +191,15 @@ SOURCES +=	\
 	Source/Qt/Dialogs/ConfigureKeyboardJoystickDialog.cpp \
 	Source/Qt/Overlays/Overlay.cpp \
 	\
-	Source/Uni/Audio/CswBuffer.cpp \
-	Source/Uni/Audio/TapeFile.cpp \
-	Source/Uni/Audio/TapeData.cpp \
-	Source/Uni/Audio/TapData.cpp \
-	Source/Uni/Audio/O80Data.cpp \
-	Source/Uni/Audio/TzxData.cpp \
-	Source/Uni/Audio/AudioData.cpp \
-	Source/Uni/Audio/RlesData.cpp \
-	Source/Uni/Audio/TapeFileDataBlock.cpp \
+	Source/Uni/TapeFile/CswBuffer.cpp \
+	Source/Uni/TapeFile/TapeFile.cpp \
+	Source/Uni/TapeFile/TapeData.cpp \
+	Source/Uni/TapeFile/TapData.cpp \
+	Source/Uni/TapeFile/O80Data.cpp \
+	Source/Uni/TapeFile/TzxData.cpp \
+	Source/Uni/TapeFile/AudioData.cpp \
+	Source/Uni/TapeFile/RlesData.cpp \
+	Source/Uni/TapeFile/TapeFileDataBlock.cpp \
 	\
 	Source/Uni/Machine/Machine.cpp \
 	Source/Uni/Machine/MachineZx80.cpp \
@@ -516,15 +516,15 @@ HEADERS += \
 	Source/Uni/Machine/MachineZxPlus2.h \
 	Source/Uni/Machine/MachinePentagon128.h \
 	\
-	Source/Uni/Audio/TapeFile.h \
-	Source/Uni/Audio/TapeData.h \
-	Source/Uni/Audio/TapData.h \
-	Source/Uni/Audio/O80Data.h \
-	Source/Uni/Audio/TzxData.h \
-	Source/Uni/Audio/AudioData.h \
-	Source/Uni/Audio/CswBuffer.h \
-	Source/Uni/Audio/RlesData.h \
-	Source/Uni/Audio/TapeFileDataBlock.h \
+	Source/Uni/TapeFile/TapeFile.h \
+	Source/Uni/TapeFile/TapeData.h \
+	Source/Uni/TapeFile/TapData.h \
+	Source/Uni/TapeFile/O80Data.h \
+	Source/Uni/TapeFile/TzxData.h \
+	Source/Uni/TapeFile/AudioData.h \
+	Source/Uni/TapeFile/CswBuffer.h \
+	Source/Uni/TapeFile/RlesData.h \
+	Source/Uni/TapeFile/TapeFileDataBlock.h \
 	\
 	Source/Uni/Items/Ula/Ula.h \
 	Source/Uni/Items/Ula/Ula.h \
