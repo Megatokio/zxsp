@@ -4,7 +4,6 @@
 
 #define LOGLEVEL 0
 #include "Machine.h"
-#include "Audio/TapeFile.h"
 #include "Ay/Ay.h"
 #include "Ay/AySubclasses.h"
 #include "Ay/FullerBox.h"
@@ -64,6 +63,7 @@
 #include "Ram/Zx16kRam.h"
 #include "Ram/Zx3kRam.h"
 #include "SpectraVideo.h"
+#include "TapeFile.h"
 #include "TapeRecorder.h"
 #include "Templates/NVPtr.h"
 #include "ToolWindow.h"

@@ -3,10 +3,10 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "MachineZxsp.h"
-#include "Audio/TapData.h"
 #include "IsaObject.h"
 #include "Keyboard.h"
 #include "SpectraVideo.h"
+#include "TapData.h"
 #include "TapeRecorder.h"
 #include "Ula/MmuZxsp.h"
 #include "Ula/UlaZxsp.h"

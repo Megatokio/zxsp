@@ -3,9 +3,9 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "MachineJupiter.h"
-#include "Audio/TapData.h"
 #include "Keyboard.h"
 #include "Settings.h"
+#include "TapData.h"
 #include "TapeRecorder.h"
 #include "Ula/MmuJupiter.h"
 #include "Ula/UlaJupiter.h"
