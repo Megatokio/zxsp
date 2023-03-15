@@ -23,7 +23,7 @@ public:
 
 	void append(std::shared_ptr<volatile Machine> m) { Array::append(m); }
 	void remove(std::shared_ptr<volatile Machine> m) { Array::remove(m); }
-	void runMachinesForSound();
+	void runMachinesForSound(const StereoBuffer audio_in_buffer, StereoBuffer audio_out_buffer);
 };
 
 
