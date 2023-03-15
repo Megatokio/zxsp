@@ -16,7 +16,8 @@ enum FddType { NoDrive = 1, Drive525 = 2, Drive35 = 4, Drive3 = 8 };
 class FloppyDiskDrive
 {
 public:
-	FddType type;
+	Machine* const machine; // used for audio_out only
+	const FddType  type;
 
 	// sounds:
 	Sample* sound_insert;
@@ -68,8 +69,8 @@ public:
 
 public:
 	static std::shared_ptr<FloppyDiskDrive> noFloppyDiskDrive();
-	static std::shared_ptr<FloppyDiskDrive>
-	newFloppyDiskDrive(FddType, uint heads, uint tracks, Time step_delay = 0.006, uint bytes_per_track = 6250);
+	static std::shared_ptr<FloppyDiskDrive> newFloppyDiskDrive(
+		Machine*, FddType, uint heads, uint tracks, Time step_delay = 0.006, uint bytes_per_track = 6250);
 	~FloppyDiskDrive();
 
 	// misc. querries:
@@ -111,7 +112,7 @@ public:
 
 private:
 	FloppyDiskDrive();
-	FloppyDiskDrive(FddType, uint heads, uint tracks, Time step_delay, uint bytes_per_track);
+	FloppyDiskDrive(Machine*, FddType, uint heads, uint tracks, Time step_delay, uint bytes_per_track);
 
 	void update_signals();
 };

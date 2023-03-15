@@ -15,7 +15,6 @@
 	Der Item TapeRecorder kann nicht von AudioIn/Out lesen/schreiben!
 */
 
-#include "Dsp.h"
 #include "Item.h"
 #include "Machine.h"
 #include "TapeFile.h"

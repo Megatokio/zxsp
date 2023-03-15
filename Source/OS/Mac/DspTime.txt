@@ -3,22 +3,8 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-// Samples(stereo) per dsp exchange buffer
+#include "settings.h"
 
-#define DSP_SAMPLES_PER_BUFFER 735 // 735 = 44.1kHz/60Hz
-#define DSP_SAMPLES_STITCHING  4
-
-/*	notes on buffer size:
-
-	512 debug|final: sehr häufige input-drops, häufige output-drops
-	735 debug: sporadische in- und out-drops (~alle 2min) zumeist nach runForSound ≥ 15ms
-		final: in-drops: einer in 12 Min. Testzeit (nach runForSound 8ms)
-	750 final: in-drops: 2 in 37 Minuten Testzeit (jeweils nach unkrit. Laufzeit von runForSound)
-		debug: 1 in-drop (unexpected) und 1 out-drop (nach 8ms Laufzeit) in 20 Minuten
-*/
-
-
-// Realzeit:
 
 using Time		= double;
 using Frequency = double;
@@ -26,13 +12,6 @@ using Sample	= float;
 
 extern Frequency samples_per_second; // DSP-Konstante & Zeitbasis des Systems: samples/second
 extern Time		 system_time;		 // Realzeit [seconds]
-
-inline double samples_per_dsp_buffer() { return DSP_SAMPLES_PER_BUFFER; }
-inline Time	  seconds_per_dsp_buffer() { return DSP_SAMPLES_PER_BUFFER / samples_per_second; }
-inline Time	  seconds_per_dsp_buffer_max()
-{
-	return (DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING - 0.01) / samples_per_second;
-}
 
 
 /*	Es gibt im System zwei Zeitbasen:

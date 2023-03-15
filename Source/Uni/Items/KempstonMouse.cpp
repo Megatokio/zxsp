@@ -4,7 +4,6 @@
 
 #include "KempstonMouse.h"
 #include "Machine.h"
-#include "MachineController.h"
 
 
 /*	acc. to schematics on k1.spdns.de:

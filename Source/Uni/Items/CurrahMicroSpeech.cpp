@@ -102,7 +102,7 @@ CurrahMicroSpeech::CurrahMicroSpeech(Machine* m) // CREATOR
 	m->cpu->b2c(zbu, rom.getData(), 2048);
 
 	// create sound chip:
-	sp0256 = new SP0256(catstr(appl_rsrc_path, sp0256_rom), no, RC);
+	sp0256 = new SP0256(machine, catstr(appl_rsrc_path, sp0256_rom), no, RC);
 }
 
 CurrahMicroSpeech::~CurrahMicroSpeech() // DESTRUCTOR

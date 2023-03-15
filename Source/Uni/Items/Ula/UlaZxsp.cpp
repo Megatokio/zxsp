@@ -20,10 +20,8 @@
 */
 
 #include "UlaZxsp.h"
-#include "Dsp.h"
 #include "Interfaces/IScreen.h"
 #include "Machine.h"
-#include "MachineController.h"
 #include "TapeRecorder.h"
 #include "Z80/Z80.h"
 #include "ZxInfo.h"
@@ -295,7 +293,7 @@ void UlaZxsp::output(Time now, int32 cc, uint16 addr, uint8 byte)
 	// --- BEEPER ---
 	if (x & (MIC_OUT_MASK | EAR_OUT_MASK))
 	{
-		os::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
+		machine->outputSamples(beeper_current_sample, beeper_last_sample_time, now);
 		beeper_last_sample_time = now;
 
 		uint bb = byte ^ MIC_OUT_MASK; // mic pin is low active
@@ -363,7 +361,7 @@ void UlaZxsp::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 			}
 			else
 			{
-				if (os::audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
+				if (machine->audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
 			}
 		}
 	}
