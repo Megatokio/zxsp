@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "OS/DspTime.h"
-#include "Uni/Language.h"
 #include "isa_id.h"
 #include "kio/kio.h"
 

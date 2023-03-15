@@ -3,10 +3,10 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "SpectraRenderer.h"
-#include "OS/DspTime.h"
 #include "Templates/Array.h"
 #include "graphics/gif/GifEncoder.h"
 #include "unix/os_utilities.h"
+#include "zxsp_types.h"
 
 
 // Display mode register bit masks:

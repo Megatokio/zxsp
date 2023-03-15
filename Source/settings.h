@@ -10,3 +10,7 @@
 #define LOGFILE			 1
 
 #define MAX_USB_JOYSTICKS 4
+
+// Stereo samples per audio buffer:
+#define DSP_SAMPLES_PER_BUFFER 200 // ~ 4 buffers per video frame
+#define DSP_SAMPLES_STITCHING  4

@@ -7,7 +7,6 @@
 #include "Items/Ram/Zx16kRam.h"
 #include "Items/Ram/Zx3kRam.h"
 #include "Keyboard.h"
-#include "MachineController.h"
 #include "O80Data.h"
 #include "TapeRecorder.h"
 #include "Ula/MmuZx80.h"

@@ -4,7 +4,7 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Item.h"
-#include "OS/StereoSample.h"
+#include "StereoSample.h"
 
 //
 // ay-3-8912 emulation

@@ -5,7 +5,6 @@
 #define LOGLEVEL 1
 #include "Keyboard.h"
 #include "Machine.h"
-#include "MachineController.h"
 #include "Ula/Ula.h"
 #include "ZxInfo.h"
 

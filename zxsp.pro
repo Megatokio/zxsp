@@ -27,6 +27,7 @@ INCLUDEPATH += \
 	Source/Qt \
 	Source/OS \
 	Source/Uni \
+	Source/Uni/Audio \
 	Source/Uni/TapeFile \
 	Source/Uni/Video \
 	Source/Uni/Machine \
@@ -42,13 +43,14 @@ unix:!macx: INCLUDEPATH += Source/OS/Linux
 
 macx: SOURCES += \
 	Source/OS/Mac/UsbJoystick.cpp \
-	Source/OS/Mac/MacDsp.cpp \
+	Source/OS/Mac/Dsp.cpp \
 	Source/OS/Mac/UsbDevice.cpp \
 	Source/OS/Mac/mac_util.cpp \
 	Libraries/audio/macos/AudioDecoder.cpp \
 	Libraries/audio/macos/CAStreamBasicDescription.cpp \
 
 macx: HEADERS += \
+	Source/OS/Mac/Dsp.h \
 	Source/OS/Mac/UsbJoystick.h \
 	Source/OS/Mac/UsbDevice.h \
 	Source/OS/Mac/mac_util.h \
@@ -65,10 +67,6 @@ unix:!macx: SOURCES += \
 
 unix:!macx: HEADERS += \
 	Source/OS/Linux/UsbJoystick.h \
-
-
-SOURCES += \
-	Source/OS/Dsp.cpp \
 
 
 SOURCES +=	\
@@ -404,9 +402,6 @@ HEADERS += \
 HEADERS += \
 	Source/settings.h \
 	Source/version.h \
-	Source/OS/StereoSample.h \
-	Source/OS/DspTime.h \
-	Source/OS/Dsp.h \
 
 
 # zxsp Headers - Qt GUI stuff:
@@ -496,6 +491,8 @@ HEADERS += \
 HEADERS += \
 	Source/Uni/Interfaces/IMachineController.h \
 	Source/Uni/Interfaces/IScreen.h \
+	\
+	Source/Uni/Audio/StereoSample.h \
 	\
 	Source/Uni/Machine/Machine.h \
 	Source/Uni/Machine/MachineZx80.h \
@@ -657,6 +654,7 @@ OTHER_FILES += \
 	.gitignore \
 	Source/OS/Mac/makemacstuff.vs \
 	Source/OS/Mac/Dsp.txt \
+	Source/OS/DspTime.txt \
 	Libraries/kio/linux_errors.txt \
 	Source/Uni/ZxInfo/info_video.txt \
 	Source/Uni/ZxInfo/makezxinfo.vs \

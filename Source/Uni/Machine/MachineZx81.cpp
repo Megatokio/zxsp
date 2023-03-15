@@ -4,7 +4,6 @@
 
 #include "MachineZx81.h"
 #include "Keyboard.h"
-#include "MachineController.h"
 #include "O80Data.h"
 #include "Ram/Memotech64kRam.h"
 #include "Ram/Zx16kRam.h"

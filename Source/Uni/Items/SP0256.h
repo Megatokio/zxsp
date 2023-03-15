@@ -3,12 +3,14 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "DspTime.h"
-#include "kio/kio.h"
+
+#include "zxsp_types.h"
 
 
 class SP0256
 {
+	Machine* const machine;
+
 	const float32 rc;			   // RC value (for both stages), e.g. RC = 33kΩ * 22nF
 	const float32 ff;			   // filter factor per audio-out sample (for both filter stages)
 	Time		  time_per_sample; // SP0256: time[seconds] per sample = 1.0 / (XTAL/312)
@@ -71,7 +73,7 @@ public:
 	Stats opcode_stats[16];
 
 public:
-	SP0256(cstr romfilepath, bool bitswapped, float RC = 33e3f * 22e-9f);
+	SP0256(Machine*, cstr romfilepath, bool bitswapped, float RC = 33e3f * 22e-9f);
 	~SP0256();
 
 	void powerOn(/*Time t=0,*/ Sample volume = 1.0f, Frequency xtal = 3.12e6);

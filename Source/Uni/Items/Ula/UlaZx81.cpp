@@ -126,7 +126,6 @@ WAIT test and related timing
 */
 
 #include "UlaZx81.h"
-#include "Dsp.h"
 #include "Interfaces/IScreen.h"
 #include "Keyboard.h"
 #include "Machine.h"

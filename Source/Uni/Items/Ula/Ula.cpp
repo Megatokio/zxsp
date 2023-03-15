@@ -3,7 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Ula.h"
-#include "Dsp.h"
 #include "Keyboard.h"
 #include "Machine.h"
 
@@ -37,7 +36,7 @@ void Ula::audioBufferEnd(Time t)
 {
 	if (t > beeper_last_sample_time)
 	{
-		os::outputSamples(beeper_current_sample, beeper_last_sample_time, t);
+		machine->outputSamples(beeper_current_sample, beeper_last_sample_time, t);
 		beeper_last_sample_time = t;
 	}
 	beeper_last_sample_time -= t;

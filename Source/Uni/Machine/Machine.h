@@ -9,15 +9,24 @@
 #include "Joy/ZxIf2.h"
 #include "Memory.h"
 #include "Multiface/Multiface1.h"
-#include "OS/StereoSample.h"
 #include "Ram/ExternalRam.h"
 #include "SpectraVideo.h"
+#include "StereoSample.h"
 #include "Templates/NVPtr.h"
 #include "Ula/Ula.h"
 #include "Ula/UlaZx80.h"
 #include "Z80/Z80.h"
 #include "zxsp_types.h"
 #include <math.h>
+
+
+inline double samples_per_dsp_buffer() { return DSP_SAMPLES_PER_BUFFER; }
+inline Time	  seconds_per_dsp_buffer() { return DSP_SAMPLES_PER_BUFFER / samples_per_second; }
+inline Time	  seconds_per_dsp_buffer_max()
+{
+	return (DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING - 0.01) / samples_per_second;
+}
+
 
 class Items : private Array<std::shared_ptr<Item>>
 {
@@ -172,6 +181,26 @@ public:
 	uint  beam_cnt; // for drawVideoBeamIndicator()
 	int32 beam_cc;	// ""
 
+	StereoSample*		audio_out_buffer = nullptr; //[DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING] = {0};
+	const StereoSample* audio_in_buffer	 = nullptr; //[DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING]  = {0};
+
+public:
+	//bool isAudioInputDeviceEnabled() const volatile noexcept { return audio_input_device_enabled; }
+	//bool isAudioOutputDeviceEnabled() const volatile noexcept { return audio_output_device_enabled; }
+	//Sample getOutputVolume() const volatile noexcept { return audio_output_volume; }
+
+	void outputSamples(const StereoSample&, Time start, Time end);
+	void outputSamples(Sample, Time start, Time end);
+
+	void shiftBuffer(StereoSample* bu)
+	{
+		for (int i = 0; i < DSP_SAMPLES_STITCHING; i++) bu[i] = bu[DSP_SAMPLES_PER_BUFFER + i];
+	}
+	void clearBuffer(StereoSample* bu) // preserves stitching at buffer start
+	{
+		for (int i = DSP_SAMPLES_STITCHING; i < DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING; i++) bu[i] = 0.0;
+	}
+
 protected:
 	Time   t_for_cc(int32 cc) { return tcc0 + cc / cpu_clock; }
 	Time   t_for_cc_lim(int32 cc) { return min(t_for_cc(cc), seconds_per_dsp_buffer_max()); }
@@ -268,7 +297,7 @@ public:
 	void reset(); // at current t & cc
 	void nmi();	  // at current t & cc
 	void installRomPatches(bool = yes);
-	void runForSound(int32 up_to_cc = 0);
+	void runForSound(const StereoBuffer audio_in_buffer, StereoBuffer audio_out_buffer, int32 up_to_cc = 0);
 	void runCpuCycles(int32 cc); // debugger
 
 	void stepIn();

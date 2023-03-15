@@ -3,20 +3,10 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "OS/DspTime.h"
 #include "Uni/Language.h"
 #include "ZxInfo/ZxInfo.h"
 #include "isa_id.h"
 #include "kio/kio.h"
-
-
-extern void showAlert(cstr msg, ...);	// ConfigDialog.cpp
-extern void showWarning(cstr msg, ...); // ConfigDialog.cpp
-extern void showInfo(cstr msg, ...);	// ConfigDialog.cpp
-
-
-extern cstr appl_rsrc_path; // Application.cpp
-extern cstr basic_token[];	// ZxInfo/BasicTokens.cpp
 
 
 using CoreByte	= uint32; // Z80
@@ -24,6 +14,18 @@ using Time		= double; // time [s]
 using Frequency = double; // frequency [1/s]
 using Sample	= float;
 class StereoSample;
+using StereoBuffer = StereoSample[DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING];
+
+
+extern void showAlert(cstr msg, ...);	// ConfigDialog.cpp
+extern void showWarning(cstr msg, ...); // ConfigDialog.cpp
+extern void showInfo(cstr msg, ...);	// ConfigDialog.cpp
+
+
+extern Frequency samples_per_second; // Dsp.cpp: DSP-Konstante & Zeitbasis des Systems: samples/second
+extern Time		 system_time;		 // Dsp.cpp: Realzeit [seconds]
+extern cstr		 appl_rsrc_path;	 // Application.cpp
+extern cstr		 basic_token[];		 // ZxInfo/BasicTokens.cpp
 
 
 enum KeyboardModifiers // modifier key masks:

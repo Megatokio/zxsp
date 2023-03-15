@@ -26,8 +26,6 @@ $BFFD	%1011.----.----.--0-	ZX128 AY reg. write -/o
 
 #define LOGLEVEL 1
 #include "Ay.h"
-#include "Dsp.h"
-#include "DspTime.h"
 #include "Machine.h"
 #include "ZxInfo/ZxInfo.h"
 
@@ -665,7 +663,7 @@ void Ay::run_until(Time when)
 				break;
 			}
 
-			os::outputSamples(current_value, time_of_last_sample, now);
+			machine->outputSamples(current_value, time_of_last_sample, now);
 			time_of_last_sample = now;
 		}
 
