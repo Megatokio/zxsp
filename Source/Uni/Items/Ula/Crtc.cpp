@@ -3,9 +3,7 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Crtc.h"
-#include "Item.h"
 #include "Machine.h"
-#include "MachineController.h"
 
 
 Crtc::Crtc(Machine* m, isa_id id, isa_id grp, Internal i, cstr o_addr, cstr i_addr) :

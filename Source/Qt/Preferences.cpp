@@ -3,7 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Preferences.h"
-#include "OS/Dsp.h"
 #include "Qt/Settings.h"
 #include "ZxInfo.h"
 #include "cpp/cppthreads.h"

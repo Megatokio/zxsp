@@ -4,10 +4,9 @@
 
 
 #include "FloppyDiskDrive.h"
-#include "Dsp.h"
-#include "DspTime.h"
 #include "Fdc.h"
 #include "Files/FloppyDisk.h"
+#include "Machine.h"
 #include "Templates/Array.h"
 #include <math.h>
 
@@ -30,6 +29,7 @@ inline uint16 random(uint n) //	16 bit random number in range [0 ... [n
 			READY
 */
 FloppyDiskDrive::FloppyDiskDrive() :
+	machine(nullptr),
 	type(NoDrive),
 	sound_insert(nullptr),
 	sound_eject(nullptr),
@@ -72,7 +72,9 @@ FloppyDiskDrive::FloppyDiskDrive() :
 /*	Constructor
 	creates a 3", 3.5" or 5.25" Disk Drive
 */
-FloppyDiskDrive::FloppyDiskDrive(FddType type, uint heads, uint tracks, Time step_delay, uint bytes_per_track) :
+FloppyDiskDrive::FloppyDiskDrive(
+	Machine* m, FddType type, uint heads, uint tracks, Time step_delay, uint bytes_per_track) :
+	machine(m),
 	type(type),
 	sound_insert(nullptr),
 	sound_eject(nullptr),
@@ -166,10 +168,11 @@ std::shared_ptr<FloppyDiskDrive> FloppyDiskDrive::noFloppyDiskDrive()
 	return no_fdd;
 }
 
-std::shared_ptr<FloppyDiskDrive>
-FloppyDiskDrive::newFloppyDiskDrive(FddType fddtype, uint heads, uint tracks, Time step_delay, uint bytes_per_track)
+std::shared_ptr<FloppyDiskDrive> FloppyDiskDrive::newFloppyDiskDrive(
+	Machine* m, FddType fddtype, uint heads, uint tracks, Time step_delay, uint bytes_per_track)
 {
-	return std::shared_ptr<FloppyDiskDrive>(new FloppyDiskDrive(fddtype, heads, tracks, step_delay, bytes_per_track));
+	return std::shared_ptr<FloppyDiskDrive>(
+		new FloppyDiskDrive(m, fddtype, heads, tracks, step_delay, bytes_per_track));
 }
 
 FloppyDiskDrive::~FloppyDiskDrive()
@@ -278,27 +281,31 @@ void FloppyDiskDrive::audioBufferEnd(Time dt)
 
 	if (sound_running_index < sound_running_size)
 	{
+		assert(machine);
 		for (uint i = 0; i < uint(DSP_SAMPLES_PER_BUFFER); i++)
 		{
-			os::audio_out_buffer[i] += sound_running[sound_running_index++];
+			machine->audio_out_buffer[i] += sound_running[sound_running_index++];
 			if (sound_running_index == sound_running_size) sound_running_index = 0;
 		}
 	}
 
 	if (sound_insert_index < sound_insert_size)
 	{
+		assert(machine);
 		uint n = min(uint(DSP_SAMPLES_PER_BUFFER), sound_insert_size - sound_insert_index);
-		for (uint i = 0; i < n; i++) { os::audio_out_buffer[i] += sound_insert[sound_insert_index++]; }
+		for (uint i = 0; i < n; i++) { machine->audio_out_buffer[i] += sound_insert[sound_insert_index++]; }
 	}
 
 	if (sound_eject_index < sound_eject_size)
 	{
+		assert(machine);
 		uint n = min(uint(DSP_SAMPLES_PER_BUFFER), sound_eject_size - sound_eject_index);
-		for (uint i = 0; i < n; i++) { os::audio_out_buffer[i] += sound_eject[sound_eject_index++]; }
+		for (uint i = 0; i < n; i++) { machine->audio_out_buffer[i] += sound_eject[sound_eject_index++]; }
 	}
 
 	for (uint ii = 0; ii < NELEM(sound_step_index); ii++)
 	{
+		assert(machine);
 		int& ssi = sound_step_index[ii];
 		if (ssi < sound_step_size)
 		{
@@ -309,7 +316,7 @@ void FloppyDiskDrive::audioBufferEnd(Time dt)
 				ssi = 0;
 			}
 			int e = min(DSP_SAMPLES_PER_BUFFER, i + sound_step_size - ssi);
-			while (i < e) { os::audio_out_buffer[i++] += sound_step[ssi++]; }
+			while (i < e) { machine->audio_out_buffer[i++] += sound_step[ssi++]; }
 		}
 	}
 }

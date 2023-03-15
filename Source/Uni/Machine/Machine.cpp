@@ -8,7 +8,6 @@
 #include "Ay/AySubclasses.h"
 #include "Ay/FullerBox.h"
 #include "CurrahMicroSpeech.h"
-#include "Dsp.h"
 #include "Fdc/DivIDE.h"
 #include "Fdc/FdcBeta128.h"
 #include "Fdc/FdcD80.h"
@@ -973,12 +972,15 @@ void Machine::audioBufferEnd(Time t)
 			it corresponds not with the start time for the current dsp buffer (in which case it would be fractional)
 			but is slightly ahead (-> overshoot).
 */
-void Machine::runForSound(int32 cc_final)
+void Machine::runForSound(const StereoBuffer audio_in_buffer, StereoBuffer audio_out_buffer, int32 cc_final)
 {
 	xxlogIn("Machine:runForSound");
 	assert(this->is_locked());
 
 	TT; // Test Timer
+
+	this->audio_in_buffer  = audio_in_buffer;
+	this->audio_out_buffer = audio_out_buffer;
 
 	if (!cc_final) cc_final = cc_up_for_t(seconds_per_dsp_buffer());
 	int	   result = 0;
@@ -1197,7 +1199,12 @@ void Machine::runCpuCycles(int32 cc)
 
 	assert(isSuspended() || is_locked());
 
-	if (cc > 0) runForSound(cpu->cpuCycle() + cc);
+	if (cc > 0)
+	{
+		StereoBuffer out = {0};
+		StereoBuffer in	 = {0};
+		runForSound(out, in, cpu->cpuCycle() + cc);
+	}
 }
 
 void Machine::clearBreakPtr()
@@ -1626,6 +1633,52 @@ void Machine::keyUp(uint16 unicode, uint8 oskeycode, KeyboardModifiers modifiers
 {
 	assert(keyboard);
 	keyboard->realKeyUp(unicode, oskeycode, modifiers);
+}
+
+void Machine::outputSamples(const StereoSample& sample, Time aa /*start [seconds]*/, Time ee /*end [seconds]*/)
+{
+	// Output sample value to audio_out_buffer[]:
+
+	aa *= samples_per_second; // sample-based
+	ee *= samples_per_second; // ""
+
+	int32 a = int32(aa);
+	int32 e = int32(ee);
+
+	assert(a >= 0);
+	assert(e >= a);
+	assert(e < DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING);
+
+	StereoSample* pa = audio_out_buffer + a;
+	*pa -= sample * Sample(aa - floor(aa));
+
+	StereoSample* pe = audio_out_buffer + e;
+	*pe += sample * Sample(ee - floor(ee));
+
+	while (pa < pe) { *pa++ += sample; }
+}
+
+void Machine::outputSamples(Sample sample, Time aa /*start [seconds]*/, Time ee /*end [seconds]*/)
+{
+	// Output sample value to audio_out_buffer[]:
+
+	aa *= samples_per_second; // sample-based
+	ee *= samples_per_second; // ""
+
+	int32 a = int32(aa);
+	int32 e = int32(ee);
+
+	assert(a >= 0);
+	assert(e >= a);
+	assert(e < DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING);
+
+	StereoSample* pa = audio_out_buffer + a;
+	*pa -= sample * Sample(aa - floor(aa));
+
+	StereoSample* pe = audio_out_buffer + e;
+	*pe += sample * Sample(ee - floor(ee));
+
+	while (pa < pe) { *pa++ += sample; }
 }
 
 
