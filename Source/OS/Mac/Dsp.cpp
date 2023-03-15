@@ -2,8 +2,8 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "Application.h"
 #include "Dsp.h"
+#include "Application.h"
 #include "MachineList.h"
 #include "Qt/Settings.h"
 #include "StereoSample.h"
@@ -12,8 +12,8 @@
 #include "kio/TestTimer.h"
 #include <CoreAudio/CoreAudio.h>
 
-// Time		system_time			= 0.0;
-// Frequency	samples_per_second	= 44100;
+Time	  system_time		 = 0.0;
+Frequency samples_per_second = 44100;
 
 
 namespace os
@@ -21,25 +21,24 @@ namespace os
 
 // ---- core audio interrupt ----
 
-static PLock audio_callback_lock; // 2006-11-16 kio:	needed if in and out devices are different
+static PLock audio_callback_lock; // needed if in and out devices are different
 
-// bool			audio_input_device_present	= no;	// preset to no if error
-// bool			audio_input_device_enabled	= no;	// preset to no if error
-// bool			audio_output_device_enabled = yes;	// must be present
-// Sample 		audio_output_volume			= 0.3f;
-// Sample  		play_through_damping		= 0.0;	// no playthrough during startup: no 'klick' if audio-in disabled in
-// prefs
+static bool	  audio_input_device_present  = no;	 // preset to no if error
+static bool	  audio_input_device_enabled  = no;	 // preset to no if error
+static bool	  audio_output_device_enabled = yes; // must be present
+static Sample audio_output_volume		  = 0.3f;
+// Sample  	  play_through_damping		  = 0.0; // no playthrough during startup: no 'klick' if audio-in disabled in
+
 static StereoSample audio_out_center = 0.0f; // for audio out High-pass filter
 static StereoSample audio_in_center	 = 0.0f; // for audio in High-pass filter
 
-// StereoSample	audio_out_buffer [DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING];
-// StereoSample	audio_in_buffer	 [DSP_SAMPLES_PER_BUFFER+DSP_SAMPLES_STITCHING];
+static StereoSample audio_out_buffer[DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING];
+static StereoSample audio_in_buffer[DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING];
 
 static AudioDeviceID	   input_device_id	  = 0; // actually used audio devices
 static AudioDeviceID	   output_device_id	  = 0;
 static AudioDeviceIOProcID audio_out_ioProcID = nullptr; // kio 2012-08-08   procIDs for my audioDeviceIOProc()
 static AudioDeviceIOProcID audio_in_ioProcID  = nullptr; // kio 2012-08-08
-
 
 // ###################################################################################
 // High-pass filter: (remove signal bias)
@@ -51,19 +50,30 @@ inline void HighPassFilter(StereoSample* p, int count, StereoSample& center, flo
 
 inline void HighpassInputBuffer()
 {
-	HighPassFilter(audio_in_buffer + DSP_SAMPLES_STITCHING, DSP_SAMPLES_PER_BUFFER, audio_in_center, 0.001);
+	HighPassFilter(audio_in_buffer + DSP_SAMPLES_STITCHING, DSP_SAMPLES_PER_BUFFER, audio_in_center, 0.001f);
 }
 
 inline void HighpassOutputBuffer()
 {
-	HighPassFilter(audio_out_buffer, DSP_SAMPLES_PER_BUFFER, audio_out_center, 0.001);
+	HighPassFilter(audio_out_buffer, DSP_SAMPLES_PER_BUFFER, audio_out_center, 0.001f);
 }
 
+inline void shiftBuffer(StereoSample* bu)
+{
+	for (int i = 0; i < DSP_SAMPLES_STITCHING; i++) bu[i] = bu[DSP_SAMPLES_PER_BUFFER + i];
+}
+
+inline void ShiftInputStitching() { shiftBuffer(audio_in_buffer); }
+
+inline void ShiftOutputStitching() { shiftBuffer(audio_out_buffer); }
+
+__unused inline void clearBuffer(StereoSample* bu) // preserves stitching at buffer start
+{
+	for (int i = DSP_SAMPLES_STITCHING; i < DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING; i++) bu[i] = 0.0f;
+}
 
 // ###################################################################################
 // audio input handling:
-
-inline void ShiftInputStitching() { shiftBuffer(audio_in_buffer); }
 
 inline void ClearInputBuffer()
 {
@@ -152,8 +162,6 @@ inline void ReadInputData(const AudioBufferList* inInputData)
 // ###################################################################################
 // audio output handling:
 
-inline void ShiftOutputStitching() { shiftBuffer(audio_out_buffer); }
-
 inline void CopyInputToOutputBuffer()
 {
 	IFDEBUG({
@@ -234,7 +242,7 @@ inline void WriteOutputData(AudioBufferList* outOutputData)
 		switch (channels)
 		{
 		case 1: // mono
-			while (q < e) { *z++ = (q++)->mono() * volume; }
+			while (q < e) { *z++ = Sample(*q++) * volume; }
 			break;
 
 		case 2: // interleaved stereo ((99% of cases))
@@ -320,8 +328,8 @@ static OSStatus audioDeviceIOProc(
 
 			ShiftOutputStitching();
 			CopyInputToOutputBuffer();
-			nvptr(&gui::machine_list)->runMachinesForSound(); // DOIT!
-			if (audio_output_device_enabled && audio_output_volume > 0.0)
+			nvptr(&gui::machine_list)->runMachinesForSound(audio_in_buffer, audio_out_buffer); // DOIT!
+			if (audio_output_device_enabled && audio_output_volume > 0.0f)
 			{
 				if (0) HighpassOutputBuffer();
 				WriteOutputData(outOutputData);
@@ -656,6 +664,25 @@ void startCoreAudio(bool input_enabled) //, int playthrough_mode)
 
 // ------------------------------------------------------------------------
 
+void enableAudioInputDevice(bool f)
+{
+	if (f && !audio_input_device_present) { showWarning("No audio input device found."); }
+	audio_input_device_enabled = f && audio_input_device_present;
+}
+
+void enableAudioOutputDevice(bool f) { audio_output_device_enabled = f; }
+
+void setOutputVolume(Sample volume)
+{
+	if (volume <= 0.0f) { audio_output_device_enabled = off; }
+	else
+	{
+		audio_output_volume			= fminf(volume, 1.0f);
+		audio_output_device_enabled = on;
+	}
+}
+
+
 /*	Utility:
 	apply high pass filter to sample buffer
 
@@ -676,8 +703,14 @@ void startCoreAudio(bool input_enabled) //, int playthrough_mode)
 // }
 
 
-///*	Set audio-in to audio-out playthrough damping:
-//*/
+//	enum
+//	{	playthrough_minus10dB,
+//		playthrough_minus30dB,
+//		playthrough_off
+//	};
+
+/*	Set audio-in to audio-out playthrough damping:
+*/
 // void setPlaythrough ( uint mode/*as in prefs*/ )
 //{
 //	switch(mode)

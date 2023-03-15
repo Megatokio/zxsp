@@ -25,8 +25,6 @@ $BFFD	%1011.----.----.--0-	ZX128 AY reg. write -/o
 ================================================================== */
 
 #include "Ay.h"
-#include "Dsp.h"
-#include "DspTime.h"
 #include "Machine.h"
 #include "ZxInfo/ZxInfo.h"
 
@@ -715,7 +713,7 @@ void Ay::setRegister(Time when, uint regnr, uint8 newvalue)
 		// write samples to dsp
 		if (now > time_of_last_sample)
 		{
-			os::outputSamples(current_value, time_of_last_sample, now);
+			machine->outputSamples(current_value, time_of_last_sample, now);
 			time_of_last_sample = now;
 		}
 		switch (stereo_mix)

@@ -3,13 +3,14 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "MachineList.h"
+#include "OS/Dsp.h"
 
 namespace gui
 {
 
 volatile MachineList machine_list;
 
-void MachineList::runMachinesForSound()
+void MachineList::runMachinesForSound(const StereoBuffer audio_in_buffer, StereoBuffer audio_out_buffer)
 {
 	for (uint i = 0; i < count(); i++)
 	{
@@ -19,7 +20,7 @@ void MachineList::runMachinesForSound()
 		{
 			if (machine->isRunning()) // not suspended
 			{
-				machine->runForSound();
+				machine->runForSound(audio_in_buffer, audio_out_buffer, 0);
 				if (machine->cpu_clock > 100000) continue;
 			}
 

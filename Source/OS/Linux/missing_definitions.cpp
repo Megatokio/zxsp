@@ -5,6 +5,9 @@
 #include "Dsp.h"
 #include "kio/kio.h"
 
+Time	  system_time		 = 0.0;
+Frequency samples_per_second = 44100;
+
 namespace os
 {
 

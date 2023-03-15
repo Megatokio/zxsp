@@ -6,7 +6,7 @@
 #include "Crtc.h"
 #include "Item.h"
 #include "Keymap.h"
-#include "OS/StereoSample.h"
+#include "StereoSample.h"
 
 
 class Ula : public Crtc

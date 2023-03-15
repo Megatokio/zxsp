@@ -3,7 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "UlaInves.h"
-#include "Dsp.h"
 #include "Interfaces/IScreen.h"
 #include "Machine.h"
 #include "TapeRecorder.h"
@@ -158,7 +157,7 @@ void UlaInves::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 			}
 			else
 			{
-				if (os::audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
+				if (machine->audio_in_buffer[a] < threshold) byte &= ~EAR_IN_MASK;
 			}
 		}
 	}

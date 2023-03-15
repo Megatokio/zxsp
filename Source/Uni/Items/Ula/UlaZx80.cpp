@@ -33,7 +33,6 @@
 */
 
 #include "UlaZx80.h"
-#include "Dsp.h"
 #include "Interfaces/IScreen.h"
 #include "Keyboard.h"
 #include "Machine.h"
@@ -102,7 +101,7 @@ void UlaZx80::enableMicOut(bool f)
 
 void UlaZx80::mic_out(Time now, int32 cc, bool bit)
 {
-	os::outputSamples(beeper_current_sample, beeper_last_sample_time, now);
+	machine->outputSamples(beeper_current_sample, beeper_last_sample_time, now);
 	beeper_last_sample_time = now;
 	beeper_current_sample	= bit ? beeper_volume : -beeper_volume;
 
@@ -123,7 +122,7 @@ bool UlaZx80::mic_in(Time now, int32 cc)
 			assert(int32(a) >= 0);
 			showAlert("Sample input beyond dsp buffer: +%i\n", int(a - DSP_SAMPLES_PER_BUFFER));
 		}
-		else { return os::audio_in_buffer[a] >= threshold; }
+		else { return machine->audio_in_buffer[a] >= threshold; }
 	}
 
 	return 0 >= threshold;

@@ -4,7 +4,7 @@
 
 #define LOGLEVEL 1
 #include "SP0256.h"
-#include "Dsp.h"
+#include "Machine.h"
 #include "unix/FD.h"
 #include <math.h>
 
@@ -200,7 +200,8 @@ inline uint8 X4(uint8 n)
 // --------------------------------------------------------------
 
 
-SP0256::SP0256(cstr romfilepath, bool is_bitswapped, float rc) :
+SP0256::SP0256(Machine* m, cstr romfilepath, bool is_bitswapped, float rc) :
+	machine(m),
 	rc(rc),											 // filter factor for RC; e.g. RC = 33kΩ * 22nF:
 	ff(1.0 - exp(-(1.0 / samples_per_second) / rc)), // see comments at output_filtered()
 	time_per_sample(312 / 3.12e6),
@@ -1508,7 +1509,7 @@ void SP0256::output_filtered(Sample sample, Time ee)
 		sample_at_c2 += d = (sample_at_c1 - sample_at_c2) * ff2;
 		sample_at_c1 -= d;
 		if (fabsf(sample_at_c2) > 2.0f) xxlog("sample>2");
-		os::audio_out_buffer[a] += sample_at_c2 * float(ee - aa);
+		machine->audio_out_buffer[a] += sample_at_c2 * float(ee - aa);
 	}
 	else
 	{
@@ -1517,7 +1518,7 @@ void SP0256::output_filtered(Sample sample, Time ee)
 		sample_at_c2 += d = (sample_at_c1 - sample_at_c2) * ff2;
 		sample_at_c1 -= d;
 		if (fabsf(sample_at_c2) > 2.0f) xxlog("sample>2");
-		os::audio_out_buffer[a++] += sample_at_c2 * (1.0f - float(aa - floor(aa)));
+		machine->audio_out_buffer[a++] += sample_at_c2 * (1.0f - float(aa - floor(aa)));
 
 		while (a < e)
 		{
@@ -1525,7 +1526,7 @@ void SP0256::output_filtered(Sample sample, Time ee)
 			sample_at_c2 += d = (sample_at_c1 - sample_at_c2) * ff;
 			sample_at_c1 -= d;
 			if (fabsf(sample_at_c2) > 2.0f) xxlog("sample>2");
-			os::audio_out_buffer[a++] += sample_at_c2;
+			machine->audio_out_buffer[a++] += sample_at_c2;
 		}
 
 		ff2 = ff * float(ee - floor(ee));
@@ -1533,7 +1534,7 @@ void SP0256::output_filtered(Sample sample, Time ee)
 		sample_at_c2 += d = (sample_at_c1 - sample_at_c2) * ff2;
 		sample_at_c1 -= d;
 		if (fabsf(sample_at_c2) > 2.0f) xxlog("sample>2");
-		os::audio_out_buffer[a] += sample_at_c2 * float(ee - floor(ee));
+		machine->audio_out_buffer[a] += sample_at_c2 * float(ee - floor(ee));
 	}
 
 	if (PRINT_STATISTICS && current_opcode < 16)
