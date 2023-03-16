@@ -542,7 +542,8 @@ void MachineController::loadSnapshot(cstr filename)
 
 			fd.close_file(0);
 			if (m != model) machine = initMachine(m, 0, 0, 0, 0, 0);
-			dynamic_cast<MachineTc2068&>(*machine).insertCartridge(filename);
+			auto& dock = dynamic_cast<MmuTc2068&>(*machine->mmu);
+			dock.insertCartridge(filename);
 			addRecentFile(RecentTccRoms, filename);
 			addRecentFile(RecentFiles, filename);
 		}
@@ -1448,23 +1449,22 @@ void MachineController::saveAs()
 {
 	xlogIn("MachineController:SaveAs");
 
-	bool f = machine->suspend();
-
-	cstr filter = catstr(
-		machine->rzxIsLoaded() ? "RZX Recording (*.rzx);;" : "",
-		model == zx80													   ? "ZX80 Snapshots (*.z80 *.o *.80);;" :
-		model == zx81													   ? "ZX81 Snapshots (*.z80 *.p *.81);;" :
-		model == jupiter												   ? "Jupiter Ace Snapshots (*.z80 *.ace);;" :
-		machine->isA(isa_MachineZxsp) && NV(machine->ram).count() <= 48 kB ? "ZXSP Snapshots (*.z80 *.sna);;" :
-																			 "ZXSP Snapshots (*.z80);;",
-		"Rom (*.rom);;", model_info->isA(isa_MachineZxsp) ? "Screenshot (*.scr);;" : "", "All Files (*)");
+	cstr snapshots = dynamic_cast<MachineZx81*>(NV(machine))	? "ZX81 Snapshots (*.z80 *.p *.81);;" :
+					 dynamic_cast<MachineZx80*>(NV(machine))	? "ZX80 Snapshots (*.z80 *.o *.80);;" :
+					 dynamic_cast<MachineJupiter*>(NV(machine)) ? "Jupiter Ace Snapshots (*.z80 *.ace);;" :
+					 dynamic_cast<MachineZxsp*>(NV(machine)) && NV(machine)->ram.count() <= 48 kB ?
+																  "ZXSP Snapshots (*.z80 *.sna);;" :
+																  "ZXSP Snapshots (*.z80);;";
+	cstr filter	   = catstr(
+		   machine->rzxIsLoaded() ? "RZX Recording (*.rzx);;" : "", snapshots, "Rom (*.rom);;",
+		   model_info->isA(isa_MachineZxsp) ? "Screenshot (*.scr);;" : "", "All Files (*)");
 
 	cstr filepath = selectSaveFile(this, "Save snapshot", filter);
 	if (filepath)
 	{
 		try
 		{
-			nvptr(machine)->saveAs(filepath);
+			suspended(machine)->saveAs(filepath);
 			setFilepath(filepath);
 		}
 		catch (AnyError& e)
@@ -1472,8 +1472,6 @@ void MachineController::saveAs()
 			showAlert("%s", e.what());
 		}
 	}
-
-	if (f) machine->resume();
 }
 
 
@@ -1840,12 +1838,8 @@ void MachineController::addExternalItem(isa_id item_id, bool add)
 {
 	xlogIn("MachineController:slot_add_external_item(%i,%s)", item_id, add ? "add" : "remove");
 
-	bool f = machine->suspend();
-
-	if (add) nvptr(machine)->addExternalItem(item_id);
-	else nvptr(machine)->removeItem(item_id);
-
-	if (f) machine->resume();
+	if (add) suspended(machine)->addExternalItem(item_id);
+	else suspended(machine)->removeItem(item_id);
 }
 
 void MachineController::addExternalRam(isa_id item_id, bool add, uint options)
@@ -1857,26 +1851,18 @@ void MachineController::addExternalRam(isa_id item_id, bool add, uint options)
 
 	xlogIn("MachineController:slot_add_external_ram(%i,%s)", item_id, add ? "add" : "remove");
 
-	bool f = machine->powerOff();
-
-	nvptr(machine)->remove<ExternalRam>();
-	if (add) nvptr(machine)->addExternalRam(item_id, options);
-
-	if (f) machine->powerOn();
+	poweredOff(machine)->remove<ExternalRam>();
+	if (add) poweredOff(machine)->addExternalRam(item_id, options);
 }
 
 void MachineController::addMultiface1(bool add)
 {
-	bool f = machine->suspend();
-
 	if (add)
 	{
 		bool joystick_enabled = settings.get_bool(key_multiface1_enable_joystick, yes);
-		nvptr(machine)->addMultiface1(joystick_enabled);
+		poweredOff(machine)->addMultiface1(joystick_enabled);
 	}
-	else nvptr(machine)->remove<Multiface1>();
-
-	if (f) machine->resume();
+	else poweredOff(machine)->remove<Multiface1>();
 }
 
 void MachineController::addMemotech64kRam(bool add)

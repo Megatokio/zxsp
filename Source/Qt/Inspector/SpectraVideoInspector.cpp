@@ -207,10 +207,8 @@ void SpectraVideoInspector::slotInsertOrEjectRom()
 	if (spectra->isRomInserted())
 	{
 		xlogIn(" -> eject");
-
-		bool f = machine->powerOff();
-		NV(spectra)->ejectRom();
-		if (f) machine->powerOn();
+		PoweredOff<Machine> m(machine);
+		nvptr(spectra)->ejectRom();
 	}
 	else
 	{
@@ -301,10 +299,8 @@ void SpectraVideoInspector::insertRom(cstr filepath)
 {
 	xlogIn("SpectraVideoInspector::insertRom");
 	assert(validReference(spectra));
-
-	bool f = machine->powerOff();
-	NV(spectra)->insertRom(filepath);
-	if (f) machine->powerOn();
+	PoweredOff<Machine> m(machine);
+	nvptr(spectra)->insertRom(filepath);
 	addRecentFile(RecentIf2Roms, filepath);
 	addRecentFile(RecentFiles, filepath);
 }
