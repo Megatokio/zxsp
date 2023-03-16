@@ -332,7 +332,6 @@ SOURCES +=	\
 	Source/Uni/Files/RzxFile.cpp \
 	\
 	Source/Uni/ZxInfo/ZxInfo.cpp \
-	Source/Uni/ZxInfo/BasicTokens.cpp \
 	\
 	Source/Uni/zxsp_helpers.cpp \
 	Source/Uni/IoInfo.cpp \
@@ -642,6 +641,7 @@ HEADERS += \
 	\
 	Source/Uni/ZxInfo/ZxInfo.h \
 	Source/Uni/ZxInfo/info.h \
+	Source/Uni/ZxInfo/zxsp_basic_tokens.h \
 	\
 	Source/Uni/Files/Z80Head.h \
 	Source/Uni/Files/file_stx.h \
