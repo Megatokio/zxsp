@@ -634,6 +634,7 @@ HEADERS += \
 	Source/Uni/Files/RzxFile.h \
 	Source/Uni/Files/RzxBlock.h \
 	\
+	Source/Uni/zxsp_globals.h \
 	Source/Uni/zxsp_helpers.h \
 	Source/Uni/custom_errors.h \
 	Source/Uni/Language.h \

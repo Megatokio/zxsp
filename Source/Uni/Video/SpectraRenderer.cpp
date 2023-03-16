@@ -6,7 +6,7 @@
 #include "Templates/Array.h"
 #include "graphics/gif/GifEncoder.h"
 #include "unix/os_utilities.h"
-#include "zxsp_types.h"
+#include "zxsp_globals.h"
 
 
 // Display mode register bit masks:
