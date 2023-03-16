@@ -30,23 +30,10 @@ public:
 	{
 		if (cartridge) cartridge->saveAs(fpath);
 	}
-	bool isLoaded() const volatile { return cartridge != nullptr; }
-
-	bool isZxspEmu() const volatile
-	{
-		assert(isMainThread());
-		return cartridge ? cartridge->isZxspEmu() : no;
-	}
-	TccRomId getTccId() const volatile
-	{
-		assert(isMainThread());
-		return cartridge ? cartridge->getTccId() : TccUnknown;
-	}
-	cstr getFilepath() const volatile
-	{
-		assert(isMainThread());
-		return cartridge ? cartridge->getFilepath() : nullptr;
-	}
+	bool	 isLoaded() const volatile { return cartridge != nullptr; }
+	bool	 isZxspEmu() const { return cartridge ? cartridge->isZxspEmu() : no; }
+	TccRomId getTccId() const { return cartridge ? cartridge->getTccId() : TccUnknown; }
+	cstr	 getFilepath() const { return cartridge ? cartridge->getFilepath() : nullptr; }
 
 protected:
 	// Item interface:
@@ -54,12 +41,8 @@ protected:
 	void reset(Time t, int32 cc) override;
 	void input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
 	void output(Time t, int32 cc, uint16 addr, uint8 byte) override;
-	// void	audioBufferEnd	(Time t) override;
-	// void	videoFrameEnd	(int32 cc) override;
 
 	// Mmu interface:
-	// bool	hasPortF4() volatile const noexcept	override { return yes; }
-	// uint8	getPortF4() override						{ return port_F4; }
 	void setPortF4(uint8 n) override { set_port_f4(n, 0xff); }
 	void romCS(bool disable) override; // from rear-item: daisy chain
 

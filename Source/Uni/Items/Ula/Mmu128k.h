@@ -37,7 +37,7 @@ protected:
 
 public:
 	bool  hasPort7ffd() const volatile noexcept override { return yes; }
-	uint8 getPort7ffd() const volatile override { return port_7ffd; }
+	uint8 getPort7ffd() const volatile noexcept override { return port_7ffd; }
 
 private:
 	void page_rom_128k();

@@ -14,7 +14,7 @@ public:
 	void input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
 	void output(Time t, int32 cc, uint16 addr, uint8 byte) override;
 	// void	setPort7ffd		(uint8) override;
-	int32 addWaitCycles(int32 cc, uint16 addr) const volatile override;
+	int32 addWaitCycles(int32 cc, uint16 addr) const override;
 	uint8 getFloatingBusByte(int32 cc) override;
 
 protected:
