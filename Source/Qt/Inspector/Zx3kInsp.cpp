@@ -49,13 +49,9 @@ Zx3kInsp::Zx3kInsp(QWidget* parent, MachineController* mc, volatile Zx3kRam* zx3
 void Zx3kInsp::slotSetRamSize(uint newsize)
 {
 	assert(validReference(zx3kram));
-
 	if (newsize == zx3kram->getRamSize()) return;
-
-	bool f = machine->powerOff();
-	NV(zx3kram)->setRamSize(newsize);
-	if (f) machine->powerOn();
-
+	PoweredOff<Machine> m(machine);
+	nvptr(zx3kram)->setRamSize(newsize);
 	settings.setValue(key_zx3k_ramsize, newsize);
 }
 

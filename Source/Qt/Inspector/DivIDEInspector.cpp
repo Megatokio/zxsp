@@ -233,9 +233,8 @@ void DivIDEInspector::load_rom(cstr filepath)
 
 	assert(validReference(divide));
 
-	bool f	 = machine->powerOff();
-	cstr err = nvptr(divide)->insertRom(filepath);
-	if (f) machine->powerOn();
+	PoweredOff<Machine> m(machine);
+	cstr				err = nvptr(divide)->insertRom(filepath);
 
 	if (err) showWarning("Failed to load %s\n%s.", filepath ? filepath : "default rom", err);
 	else
@@ -274,10 +273,8 @@ void DivIDEInspector::save_rom()
 
 	try
 	{
-		FD	 fd(filepath, 'w');
-		bool f = machine->suspend();
-		NV(divide)->saveRom(fd);
-		if (f) machine->resume();
+		FD fd(filepath, 'w');
+		nvptr(divide)->saveRom(fd);
 		addRecentFile(RecentDivideRoms, filepath);
 		emit updateCustomTitle();
 	}
@@ -294,9 +291,7 @@ void DivIDEInspector::toggle_jumper_E()
 	xlogline("DivIDEInspector: slotToggleJumperE");
 	assert(validReference(divide));
 
-	bool f = machine->suspend();
 	nvptr(divide)->setJumperE(!state.jumper_E);
-	if (f) machine->resume();
 }
 
 void DivIDEInspector::insert_disk(cstr filepath)
@@ -304,10 +299,7 @@ void DivIDEInspector::insert_disk(cstr filepath)
 	assert(machine && object);
 	assert(validReference(divide));
 
-	bool f = machine->powerOff();
-	nvptr(divide)->insertDisk(filepath);
-	if (f) machine->powerOn();
-
+	suspended(divide)->insertDisk(filepath);
 	if (divide->isDiskInserted())
 	{
 		addRecentFile(RecentDivideDisks, filepath);
@@ -320,12 +312,7 @@ void DivIDEInspector::insert_disk()
 	xlogline("DivIDEInspector: slotInsertDisk");
 	assert(validReference(divide));
 
-	if (divide->isDiskInserted())
-	{
-		bool f = machine->suspend();
-		nvptr(divide)->ejectDisk();
-		if (f) machine->resume();
-	}
+	if (divide->isDiskInserted()) suspended(divide)->ejectDisk();
 	if (divide->isDiskInserted()) return; // eject failed
 
 	updateWidgets(); // update state & display
@@ -340,9 +327,7 @@ void DivIDEInspector::eject_disk()
 	xlogline("DivIDEInspector: slotEjectDisk");
 	assert(validReference(divide));
 
-	bool f = machine->suspend();
-	nvptr(divide)->ejectDisk();
-	if (f) machine->resume();
+	suspended(divide)->ejectDisk();
 }
 
 void DivIDEInspector::toggle_disk_wprot()
@@ -359,9 +344,8 @@ void DivIDEInspector::set_ram(uint new_size)
 	assert(validReference(divide));
 
 	if (new_size == NV(divide)->getRam().count()) return;
-	bool f = machine->suspend();
+	PoweredOff<Machine> m(machine);
 	nvptr(divide)->setRamSize(new_size);
-	if (f) machine->resume();
 }
 
 void DivIDEInspector::insert_new_disk(cstr basename)

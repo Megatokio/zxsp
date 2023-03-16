@@ -10,6 +10,4 @@ class MachineTc2068 : public MachineTc2048
 {
 public:
 	MachineTc2068(IMachineController*, Model);
-
-	void insertCartridge(cstr fpath);
 };

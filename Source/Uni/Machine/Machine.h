@@ -346,3 +346,118 @@ public:
 
 
 // =============================================================================================
+
+
+template<typename T>
+class Suspended
+{
+	T*	 p;
+	bool was_running;
+
+public:
+	NO_COPY(Suspended);
+	Suspended(volatile T* m) noexcept : p(const_cast<T*>(m))
+	{
+		assert(isMainThread());
+		assert(p);
+		was_running = p->suspend();
+	}
+	Suspended(Suspended&& q) noexcept : p(q.p), was_running(q.was_running) { q.was_running = false; }
+	Suspended& operator=(Suspended&& q) { std::swap(*this, *q); }
+	~Suspended() noexcept
+	{
+		if (was_running) p->resume();
+	}
+
+	T* operator->() { return p; }
+	T* get() { return p; }
+};
+
+// inline function to auto deduce type:
+template<class T>
+Suspended<T> suspended(volatile T* o)
+{
+	return Suspended<T>(o);
+}
+template<class T>
+Suspended<T> suspended(std::shared_ptr<volatile T>& o)
+{
+	return Suspended<T>(o.get());
+}
+
+
+template<typename T>
+class PoweredOff
+{
+	T*	 p;
+	bool was_running;
+
+public:
+	NO_COPY(PoweredOff);
+	PoweredOff(volatile T* m) noexcept : p(const_cast<T*>(m))
+	{
+		assert(isMainThread());
+		assert(p);
+		was_running = p->powerOff();
+	}
+	PoweredOff(PoweredOff&& q) noexcept : p(q.p), was_running(q.was_running) { q.was_running = false; }
+	PoweredOff& operator=(PoweredOff&& q) { std::swap(*this, *q); }
+	~PoweredOff()
+	{
+		if (was_running) p->powerOn();
+	}
+
+	T* operator->() { return p; }
+};
+
+
+// inline function to auto deduce type:
+template<class T>
+PoweredOff<T> poweredOff(volatile T* o)
+{
+	return PoweredOff<T>(o);
+}
+template<class T>
+PoweredOff<T> poweredOff(std::shared_ptr<volatile T>& o)
+{
+	return PoweredOff<T>(o.get());
+}
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

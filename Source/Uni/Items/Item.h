@@ -56,10 +56,11 @@ public:
 	bool  isInternal() { return _internal; }
 	bool  isExternal() { return !_internal; }
 
-	bool is_locked() const volatile;
+	bool is_locked() const volatile; // whole machine
 	void lock() const volatile;
 	void unlock() const volatile;
-
+	bool suspend();
+	void resume();
 
 	// Item interface:
 	virtual void  powerOn(/*t=0*/ int32 cc);
