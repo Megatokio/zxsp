@@ -7,7 +7,7 @@
 #include "graphics/gif/GifEncoder.h"
 #include "unix/os_utilities.h"
 #include "version.h"
-#include "zxsp_types.h"
+#include "zxsp_globals.h"
 
 
 #define opacity 0xFFFFFFFF // e.g. 0xFFFFFF80 for fading out tv image
