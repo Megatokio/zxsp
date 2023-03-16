@@ -16,4 +16,9 @@ extern void setColors(QWidget* widget, QRgb foregroundcolor, QRgb backgroundcolo
 extern cstr selectLoadFile(QWidget* parent, cstr headline, cstr filefilterstr);
 extern cstr selectSaveFile(QWidget* parent, cstr headline, cstr filefilterstr);
 
+extern cstr	  MHzStr(double frequency);
+extern int32  intValue(cstr);
+extern double mhzValue(cstr);
+extern uint16 printablechar(uint8 c); // unprintable -> middle-dot
+
 } // namespace gui
