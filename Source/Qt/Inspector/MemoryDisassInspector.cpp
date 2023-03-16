@@ -9,7 +9,6 @@
 #include "MemoryInspector.h"
 #include "MyLineEdit.h"
 #include "Templates/NVPtr.h"
-#include "Uni/util.h"
 #include "Z80/Z80_Disassembler.h"
 #include "Z80/Z80opcodes.h"
 #include "zasm/Source/Z80Assembler.h"
@@ -50,7 +49,7 @@ class CoreByteDisassembler : public Z80_Disassembler
 public:
 	virtual const CoreByte* pointer(uint32 address) = 0;
 	CoreByte peek_cb(uint32 address) const { return *const_cast<CoreByteDisassembler*>(this)->pointer(address); }
-	uint8	 peek(uint32 address) const { return *const_cast<CoreByteDisassembler*>(this)->pointer(address); }
+	uint8	 peek(uint32 address) const override { return *const_cast<CoreByteDisassembler*>(this)->pointer(address); }
 };
 
 

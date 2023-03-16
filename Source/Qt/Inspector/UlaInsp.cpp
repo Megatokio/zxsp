@@ -6,12 +6,12 @@
 #include "Machine.h"
 #include "MachineController.h"
 #include "Qt/Screen/Screen.h"
+#include "Qt/qt_util.h"
 #include "Ula/Mmu.h"
 #include "Ula/Mmu128k.h"
 #include "Ula/MmuPlus3.h"
 #include "Ula/Ula.h"
 #include "Ula/UlaZxsp.h"
-#include "Uni/util.h"
 #include "ZxInfo.h"
 #include <QCheckBox>
 #include <QGridLayout>

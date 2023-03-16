@@ -320,7 +320,6 @@ SOURCES +=	\
 	Source/Uni/zxsp_helpers.cpp \
 	Source/Uni/IoInfo.cpp \
 	Source/Uni/Memory.cpp \
-	Source/Uni/util.cpp \
 	Source/Uni/IsaObject.cpp \
 
 
@@ -639,7 +638,6 @@ HEADERS += \
 	Source/Uni/custom_errors.h \
 	Source/Uni/Language.h \
 	Source/Uni/zxsp_types.h \
-	Source/Uni/util.h \
 	Source/Uni/IsaObject.h \
 	Source/Uni/isa_id.h \
 	Source/Uni/IoInfo.h \
