@@ -13,7 +13,6 @@
 #include "SimpleTerminal.h"
 #include "Templates/Array.h"
 #include "Templates/NVPtr.h"
-#include "Uni/util.h"
 #include "Z80/Z80.h"
 #include <QApplication>
 #include <QBoxLayout>
@@ -167,7 +166,6 @@ void MemoryInspector::save_settings()
 //			Helper
 // ==============================================================================
 
-
 QComboBox* MemoryInspector::newComboboxRegister()
 {
 	combobox_register = new QComboBox(nullptr);
@@ -256,7 +254,7 @@ void MemoryInspector::set_address_from_textedit()
 
 	xlogIn("MemoryInspector.setAddressFromTextEdit");
 
-	int32 baseaddress = intValue(lineedit_baseaddress->text());
+	int32 baseaddress = intValue(lineedit_baseaddress->text().toUtf8().data());
 	if (errno == ok) setScrollOffset(baseaddress - data.baseaddress);
 	else lineedit_baseaddress->setText(lineedit_baseaddress->oldText());
 }
