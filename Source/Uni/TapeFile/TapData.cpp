@@ -12,7 +12,7 @@
 #include "TzxData.h"
 #include "Z80/Z80.h"
 #include "Z80/Z80opcodes.h"
-#include "zxsp_types.h"
+#include "zxsp_basic_tokens.h"
 
 
 /*	Timing				ZX Spectrum		Jupiter Ace:
@@ -158,7 +158,7 @@ cstr calcMajorTapBlockInfo(const uint8* data, int blen)
 			if (is_jupiter) c &= 0x7F;
 			else
 			{
-				d = stpcpy(d, basic_token[c + 128]);
+				d = stpcpy(d, zxsp_basic_token[c + 128]);
 				if (c >= (int8)0xa3) *d++ = ' ';
 				continue;
 			} // graphic characters, basic token

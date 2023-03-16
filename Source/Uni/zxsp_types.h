@@ -15,8 +15,6 @@ using Sample   = float;
 class StereoSample;
 using StereoBuffer = StereoSample[DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING];
 
-extern cstr basic_token[]; // ZxInfo/BasicTokens.cpp
-
 
 enum KeyboardModifiers // modifier key masks:
 {
