@@ -26,5 +26,5 @@ protected:
 	void  powerOn(/*t=0*/ int32 cc) override;
 	void  reset(Time t, int32 cc) override;
 	void  markVideoRam() override;
-	int32 addWaitCycles(int32 cc, uint16 addr) const volatile override;
+	int32 addWaitCycles(int32 cc, uint16 addr) const override;
 };

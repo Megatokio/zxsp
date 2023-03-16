@@ -165,6 +165,6 @@ void UlaInves::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 }
 
 
-int32 UlaInves::addWaitCycles(int32 cc, uint16 /*addr*/) const volatile { return cc; }
+int32 UlaInves::addWaitCycles(int32 cc, uint16 /*addr*/) const { return cc; }
 
 uint8 UlaInves::getFloatingBusByte(int32 /*cc*/) { return 0xff; }

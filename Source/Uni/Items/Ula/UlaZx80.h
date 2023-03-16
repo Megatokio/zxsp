@@ -34,7 +34,7 @@ public:
 	uint8		 interruptAtCycle(int32, uint16) override;
 
 	void  set60Hz(bool = 1) override;
-	int32 getCcPerFrame() const volatile override { return tv_decoder.getCcPerFrame(); }
+	int32 getCcPerFrame() const volatile noexcept override { return tv_decoder.getCcPerFrame(); }
 	void  setupTiming() override {}
 
 	void enableMicOut(bool f);

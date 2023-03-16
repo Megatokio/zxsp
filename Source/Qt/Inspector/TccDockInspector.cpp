@@ -121,8 +121,8 @@ void TccDockInspector::updateWidgets()
 									   "Insert Cartridge");
 		if (!current_fpath && dock->isLoaded())
 		{
-			current_fpath = newcopy(dock->getFilepath());
-			current_id	  = dock->getTccId();
+			current_fpath = newcopy(NV(dock)->getFilepath());
+			current_id	  = NV(dock)->getTccId();
 		}
 
 		dock_slot->setVisible(new_state == NoCartridge);
@@ -280,7 +280,7 @@ void TccDockInspector::insert_cartridge(cstr filepath)
 	addRecentFile(RecentFiles, filepath);
 
 	current_fpath = newcopy(filepath);
-	current_id	  = dock->getTccId();
+	current_id	  = NV(dock)->getTccId();
 }
 
 void TccDockInspector::eject_cartridge()

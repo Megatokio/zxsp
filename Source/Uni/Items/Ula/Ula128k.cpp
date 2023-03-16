@@ -89,7 +89,7 @@ void Ula128k::markVideoRam()
 }
 
 
-int32 Ula128k::addWaitCycles(int32 cc, uint16 addr) const volatile
+int32 Ula128k::addWaitCycles(int32 cc, uint16 addr) const
 {
 	if (cc < cc_waitmap_start || cc >= cc_waitmap_end) return cc; // not in screen
 
