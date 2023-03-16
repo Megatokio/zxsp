@@ -67,9 +67,8 @@ void ZxIf2Insp::slotInsertEjectRom()
 	if (zxif2->isLoaded())
 	{
 		xlogIn("ZxIf2Insp::eject()");
-		bool f = machine->powerOff();
-		NV(zxif2)->ejectRom();
-		if (f) machine->powerOn();
+		PoweredOff<Machine> m(machine);
+		nvptr(zxif2)->ejectRom();
 	}
 	else
 	{
@@ -133,12 +132,42 @@ void ZxIf2Insp::fillContextMenu(QMenu* menu)
 void ZxIf2Insp::insertRom(cstr filepath)
 {
 	assert(validReference(zxif2));
-
-	bool f = machine->powerOff();
-	NV(zxif2)->insertRom(filepath);
-	if (f) machine->powerOn();
+	PoweredOff<Machine> m(machine);
+	nvptr(zxif2)->insertRom(filepath);
 	addRecentFile(RecentIf2Roms, filepath);
 	addRecentFile(RecentFiles, filepath);
 }
 
 } // namespace gui
+
+
+/*
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+*/

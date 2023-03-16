@@ -24,15 +24,3 @@ MachineTc2068::MachineTc2068(IMachineController* m, Model model) : MachineTc2048
 	addItem(new AyForTc2068(this, joy));
 	addItem(new Walkman(this));
 }
-
-void MachineTc2068::insertCartridge(cstr fpath)
-{
-	// called from MachineController.loadSnapshot()
-
-	auto* dock = dynamic_cast<MmuTc2068*>(mmu);
-	assert(dock);
-
-	bool f = powerOff();
-	dock->insertCartridge(fpath);
-	if (f) powerOn();
-}
