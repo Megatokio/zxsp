@@ -28,23 +28,23 @@ protected:
 	bool  is60hz;
 
 public:
-	uint8		 getBorderColor() const volatile { return border_color; }
+	uint8		 getBorderColor() const volatile noexcept { return border_color; }
 	virtual void setBorderColor(uint8) {}
-	CoreByte*	 getVideoRam() { return video_ram; }
-	IScreen*	 getScreen() { return screen; }
+	CoreByte*	 getVideoRam() noexcept { return video_ram; }
+	IScreen*	 getScreen() noexcept { return screen; }
 
-	bool is60Hz() const volatile { return is60hz; }
-	bool is50Hz() const volatile { return !is60hz; }
+	bool is60Hz() const volatile noexcept { return is60hz; }
+	bool is50Hz() const volatile noexcept { return !is60hz; }
 
-	int			  getLinesBeforeScreen() const volatile { return lines_before_screen; } // nominal
-	int			  getLinesInScreen() const volatile { return lines_in_screen; }			// nominal
-	int			  getLinesAfterScreen() const volatile { return lines_after_screen; }	// nominal
-	int			  getLinesPerFrame() const volatile { return lines_per_frame; }
-	int			  getColumnsInScreen() const volatile { return columns_in_screen; }
-	int			  getCcPerByte() const volatile { return cc_per_byte; }					 // const
-	int			  getCcPerLine() const volatile { return cc_per_line; }					 // nominal
-	int			  getBytesPerLine() const volatile { return cc_per_line / cc_per_byte; } // nominal
-	virtual int32 getCcPerFrame() const volatile { return lines_per_frame * cc_per_line; }
+	int			  getLinesBeforeScreen() const volatile noexcept { return lines_before_screen; } // nominal
+	int			  getLinesInScreen() const volatile noexcept { return lines_in_screen; }		 // nominal
+	int			  getLinesAfterScreen() const volatile noexcept { return lines_after_screen; }	 // nominal
+	int			  getLinesPerFrame() const volatile noexcept { return lines_per_frame; }
+	int			  getColumnsInScreen() const volatile noexcept { return columns_in_screen; }
+	int			  getCcPerByte() const volatile noexcept { return cc_per_byte; }				  // const
+	int			  getCcPerLine() const volatile noexcept { return cc_per_line; }				  // nominal
+	int			  getBytesPerLine() const volatile noexcept { return cc_per_line / cc_per_byte; } // nominal
+	virtual int32 getCcPerFrame() const volatile noexcept { return lines_per_frame * cc_per_line; }
 
 	void		  attachToScreen(IScreen*);
 	virtual void  drawVideoBeamIndicator(int32 cc) = 0;
