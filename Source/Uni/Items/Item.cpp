@@ -127,11 +127,10 @@ void Item::grow_ioinfo()
 
 
 bool Item::is_locked() const volatile { return machine->is_locked(); }
-
 void Item::lock() const volatile { machine->lock(); }
-
 void Item::unlock() const volatile { machine->unlock(); }
-
+bool Item::suspend() { return machine->suspend(); }
+void Item::resume() { machine->resume(); }
 
 /*
 
