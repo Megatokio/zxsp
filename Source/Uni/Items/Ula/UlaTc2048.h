@@ -22,9 +22,9 @@ protected:
 	void  input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
 	int32 doFrameFlyback(int32 cc) override;
 	int32 updateScreenUpToCycle(int32 cc) override;
-	// void	drawVideoBeamIndicator	(int32 cc) override;
+	// void	drawVideoBeamIndicator(int32 cc) override;
 	void markVideoRam() override;
-	// int32	addWaitCycles			(int32 cc, uint16 addr) volatile const override;	TODO ?
+	// int32 addWaitCycles(int32 cc, uint16 addr) const override;	TODO ?
 
 public:
 	uint8 getPortFE() { return ula_out_byte; }

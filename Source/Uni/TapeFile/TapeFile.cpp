@@ -152,7 +152,7 @@ TapeFile::~TapeFile()
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
 
-int TapeFile::setWriteProtected(bool wp) volatile noexcept
+int TapeFile::setWriteProtected(bool wp) noexcept
 {
 	//	assert(isMainThread());
 
@@ -164,7 +164,7 @@ int TapeFile::setWriteProtected(bool wp) volatile noexcept
 }
 
 
-void TapeFile::setFilepath(cstr fpath) volatile noexcept
+void TapeFile::setFilepath(cstr fpath) noexcept
 {
 	//	assert(isMainThread());
 

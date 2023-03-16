@@ -25,14 +25,8 @@ protected:
 	void reset(Time t, int32 cc) override;
 	void input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
 	void output(Time t, int32 cc, uint16 addr, uint8 byte) override;
-	// void	audioBufferEnd	(Time t) override;
-	// void	videoFrameEnd	(int32 cc) override;
 
-	bool  hasPortF4() const volatile noexcept override { return yes; } // see note on Basic64-Demo.tzx in *.cpp
-	uint8 getPortF4() const volatile override { return port_F4; }	   // seems to be present but
-	void  setPortF4(uint8 n) override
-	{
-		port_F4 = n;
-	} // seems to have no function
-	  // void	romCS(bool disable) override;
+	bool  hasPortF4() const volatile noexcept override { return yes; }	   // see note on Basic64-Demo.tzx in *.cpp
+	uint8 getPortF4() const volatile noexcept override { return port_F4; } // seems to be present but
+	void  setPortF4(uint8 n) override { port_F4 = n; }					   // seems to have no function
 };

@@ -66,15 +66,15 @@ public:
 
 	virtual bool  hasPort7ffd() const volatile noexcept { return no; }
 	virtual void  setPort7ffd(uint8) {} // nop
-	virtual uint8 getPort7ffd() const volatile { return 0xFF; }
+	virtual uint8 getPort7ffd() const volatile noexcept { return 0xFF; }
 
 	virtual bool  hasPort1ffd() const volatile noexcept { return no; }
 	virtual void  setPort1ffd(uint8) {} // nop
-	virtual uint8 getPort1ffd() const volatile { return 0xFF; }
+	virtual uint8 getPort1ffd() const volatile noexcept { return 0xFF; }
 
 	virtual bool  hasPortF4() const volatile noexcept { return no; }
 	virtual void  setPortF4(uint8) {} // nop
-	virtual uint8 getPortF4() const volatile { return 0xFF; }
+	virtual uint8 getPortF4() const volatile noexcept { return 0xFF; }
 
 protected:
 	Mmu(Machine*, isa_id, cstr o_addr, cstr i_addr);

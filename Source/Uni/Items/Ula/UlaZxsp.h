@@ -79,7 +79,7 @@ public:
 	int32 doFrameFlyback(int32 cc) override;
 	void  drawVideoBeamIndicator(int32 cc) override;
 	// void		set60Hz				(bool=1) override;
-	int32 addWaitCycles(int32 cc, uint16 addr) const volatile override;
+	int32 addWaitCycles(int32 cc, uint16 addr) const override;
 	uint8 getFloatingBusByte(int32 cc) override;
 	void  markVideoRam() override;
 
