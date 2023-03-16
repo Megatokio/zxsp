@@ -194,7 +194,7 @@ void UlaZxsp::markVideoRam()
 /*	In an i/o instruction add wait cycles (if any)
 	called from machine.input() and machine.output() before i/o handlers of all items
 */
-int32 UlaZxsp::addWaitCycles(int32 cc, uint16 addr) const volatile
+int32 UlaZxsp::addWaitCycles(int32 cc, uint16 addr) const
 {
 	if (cc < cc_waitmap_start || cc >= cc_waitmap_end) return cc; // not in screen
 

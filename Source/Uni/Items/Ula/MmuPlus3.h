@@ -45,7 +45,7 @@ public:
 	// bool hasPortF4() const volatile noexcept override { return no; }
 	bool  hasPort7ffd() const volatile noexcept override { return yes; }
 	bool  hasPort1ffd() const volatile noexcept override { return yes; }
-	uint8 getPort1ffd() const volatile override { return port_1ffd; }
+	uint8 getPort1ffd() const volatile noexcept override { return port_1ffd; }
 
 protected:
 	// Mmu128 interface:

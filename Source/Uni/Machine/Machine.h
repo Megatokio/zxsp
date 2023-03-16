@@ -333,7 +333,7 @@ public:
 	void updateMouseButtons(MouseButtons btns) volatile { mouse_buttons = btns; }
 	void mouseMoved(zxsp::Dist d) volatile { NV(mouse_position) += d; }
 
-	Keymap getKeymap() const volatile;
+	Keymap getKeymap() const;
 	uint8  getJoystickButtons(JoystickID id) // FUDLR
 	{
 		if (id == kbd_joystick) kbd_joystick_active = 255;
