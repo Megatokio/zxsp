@@ -1,8 +1,9 @@
 // auto generated 2017-11-08 16:08:53
-#ifndef ZXINFO_H
-#define ZXINFO_H
-#include "IsaObject.h"
-#include "Language.h"
+#pragma once
+#include "isa_id.h"
+#include "kio/kio.h"
+
+enum Language { british, american, french, spanish, portuguese };
 
 enum Model {
 	unknown_model = -1,
@@ -102,5 +103,3 @@ struct ZxInfo
 };
 
 extern ZxInfo zx_info[num_models];
-
-#endif

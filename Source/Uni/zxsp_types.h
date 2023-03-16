@@ -3,10 +3,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "Uni/Language.h"
 #include "ZxInfo/ZxInfo.h"
-#include "isa_id.h"
-#include "kio/kio.h"
 #include "zxsp_globals.h"
 
 

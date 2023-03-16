@@ -72,10 +72,11 @@ var zxinfofile = "ZxInfo"			// basename only
 	openout#f,zxinfofile#".h"
 	put#f,«\
 //auto generated »#datestr(now)#«
-#ifndef ZXINFO_H
-#define ZXINFO_H
-#include "Language.h"
-#include "IsaObject.h"»,nl,nl
+#pragma once
+#include "isa_id.h"
+#include "kio/kio.h"
+
+enum Language { british, american, french, spanish, portuguese };»,nl,nl
 
 	put#f,"enum Model{",nl
 	put#f,"unknown_model=-1,",nl
@@ -97,7 +98,6 @@ var zxinfofile = "ZxInfo"			// basename only
 	loop
 	put#f,«\
 bool	hasWaitmap () const			{ return waitmap!=0; }
-float	psgCyclesPerSample() const	{ return ay_cycles_per_second / samples_per_second; }
 uint32	cpuClockPredivider() const	{ return ula_cycles_per_second / cpu_cycles_per_second; }
 bool	isA(isa_id i) const			{ isa_id j=id; do { if(i==j) return yes; } while((j=isa_pid[j])); return no; }
 bool	canAttachDivIDE() const		{ return has_zxsp_bus && !isA(isa_MachineTc2068); }
@@ -107,7 +107,6 @@ bool	canAttachSpectraVideo() const { return model<=zxplus2a_span && model!=inves
 	put#f,"};",nl,nl
 
 	put#f,"extern ZxInfo zx_info[num_models];",nl,nl
-	put#f,"#endif",nl,nl
 	close#f
 
 
