@@ -1617,6 +1617,7 @@ void Machine::rzxStopRecording(cstr msg, bool yellow)
 	rzxOutOfSync(nullptr);
 }
 
+Keymap Machine::getKeymap() const { return keyboard->getKeymap(); }
 
 void Machine::allKeysAndButtonsUp()
 {

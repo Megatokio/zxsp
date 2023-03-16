@@ -138,8 +138,8 @@ public:
 	bool isModified() const volatile noexcept { return modified; }
 
 	bool isWriteProtected() const volatile noexcept { return write_protected; }
-	int	 setWriteProtected(bool) volatile noexcept;
-	void setFilepath(cstr) volatile noexcept;
+	int	 setWriteProtected(bool) noexcept;
+	void setFilepath(cstr) noexcept;
 	cstr getFilepath() const volatile noexcept { return filepath; }
 
 	// Tape I/O:

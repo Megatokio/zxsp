@@ -514,7 +514,7 @@ void TapeRecorder::insert(TapeFile* newtapefile)
 void TapeRecorder::insert(cstr filepath) volatile
 {
 	// Insert tape into the recorder
-	// for use in machine constructor
+	// for use in Inspector
 	// plays the "close lid" audio fx.
 	// this variant of insert() does not block the machine.
 

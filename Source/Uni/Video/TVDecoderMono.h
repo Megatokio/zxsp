@@ -92,9 +92,9 @@ public:
 	int32 doFrameFlyback(int32 cc); // and return cc of frame start
 	void  shiftCcTimeBase(int32 cc_delta);
 	void  drawVideoBeamIndicator(int32 cc);
-	int32 getCcPerLine() const volatile { return cc_per_line; }
-	int32 getCcPerFrame() const volatile { return cc_per_frame; }
-	int32 getCycleOfFrameStart() const volatile { return cc_frame_start; }
+	int32 getCcPerLine() const volatile noexcept { return cc_per_line; }
+	int32 getCcPerFrame() const volatile noexcept { return cc_per_frame; }
+	int32 getCycleOfFrameStart() const volatile noexcept { return cc_frame_start; }
 	int32 getCcForFrameEnd() const;
 
 private:

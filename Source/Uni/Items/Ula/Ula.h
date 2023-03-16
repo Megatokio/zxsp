@@ -47,7 +47,7 @@ public:
 	void setBytesPerLine(int n);
 
 	virtual uint8 getFloatingBusByte(int32 /*cc*/) { return 0xff; }
-	virtual int32 addWaitCycles(int32 cc, uint16 /*addr*/) const volatile { return cc; }
+	virtual int32 addWaitCycles(int32 cc, uint16 /*addr*/) const { return cc; }
 	virtual int32 cpuCycleOfInterrupt()	   = 0;
 	virtual int32 cpuCycleOfIrptEnd()	   = 0;
 	virtual int32 cpuCycleOfFrameFlyback() = 0; // when next ffb irpt

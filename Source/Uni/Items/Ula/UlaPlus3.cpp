@@ -125,6 +125,6 @@ void UlaPlus3::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 }
 
 
-int32 UlaPlus3::addWaitCycles(int32 cc, uint16 /*addr*/) const volatile { return cc; }
+int32 UlaPlus3::addWaitCycles(int32 cc, uint16 /*addr*/) const { return cc; }
 
 uint8 UlaPlus3::getFloatingBusByte(int32 /*cc*/) { return 0xff; }
