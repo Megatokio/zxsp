@@ -6,7 +6,6 @@
 #include "CswBuffer.h"
 #include "TapeData.h"
 #include "kio/kio.h"
-#include "zxsp_types.h"
 
 
 /*  Manage one block of data in a tape file (class TapeFile)
