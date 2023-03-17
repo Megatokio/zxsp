@@ -225,8 +225,6 @@ void MachineZx81::loadP81(FD& fd, bool p81) noexcept(false) /*file_error,data_er
 
 	xlogIn("MachineZx81:loadP81(fd)");
 
-	assert(is_locked());
-
 	// skip program name:
 	uint pnamelen = 0;
 	if (p81)

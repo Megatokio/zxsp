@@ -138,8 +138,6 @@ void MachineZx80::loadO80(FD& fd) noexcept(false) /*file_error,data_error*/
 
 	xlogIn("MachineZx80:loadO80(fd)");
 
-	assert(is_locked());
-
 	// get actual data size:
 	uint len = fd.file_size();
 	if (len >= 11)

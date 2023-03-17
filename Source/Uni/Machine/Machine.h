@@ -277,21 +277,11 @@ public:
 	Time  now() { return t_for_cc(cpu->cpuCycle()); }
 	Time  now_lim() { return t_for_cc_lim(cpu->cpuCycle()); }
 
-	// Control & Run the Machine:
-	bool is_locked() volatile
-	{
-		if (!is_power_on) return yes;
-		if (is_suspended) return yes;
-		bool f = NV(mutex).try_lock();
-		if (f) NV(mutex).unlock();
-		return !f;
-	}
-
 	void _power_on(/*t=0*/ int32 start_cc = 1000);
 	void _power_off();
-	void powerOn(/*t=0*/ int32 start_cc = 1000) volatile;
-	bool powerOff() volatile;
-	void powerCycle() volatile;
+	void powerOn(/*t=0*/ int32 start_cc = 1000);
+	bool powerOff();
+	void powerCycle();
 	bool isPowerOn() const volatile { return is_power_on; }
 	bool isPowerOff() const volatile { return is_power_on == no; }
 	void reset(); // at current t & cc
@@ -358,7 +348,6 @@ public:
 	NO_COPY(Suspended);
 	Suspended(volatile T* m) noexcept : p(const_cast<T*>(m))
 	{
-		assert(isMainThread());
 		assert(p);
 		was_running = p->suspend();
 	}
@@ -396,7 +385,11 @@ public:
 	NO_COPY(PoweredOff);
 	PoweredOff(volatile T* m) noexcept : p(const_cast<T*>(m))
 	{
-		assert(isMainThread());
+		assert(p);
+		was_running = p->powerOff();
+	}
+	PoweredOff(const std::shared_ptr<volatile T>& m) noexcept : p(const_cast<T*>(m.get()))
+	{
 		assert(p);
 		was_running = p->powerOff();
 	}
