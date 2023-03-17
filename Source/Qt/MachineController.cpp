@@ -495,7 +495,7 @@ void MachineController::loadSnapshot(cstr filename)
 			assert(tr);
 			tr->setAutoStartStopTape(0); // autoSS drückt Pause rein => Tape stoppt bei 1. custom Block
 			tr->setInstantLoadTape(1);	 //							   und lädt nicht weiter => kein autoSS
-			tr->insert(filename);
+			tr->insertTape(tr->newTape(filename), false);
 			tr->play();
 		}
 
@@ -514,7 +514,7 @@ void MachineController::loadSnapshot(cstr filename)
 			assert(tr);
 			tr->setAutoStartStopTape(0); // autoSS drückt Pause rein => Tape stoppt bei 1. custom Block
 			tr->setInstantLoadTape(1);	 //							   und lädt nicht weiter => kein autoSS
-			tr->insert(filename);
+			tr->insertTape(tr->newTape(filename), false);
 			tr->play();
 		}
 

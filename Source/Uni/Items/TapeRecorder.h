@@ -202,11 +202,10 @@ public:
 	// TODO: the button logic should not be part of class TapeRecorder but class TapeRecorderInsp instead!
 
 	// handle tape recorder buttons, menus etc.
-	void	  insert(TapeFile*);			  // insert tape file
-	void	  insert(cstr filename);		  // insert tape file. *** blocks the machine while tapefile is read ***
-	void	  insert(cstr filename) volatile; // insert tape file. non-blocking
-	TapeFile* eject();						  // eject tape file (save file if modified)
-	void	  play();						  // push 'play': action depends on pause and record button state
+	TapeFile* newTape(cstr filepath) const volatile;
+	void	  insertTape(TapeFile*, bool audio_fx); // insert tape file
+	TapeFile* ejectTape(bool audio_fx);				// eject tape file (save file if modified)
+	void	  play();								// push 'play': action depends on pause and record button state
 	void	  togglePlay()
 	{
 		if (isStopped()) play();
