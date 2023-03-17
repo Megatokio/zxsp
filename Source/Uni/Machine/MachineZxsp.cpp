@@ -392,8 +392,8 @@ void MachineZxsp::loadSna(FD& fd)
 
 	// we need to power on the machine but it must not runForSound()
 	// don't block: we might be called from runForSound()!
-	_suspend();
-	_power_on();
+	suspend();
+	powerOn();
 
 	SnaHead head;
 	head.readFromFile(fd);
