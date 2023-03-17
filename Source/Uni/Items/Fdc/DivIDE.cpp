@@ -440,10 +440,7 @@ void DivIDE::setRamSize(uint sz)
 	assert(sz == 32 kB || sz == 512 kB);
 
 	if (sz == ram.count()) return;
-
-	bool f = machine->suspend();
 	ram.grow(sz);
 	ram.shrink(sz);
-	mapMemory();
-	if (f) machine->resume();
+	if (machine->isPowerOn()) mapMemory();
 }
