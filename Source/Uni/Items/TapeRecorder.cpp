@@ -464,7 +464,6 @@ void TapeRecorder::stop()
 	// all buttons up except PAUSE
 
 	xlogIn("TapeRecorder.stop");
-	assert(is_locked());
 
 	if (state == stopped && !record_is_down) return;
 
@@ -478,68 +477,72 @@ void TapeRecorder::stop()
 	record_is_down = no;
 }
 
-TapeFile* TapeRecorder::eject()
+TapeFile* TapeRecorder::ejectTape(bool audio_fx)
 {
 	// Eject tape
 	// may be called when no tapefile loaded.
 	// returns the current tapefile, if any.
 	// caller must delete it and may do this outside locked machine
-	// plays the "open lid" sound.
+	// optionally plays the "open lid" sound.
 
 	xlogIn("TapeRecorder.eject");
-	assert(is_locked());
 
 	stop();
 	TapeFile* tf = tapefile;
 	tapefile	 = nullptr;
-	play_sound(tf ? sound_open_deck_loaded : sound_open_deck_empty);
+	if (audio_fx) play_sound(tf ? sound_open_deck_loaded : sound_open_deck_empty);
 	return tf;
 }
 
-void TapeRecorder::insert(TapeFile* newtapefile)
+TapeFile* TapeRecorder::newTape(cstr filepath) const volatile
+{
+	if (filepath == nullptr) return nullptr;
+	return new TapeFile(machine_ccps, filepath); // TODO: currently shows alert and inserts empty tape on read failure
+}
+
+void TapeRecorder::insertTape(TapeFile* newtapefile, bool audio_fx)
 {
 	// Insert tape into the recorder
 	// newtapefile may be nullptr
-	// plays the "close lid" sound
+	// optionally plays the "close lid" sound
 
 	xlogIn("TapeRecorder.insert(TapeFile)");
-	assert(is_locked());
 	assert(!isLoaded());
 
 	stop();
 	tapefile = newtapefile;
-	play_sound(newtapefile ? sound_close_deck_loaded : sound_close_deck_empty);
+	if (audio_fx) play_sound(newtapefile ? sound_close_deck_loaded : sound_close_deck_empty);
 }
 
-void TapeRecorder::insert(cstr filepath) volatile
-{
-	// Insert tape into the recorder
-	// for use in Inspector
-	// plays the "close lid" audio fx.
-	// this variant of insert() does not block the machine.
+//	void TapeRecorder::xinsert(cstr filepath) volatile
+//	{
+//		// Insert tape into the recorder
+//		// for use in Inspector
+//		// plays the "close lid" audio fx.
+//		// this variant of insert() does not block the machine.
+//
+//		xlogIn("TapeRecorder.insert(filepath,fx)");
+//
+//		TapeFile* newtapefile = filepath ? new TapeFile(machine_ccps, filepath) : nullptr;
+//		nvptr(this)->insert(newtapefile);
+//	}
 
-	xlogIn("TapeRecorder.insert(filepath,fx)");
-
-	TapeFile* newtapefile = filepath ? new TapeFile(machine_ccps, filepath) : nullptr;
-	nvptr(this)->insert(newtapefile);
-}
-
-void TapeRecorder::insert(cstr filepath)
-{
-	// Insert tape into the recorder
-	// for use in machine constructor
-	// no audio effects
-
-	xlogIn("TapeRecorder.insert(filepath)");
-	assert(is_locked());
-	assert(filepath != nullptr);
-
-	state = stopped;
-
-	delete tapefile;
-	tapefile = nullptr;
-	tapefile = new TapeFile(machine_ccps, filepath);
-}
+//	void TapeRecorder::xinsert(cstr filepath)
+//	{
+//		// Insert tape into the recorder
+//		// for use in machine constructor
+//		// no audio effects
+//
+//		xlogIn("TapeRecorder.insert(filepath)");
+//		assert(is_locked());
+//		assert(filepath != nullptr);
+//
+//		state = stopped;
+//
+//		delete tapefile;
+//		tapefile = nullptr;
+//		tapefile = new TapeFile(machine_ccps, filepath);
+//	}
 
 void TapeRecorder::setFilename(cstr new_filename) noexcept
 {
