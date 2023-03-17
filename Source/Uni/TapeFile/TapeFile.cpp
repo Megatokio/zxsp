@@ -154,8 +154,6 @@ TapeFile::~TapeFile()
 
 int TapeFile::setWriteProtected(bool wp) noexcept
 {
-	//	assert(isMainThread());
-
 	write_protected = wp;
 	int err			= set_file_writable(filepath, wp ? NOBODY : OWNER | GROUP);
 	if (!err) return ok;
@@ -163,11 +161,8 @@ int TapeFile::setWriteProtected(bool wp) noexcept
 	return err;
 }
 
-
 void TapeFile::setFilepath(cstr fpath) noexcept
 {
-	//	assert(isMainThread());
-
 	fpath = fullpath(fpath);
 	delete[] filepath;
 	filepath = newcopy(fpath);
@@ -181,21 +176,19 @@ void TapeFile::setFilepath(cstr fpath) noexcept
 	modified		= yes;
 }
 
-
-/*	Get total play time of tape
- */
 Time TapeFile::getTotalPlaytime() const
 {
+	// Get total play time of tape
+
 	Time t = 0.0;
 	for (uint i = 0; i < count(); i++) t += data[i]->getTotalTime();
 	return t;
 }
 
-
-/*	Get position of start of block
- */
 Time TapeFile::getStartOfBlock(uint blk)
 {
+	// Get position of start of block
+
 	assert(blk < count());
 
 	Time t = 0.0;
