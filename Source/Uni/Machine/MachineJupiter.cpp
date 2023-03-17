@@ -312,14 +312,12 @@ static uint read_compressed_data(FD& fd, uint qsize, uint8* z)
 	else throw DataError("decompressed data exceeds maximum size ($E000)");
 }
 
-void MachineJupiter::loadAce(FD& fd) noexcept(false) /*file_error,data_error*/
+void MachineJupiter::loadAce(FD& fd)
 {
 	// load snapshot
 	// --> machine is powered up but suspended
 
 	xlogIn("MachineJupiter:loadAce(fd)");
-
-	assert(is_locked());
 
 	uint8 bu[0x1C000];
 	uint  zsize = read_compressed_data(fd, fd.file_size(), bu);

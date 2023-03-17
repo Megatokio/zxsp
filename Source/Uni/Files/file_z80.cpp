@@ -399,13 +399,11 @@ void Machine::saveZ80(FD& fd)
 	}
 }
 
-
-/*	attach joysticks:
-	not shure about this - we have preferences for that
-*/
 void Machine::loadZ80_attach_joysticks(uint z80head_im)
 {
-	assert(isMainThread());
+	// attach joysticks:
+	// not shure about this - we have preferences for that
+
 	Joy* j;
 
 	switch (z80head_im >> 6)
@@ -436,8 +434,6 @@ void Machine::loadZ80_attach_joysticks(uint z80head_im)
 void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 {
 	xlogIn("Machine:loadZ80");
-
-	assert(is_locked());
 
 	bool ismainthread = isMainThread();
 

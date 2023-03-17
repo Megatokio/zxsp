@@ -385,7 +385,6 @@ void MachineZxsp::loadSna(FD& fd)
 	xlogIn("Machine:readSna");
 
 	assert(ram.count() <= 48 kB);
-	assert(is_locked());
 
 	off_t qramsize = fd.file_size() - snalen;
 	if (qramsize > 0xC000) qramsize = 0xc000;

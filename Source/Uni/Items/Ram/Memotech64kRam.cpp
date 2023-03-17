@@ -65,11 +65,8 @@ Memotech64kRam::~Memotech64kRam()
 */
 void Memotech64kRam::setDipSwitches(uint sw)
 {
-	assert(is_locked());
-
 	if (sw == dip_switches) return;
 	dip_switches = sw;
-
 	map_dip_switched_ram();
 }
 

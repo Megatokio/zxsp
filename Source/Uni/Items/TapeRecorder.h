@@ -186,13 +186,11 @@ public:
 	bool	 isRecording() const noexcept { return tapefile && state == playing && !pause_is_down && record_is_down; }
 	bool	 input(int32 cc)
 	{
-		assert(is_locked());
 		assert(isPlaying());
 		return tapefile->input(cc);
 	}
 	void output(int32 cc, bool b)
 	{
-		assert(is_locked());
 		assert(isRecording());
 		tapefile->output(cc, b);
 	}
