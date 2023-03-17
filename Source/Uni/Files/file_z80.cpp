@@ -447,8 +447,8 @@ void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 		xlogline("Version 1.45");
 		assert(ram.count() >= 0xc000);
 
-		_suspend();
-		_power_on();
+		suspend();
+		powerOn();
 
 		head.getRegisters(cpu->getRegisters());
 		ula->setBorderColor(head.data >> 1);
@@ -533,8 +533,8 @@ void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 	// set T cycle counter and reset machine:
 	int32 cc = head.isVersion300() ? head.getCpuCycle(model_info->cpu_cycles_per_frame) : 1000;
 
-	_suspend();
-	_power_on(cc);
+	suspend();
+	powerOn(cc);
 
 	assert(current_cc() == cc);
 	assert(now() == 0.0);
