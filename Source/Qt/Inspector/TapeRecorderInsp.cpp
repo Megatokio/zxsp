@@ -869,7 +869,8 @@ void TapeRecorderInsp::insert_tape(cstr filepath)
 	assert(validReference(tr));
 	assert(!tr->isLoaded());
 
-	tr->insert(filepath); // non-volatile, non-blocking version
+	auto* tape = tr->newTape(filepath);
+	nvptr(tr)->insertTape(tape, true);
 
 	if (tr->isLoaded())
 	{
@@ -883,7 +884,7 @@ void TapeRecorderInsp::eject_tape()
 {
 	assert(validReference(tr));
 
-	TapeFile* tf = nvptr(tr)->eject();
+	TapeFile* tf = nvptr(tr)->ejectTape(true);
 	delete tf;
 }
 
