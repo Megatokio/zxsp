@@ -60,6 +60,7 @@ using Comp = uchar;
 class Colormap;
 struct ZxInfo;
 
+class RzxFile;
 class TapeFile;
 class TapeRecorder;
 class TapeData;

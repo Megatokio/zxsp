@@ -3,7 +3,6 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "helpers.h"
 #include "isa_id.h"
 #include "kio/kio.h"
 
