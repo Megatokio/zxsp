@@ -233,7 +233,7 @@ void MachineController::loadSnapshot(cstr filename)
 	bool r = settings.get_bool(key_always_attach_rampack, yes);
 	bool d = settings.get_bool(key_always_attach_divide, no);
 
-	this->machine->suspend();			  // machine is powered on and suspended
+	nvptr(this->machine)->suspend();	  // machine is powered on and suspended
 	Machine* machine = NV(this->machine); // we need the machine powered on because we may load helper snapshots
 
 	if (machine->rzxIsRecording() && action_RzxRecordAppendSna->isChecked()) {}
@@ -436,18 +436,20 @@ void MachineController::loadSnapshot(cstr filename)
 				if (zxif2) // if attached, use Interface 2
 				{
 					fd.close_file(0);
+					machine->powerOff();
 					zxif2->insertRom(filename);
 					addRecentFile(RecentIf2Roms, filename);
 					addRecentFile(RecentFiles, filename);
-					machine->powerCycle();
+					machine->powerOn();
 				}
 				else if (spectra) // if attached, load into spectra video module
 				{
 					fd.close_file(0);
+					machine->powerOff();
 					spectra->insertRom(filename);
 					addRecentFile(RecentIf2Roms, filename);
 					addRecentFile(RecentFiles, filename);
-					machine->powerCycle();
+					machine->powerOn();
 				}
 				else { machine->loadRom(fd); }
 			}
@@ -1113,7 +1115,7 @@ MachineController::MachineController(QString filepath) :
 
 	assert(machine->isPowerOn());
 	assert(machine->isSuspended());
-	if (filepath.isEmpty()) machine->resume();
+	if (filepath.isEmpty()) NV(machine)->resume();
 	else loadSnapshot(filepath.toUtf8().data());
 
 	in_ctor = no;
@@ -1798,7 +1800,7 @@ void MachineController::powerResetMachine()
 	xlogIn("MachineController:powerOffOn");
 
 	setFilepath(nullptr);
-	nvptr(machine)->powerOff(); // must be suspended
+	nvptr(machine)->powerOff();
 	screen->hideOverlayPlay();
 	screen->hideOverlayRecord();
 	setKeyboardMode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
@@ -1829,8 +1831,8 @@ void MachineController::enableBreakpoints(bool f)
 void MachineController::haltMachine(bool f)
 {
 	xlogIn("MachineController:haltMachine(%i)", int(f));
-	if (f) machine->suspend();
-	else machine->resume();
+	if (f) nvptr(machine)->suspend();
+	else nvptr(machine)->resume();
 	// note: we'll get a callback to machineRunStateChanged()
 }
 
