@@ -160,9 +160,6 @@ paul	(in essence): it replicates the timing of a zxsp 48k or a zx128k.
 
 SpectraVideo::~SpectraVideo()
 {
-	assert(isMainThread());
-	assert(machine->is_locked());
-
 	xlogIn("~SpectraVideoInterface");
 
 	ejectRom();
@@ -589,12 +586,9 @@ void SpectraVideo::drawVideoBeamIndicator(int32 cc) // called from runForSound()
 	}
 }
 
-
-/*	enable or disable the new video modes
- */
 void SpectraVideo::enableNewVideoModes(bool f)
 {
-	assert(is_locked());
+	// enable or disable the new video modes
 
 	if (new_video_modes_enabled == f) return;
 	if (port_7fdf == 0)
@@ -627,8 +621,6 @@ void SpectraVideo::setJoystickEnabled(bool f) { joystick_enabled = f; }
 
 void SpectraVideo::setIF1RomHooksEnabled(bool f)
 {
-	assert(is_locked());
-
 	if (if1_rom_hooks_enabled == f) return;
 	if1_rom_hooks_enabled = f;
 	init_rom();
@@ -636,8 +628,6 @@ void SpectraVideo::setIF1RomHooksEnabled(bool f)
 
 void SpectraVideo::insertRom(cstr path)
 {
-	assert(is_locked());
-
 	ejectRom();
 
 	FD	   fd(path, 'r');
@@ -655,8 +645,6 @@ void SpectraVideo::insertRom(cstr path)
 
 void SpectraVideo::ejectRom()
 {
-	assert(is_locked());
-
 	delete[] filepath;
 	filepath = nullptr;
 	if (rom.ptr() == nullptr) return;

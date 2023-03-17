@@ -17,11 +17,7 @@ public:
 	explicit ZxIf2(Machine*);
 	virtual ~ZxIf2() override;
 
-	bool isLoaded() const volatile
-	{
-		assert(isMainThread());
-		return rom.isnot(nullptr);
-	}
+	bool isLoaded() const volatile { return rom.isnot(nullptr); }
 	cstr getFilepath() const volatile { return filepath; }
 	cstr getFilename() const volatile { return basename_from_path(filepath); }
 

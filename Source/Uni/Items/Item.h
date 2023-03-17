@@ -56,8 +56,7 @@ public:
 	bool  isInternal() { return _internal; }
 	bool  isExternal() { return !_internal; }
 
-	bool is_locked() const volatile; // whole machine
-	void lock() const volatile;
+	void lock() const volatile; // whole machine
 	void unlock() const volatile;
 	bool suspend();
 	void resume();

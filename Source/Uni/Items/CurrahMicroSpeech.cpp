@@ -420,8 +420,6 @@ void CurrahMicroSpeech::setHifi(bool f)
 	//	set sp0256 emulation to normal or "HiFi" mode:
 	//	actually this makes no audible difference
 
-	assert(isMainThread());
-
 	sp0256->setHifi(f);
 }
 
