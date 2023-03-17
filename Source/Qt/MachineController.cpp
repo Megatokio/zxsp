@@ -659,7 +659,7 @@ void MachineController::loadSnapshot(cstr filename)
 
 			fd.close_file(0);
 			if (m != model) machine = initMachine(m, 0, s, j, 0, d);
-			dynamic_cast<MachineZxPlus3&>(*machine).insertDisk(filename);
+			machine->fdc->getDrive(0)->insertDisk(filename);
 			addRecentFile(RecentPlus3Disks, filename);
 			addRecentFile(RecentFiles, filename);
 		}

@@ -25,10 +25,3 @@ MachineZxPlus3::MachineZxPlus3(IMachineController* m, Model model) : MachineZxPl
 	addItem(new PrinterPlus3(this));
 	addItem(new Walkman(this));
 }
-
-void MachineZxPlus3::insertDisk(cstr fpath, char side)
-{
-	bool f = suspend();
-	fdc->getDrive(0)->insertDisk(fpath, (side | 0x20) == 'b');
-	if (f) resume();
-}
