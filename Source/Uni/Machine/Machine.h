@@ -277,11 +277,8 @@ public:
 	Time  now() { return t_for_cc(cpu->cpuCycle()); }
 	Time  now_lim() { return t_for_cc_lim(cpu->cpuCycle()); }
 
-	void _power_on(/*t=0*/ int32 start_cc = 1000);
-	void _power_off();
 	void powerOn(/*t=0*/ int32 start_cc = 1000);
 	bool powerOff();
-	void powerCycle();
 	bool isPowerOn() const volatile { return is_power_on; }
 	bool isPowerOff() const volatile { return is_power_on == no; }
 	void reset(); // at current t & cc
@@ -293,10 +290,8 @@ public:
 	void stepIn();
 	void stepOver();
 	void stepOut();
-	void _suspend();
-	void _resume();
-	bool suspend() volatile;
-	void resume() volatile;
+	bool suspend();
+	void resume();
 	bool isRunning() const volatile { return !is_suspended; }
 	bool isSuspended() const volatile { return is_suspended; }
 
@@ -349,7 +344,7 @@ public:
 	Suspended(volatile T* m) noexcept : p(const_cast<T*>(m))
 	{
 		assert(p);
-		was_running = p->suspend();
+		was_running = nvptr(p)->suspend();
 	}
 	Suspended(Suspended&& q) noexcept : p(q.p), was_running(q.was_running) { q.was_running = false; }
 	Suspended& operator=(Suspended&& q) { std::swap(*this, *q); }
@@ -386,7 +381,7 @@ public:
 	PoweredOff(volatile T* m) noexcept : p(const_cast<T*>(m))
 	{
 		assert(p);
-		was_running = p->powerOff();
+		was_running = nvptr(p)->powerOff();
 	}
 	PoweredOff(const std::shared_ptr<volatile T>& m) noexcept : p(const_cast<T*>(m.get()))
 	{
