@@ -1130,7 +1130,7 @@ void MachineController::killMachine()
 
 	nvptr(&machine_list)->remove(machine);
 	in_machine_dtor = yes;
-	machine->powerOff();
+	NV(machine)->powerOff();
 
 	// unchecked menu items:
 	action_showLenslok->setChecked(off);
@@ -1798,11 +1798,11 @@ void MachineController::powerResetMachine()
 	xlogIn("MachineController:powerOffOn");
 
 	setFilepath(nullptr);
-	machine->powerOff(); // must be suspended
+	nvptr(machine)->powerOff(); // must be suspended
 	screen->hideOverlayPlay();
 	screen->hideOverlayRecord();
 	setKeyboardMode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
-	machine->powerOn();
+	nvptr(machine)->powerOn();
 }
 
 void MachineController::resetMachine()
@@ -1881,7 +1881,7 @@ void MachineController::addDivIDE(bool add)
 {
 	xlogIn("MachineController:addDivIDE(%i)", add);
 
-	bool f = machine->powerOff();
+	PoweredOff<Machine> machine(this->machine);
 
 	if (add)
 	{
@@ -1889,7 +1889,7 @@ void MachineController::addDivIDE(bool add)
 		cstr romfile  = settings.get_cstr(key_divide_rom_file);
 		cstr diskfile = settings.get_cstr(key_divide_disk_file);
 
-		DivIDE* divide = nvptr(machine)->addDivIDE(ramsize, romfile);
+		DivIDE* divide = machine->addDivIDE(ramsize, romfile);
 
 		cstr err = nullptr;
 		if (divide->getRomFilepath() == nullptr) // failed to load
@@ -1906,9 +1906,7 @@ void MachineController::addDivIDE(bool add)
 
 		if (diskfile) divide->insertDisk(diskfile); // shows it's own errors
 	}
-	else nvptr(machine)->remove<DivIDE>();
-
-	if (f) machine->powerOn();
+	else machine->remove<DivIDE>();
 
 	action_addDivIDE->setChecked(add);
 }
@@ -1917,7 +1915,7 @@ void MachineController::addSpectraVideo(bool add)
 {
 	xlogIn("MachineController::addSpectraVideo(%i)", add);
 
-	bool f = machine->powerOff();
+	PoweredOff<Machine> machine(this->machine);
 
 	if (add)
 	{
@@ -1929,16 +1927,14 @@ void MachineController::addSpectraVideo(bool add)
 		if (settings.get_bool(key_spectra_enable_joystick, false)) dip_switches |= Dip::EnableJoystick;
 		if (settings.get_bool(key_spectra_enable_new_video_modes, true)) dip_switches |= Dip::EnableNewVideoModes;
 
-		nvptr(machine)->addSpectraVideo(dip_switches);
+		machine->addSpectraVideo(dip_switches);
 		screen->setFlavour(isa_ScreenSpectra);
 	}
 	else
 	{
-		nvptr(machine)->removeSpectraVideo();
+		machine->removeSpectraVideo();
 		screen->setFlavour(machine->isA(isa_UlaTc2048) ? isa_ScreenTc2048 : isa_ScreenZxsp);
 	}
-
-	if (f) machine->powerOn();
 
 	action_addSpectraVideo->setChecked(add);
 }

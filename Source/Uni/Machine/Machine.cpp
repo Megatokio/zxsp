@@ -271,9 +271,6 @@ void Machine::memoryAdded(Memory* m)
 {
 	// callback from Memory c'tor
 
-	assert(isMainThread());
-	assert(is_locked());
-
 	memory.append(m);
 	memoryModified(m, 0);
 }
@@ -281,9 +278,6 @@ void Machine::memoryAdded(Memory* m)
 void Machine::memoryRemoved(Memory* m)
 {
 	// callback from Memory d'tor
-
-	assert(isMainThread());
-	assert(is_locked());
 
 	// memory.removeitem(m);
 	for (uint i = 0; i < memory.count(); i++)
@@ -300,9 +294,6 @@ void Machine::memoryRemoved(Memory* m)
 void Machine::memoryModified(Memory* m, uint how)
 {
 	// callback from Memory shrink or grow:
-
-	assert(isMainThread());
-	assert(is_locked());
 
 	controller->memoryModified(m, how);
 }
@@ -362,8 +353,6 @@ void Machine::saveRom(FD& fd)
 	// save ROM:
 	// simply dump the rom to a file
 
-	assert(isMainThread() || is_locked());
-
 	write_mem(fd, rom.getData(), rom.count());
 }
 
@@ -374,8 +363,6 @@ void Machine::loadRom(FD& fd)
 	// there must be at least rom.count() bytes available
 	// called from MachineController.loadSnapshot()
 
-	assert(is_locked());
-
 	read_mem(fd, rom.getData(), rom.count());
 
 	// cpu patches entfernen:
@@ -385,8 +372,6 @@ void Machine::loadRom(FD& fd)
 
 void Machine::saveAs(cstr filepath)
 {
-	assert(is_locked());
-
 	FD	 fd(filepath, 'w');
 	cstr ext = lowerstr(extension_from_path(filepath));
 
@@ -485,9 +470,8 @@ void Machine::_power_on(int32 start_cc)
 	is_power_on = true;
 }
 
-void Machine::powerOn(int32 start_cc) volatile
+void Machine::powerOn(int32 start_cc)
 {
-	assert(isMainThread());
 	assert(isPowerOff());
 
 	// if the machine is power_off, then we don't need to lock:
@@ -501,17 +485,15 @@ void Machine::_power_off()
 	is_power_on = false;
 }
 
-bool Machine::powerOff() volatile
+bool Machine::powerOff()
 {
-	assert(isMainThread());
-
 	PLocker<Machine> z(this);
 	if (isPowerOff()) return false; // wasn't running
 	NV(this)->_power_off();
 	return true; // was running
 }
 
-void Machine::powerCycle() volatile
+void Machine::powerCycle()
 {
 	// power-cycle the machine for reset
 	// does not change the suspend state
@@ -531,7 +513,6 @@ void Machine::reset()
 	// 	cc may overshoot cc_per_frame a few cycles
 
 	xlogIn("Machine: reset");
-	assert(is_locked());
 
 	rzxDispose();
 
@@ -568,8 +549,6 @@ Item* Machine::addItem(Item* item)
 	// update the various cached pointers
 	// updates crtc only for the internal ula
 
-	assert(isMainThread());
-	assert(is_locked());
 	assert(cpu || isPowerOff());
 	assert(item);
 
@@ -598,10 +577,7 @@ void Machine::removeItem(Item* item)
 	// update the various cached pointers
 	// updates crtc only for the internal ula
 
-	assert(isMainThread());
-	assert(is_locked());
 	if (!item) return;
-
 	controller->itemRemoved(item);
 
 	uint i = all_items.indexof(item);
@@ -623,8 +599,6 @@ void Machine::removeItem(Item* item)
 
 Item* Machine::addExternalItem(isa_id id)
 {
-	assert(isMainThread());
-	assert(is_locked()); // note: complex items / with memory must actually be PowerOff
 	assert(cpu || isPowerOff());
 
 	Item* item = findItem(id);
@@ -677,8 +651,6 @@ Item* Machine::addExternalItem(isa_id id)
 
 Multiface1* Machine::addMultiface1(bool joystick_enabled)
 {
-	assert(isMainThread());
-	assert(is_locked());
 	assert(cpu || isPowerOff());
 
 	Multiface1* mf1 = find<Multiface1>();
@@ -690,7 +662,6 @@ Multiface1* Machine::addMultiface1(bool joystick_enabled)
 
 ExternalRam* Machine::addExternalRam(isa_id id, uint options)
 {
-	assert(isMainThread());
 	assert(isPowerOff());
 	assert(find<ExternalRam>() == nullptr);
 
@@ -724,7 +695,6 @@ ExternalRam* Machine::addExternalRam(isa_id id, uint options)
 
 DivIDE* Machine::addDivIDE(uint ramsize, cstr romfile)
 {
-	assert(isMainThread());
 	assert(isPowerOff());
 
 	DivIDE* divide = find<DivIDE>();
@@ -736,9 +706,6 @@ DivIDE* Machine::addDivIDE(uint ramsize, cstr romfile)
 
 void Machine::removeSpectraVideo()
 {
-	assert(isMainThread());
-	assert(is_locked());
-
 	auto* spectra = find<SpectraVideo>();
 	if (!spectra) return;
 
@@ -763,8 +730,6 @@ SpectraVideo* Machine::addSpectraVideo(uint dip_switches)
 	// Add SpectraVideo interface
 	// Spectra is set as crtc in the CPU
 
-	assert(isMainThread());
-	assert(is_locked());
 	assert(dynamic_cast<UlaZxsp*>(ula));
 
 	auto* spectra = dynamic_cast<SpectraVideo*>(crtc);
@@ -975,7 +940,6 @@ void Machine::audioBufferEnd(Time t)
 void Machine::runForSound(const StereoBuffer audio_in_buffer, StereoBuffer audio_out_buffer, int32 cc_final)
 {
 	xxlogIn("Machine:runForSound");
-	assert(this->is_locked());
 
 	TT; // Test Timer
 
@@ -1184,7 +1148,6 @@ void Machine::runForSound(const StereoBuffer audio_in_buffer, StereoBuffer audio
 														:
 														t_for_cc(cc); // breaked
 
-	assert(this->is_locked());
 	audioBufferEnd(t); // announce time shift, force audio output
 	TTest(2e-3, "Machine.runForSound()");
 
@@ -1196,8 +1159,6 @@ void Machine::runForSound(const StereoBuffer audio_in_buffer, StereoBuffer audio
 void Machine::runCpuCycles(int32 cc)
 {
 	// run for (at least) cc cpu cycles.
-
-	assert(isSuspended() || is_locked());
 
 	if (cc > 0)
 	{
@@ -1333,8 +1294,6 @@ void Machine::set60Hz(bool is60hz)
 	// set machine to 100% speed and select 50 or 60 Hz setup.
 	// called from speed menu and Machine50x60Inspector
 
-	assert(is_locked());
-
 	setSpeedFromCpuClock(model_info->cpu_cycles_per_second);
 
 	if (model_info->has_50_60hz_switch) ula->set60Hz(is60hz);
@@ -1346,8 +1305,6 @@ void Machine::setSpeedFromCpuClock(Frequency new_cpu_clock)
 	// accelerate or slow down virtual world:
 	// set machine speed from cpu clock.
 	// called from Z80Inspector
-
-	assert(is_locked());
 
 	limit(1.0, new_cpu_clock, 28.65e6);
 	new_cpu_clock = round(new_cpu_clock);
@@ -1373,7 +1330,6 @@ void Machine::speedupTo60fps()
 		set machine speed to real-world framerate 60Hz
 		called from speed menu for 50Hz models to run at ~120% speed  */
 
-	assert(is_locked());
 	assert(model_info->frames_per_second < 55.0 && !model_info->has_50_60hz_switch);
 	// assert(ula->is50Hz());
 
@@ -1390,8 +1346,6 @@ void Machine::setSpeedAnd60fps(double factor)
 	/* accelerate virtual world
 	   but adjust real-world framerate to 60Hz
 	   called from speed menu  */
-
-	assert(is_locked());
 
 	Frequency ccps = round(model_info->cpu_cycles_per_second * factor);
 	setSpeedFromCpuClock(ccps);
