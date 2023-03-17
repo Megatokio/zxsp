@@ -161,8 +161,8 @@ void MachineZx80::loadO80(FD& fd) noexcept(false) /*file_error,data_error*/
 
 	// we need to power on the machine but it must not runForSound()
 	// don't block: we might be called from runForSound()!
-	_suspend();
-	_power_on();
+	suspend();
+	powerOn();
 
 	// set registers:
 	Z80Regs& regs = cpu->getRegisters();

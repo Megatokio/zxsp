@@ -255,8 +255,8 @@ void MachineZx81::loadP81(FD& fd, bool p81) noexcept(false) /*file_error,data_er
 
 	// we need to power on the machine but it must not runForSound()
 	// don't block: we might be called from runForSound()!
-	_suspend();
-	_power_on();
+	suspend();
+	powerOn();
 
 	uint ramsize = min(0xBFFEu, ram.count());
 

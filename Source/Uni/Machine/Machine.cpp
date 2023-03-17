@@ -298,7 +298,7 @@ void Machine::memoryModified(Memory* m, uint how)
 	controller->memoryModified(m, how);
 }
 
-void Machine::_resume()
+void Machine::resume()
 {
 	if (is_suspended)
 	{
@@ -307,32 +307,16 @@ void Machine::_resume()
 	}
 }
 
-void Machine::_suspend()
-{
-	if (!is_suspended)
-	{
-		is_suspended = true;
-		controller->machineSuspendStateChanged();
-	}
-}
-
-void Machine::resume() volatile
-{
-	// resume machine:
-
-	nvptr(this)->_resume();
-}
-
-bool Machine::suspend() volatile
+bool Machine::suspend()
 {
 	// suspend machine
-	// returns flag, whether it was running, to be passed to resume(bool):
+	// returns flag, whether it was running:
 	// 	 1 = was running
 	// 	 0 = was suspended
 
-	PLocker<Machine> z(this);
 	if (is_suspended) return false; // was not running
-	NV(this)->_suspend();
+	is_suspended = true;
+	controller->machineSuspendStateChanged();
 	return true; // was running
 }
 
@@ -436,21 +420,21 @@ void Machine::saveAs(cstr filepath)
 	showAlert("Unsupported file format");
 }
 
-void Machine::_power_on(int32 start_cc)
+void Machine::powerOn(int32 start_cc)
 {
-	// Reset the Machine via Power On-Off-On
+	// Start the Machine by switching on the power:
 	// start_cc = cpu cycle at which the power-on reset releases
 	// some machines won't start with an arbitrary start_cc:
 	// a starting value of 1000 cc seems to work for all machines
 	// note: start_cc for +2A:  ok: 0k..2k, 7k..14k;  boot error: 3k..6k, 15k..40k
 
 	xlogIn("Machine:PowerOn");
+	if (is_power_on) return;
 
 	total_frames   = 0; // information: accumulated frames until now
 	total_cc	   = 0; // information: accumulated cpu T cycles until now
 	total_buffers  = 0; // information: accumulated dsp buffers until now
 	total_realtime = 0; // information: accumulated time[sec] until now
-						//	total_vtime		= 0;			// information: accumulated time[sec] until now
 
 	tcc0 = -start_cc / cpu_clock;
 	assert(t_for_cc(start_cc) == 0.0);
@@ -470,36 +454,14 @@ void Machine::_power_on(int32 start_cc)
 	is_power_on = true;
 }
 
-void Machine::powerOn(int32 start_cc)
-{
-	assert(isPowerOff());
-
-	// if the machine is power_off, then we don't need to lock:
-	NV(this)->rzxDispose();
-	NV(this)->_power_on(start_cc);
-}
-
-void Machine::_power_off()
-{
-	xlogIn("Machine:PowerOff");
-	is_power_on = false;
-}
-
 bool Machine::powerOff()
 {
-	PLocker<Machine> z(this);
-	if (isPowerOff()) return false; // wasn't running
-	NV(this)->_power_off();
+	xlogIn("Machine:PowerOff");
+
+	if (!is_power_on) return false; // wasn't running
+	is_power_on = false;
+	rzxDispose();
 	return true; // was running
-}
-
-void Machine::powerCycle()
-{
-	// power-cycle the machine for reset
-	// does not change the suspend state
-
-	powerOff();
-	powerOn();
 }
 
 void Machine::reset()
@@ -988,7 +950,7 @@ void Machine::runForSound(const StereoBuffer audio_in_buffer, StereoBuffer audio
 					if (ic > ic_end + 2) // solle unmöglich sein, außer nach ill. multiple PFX_IX / PFX_IY
 					{					 // TODO: IX CB xx
 						rzxOutOfSync(usingstr("rzx: ic = ic_end + %u", ic - ic_end));
-						_suspend();
+						suspend();
 						return;
 					}
 
@@ -1112,24 +1074,24 @@ void Machine::runForSound(const StereoBuffer audio_in_buffer, StereoBuffer audio
 	switch (result)
 	{
 	case cpu_exit_sp: // exit forced by macro Z80_INFO_POP (stack breakpoint)
-		_suspend();	  // used by step over, step out
+		suspend();	  // used by step over, step out
 		cpu_options &= ~cpu_break_sp;
 		break;
 
 	case cpu_exit_r: // exit forced by macro PEEK (options&cpu_break_r)
-		_suspend();
+		suspend();
 		break_ptr = cpu->rdPtr(cpu->break_addr);
 		showInfo("CPU stopped at 'read' breakpoint at $%04X", cpu->break_addr);
 		break;
 
 	case cpu_exit_w: // exit forced by macro POKE (options&cpu_break_w)
-		_suspend();
+		suspend();
 		break_ptr = cpu->wrPtr(cpu->break_addr);
 		showInfo("CPU stopped at 'write' breakpoint at $%04X", cpu->break_addr);
 		break;
 
 	case cpu_exit_x: // exit forced by macro GET_INSTR (options&cpu_break_x)
-		_suspend();
+		suspend();
 		break_ptr = cpu->rdPtr(cpu->break_addr);
 		showInfo("CPU stopped at 'exec' breakpoint at $%04X", cpu->break_addr);
 		break;
@@ -1387,7 +1349,7 @@ void Machine::rzxLoadSnapshot(int32& cc_final, int32& ic_end)
 			if (model != id) throw DataError("snapshot requires different model.");
 
 			loadZ80(fd);
-			_resume();
+			resume();
 		}
 		catch (AnyError& e)
 		{
