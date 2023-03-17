@@ -514,40 +514,9 @@ void TapeRecorder::insertTape(TapeFile* newtapefile, bool audio_fx)
 	if (audio_fx) play_sound(newtapefile ? sound_close_deck_loaded : sound_close_deck_empty);
 }
 
-//	void TapeRecorder::xinsert(cstr filepath) volatile
-//	{
-//		// Insert tape into the recorder
-//		// for use in Inspector
-//		// plays the "close lid" audio fx.
-//		// this variant of insert() does not block the machine.
-//
-//		xlogIn("TapeRecorder.insert(filepath,fx)");
-//
-//		TapeFile* newtapefile = filepath ? new TapeFile(machine_ccps, filepath) : nullptr;
-//		nvptr(this)->insert(newtapefile);
-//	}
-
-//	void TapeRecorder::xinsert(cstr filepath)
-//	{
-//		// Insert tape into the recorder
-//		// for use in machine constructor
-//		// no audio effects
-//
-//		xlogIn("TapeRecorder.insert(filepath)");
-//		assert(is_locked());
-//		assert(filepath != nullptr);
-//
-//		state = stopped;
-//
-//		delete tapefile;
-//		tapefile = nullptr;
-//		tapefile = new TapeFile(machine_ccps, filepath);
-//	}
-
 void TapeRecorder::setFilename(cstr new_filename) noexcept
 {
 	xlogIn("TapeRecorder.setFilename");
-	assert(isMainThread());
 	assert(isLoaded());
 	assert(new_filename != nullptr);
 
@@ -561,16 +530,14 @@ int TapeRecorder::setWriteProtected(bool f) noexcept
 	return tapefile ? tapefile->setWriteProtected(f) : -1 /*no tape*/;
 }
 
-
-/*  SLOT:
-	set / reset Pause:
-	PAUSE haut keine anderen Tasten raus und kann
-	jederzeit zusätzlich zu allen anderen Tasten gedrückt sein
-*/
 TapeRecorder* TapeRecorder::pause(bool f)
 {
+	// SLOT:
+	// set / reset Pause:
+	// PAUSE haut keine anderen Tasten raus und kann
+	// jederzeit zusätzlich zu allen anderen Tasten gedrückt sein
+
 	xlogIn("TapeRecorder.pause");
-	assert(is_locked());
 
 	if (f == pause_is_down) return this;
 
@@ -599,16 +566,14 @@ TapeRecorder* TapeRecorder::pause(bool f)
 	return this;
 }
 
-
-/*  SLOT:
-	WIND FORWARD wurde gedrückt:
-	alle anderen Tasten raus außer PAUSE:
-	PAUSE dient als Flag für stop_at_block_end
-*/
 void TapeRecorder::wind()
 {
+	// SLOT:
+	// WIND FORWARD wurde gedrückt:
+	// alle anderen Tasten raus außer PAUSE:
+	// PAUSE dient als Flag für stop_at_block_end
+
 	xlogIn("TapeRecorder.wind");
-	assert(is_locked());
 
 	if (state == winding) return;
 
@@ -637,7 +602,6 @@ void TapeRecorder::wind()
 void TapeRecorder::rewind()
 {
 	xlogIn("TapeRecorder.rewind");
-	assert(is_locked());
 
 	if (state == rewinding) return;
 
@@ -665,7 +629,6 @@ void TapeRecorder::rewind()
 void TapeRecorder::play()
 {
 	xlogIn("TapeRecorder.play");
-	assert(is_locked());
 
 	if (state == playing) return;
 	if (state == winding) play_sound(sound_ff_up);
@@ -692,7 +655,6 @@ void TapeRecorder::play()
 void TapeRecorder::record()
 {
 	xlogIn("TapeRecorder.record");
-	assert(is_locked());
 
 	if (tapefile && state == stopped && !tapefile->write_protected)
 	{
@@ -705,7 +667,6 @@ void TapeRecorder::record()
 void TapeRecorder::deleteCurrentBlock() // delete current block and goto start of next
 {
 	xlogIn("TapeRecorder.deleteCurrentBlock");
-	assert(is_locked());
 
 	if (state != stopped) return;
 	if (!tapefile) return;
@@ -716,7 +677,6 @@ void TapeRecorder::deleteCurrentBlock() // delete current block and goto start o
 void TapeRecorder::newBlockAfterCurrent() // add block after current and goto start
 {
 	xlogIn("TapeRecorder.newBlockAfterCurrent");
-	assert(is_locked());
 
 	if (state != stopped) return;
 	if (!tapefile) return;
@@ -727,7 +687,6 @@ void TapeRecorder::newBlockAfterCurrent() // add block after current and goto st
 void TapeRecorder::newBlockBeforeCurrent() // add block before current and goto start
 {
 	xlogIn("TapeRecorder.newBlockBeforeCurrent");
-	assert(is_locked());
 
 	if (state != stopped) return;
 	if (!tapefile) return;

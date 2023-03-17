@@ -70,7 +70,6 @@ Item::Item(Machine* machine, isa_id id, isa_id grp, Internal internal, cstr o_ad
 {
 	xlogIn("new Item: %s", name);
 
-	assert(machine->is_locked());
 	_prev = machine->last_item();
 	if (_prev) _prev->_next = this;
 	assert(!_prev == this->isA(isa_Z80));
@@ -126,7 +125,6 @@ void Item::grow_ioinfo()
 }
 
 
-bool Item::is_locked() const volatile { return machine->is_locked(); }
 void Item::lock() const volatile { machine->lock(); }
 void Item::unlock() const volatile { machine->unlock(); }
 bool Item::suspend() { return machine->suspend(); }

@@ -32,19 +32,14 @@ Memory::Memory(Machine* machine, cstr name, uint size) noexcept :
 	name(newcopy(name)),
 	machine(machine)
 {
-	assert(isMainThread());
 	assert(machine != nullptr);
-	assert(machine->is_locked());
 	assert(size <= MAXSIZE);
-
 	machine->memoryAdded(this);
 }
 
 
 Memory::~Memory()
 {
-	assert(isMainThread());
-	assert(machine->is_locked());
 	assert(_cnt == 0);
 
 	if (machine->cpu) machine->cpu->unmapMemory(data.getData(), data.count());
@@ -59,9 +54,6 @@ Memory::~Memory()
 */
 void Memory::shrink(uint new_cnt) noexcept // shrinks only
 {
-	assert(isMainThread());
-	assert(machine->is_locked());
-
 	if (new_cnt >= data.count()) return;
 
 	if (machine->cpu) machine->cpu->unmapMemory(data.getData(), data.count());
@@ -76,8 +68,6 @@ void Memory::shrink(uint new_cnt) noexcept // shrinks only
 */
 void Memory::grow(uint new_cnt) noexcept
 {
-	assert(isMainThread());
-	assert(machine->is_locked());
 	assert(new_cnt <= MAXSIZE);
 
 	if (new_cnt <= data.count()) return;

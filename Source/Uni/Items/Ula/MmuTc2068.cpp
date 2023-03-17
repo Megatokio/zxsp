@@ -446,8 +446,6 @@ void MmuTc2068::set_port_f4(uint8 f4_neu, uint8 toggled)
 
 void MmuTc2068::ejectCartridge()
 {
-	assert(is_locked());
-
 	setPortF4(0);
 	delete cartridge;
 	cartridge = nullptr;
@@ -456,8 +454,6 @@ void MmuTc2068::ejectCartridge()
 
 void MmuTc2068::insertCartridge(cstr filepath)
 {
-	assert(is_locked());
-
 	ejectCartridge();
 	cartridge = new TccRom(machine, filepath);
 }

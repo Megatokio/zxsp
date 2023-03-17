@@ -59,9 +59,6 @@ ZxIf2::~ZxIf2() { ejectRom(); }
 
 void ZxIf2::insertRom(cstr path)
 {
-	assert(isMainThread());
-	assert(is_locked());
-
 	ejectRom();
 
 	FD	   fd(path, 'r');
@@ -80,9 +77,6 @@ void ZxIf2::insertRom(cstr path)
 
 void ZxIf2::ejectRom()
 {
-	assert(isMainThread());
-	assert(is_locked());
-
 	prev()->romCS(false);
 	delete[] filepath;
 	filepath = nullptr;
