@@ -340,8 +340,8 @@ void MachineJupiter::loadAce(FD& fd)
 
 	// we need to power on the machine but it must not runForSound()
 	// don't block: we might be called from runForSound()!
-	_suspend();
-	_power_on();
+	suspend();
+	powerOn();
 
 	Z80Regs& regs = cpu->getRegisters();
 	regs.af		  = peek2Z(bu + 0x100);
