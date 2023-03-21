@@ -330,6 +330,8 @@ SOURCES +=	\
 	Source/Uni/Files/Z80Head.cpp \
 	Source/Uni/Files/RzxBlock.cpp \
 	Source/Uni/Files/RzxFile.cpp \
+	Source/Uni/Files/File.cpp \
+	Source/Uni/Files/BufferedFile.cpp \
 	\
 	Source/Uni/ZxInfo/ZxInfo.cpp \
 	\
@@ -505,6 +507,7 @@ HEADERS += \
 HEADERS += \
 	Source/Uni/Interfaces/IMachineController.h \
 	Source/Uni/Interfaces/IScreen.h \
+	Source/Uni/Interfaces/IFile.h \
 	\
 	Source/Uni/Audio/StereoSample.h \
 	\
@@ -648,6 +651,8 @@ HEADERS += \
 	Source/Uni/Files/TccRom.h \
 	Source/Uni/Files/RzxFile.h \
 	Source/Uni/Files/RzxBlock.h \
+	Source/Uni/Files/File.h \
+	Source/Uni/Files/BufferedFile.h \
 	\
 	Source/Uni/zxsp_globals.h \
 	Source/Uni/zxsp_helpers.h \
