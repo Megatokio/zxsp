@@ -347,7 +347,7 @@ void Noise::trigger()
 {
 	// flip the gates
 	int32 oldshiftreg = shiftreg;
-	shiftreg		  = (oldshiftreg >> 1) + ((oldshiftreg << 16) ^ (oldshiftreg << 14)); // ?!?
+	shiftreg		  = (oldshiftreg >> 1) + (((oldshiftreg << 16) ^ (oldshiftreg << 14)) & 0x10000);
 	when += reload;
 
 	// change in output state ?
