@@ -997,7 +997,11 @@ void Machine::runForSound(int32 cc_final)
 					result = cpu->run(cc_end, ic_end, cpu_options & ~(cpu_waitmap | cpu_crtc));
 
 				cc_end = min(cc_final, crtc_zxsp->getWaitmapEnd());
-				if (result == 0 && cc < cc_end && ic < ic_end) result = cpu->run(cc_end, ic_end, cpu_options);
+				if (result == 0 && cc < cc_end && ic < ic_end)
+				{
+					result = cpu->run(cc_end, ic_end, cpu_options);
+					crtc->updateScreenUpToCycle(cc);
+				}
 
 				if (result == 0 && cc < cc_final && ic < ic_end)
 					result = cpu->run(cc_final, ic_end, cpu_options & ~(cpu_waitmap | cpu_crtc));
@@ -1111,7 +1115,11 @@ void Machine::runForSound(int32 cc_final)
 				if (cc < cc_end) result = cpu->run(cc_end, unlimited, cpu_options & ~(cpu_waitmap | cpu_crtc));
 
 				cc_end = min(cc_final, crtc_zxsp->getWaitmapEnd());
-				if (result == 0 && cc < cc_end) result = cpu->run(cc_end, unlimited, cpu_options);
+				if (result == 0 && cc < cc_end)
+				{
+					result = cpu->run(cc_end, unlimited, cpu_options);
+					crtc->updateScreenUpToCycle(cc);
+				}
 
 				cc_end = min(cc_final, cc_ffb);
 				if (result == 0 && cc < cc_end)
