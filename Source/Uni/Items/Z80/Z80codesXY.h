@@ -350,6 +350,7 @@ void xxx()
 		cc -= 4;						  // undo cc+=4
 		r--;							  // undo r++
 		pc--;							  // undo pc++	=> execute instruction without prefix
+		ic--;
 		goto loop_ei; // no interrupt between prefix and next opcode possible  (source: z80-documented.pdf)
 	};
 
