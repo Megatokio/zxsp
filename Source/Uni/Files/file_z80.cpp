@@ -348,7 +348,7 @@ void Machine::saveZ80(FD& fd)
 	else
 	{
 		uint n = ram.count() / 0x4000;
-		if (n < 3) // no paging / no port 7ffd: write pages 8, 4 and 5:
+		if (n <= 3) // no paging / no port 7ffd: write pages 8, 4 and 5:
 		{
 			write_compressed_page(fd, 8, &ram[0x0000], 0x4000);
 			if (n > 1) { write_compressed_page(fd, 4, &ram[0x4000], 0x4000); }
