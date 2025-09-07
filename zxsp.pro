@@ -11,7 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG(release,debug|release) { DEFINES += NDEBUG RELEASE } # ATTN: curly brace must start in same line!
 CONFIG(debug,debug|release) { DEFINES += DEBUG } # ATTN: curly brace must start in same line!
 
-CONFIG += c++11
+CONFIG += c++14
 CONFIG += precompiled_header
 PRECOMPILED_HEADER = Source/Uni/precompiled_header.h
 
