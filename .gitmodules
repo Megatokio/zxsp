@@ -1,0 +1,4 @@
+[submodule "zasm"]
+	path = zasm
+	url = ../zasm
+	branch = master
