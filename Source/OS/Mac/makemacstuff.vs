@@ -254,7 +254,7 @@ loop
 // copy sdcc and sdcpp from zasm/sdcc/bin/ into app bundle
 // these executables are copied into the same dir as the main app executable
 //
-CopyFiles(sdccdir # "bin/", "zxsp.app/Contents/MacOS/", "sdc*")
+CopyFiles(sdccdir # "bin-3.4/", "zxsp.app/Contents/MacOS/", "sdc*")
 sys "chmod", "ug+x", "zxsp.app/Contents/MacOS/sdcc", "zxsp.app/Contents/MacOS/sdcpp"
 
 // copy sdcc header files from zasm/sdcc/include/ into app bundle
