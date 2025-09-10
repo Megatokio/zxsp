@@ -5,13 +5,13 @@
 	https://opensource.org/licenses/BSD-2-Clause
 
 	this script must be started in folder
-		zxsp/build-qt59-debug
+		$Projects$/zxsp/build-debug
 	(or similar)
 */
 
 
 var t0 = now
-var projectdir = "../"
+var projectdir = "../zxsp/"
 var sdccdir = projectdir#"zasm/sdcc/"
 var versionfile = projectdir # "Source/version.h"
 
