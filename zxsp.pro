@@ -1,8 +1,3 @@
-cache()
-
-TARGET   = zxsp
-TEMPLATE = app
-
 QT += core gui
 QT += network opengl multimedia
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -12,30 +7,19 @@ CONFIG(release,debug|release) { DEFINES += NDEBUG RELEASE } # ATTN: curly brace 
 CONFIG(debug,debug|release) { DEFINES += DEBUG } # ATTN: curly brace must start in same line!
 
 CONFIG += c++14
-CONFIG += precompiled_header
-PRECOMPILED_HEADER = Source/Uni/precompiled_header.h
-
 DEFINES += QT_NO_SESSIONMANAGER
-
 QMAKE_CXXFLAGS += -Wno-multichar
-
 RESOURCES += Resources/zxsp.qrc
-
-
 
 #win32{}
 #unix{}
 #macx{}
 #unix:!macx{}
 #linux-g++{}
-#unix:!macx: LIBS += -L/usr/lib/x86_64-linux-gnu/ -lcurl
-#linux-g++ {LIBS += -pthread}
 
 macx: QMAKE_MAC_SDK = macosx10.9
 macx: LIBS += -framework CoreAudio -framework ApplicationServices -framework IOKit -framework AudioToolbox -lz
 unix:!macx: LIBS += -pthread -lz
-
-
 
 
 INCLUDEPATH += \
