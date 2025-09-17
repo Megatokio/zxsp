@@ -24,6 +24,7 @@ $BFFD	%1011.----.----.--0-	ZX128 AY reg. write -/o
 		Hardware independent part
 ================================================================== */
 
+#define LOGLEVEL 1
 #include "Ay.h"
 #include "Dsp.h"
 #include "DspTime.h"
@@ -250,8 +251,7 @@ Channel::Channel(Time time_for_cycle)
 void Channel::setFinePeriod(uchar n)
 {
 	fine   = n;
-	reload = (coarse * 256 + n) * time_for_cycle;
-	if (!reload) reload = time_for_cycle;
+	reload = max(1, (coarse * 256 + n)) * time_for_cycle;
 }
 
 
@@ -259,8 +259,7 @@ void Channel::setCoarsePeriod(uchar n)
 {
 	n &= 0x0f;
 	coarse = n;
-	reload = (n * 256 + fine) * time_for_cycle;
-	if (!reload) reload = time_for_cycle;
+	reload = max(1, (n * 256 + fine)) * time_for_cycle;
 }
 
 
@@ -433,8 +432,7 @@ inline void Envelope::setFinePeriod(Time now, uchar n)
 	fine = n;
 	if (direction)
 	{
-		reload = (int32(coarse) * 256 + n) * time_for_cycle;
-		if (!reload) reload = time_for_cycle;
+		reload = max(1, (int32(coarse) * 256 + n)) * time_for_cycle;
 		if (when > now + reload) when = now + reload;
 	}
 }
@@ -448,8 +446,7 @@ inline void Envelope::setCoarsePeriod(Time now, uchar n)
 	coarse = n;
 	if (direction)
 	{
-		reload = (int32(n) * 256 + fine) * time_for_cycle;
-		if (!reload) reload = time_for_cycle;
+		reload = max(1, (int32(n) * 256 + fine)) * time_for_cycle;
 		if (when > now + reload) when = now + reload;
 	}
 }
@@ -468,9 +465,8 @@ void Envelope::setShape(Time now, uchar c)
 	invert	  = BIT(c, 1);
 	repeat	  = !BIT(c, 0);
 
-	reload = (int32(coarse) * 256 + fine) * time_for_cycle;
-	if (!reload) reload = time_for_cycle;
-	when = now + reload;
+	reload = max(1, (int32(coarse) * 256 + fine)) * time_for_cycle;
+	when   = now + reload;
 
 	Sample v = logVol[index];
 	A->setEnvelopeSample(v);
@@ -518,7 +514,7 @@ void Envelope::trigger()
 			ay sound chip
 =============================================================== */
 
-/* ----	standard creator -----------------------------------
+/* ----	standard constructor -----------------------------------
  */
 Ay::Ay(Machine* m, isa_id id, Internal internal, cstr s, cstr w, cstr r, Frequency freq, StereoMix mix) :
 	Item(m, id, isa_Ay, internal, And(w, s), r),
@@ -542,13 +538,12 @@ Ay::Ay(Machine* m, isa_id id, Internal internal, cstr s, cstr w, cstr r, Frequen
 #if XXLOG
 	{
 		logIn("AY volume table:");
-		for (uint i = 0; i < 15; i++) logline("%f", logVol[i]);
+		for (uint i = 0; i < 15; i++) logline("%f", double(logVol[i]));
 	}
 #endif
 
 	// security setup:
 	ay_reg_nr			= 0;
-	current_value		= 0.0;
 	time_of_last_sample = 0;
 	setVolume(1.0);
 }
@@ -570,9 +565,7 @@ void Ay::powerOn(/*t=0*/ int32 cc)
 	noise.reset(0.0);
 	envelope.reset(0.0);
 	memcpy(ay_reg, AYregReset, 16);
-	ay_reg_nr = 0;
-
-	current_value		= 0.0;
+	ay_reg_nr			= 0;
 	time_of_last_sample = 0.0;
 
 	setVolume(1.0);
@@ -581,8 +574,8 @@ void Ay::powerOn(/*t=0*/ int32 cc)
 void Ay::reset(Time t, int32 cc)
 {
 	Item::reset(t, cc);
-	setRegister(t, 0, getRegister(0));
 
+	run_until(t);
 	channel_A.reset(time_of_last_sample);
 	channel_B.reset(time_of_last_sample);
 	channel_C.reset(time_of_last_sample);
@@ -593,18 +586,13 @@ void Ay::reset(Time t, int32 cc)
 }
 
 
-/* ----	write data to register ----------------------------------------------------
-		generate sound up to now
-		then modify register
-*/
-void Ay::setRegister(Time when, uint regnr, uint8 newvalue)
+void Ay::run_until(Time when)
 {
 	Time now;
 	int	 who;
-	regnr &= 0x0F;
-	newvalue &= ayRegMask[regnr];
 
-	do {
+	for (;;)
+	{
 		// who is next ?
 		{
 			who = 6;
@@ -657,7 +645,31 @@ void Ay::setRegister(Time when, uint regnr, uint8 newvalue)
 			else envelope.when = now + 1000 * time_for_cycle;
 		}
 
-		// handle next:
+		// write samples up to 'now' to DSP:
+		if (now > time_of_last_sample)
+		{
+			StereoSample current_value;
+
+			switch (stereo_mix)
+			{
+			case mono: // mono: ZX 128k, +2, +3, +3A, TS2068, TC2068
+				current_value = volume * (channel_A.getOutput() + channel_B.getOutput() + channel_C.getOutput());
+				break;
+			case abc_stereo: // western Europe
+				current_value.left	= volume * (channel_A.getOutput() * 2 + channel_B.getOutput());
+				current_value.right = volume * (channel_C.getOutput() * 2 + channel_B.getOutput());
+				break;
+			case acb_stereo: // eastern Europe, Didaktik Melodik
+				current_value.left	= volume * (channel_A.getOutput() * 2 + channel_C.getOutput());
+				current_value.right = volume * (channel_B.getOutput() * 2 + channel_C.getOutput());
+				break;
+			}
+
+			os::outputSamples(current_value, time_of_last_sample, now);
+			time_of_last_sample = now;
+		}
+
+		// handle next trigger event:
 		switch (who)
 		{
 		case 1: noise.trigger(); break;
@@ -665,75 +677,69 @@ void Ay::setRegister(Time when, uint regnr, uint8 newvalue)
 		case 3: channel_A.trigger(); break;
 		case 4: channel_B.trigger(); break;
 		case 5: channel_C.trigger(); break;
-		default:
-			//	if (AYreg[regnr]==newvalue && regnr!=13) break;		---> eel_demo !!!
-			switch (regnr)
-			{
-			case 0: channel_A.setFinePeriod(newvalue); break;
-			case 1: channel_A.setCoarsePeriod(newvalue); break;
-			case 2: channel_B.setFinePeriod(newvalue); break;
-			case 3: channel_B.setCoarsePeriod(newvalue); break;
-			case 4: channel_C.setFinePeriod(newvalue); break;
-			case 5: channel_C.setCoarsePeriod(newvalue); break;
-			case 6: noise.setPeriod(newvalue); break;
-			case 7:
-			{
-				uint8 c = ~newvalue;
-				uint8 t = newvalue ^ ay_reg[7];
-				if (t & 1) channel_A.enableSound(c & 1);
-				if (t & 8) channel_A.enableNoise(c & 8);
-				if (t & 2) channel_B.enableSound(c & 2);
-				if (t & 16) channel_B.enableNoise(c & 16);
-				if (t & 4) channel_C.enableSound(c & 4);
-				if (t & 32) channel_C.enableNoise(c & 32);
-				if (t & 0xc0)
-				{
-					if (t & 0x40 && ay_reg[14] != 0xff)
-						portAOutputValueChanged(when, newvalue & 0x40 ? ay_reg[14] : 0xff);
-					if (t & 0x80 && ay_reg[15] != 0xff)
-						portBOutputValueChanged(when, newvalue & 0x80 ? ay_reg[15] : 0xff);
-				}
-			}
-			break;
-			case 8: channel_A.setVolume(newvalue); break;
-			case 9: channel_B.setVolume(newvalue); break;
-			case 10: channel_C.setVolume(newvalue); break;
-			case 11: envelope.setFinePeriod(now, newvalue); break;
-			case 12: envelope.setCoarsePeriod(now, newvalue); break;
-			case 13: envelope.setShape(now, newvalue); break;
-			case 14:
-				if (ay_reg[7] & 0x40 && ay_reg[14] != newvalue) portAOutputValueChanged(when, newvalue);
-				break;
-			case 15:
-				if (ay_reg[7] & 0x80 && ay_reg[15] != newvalue) portBOutputValueChanged(when, newvalue);
-				break;
-			}
-			ay_reg[regnr] = newvalue;
-			break;
-		}
-
-		// write samples to dsp
-		if (now > time_of_last_sample)
-		{
-			os::outputSamples(current_value, time_of_last_sample, now);
-			time_of_last_sample = now;
-		}
-		switch (stereo_mix)
-		{
-		default: // mono: ZX 128k, +2, +3, +3A, TS2068, TC2068
-			current_value = volume * (channel_A.getOutput() + channel_B.getOutput() + channel_C.getOutput());
-			break;
-		case abc_stereo: // western Europe
-			current_value.left	= volume * (channel_A.getOutput() * 2 + channel_B.getOutput());
-			current_value.right = volume * (channel_C.getOutput() * 2 + channel_B.getOutput());
-			break;
-		case acb_stereo: // eastern Europe, Didaktik Melodik
-			current_value.left	= volume * (channel_A.getOutput() * 2 + channel_C.getOutput());
-			current_value.right = volume * (channel_B.getOutput() * 2 + channel_C.getOutput());
-			break;
+		default: return; // requested timestamp reached
 		}
 	}
-	while (who != 6);
+}
+
+
+void Ay::set_register(Time when, uint regnr, uint8 newvalue)
+{
+	// set register to new value
+	// the AY is *not* run, 'when' is only used for port and envelope setters.
+	// if you want to set the register 'now', use 'time_of_last_sample' for 'when'.
+
+	regnr &= 0x0F;
+	newvalue &= ayRegMask[regnr];
+
+	//	if (AYreg[regnr]==newvalue && regnr!=13) break;		---> eel_demo !!!
+	switch (regnr)
+	{
+	case 0: channel_A.setFinePeriod(newvalue); break;
+	case 1: channel_A.setCoarsePeriod(newvalue); break;
+	case 2: channel_B.setFinePeriod(newvalue); break;
+	case 3: channel_B.setCoarsePeriod(newvalue); break;
+	case 4: channel_C.setFinePeriod(newvalue); break;
+	case 5: channel_C.setCoarsePeriod(newvalue); break;
+	case 6: noise.setPeriod(newvalue); break;
+	case 7:
+	{
+		uint8 c = ~newvalue;
+		uint8 t = newvalue ^ ay_reg[7];
+		if (t & 1) channel_A.enableSound(c & 1);
+		if (t & 8) channel_A.enableNoise(c & 8);
+		if (t & 2) channel_B.enableSound(c & 2);
+		if (t & 16) channel_B.enableNoise(c & 16);
+		if (t & 4) channel_C.enableSound(c & 4);
+		if (t & 32) channel_C.enableNoise(c & 32);
+		if (t & 0xc0)
+		{
+			if (t & 0x40 && ay_reg[14] != 0xff) portAOutputValueChanged(when, newvalue & 0x40 ? ay_reg[14] : 0xff);
+			if (t & 0x80 && ay_reg[15] != 0xff) portBOutputValueChanged(when, newvalue & 0x80 ? ay_reg[15] : 0xff);
+		}
+	}
+	break;
+	case 8: channel_A.setVolume(newvalue); break;
+	case 9: channel_B.setVolume(newvalue); break;
+	case 10: channel_C.setVolume(newvalue); break;
+	case 11: envelope.setFinePeriod(when, newvalue); break;
+	case 12: envelope.setCoarsePeriod(when, newvalue); break;
+	case 13: envelope.setShape(when, newvalue); break;
+	case 14:
+		if (ay_reg[7] & 0x40 && ay_reg[14] != newvalue) portAOutputValueChanged(when, newvalue);
+		break;
+	case 15:
+		if (ay_reg[7] & 0x80 && ay_reg[15] != newvalue) portBOutputValueChanged(when, newvalue);
+		break;
+	}
+	ay_reg[regnr] = newvalue;
+}
+
+
+void Ay::setRegister(Time when, uint regnr, uint8 newvalue)
+{
+	run_until(when);
+	set_register(when, regnr, newvalue);
 }
 
 
@@ -770,7 +776,7 @@ void Ay::input(Time t, int32 /*cc*/, uint16 addr, uint8& byte, uint8& mask)
 
 void Ay::audioBufferEnd(Time t)
 {
-	setRegister(t, 0, getRegister(0));
+	run_until(t);
 	time_of_last_sample -= t;
 	channel_A.when -= t;
 	channel_B.when -= t;

@@ -150,9 +150,8 @@ protected:
 
 	// sample output:
 	// progress:
-	Sample		 volume;			  // per channel: 0.0 .. 0.33
-	StereoSample current_value;		  // current template sample ~ elongation
-	Time		 time_of_last_sample; // bis zu diesem Zeitpunkt wurde schon Sound erzeugt
+	Sample volume;				// per channel: 0.0 .. 0.33
+	Time   time_of_last_sample; // bis zu diesem Zeitpunkt wurde schon Sound erzeugt
 
 protected:
 	Ay(Machine*, isa_id, Internal, cstr sel, cstr wr, cstr rd, Frequency, StereoMix);
@@ -170,10 +169,10 @@ protected:
 
 public:
 	// set & read register
-	void setRegister(uint r, uint8 n) { setRegister(time_of_last_sample, r, n); }
+	void setRegister(uint r, uint8 n) { set_register(time_of_last_sample, r, n); }
 	void setRegisters(uint8 n[16])
 	{
-		for (int i = 0; i < 16; i++) setRegister(i, n[i] & ayRegMask[i]);
+		for (uint i = 0; i < 16; i++) setRegister(i, n[i]);
 	}
 	void setRegNr(uint n) { ay_reg_nr = n & 0x0f; }
 
@@ -187,6 +186,8 @@ public:
 	const volatile uint8* getRegisters() const volatile { return ay_reg; }
 
 	// set register at runtime:
+	void run_until(Time);
+	void set_register(Time, uint r, uint8 n);
 	void setRegister(Time, uint r, uint8 n);
 
 	// volume & clock:

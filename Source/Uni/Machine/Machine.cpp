@@ -605,6 +605,11 @@ void Machine::removeItem(Item* item)
 
 	controller->itemRemoved(item);
 
+	uint i = all_items.indexof(item);
+	assert(i != ~0u);			   // must be in list
+	assert(all_items[i].unique()); // must be the only shared_ref
+	all_items.remove(i);		   // => will be deleted
+
 	if (cpu == item) cpu = nullptr;
 	if (mmu == item) mmu = nullptr;
 	if (ula == item) crtc = ula = nullptr;
@@ -615,11 +620,6 @@ void Machine::removeItem(Item* item)
 	if (printer == item) printer = find<Printer>();
 	if (joystick == item) joystick = find<Joy>();
 	if (taperecorder == item) taperecorder = find<TapeRecorder>();
-
-	uint i = all_items.indexof(item);
-	assert(i != ~0u);			   // must be in list
-	assert(all_items[i].unique()); // must be the only shared_ref
-	all_items.remove(i);		   // => will be deleted
 }
 
 Item* Machine::addExternalItem(isa_id id)
