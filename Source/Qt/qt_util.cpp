@@ -2,6 +2,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#define LOGLEVEL 1
 #include "qt_util.h"
 #include "Settings.h"
 #include "globals.h"
@@ -146,10 +147,10 @@ static cstr selectFile(QWidget* parent, cstr headline, cstr filefilterlist, bool
 		parent->activateWindow();
 		if (!ok) return nullptr;
 
-		s	   = dialog.selectedNameFilter();
-		filter = s.toUtf8().data();
+		QByteArray ba = dialog.selectedNameFilter().toUtf8();
+		filter		  = ba.data();
 		settings.setValue(ffkey, filter);
-		xlogline("store file filter %s", filter);
+		xlogline("store file filter: %s", filter);
 
 		QStringList fileNames = dialog.selectedFiles();
 		if (fileNames.count() < 1) return nullptr;
