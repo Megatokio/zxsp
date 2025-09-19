@@ -50,7 +50,7 @@ macx: SOURCES += \
 	Libraries/audio/macos/CAStreamBasicDescription.cpp \
 
 macx: HEADERS += \
-	Source/OS/Mac/Dsp.h \
+	Source/OS/Dsp.h \
 	Source/OS/Mac/UsbJoystick.h \
 	Source/OS/Mac/UsbDevice.h \
 	Source/OS/Mac/mac_util.h \
@@ -66,6 +66,7 @@ unix:!macx: SOURCES += \
 	Libraries/audio/Linux/AudioDecoder.cpp \
 
 unix:!macx: HEADERS += \
+	Source/OS/Dsp.h \
 	Source/OS/Linux/UsbJoystick.h \
 
 
