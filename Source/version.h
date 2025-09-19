@@ -6,13 +6,13 @@
 
 #define APPL_VERSION_H	  0
 #define APPL_VERSION_M	  8
-#define APPL_VERSION_L	  36
-#define APPL_VERSION_STR  "0.8.36"
+#define APPL_VERSION_L	  37
+#define APPL_VERSION_STR  "0.8.37"
 #define APPL_VERSION_BETA true
 
 static constexpr char startup_info_message[] =
 	"Welcome to the resurrected-from-the-ashes version of zxsp.\n"
-	"This version fixes an issue with the file filter in file save and load dialogs.\n"
+	"This version fixes an issue with setting speed back to 100%%.\n"
 	"Please report any issue at\n"
 	"github.com/Megatokio/zxsp/issues.";
 

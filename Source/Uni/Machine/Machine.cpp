@@ -1336,7 +1336,9 @@ void Machine::set60Hz(bool is60hz)
 	assert(is_locked());
 
 	setSpeedFromCpuClock(model_info->cpu_cycles_per_second);
-	ula->set60Hz(is60hz);
+
+	if (model_info->has_50_60hz_switch) ula->set60Hz(is60hz);
+	else ula->setLinesAfterScreen(int(model_info->lines_after_screen));
 }
 
 void Machine::setSpeedFromCpuClock(Frequency new_cpu_clock)
