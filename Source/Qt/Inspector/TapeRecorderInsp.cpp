@@ -52,7 +52,7 @@ Cassette::Cassette(CassBody cass, HeadPos head_dn)
 		label_x = 5; // Position des schwarzen Labels (l/o Ecke)
 		label_y = head_dn ? 16 : 101;
 
-		ppmm = 2.31f; // ~ height / 64.0mm ~ width / 100.5mm
+		ppmm = 2.31; // ~ height / 64.0mm ~ width / 100.5mm
 	}
 }
 
@@ -690,7 +690,7 @@ void TapeRecorderInsp::fillContextMenu(QMenu* menu)
 
 	QAction* autoStartStopTape = new QAction("Auto start/stop tape", this);
 	autoStartStopTape->setCheckable(true);
-	autoStartStopTape->setChecked(tr->isInstantLoadEnabled());
+	autoStartStopTape->setChecked(tr->isAutoStartStopEnabled());
 	connect(autoStartStopTape, &QAction::toggled, this, [=](bool f) {
 		assert(validReference(tr));
 		tr->setAutoStartStopTape(f);
