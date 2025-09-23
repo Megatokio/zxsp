@@ -1,18 +1,19 @@
 # zxsp
 
-zxsp – ZX Spectrum emulator for macos (Linux to come)
+_ZX Spectrum emulator for Mac OSX_
 
-To get the compiled application go to the [zxsp homepage](https://k1.spdns.de/Develop/Projects/zxsp/Distributions). Reportedly it runs quite well on any Mac since 2009.
+The latest compiled version and older versions can be downloaded at [zxsp homepage](https://k1.spdns.de/Develop/Projects/zxsp/Distributions).
 
-To compile this project you currently need an old Mac, macos 10.12 SIERRA is best (because that's what i use), Qt 5.xx (Qt 5.09..5.13 are tested), Qt Creator (4.10.2 is the latest version running on macos 10.12) and my [Libraries](https://github.com/Megatokio/Libraries.git) project (possibly branch WORK or something) and the [zasm](https://github.com/Megatokio/zasm.git) Z80 assembler project side-by-side with this project in the same folder and a version of my script interpreter [vipsi](https://k1.spdns.de/Develop/Projects/vipsi/Distributions/) for adding the macos stuff to the app bundle. I'm working on that.
+_zxsp_ runs on Intel Macs with Mac OS X 10.6 "Snow Leopard" and above. Reportedly it also runs well on ARM based Macs with macos 13.1 "Ventura". Latest report is for macos 15.6.1 "Sequoia".
+So it currently should run on any Mac since 2009.
 
-Development on Linux works with up-to-date software, but can't create the macos executable and the Linux version is still in progress.
+To compile this project you currently need an old Mac, Mac OS X 10.12 "Sierra" is best, Qt 5.09 to 5.13, Qt Creator 4.10.2, which is the latest version running on Mac OS X 10.12, and possibly a version of my script interpreter [vipsi](https://k1.spdns.de/Develop/Projects/vipsi/Distributions/) for adding the macos stuff to the app bundle and run the Qt utility _macdeployqt_ on it. But you can also just copy the libraries and resources from an existing _zxsp_ installation. Make shure to checkout the _zxsp_ git archive with submodules, because it contains _zasm_ which in return contains the _Libraries_.
 
 ## Current state of work
 
 The code base was messed up around 2014 or so, when i certainly made backups but did not yet use git. Though i added a lot of new features i didn't release a new version because of a number of bugs that i couldn't fix in time.
 
-Currently i'm in the progress of isolating various parts of the source to make them better maintainable. Once the Model and the View and the OS stuff are properly isolated i'll work on the Linux port.
+Currently i'm in the progress of isolating various parts of the source to make them better maintainable. Meanwhile i mostly only do bug fixes.
 
 
 
