@@ -50,10 +50,9 @@ class MachineController : public QMainWindow, public IMachineController
 	uint8 keyjoy_keys[5];		  // (RLDUF) Qt keycode to use for keyboard joystick up-down-left-right-fire
 	cstr  keyjoy_fnmatch_pattern; // the filename pattern, for which the keys were set
 
-	QTimer* input_device_timer = nullptr;
-	void	startInputDeviceTimer();
-	void	stopInputDeviceTimer();
-	void	pollInputDevices();
+	static void guiTimerCallback();
+	void		pollInputDevices();
+	void		updateSomeMenuItems();
 
 	// GUI:
 	// ToolWindowController*	tool_windows;
@@ -170,7 +169,6 @@ public:
 
 	// IMachineController interface:
 	void memoryModified(Memory* m, uint how) volatile override;
-	void machineSuspendStateChanged() volatile override;
 	void rzxStateChanged() volatile override;
 	void itemAdded(std::shared_ptr<Item>) volatile override;
 	void itemRemoved(Item*) volatile override;

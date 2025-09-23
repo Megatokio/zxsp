@@ -303,8 +303,8 @@ public:
 	void stepIn();
 	void stepOver();
 	void stepOut();
-	void _suspend();
-	void _resume();
+	void _suspend() { is_suspended = true; }
+	void _resume() { is_suspended = false; }
 	bool suspend() volatile;
 	void resume() volatile;
 	bool isRunning() const volatile { return !is_suspended; }

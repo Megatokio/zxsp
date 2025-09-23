@@ -307,24 +307,6 @@ void Machine::memoryModified(Memory* m, uint how)
 	controller->memoryModified(m, how);
 }
 
-void Machine::_resume()
-{
-	if (is_suspended)
-	{
-		is_suspended = no;
-		controller->machineSuspendStateChanged();
-	}
-}
-
-void Machine::_suspend()
-{
-	if (!is_suspended)
-	{
-		is_suspended = true;
-		controller->machineSuspendStateChanged();
-	}
-}
-
 void Machine::resume() volatile
 {
 	// resume machine:

@@ -2,7 +2,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#define LOGLEVEL 2
+#define LOGLEVEL 1
 #include "MachineController.h"
 #include "Application.h"
 #include "Dialogs/ConfigureKeyboardJoystickDialog.h"
@@ -80,15 +80,49 @@ namespace gui
 {
 
 MachineController* front_machine_controller = nullptr;
+static QTimer*	   gui_timer				= nullptr;
 
 static constexpr int CTRL  = Qt::CTRL; // for use with binary operators wg. Warning
 static constexpr int SHIFT = Qt::SHIFT;
+
+void MachineController::guiTimerCallback() // static
+{
+	// the single static gui_timer is created and set to 5ms interval in MachineController ctor
+
+	assert(isMainThread());
+	MachineController* mc = front_machine_controller;
+	volatile Machine*  m  = mc ? mc->getMachine() : nullptr;
+	if (!m) return;
+
+	mc->pollInputDevices();
+	mc->updateSomeMenuItems();
+}
+
+void MachineController::updateSomeMenuItems()
+{
+	bool f = machine->isSuspended();
+	if (action_suspend->isChecked() != f)
+	{
+		// formerly this was a callback from the machine,
+		// but it had to be changed to polling
+		// because starting a single shot timer from the audio callback thread does not work
+
+		logline("machineSuspendStateChanged: %s", f ? "suspended" : "running");
+
+		action_suspend->blockSignals(yes);
+		action_suspend->setChecked(f);
+		action_suspend->blockSignals(no);
+	}
+	action_stepIn->setEnabled(f);
+	action_stepOut->setEnabled(f);
+	action_stepOver->setEnabled(f);
+}
 
 
 void MachineController::pollInputDevices()
 {
 	assert(isMainThread());
-	if (this != front_machine_controller) return;
+	assert(this == front_machine_controller);
 	volatile Machine* m = machine.get();
 	if (!m) return;
 
@@ -114,18 +148,6 @@ void MachineController::pollInputDevices()
 		uint mb = QApplication::mouseButtons();
 		m->updateMouseButtons(MouseButtons(mb));
 	}
-}
-
-void MachineController::startInputDeviceTimer()
-{
-	connect(input_device_timer, &QTimer::timeout, this, &MachineController::pollInputDevices);
-	input_device_timer->start(5);
-}
-
-void MachineController::stopInputDeviceTimer()
-{
-	input_device_timer->stop();
-	mouse.ungrab(); //safety
 }
 
 
@@ -1023,10 +1045,10 @@ MachineController::~MachineController()
 	xlogIn("~MachineController");
 
 	in_dtor = yes;
-	stopInputDeviceTimer();
 
 	if (this == front_machine_controller)
 	{
+		mouse.ungrab(); // safety
 		front_machine_controller = nullptr;
 
 		// note: pos() as required for move() and size() as required for resize()
@@ -1056,8 +1078,7 @@ MachineController::MachineController(QString filepath) :
 	mem {nullptr, nullptr, nullptr, nullptr},
 	lenslok(nullptr),
 	keyjoy_keys {0, 0, 0, 0, 0},
-	keyjoy_fnmatch_pattern(nullptr),
-	input_device_timer(new QTimer(this))
+	keyjoy_fnmatch_pattern(nullptr)
 {
 	// setup window
 	// setup menubar
@@ -1065,6 +1086,14 @@ MachineController::MachineController(QString filepath) :
 	// link into MachineList => GO!
 
 	xlogIn("new MachineController(\"%s\")", filepath.toUtf8().data());
+
+	if (!gui_timer)
+	{
+		gui_timer = new QTimer();
+		assert(gui_timer);
+		connect(gui_timer, &QTimer::timeout, &guiTimerCallback);
+		gui_timer->start(5);
+	}
 
 	createMainmenubar();
 
@@ -1516,13 +1545,11 @@ void MachineController::changeEvent(QEvent* e)
 			{
 				if (front_machine_controller)
 				{
-					front_machine_controller->stopInputDeviceTimer();
 					front_machine_controller->allKeysUp();
 					front_machine_controller->hideAllToolwindows();
 				}
 				front_machine_controller = this;
 				showAllToolwindows();
-				startInputDeviceTimer();
 			}
 		}
 		else // deactivated
@@ -1833,7 +1860,7 @@ void MachineController::haltMachine(bool f)
 	xlogIn("MachineController:haltMachine(%i)", int(f));
 	if (f) machine->suspend();
 	else machine->resume();
-	// note: we'll get a callback to machineRunStateChanged()
+	// note: we'll get a callback to machineSuspendStateChanged()
 }
 
 void MachineController::addExternalItem(isa_id item_id, bool add)
@@ -2161,7 +2188,7 @@ void MachineController::item_removed(Item* item, bool force)
 	removeOverlayJoy(item);
 }
 
-void MachineController::addOverlayJoy(volatile Item* item)
+void MachineController::addOverlayJoy(volatile Item* /*item*/)
 {
 	xlogline("MachineController::addOverlayJoy: TODO");
 
@@ -2277,22 +2304,6 @@ void MachineController::memoryModified(Memory* m, uint how) volatile
 
 	//assert(isMainThread());
 	emit NV(this)->signal_memoryModified(m, how);
-}
-
-void MachineController::machineSuspendStateChanged() volatile
-{
-	// callback from machine, any thread
-
-	QTimer::singleShot(0, NV(this), [this] {
-		assert(isMainThread());
-		bool f = NV(this)->machine->isSuspended();
-		action_suspend->blockSignals(yes);
-		action_suspend->setChecked(f);
-		action_suspend->blockSignals(no);
-		action_stepIn->setEnabled(f);
-		action_stepOut->setEnabled(f);
-		action_stepOver->setEnabled(f);
-	});
 }
 
 
