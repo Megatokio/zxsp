@@ -1493,7 +1493,6 @@ void Machine::rzxOutOfSync(cstr msg, bool red)
 	}
 
 	rzx_file->setOutOfSync();
-	controller->rzxStateChanged();
 }
 
 void Machine::rzxDispose()
@@ -1501,8 +1500,6 @@ void Machine::rzxDispose()
 	if (!rzx_file) return;
 	delete rzx_file;
 	rzx_file = nullptr;
-
-	controller->rzxStateChanged();
 }
 
 void Machine::rzxStopPlaying(cstr msg, bool yellow)
@@ -1551,7 +1548,6 @@ void Machine::rzxPlayFile(RzxFile* rzx, bool auto_start_recording)
 			tcc0 -= dcc / cpu_clock;
 			cc += dcc;
 		}
-		controller->rzxStateChanged();
 		return;
 	}
 }
@@ -1582,8 +1578,6 @@ void Machine::rzxStartRecording(cstr msg, bool yellow)
 		if (rzx_file->isOutOfSync()) return;
 		break;
 	}
-
-	controller->rzxStateChanged();
 }
 
 void Machine::rzxStopRecording(cstr msg, bool yellow)

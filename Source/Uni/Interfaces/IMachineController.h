@@ -14,7 +14,6 @@ public:
 	virtual ~IMachineController() = default;
 
 	virtual void memoryModified(Memory* m, uint how) volatile = 0;
-	virtual void rzxStateChanged() volatile					  = 0;
 	virtual void itemAdded(std::shared_ptr<Item>) volatile	  = 0;
 	virtual void itemRemoved(Item*) volatile				  = 0;
 };

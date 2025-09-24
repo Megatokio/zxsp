@@ -100,22 +100,68 @@ void MachineController::guiTimerCallback() // static
 
 void MachineController::updateSomeMenuItems()
 {
-	bool f = machine->isSuspended();
-	if (action_suspend->isChecked() != f)
+	// formerly these were a callbacks from the machine,
+	// but they had to be changed to polling
+	// because starting a single shot timer from the audio callback thread does not work
+
+	// update Control menu actions: suspend, stepin, stepover, stepout
 	{
-		// formerly this was a callback from the machine,
-		// but it had to be changed to polling
-		// because starting a single shot timer from the audio callback thread does not work
+		bool f = machine->isSuspended();
+		if (action_suspend->isChecked() != f)
+		{
+			logline("machineSuspendStateChanged: %s", f ? "suspended" : "running");
 
-		logline("machineSuspendStateChanged: %s", f ? "suspended" : "running");
-
-		action_suspend->blockSignals(yes);
-		action_suspend->setChecked(f);
-		action_suspend->blockSignals(no);
+			action_suspend->blockSignals(true);
+			action_suspend->setChecked(f);
+			action_suspend->blockSignals(false);
+		}
+		action_stepIn->setEnabled(f);
+		action_stepOut->setEnabled(f);
+		action_stepOver->setEnabled(f);
 	}
-	action_stepIn->setEnabled(f);
-	action_stepOut->setEnabled(f);
-	action_stepOver->setEnabled(f);
+
+	// update Options menu action: rzx_record and overlays: play/record
+	{
+		bool is_recording, is_playing;
+		{
+			NVPtr<Machine> m(machine.get());
+			is_recording = m->rzxIsRecording();
+			is_playing	 = m->rzxIsPlaying();
+		}
+
+		if (action_RzxRecord->isChecked() != is_recording)
+		{
+			action_RzxRecord->blockSignals(true);
+			action_RzxRecord->setChecked(is_recording);
+			action_RzxRecord->blockSignals(false);
+		}
+		if (!!overlay_rzx_record != is_recording)
+		{
+			if (overlay_rzx_record)
+			{
+				screen->removeOverlay(overlay_rzx_record);
+				overlay_rzx_record = nullptr;
+			}
+			else
+			{
+				overlay_rzx_record = new OverlayRecord(screen);
+				screen->addOverlay(overlay_rzx_record);
+			}
+		}
+		if (!!overlay_rzx_play != is_playing)
+		{
+			if (overlay_rzx_play)
+			{
+				screen->removeOverlay(overlay_rzx_play);
+				overlay_rzx_play = nullptr;
+			}
+			else
+			{
+				overlay_rzx_play = new OverlayPlay(screen);
+				screen->addOverlay(overlay_rzx_play);
+			}
+		}
+	}
 }
 
 
@@ -2249,53 +2295,6 @@ void MachineController::removeOverlayJoy(Item* item)
 	case isa_Joy:
 	default: break;
 	}
-}
-
-void MachineController::rzxStateChanged() volatile
-{
-	// callback from machine, any thread
-
-	QTimer::singleShot(0, NV(this), [this] {
-		assert(isMainThread());
-
-		bool is_recording, is_playing;
-		{
-			NVPtr<Machine> m(NV(machine).get());
-			is_recording = m->rzxIsRecording();
-			is_playing	 = m->rzxIsPlaying();
-		}
-
-		action_RzxRecord->blockSignals(true);
-		action_RzxRecord->setChecked(is_recording);
-		action_RzxRecord->blockSignals(false);
-
-		if (!!overlay_rzx_record != is_recording)
-		{
-			if (overlay_rzx_record)
-			{
-				screen->removeOverlay(overlay_rzx_record);
-				overlay_rzx_record = nullptr;
-			}
-			else
-			{
-				overlay_rzx_record = new OverlayRecord(screen);
-				screen->addOverlay(overlay_rzx_record);
-			}
-		}
-		if (!!overlay_rzx_play != is_playing)
-		{
-			if (overlay_rzx_play)
-			{
-				screen->removeOverlay(overlay_rzx_play);
-				overlay_rzx_play = nullptr;
-			}
-			else
-			{
-				overlay_rzx_play = new OverlayPlay(screen);
-				screen->addOverlay(overlay_rzx_play);
-			}
-		}
-	});
 }
 
 void MachineController::memoryModified(Memory* m, uint how) volatile

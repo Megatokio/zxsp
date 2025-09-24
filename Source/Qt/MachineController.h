@@ -169,7 +169,6 @@ public:
 
 	// IMachineController interface:
 	void memoryModified(Memory* m, uint how) volatile override;
-	void rzxStateChanged() volatile override;
 	void itemAdded(std::shared_ptr<Item>) volatile override;
 	void itemRemoved(Item*) volatile override;
 
