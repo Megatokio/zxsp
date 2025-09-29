@@ -1,10 +1,11 @@
-// Copyright (c) 2016 - 2023 kio@little-bat.de
+// Copyright (c) 2016 - 2025 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "ConfigDialog.h"
 #include "MachineController.h"
 #include "Mouse.h"
+#include "Templates/Queue.h"
 #include "kio/kio.h"
 #include "qt_util.h"
 #include <QApplication>
@@ -17,6 +18,7 @@
 #include <QScreen>
 #include <QTimer>
 #include <QWidget>
+
 
 namespace gui
 {
@@ -239,85 +241,162 @@ void ConfigDialog::keyReleaseEvent(QKeyEvent* e)
 }
 
 
-// ============================================================
-//			Display Message on Main Thread:
-// ============================================================
+// ========================================================================
+// display a popup message on the main thread:
 
-
-void showDialog(QWidget* parent, cstr title, cstr text, uint style)
+struct PopupMessage
 {
-	logline("%s", text);
+	QWidget* parent = nullptr;
+	uint	 style = 0, _padding = 0;
+	cstr	 title = nullptr, text = nullptr;
+	PopupMessage() = default;
+	PopupMessage(QWidget* parent, uint style, cstr title, cstr text) :
+		parent(parent),
+		style(style),
+		title(newcopy(title)),
+		text(newcopy(text))
+	{}
+	PopupMessage(const PopupMessage&) = delete;
+	PopupMessage(PopupMessage&& q) : parent(q.parent), style(q.style), title(q.title), text(q.text)
+	{
+		q.title = q.text = nullptr;
+	}
+	PopupMessage& operator=(const PopupMessage&) = delete;
+	PopupMessage& operator=(PopupMessage&& q)
+	{
+		std::swap(parent, q.parent);
+		std::swap(style, q.style);
+		std::swap(title, q.title);
+		std::swap(text, q.text);
+		return *this;
+	}
+	~PopupMessage() noexcept
+	{
+		delete[] title;
+		delete[] text;
+	}
+};
 
-	QTimer::singleShot(0, [=]() {
-		mouse.ungrab();
-		QWidget* w = new QWidget(nullptr);
-		w->setFixedSize(300, 150);
-		QFont	bigfont = QFont("Lucida Grande", 18);
-		QLabel* ti		= new QLabel(title, w);
-		setColors(ti, 0xffffffff);
-		ti->setFont(bigfont);
-		QLabel* te = new QLabel(text, w);
-		setColors(te, 0xffffffff);
-		te->setWordWrap(true);
-		ti->move(0, 0);
-		ti->setFixedWidth(300);
-		te->move(0, 28);
-		te->setFixedWidth(300);
+static kio::Queue<PopupMessage, 4> messageQueue;
 
-		QWidget* p = parent ? parent : QApplication::activeWindow();
-		(new ConfigDialog(p, w, style))->show();
-	});
+void showMessage(QWidget* parent, uint style, cstr title, cstr text)
+{
+	// show a message from any thread.
+	// if it's not the main thread, then store it for display by MachineController:gui_timer.
+
+	if (!isMainThread())
+	{
+		PopupMessage	  msg {parent, style, title, text};
+		static std::mutex m;
+		m.lock();
+		if (messageQueue.free()) messageQueue.put(std::move(msg)); // else lost
+		m.unlock();
+		return;
+	}
+
+	logline("%s %s", title, text);
+
+	mouse.ungrab();
+	QWidget* w = new QWidget(nullptr);
+	w->setFixedSize(300, 150);
+	QFont	bigfont = QFont("Lucida Grande", 18);
+	QLabel* ti		= new QLabel(title, w);
+	setColors(ti, 0xffffffff);
+	ti->setFont(bigfont);
+	QLabel* te = new QLabel(text, w);
+	setColors(te, 0xffffffff);
+	te->setWordWrap(true);
+	ti->move(0, 0);
+	ti->setFixedWidth(300);
+	te->move(0, 28);
+	te->setFixedWidth(300);
+
+	QWidget*		   p	= QApplication::activeWindow();
+	const QWidgetList& list = QApplication::topLevelWidgets();
+	for (int i = 0; p != parent && i < list.count(); i++)
+	{
+		if (list.at(i) == parent) p = parent;
+	}
+
+	(new ConfigDialog(p, w, style))->show();
 }
 
-void showInfoDialog(QWidget* parent, cstr title, cstr text)
+void showQueuedMessages()
 {
-	showDialog(
-		parent, title, text,
-		ConfigDialog::Blue + ConfigDialog::Border2 + ConfigDialog::CloseOnClick + ConfigDialog::CloseOnEsc);
+	// show at most one at a time:
+	if (messageQueue.avail())
+	{
+		PopupMessage msg = messageQueue.get();
+		showMessage(msg.parent, msg.style, msg.title, msg.text);
+	}
 }
 
-void showWarningDialog(QWidget* parent, cstr title, cstr text)
+void showMessage(QWidget* parent, MessageStyle ms, cstr text)
 {
-	showDialog(
-		parent, title, text,
-		ConfigDialog::Yellow + ConfigDialog::Border2 + ConfigDialog::CloseOnClick + ConfigDialog::CloseOnEsc);
-}
+	using namespace gui;
 
-void showAlertDialog(QWidget* parent, cstr title, cstr text)
-{
-	showDialog(
-		parent, title, text,
-		ConfigDialog::Red + ConfigDialog::Border2 + ConfigDialog::CloseOnClick + ConfigDialog::CloseOnEsc);
+	static const uint styles[] = {ConfigDialog::InfoStyle, ConfigDialog::WarningStyle, ConfigDialog::AlertStyle};
+	static const cstr titles[] = {"Information:", "Problem:", "Alert:"};
+
+	showMessage(parent, styles[ms], titles[ms], text);
 }
 
 } // namespace gui
 
-void showInfo(cstr msg, ...)
-{
-	va_list va;
-	va_start(va, msg);
-	str text = usingstr(msg, va);
-	va_end(va);
 
-	gui::showInfoDialog(nullptr, "Information:", text);
+void showMessage(MessageStyle ms, cstr text)
+{
+	gui::showMessage(nullptr, ms, text); //
 }
 
-void showWarning(cstr msg, ...)
-{
-	va_list va;
-	va_start(va, msg);
-	str text = usingstr(msg, va);
-	va_end(va);
 
-	gui::showWarningDialog(nullptr, "Problem:", text);
-}
+/*
 
-void showAlert(cstr msg, ...)
-{
-	va_list va;
-	va_start(va, msg);
-	str text = usingstr(msg, va);
-	va_end(va);
 
-	gui::showAlertDialog(nullptr, "Alert:", text);
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/

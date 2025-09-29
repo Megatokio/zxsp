@@ -6,6 +6,7 @@
 #include "MonoRenderer.h"
 #include "cpp/cppthreads.h"
 #include "graphics/gif/GifEncoder.h"
+#include "zxsp_globals.h"
 
 
 namespace gui

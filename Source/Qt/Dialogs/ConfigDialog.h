@@ -1,17 +1,25 @@
-#pragma once
-// Copyright (c) 2016 - 2023 kio@little-bat.de
+// Copyright (c) 2016 - 2025 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "kio/kio.h"
+#include "zxsp_globals.h"
 #include <QBrush>
 #include <QPen>
 #include <QWidget>
-class QTimer;
 
+
+// show notification above current active window:
+// (same as in zxsp_globals.h)
+extern void showMessage(MessageStyle, cstr text);
 
 namespace gui
 {
+
+extern void showMessage(QWidget* parent, MessageStyle, cstr text);
+extern void showMessage(QWidget* parent, uint ConfigDialog_style, cstr title, cstr text);
+extern void showQueuedMessages();
 
 
 class ConfigDialog : public QWidget
@@ -52,6 +60,11 @@ public:
 		CloseOnEsc		= 1 << 10,												//
 		DefaultStyle	= Dark + Neutral + Border2 + IgnoreFocusOut + EatAllKeys;
 
+	// styles for popup messages:
+	static constexpr uint InfoStyle	   = Blue + Border2 + CloseOnClick + CloseOnEsc;
+	static constexpr uint WarningStyle = Yellow + Border2 + CloseOnClick + CloseOnEsc;
+	static constexpr uint AlertStyle   = Red + Border2 + CloseOnClick + CloseOnEsc;
+
 private:
 	static QColor color_for_style(uint s, int h, int l, int n, int a = 0xff);
 	static QBrush bg_brush_for_style(uint);
@@ -74,13 +87,4 @@ protected:
 	void keyReleaseEvent(QKeyEvent*) override;
 };
 
-extern void showDialog(QWidget*, cstr title, cstr text, uint style);
-extern void showInfoDialog(QWidget* parent, cstr title, cstr text);
-extern void showWarningDialog(QWidget* parent, cstr title, cstr text);
-extern void showAlertDialog(QWidget* parent, cstr title, cstr text);
-
 } // namespace gui
-
-extern void showAlert(cstr msg, ...) __printflike(1, 2);
-extern void showWarning(cstr msg, ...) __printflike(1, 2);
-extern void showInfo(cstr msg, ...) __printflike(1, 2);

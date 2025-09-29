@@ -17,7 +17,7 @@
 #include "TzxData.h"
 #include "cpp/cppthreads.h"
 #include "unix/files.h"
-#include "zxsp_types.h"
+#include "zxsp_globals.h"
 
 
 // helper

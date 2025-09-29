@@ -42,6 +42,8 @@ protected:
 	void grow_ioinfo();
 	void record_ioinfo(int32 cc, uint16 addr, uint8 byte, uint8 mask = 0xff);
 
+	void showMessage(MessageStyle s, cstr text);
+
 
 	// ---------------- P U B L I C -------------------
 

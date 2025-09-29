@@ -132,6 +132,11 @@ void Item::lock() const volatile { machine->lock(); }
 
 void Item::unlock() const volatile { machine->unlock(); }
 
+void Item::showMessage(MessageStyle ms, cstr text)
+{
+	if (machine) machine->showMessage(ms, text);
+	else ::showMessage(ms, text);
+}
 
 /*
 

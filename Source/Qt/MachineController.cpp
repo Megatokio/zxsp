@@ -91,6 +91,9 @@ void MachineController::guiTimerCallback() // static
 	// the single static gui_timer is created and set to 5ms interval in MachineController ctor
 
 	assert(isMainThread());
+
+	showQueuedMessages();
+
 	MachineController* mc = front_machine_controller;
 	volatile Machine*  m  = mc ? mc->getMachine() : nullptr;
 	if (!m) return;
@@ -2487,6 +2490,11 @@ void MachineController::hideInspector(IsaObject* item, bool force)
 			}
 		}
 	}
+}
+
+void MachineController::showMessage(MessageStyle ms, cstr text)
+{
+	gui::showMessage(this, ms, text); //
 }
 
 } // namespace gui

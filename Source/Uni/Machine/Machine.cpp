@@ -1669,6 +1669,12 @@ void Machine::outputSamples(Sample sample, Time aa /*start [seconds]*/, Time ee 
 	while (pa < pe) { *pa++ += sample; }
 }
 
+void Machine::showMessage(MessageStyle ms, cstr text)
+{
+	if (controller) NV(controller)->showMessage(ms, text);
+	else ::showMessage(ms, text);
+}
+
 
 /*
 

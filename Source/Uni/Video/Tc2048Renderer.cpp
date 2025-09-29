@@ -4,6 +4,7 @@
 
 #include "Tc2048Renderer.h"
 #include "Ula/UlaTc2048.h"
+#include "zxsp_globals.h"
 
 
 /*	TS2068:

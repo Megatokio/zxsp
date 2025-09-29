@@ -16,7 +16,7 @@
 #include "Ula/Ula.h"
 #include "Ula/UlaZx80.h"
 #include "Z80/Z80.h"
-#include "zxsp_types.h"
+#include "zxsp_globals.h"
 #include <math.h>
 
 
@@ -257,6 +257,8 @@ public:
 
 protected:
 	Machine(IMachineController*, Model, isa_id);
+
+	void showMessage(MessageStyle s, cstr text);
 
 private:
 	void init_contended_ram();

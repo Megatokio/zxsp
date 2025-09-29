@@ -4,6 +4,7 @@
 
 #include "IdeDevice.h"
 #include "unix/files.h"
+#include "zxsp_globals.h"
 #include <fcntl.h>
 #include <pthread.h>
 

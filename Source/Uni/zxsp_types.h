@@ -4,14 +4,22 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "ZxInfo/ZxInfo.h"
-#include "zxsp_globals.h"
 
 
-using CoreByte = uint32; // Z80
-using Sample   = float;
+using Time		= double;
+using Frequency = double;
+using CoreByte	= uint32; // Z80
+using Sample	= float;
 class StereoSample;
 using StereoBuffer = StereoSample[DSP_SAMPLES_PER_BUFFER + DSP_SAMPLES_STITCHING];
 
+
+enum MessageStyle // popup message styles:
+{
+	INFO,
+	WARN,
+	ALERT
+};
 
 enum KeyboardModifiers // modifier key masks:
 {

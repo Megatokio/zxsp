@@ -171,6 +171,7 @@ public:
 	void memoryModified(Memory* m, uint how) volatile override;
 	void itemAdded(std::shared_ptr<Item>) volatile override;
 	void itemRemoved(Item*) volatile override;
+	void showMessage(MessageStyle, cstr text) override;
 
 	void addOverlayJoy(volatile Item*);
 	void removeOverlayJoy(Item*);

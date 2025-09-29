@@ -1,19 +1,19 @@
-// Copyright (c) 2023 - 2023 kio@little-bat.de
+// Copyright (c) 2023 - 2025 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
 #pragma once
-
-using cstr		= const char*;
-using Time		= double;
-using Frequency = double;
+#include "zxsp_types.h"
 
 
 // externally provided global functions:
 
-extern void showAlert(cstr msg, ...);
-extern void showWarning(cstr msg, ...);
-extern void showInfo(cstr msg, ...);
+extern void showMessage(MessageStyle, cstr text);
+
+// these macros also work in classes which provide a member function showMessage():
+#define showAlert(...)	 showMessage(ALERT, usingstr(__VA_ARGS__))
+#define showWarning(...) showMessage(WARN, usingstr(__VA_ARGS__))
+#define showInfo(...)	 showMessage(INFO, usingstr(__VA_ARGS__))
 
 
 // externally provided global data:

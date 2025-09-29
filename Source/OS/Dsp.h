@@ -1,12 +1,10 @@
-#pragma once
 // Copyright (c) 2002 - 2023 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
- 
-using Sample	= float;
-using Time		= double;
-using Frequency = double;
+
+#pragma once
+#include "zxsp_globals.h"
 
 extern Frequency samples_per_second; // DSP-Konstante & Zeitbasis des Systems: samples/second
 extern Time		 system_time;		 // Realzeit [seconds]

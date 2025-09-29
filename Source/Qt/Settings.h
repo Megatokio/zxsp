@@ -5,7 +5,7 @@
 
 #include "ZxInfo/ZxInfo.h"
 #include "kio/kio.h"
-#include "zxsp_types.h"
+#include "zxsp_globals.h"
 #include <QSettings>
 class QMenu;
 class StrArray;
