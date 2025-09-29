@@ -279,44 +279,43 @@ void FloppyDiskDrive::audioBufferEnd(Time dt)
 	time -= dt;
 	step_end_time -= dt;
 
-	if (sound_running_index < sound_running_size)
+	if (machine)
 	{
-		assert(machine);
-		for (uint i = 0; i < uint(DSP_SAMPLES_PER_BUFFER); i++)
+		if (sound_running_index < sound_running_size)
 		{
-			machine->audio_out_buffer[i] += sound_running[sound_running_index++];
-			if (sound_running_index == sound_running_size) sound_running_index = 0;
-		}
-	}
-
-	if (sound_insert_index < sound_insert_size)
-	{
-		assert(machine);
-		uint n = min(uint(DSP_SAMPLES_PER_BUFFER), sound_insert_size - sound_insert_index);
-		for (uint i = 0; i < n; i++) { machine->audio_out_buffer[i] += sound_insert[sound_insert_index++]; }
-	}
-
-	if (sound_eject_index < sound_eject_size)
-	{
-		assert(machine);
-		uint n = min(uint(DSP_SAMPLES_PER_BUFFER), sound_eject_size - sound_eject_index);
-		for (uint i = 0; i < n; i++) { machine->audio_out_buffer[i] += sound_eject[sound_eject_index++]; }
-	}
-
-	for (uint ii = 0; ii < NELEM(sound_step_index); ii++)
-	{
-		assert(machine);
-		int& ssi = sound_step_index[ii];
-		if (ssi < sound_step_size)
-		{
-			int i = 0;
-			if (ssi < 0)
+			for (uint i = 0; i < uint(DSP_SAMPLES_PER_BUFFER); i++)
 			{
-				i	= -ssi;
-				ssi = 0;
+				machine->audio_out_buffer[i] += sound_running[sound_running_index++];
+				if (sound_running_index == sound_running_size) sound_running_index = 0;
 			}
-			int e = min(DSP_SAMPLES_PER_BUFFER, i + sound_step_size - ssi);
-			while (i < e) { machine->audio_out_buffer[i++] += sound_step[ssi++]; }
+		}
+
+		if (sound_insert_index < sound_insert_size)
+		{
+			uint n = min(uint(DSP_SAMPLES_PER_BUFFER), sound_insert_size - sound_insert_index);
+			for (uint i = 0; i < n; i++) { machine->audio_out_buffer[i] += sound_insert[sound_insert_index++]; }
+		}
+
+		if (sound_eject_index < sound_eject_size)
+		{
+			uint n = min(uint(DSP_SAMPLES_PER_BUFFER), sound_eject_size - sound_eject_index);
+			for (uint i = 0; i < n; i++) { machine->audio_out_buffer[i] += sound_eject[sound_eject_index++]; }
+		}
+
+		for (uint ii = 0; ii < NELEM(sound_step_index); ii++)
+		{
+			int& ssi = sound_step_index[ii];
+			if (ssi < sound_step_size)
+			{
+				int i = 0;
+				if (ssi < 0)
+				{
+					i	= -ssi;
+					ssi = 0;
+				}
+				int e = min(DSP_SAMPLES_PER_BUFFER, i + sound_step_size - ssi);
+				while (i < e) { machine->audio_out_buffer[i++] += sound_step[ssi++]; }
+			}
 		}
 	}
 }
