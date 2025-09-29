@@ -248,6 +248,8 @@ public:
 	virtual void saveP81(FD& fd, bool p81); // MachineZx81.cpp
 	// virtual void loadTap(FD& fd);		// MachineZxsp.cpp
 
+	void loadSZX(FD&);	  // file_szx.cpp
+	void saveSZX(FD&);	  // file_szx.cpp
 	void loadZ80(FD& fd); // file_z80.cpp
 	void saveZ80(FD& fd); // file_z80.cpp
 	void loadRom(FD& fd);
@@ -259,6 +261,7 @@ protected:
 private:
 	void init_contended_ram();
 	void load_rom();
+	void szx_add_joystick(uint if_id, JoystickID js_id);
 
 	void loadZ80_attach_joysticks(uint); // helper
 

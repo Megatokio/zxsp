@@ -308,7 +308,7 @@ SOURCES +=	\
 	Source/Uni/Video/SpectraRenderer.cpp \
 	Source/Uni/Video/TVDecoderMono.cpp \
 	\
-	Source/Uni/Files/file_stx.cpp \
+	Source/Uni/Files/file_szx.cpp \
 	Source/Uni/Files/FloppyDisk.cpp \
 	Source/Uni/Files/TccRom.cpp \
 	Source/Uni/Files/file_z80.cpp \
@@ -628,7 +628,7 @@ HEADERS += \
 	Source/Uni/ZxInfo/zxsp_basic_tokens.h \
 	\
 	Source/Uni/Files/Z80Head.h \
-	Source/Uni/Files/file_stx.h \
+	Source/Uni/Files/file_szx.h \
 	Source/Uni/Files/FloppyDisk.h \
 	Source/Uni/Files/TccRom.h \
 	Source/Uni/Files/RzxFile.h \
@@ -659,6 +659,7 @@ OTHER_FILES += \
 	Source/Uni/ZxInfo/makezxinfo.vs \
 	Source/Uni/ZxInfo/ZxInfo.csv \
 	Source/Uni/Items/Fdc/DivIDE.txt \
+	Source/Uni/Files/file_szx.info \
 	Info/Disk/FDC765_info.txt \
 
 

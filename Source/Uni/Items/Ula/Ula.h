@@ -56,4 +56,7 @@ public:
 	virtual bool  hasPortFF() const volatile noexcept { return no; }
 	virtual void  setPortFF(uint8) {}
 	virtual uint8 getPortFF() const volatile { return 0xFF; }
+
+	// helper for snapshot loader:
+	void set_ula_out_byte(uint8 b) noexcept { ula_out_byte = b; }
 };

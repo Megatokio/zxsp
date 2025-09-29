@@ -16,6 +16,7 @@
 #include "Fdc/FdcPlusD.h"
 #include "Files/RzxFile.h"
 #include "Files/Z80Head.h"
+#include "Files/file_szx.h"
 #include "Grafpad.h"
 #include "IcTester.h"
 #include "Inspector/Inspector.h"
@@ -1415,9 +1416,9 @@ void Machine::rzxLoadSnapshot(int32& cc_final, int32& ic_end)
 	int32& ic		= cpu->instrCountRef();
 	int32  old_cc	= cc;
 
-	if (eq(ext, ".z80"))
+	try
 	{
-		try
+		if (eq(ext, ".z80"))
 		{
 			FD	  fd(filename);
 			Model id = modelForZ80(fd);
@@ -1425,39 +1426,48 @@ void Machine::rzxLoadSnapshot(int32& cc_final, int32& ic_end)
 			if (model != id) throw DataError("snapshot requires different model.");
 
 			loadZ80(fd);
-			_resume();
 		}
-		catch (AnyError& e)
+		else if (eq(ext, ".szx"))
 		{
-			cc = old_cc;
-			rzxOutOfSync(usingstr("RZX file: load .z80 snapshot: %s", e.what()));
+			FD	  fd(filename);
+			Model id = modelForSZX(fd);
+			if (id == unknown_model) throw DataError("illegal model in file");
+			if (model != id) throw DataError("snapshot requires different model.");
+
+			loadSZX(fd);
+		}
+		else
+		{
+			rzxOutOfSync(usingstr("RZX file: load %s snapshot: TODO", ext));
 			return;
 		}
-
-		cc_final += cc - old_cc;
-		old_cc = cc;
-
-		if (rzx_file->isEndOfFile()) return; // file ended with a snapshot
-
-		assert(rzx_file->isPlaying());
-
-		if (rzx_file->getStartCC())
-		{
-			int32 dcc = rzx_file->getStartCC() - cc;
-			tcc0 -= dcc / cpu_clock;
-			cc += dcc;
-		}
-		cc_final += cc - old_cc;
-		old_cc = cc;
-
-		ic_end = rzx_file->getIcount();
-		ic	   = 0;
+		_resume();
 	}
-	else
+	catch (AnyError& e)
 	{
-		rzxOutOfSync(usingstr("RZX file: load %s snapshot: TODO", ext));
+		cc = old_cc;
+		rzxOutOfSync(usingstr("RZX file: load %s snapshot: %s", ext, e.what()));
 		return;
 	}
+
+	cc_final += cc - old_cc;
+	old_cc = cc;
+
+	if (rzx_file->isEndOfFile()) return; // file ended with a snapshot
+
+	assert(rzx_file->isPlaying());
+
+	if (rzx_file->getStartCC())
+	{
+		int32 dcc = rzx_file->getStartCC() - cc;
+		tcc0 -= dcc / cpu_clock;
+		cc += dcc;
+	}
+	cc_final += cc - old_cc;
+	old_cc = cc;
+
+	ic_end = rzx_file->getIcount();
+	ic	   = 0;
 }
 
 void Machine::rzxStoreSnapshot()

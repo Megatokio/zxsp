@@ -12,6 +12,7 @@
 #include "Fdc/SmartSDCard.h"
 #include "Files/RzxFile.h"
 #include "Files/Z80Head.h"
+#include "Files/file_szx.h"
 #include "Items/Ay/Ay.h"
 #include "Items/Joy/Joy.h"
 #include "Items/TapeRecorder.h"
@@ -411,6 +412,14 @@ void MachineController::loadSnapshot(cstr filename)
 			if (id == unknown_model) throw DataError("illegal model in file");
 			if (model != id) machine = initMachine(id, 0, s, j, no, d);
 			machine->loadZ80(fd);
+		}
+
+		else if (eq(ext, ".szx"))
+		{
+			Model id = modelForSZX(fd);
+			if (id == unknown_model) throw DataError("illegal file or unsupported model");
+			if (model != id) machine = initMachine(id, 0, s, j, no, d);
+			machine->loadSZX(fd);
 		}
 
 		else if (eq(ext, ".ace"))
@@ -1459,7 +1468,7 @@ void MachineController::openFile()
 	cstr filter;
 	//	if(machine->isA(isa_MachineZxsp))
 	filter =
-		"ZXSP Snapshots (*.z80 *.sna);;" // <-- default
+		"ZXSP Snapshots (*.z80 *.sna *.szx);;" // <-- default
 		"ZX80 Snapshots (*.z80 *.o *.80);;"
 		"ZX81 Snapshots (*.z80 *.p *.81 *.p81);;"
 		"Jupiter Ace Snapshots (*.z80 *.ace);;"
