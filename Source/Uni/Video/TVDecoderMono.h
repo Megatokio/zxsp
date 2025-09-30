@@ -31,7 +31,7 @@ class TVDecoderMono
 	const int32 min_cc_for_vsync;
 	const int32 min_cc_per_frame;
 	const int32 max_cc_per_frame;
-	const int32 fb_lines;
+	//const int32 fb_lines;
 	const int32 fb_bytes_per_line;
 	const int32 fb_cc_per_line;
 

@@ -23,7 +23,7 @@ TVDecoderMono::TVDecoderMono(IScreen* screen, int32 cc_per_sec, uint8 background
 	min_cc_for_vsync(int32(cc_per_sec * sec_per_scanline * 2.5f)),
 	min_cc_per_frame(max_cc_per_line * min_lines_per_frame),
 	max_cc_per_frame(max_cc_per_line * max_lines_per_frame),
-	fb_lines(max_cc_per_frame / min_cc_per_line + 2),
+	//fb_lines(max_cc_per_frame / min_cc_per_line + 2),
 	fb_bytes_per_line(((max_cc_per_line + 15) >> 2) & ~3),
 	fb_cc_per_line(fb_bytes_per_line << 2),
 	frame_data(nullptr),

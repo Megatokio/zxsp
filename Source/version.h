@@ -6,14 +6,14 @@
 
 #define APPL_VERSION_H	  0
 #define APPL_VERSION_M	  8
-#define APPL_VERSION_L	  39
-#define APPL_VERSION_STR  "0.8.39"
+#define APPL_VERSION_L	  40
+#define APPL_VERSION_STR  "0.8.40"
 #define APPL_VERSION_BETA true
 
 static constexpr char startup_info_message[] =
 	"Welcome to version " APPL_VERSION_STR
 	" of zxsp.\n"
-	"This version fixes \"step over\" CALL and stopping at breakpoints which failed to update the Control menu items after which they were almost impossible to use.\n"
+	"This version implements loading of .SZX snapshots and .RZX files which contain a SZX snapshot.\n"
 	"Please report any issue at\n"
 	"github.com/Megatokio/zxsp/issues.";
 

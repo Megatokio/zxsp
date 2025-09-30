@@ -294,7 +294,7 @@ static OSStatus audioDeviceIOProc(
 		{
 			static float64 lasttime = 0;
 			if (inInputTime->mSampleTime - lasttime != DSP_SAMPLES_PER_BUFFER && lasttime != 0.0)
-				logline(
+				xlogline(
 					"WARNING audio-in at sample %lu: Δ samples = %lu", (ulong)inInputTime->mSampleTime,
 					(ulong)(inInputTime->mSampleTime - lasttime));
 			lasttime = inInputTime->mSampleTime;
@@ -321,7 +321,7 @@ static OSStatus audioDeviceIOProc(
 		{
 			static float64 lasttime = 0;
 			if (inOutputTime->mSampleTime - lasttime != DSP_SAMPLES_PER_BUFFER && lasttime != 0.0)
-				logline(
+				xlogline(
 					"WARNING audio-out at sample %lu: Δ samples = %lu", (ulong)inOutputTime->mSampleTime,
 					(ulong)(inOutputTime->mSampleTime - lasttime));
 			lasttime = inOutputTime->mSampleTime;

@@ -156,7 +156,7 @@ uint8 Fdc765::readDataRegister(Time t)
 		xxlog("<<%02X ", uint(byte));
 		return byte;
 	}
-	else logline("FDC: byte from FDC read, but there was no byte available");
+	else xlogline("FDC: byte from FDC read, but there was no byte available");
 	return 0xff; // hm hm ... input() mask wird gesetzt ...
 }
 
@@ -171,7 +171,7 @@ void Fdc765::writeDataRegister(Time t, uint8 b)
 		byte = b;
 		xxlog(">>%02X ", uint(b));
 	}
-	else logline("FDC: byte to FDC lost: %i", int(b));
+	else xlogline("FDC: byte to FDC lost: %i", int(b));
 }
 
 void Fdc765::audioBufferEnd(Time t)

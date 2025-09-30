@@ -8,7 +8,7 @@ CONFIG(debug,debug|release) { DEFINES += DEBUG } # ATTN: curly brace must start 
 
 CONFIG += c++14
 DEFINES += QT_NO_SESSIONMANAGER
-QMAKE_CXXFLAGS += -Wno-multichar
+QMAKE_CXXFLAGS += -Wno-multichar -Wdeprecated-declarations
 RESOURCES += Resources/zxsp.qrc
 
 #win32{}

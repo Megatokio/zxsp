@@ -76,7 +76,7 @@ FloppyDisk::FloppyDisk(cstr fpath) : bytes_per_track(6250), modified(no), filepa
 	delete[] filepath;
 	filepath	   = nullptr;
 	writeprotected = yes;
-	showWarning(err);
+	showWarning("%s", err);
 }
 
 
@@ -116,7 +116,7 @@ void FloppyDisk::saveDisk()
 	}
 	catch (FileError& e)
 	{
-		showAlert(e.what());
+		showAlert("%s", e.what());
 	}
 }
 

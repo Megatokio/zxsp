@@ -133,7 +133,7 @@ void OverlayJoystick::setZoom(int z)
 }
 
 
-void OverlayJoystick::draw(QPainter& p)
+void OverlayJoystick::draw(__unused QPainter& p)
 {
 #if 0
 	if (screen->isActive() && joystick->isConnected())

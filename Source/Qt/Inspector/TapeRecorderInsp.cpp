@@ -861,7 +861,7 @@ void TapeRecorderInsp::set_wprot(bool f)
 	}
 
 	int err = nvptr(tr)->setWriteProtected(f);
-	if (err) showAlert(errorstr(err));
+	if (err) showAlert("%s", errorstr(err));
 }
 
 void TapeRecorderInsp::insert_tape(cstr filepath)

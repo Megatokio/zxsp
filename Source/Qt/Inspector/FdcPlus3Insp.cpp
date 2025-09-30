@@ -287,7 +287,7 @@ void FdcPlus3Insp::toggle_wprot(bool wprot)
 	int err = drive->disk ? drive->disk->setWriteProtected(wprot) :
 							set_file_writable(current_disk, wprot ? NOBODY : OWNER | GROUP);
 
-	if (err) showAlert(errorstr(err));
+	if (err) showAlert("%s", errorstr(err));
 }
 
 void FdcPlus3Insp::eject_disk()
@@ -347,7 +347,7 @@ void FdcPlus3Insp::save_as()
 	}
 	catch (AnyError& e)
 	{
-		showAlert(e.what());
+		showAlert("%s", e.what());
 	}
 }
 
