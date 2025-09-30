@@ -16,6 +16,12 @@ void MachineList::runMachinesForSound(const StereoBuffer audio_in_buffer, Stereo
 	{
 		NVPtr<Machine> machine(data[i].get(), 50 * 1000); // timeout = 50 µs
 
+		if (!machine)
+		{
+			if (debug) showWarning("runMachinesForSound: failed to lock");
+			continue;
+		}
+
 		if (machine->isPowerOn())
 		{
 			if (machine->isRunning()) // not suspended
