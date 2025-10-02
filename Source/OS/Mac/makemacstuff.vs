@@ -134,6 +134,7 @@ file "zxsp.app/Contents/Info.plist" =
 	<array>
 "	# BundleForFile( {"z80"},			"Files/z80.icns",		"application/zxsp-z80",		"ZX Spectrum Snapshot",		"Z80",  "Viewer" )
 	# BundleForFile( {"sna"},			"Files/sna.icns",		"application/zxsp-sna",		"ZX Spectrum Snapshot",		"Snap", "Viewer" )
+	# BundleForFile( {"szx"},			"Files/szx.icns",		"application/zxsp-szx",		"ZX Spectrum Snapshot",		"SZX",  "Viewer" )
 	# BundleForFile( {"ace"},			"Files/ace.icns",		"application/zxsp-ace",		"Jupiter ACE Snapshot",		"Ace",  "Viewer" )
 	# BundleForFile( {"p","81","p81"},	"Files/zx81.icns",		"application/zx81-tape",	"ZX81 Tape",				"Tap1", "Viewer" )
 	# BundleForFile( {"o","80"},		"Files/zx80.icns",		"application/zx80-tape",	"ZX80 Tape",				"Tap0", "Viewer" )
@@ -235,6 +236,7 @@ proc CopyFiles( qdir, zdir, mask )
 		while ++i <= count d
 		if d[i].flags[1]!="d" next then
 		var fname = d[i].fname
+		if match(fname,"*.iconset/") next then
 		CopyFiles(qdir#fname,zdir#fname,mask)
 	loop
 }
