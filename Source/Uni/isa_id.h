@@ -27,7 +27,7 @@ enum isa_id {
 
 	M_ISA(	isa_none=0,					isa_none,			"None" ),				// free / unset
 	M_ISA(	isa_unknown,				isa_none,			"Unknown" ),			// failure / error
-	
+
 	M_ISA(	isa_TapeFile,				isa_none,			"TapeFile" ),			// note: not an Item
 	M_ISA(	isa_CswBuffer,				isa_none,			"CswBuffer" ),			// note: not an Item
 	M_ISA(	isa_TapeData,				isa_none,			"TapeData" ),			// note: not an Item
@@ -36,36 +36,35 @@ enum isa_id {
 	M_ISA(		isa_RlesData,			isa_TapeData,		"RlesData" ),			// 1-bit audio data, run length encoded
 	M_ISA(		isa_AudioData,			isa_TapeData,		"AudioData" ),			// Hifi mono/stereo audio
 	M_ISA(		isa_O80Data,			isa_TapeData,		"O80Data" ),			// .80 / .o / .81 / .p81 / .p
-	
+
 	M_ISA(	isa_Overlay,				isa_none,			"Overlay" ),			// note: not a IsaObject
-	M_ISA(		isa_OverlayPlay,		isa_Overlay,		"Overlay \"Play\"" ),
-	M_ISA(		isa_OverlayRecord,		isa_Overlay,		"Overlay \"Record\"" ),
-	M_ISA(		isa_OverlayJoystick,	isa_Overlay,		"Joystick Overlay" ),
+	M_ISA(		isa_RzxOverlay,			isa_Overlay,		"RzxOverlay"),
+	M_ISA(		isa_JoystickOverlay,	isa_Overlay,		"JoystickOverlay" ),
 	M_ISA(		isa_OverlayTimeline,	isa_Overlay,		"Timeline Overlay" ),
 	M_ISA(		isa_OverlaySingleStep,	isa_Overlay,		"SingleStep Overlay" ),
-	
+
 	M_ISA(	isa_Screen,					isa_none,			"OpenGL Screen" ),		// note: not a IsaObject
 	M_ISA(		isa_ScreenZxsp,			isa_Screen,			"ScreenZxsp" ),
 	M_ISA(			isa_ScreenTc2048,	isa_ScreenZxsp,		"ScreenTc2048" ),
 	M_ISA(			isa_ScreenSpectra,	isa_ScreenZxsp,		"ScreenSpectra" ),
 	M_ISA(		isa_ScreenMono,			isa_Screen,			"ScreenMono" ),
-	
+
 	M_ISA(	isa_Renderer,				isa_none,			"Screen Renderer" ),
 	M_ISA(		isa_ZxspRenderer,		isa_Renderer,		"Zxsp Screen Renderer" ),
 	M_ISA(			isa_Tc2048Renderer,	isa_ZxspRenderer,	"Tc2048 Screen Renderer" ),
 	M_ISA(			isa_SpectraRenderer,isa_ZxspRenderer,	"SPECTRA Screen Renderer" ),
 	M_ISA(		isa_MonoRenderer,		isa_Renderer,		"Monochrome Screen Renderer" ),
-	
+
 	M_ISA(	isa_GifWriter,				isa_none,			"Gif File Writer" ),
 	M_ISA(		isa_ZxspGifWriter,		isa_GifWriter,		"Zxsp Gif Writer" ),
 	M_ISA(			isa_Tc2048GifWriter,isa_ZxspGifWriter,	"Tc2048 Gif Writer" ),
 	M_ISA(			isa_SpectraGifWriter,isa_ZxspGifWriter,	"SPECTRA Gif Writer" ),
 	M_ISA(		isa_MonoGifWriter,		isa_GifWriter,		"Monochrome Gif Writer" ),
-	
+
 	M_ISA(	isa_Joystick,				isa_none,			"Realworld Joystick" ),	// note: a physical joystick interface
 	M_ISA(		isa_UsbJoystick,		isa_Joystick,		"USB Joystick" ),
 	M_ISA(		isa_KbdJoystick,		isa_Joystick,		"Keyboard Emulation Joystick" ),
-	
+
 	M_ISA(	isa_Machine,				isa_none,			"Machine" ),
 	M_ISA(		isa_MachineJupiter,		isa_Machine,		"Jupiter ACE" ),
 	M_ISA(		isa_MachineZx80,		isa_Machine,		"Sinclair ZX80" ),
@@ -86,15 +85,15 @@ enum isa_id {
 	M_ISA(				isa_MachineZxPlus2,		isa_MachineZx128,	"ZX Spectrum +2" ),
 	M_ISA(				isa_MachineZxPlus2a,	isa_MachineZx128,	"ZX Spectrum +2A" ),
 	M_ISA(					isa_MachineZxPlus3,	isa_MachineZxPlus2a,"ZX Spectrum +3" ),
-	
+
 	M_ISA(	isa_MemHex,					isa_none,		"Memory Hex View" ),		/* virtual group id for tool windows */
 	M_ISA(	isa_MemDisass,				isa_none,		"Memory Disassembler" ),	/* virtual group id for tool windows */
 	M_ISA(	isa_MemGraphical,			isa_none,		"Memory Graphical View" ),	/* virtual group id for tool windows */
 	M_ISA(	isa_MemAccess,				isa_none,		"Memory Access" ),			/* virtual group id for tool windows */
-	
+
 	M_ISA(	isa_Item,					isa_none,		"Item"),				// Items:
 	M_ISA(		isa_Z80,				isa_Item,		"Z80 CPU" ),
-	
+
 	M_ISA(		isa_Keyboard,			isa_Item,		"Keyboard" ),
 	M_ISA(			isa_KbdJupiter,		isa_Keyboard,	"Keyboard" ),
 	M_ISA(			isa_KbdTk90x,		isa_Keyboard,	"Keyboard" ),
@@ -107,7 +106,7 @@ enum isa_id {
 	M_ISA(			isa_KbdZxsp,		isa_Keyboard,	"Keyboard" ),
 	M_ISA(			isa_KbdZxPlus,		isa_Keyboard,	"Keyboard" ),
 	M_ISA(			isa_KbdTimex,		isa_Keyboard,	"Keyboard" ),
-	
+
 	M_ISA(		isa_Mmu,				isa_Item,		"Mmu" ),
 	M_ISA(			isa_MmuZx80,		isa_Mmu,		"ZX80 Mmu" ),
 	M_ISA(			  isa_MmuZx81,		isa_MmuZx80,	"ZX81 Mmu" ),
@@ -122,7 +121,7 @@ enum isa_id {
 	M_ISA(			isa_Mmu128k,		isa_Mmu,		"Zxsp 128k Mmu" ),
 	M_ISA(				isa_MmuPlus3,	isa_Mmu128k,	"Zxsp +2A/+3 Mmu" ),
 	M_ISA(			isa_MmuInves,		isa_Mmu,		"Inves 48k Mmu" ),
-	
+
 	M_ISA(		isa_Crtc,				isa_Item,		"Ula" ),
 	M_ISA(		  isa_Ula,				isa_Crtc,		"Crtc" ),
 	M_ISA(			isa_UlaZxsp,		isa_Ula,		"ZX Spectrum Ula" ),
@@ -138,7 +137,7 @@ enum isa_id {
 	M_ISA(				isa_UlaZx81,	isa_UlaZx80,	"ZX81 Ula" ),
 	M_ISA(			isa_UlaJupiter,		isa_Ula,		"Jupiter ACE Ula" ),
 	M_ISA(		  isa_SpectraVideo,		isa_Crtc,		"SPECTRA Video Interface" ),
-	
+
 	M_ISA(		isa_Joy,				isa_Item,		"Joystick Interface" ),
 	M_ISA(			isa_Tk85Joy,		isa_Joy,		"TK85 Joystick Port" ),
 	M_ISA(			isa_KempstonJoy,	isa_Joy,		"Kempston Joystick Interface" ),
@@ -157,7 +156,7 @@ enum isa_id {
 	M_ISA(			isa_CursorJoy,		isa_Joy,		"Cursor Joystick Interface" ),
 	M_ISA(				isa_ProtekJoy,	isa_CursorJoy,	"Protek Joystick Interface" ),
 	M_ISA(			isa_DktronicsDualJoy,isa_Joy,		"dk'tronics Dual Joystick Interface" ),
-	
+
 	M_ISA(		isa_MassStorage,		isa_Item,		"Mass Storage Extension" ),
 	M_ISA(		   isa_DivIDE,			isa_MassStorage,"DivIDE Hard Disc Interface" ),
 	M_ISA(		   isa_SmartSDCard,		isa_MassStorage,"SMART SD Card Interface" ),
@@ -170,7 +169,7 @@ enum isa_id {
 	M_ISA(			 isa_FdcJLO,		isa_Fdc,		"JLO Disc Interface" ),
 	M_ISA(			 isa_OpusDiscovery,	isa_Fdc,		"Opus Discovery Disc Interface" ),	// WD1770
 	M_ISA(			 isa_Disciple,		isa_Fdc,		"DISCiPLE Disc Interface" ),		// VL1772
-	
+
 	M_ISA(		isa_Ay,					isa_Item,		"AY-3-8912" ),
 	M_ISA(			isa_ZonxBox,		isa_Ay,			"Bi-Pak ZON X" ),
 	M_ISA(			isa_ZonxBox81,		isa_Ay,			"Bi-Pak ZON X-81" ),
@@ -178,14 +177,14 @@ enum isa_id {
 	M_ISA(			isa_FullerBox,		isa_Ay,			"Fuller Box" ),
 	M_ISA(			isa_InternalAy,		isa_Ay,			"Internal AY-3-8912" ),
 	M_ISA(			isa_ZaxonAyMagic,	isa_Ay,			"Zaxon AY Magic" ),
-	
+
 	M_ISA(		isa_Printer,			isa_Item,		"Printer Interface" ),
 	M_ISA(			isa_ZxPrinter,		isa_Printer,	"Sinclair ZX Printer" ),
 	M_ISA(			isa_PrinterAerco,	isa_Printer,	"Aerco Centronics Interface" ),
 	M_ISA(			isa_PrinterLprint3, isa_Printer,	"ZX LPrint III Printer Interface" ),
 	M_ISA(			isa_PrinterPlus3,	isa_Printer,	"Internal Printer Port" ),
 	M_ISA(			isa_PrinterTs2040,	isa_Printer,	"Timex Sinclair TS2040 Printer" ),
-	
+
 	M_ISA(		isa_ExternalRam,		isa_Item ,		"External Ram Extension"),
 	M_ISA(			isa_Cheetah32kRam,	isa_ExternalRam,"Cheetah 32K rampack" ),
 	M_ISA(			isa_Jupiter16kRam,	isa_ExternalRam,"Jupiter 16K RAM" ),
@@ -195,19 +194,19 @@ enum isa_id {
 	M_ISA(			isa_Memotech16kRam, isa_ExternalRam,"MEMOPAK 16K" ),
 	M_ISA(			isa_Memotech64kRam, isa_ExternalRam,"MEMOPAK 64k" ),
 	M_ISA(			isa_Zx3kRam,		isa_ExternalRam,"Sinclair ZX80 1-3K BYTE RAM PACK" ),
-	
+
 	M_ISA(		isa_TapeRecorder,		isa_Item,		 "Tape Recorder" ),
 	M_ISA(			isa_Walkman,		isa_TapeRecorder,"External Tape Recorder"),
 	M_ISA(			isa_Plus2Tapedeck,	isa_TapeRecorder,"Internal Tape Recorder"),
 	M_ISA(			isa_Plus2aTapedeck,	isa_TapeRecorder,"Internal Tape Recorder"),
 	M_ISA(			isa_TS2020,			isa_TapeRecorder,"TS2020"),
-	
+
 	M_ISA(		isa_MGT,				isa_Item,		"M.G.T. Interface" ),
 	M_ISA(		isa_Multiface,			isa_Item,		"Multiface Interface" ),
 	M_ISA(			isa_Multiface1,		isa_Multiface,	"Multiface 1" ),
 	M_ISA(			isa_Multiface128,	isa_Multiface,	"Multiface 128" ),
 	M_ISA(			isa_Multiface3,		isa_Multiface,	"Multiface 3" ),
-	
+
 	M_ISA(		isa_ZxIf1,				isa_Item,		"Sinclair ZX Interface 1" ),
 	M_ISA(		isa_WafaDrive,			isa_Item,		"Rotronics Wafadrive" ),
 	M_ISA(		isa_IcTester,			isa_Item,		"Kio's IC Tester" ),

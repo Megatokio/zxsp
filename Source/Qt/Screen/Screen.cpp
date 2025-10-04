@@ -78,8 +78,7 @@ Screen::Screen(QWidget* owner, isa_id id) :
 	frames_hit_percent(100.0f),
 	zoom(calc_zoom()),
 	screen_renderer(newRenderer()),
-	gif_writer(nullptr),
-	overlays {nullptr, nullptr}
+	gif_writer(nullptr)
 {
 	xlogIn("new Screen");
 
@@ -109,10 +108,9 @@ Screen::~Screen()
 
 	render_thread->wait();
 
-	for (uint i = NELEM(overlays); i--;) delete overlays[i];
 	delete gif_writer;
-	delete _gifmovie_filepath;
-	delete _screenshot_filepath;
+	delete[] _gifmovie_filepath;
+	delete[] _screenshot_filepath;
 }
 
 void Screen::initializeGL()
@@ -186,15 +184,7 @@ void Screen::paintEvent(QPaintEvent*)
 
 void Screen::resizeEvent(QResizeEvent*)
 {
-	int z = zoom;
 	calc_zoom();
-	if (z != zoom)
-		for (uint i = NELEM(overlays); i--;)
-		{
-			Overlay* ov = overlays[i];
-			if (ov) ov->setZoom(zoom);
-		}
-	arrangeOverlays();
 	repaint(); //	QGLWidget::paintEvent(e);	MUST NOT BE CALLED!
 }
 
@@ -415,11 +405,28 @@ void Screen::paint_screen(bool draw_passepartout)
 
 	p.endNativePainting();
 
-	OverlayPlay* ovp = overlayPlay;
-	if (ovp) p.drawPixmap(ovp->x, ovp->y, ovp->w, ovp->h, ovp->background);
+	p.setBackgroundMode(Qt::BGMode::TransparentMode);
+	p.scale(zoom, zoom);
 
-	OverlayRecord* ovr = overlayRecord;
-	if (ovr) p.drawPixmap(ovr->x, ovr->y, ovr->w, ovr->h, ovr->background);
+	if (auto* ov = rzx_overlay.get())
+	{
+		ov->x = w - ov->w;
+		ov->y = h - ov->h;
+		ov->draw(p);
+	}
+
+	{
+		int y = 0;
+		for (uint i = 0; i < NELEM(joystick_overlays); i++)
+		{
+			auto* ov = joystick_overlays[i].get();
+			if (!ov) break;
+			ov->x = 0;
+			ov->y = y;
+			ov->draw(p);
+			y += ov->h;
+		}
+	}
 
 	// flush drawing to screen:
 	// without Painter resize() was (nearly) flicker-free:
@@ -446,202 +453,46 @@ void Screen::paint_screen(bool draw_passepartout)
 	}
 }
 
-void Screen::arrangeOverlays()
+void Screen::setRzxOverlay(const RzxOverlayPtr& p)
 {
-	//  Arrange Overlays
-	//  Arranges Overlays according to their Position code:
-	//
-	//  TopLeft		TopCenter		TopRight
-	//  MiddleLeft					MiddleRight
-	//  BottomLeft	BottomCenter	BottomRight
-	//  			BelowALL
+	if (rzx_overlay == p) return;
 
-	QRect bbox = this->rect();
-	assert(bbox.top() == 0);
-	assert(bbox.left() == 0);
-
-	Overlay* ovs[NELEM(overlays)];
-	uint	 num_ovs = 0;
-
-	// collect Overlays
-	// place BelowAll overlays
-	// calc. max width / height of left / right / top / bottom Overlays
-	// calc total width of top center and bottom center overlays
-	// calc total height of left and right overlays
-
-	int l	= 0, // max. width of left overlays
-		r	= 0, // max. width of right overlays
-		t	= 0, // max. height of top overlays
-		b	= 0; // max. height of bottom overlays
-	int tcw = 0, // total width: top center overlays
-		bcw = 0, //				bottom center
-		tlh = 0, // total height:top left
-		trh = 0, //				top right
-		blh = 0, //				bottom left
-		brh = 0, //				bottom right
-		lmh = 0, //				left middle
-		rmh = 0; //				right middle
-
-	for (uint i = NELEM(overlays); i--;)
-	{
-		Overlay* ov = overlays[i];
-		if (!ov) continue;
-
-		switch (ov->position)
-		{
-		case Overlay::BelowAll:
-			ov->x = bbox.left();
-			ov->y = bbox.bottom() - ov->h;
-			ov->w = bbox.width();
-			bbox.setHeight(bbox.height() - ov->h);
-			continue;
-		case Overlay::TopCenter:
-			t = max(t, ov->h);
-			tcw += ov->w;
-			break;
-		case Overlay::BottomCenter:
-			b = max(b, ov->h);
-			bcw += ov->w;
-			break;
-		case Overlay::TopLeft: tlh += ov->h; goto bl;
-		case Overlay::MiddleLeft: lmh += ov->h; goto bl;
-		case Overlay::BottomLeft:
-			blh += ov->h;
-		bl:
-			l = max(l, ov->w);
-			break;
-		case Overlay::TopRight: trh += ov->h; goto br;
-		case Overlay::MiddleRight: rmh += ov->h; goto br;
-		case Overlay::BottomRight:
-			brh += ov->h;
-		br:
-			r = max(r, ov->w);
-			break;
-		default: IERR();
-		}
-		ovs[num_ovs++] = ov;
-	}
-
-	// place Overlays:
-
-	int tcx = (bbox.width() - tcw) / 2; // x for placing TopCenter
-	int bcx = (bbox.width() - bcw) / 2; // x for placing BottomCenter
-
-#define try _try
-
-	int tly = 0;						   // y for placing topLeft
-	int try = 0;						   // y for placing topRight
-	if (tcx < l || tcx < r) tly = try = t; // if topCenter too wide, start below topCenter
-
-	int bly = bbox.bottom() - blh; // y for placing bottomLeft
-	int bry = bbox.bottom() - brh; // y for placing bottomRight
-	if (bcx < l || bcx < r)
-	{
-		bly -= b;
-		bry -= b;
-	}
-
-	int lmy = (bbox.height() - lmh) / 2; // y for placing middleLeft
-	lmy		= max(lmy, tly + tlh);
-
-	int rmy = (bbox.height() - rmh) / 2; // y for placing middleLeft
-	rmy		= max(rmy, try + trh);
-
-	b = bbox.bottom() * 2 - b;
-	r = bbox.right() * 2 - r; // --> bbox.right() - ( r + ov->width()) / 2
-
-	for (uint i = num_ovs; i--;)
-	{
-		Overlay* ov = ovs[i];
-		switch (ov->position)
-		{
-		default: IERR();
-		case Overlay::TopCenter:
-			ov->x = tcx;
-			ov->y = (t - ov->h) / 2;
-			tcx += ov->w;
-			break;
-		case Overlay::BottomCenter:
-			ov->x = bcx;
-			ov->y = (b - ov->h) / 2;
-			bcx += ov->w;
-			break;
-		case Overlay::TopLeft:
-			ov->x = (l - ov->w) / 2;
-			ov->y = tly;
-			tly += ov->h;
-			break;
-		case Overlay::MiddleLeft:
-			ov->x = (l - ov->w) / 2;
-			ov->y = lmy;
-			lmy += ov->h;
-			break;
-		case Overlay::BottomLeft:
-			ov->x = (l - ov->w) / 2;
-			ov->y = bly;
-			bly += ov->h;
-			break;
-		case Overlay::TopRight:
-			ov->x = (r - ov->w) / 2;
-			ov->y = try;
-			try += ov->h;
-			break;
-		case Overlay::MiddleRight:
-			ov->x = (r - ov->w) / 2;
-			ov->y = rmy;
-			rmy += ov->h;
-			break;
-		case Overlay::BottomRight:
-			ov->x = (r - ov->w) / 2;
-			ov->y = bry;
-			bry += ov->h;
-			break;
-		}
-	}
-
-#undef try
+	_mutex.lock();
+	rzx_overlay = p;
+	_mutex.unlock();
 }
 
-Overlay* Screen::findOverlay(isa_id id)
+void Screen::setJoystickOverlay(uint index, const JoystickOverlayPtr& p)
 {
-	for (uint i = NELEM(overlays); i--;)
-	{
-		if (overlays[i]->isA(id)) return overlays[i];
-	}
-	return nullptr;
+	assert(index < NELEM(joystick_overlays));
+
+	if (joystick_overlays[index] == p) return;
+
+	_mutex.lock();
+	joystick_overlays[index] = p;
+	_mutex.unlock();
 }
 
-void Screen::showOverlayPlay(bool f)
+void Screen::setNumJoystickOverlays(uint n)
 {
-	if (!!overlayPlay == f) return;
-	if (f) overlayPlay = new OverlayPlay(this);
-	else
+	_mutex.lock();
+	while (n < NELEM(joystick_overlays))
 	{
-		delete overlayPlay;
-		overlayPlay = nullptr;
+		joystick_overlays[n++].reset(); //
 	}
-	arrangeOverlays();
-	update(); // falls das Passepartout nicht gezeichnet wird
-}
-
-void Screen::showOverlayRecord(bool f)
-{
-	if (!!overlayRecord == f) return;
-	if (f) overlayRecord = new OverlayRecord(this);
-	else
-	{
-		delete overlayRecord;
-		overlayRecord = nullptr;
-	}
-	arrangeOverlays();
-	update(); // falls das Passepartout nicht gezeichnet wird
+	_mutex.unlock();
 }
 
 void Screen::removeAllOverlays()
 {
-	for (uint i = NELEM(overlays); i--;) delete overlays[i];
-	memset(overlays, 0, sizeof(overlays));
-	update(); // falls das Passepartout nicht gezeichnet wird
+	_mutex.lock();
+	rzx_overlay.reset();
+	for (uint i = 0; i < NELEM(joystick_overlays); i++)
+	{
+		joystick_overlays[i].reset(); //
+	}
+	_mutex.unlock();
 }
+
 
 } // namespace gui

@@ -282,8 +282,6 @@ static OSStatus audioDeviceIOProc(
 	void* /*inClientData*/
 )
 {
-	TempMemPool tmp; // better create an explicite temp mem pool for alien threads
-
 	TT; // Test Timer
 
 	PLocker<PLock> lock(audio_callback_lock); // 2006-11-16 kio

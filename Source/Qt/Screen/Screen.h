@@ -36,7 +36,7 @@ protected:
 	QSemaphore _wait_repaint_sema;
 
 	uint _what;
-	enum { IDLE, FFB_OR_VBI = 1, REPAINT = 2, TERMI = 4, STOPMOVIE = 8 };
+	enum : uint { IDLE, FFB_OR_VBI = 1, REPAINT = 2, TERMI = 4, STOPMOVIE = 8 };
 	cstr _gifmovie_filepath;
 	cstr _screenshot_filepath;
 	bool _gifmovie_with_bordereffects;
@@ -98,51 +98,41 @@ public:
 	int		  getTopBorder() const { return ((height() + zoom - 1) / zoom + 1 - 192) / 2 * zoom; }
 	int		  getHF() const { return (screen_renderer->width - 2 * screen_renderer->h_border) / 256; }
 
-	union
-	{
-		Overlay* overlays[2];
-		struct
-		{
-			OverlayPlay*   overlayPlay;
-			OverlayRecord* overlayRecord;
-		};
-	};
-	Overlay* findOverlay(isa_id);
-	void	 arrangeOverlays();
-	void	 removeAllOverlays();
-	void	 showOverlayPlay(bool = true);
-	void	 hideOverlayPlay() { showOverlayPlay(false); }
-	void	 showOverlayRecord(bool = true);
-	void	 hideOverlayRecord() { showOverlayRecord(false); }
+	using RzxOverlayPtr		 = std::shared_ptr<RzxOverlay>;
+	using JoystickOverlayPtr = std::shared_ptr<JoystickOverlay>;
+
+	RzxOverlayPtr	   rzx_overlay;
+	JoystickOverlayPtr joystick_overlays[4];
+	void			   setRzxOverlay(const RzxOverlayPtr&);
+	void			   setJoystickOverlay(uint index, const JoystickOverlayPtr&);
+	void			   setNumJoystickOverlays(uint);
+	void			   removeAllOverlays();
 };
 
 } // namespace gui
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

@@ -20,9 +20,8 @@ class Application;
 class WindowMenu;
 class ZxItemsMenu;
 class Overlay;
-class OverlayJoystick;
-class OverlayRecord;
-class OverlayPlay;
+class JoystickOverlay;
+class RzxOverlay;
 
 class MachineController;
 class MachineList;

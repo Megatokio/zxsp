@@ -124,7 +124,7 @@ void MachineController::updateSomeMenuItems()
 		action_stepOver->setEnabled(f);
 	}
 
-	// update Options menu action: rzx_record and overlays: play/record
+	// update Options menu and overlay for rzx record and playback:
 	{
 		bool is_recording, is_playing;
 		{
@@ -139,33 +139,19 @@ void MachineController::updateSomeMenuItems()
 			action_RzxRecord->setChecked(is_recording);
 			action_RzxRecord->blockSignals(false);
 		}
-		if (!!overlay_rzx_record != is_recording)
+
+		if (screen)
 		{
-			if (overlay_rzx_record)
+			if (machine->rzxIsLoaded())
 			{
-				screen->removeOverlay(overlay_rzx_record);
-				overlay_rzx_record = nullptr;
+				if (!rzx_overlay) rzx_overlay.reset(new RzxOverlay);
+				rzx_overlay->setRecording(is_recording);
+				screen->setRzxOverlay(rzx_overlay);
 			}
-			else
-			{
-				overlay_rzx_record = new OverlayRecord(screen);
-				screen->addOverlay(overlay_rzx_record);
-			}
-		}
-		if (!!overlay_rzx_play != is_playing)
-		{
-			if (overlay_rzx_play)
-			{
-				screen->removeOverlay(overlay_rzx_play);
-				overlay_rzx_play = nullptr;
-			}
-			else
-			{
-				overlay_rzx_play = new OverlayPlay(screen);
-				screen->addOverlay(overlay_rzx_play);
-			}
+			else { screen->setRzxOverlay(nullptr); }
 		}
 	}
+
 }
 
 
@@ -1886,8 +1872,6 @@ void MachineController::powerResetMachine()
 
 	setFilepath(nullptr);
 	machine->powerOff(); // must be suspended
-	screen->hideOverlayPlay();
-	screen->hideOverlayRecord();
 	setKeyboardMode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
 	machine->powerOn();
 }
@@ -1898,8 +1882,6 @@ void MachineController::resetMachine()
 
 	setFilepath(nullptr);
 	nvptr(machine)->reset();
-	screen->hideOverlayPlay();
-	screen->hideOverlayRecord();
 	setKeyboardMode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
 }
 

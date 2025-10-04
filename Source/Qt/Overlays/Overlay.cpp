@@ -17,72 +17,37 @@
 namespace gui
 {
 
-Overlay::Overlay(Screen* scr, isa_id id, Position p) :
-	IsaObject(id, isa_Overlay),
-	screen(scr),
-	position(p),
-	x(0),
-	y(0),
-	w(0),
-	h(0),
-	zoom(scr->getZoom())
-{}
+Overlay::Overlay(isa_id id, Location p) : IsaObject(id, isa_Overlay), location(p) {}
 
-
-void Overlay::setZoom(int z)
-{
-	if (z == zoom) return;
-	w = w * z / zoom;
-	h = h * z / zoom;
-	xlogline("new size = %u x %u", w, h);
-	zoom = z;
-}
+Overlay::~Overlay() {}
 
 
 // ===================================================================
-//			Overlay "Play"
+//			Rzx playback / recording Overlay
 // ===================================================================
 
-
-OverlayPlay::OverlayPlay(Screen* s, Position pos) :
-	Overlay(s, isa_OverlayPlay, pos),
-	background(catstr(appl_rsrc_path, "Overlays/play.png"))
+RzxOverlay::RzxOverlay() :
+	Overlay(isa_RzxOverlay, RzxGroup),
+	background(usingstr("%sOverlays/play.png", appl_rsrc_path))
 {
-	xlogIn("new OverlayPlay");
-	assert(s);
+	xlogIn("new RzxOverlay");
 
-	w = background.width() * zoom / 4;
-	h = background.height() * zoom / 4;
+	w = background.width() / 4;
+	h = background.height() / 4;
 	xlogline("size = %u x %u", w, h);
 }
 
-
-void OverlayPlay::draw(QPainter& p) { p.drawPixmap(x, y, w, h, background); }
-
-
-// ===================================================================
-//			Overlay "Record"
-// ===================================================================
-
-
-OverlayRecord::OverlayRecord(Screen* s, Position pos) :
-	Overlay(s, isa_OverlayRecord, pos),
-	background(catstr(appl_rsrc_path, "Overlays/record.png"))
+void RzxOverlay::draw(QPainter& p)
 {
-	xlogIn("new OverlayRecord");
-	assert(s);
-
-	w = background.width() * zoom / 4;
-	h = background.height() * zoom / 4;
-	xlogline("size = %u x %u", w, h);
-
-	//	TODO: tiny animation
-	//	connect(timer,&QTimer::timeout,this,&Inspector::updateWidgets,Qt::AutoConnection);
-	//	timer->start(1000/10);
+	p.drawPixmap(x, y, w, h, background); //TODO: blink recording lamp
 }
 
-
-void OverlayRecord::draw(QPainter& p) { p.drawPixmap(x, y, w, h, background); }
+void RzxOverlay::setRecording(bool f)
+{
+	if (recording == f) return;
+	background = QPixmap(usingstr("%sOverlays/%s.png", appl_rsrc_path, recording ? "record" : "play"));
+	recording  = f;
+}
 
 
 // ===================================================================
@@ -96,8 +61,8 @@ static QColor text_color(0xccffffff);
 
 #define SZ 3 // raster size
 
-OverlayJoystick::OverlayJoystick(Screen* s, const Joystick* joy, cstr idf, Position pos) :
-	Overlay(s, isa_OverlayJoystick, pos),
+JoystickOverlay::JoystickOverlay(const Joystick* joy, cstr idf) :
+	Overlay(isa_JoystickOverlay, TopLeft),
 	joystick(joy),
 	idf(idf),
 	arrowL(3),
@@ -105,19 +70,13 @@ OverlayJoystick::OverlayJoystick(Screen* s, const Joystick* joy, cstr idf, Posit
 	arrowU(3),
 	arrowD(3)
 {
-	//TODO
-	//assert(idf);
-	//assert(joy != noJoystick);
-
 	w = h = 8 * SZ;
-	OverlayJoystick::setZoom(zoom);
 }
 
 
-void OverlayJoystick::setZoom(int z)
+/*
+void JoystickOverlay::setZoom(int z)
 {
-	Overlay::setZoom(z);
-
 	shadow_pen = QPen(shadow_color, 5 * z, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin);
 	hilite_pen = QPen(hilite_color, 3 * z, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin);
 	line_pen   = QPen(line_color, 1 * z, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin);
@@ -131,9 +90,9 @@ void OverlayJoystick::setZoom(int z)
 	arrowD.putPoints(0, 3, x + 4 * sz, y + 8 * sz, x + 3 * sz, y + 6 * sz, x + 5 * sz, y + 6 * sz);
 	fire.setRect(x + 3 * sz, y + 3 * sz, 2 * sz, 2 * sz);
 }
+*/
 
-
-void OverlayJoystick::draw(__unused QPainter& p)
+void JoystickOverlay::draw(__unused QPainter& p)
 {
 #if 0
 	if (screen->isActive() && joystick->isConnected())

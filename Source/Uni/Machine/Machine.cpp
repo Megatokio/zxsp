@@ -996,7 +996,7 @@ void Machine::runForSound(const StereoBuffer audio_in_buffer, StereoBuffer audio
 				if (cc < cc_final && ic < ic_end) result = cpu->run(cc_final, ic_end, cpu_options);
 			}
 
-			if (!rzx_file->isPlaying()) goto a; // OutOfSync
+			if (!rzx_file || !rzx_file->isPlaying()) goto a; // OutOfSync
 
 			if (ic >= ic_end) // next rzx frame:
 			{
@@ -1494,20 +1494,17 @@ void Machine::rzxStoreSnapshot()
 
 void Machine::rzxOutOfSync(cstr msg, bool red)
 {
-	assert(rzx_file);
-
 	if (msg)
 	{
 		if (red) showAlert("%s", msg);
 		else showWarning("%s", msg);
 	}
 
-	rzx_file->setOutOfSync();
+	rzxDispose();
 }
 
 void Machine::rzxDispose()
 {
-	if (!rzx_file) return;
 	delete rzx_file;
 	rzx_file = nullptr;
 }

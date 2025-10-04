@@ -26,71 +26,40 @@ M(		isa_OverlaySingleStep,	isa_Overlay,		"SingleStep Overlay" ),
 class Overlay : public IsaObject
 {
 public:
-	enum Position {
-		Default = 0,
+	enum Location { RzxGroup = 1, TopLeft = 2, BottomCenter = 3 };
 
-		Left   = 1,
-		Center = 2,
-		Right  = 3,
+	Location location;
 
-		Top	   = 1 * 8,
-		Middle = 2 * 8,
-		Bottom = 3 * 8,
-
-		TopLeft	  = Top | Left,
-		TopCenter = Top | Center,
-		TopRight  = Top | Right,
-
-		MiddleLeft	= Left | Middle,
-		MiddleRight = Right | Middle,
-
-		BottomLeft	 = Bottom | Left,
-		BottomCenter = Bottom | Center,
-		BottomRight	 = Bottom | Right,
-
-		BelowAll = Bottom, // at bottom, full width, below BottomCenter
-	};
-
-	Screen*	 screen;
-	Position position;
-	int		 x, y, w, h;
-	int		 zoom;
+	int x {0}; // nominal, before zoom
+	int y {0};
+	int w {0};
+	int h {0};
 
 
 protected:
-	Overlay(Screen*, isa_id, Position);
+	Overlay(isa_id, Location);
 
 public:
-	~Overlay() override {}
+	~Overlay() override;
 
-	virtual void setZoom(int);
 	virtual void draw(QPainter&) = 0;
 };
 
 
-class OverlayPlay : public Overlay
+class RzxOverlay : public Overlay
 {
 public:
 	QPixmap background;
+	bool	recording = false;
 
 public:
-	explicit OverlayPlay(Screen*, Position = TopLeft);
+	RzxOverlay();
 	void draw(QPainter&) override;
+	void setRecording(bool);
 };
 
 
-class OverlayRecord : public Overlay
-{
-public:
-	QPixmap background;
-
-public:
-	explicit OverlayRecord(Screen*, Position = TopLeft);
-	void draw(QPainter&) override;
-};
-
-
-class OverlayJoystick : public Overlay
+class JoystickOverlay : public Overlay
 {
 public:
 	const Joystick* joystick;
@@ -105,9 +74,8 @@ public:
 	QRect	 fire;
 
 public:
-	explicit OverlayJoystick(Screen*, const Joystick*, cstr idf, Position);
+	explicit JoystickOverlay(const Joystick*, cstr idf);
 	void draw(QPainter&) override;
-	void setZoom(int) override;
 };
 
 } // namespace gui
