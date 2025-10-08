@@ -37,12 +37,16 @@ JoyInsp::JoyInsp(QWidget* w, MachineController* mc, volatile Joy* joy, cstr imgp
 		joystick_selectors[i] = new QComboBox(this);
 		joystick_selectors[i]->setFocusPolicy(Qt::NoFocus);
 		joystick_selectors[i]->setMinimumWidth(80);
+	}
+
+	// NOTE: addItem() emits signal currentIndexChanged() which will call slotJoystickSelected()
+	// therefore the signal is connected after update_joystick_selectors()
+	update_joystick_selectors();
+
+	for (uint i = 0; i < num_ports; i++)
 		connect(
 			joystick_selectors[i], static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 			&JoyInsp::slotJoystickSelected);
-	}
-
-	update_joystick_selectors();
 
 	button_scan_usb = new QPushButton("Scan USB", this);
 	button_scan_usb->setMinimumWidth(100);

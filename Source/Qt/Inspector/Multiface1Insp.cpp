@@ -26,10 +26,10 @@ Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile Multi
 
 	joystick_selector = new QComboBox(this);
 	joystick_selector->setFocusPolicy(Qt::NoFocus);
+	update_joystick_selector();
 	connect(
 		joystick_selector, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 		&Multiface1Insp::slotJoystickSelected);
-	update_joystick_selector();
 
 	lineedit_display = new QLineEdit("%--------", this);
 	lineedit_display->setAlignment(Qt::AlignHCenter);

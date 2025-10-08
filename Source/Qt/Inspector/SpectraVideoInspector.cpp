@@ -47,6 +47,7 @@ SpectraVideoInspector::SpectraVideoInspector(QWidget* w, MachineController* mc, 
 	js_selector = new QComboBox(this);
 	js_selector->setFocusPolicy(Qt::NoFocus);
 	js_selector->setFixedWidth(110);
+	update_joystick_selector();
 	connect(
 		js_selector, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 		&SpectraVideoInspector::slotJoystickSelected);
@@ -107,8 +108,6 @@ SpectraVideoInspector::SpectraVideoInspector(QWidget* w, MachineController* mc, 
 	f = spectra->if1_rom_hooks_enabled;
 	checkbox_if1_rom_hooks->setChecked(f);
 
-	update_joystick_selector();
-
 	timer->start(1000 / 15);
 }
 
@@ -142,10 +141,10 @@ void SpectraVideoInspector::slotEnableJoystick(bool f)
 
 	nvptr(spectra)->setJoystickEnabled(f);
 
-	//	js_selector->setEnabled(f);
-	//	js_display->setEnabled(f);
-	//	button_set_keys->setEnabled(f);
-	//	button_scan_usb->setEnabled(f);
+	js_selector->setEnabled(f);
+	js_display->setEnabled(f);
+	button_set_keys->setEnabled(f);
+	button_scan_usb->setEnabled(f);
 
 	settings.setValue(key_spectra_enable_joystick, f);
 }
@@ -267,10 +266,10 @@ void SpectraVideoInspector::updateWidgets()
 	if (checkbox_joystick->isChecked() != f)
 	{
 		checkbox_joystick->setChecked(f);
-		js_selector->setEnabled(f);
-		js_display->setEnabled(f);
-		button_set_keys->setEnabled(f);
-		button_scan_usb->setEnabled(f);
+		//		js_selector->setEnabled(f);
+		//		js_display->setEnabled(f);
+		//		button_set_keys->setEnabled(f);
+		//		button_scan_usb->setEnabled(f);
 	}
 }
 
