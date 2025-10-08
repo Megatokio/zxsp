@@ -42,7 +42,7 @@ protected:
 public:
 	~Overlay() override;
 
-	virtual void draw(QPainter&) = 0;
+	virtual void draw(QPainter&, int scale) = 0;
 };
 
 
@@ -54,7 +54,7 @@ public:
 
 public:
 	RzxOverlay();
-	void draw(QPainter&) override;
+	void draw(QPainter&, int scale) override;
 	void setRecording(bool);
 };
 
@@ -62,20 +62,19 @@ public:
 class JoystickOverlay : public Overlay
 {
 public:
-	const Joystick* joystick;
-	cstr			idf; // 1 or 2 char identifier
-
-	QPen	 shadow_pen; // pen & font: subject to zoom scaling!
-	QPen	 hilite_pen;
-	QPen	 line_pen;
-	QPen	 text_pen;
-	QFont	 text_font;
-	QPolygon arrowL, arrowR, arrowU, arrowD;
-	QRect	 fire;
+	QPixmap pixmap;
+	uint8	state;	// Kempston: %000FUDLR
+	char	idf[3]; // 1 or 2 char identifier
+	int		zoom;	// current zoom of pixmap
 
 public:
-	explicit JoystickOverlay(const Joystick*, cstr idf);
-	void draw(QPainter&) override;
+	JoystickOverlay();
+	void draw(QPainter&, int scale) override;
+	void setIdf(cstr);
+	void setState(uint8); // Kempston: %000FUDLR
+
+private:
+	void setZoom(int zoom);
 };
 
 } // namespace gui

@@ -152,6 +152,71 @@ void MachineController::updateSomeMenuItems()
 		}
 	}
 
+	// update joystick overlays
+	// draw one overlay for each interface and port with joystick inserted
+	if (screen)
+	{
+		uint jscnt = 0;
+
+		NVPtr<Machine> m(machine.get());
+		for (uint i = 0; i < m->all_items.count(); i++)
+		{
+			Item* item = m->all_items[i].get();
+
+			// most JS interfaces are based on class Joy:
+			if (Joy* joy = dynamic_cast<Joy*>(item))
+			{
+				for (uint j = 0; j < joy->getNumPorts(); j++)
+				{
+					if (JoystickID id = joy->getJoystickID(j))
+					{
+						JoystickOverlayPtr& ov = joystick_overlays[jscnt];
+						if (!ov) ov.reset(new JoystickOverlay);
+						ov->setIdf(joy->getIdf(j));
+						ov->setState(m->joystick_buttons[id]);
+						screen->setJoystickOverlay(jscnt++, ov);
+						if (jscnt == NELEM(joystick_overlays)) break;
+					}
+				}
+			}
+
+			// Multiface1 is based on Multiface but has a joystick port:
+			else if (Multiface1* mf1 = dynamic_cast<Multiface1*>(item))
+			{
+				if (mf1->isJoystickEnabled())
+				{
+					if (JoystickID id = mf1->getJoystickID())
+					{
+						JoystickOverlayPtr& ov = joystick_overlays[jscnt];
+						if (!ov) ov.reset(new JoystickOverlay);
+						ov->setIdf(mf1->getIdf());
+						ov->setState(m->joystick_buttons[id]);
+						screen->setJoystickOverlay(jscnt++, ov);
+						if (jscnt == NELEM(joystick_overlays)) break;
+					}
+				}
+			}
+
+			// SpectraVideo is based on Crtc but has a joystick port:
+			else if (SpectraVideo* spectra = dynamic_cast<SpectraVideo*>(item))
+			{
+				if (spectra->isJoystickEnabled())
+				{
+					if (JoystickID id = spectra->getJoystickID())
+					{
+						JoystickOverlayPtr& ov = joystick_overlays[jscnt];
+						if (!ov) ov.reset(new JoystickOverlay);
+						ov->setIdf(spectra->getIdf());
+						ov->setState(m->joystick_buttons[id]);
+						screen->setJoystickOverlay(jscnt++, ov);
+						if (jscnt == NELEM(joystick_overlays)) break;
+					}
+				}
+			}
+		}
+
+		screen->setNumJoystickOverlays(jscnt);
+	}
 }
 
 

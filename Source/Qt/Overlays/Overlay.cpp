@@ -37,7 +37,7 @@ RzxOverlay::RzxOverlay() :
 	xlogline("size = %u x %u", w, h);
 }
 
-void RzxOverlay::draw(QPainter& p)
+void RzxOverlay::draw(QPainter& p, int)
 {
 	p.drawPixmap(x, y, w, h, background); //TODO: blink recording lamp
 }
@@ -45,7 +45,7 @@ void RzxOverlay::draw(QPainter& p)
 void RzxOverlay::setRecording(bool f)
 {
 	if (recording == f) return;
-	background = QPixmap(usingstr("%sOverlays/%s.png", appl_rsrc_path, recording ? "record" : "play"));
+	background = QPixmap(usingstr("%sOverlays/%s.png", appl_rsrc_path, f ? "record" : "play"));
 	recording  = f;
 }
 
@@ -54,79 +54,128 @@ void RzxOverlay::setRecording(bool f)
 //			Overlay "Joystick"
 // ===================================================================
 
-static QColor shadow_color(0x66000000); // argb
-static QColor line_color(0xccffffff);
-static QColor hilite_color(0xccffcc00);
-static QColor text_color(0xccffffff);
+static QPolygon arrowL, arrowR, arrowU, arrowD;
+static QRect	fire;
 
-#define SZ 3 // raster size
-
-JoystickOverlay::JoystickOverlay(const Joystick* joy, cstr idf) :
-	Overlay(isa_JoystickOverlay, TopLeft),
-	joystick(joy),
-	idf(idf),
-	arrowL(3),
-	arrowR(3),
-	arrowU(3),
-	arrowD(3)
+void JoystickOverlay::setZoom(int zoom)
 {
-	w = h = 8 * SZ;
-}
-
-
-/*
-void JoystickOverlay::setZoom(int z)
-{
-	shadow_pen = QPen(shadow_color, 5 * z, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin);
-	hilite_pen = QPen(hilite_color, 3 * z, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin);
-	line_pen   = QPen(line_color, 1 * z, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin);
-	text_pen   = QPen(text_color, 1 * z, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin);
-	text_font  = QFont("Arial", 11 * z); // Geneva (weiter), Arial oder Gill Sans (enger)
-
-	int sz = z * SZ;
-	arrowL.putPoints(0, 3, x + 0 * sz, y + 4 * sz, x + 2 * sz, y + 3 * sz, x + 2 * sz, y + 5 * sz);
-	arrowR.putPoints(0, 3, x + 8 * sz, y + 4 * sz, x + 6 * sz, y + 3 * sz, x + 6 * sz, y + 5 * sz);
-	arrowU.putPoints(0, 3, x + 4 * sz, y + 0 * sz, x + 3 * sz, y + 2 * sz, x + 5 * sz, y + 2 * sz);
-	arrowD.putPoints(0, 3, x + 4 * sz, y + 8 * sz, x + 3 * sz, y + 6 * sz, x + 5 * sz, y + 6 * sz);
-	fire.setRect(x + 3 * sz, y + 3 * sz, 2 * sz, 2 * sz);
-}
-*/
-
-void JoystickOverlay::draw(__unused QPainter& p)
-{
-#if 0
-	if (screen->isActive() && joystick->isConnected())
+	if (this->zoom != zoom)
 	{
-		p.setPen(shadow_pen);
-		p.drawPolygon(arrowL);
-		p.drawPolygon(arrowR);
-		p.drawPolygon(arrowU);
-		p.drawPolygon(arrowD);
-		p.drawEllipse(fire);
-
-		uint state = joystick->getState(no);
-		if (state)
-		{
-			p.setPen(hilite_pen);
-			if (state & JoystickButtons::button_left_mask) p.drawPolygon(arrowL);
-			if (state & JoystickButtons::button_right_mask) p.drawPolygon(arrowR);
-			if (state & JoystickButtons::button_up_mask) p.drawPolygon(arrowU);
-			if (state & JoystickButtons::button_down_mask) p.drawPolygon(arrowD);
-			if (state & JoystickButtons::button_fire1_mask) p.drawEllipse(fire);
-		}
-
-		p.setPen(line_pen);
-		p.drawPolygon(arrowL);
-		p.drawPolygon(arrowR);
-		p.drawPolygon(arrowU);
-		p.drawPolygon(arrowD);
-		p.drawEllipse(fire);
-
-		p.setPen(text_pen);
-		p.setFont(text_font);
-		p.drawText(x, y + zoom * 9, idf);
+		this->zoom = zoom;
+		pixmap	   = QPixmap(30 * zoom, 30 * zoom);
 	}
-#endif
+
+	QColor background_color {0, 0, 0, 0x20}; // rgba
+	QColor line_color(222, 222, 222, 0x80);
+	QColor text_color(222, 222, 222, 0x80);
+
+	pixmap.fill(Qt::GlobalColor::transparent);
+	QPainter p(&pixmap);
+	p.scale(zoom, zoom);
+	p.setPen(Qt::NoPen);
+	p.setBrush(background_color);
+	p.drawRoundRect(0, 0, 30, 30, 4 * zoom, 4 * zoom);
+
+	QPen line_pen = QPen(line_color, 0.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+	p.setPen(line_pen);
+	p.setBrush(Qt::NoBrush);
+
+	p.drawEllipse(fire);
+	p.drawPolyline(arrowU);
+	p.drawPolyline(arrowD);
+	p.drawPolyline(arrowL);
+	p.drawPolyline(arrowR);
+
+	p.setPen(text_color);
+	QFont text_font = QFont("Arial", 8); // Geneva (weiter), Arial oder Gill Sans (enger)
+	p.setFont(text_font);
+	p.drawText(idf[1] ? 20 : 22, 28, idf);
 }
+
+
+JoystickOverlay::JoystickOverlay() : //
+	Overlay {isa_JoystickOverlay, TopLeft},
+	pixmap {},
+	state {0x00},
+	idf {0},
+	zoom {0}
+{
+	xlogIn("new JoystickOverlay");
+
+	w = 30;
+	h = 30;
+
+	if (fire.isNull())
+	{
+		fire.setRect(11, 11, 8, 8);
+		arrowU.setPoints(3, 12, +8, 15, +2, 18, +8);
+		arrowD.setPoints(3, 12, 22, 15, 28, 18, 22);
+		arrowL.setPoints(3, +8, 18, +2, 15, +8, 12);
+		arrowR.setPoints(3, 22, 18, 28, 15, 22, 12);
+	}
+}
+
+void JoystickOverlay::setState(uint8 newstate) { state = newstate & 0x1f; }
+
+void JoystickOverlay::setIdf(cstr s)
+{
+	assert(s);
+	if (eq(idf, s)) return;
+
+	idf[0] = s[0];
+	idf[1] = s[1];
+	idf[2] = 0;
+	if (zoom) setZoom(zoom);
+}
+
+void JoystickOverlay::draw(QPainter& p, int zoom)
+{
+	if (zoom != this->zoom) setZoom(zoom);
+	p.drawPixmap(x, y, w, h, pixmap);
+
+	if (state == 0x00) return;
+
+	QColor hilite_color(255, 255, 255);
+	QPen   hilite_pen = QPen(hilite_color, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+	p.setPen(hilite_pen);
+	p.setBrush(Qt::NoBrush);
+
+	if (state & JoystickButtons::button_fire1_mask) { p.drawEllipse(fire); }
+	if (state & JoystickButtons::button_up_mask) { p.drawPolyline(arrowU); }
+	if (state & JoystickButtons::button_down_mask) { p.drawPolyline(arrowD); }
+	if (state & JoystickButtons::button_left_mask) { p.drawPolyline(arrowL); }
+	if (state & JoystickButtons::button_right_mask) { p.drawPolyline(arrowR); }
+}
+
 
 } // namespace gui
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/

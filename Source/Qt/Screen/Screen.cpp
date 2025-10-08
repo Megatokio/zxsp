@@ -412,19 +412,19 @@ void Screen::paint_screen(bool draw_passepartout)
 	{
 		ov->x = w - ov->w;
 		ov->y = h - ov->h;
-		ov->draw(p);
+		ov->draw(p, zoom);
 	}
 
 	{
-		int y = 0;
+		p.translate(2, 2);
 		for (uint i = 0; i < NELEM(joystick_overlays); i++)
 		{
 			auto* ov = joystick_overlays[i].get();
 			if (!ov) break;
 			ov->x = 0;
-			ov->y = y;
-			ov->draw(p);
-			y += ov->h;
+			ov->y = 0;
+			ov->draw(p, zoom);
+			p.translate(0, ov->h + 2);
 		}
 	}
 
