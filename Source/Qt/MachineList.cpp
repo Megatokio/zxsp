@@ -18,7 +18,7 @@ void MachineList::runMachinesForSound(const StereoBuffer audio_in_buffer, Stereo
 
 		if (!machine)
 		{
-			if (debug) showWarning("runMachinesForSound: failed to lock");
+			if (debug) logline("runMachinesForSound: failed to lock");
 			continue;
 		}
 
