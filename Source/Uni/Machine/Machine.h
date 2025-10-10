@@ -341,7 +341,8 @@ public:
 	Keymap getKeymap() const volatile;
 	uint8  getJoystickButtons(JoystickID id) // FUDLR
 	{
-		if (id == kbd_joystick) kbd_joystick_active = 255;
+		assert_lt(uint(id), NELEM(joystick_buttons));
+		if (id == kbd_joystick) kbd_joystick_active = 100;
 		return joystick_buttons[id];
 	}
 	uint8		peekJoystickButtons(JoystickID id) const volatile { return joystick_buttons[id]; } // FUDLR

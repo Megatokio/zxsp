@@ -21,3 +21,5 @@ extern void showMessage(MessageStyle, cstr text);
 extern Frequency samples_per_second; // for audio output channel
 extern Time		 system_time;		 // monotonic real time [seconds]
 extern cstr		 appl_rsrc_path;	 // where are the roms, audio fx,
+
+extern uint num_usb_joysticks; // OS/Mac/UsbJoystick.h

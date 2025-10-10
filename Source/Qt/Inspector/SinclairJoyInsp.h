@@ -17,7 +17,7 @@ public:
 	SinclairJoyInsp(QWidget*, MachineController*, volatile SinclairJoy*, cstr img_path);
 
 protected:
-	void updateWidgets() override;
+	cstr lineedit_text(uint port, uint8 state) override;
 };
 
 } // namespace gui

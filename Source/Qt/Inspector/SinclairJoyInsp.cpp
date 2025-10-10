@@ -41,6 +41,17 @@ SinclairJoyInsp::SinclairJoyInsp(QWidget* w, MachineController* mc, volatile Sin
 	g->addWidget(button_set_keys, 3, 1, Qt::AlignHCenter | Qt::AlignVCenter);
 }
 
+cstr SinclairJoyInsp::lineedit_text(uint port, uint8 state)
+{
+	// ZX Spectrum +2
+	//	Sinclair 1: %---FUDRL active low oK
+	//	Sinclair 2: %---LRDUF active low oK
+
+	return port == 0 ? binstr(SinclairJoy::calcS1FromFUDLR(state), "%000FUDRL", "%--------") :
+					   binstr(SinclairJoy::calcS2FromFUDLR(state), "%000LRDUF", "%--------");
+}
+
+/*
 void SinclairJoyInsp::updateWidgets()
 {
 	// ZX Spectrum +2
@@ -49,6 +60,9 @@ void SinclairJoyInsp::updateWidgets()
 
 	xlogIn("SinclairJoyInsp::updateWidgets");
 	assert(validReference(joy));
+
+	if (joy->getJoystickID(0) != joystick_selectors[0]->currentIndex()) update_joystick_selectors();
+	if (joy->getJoystickID(1) != joystick_selectors[1]->currentIndex()) update_joystick_selectors();
 
 	uint8 newstate = joy->peekButtonsFUDLR(0); // Sinclair 1
 	if (newstate != lineedit_state[0])
@@ -64,5 +78,6 @@ void SinclairJoyInsp::updateWidgets()
 		lineedit_display[1]->setText(binstr(SinclairJoy::calcS2FromFUDLR(newstate), "%000LRDUF", "%--------"));
 	}
 }
+*/
 
 } // namespace gui

@@ -15,7 +15,7 @@ public:
 	CursorJoyInsp(QWidget*, MachineController*, volatile CursorJoy*, cstr image);
 
 protected:
-	void updateWidgets() override;
+	cstr lineedit_text(uint port, uint8 state) override;
 };
 
 

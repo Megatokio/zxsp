@@ -415,7 +415,7 @@ void Machine::loadZ80_attach_joysticks(uint z80head_im)
 	case 1:
 		j = find<KempstonJoy>();
 		if (!j) j = static_cast<Joy*>(addExternalItem(isa_KempstonJoy));
-		if (!j->isConnected(0)) j->insertJoystick(0, usb_joystick0);
+		j->insertJoystick(0, num_usb_joysticks >= 1 ? usb_joystick0 : kbd_joystick);
 		break;
 
 	case 3: // right (1st) IF2 -> for zxsp this is joystick[1]
@@ -423,7 +423,8 @@ void Machine::loadZ80_attach_joysticks(uint z80head_im)
 		uint idx = z80head_im & 1;
 		j		 = find<SinclairJoy>();
 		if (!j) j = static_cast<Joy*>(addExternalItem(isa_ZxIf2));
-		if (!j->isConnected(idx)) j->insertJoystick(idx, usb_joystick0);
+		j->insertJoystick(!idx, no_joystick);
+		j->insertJoystick(idx, num_usb_joysticks >= 1 ? usb_joystick0 : kbd_joystick);
 		break;
 	}
 }

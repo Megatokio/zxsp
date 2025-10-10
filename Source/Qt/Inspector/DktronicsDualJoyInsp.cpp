@@ -32,6 +32,16 @@ DktronicsDualJoyInsp::DktronicsDualJoyInsp(QWidget* w, MachineController* mc, vo
 	g->addWidget(button_set_keys, 3, 1, Qt::AlignHCenter | Qt::AlignVCenter);
 }
 
+cstr DktronicsDualJoyInsp::lineedit_text(uint port, uint8 state)
+{
+	// Port 1 = Kempston
+	// Port 2 = Sinclair 2
+
+	return port == 0 ? binstr(state, "--------", "111FUDLR") :
+					   binstr(SinclairJoy::calcS2FromFUDLR(state), "%000LRDUF", "%--------");
+}
+
+/*
 void DktronicsDualJoyInsp::updateWidgets()
 {
 	xlogIn("DktronicsDualJoyInsp::updateWidgets");
@@ -51,5 +61,6 @@ void DktronicsDualJoyInsp::updateWidgets()
 		lineedit_display[1]->setText(binstr(SinclairJoy::calcS2FromFUDLR(newstate), "%000LRDUF", "%--------"));
 	}
 }
+*/
 
 } // namespace gui

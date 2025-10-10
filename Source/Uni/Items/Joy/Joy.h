@@ -11,7 +11,7 @@ class Joy : public Item
 	friend class AyForTc2068;
 
 protected:
-	JoystickID joystick_id[3] = {no_joystick};
+	JoystickID joystick_id[3] = {no_joystick, no_joystick, no_joystick};
 	cstr	   joystick_idf[3]; // short identifier, e.g. "K" for Kempston
 	uint	   num_ports;
 

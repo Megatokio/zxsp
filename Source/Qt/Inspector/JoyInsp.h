@@ -29,10 +29,11 @@ public:
 	JoyInsp(QWidget*, MachineController*, volatile Joy*, cstr img_path);
 
 protected:
-	void updateWidgets() override;
+	void		 updateWidgets() override;
+	void		 update_joystick_selectors();
+	virtual cstr lineedit_text(uint port, uint8 state);
 
 private:
-	void update_joystick_selectors();
 	void slotFindUsbJoysticks();
 	void slotSetKeyboardJoystickKeys();
 	void slotJoystickSelected();

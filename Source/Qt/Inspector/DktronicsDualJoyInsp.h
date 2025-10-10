@@ -18,7 +18,8 @@ public:
 	DktronicsDualJoyInsp(QWidget*, MachineController*, volatile DktronicsDualJoy*);
 
 protected:
-	void updateWidgets() override;
+	//void updateWidgets() override;
+	cstr lineedit_text(uint port, uint8 state) override;
 };
 
 } // namespace gui

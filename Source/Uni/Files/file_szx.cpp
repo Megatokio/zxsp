@@ -473,8 +473,8 @@ void Machine::loadSZX(FD& fd)
 
 			uint joystick1_type = fd.read_uint8();
 			uint joystick2_type = fd.read_uint8();
-			szx_add_joystick(joystick1_type, usb_joystick0);
-			szx_add_joystick(joystick2_type, usb_joystick1);
+			szx_add_joystick(joystick1_type, num_usb_joysticks >= 1 ? usb_joystick0 : kbd_joystick);
+			szx_add_joystick(joystick2_type, num_usb_joysticks >= 2 ? usb_joystick1 : kbd_joystick);
 			break;
 		}
 		case ZXST_AY:

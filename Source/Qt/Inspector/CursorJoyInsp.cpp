@@ -52,27 +52,16 @@ CursorJoyInsp::CursorJoyInsp(QWidget* w, MachineController* mc, volatile CursorJ
 //		button_left_mask	= 0x02,
 //		button_right_mask	= 0x01
 
-
-void CursorJoyInsp::updateWidgets()
+cstr CursorJoyInsp::lineedit_text(uint __unused port, uint8 state)
 {
-	xlogIn("CursorJoyInsp::updateWidgets");
-	assert(validReference(joy));
+	uint mybyte = ((state & 2u) << 9)	  // left
+				  + ((state & 1u) << 2)	  // right
+				  + ((state & 4u) << 2)	  // down
+				  + ((state & 8u) << 0)	  // up
+				  + ((state & 16u) >> 4); // fire
 
-	uint8 newstate = joy->peekButtonsFUDLR(0);
-	if (newstate != lineedit_state[0])
-	{
-		lineedit_state[0] = newstate;
-
-		uint mybyte = ((newstate & 2u) << 9)	 // left
-					  + ((newstate & 1u) << 2)	 // right
-					  + ((newstate & 4u) << 2)	 // down
-					  + ((newstate & 8u) << 0)	 // up
-					  + ((newstate & 16u) >> 4); // fire
-
-		lineedit_display[0]->setText(binstr(mybyte, "%-----:-----", "&L----:DUR-F"));
-	}
+	return binstr(mybyte, "%-----:-----", "%LxxxxxDURxF");
 }
-
 
 ProtekJoyInsp::ProtekJoyInsp(QWidget* w, MachineController* mc, volatile ProtekJoy* j) :
 	CursorJoyInsp(w, mc, j, "/Images/protek_js_if.jpg")

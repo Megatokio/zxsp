@@ -33,7 +33,14 @@ Tc2068JoyInsp::Tc2068JoyInsp(QWidget* w, MachineController* mc, volatile Tc2068J
 	g->addWidget(button_set_keys, 3, 1, Qt::AlignHCenter | Qt::AlignVCenter);
 }
 
+cstr Tc2068JoyInsp::lineedit_text(uint __unused port, uint8 state)
+{
+	state = tc2068joy->calcButtonsFromFUDLR(state);
+	return binstr(state, "%F000RLDU", "%--------");
+}
 
+
+/*
 void Tc2068JoyInsp::updateWidgets()
 {
 	xlogIn("Tc2068JoyInsp::updateWidgets");
@@ -47,5 +54,6 @@ void Tc2068JoyInsp::updateWidgets()
 		lineedit_display[i]->setText(binstr(newstate, "%F000RLDU", "%--------"));
 	}
 }
+*/
 
 } // namespace gui

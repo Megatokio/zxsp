@@ -17,7 +17,7 @@ public:
 	Tc2068JoyInsp(QWidget*, MachineController*, volatile Tc2068Joy*, cstr img_path);
 
 protected:
-	void updateWidgets() override;
+	cstr lineedit_text(uint port, uint8 state) override;
 };
 
 } // namespace gui
