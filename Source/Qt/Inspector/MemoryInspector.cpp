@@ -226,7 +226,15 @@ void MemoryInspector::slotMemoryConfigChanged(Memory*, uint /*how*/)
 
 	xlogIn("MemoryInspector.slotMemoryConfigChanged");
 	assert(isMainThread());
-	assert(controller->getMachine() == machine);
+
+	//assert(controller->getMachine() == machine);
+	if (controller->getMachine() != machine)
+	{
+		// in MachineController::killMachine
+		// the signal gets delivered even after the Inspector is removed from it's Toolwindow:
+		logline("MemoryInspector::slotMemoryConfigChanged called for void machine");
+		return;
+	}
 
 	switch (data_source)
 	{
@@ -593,35 +601,35 @@ int32 MemoryInspector::pageOffsetForCpuAddress(uint16 addr)
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */
