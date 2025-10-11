@@ -14,23 +14,27 @@ void MachineList::runMachinesForSound(const StereoBuffer audio_in_buffer, Stereo
 {
 	for (uint i = 0; i < count(); i++)
 	{
-		NVPtr<Machine> machine(data[i].get(), 50 * 1000); // timeout = 50 µs
-
-		if (!machine)
+		volatile Machine* vm = data[i].get();
+		if (vm->isPowerOn() && vm->isRunning())
 		{
-			if (debug) logline("runMachinesForSound: failed to lock");
-			continue;
-		}
+			NVPtr<Machine> machine(vm, 50 * 1000); // timeout = 50 µs
 
-		if (machine->isPowerOn())
-		{
-			if (machine->isRunning()) // not suspended
+			if (!machine)
 			{
-				machine->runForSound(audio_in_buffer, audio_out_buffer, 0);
-				if (machine->cpu_clock > 100000) continue;
+				if (debug) logline("runMachinesForSound: failed to lock");
+				continue;
 			}
 
-			machine->drawVideoBeamIndicator();
+			if (machine->isPowerOn())
+			{
+				if (machine->isRunning()) // not suspended
+				{
+					machine->runForSound(audio_in_buffer, audio_out_buffer, 0);
+					if (machine->cpu_clock > 100000) continue;
+				}
+
+				machine->drawVideoBeamIndicator();
+			}
 		}
 	}
 }
