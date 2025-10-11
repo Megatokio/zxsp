@@ -617,7 +617,7 @@ void SpectraVideo::romCS(bool f)
 	if (f == romdis_in) return;
 	romdis_in = f;
 
-	if (!f && rom.ptr()) activateRom(); // also emits romCS
+	if (!f && rom.get()) activateRom(); // also emits romCS
 	else prev()->romCS(f || own_romdis_state);
 }
 
@@ -659,7 +659,7 @@ void SpectraVideo::ejectRom()
 
 	delete[] filepath;
 	filepath = nullptr;
-	if (rom.ptr() == nullptr) return;
+	if (rom.get() == nullptr) return;
 
 	deactivateRom();
 	deactivate_hooks();
@@ -668,7 +668,7 @@ void SpectraVideo::ejectRom()
 
 uint8 SpectraVideo::handleRomPatch(uint16 pc, uint8 opcode)
 {
-	if (if1_rom_hooks_enabled && rom.ptr())
+	if (if1_rom_hooks_enabled && rom.get())
 	{
 		if (own_romdis_state) // in SPECTRA rom:
 		{
@@ -693,7 +693,7 @@ uint8 SpectraVideo::handleRomPatch(uint16 pc, uint8 opcode)
 
 void SpectraVideo::init_rom()
 {
-	if (rom.ptr())
+	if (rom.get())
 	{
 		if (if1_rom_hooks_enabled)
 		{
@@ -711,7 +711,7 @@ void SpectraVideo::init_rom()
 
 void SpectraVideo::activateRom()
 {
-	if (rom.ptr() == nullptr) return;
+	if (rom.get() == nullptr) return;
 	own_romdis_state = true;
 	if (romdis_in) return;
 
@@ -725,7 +725,7 @@ void SpectraVideo::deactivateRom()
 {
 	own_romdis_state = false;
 	if (romdis_in) return;
-	if (rom.ptr() == nullptr) return;
+	if (rom.get() == nullptr) return;
 	prev()->romCS(false);
 
 	//	if(machine->cpu->rdPtr(0)==rom.getData()) machine->cpu->unmapRom(0/*addr*/,0x4000/*size*/);
@@ -733,7 +733,7 @@ void SpectraVideo::deactivateRom()
 
 void SpectraVideo::activate_hooks()
 {
-	assert(rom.ptr());
+	assert(rom.get());
 
 	rom[ROM_RESTORE] |= cpu_patch;
 	machine->rom[ROM_ERROR_HANDLER] |= cpu_patch;
@@ -742,7 +742,7 @@ void SpectraVideo::activate_hooks()
 
 void SpectraVideo::deactivate_hooks()
 {
-	assert(rom.ptr());
+	assert(rom.get());
 
 	rom[ROM_RESTORE] &= ~cpu_patch;
 	machine->rom[ROM_ERROR_HANDLER] &= ~cpu_patch;

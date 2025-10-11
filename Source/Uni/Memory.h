@@ -9,7 +9,6 @@
 */
 
 #include "Templates/Array.h"
-#include "Templates/RCPtr.h"
 #include "cpp/cppthreads.h"
 #include "kio/kio.h"
 
@@ -20,14 +19,8 @@ class Machine;
 class Memory
 {
 	friend class MemoryPtr;
-	friend class RCPtr<Memory>;
-
-	mutable uint _cnt;
-	void		 retain() const { ++_cnt; }
-	void		 release() const
-	{
-		if (--_cnt == 0) delete this;
-	}
+	friend std::shared_ptr<Memory>;
+	friend std::default_delete<Memory>;
 
 	void operator=(const Memory&); // prohibit
 	Memory(const Memory&);		   // prohibit
@@ -61,25 +54,26 @@ public:
 };
 
 
-class MemoryPtr : public RCPtr<Memory>
+class MemoryPtr : public std::shared_ptr<Memory>
 {
 	MemoryPtr() {}
+	using super = std::shared_ptr<Memory>;
 
 public:
-	MemoryPtr(Memory* p) : RCPtr(p) {}
-	~MemoryPtr() { assert(!p || p->_cnt > 0); }
-	MemoryPtr(Machine* m, cstr name, uint cnt) : RCPtr(new Memory(m, name, cnt)) {}
+	MemoryPtr(Memory* p) : super(p) {}
+	~MemoryPtr() {}
+	MemoryPtr(Machine* m, cstr name, uint cnt) : super(new Memory(m, name, cnt)) {}
 
 	// access data members:
-	uint			count() const { return p->data.count(); }
-	CoreByte*		getData() { return p->data.getData(); }
-	const CoreByte* getData() const { return p->data.getData(); }
+	uint			count() const { return get()->data.count(); }
+	CoreByte*		getData() { return get()->data.getData(); }
+	const CoreByte* getData() const { return get()->data.getData(); }
 
 	// get item at index:
-	const CoreByte& operator[](uint i) const noexcept { return p->data[i]; }
-	CoreByte&		operator[](uint i) noexcept { return p->data[i]; }
+	const CoreByte& operator[](uint i) const noexcept { return get()->data[i]; }
+	CoreByte&		operator[](uint i) noexcept { return get()->data[i]; }
 
 	// modifiy:
-	void shrink(uint newcnt) { p->shrink(newcnt); }
-	void grow(uint newcnt) { p->grow(newcnt); }
+	void shrink(uint newcnt) { get()->shrink(newcnt); }
+	void grow(uint newcnt) { get()->grow(newcnt); }
 };

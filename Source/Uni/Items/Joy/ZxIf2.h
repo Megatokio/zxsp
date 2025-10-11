@@ -1,11 +1,10 @@
-#pragma once
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2025 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Joy/SinclairJoy.h"
 #include "Memory.h"
-#include "unix/files.h"
 
 
 class ZxIf2 : public SinclairJoy
@@ -17,13 +16,9 @@ public:
 	explicit ZxIf2(Machine*);
 	virtual ~ZxIf2() override;
 
-	bool isLoaded() const volatile
-	{
-		assert(isMainThread());
-		return rom.isnot(nullptr);
-	}
-	cstr getFilepath() const volatile { return filepath; }
-	cstr getFilename() const volatile { return basename_from_path(filepath); }
+	bool isLoaded() const { return rom.get() != nullptr; }
+	cstr getFilepath() const { return filepath; }
+	cstr getFilename() const { return basename_from_path(filepath); }
 
 	void insertRom(cstr path);
 	void ejectRom();

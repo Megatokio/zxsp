@@ -64,7 +64,7 @@ void ZxIf2Insp::slotInsertEjectRom()
 {
 	assert(validReference(zxif2));
 
-	if (zxif2->isLoaded())
+	if (NV(zxif2)->isLoaded())
 	{
 		xlogIn("ZxIf2Insp::eject()");
 		bool f = machine->powerOff();
@@ -88,7 +88,7 @@ void ZxIf2Insp::updateWidgets()
 
 	SinclairJoyInsp::updateWidgets();
 
-	cstr new_romfilepath = zxif2->getFilepath();
+	cstr new_romfilepath = NV(zxif2)->getFilepath();
 	if (old_romfilepath != new_romfilepath)
 	{
 		label_romfilename->setText(new_romfilepath ? basename_from_path(new_romfilepath) : nullptr);
@@ -120,7 +120,7 @@ void ZxIf2Insp::fillContextMenu(QMenu* menu)
 
 	Inspector::fillContextMenu(menu); // NOP
 
-	if (zxif2->isLoaded()) { menu->addAction("Eject Rom", this, &ZxIf2Insp::slotInsertEjectRom); }
+	if (NV(zxif2)->isLoaded()) { menu->addAction("Eject Rom", this, &ZxIf2Insp::slotInsertEjectRom); }
 	else
 	{
 		menu->addAction("Insert Rom", this, &ZxIf2Insp::slotInsertEjectRom);

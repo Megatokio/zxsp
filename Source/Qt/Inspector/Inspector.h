@@ -4,7 +4,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "IsaObject.h"
-#include "Templates/RCPtr.h"
 #include "cpp/cppthreads.h"
 #include "kio/peekpoke.h"
 #include "zxsp_types.h"

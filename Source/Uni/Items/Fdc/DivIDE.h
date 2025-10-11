@@ -62,8 +62,8 @@ public:
 	bool	getIdeBusy() const { return cf_card && cf_card->is_busy(); }
 	bool	isDiskWritable() const { return cf_card && cf_card->isWritable(); }
 	cstr	getDiskFilename() const;
-	Memory& getRam() const { return const_cast<MemoryPtr&>(ram).ref(); }
-	Memory& getRom() const { return const_cast<MemoryPtr&>(rom).ref(); }
+	Memory& getRam() const { return *const_cast<MemoryPtr&>(ram).get(); }
+	Memory& getRom() const { return *const_cast<MemoryPtr&>(rom).get(); }
 	// cstr	getDiskFilepath	() const { return cf_card?cf_card->getFilepath():nullptr; }
 	void setDiskWritable(bool);
 

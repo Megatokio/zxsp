@@ -55,7 +55,6 @@
 #include "Settings.h"
 #include "SpectraVideo.h"
 #include "Templates/NVPtr.h"
-#include "Templates/RCPtr.h"
 #include "ToolWindow.h"
 #include "Ula/MmuTc2068.h"
 #include "UsbJoystick.h"

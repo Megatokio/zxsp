@@ -78,7 +78,7 @@ public:
 	// ROM handling:
 	cstr getRomFilepath() const volatile { return filepath; }
 	cstr getRomFilename() const volatile { return basename_from_path(filepath); }
-	bool isRomInserted() const volatile { return rom; }
+	bool isRomInserted() const volatile { return const_cast<MemoryPtr&>(rom).get() != nullptr; }
 	bool isRomPagedIn() const volatile { return own_romdis_state; }
 
 	void activateRom();

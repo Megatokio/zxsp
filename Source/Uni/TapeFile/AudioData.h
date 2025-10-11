@@ -6,8 +6,6 @@
 #include "TapeData.h"
 #include "TapeFile.h"
 #include "audio/AudioDecoder.h"
-// #include "Templates/Ptr.h"
-#include "Templates/RCPtr.h"
 
 
 /*	class AudioData

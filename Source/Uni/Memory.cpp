@@ -27,7 +27,6 @@
 	e.g. built-in ram and rom
 */
 Memory::Memory(Machine* machine, cstr name, uint size) noexcept :
-	_cnt(0),
 	data(min(size, MAXSIZE)),
 	name(newcopy(name)),
 	machine(machine)
@@ -45,7 +44,6 @@ Memory::~Memory()
 {
 	assert(isMainThread());
 	assert(machine->is_locked());
-	assert(_cnt == 0);
 
 	if (machine->cpu) machine->cpu->unmapMemory(data.getData(), data.count());
 	machine->memoryRemoved(this);

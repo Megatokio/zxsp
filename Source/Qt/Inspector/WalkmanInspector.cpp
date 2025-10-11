@@ -9,7 +9,6 @@
 #include "TapeFileDataBlock.h"
 #include "TapeRecorder.h"
 #include "Templates/NVPtr.h"
-#include "Templates/RCPtr.h"
 #include "unix/files.h"
 #include <QApplication>
 #include <QFrame>
