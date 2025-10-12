@@ -2,7 +2,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#define LOGLEVEL 1
+
 #include "qt_util.h"
 #include "Settings.h"
 #include "kio/kio.h"

@@ -266,10 +266,12 @@ void RzxBlock::scan_ucbu()
 		csize = 0;
 	}
 
-	xlogline("normal frames:   %u", nframes);
-	xlogline("repeated frames: %u", rframes);
-	xlogline("num inputs (min,Ø,max) = %u, %u, %u", mini, numi ? gesi / numi : 0, maxi);
-	xlogline("num instR (min,Ø,max) = %u,%u,%u", minic, num_frames ? gesic / num_frames : 0, maxic);
+#ifdef XLOG
+	logline("normal frames:   %u", nframes);
+	logline("repeated frames: %u", rframes);
+	logline("num inputs (min,Ø,max) = %u, %u, %u", mini, numi ? gesi / numi : 0, maxi);
+	logline("num instR (min,Ø,max) = %u,%u,%u", minic, num_frames ? gesic / num_frames : 0, maxic);
+#endif
 }
 
 //	helper:

@@ -3,7 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 
-#define LOGLEVEL 1
 #include "Machine50x60Inspector.h"
 #include "Machine.h"
 #include "MachineController.h"

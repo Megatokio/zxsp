@@ -2,8 +2,6 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#define LOGLEVEL 2
-#define SAFETY	 1
 #include "TzxData.h"
 #include "O80Data.h"
 #include "RlesData.h"

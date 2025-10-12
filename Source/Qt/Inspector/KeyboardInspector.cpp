@@ -5,11 +5,11 @@
 #include "KeyboardInspector.h"
 #include "Application.h"
 #include "MachineController.h"
+#include "Qt/QEventTypes.h"
 #include "Templates/NVPtr.h"
 #include "ZxInfo.h"
 #include <QMenu>
 #include <QtGui>
-
 
 namespace gui
 {
@@ -22,7 +22,7 @@ enum ZxspKey // Names for specci keys
 	//  	0x05-07 = compound keys activating two matrix points
 
 	// clang-format off
-	
+
 	x  	= 0x77,				// no mapping
 	c  	= 0x80,				// add caps shift key
 	s  	= 0x08,				// add symbol shift key
@@ -821,31 +821,31 @@ bool KeyboardInspector::event(QEvent* e)
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

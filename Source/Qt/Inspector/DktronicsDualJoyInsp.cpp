@@ -13,8 +13,7 @@ namespace gui
 {
 
 DktronicsDualJoyInsp::DktronicsDualJoyInsp(QWidget* w, MachineController* mc, volatile DktronicsDualJoy* joy) :
-	JoyInsp(w, mc, joy, "/Images/dktronics_dual_js_if.jpg"),
-	dkjoy(joy)
+	JoyInsp(w, mc, joy, "/Images/dktronics_dual_js_if.jpg")
 {
 	QGridLayout* g = new QGridLayout(this);
 	g->setContentsMargins(10, 10, 10, 5);

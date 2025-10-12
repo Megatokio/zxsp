@@ -261,37 +261,37 @@ void MmuTc2068::output(Time, int32, uint16 addr, uint8 byte)
 			case 11: xlogline("TC2068: initialization (of bank) done. move to next bank in daisy chain"); break;
 			case 13: xlogline("TC2068: start interrupt REG sequence"); break;
 			case 14: xlogline("TC2068: reset controller - prepare to initialize"); break;
-			default: xlogline("TC2068: ill. type 1 command: 0x$02X", byte & 0x0f); break;
+			default: xlogline("TC2068: ill. type 1 command: 0x%02X", byte & 0x0f); break;
 			}
 			break;
 		case 1: // write cmd type 2
 			switch (byte & 0x0f)
 			{
 			case 12:
-				xlogline("TC2068: copy HOLD to HS (bank's page enable register): 0x$02X", uint(hold));
+				xlogline("TC2068: copy HOLD to HS (bank's page enable register): 0x%02X", uint(hold));
 				// hs = hold;	no banks exist => no bank selected => no bank stores this value
 				break;
 			case 13:
-				xlogline("TC2068: copy HOLD to BNA: 0x$02X", uint(hold));
+				xlogline("TC2068: copy HOLD to BNA: 0x%02X", uint(hold));
 				bna = hold;
 				break;
 			case 14:
-				xlogline("TC2068: copy HOLD to ABN (bank's assigned bank number): 0x$02X", uint(hold));
+				xlogline("TC2068: copy HOLD to ABN (bank's assigned bank number): 0x%02X", uint(hold));
 				// abn = hold;	no banks exist => no bank selected => no bank stores this value
 				break;
-			default: xlogline("TC2068: ill. type 2 command: 0x$02X", byte & 0x0f); break;
+			default: xlogline("TC2068: ill. type 2 command: 0x%02X", byte & 0x0f); break;
 			}
 			break;
 		case 2: // write HOLD low nibble
 			xlogline("TC2068: write HOLD low nibble");
 			hold &= 0xf0;
 			hold |= byte & 0x0f;
-			xlogline("TC2068: write HOLD low nibble (HOLD=0x$02X)", uint(hold));
+			xlogline("TC2068: write HOLD low nibble (HOLD=0x%02X)", uint(hold));
 			break;
 		case 3: // write HOLD high nibble
 			hold &= 0x0f;
 			hold |= byte << 4;
-			xlogline("TC2068: write HOLD high nibble (HOLD=0x$02X)", uint(hold));
+			xlogline("TC2068: write HOLD high nibble (HOLD=0x%02X)", uint(hold));
 			break;
 		}
 	}
@@ -377,7 +377,7 @@ void MmuTc2068::set_port_f4(uint8 f4_neu, uint8 toggled)
 	}
 
 	bool	   f	  = exrom_selected;
-	MemoryPtr* xmem	  = 0;						   // x = "extern" = EXROM oder DOCK
+	MemoryPtr* xmem	  = nullptr;				   // x = "extern" = EXROM oder DOCK
 	uint8	   xmem_r = 0, xmem_w = 0, home_w = 0; // home = HOME (im Modul!)
 
 	if (cartridge)

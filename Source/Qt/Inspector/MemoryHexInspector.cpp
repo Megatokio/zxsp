@@ -8,6 +8,7 @@
 #include "MachineController.h"
 #include "MemoryInspector.h"
 #include "MyLineEdit.h"
+#include "Qt/QEventTypes.h"
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
 #include "SimpleTerminal.h"

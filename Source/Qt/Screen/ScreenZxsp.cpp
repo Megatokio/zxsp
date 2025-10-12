@@ -2,7 +2,6 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#define LOGLEVEL 0
 #include "ScreenZxsp.h"
 #include "IsaObject.h"
 #include "Machine.h"

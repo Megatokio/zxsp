@@ -24,7 +24,6 @@ $BFFD	%1011.----.----.--0-	ZX128 AY reg. write -/o
 		Hardware independent part
 ================================================================== */
 
-#define LOGLEVEL 0
 #include "Ay.h"
 #include "Machine.h"
 #include "ZxInfo/ZxInfo.h"

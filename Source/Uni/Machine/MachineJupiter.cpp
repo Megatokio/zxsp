@@ -364,7 +364,7 @@ void MachineJupiter::loadAce(FD& fd) noexcept(false) /*file_error,data_error*/
 	regs.i		  = bu[0x13C];
 	regs.r		  = bu[0x140];
 
-	if (XLOG)
+	if (debug)
 	{
 		logline("  a f  b c  d e  h l a2f2 b2c2 d2e2 h2l2  i x  i y   pc   sp  iff  i r   im");
 		for (int i = 0; i < 16; i++) log(" %04x", regs.nn[i]);

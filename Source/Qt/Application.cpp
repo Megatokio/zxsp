@@ -10,6 +10,7 @@
 #include "MachineController.h"
 #include "OS/Dsp.h"
 #include "Preferences.h"
+#include "Qt/QEventTypes.h"
 #include "Qt/Settings.h"
 #include "UsbJoystick.h"
 #include "WindowMenu.h"
@@ -277,7 +278,7 @@ int main(int argc, char* argv[])
 	}
 #endif
 #ifdef _sizeof_long_double
-	xlogline("  sizeof long double: %i", _sizeof_long_float);
+	xlogline("  sizeof long double: %i", _sizeof_long_double);
 	{
 		assert(sizeof(long double) == _sizeof_long_double);
 	}

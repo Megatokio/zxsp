@@ -2,7 +2,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#define LOGLEVEL 1
+
 #include "CurrahMicroSpeech.h"
 #include "Machine.h"
 #include "Memory.h"
@@ -29,7 +29,7 @@
 			this means, IN can be used instead of READ and OUT instead of WRITE,
 			if you don't care about other peripherals. But as long as you use $FF for
 			the low address byte this should work. Except on a TC2048…TS2068. B-)
- 
+
 	0x0000 - 0x07ff	the rom
 	0x0800 - 0x0fff	a mirror of the rom									// verified by T. Busse
 

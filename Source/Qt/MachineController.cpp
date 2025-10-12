@@ -2,7 +2,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#define LOGLEVEL 1
+
 #include "MachineController.h"
 #include "Application.h"
 #include "Dialogs/ConfigureKeyboardJoystickDialog.h"
@@ -1293,7 +1293,7 @@ void MachineController::killMachine()
 
 	delete screen;
 	screen = nullptr;
-	if (XSAFE)
+	if (debug)
 		foreach (ToolWindow* toolwindow, tool_windows) { assert(toolwindow->item == nullptr); }
 
 	while (show_actions.count() > 5) { window_menu->removeAction(show_actions.takeLast()); }
@@ -1368,7 +1368,7 @@ Machine* MachineController::initMachine(
 	this->machine = machine;				   // volatile
 	this->model = model = machine->model;
 	model_info			= machine->model_info;
-	if (XSAFE)
+	if (debug)
 		foreach (ToolWindow* toolwindow, tool_windows) { assert(toolwindow->item == nullptr); }
 	action_enable_breakpoints->setChecked(true);
 
@@ -1423,7 +1423,7 @@ Machine* MachineController::initMachine(
 		show_actions << action_showMachineImage << action_showMemHex << action_showMemDisass << action_showMemGraphical
 					 << action_showMemAccess;
 
-	if (XSAFE)
+	if (debug)
 		foreach (ToolWindow* toolwindow, tool_windows) { assert(toolwindow->item == nullptr); }
 	showInspector(machine.get(), action_showMachineImage, no /*!force*/);
 	showInspector(mem[0] = new MemObject(isa_MemHex), action_showMemHex, no /*!force*/);

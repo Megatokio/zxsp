@@ -2,7 +2,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#define LOGLEVEL 1
+
 #include "SP0256.h"
 #include "Machine.h"
 #include "unix/FD.h"

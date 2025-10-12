@@ -2,11 +2,9 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#define LOGLEVEL 0
 #include "Fdc765.h"
 #include "FloppyDiskDrive.h"
 #include "Machine/Machine.h"
-DEBUG_INIT_MSG
 
 
 enum Command {
@@ -300,15 +298,13 @@ aa:
 			WAIT;
 		}
 
-#if XLOG
-		static cstr names[32] = {
+		static constexpr cstr names[32] = {
 			"IllCmd 00",  "IllCmd 01",	 "ReadTrack",	"Specify",		"GetDriveState", "WriteSector", "ReadSector",
 			"SeekTrack0", "GetIntState", "WriteDelSec", "ReadSectorID", "IllCmd 0Bh",	 "ReadDelSec",	"FormatTrack",
 			"IllCmd 0Eh", "SeekTrack",	 "IllCmd 10h",	"ScanEQ",		"IllCmd 12h",	 "IllCmd 13h",	"IllCmd 14h",
 			"IllCmd 15h", "IllCmd 16h",	 "IllCmd 17h",	"IllCmd 18h",	"ScanLE",		 "IllCmd 1Ah",	"IllCmd 1Bh",
 			"IllCmd 1Ch", "ScanGE",		 "IllCmd 1Eh",	"IllCmd 1Fh"};
-		logline("FDC765: %s", names[byte & 0x1f]);
-#endif
+		xlogline("FDC765: %s", names[byte & 0x1f]);
 
 		multitrack = (byte >> 7) & 1;
 		mfm		   = (byte >> 6) & 1;

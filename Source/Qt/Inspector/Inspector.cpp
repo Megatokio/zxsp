@@ -2,7 +2,6 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#define LOGLEVEL 1
 #include "Inspector.h"
 #include "Application.h"
 #include "Ay/Ay.h"
@@ -58,6 +57,7 @@
 #include "Machine.h"
 #include "MachineController.h"
 #include "Mouse.h"
+#include "Qt/QEventTypes.h"
 #include "ToolWindow.h"
 #include "ZxInfo.h"
 #include <QFont>

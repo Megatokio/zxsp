@@ -2,7 +2,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#define LOGLEVEL 1
+
 #include "ToolWindow.h"
 #include "Inspector/Inspector.h"
 #include "Items/Ay/Ay.h"

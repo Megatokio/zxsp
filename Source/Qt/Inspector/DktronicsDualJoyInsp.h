@@ -12,8 +12,6 @@ namespace gui
 
 class DktronicsDualJoyInsp final : public JoyInsp
 {
-	volatile DktronicsDualJoy* const dkjoy;
-
 public:
 	DktronicsDualJoyInsp(QWidget*, MachineController*, volatile DktronicsDualJoy*);
 
