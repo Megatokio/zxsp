@@ -378,7 +378,7 @@ void RzxFile::readFile(cstr filename, bool snapshotOnly) // throws DataError,fil
 
 		if (fd.file_position() == fileposition) continue;
 		if (fd.file_position() > fileposition) throw DataError("block data exceeds block length");
-		xlogline("%u unused bytes at end of block", fileposition - fd.file_position());
+		xlogline("%lli unused bytes at end of block", fileposition - fd.file_position());
 		fd.seek_fpos(fileposition);
 	}
 

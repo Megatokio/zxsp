@@ -1,13 +1,17 @@
-#pragma once
-// Copyright (c) 2006 - 2023 kio@little-bat.de
+// Copyright (c) 2006 - 2025 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Templates/Array.h"
 #include "cpp/cppthreads.h"
 #include <IOKit/hid/IOHIDLib.h>
-class UsbJoystick;
+#ifdef NDEBUG
+  #undef assert // <IOHIDLib.h> includes <CoreFoundation.h> which includes <assert.h> which redefines assert:
+  #define assert(COND) (!debug || (COND) ? (void)0 : kio::panic("assert: %s:%i", filenamefrompath(__FILE__), __LINE__))
+#endif
 
+class UsbJoystick;
 
 extern uint					num_usb_joysticks;
 extern volatile UsbJoystick usb_joysticks[MAX_USB_JOYSTICKS];

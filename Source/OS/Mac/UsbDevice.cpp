@@ -822,7 +822,7 @@ xx: // CFRelease(dev_if); dev_if=nullptr;	// TODO OR NOT TODO...
 
 void testProlific2305()
 {
-	logIn("testProlific2305()");
+	xlogIn("testProlific2305()");
 
 	// get device(s)
 

@@ -20,6 +20,7 @@
 #include "kio/util/msbit.h"
 #include "unix/FD.h"
 #include "unix/files.h"
+#include "unix/log.h"
 #include "version.h"
 #include "zasm/Source/Z80Assembler.h"
 #include <QNetworkAccessManager>
@@ -221,7 +222,8 @@ void Application::showPreferences()
 //
 int main(int argc, char* argv[])
 {
-	logline("\nWelcome to zxsp\n"); // no LogIn() because indentation would last forever
+	openLogfile(APPL_NAME, "/var/log/", LogRotation::DAILY, 10, debug, no, yes);
+	logline("Welcome to zxsp\n"); // no LogIn() because indentation would last forever
 
 #ifdef _MACOSX
 	extern double kCFCoreFoundationVersionNumber; // CFBase.h
@@ -235,63 +237,26 @@ int main(int argc, char* argv[])
 
 	logline("  Qt version: %s (0x%06X)", QT_VERSION_STR, QT_VERSION);
 
-	xlogline("  Compiler:   %s", _COMPILER);
-	xlogline("  Platform:   %s", _PLATFORM);
-	xlogline("  Processor:  %s", _PROCESSOR);
-	xlogline("  Byte order: %s", _BYTEORDER);
+	xlogline("  Compiler:   %s", _compiler_str);
+	xlogline("  Platform:   %s", _platform_str);
+	xlogline("  Processor:  %s", _processor_str);
+	xlogline("  Byte order: %s", _byteorder_str);
 
 	xlogline("  bits per byte:      %i", _bits_per_byte);
-	{
-		assert(uchar(0xffffffff) == (1 << _bits_per_byte) - 1);
-	}
 	xlogline("  sizeof char:        %i", _sizeof_char);
-	{
-		assert(sizeof(char) == _sizeof_char);
-	}
 	xlogline("  sizeof short:       %i", _sizeof_short);
-	{
-		assert(sizeof(short) == _sizeof_short);
-	}
 	xlogline("  sizeof int:         %i", _sizeof_int);
-	{
-		assert(sizeof(int) == _sizeof_int);
-	}
 	xlogline("  sizeof long:        %i", _sizeof_long);
-	{
-		assert(sizeof(long) == _sizeof_long);
-	}
 	xlogline("  sizeof pointer:     %i", _sizeof_pointer);
-	{
-		assert(sizeof(char*) == _sizeof_pointer);
-	}
-
-#ifdef _sizeof_double
 	xlogline("  sizeof double:		%i", _sizeof_double);
-	{
-		assert(sizeof(double) == _sizeof_double);
-	}
-#endif
-#ifdef _sizeof_float
 	xlogline("  sizeof short float: %i", _sizeof_float);
-	{
-		assert(sizeof(float) == _sizeof_float);
-	}
-#endif
-#ifdef _sizeof_long_double
 	xlogline("  sizeof long double: %i", _sizeof_long_double);
-	{
-		assert(sizeof(long double) == _sizeof_long_double);
-	}
-#endif
-
-	xlogline("  max. alignment:     %i", int(_MAX_ALIGNMENT));
-	xlogline("  alignment %s", _ALIGNMENT_REQUIRED ? "required!" : "not required");
+	xlogline("  native alignment:   %i", native_alignment);
 
 	// validate byte order:
-	IFDEBUG(const char abcd[5] = "abcd";)
+	const char abcd[5] = "abcd";
 	assert(peek4X(abcd) == 'abcd');
 	assert(peek4Z(abcd) == 'dcba');
-
 
 	// appl name:
 	xlogline("  appl_name: %s", APPL_NAME);

@@ -108,7 +108,7 @@ void Mmu128k::setPort7ffd(uint8 byte)
 
 void Mmu128k::output(Time, int32 /*cc*/, uint16 /*addr*/, uint8 byte)
 {
-	xlogIn("Mmu128k:Output($%2x)", uint(byte));
+	xlogIn("Mmu128k:Output($%02x)", uint(byte));
 
 	if (port7ffdIsLocked()) return; // mmu port disabled.
 

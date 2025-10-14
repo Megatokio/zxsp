@@ -436,7 +436,7 @@ void Screen::paint_screen(bool draw_passepartout)
 
 	// doneCurrent();
 
-	if (XLOG)
+	if (loglevel >= 1)
 	{
 		static int n;
 		if ((++n & 0xFF) == 0)

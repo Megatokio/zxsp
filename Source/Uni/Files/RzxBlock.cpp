@@ -450,8 +450,12 @@ int RzxBlock::nextFrame()
 	{
 		current_frame--;
 
-		IFDEBUG(uint cnt = inputCount(fpos); uint32 nextfpos = cnt == 0xFFFF ? fpos + 4 : epos;
-				assert(nextfpos == ucsize);)
+		if (debug)
+		{
+			uint   cnt		= inputCount(fpos);
+			uint32 nextfpos = cnt == 0xFFFF ? fpos + 4 : epos;
+			assert(nextfpos == ucsize);
+		}
 		return -1;
 	}
 

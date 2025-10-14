@@ -1682,7 +1682,7 @@ void MachineController::contextMenuEvent(QContextMenuEvent* e)
 
 bool MachineController::event(QEvent* e)
 {
-	if (XXLOG)
+	if (loglevel >= 2)
 		//	if(XXLOG || (XLOG && e->type()!=129 && e->type()!=173))
 		logIn("MachineController:event: %s", QEventTypeStr(e->type()));
 
@@ -2153,10 +2153,11 @@ static QAction* find_action_for_item(QList<QAction*>& array, const volatile IsaO
 		if (action->data().toInt() == item->id) return action;
 	}
 
-#if XXLOG
-	logline("*** didn't find item %s (%s) in action list: ***", item->name, isa_names[item->id]);
-	foreach (QAction* a, array) { logline("  • %s", isa_names[a->data().toInt()]); }
-#endif
+	if (loglevel >= 2)
+	{
+		logline("*** didn't find item %s (%s) in action list: ***", item->name, isa_names[item->id]);
+		foreach (QAction* a, array) { logline("  • %s", isa_names[a->data().toInt()]); }
+	}
 
 	return nullptr;
 }

@@ -59,7 +59,7 @@ bool UsbJoystick::connect(io_object_t dev)
 	// if no joystick, close device interface
 
 	xlogIn("UsbJoystick::connect");
-	if (XXLOG) ShowDeviceProperties(dev); // <-- very longish!
+	if (loglevel >= 2) ShowDeviceProperties(dev); // <-- very longish!
 
 	dev_if = newHIDDeviceInterfaceForService(dev);
 

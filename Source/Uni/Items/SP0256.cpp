@@ -238,7 +238,8 @@ SP0256::SP0256(Machine* m, cstr romfilepath, bool is_bitswapped, float rc) :
 {
 	xlogline("new SP0256: romfile = %s", romfilepath);
 
-	IFDEBUG(for (uint i = 0; i < 8; i++) { assert(X8(1 << i) == (128 >> i)); };)
+	if (debug)
+		for (uint i = 0; i < 8; i++) { assert(X8(1 << i) == (128 >> i)); };
 
 	FD fd(romfilepath);
 	fd.read_data(rom, 2048);

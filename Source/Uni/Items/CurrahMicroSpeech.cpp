@@ -387,7 +387,7 @@ void CurrahMicroSpeech::writeMemory(Time t, int32 cc, uint16 addr, uint8 byte)
 	// write sp0256 command:
 	if (enable_state && (addr & WRITE_COMMAND_MASK) == WRITE_COMMAND_ADDRESS)
 	{
-		if (XXLOG || (XLOG && byte != 0))
+		if (loglevel >= 2 || (loglevel >= 1 && byte != 0))
 			logIn("CurrahMicroSpeech::writeMemory: 0x%04x = 0x%02x --> command", addr, byte);
 
 		byte &= 0x3F; // bits[0…5] = command

@@ -78,7 +78,7 @@ SOURCES +=	\
 	Libraries/graphics/gif/Pixelmap.cpp \
 	Libraries/graphics/gif/GifEncoder.cpp \
 	Libraries/kio/kio.cpp \
-	Libraries/unix/log.cpp \
+	Libraries/unix/log_to_file.cpp \
 	Libraries/unix/os_utilities.cpp \
 	Libraries/cstrings/tempmem.cpp \
 	Libraries/cpp/cppthreads.cpp \
@@ -91,6 +91,9 @@ SOURCES +=	\
 	Libraries/Z80/goodies/z80_opcode_length.cpp \
 	Libraries/Z80/goodies/z80_disass.cpp \
 	Libraries/Qt/QEventTypes.cpp \
+	Libraries/Devices/File.cpp \
+	Libraries/Devices/SerialDevice.cpp \
+	Libraries/Devices/StdFile.cpp \
 	\
 	zasm/Source/Error.cpp \
 	zasm/Source/Label.cpp \
@@ -329,6 +332,7 @@ SOURCES +=	\
 HEADERS += \
 	Libraries/audio/convert_audio.h \
 	Libraries/kio/kio.h \
+	Libraries/kio/cdefs.h \
 	Libraries/kio/auto_config.h \
 	Libraries/kio/detect_configuration.h \
 	Libraries/kio/standard_types.h \
@@ -374,6 +378,11 @@ HEADERS += \
 	Libraries/Z80/goodies/z80_opcodes.h \
 	Libraries/Z80/goodies/z80_goodies.h \
 	Libraries/Z80/goodies/CpuID.h \
+	\
+	Libraries/Devices/devices_types.h \
+	Libraries/Devices/File.h \
+	Libraries/Devices/SerialDevice.h \
+	Libraries/Devices/StdFile.h \
 
 
 # zasm Z80 Assembler Headers:

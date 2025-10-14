@@ -96,11 +96,13 @@ inline void ReadInputData(const AudioBufferList* inInputData)
 		logline("Dsp:audioDeviceIOProc: %u channels per buffer.", channels);
 	}
 
-	IFDEBUG(for (uint i = 1; i < buffers; i++) {
-		assert(inInputData->mBuffers[i].mNumberChannels == channels);
-		assert(inInputData->mBuffers[i].mDataByteSize == (DSP_SAMPLES_PER_BUFFER * channels * sizeof(Sample)));
-		assert(buffers == 1 || channels == 1);
-	})
+	if (debug)
+		for (uint i = 1; i < buffers; i++)
+		{
+			assert(inInputData->mBuffers[i].mNumberChannels == channels);
+			assert(inInputData->mBuffers[i].mDataByteSize == (DSP_SAMPLES_PER_BUFFER * channels * sizeof(Sample)));
+			assert(buffers == 1 || channels == 1);
+		}
 
 	StereoSample* z = audio_in_buffer + DSP_SAMPLES_STITCHING;
 	StereoSample* e = z + DSP_SAMPLES_PER_BUFFER;
@@ -164,7 +166,8 @@ inline void ReadInputData(const AudioBufferList* inInputData)
 
 inline void CopyInputToOutputBuffer()
 {
-	IFDEBUG({
+	if (debug)
+	{
 		static union
 		{
 			uint64 i;
@@ -172,7 +175,7 @@ inline void CopyInputToOutputBuffer()
 		};
 		i = 0;
 		assert(d == 0.0);
-	})
+	}
 
 	memset(audio_out_buffer + DSP_SAMPLES_STITCHING, 0, DSP_SAMPLES_PER_BUFFER * sizeof(*audio_out_buffer));
 
@@ -196,11 +199,13 @@ inline void WriteOutputData(AudioBufferList* outOutputData)
 		logline("Dsp:audioDeviceIOProc: %u audio-out buffers.", buffers);
 		logline("Dsp:audioDeviceIOProc: %u channels per buffer.", channels);
 	}
-	IFDEBUG(for (uint i = 1; i < buffers; i++) {
-		assert(outOutputData->mBuffers[i].mNumberChannels == channels);
-		assert(outOutputData->mBuffers[i].mDataByteSize == (DSP_SAMPLES_PER_BUFFER * channels * sizeof(Sample)));
-		assert(buffers == 1 || channels == 1);
-	})
+	if (debug)
+		for (uint i = 1; i < buffers; i++)
+		{
+			assert(outOutputData->mBuffers[i].mNumberChannels == channels);
+			assert(outOutputData->mBuffers[i].mDataByteSize == (DSP_SAMPLES_PER_BUFFER * channels * sizeof(Sample)));
+			assert(buffers == 1 || channels == 1);
+		}
 
 	const StereoSample* q	   = audio_out_buffer;
 	const StereoSample* e	   = q + DSP_SAMPLES_PER_BUFFER;
@@ -648,7 +653,7 @@ void startCoreAudio(bool input_enabled) //, int playthrough_mode)
 		if (gui::settings.get_bool(gui::key_warn_if_audio_in_fails, yes))
 		{
 			xlogline("Dsp: Audio input setup failed:");
-			xlogline(status ? "Dsp: %s: error = %ld." : "Dsp: %s.", e.what(), status);
+			xlogline(status ? "Dsp: %s: error = %i." : "Dsp: %s.", e.what(), int(status));
 
 			showWarning(
 				"Audio input setup failed:\n%s.\n"
