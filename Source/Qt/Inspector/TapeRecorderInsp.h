@@ -8,7 +8,6 @@
 #include "RecentFilesMenu.h"
 #include "TapeRecorder.h"
 #include "Templates/Array.h"
-#include "Templates/NVPtr.h"
 #include <QLabel>
 #include <QLineEdit>
 #include <QRect>

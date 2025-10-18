@@ -4,7 +4,6 @@
 
 #include "DktronicsDualJoyInsp.h"
 #include "Joy/SinclairJoy.h"
-#include "Templates/NVPtr.h"
 #include <QComboBox>
 #include <QGridLayout>
 #include <QPushButton>

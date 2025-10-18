@@ -77,7 +77,7 @@ static const Frequency clock_low  = 3.05e6;
 static const Frequency clock_high = clock_low * 1.07;
 
 // output filter:
-static const float RC = 11e3f * 22e-9f * 0.5f; // 33kΩ * 22nF * 0.5
+static const float filter_RC = 11e3f * 22e-9f * 0.5f; // 33kΩ * 22nF * 0.5
 
 
 CurrahMicroSpeech::CurrahMicroSpeech(Machine* m) // CREATOR
@@ -102,7 +102,7 @@ CurrahMicroSpeech::CurrahMicroSpeech(Machine* m) // CREATOR
 	m->cpu->b2c(zbu, rom.getData(), 2048);
 
 	// create sound chip:
-	sp0256 = new SP0256(machine, catstr(appl_rsrc_path, sp0256_rom), no, RC);
+	sp0256 = new SP0256(machine, catstr(appl_rsrc_path, sp0256_rom), no, filter_RC);
 }
 
 CurrahMicroSpeech::~CurrahMicroSpeech() // DESTRUCTOR

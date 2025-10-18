@@ -8,7 +8,6 @@
 #include "Overlays/Overlay.h"
 #include "Screen/Screen.h"
 #include "Settings.h"
-#include "Templates/NVPtr.h"
 #include "UsbJoystick.h"
 #include <QCheckBox>
 #include <QComboBox>

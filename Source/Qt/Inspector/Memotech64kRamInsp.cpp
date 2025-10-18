@@ -5,7 +5,7 @@
 #include "Memotech64kRamInsp.h"
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
-#include "Templates/NVPtr.h"
+#include "Templates/RCPtr.h"
 #include <QComboBox>
 #include <QLabel>
 

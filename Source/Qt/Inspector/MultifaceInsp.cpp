@@ -4,7 +4,7 @@
 
 #include "MultifaceInsp.h"
 #include "Multiface/Multiface.h"
-#include "Templates/NVPtr.h"
+#include "Templates/RCPtr.h"
 #include <QLabel>
 #include <QMouseEvent>
 #include <QTimer>
@@ -71,29 +71,29 @@ void MultifaceInsp::updateWidgets()
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

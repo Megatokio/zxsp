@@ -6,7 +6,7 @@
 #include "Application.h"
 #include "MachineController.h"
 #include "Qt/QEventTypes.h"
-#include "Templates/NVPtr.h"
+#include "Templates/RCPtr.h"
 #include "ZxInfo.h"
 #include <QMenu>
 #include <QtGui>

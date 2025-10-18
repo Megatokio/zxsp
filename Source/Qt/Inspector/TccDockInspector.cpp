@@ -8,7 +8,6 @@
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
 #include "RecentFilesMenu.h"
-#include "Templates/NVPtr.h"
 #include "Ula/MmuTc2048.h"
 #include "unix/files.h"
 #include <QMenu>
@@ -353,31 +352,31 @@ void TccDockInspector::save_as()
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

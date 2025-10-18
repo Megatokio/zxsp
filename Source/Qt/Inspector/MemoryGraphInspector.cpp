@@ -7,7 +7,6 @@
 #include "Machine.h"
 #include "MachineController.h"
 #include "MyLineEdit.h"
-#include "Templates/NVPtr.h"
 #include "kio/util/msbit.h"
 #include <QBoxLayout>
 #include <QComboBox>

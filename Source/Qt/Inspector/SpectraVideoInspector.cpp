@@ -11,7 +11,6 @@
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
 #include "RecentFilesMenu.h"
-#include "Templates/NVPtr.h"
 #include "UsbJoystick.h"
 #include <QCheckBox>
 #include <QComboBox>

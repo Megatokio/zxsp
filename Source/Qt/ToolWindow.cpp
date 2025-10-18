@@ -16,7 +16,6 @@
 #include "MachineController.h"
 #include "Mouse.h"
 #include "Qt/Settings.h"
-#include "Templates/NVPtr.h"
 #include "Z80/Z80.h"
 #include "ZxInfo.h"
 #include <QApplication>

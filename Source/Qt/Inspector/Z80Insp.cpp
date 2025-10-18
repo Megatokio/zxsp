@@ -7,7 +7,6 @@
 #include "Machine.h"
 #include "Qt/MyLineEdit.h"
 #include "Qt/qt_util.h"
-#include "Templates/NVPtr.h"
 #include "Z80/Z80.h"
 #include "Z80/Z80opcodes.h"
 #include "cpp/cppthreads.h"
@@ -353,35 +352,35 @@ void Z80Insp::slotSetInterrupt(bool checked)
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

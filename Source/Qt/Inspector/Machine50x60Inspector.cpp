@@ -7,7 +7,6 @@
 #include "Machine.h"
 #include "MachineController.h"
 #include "Qt/qt_util.h"
-#include "Templates/NVPtr.h"
 #include <QButtonGroup>
 #include <QSettings>
 

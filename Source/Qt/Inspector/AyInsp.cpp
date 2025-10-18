@@ -5,7 +5,7 @@
 #include "AyInsp.h"
 #include "Ay/Ay.h"
 #include "Qt/qt_util.h"
-#include "Templates/NVPtr.h"
+#include "Templates/RCPtr.h"
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -376,33 +376,33 @@ void AyInsp::handle_return_in_led(QLineEdit* led)
 
 /*
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

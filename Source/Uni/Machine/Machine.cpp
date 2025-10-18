@@ -64,7 +64,6 @@
 #include "SpectraVideo.h"
 #include "TapeFile.h"
 #include "TapeRecorder.h"
-#include "Templates/NVPtr.h"
 #include "ToolWindow.h"
 #include "Ula/Mmu.h"
 #include "Ula/Mmu128k.h"

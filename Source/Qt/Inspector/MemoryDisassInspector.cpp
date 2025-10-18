@@ -8,7 +8,6 @@
 #include "MachineController.h"
 #include "MemoryInspector.h"
 #include "MyLineEdit.h"
-#include "Templates/NVPtr.h"
 #include "Z80/Z80_Disassembler.h"
 #include "Z80/Z80opcodes.h"
 #include "zasm/Source/Z80Assembler.h"
@@ -1237,49 +1236,49 @@ void MemoryDisassInspector::slotFocusChanged(bool f)
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

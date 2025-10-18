@@ -3,7 +3,7 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "UsbJoystick.h"
-#include "Templates/NVPtr.h"
+#include "Templates/RCPtr.h"
 #include "UsbDevice.h"
 #include "zxsp_types.h"
 #include <IOKit/IOCFPlugIn.h>

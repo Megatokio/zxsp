@@ -7,7 +7,7 @@
 #include "Dialogs/ConfigureKeyboardJoystickDialog.h"
 #include "Joy/Joy.h"
 #include "MachineController.h"
-#include "Templates/NVPtr.h"
+#include "Templates/RCPtr.h"
 #include "UsbJoystick.h"
 #include <QComboBox>
 #include <QPushButton>

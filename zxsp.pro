@@ -91,9 +91,9 @@ SOURCES +=	\
 	Libraries/Z80/goodies/z80_opcode_length.cpp \
 	Libraries/Z80/goodies/z80_disass.cpp \
 	Libraries/Qt/QEventTypes.cpp \
-	Libraries/Devices/File.cpp \
-	Libraries/Devices/SerialDevice.cpp \
-	Libraries/Devices/StdFile.cpp \
+#	Libraries/Devices/File.cpp \
+#	Libraries/Devices/SerialDevice.cpp \
+#	Libraries/Devices/StdFile.cpp \
 	\
 	zasm/Source/Error.cpp \
 	zasm/Source/Label.cpp \
@@ -364,8 +364,6 @@ HEADERS += \
 	Libraries/Templates/HashMap.h \
 	Libraries/Templates/sort.h \
 	Libraries/Templates/RCPtr.h \
-	Libraries/Templates/RCObject.h \
-	Libraries/Templates/NVPtr.h \
 	Libraries/Templates/StrArray.h \
 	\
 	Libraries/cstrings/cstrings.h \
@@ -378,11 +376,11 @@ HEADERS += \
 	Libraries/Z80/goodies/z80_opcodes.h \
 	Libraries/Z80/goodies/z80_goodies.h \
 	Libraries/Z80/goodies/CpuID.h \
-	\
-	Libraries/Devices/devices_types.h \
-	Libraries/Devices/File.h \
-	Libraries/Devices/SerialDevice.h \
-	Libraries/Devices/StdFile.h \
+#	\
+#	Libraries/Devices/devices_types.h \
+#	Libraries/Devices/File.h \
+#	Libraries/Devices/SerialDevice.h \
+#	Libraries/Devices/StdFile.h \
 
 
 # zasm Z80 Assembler Headers:

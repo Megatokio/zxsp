@@ -7,7 +7,7 @@
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
 #include "RecentFilesMenu.h"
-#include "Templates/NVPtr.h"
+#include "Templates/RCPtr.h"
 #include "unix/files.h"
 #include <QAction>
 #include <QLabel>

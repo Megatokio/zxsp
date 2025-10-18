@@ -7,7 +7,6 @@
 #include "Machine.h"
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
-#include "Templates/NVPtr.h"
 #include <QRadioButton>
 #include <QRgb>
 #include <QSettings>

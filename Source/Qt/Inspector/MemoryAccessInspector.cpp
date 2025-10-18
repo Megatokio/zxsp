@@ -10,7 +10,6 @@
 #include "Qt/MyLineEdit.h"
 #include "Qt/Settings.h"
 #include "SimpleTerminal.h"
-#include "Templates/NVPtr.h"
 #include "Z80/Z80.h"
 #include "kio/util/msbit.h"
 #include <Application.h>
@@ -663,38 +662,38 @@ void MemoryAccessInspector::update_tooltip()
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

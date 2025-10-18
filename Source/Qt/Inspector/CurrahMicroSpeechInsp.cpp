@@ -5,7 +5,7 @@
 #include "CurrahMicroSpeechInsp.h"
 #include "CurrahMicroSpeech.h"
 #include "Qt/qt_util.h"
-#include "Templates/NVPtr.h"
+#include "Templates/RCPtr.h"
 #include <QPainter>
 #include <QRadioButton>
 #include <QTimer>
@@ -282,34 +282,34 @@ void CurrahMicroSpeechInsp::paintEvent(QPaintEvent* e)
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

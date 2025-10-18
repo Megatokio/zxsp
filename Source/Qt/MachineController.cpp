@@ -54,7 +54,6 @@
 #include "Screen/ScreenZxsp.h"
 #include "Settings.h"
 #include "SpectraVideo.h"
-#include "Templates/NVPtr.h"
 #include "ToolWindow.h"
 #include "Ula/MmuTc2068.h"
 #include "UsbJoystick.h"

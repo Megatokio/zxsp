@@ -12,7 +12,6 @@
 #include "Qt/qt_util.h"
 #include "SimpleTerminal.h"
 #include "Templates/Array.h"
-#include "Templates/NVPtr.h"
 #include "Z80/Z80.h"
 #include <QApplication>
 #include <QBoxLayout>

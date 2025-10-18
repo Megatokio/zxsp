@@ -8,7 +8,6 @@
 #include "Qt/qt_util.h"
 #include "TapeFileDataBlock.h"
 #include "TapeRecorder.h"
-#include "Templates/NVPtr.h"
 #include "unix/files.h"
 #include <QApplication>
 #include <QFrame>
