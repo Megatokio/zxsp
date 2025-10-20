@@ -28,7 +28,7 @@ inline Time	  seconds_per_dsp_buffer_max()
 }
 
 
-class Items : private Array<std::shared_ptr<Item>>
+class Items : private Array<RCPtr<Item>>
 {
 public:
 	using Array::append;
@@ -271,7 +271,7 @@ private:
 	// ---- P U B L I C ----------------------------------------------------
 
 public:
-	static std::shared_ptr<Machine> newMachine(IMachineController*, Model);
+	static RCPtr<Machine> newMachine(IMachineController*, Model);
 
 	~Machine() override;
 

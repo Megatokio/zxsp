@@ -98,8 +98,8 @@ public:
 	int		  getTopBorder() const { return ((height() + zoom - 1) / zoom + 1 - 192) / 2 * zoom; }
 	int		  getHF() const { return (screen_renderer->width - 2 * screen_renderer->h_border) / 256; }
 
-	using RzxOverlayPtr		 = std::shared_ptr<RzxOverlay>;
-	using JoystickOverlayPtr = std::shared_ptr<JoystickOverlay>;
+	using RzxOverlayPtr		 = RCPtr<RzxOverlay>;
+	using JoystickOverlayPtr = RCPtr<JoystickOverlay>;
 
 	RzxOverlayPtr	   rzx_overlay;
 	JoystickOverlayPtr joystick_overlays[4];

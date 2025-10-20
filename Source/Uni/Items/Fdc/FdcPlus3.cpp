@@ -99,7 +99,7 @@ void FdcPlus3::input(Time t, int32 /*cc*/, uint16 addr, uint8& byte, uint8& mask
 
 void FdcPlus3::output(Time t, int32 /*cc*/, uint16 /*addr*/, uint8 byte) { writeDataRegister(t, byte); }
 
-void FdcPlus3::attachDiskDrive(uint n, std::shared_ptr<FloppyDiskDrive> dd)
+void FdcPlus3::attachDiskDrive(uint n, RCPtr<FloppyDiskDrive> dd)
 {
 	Fdc765::attachDiskDrive(n, dd);
 	Fdc765::attachDiskDrive(n ^ 2, dd); // mirrored position

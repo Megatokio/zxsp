@@ -15,7 +15,7 @@ class FdcPlus3Insp : public Inspector
 {
 	volatile FdcPlus3* fdc;
 
-	std::shared_ptr<FloppyDiskDrive> drive;
+	RCPtr<FloppyDiskDrive> drive;
 
 	QPixmap overlay_disk_A_ejected;
 	QPixmap overlay_disk_A_inserted;

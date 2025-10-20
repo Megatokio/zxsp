@@ -98,51 +98,51 @@
 // ########################################################################
 
 
-std::shared_ptr<Machine> Machine::newMachine(IMachineController* mc, Model model)
+RCPtr<Machine> Machine::newMachine(IMachineController* mc, Model model)
 {
 	// create Machine instance for model
 	// the machine is not powered on.
 
 	switch (model)
 	{
-	case jupiter: return std::make_shared<MachineJupiter>(mc);
+	case jupiter: return new MachineJupiter(mc);
 
-	case zx80: return std::make_shared<MachineZx80>(mc);
-	case zx81: return std::make_shared<MachineZx81>(mc);
-	case tk85: return std::make_shared<MachineTk85>(mc);
-	case ts1000: return std::make_shared<MachineTs1000>(mc);
-	case ts1500: return std::make_shared<MachineTs1500>(mc);
+	case zx80: return new MachineZx80(mc);
+	case zx81: return new MachineZx81(mc);
+	case tk85: return new MachineTk85(mc);
+	case ts1000: return new MachineTs1000(mc);
+	case ts1500: return new MachineTs1500(mc);
 
-	case tk90x: return std::make_shared<MachineTk90x>(mc);
-	case tk95: return std::make_shared<MachineTk95>(mc);
-	case inves: return std::make_shared<MachineInves>(mc);
-	case tc2048: return std::make_shared<MachineTc2048>(mc);
+	case tk90x: return new MachineTk90x(mc);
+	case tk95: return new MachineTk95(mc);
+	case inves: return new MachineInves(mc);
+	case tc2048: return new MachineTc2048(mc);
 
 	case zxsp_i1:
 	case zxsp_i2:
 	case zxsp_i3:
-	case zxplus: return std::make_shared<MachineZxsp>(mc, model);
+	case zxplus: return new MachineZxsp(mc, model);
 
 	case zxplus2_span:
 	case zxplus2_frz:
-	case zxplus2: return std::make_shared<MachineZxPlus2>(mc, model);
+	case zxplus2: return new MachineZxPlus2(mc, model);
 
 	case zx128_span:
-	case zx128: return std::make_shared<MachineZx128>(mc, model);
+	case zx128: return new MachineZx128(mc, model);
 
 	case zxplus3_span:
-	case zxplus3: return std::make_shared<MachineZxPlus3>(mc, model);
+	case zxplus3: return new MachineZxPlus3(mc, model);
 
 	case zxplus2a_span:
-	case zxplus2a: return std::make_shared<MachineZxPlus2a>(mc, model);
+	case zxplus2a: return new MachineZxPlus2a(mc, model);
 
 	case u2086:
 	case tc2068:
-	case ts2068: return std::make_shared<MachineTc2068>(mc, model);
+	case ts2068: return new MachineTc2068(mc, model);
 
-	case pentagon128: return std::make_shared<MachinePentagon128>(mc);
-	case zxplus_span: return std::make_shared<MachineZxsp>(mc, zxplus); // TODO
-	case scorpion: return std::make_shared<MachineZxsp>(mc, zxsp_i3);	// TODO
+	case pentagon128: return new MachinePentagon128(mc);
+	case zxplus_span: return new MachineZxsp(mc, zxplus); // TODO
+	case scorpion: return new MachineZxsp(mc, zxsp_i3);	  // TODO
 
 	case unknown_model:
 	case num_models:
@@ -554,7 +554,7 @@ Item* Machine::addItem(Item* item)
 	assert(cpu || isPowerOff());
 	assert(item);
 
-	all_items.append(std::shared_ptr<Item>(item));
+	all_items.append(RCPtr<Item>(item));
 
 	if (auto* i = dynamic_cast<Z80*>(item)) cpu = i;
 	if (auto* i = dynamic_cast<Mmu*>(item)) mmu = i;
@@ -586,9 +586,9 @@ void Machine::removeItem(Item* item)
 	controller->itemRemoved(item);
 
 	uint i = all_items.indexof(item);
-	assert(i != ~0u);			   // must be in list
-	assert(all_items[i].unique()); // must be the only shared_ref
-	all_items.remove(i);		   // => will be deleted
+	assert(i != ~0u);					// must be in list
+	assert(all_items[i].refcnt() == 1); // must be the only shared_ref
+	all_items.remove(i);				// => will be deleted
 
 	if (cpu == item) cpu = nullptr;
 	if (mmu == item) mmu = nullptr;

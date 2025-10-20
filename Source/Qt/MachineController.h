@@ -5,6 +5,8 @@
 
 #include "Interfaces/IMachineController.h"
 #include "IsaObject.h"
+#include "Machine.h"
+#include "Overlays/Overlay.h"
 #include "ZxInfo/ZxInfo.h"
 #include "cpp/cppthreads.h"
 #include "gui_types.h"
@@ -17,8 +19,8 @@ namespace gui
 
 class Overlay;
 class ToolWindow;
-using RzxOverlayPtr		 = std::shared_ptr<RzxOverlay>;
-using JoystickOverlayPtr = std::shared_ptr<JoystickOverlay>;
+using RzxOverlayPtr		 = RCPtr<RzxOverlay>;
+using JoystickOverlayPtr = RCPtr<JoystickOverlay>;
 
 
 class MachineController : public QMainWindow, public IMachineController
@@ -38,12 +40,12 @@ class MachineController : public QMainWindow, public IMachineController
 	cstr		  filepath;	  // Snapshot file path or nil
 
 	// controlled objects:
-	std::shared_ptr<volatile Machine> machine;
-	Screen*							  screen; // ScreenZxsp* or ScreenMono*
-	IsaObject*						  mem[4];
-	Lenslok*						  lenslok;
-	RzxOverlayPtr					  rzx_overlay;
-	JoystickOverlayPtr				  joystick_overlays[4];
+	RCPtr<volatile Machine> machine;
+	Screen*					screen; // ScreenZxsp* or ScreenMono*
+	IsaObject*				mem[4];
+	Lenslok*				lenslok;
+	RzxOverlayPtr			rzx_overlay;
+	JoystickOverlayPtr		joystick_overlays[4];
 
 	uint8 keyjoy_keys[5];		  // (RLDUF) Qt keycode to use for keyboard joystick up-down-left-right-fire
 	cstr  keyjoy_fnmatch_pattern; // the filename pattern, for which the keys were set
@@ -86,8 +88,8 @@ private:
 	WindowMenu* window_menu;
 
 	//	static Model best_model_for_file(cstr filepath);
-	Screen*					 newScreenForModel(Model);
-	std::shared_ptr<Machine> newMachineForModel(Model);
+	Screen*		   newScreenForModel(Model);
+	RCPtr<Machine> newMachineForModel(Model);
 
 	QAction*
 	newAction(cstr icon, cstr title, const QKeySequence& key, std::function<void(bool)> fu, isa_id id = isa_none);
@@ -132,8 +134,8 @@ private:
 	void		showAllToolwindows();													   // changeEvent()
 	void		hideAllToolwindows();													   // changeEvent()
 
-	void item_added(std::weak_ptr<Item>, bool force); // callback from Item c'tor
-	void item_removed(Item*, bool force);			  // callback from Item d'tor
+	void item_added(WeakPtr<Item>, bool force); // callback from Item c'tor
+	void item_removed(Item*, bool force);		// callback from Item d'tor
 
 protected:
 	void contextMenuEvent(QContextMenuEvent*) override;
@@ -167,7 +169,7 @@ public:
 
 	// IMachineController interface:
 	void memoryModified(Memory* m, uint how) volatile override;
-	void itemAdded(std::shared_ptr<Item>) volatile override;
+	void itemAdded(RCPtr<Item>) volatile override;
 	void itemRemoved(Item*) volatile override;
 	void showMessage(MessageStyle, cstr text) override;
 

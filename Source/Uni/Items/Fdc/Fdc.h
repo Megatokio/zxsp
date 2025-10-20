@@ -1,28 +1,28 @@
-#pragma once
 // Copyright (c) 2012 - 2023 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
+#include "FloppyDiskDrive.h"
 #include "MassStorage.h"
-class FloppyDiskDrive;
 
 
 class Fdc : public MassStorage
 {
 protected:
-	std::shared_ptr<FloppyDiskDrive> fdd[4];	// attached drives, mirrored drives may be inserted more than once
-	std::shared_ptr<FloppyDiskDrive> drive;		// selected drive
-	bool							 motor_on;	// current state of the common motor-on output
-	bool							 interrupt; // current state of the interrupt output; may be not connected
+	RCPtr<FloppyDiskDrive> fdd[4];	  // attached drives, mirrored drives may be inserted more than once
+	RCPtr<FloppyDiskDrive> drive;	  // selected drive
+	bool				   motor_on;  // current state of the common motor-on output
+	bool				   interrupt; // current state of the interrupt output; may be not connected
 
 public:
-	const std::shared_ptr<FloppyDiskDrive>& getSelectedDrive() const { return drive; }
-	const std::shared_ptr<FloppyDiskDrive>& getDrive(uint n) const { return fdd[n & 3]; }
-	bool									isMotorOn() const volatile { return motor_on; }
+	const RCPtr<FloppyDiskDrive>& getSelectedDrive() const { return drive; }
+	const RCPtr<FloppyDiskDrive>& getDrive(uint n) const { return fdd[n & 3]; }
+	bool						  isMotorOn() const volatile { return motor_on; }
 
 	virtual void setMotor(Time, bool);
 	virtual void initForSnapshot(int32 /*cc*/) {}
-	virtual void attachDiskDrive(uint n, std::shared_ptr<FloppyDiskDrive>);
+	virtual void attachDiskDrive(uint n, RCPtr<FloppyDiskDrive>);
 	virtual void removeDiskDrive(uint n);
 
 protected:

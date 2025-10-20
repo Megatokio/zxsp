@@ -22,7 +22,7 @@ protected:
 	// void	audioBufferEnd	(Time) override;
 	// void	videoFrameEnd	(int32 cc) override;
 
-	void attachDiskDrive(uint n, std::shared_ptr<FloppyDiskDrive>) override;
+	void attachDiskDrive(uint n, RCPtr<FloppyDiskDrive>) override;
 	void removeDiskDrive(uint n) override;
 
 private:

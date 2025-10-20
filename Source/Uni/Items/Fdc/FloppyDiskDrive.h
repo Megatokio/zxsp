@@ -6,15 +6,17 @@
 #define DISKDRIVE_H
 
 #include "Files/FloppyDisk.h"
+#include "Templates/RCPtr.h"
 #include "kio/kio.h"
 #include "zxsp_types.h"
-
 
 enum FddType { NoDrive = 1, Drive525 = 2, Drive35 = 4, Drive3 = 8 };
 
 
 class FloppyDiskDrive
 {
+	RCDATA
+
 public:
 	Machine* const machine; // used for audio_out only
 	const FddType  type;
@@ -68,8 +70,8 @@ public:
 	bool is_track0;
 
 public:
-	static std::shared_ptr<FloppyDiskDrive> noFloppyDiskDrive();
-	static std::shared_ptr<FloppyDiskDrive> newFloppyDiskDrive(
+	static RCPtr<FloppyDiskDrive> noFloppyDiskDrive();
+	static RCPtr<FloppyDiskDrive> newFloppyDiskDrive(
 		Machine*, FddType, uint heads, uint tracks, Time step_delay = 0.006, uint bytes_per_track = 6250);
 	~FloppyDiskDrive();
 

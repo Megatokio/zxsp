@@ -477,7 +477,7 @@ void Screen::setNumJoystickOverlays(uint n)
 	_mutex.lock();
 	while (n < NELEM(joystick_overlays))
 	{
-		joystick_overlays[n++].reset(); //
+		joystick_overlays[n++] = nullptr; //
 	}
 	_mutex.unlock();
 }
@@ -485,10 +485,10 @@ void Screen::setNumJoystickOverlays(uint n)
 void Screen::removeAllOverlays()
 {
 	_mutex.lock();
-	rzx_overlay.reset();
+	rzx_overlay = nullptr;
 	for (uint i = 0; i < NELEM(joystick_overlays); i++)
 	{
-		joystick_overlays[i].reset(); //
+		joystick_overlays[i] = nullptr; //
 	}
 	_mutex.unlock();
 }

@@ -159,19 +159,19 @@ FloppyDiskDrive::FloppyDiskDrive(
 	sound_step_size = cnt;
 }
 
-std::shared_ptr<FloppyDiskDrive> FloppyDiskDrive::noFloppyDiskDrive()
+RCPtr<FloppyDiskDrive> FloppyDiskDrive::noFloppyDiskDrive()
 {
 	// create and return a dummy drive
 	// returns the same drive on every request
 
-	static auto no_fdd = std::shared_ptr<FloppyDiskDrive>(new FloppyDiskDrive());
+	static auto no_fdd = RCPtr<FloppyDiskDrive>(new FloppyDiskDrive());
 	return no_fdd;
 }
 
-std::shared_ptr<FloppyDiskDrive> FloppyDiskDrive::newFloppyDiskDrive(
+RCPtr<FloppyDiskDrive> FloppyDiskDrive::newFloppyDiskDrive(
 	Machine* m, FddType fddtype, uint heads, uint tracks, Time step_delay, uint bytes_per_track)
 {
-	return std::shared_ptr<FloppyDiskDrive>(
+	return RCPtr<FloppyDiskDrive>(
 		new FloppyDiskDrive(m, fddtype, heads, tracks, step_delay, bytes_per_track));
 }
 

@@ -9,6 +9,7 @@
 */
 
 #include "Templates/Array.h"
+#include "Templates/RCPtr.h"
 #include "cpp/cppthreads.h"
 #include "kio/kio.h"
 
@@ -18,9 +19,8 @@ class Machine;
 
 class Memory
 {
+	RCDATA
 	friend class MemoryPtr;
-	friend std::shared_ptr<Memory>;
-	friend std::default_delete<Memory>;
 
 	void operator=(const Memory&); // prohibit
 	Memory(const Memory&);		   // prohibit
@@ -54,10 +54,10 @@ public:
 };
 
 
-class MemoryPtr : public std::shared_ptr<Memory>
+class MemoryPtr : public RCPtr<Memory>
 {
 	MemoryPtr() {}
-	using super = std::shared_ptr<Memory>;
+	using super = RCPtr<Memory>;
 
 public:
 	MemoryPtr(Memory* p) : super(p) {}

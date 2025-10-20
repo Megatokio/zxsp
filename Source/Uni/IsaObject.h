@@ -3,10 +3,10 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#include "Templates/RCPtr.h"
 #include "helpers.h"
 #include "isa_id.h"
 #include "kio/kio.h"
-
 
 extern isa_id isa_pid[];   // parent id of id
 extern cstr	  isa_names[]; // (default) item names
@@ -14,6 +14,8 @@ extern cstr	  isa_names[]; // (default) item names
 
 class IsaObject
 {
+	RCDATA
+
 public:
 	const isa_id id;	 // precise isa_id for this item
 	const isa_id grp_id; // major base class of this item, e.g. isa_Joy or isa_Ula

@@ -11,7 +11,7 @@
 namespace gui
 {
 
-class MachineList : private Array<std::shared_ptr<volatile Machine>>
+class MachineList : private Array<RCPtr<volatile Machine>>
 {
 	using Array::cnt;
 	using Array::data;
@@ -21,8 +21,8 @@ public:
 	void lock() volatile { mutex.lock(); }
 	void unlock() volatile { mutex.unlock(); }
 
-	void append(std::shared_ptr<volatile Machine> m) { Array::append(m); }
-	void remove(std::shared_ptr<volatile Machine> m) { Array::remove(m); }
+	void append(RCPtr<volatile Machine> m) { Array::append(m); }
+	void remove(RCPtr<volatile Machine> m) { Array::remove(m); }
 	void runMachinesForSound(const StereoBuffer audio_in_buffer, StereoBuffer audio_out_buffer);
 };
 

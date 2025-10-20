@@ -142,7 +142,7 @@ void MachineController::updateSomeMenuItems()
 		{
 			if (machine->rzxIsLoaded())
 			{
-				if (!rzx_overlay) rzx_overlay.reset(new RzxOverlay);
+				if (!rzx_overlay) rzx_overlay = new RzxOverlay;
 				rzx_overlay->setRecording(is_recording);
 				screen->setRzxOverlay(rzx_overlay);
 			}
@@ -169,7 +169,7 @@ void MachineController::updateSomeMenuItems()
 					if (JoystickID id = joy->getJoystickID(j))
 					{
 						JoystickOverlayPtr& ov = joystick_overlays[jscnt];
-						if (!ov) ov.reset(new JoystickOverlay);
+						if (!ov) ov = new JoystickOverlay;
 						ov->setIdf(joy->getIdf(j));
 						ov->setState(m->joystick_buttons[id]);
 						screen->setJoystickOverlay(jscnt++, ov);
@@ -186,7 +186,7 @@ void MachineController::updateSomeMenuItems()
 					if (JoystickID id = mf1->getJoystickID())
 					{
 						JoystickOverlayPtr& ov = joystick_overlays[jscnt];
-						if (!ov) ov.reset(new JoystickOverlay);
+						if (!ov) ov = new JoystickOverlay;
 						ov->setIdf(mf1->getIdf());
 						ov->setState(m->joystick_buttons[id]);
 						screen->setJoystickOverlay(jscnt++, ov);
@@ -203,7 +203,7 @@ void MachineController::updateSomeMenuItems()
 					if (JoystickID id = spectra->getJoystickID())
 					{
 						JoystickOverlayPtr& ov = joystick_overlays[jscnt];
-						if (!ov) ov.reset(new JoystickOverlay);
+						if (!ov) ov = new JoystickOverlay;
 						ov->setIdf(spectra->getIdf());
 						ov->setState(m->joystick_buttons[id]);
 						screen->setJoystickOverlay(jscnt++, ov);
@@ -254,7 +254,7 @@ void MachineController::pollInputDevices()
 //			Create & Destroy:
 // ============================================================
 
-std::shared_ptr<Machine> MachineController::newMachineForModel(Model model)
+RCPtr<Machine> MachineController::newMachineForModel(Model model)
 {
 	// create Machine instance for model
 	// machine.parent := this
@@ -263,7 +263,7 @@ std::shared_ptr<Machine> MachineController::newMachineForModel(Model model)
 
 	assert(in_machine_ctor);
 
-	std::shared_ptr<Machine> m = Machine::newMachine(this, model);
+	RCPtr<Machine> m = Machine::newMachine(this, model);
 	m->crtc->attachToScreen(screen);
 
 	switch (model)
@@ -1287,8 +1287,8 @@ void MachineController::killMachine()
 	hideInspector(NV(machine), no);
 
 	//delete machine:
-	assert(machine.unique());
-	machine.reset();
+	assert(machine.refcnt() == 1);
+	machine = nullptr;
 
 	delete screen;
 	screen = nullptr;
@@ -2161,7 +2161,7 @@ static QAction* find_action_for_item(QList<QAction*>& array, const volatile IsaO
 	return nullptr;
 }
 
-void MachineController::itemAdded(std::shared_ptr<Item> item) volatile
+void MachineController::itemAdded(RCPtr<Item> item) volatile
 {
 	// callback from Item c'tor
 
@@ -2169,12 +2169,12 @@ void MachineController::itemAdded(std::shared_ptr<Item> item) volatile
 	assert(isMainThread());
 
 	// we delay the updates because in case of a new machine it is not yet stored in this->machine:
-	bool				force = !in_machine_ctor;
-	std::weak_ptr<Item> item_wp {item};
-	QTimer::singleShot(0, NV(this), [=] { NV(this)->item_added(item_wp, force); });
+	bool		  force = !in_machine_ctor;
+	WeakPtr<Item> weakitem(item);
+	QTimer::singleShot(0, NV(this), [=] { NV(this)->item_added(weakitem, force); });
 }
 
-void MachineController::item_added(std::weak_ptr<Item> item_wp, bool force)
+void MachineController::item_added(WeakPtr<Item> item_wp, bool force)
 {
 	// we manage the 'Extensions' menu here.
 	// 'add' and 'show' actions are un|checked and dis|enabled
@@ -2185,8 +2185,9 @@ void MachineController::item_added(std::weak_ptr<Item> item_wp, bool force)
 	// if zxsp is started with a file to load then the initial default machine
 	// may be unsuitable and is immediately destroyed and the required one is created.
 	// then we get itemAdded events for items which no longer exist.
-	Item* item = item_wp.lock().get();
-	if (!item) return;
+	RCPtr<Item> item_rc {item_wp};
+	if (!item_rc) return;
+	Item* item = item_rc;
 	assert(NV(machine)->all_items.contains(item));
 
 	// Ula and Mmu are handled as one item:

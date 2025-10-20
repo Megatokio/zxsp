@@ -33,8 +33,8 @@ class UsbJoystick
 public:
 	UsbJoystick() noexcept = default;
 	~UsbJoystick() { disconnect(); }
-	void lock() volatile { mutex.lock(); }
-	void unlock() volatile { mutex.unlock(); }
+	void lock() { mutex.lock(); }
+	void unlock() { mutex.unlock(); }
 
 	uint8 getState();
 	bool  isConnected() const volatile { return dev_if != nullptr; }

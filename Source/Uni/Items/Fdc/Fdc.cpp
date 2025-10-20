@@ -6,7 +6,7 @@
 #include "FloppyDiskDrive.h"
 
 
-static std::shared_ptr<FloppyDiskDrive> no_fdd() { return FloppyDiskDrive::noFloppyDiskDrive(); } // convenience
+static RCPtr<FloppyDiskDrive> no_fdd() { return FloppyDiskDrive::noFloppyDiskDrive(); } // convenience
 
 
 Fdc::Fdc(Machine* m, isa_id id, Internal internal, cstr o_addr, cstr i_addr) :
@@ -33,7 +33,7 @@ void Fdc::reset(Time t, int32 cc)
 	interrupt = off;
 }
 
-void Fdc::attachDiskDrive(uint i, std::shared_ptr<FloppyDiskDrive> dd)
+void Fdc::attachDiskDrive(uint i, RCPtr<FloppyDiskDrive> dd)
 {
 	assert(dd);
 
