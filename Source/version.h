@@ -6,14 +6,15 @@
 
 #define APPL_VERSION_H	  0
 #define APPL_VERSION_M	  8
-#define APPL_VERSION_L	  42
-#define APPL_VERSION_STR  "0.8.42"
+#define APPL_VERSION_L	  43
+#define APPL_VERSION_STR  "0.8.43"
 #define APPL_VERSION_BETA true
 
 static constexpr char startup_info_message[] =
 	"Welcome to version " APPL_VERSION_STR
 	" of zxsp.\n"
-	"This version fixes a crash when selecting a new model while memory inspectors are open.\n"
+	"This version fixes some regressions related to debugging: "
+	"hanging after stepIn and stepOut and the missing video beam indicator.\n"
 	"Please report any issue at\n"
 	"github.com/Megatokio/zxsp/issues.";
 
