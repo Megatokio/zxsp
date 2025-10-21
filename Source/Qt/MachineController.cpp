@@ -2191,8 +2191,12 @@ void MachineController::item_added(WeakPtr<Item> item_wp, bool force)
 	assert(NV(machine)->all_items.contains(item));
 
 	// Ula and Mmu are handled as one item:
-	if (dynamic_cast<Mmu*>(item)) return;
-	assert(dynamic_cast<Ula*>(item) == nullptr || machine->mmu != nullptr);
+	if (dynamic_cast<Mmu*>(item))
+	{
+		// except the Mmu of the TC2068 which is the dock:
+		if (dynamic_cast<MmuTc2068*>(item) == nullptr) return;
+	}
+	else assert(dynamic_cast<Ula*>(item) == nullptr || machine->mmu != nullptr);
 
 	assert(item); //wg. bogus lint warning
 	int g = item->grp_id;
