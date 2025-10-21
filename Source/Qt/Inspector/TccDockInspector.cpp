@@ -273,7 +273,7 @@ void TccDockInspector::insert_cartridge(cstr filepath)
 	delete[] current_fpath;
 	current_fpath = nullptr;
 
-	bool f = machine->powerOff();
+	bool f = nvptr(machine)->powerOff();
 
 	NV(dock)->insertCartridge(filepath);
 	addRecentFile(RecentTccRoms, filepath);
@@ -295,7 +295,7 @@ void TccDockInspector::eject_cartridge()
 	{
 		cartridge_state = Invalid;
 
-		bool f = machine->powerOff();
+		bool f = nvptr(machine)->powerOff();
 		NV(dock)->ejectCartridge();
 		if (f) machine->powerOn();
 	}
@@ -323,7 +323,8 @@ void TccDockInspector::insert_again()
 
 	if (current_fpath)
 	{
-		bool f			= machine->powerOff();
+		bool f = nvptr(machine)->powerOff();
+
 		cartridge_state = Invalid;
 		NV(dock)->insertCartridge(current_fpath);
 		if (f) machine->powerOn();
@@ -339,7 +340,7 @@ void TccDockInspector::save_as()
 	cstr filepath = getSaveFilename();
 	if (filepath)
 	{
-		bool f			= machine->suspend();
+		bool f			= nvptr(machine)->suspend();
 		cartridge_state = Invalid;
 		NV(dock)->saveCartridgeAs(filepath);
 		if (f) machine->resume();

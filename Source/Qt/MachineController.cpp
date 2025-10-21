@@ -354,15 +354,15 @@ void MachineController::loadSnapshot(cstr filename)
 	bool r = settings.get_bool(key_always_attach_rampack, yes);
 	bool d = settings.get_bool(key_always_attach_divide, no);
 
-	this->machine->suspend();			  // machine is powered on and suspended
+	nvptr(machine)->suspend();
 	Machine* machine = NV(this->machine); // we need the machine powered on because we may load helper snapshots
+										  // machine is powered on and suspended
 
 	if (machine->rzxIsRecording() && action_RzxRecordAppendSna->isChecked()) {}
 	else
 	{
 		action_RzxRecord->setChecked(false);
 		machine->rzxDispose();
-		// screen->removeAllOverlays();
 	}
 	RzxFile* rzx = nullptr;
 
@@ -1265,7 +1265,7 @@ void MachineController::killMachine()
 
 	nvptr(&machine_list)->remove(machine);
 	in_machine_dtor = yes;
-	machine->powerOff();
+	NV(machine)->_power_off();
 
 	// unchecked menu items:
 	action_showLenslok->setChecked(off);
@@ -1584,14 +1584,14 @@ void MachineController::saveAs()
 {
 	xlogIn("MachineController:SaveAs");
 
-	bool f = machine->suspend();
+	bool f = nvptr(machine)->suspend();
 
 	cstr filter = catstr(
 		machine->rzxIsLoaded() ? "RZX Recording (*.rzx);;" : "",
 		model == zx80													   ? "ZX80 Snapshots (*.z80 *.o *.80);;" :
 		model == zx81													   ? "ZX81 Snapshots (*.z80 *.p *.81);;" :
 		model == jupiter												   ? "Jupiter Ace Snapshots (*.z80 *.ace);;" :
-		machine->isA(isa_MachineZxsp) && NV(machine->ram).count() <= 48 kB ? "ZXSP Snapshots (*.z80 *.sna);;" :
+		machine->isA(isa_MachineZxsp) && NV(machine)->ram.count() <= 48 kB ? "ZXSP Snapshots (*.z80 *.sna);;" :
 																			 "ZXSP Snapshots (*.z80);;",
 		"Rom (*.rom);;", model_info->isA(isa_MachineZxsp) ? "Screenshot (*.scr);;" : "", "All Files (*)");
 
@@ -1600,7 +1600,7 @@ void MachineController::saveAs()
 	{
 		try
 		{
-			nvptr(machine)->saveAs(filepath);
+			NV(machine)->saveAs(filepath);
 			setFilepath(filepath);
 		}
 		catch (AnyError& e)
@@ -1934,7 +1934,7 @@ void MachineController::powerResetMachine()
 	xlogIn("MachineController:powerOffOn");
 
 	setFilepath(nullptr);
-	machine->powerOff(); // must be suspended
+	nvptr(machine)->powerOff(); // must be suspended
 	setKeyboardMode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
 	machine->powerOn();
 }
@@ -1952,28 +1952,28 @@ void MachineController::enableBreakpoints(bool f)
 {
 	xlogIn("MachineController:enableBreakpoints(%i)", int(f));
 
-	machine->lock();
-	if (f) machine->cpu_options |= cpu_break_rwx;
-	else machine->cpu_options &= ~cpu_break_rwx;
-	machine->unlock();
+	NVPtr<Machine> m {machine};
+	if (f) m->cpu_options |= cpu_break_rwx;
+	else m->cpu_options &= ~cpu_break_rwx;
 }
 
 void MachineController::haltMachine(bool f)
 {
 	xlogIn("MachineController:haltMachine(%i)", int(f));
-	if (f) machine->suspend();
-	else machine->resume();
+
 	// note: we'll get a callback to machineSuspendStateChanged()
+	if (f) nvptr(machine)->suspend();
+	else machine->resume();
 }
 
 void MachineController::addExternalItem(isa_id item_id, bool add)
 {
 	xlogIn("MachineController:slot_add_external_item(%i,%s)", item_id, add ? "add" : "remove");
 
-	bool f = machine->suspend();
+	bool f = nvptr(machine)->suspend();
 
-	if (add) nvptr(machine)->addExternalItem(item_id);
-	else nvptr(machine)->removeItem(item_id);
+	if (add) NV(machine)->addExternalItem(item_id);
+	else NV(machine)->removeItem(item_id);
 
 	if (f) machine->resume();
 }
@@ -1987,24 +1987,24 @@ void MachineController::addExternalRam(isa_id item_id, bool add, uint options)
 
 	xlogIn("MachineController:slot_add_external_ram(%i,%s)", item_id, add ? "add" : "remove");
 
-	bool f = machine->powerOff();
+	bool f = nvptr(machine)->powerOff();
 
-	nvptr(machine)->remove<ExternalRam>();
-	if (add) nvptr(machine)->addExternalRam(item_id, options);
+	NV(machine)->remove<ExternalRam>();
+	if (add) NV(machine)->addExternalRam(item_id, options);
 
 	if (f) machine->powerOn();
 }
 
 void MachineController::addMultiface1(bool add)
 {
-	bool f = machine->suspend();
+	bool f = nvptr(machine)->suspend();
 
 	if (add)
 	{
 		bool joystick_enabled = settings.get_bool(key_multiface1_enable_joystick, yes);
-		nvptr(machine)->addMultiface1(joystick_enabled);
+		NV(machine)->addMultiface1(joystick_enabled);
 	}
-	else nvptr(machine)->remove<Multiface1>();
+	else NV(machine)->remove<Multiface1>();
 
 	if (f) machine->resume();
 }
@@ -2025,7 +2025,7 @@ void MachineController::addDivIDE(bool add)
 {
 	xlogIn("MachineController:addDivIDE(%i)", add);
 
-	bool f = machine->powerOff();
+	bool f = nvptr(machine)->powerOff();
 
 	if (add)
 	{
@@ -2033,7 +2033,7 @@ void MachineController::addDivIDE(bool add)
 		cstr romfile  = settings.get_cstr(key_divide_rom_file);
 		cstr diskfile = settings.get_cstr(key_divide_disk_file);
 
-		DivIDE* divide = nvptr(machine)->addDivIDE(ramsize, romfile);
+		DivIDE* divide = NV(machine)->addDivIDE(ramsize, romfile);
 
 		cstr err = nullptr;
 		if (divide->getRomFilepath() == nullptr) // failed to load
@@ -2050,7 +2050,7 @@ void MachineController::addDivIDE(bool add)
 
 		if (diskfile) divide->insertDisk(diskfile); // shows it's own errors
 	}
-	else nvptr(machine)->remove<DivIDE>();
+	else NV(machine)->remove<DivIDE>();
 
 	if (f) machine->powerOn();
 
@@ -2061,7 +2061,7 @@ void MachineController::addSpectraVideo(bool add)
 {
 	xlogIn("MachineController::addSpectraVideo(%i)", add);
 
-	bool f = machine->powerOff();
+	bool f = nvptr(machine)->powerOff();
 
 	if (add)
 	{
@@ -2073,12 +2073,12 @@ void MachineController::addSpectraVideo(bool add)
 		if (settings.get_bool(key_spectra_enable_joystick, false)) dip_switches |= Dip::EnableJoystick;
 		if (settings.get_bool(key_spectra_enable_new_video_modes, true)) dip_switches |= Dip::EnableNewVideoModes;
 
-		nvptr(machine)->addSpectraVideo(dip_switches);
+		NV(machine)->addSpectraVideo(dip_switches);
 		screen->setFlavour(isa_ScreenSpectra);
 	}
 	else
 	{
-		nvptr(machine)->removeSpectraVideo();
+		NV(machine)->removeSpectraVideo();
 		screen->setFlavour(machine->isA(isa_UlaTc2048) ? isa_ScreenTc2048 : isa_ScreenZxsp);
 	}
 

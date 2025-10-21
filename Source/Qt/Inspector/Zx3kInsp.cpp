@@ -51,7 +51,7 @@ void Zx3kInsp::slotSetRamSize(uint newsize)
 
 	if (newsize == zx3kram->getRamSize()) return;
 
-	bool f = machine->powerOff();
+	bool f = nvptr(machine)->powerOff();
 	NV(zx3kram)->setRamSize(newsize);
 	if (f) machine->powerOn();
 

@@ -66,7 +66,7 @@ void ZxIf2Insp::slotInsertEjectRom()
 	if (NV(zxif2)->isLoaded())
 	{
 		xlogIn("ZxIf2Insp::eject()");
-		bool f = machine->powerOff();
+		bool f = nvptr(machine)->powerOff();
 		NV(zxif2)->ejectRom();
 		if (f) machine->powerOn();
 	}
@@ -133,7 +133,7 @@ void ZxIf2Insp::insertRom(cstr filepath)
 {
 	assert(validReference(zxif2));
 
-	bool f = machine->powerOff();
+	bool f = nvptr(machine)->powerOff();
 	NV(zxif2)->insertRom(filepath);
 	if (f) machine->powerOn();
 	addRecentFile(RecentIf2Roms, filepath);

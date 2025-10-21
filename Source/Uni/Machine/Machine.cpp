@@ -306,16 +306,15 @@ void Machine::memoryModified(Memory* m, uint how)
 	controller->memoryModified(m, how);
 }
 
-bool Machine::suspend() volatile
+bool Machine::suspend()
 {
 	// suspend machine
 	// returns flag, whether it was running, to be passed to resume(bool):
 	// 	 1 = was running
 	// 	 0 = was suspended
 
-	PLocker<Machine> z(this);
 	if (is_suspended) return false; // was not running
-	NV(this)->_suspend();
+	_suspend();
 	return true; // was running
 }
 
@@ -434,6 +433,9 @@ void Machine::_power_on(int32 start_cc)
 	// note: start_cc for +2A:  ok: 0k..2k, 7k..14k;  boot error: 3k..6k, 15k..40k
 
 	xlogIn("Machine:PowerOn");
+	assert(is_locked());
+
+	rzxDispose();
 
 	total_frames   = 0; // information: accumulated frames until now
 	total_cc	   = 0; // information: accumulated cpu T cycles until now
@@ -462,30 +464,22 @@ void Machine::_power_on(int32 start_cc)
 void Machine::powerOn(int32 start_cc) volatile
 {
 	assert(isMainThread());
-	assert(isPowerOff());
+	//assert(is_locked());
+	if (is_power_on) return;
 
-	// if the machine is power_off, then we don't need to lock:
-	NV(this)->rzxDispose();
 	NV(this)->_power_on(start_cc);
 }
 
-void Machine::_power_off()
+bool Machine::powerOff()
 {
 	xlogIn("Machine:PowerOff");
+
+	if (is_power_on == false) return false;
 	is_power_on = false;
-}
-
-bool Machine::powerOff() volatile
-{
-	assert(isMainThread());
-
-	PLocker<Machine> z(this);
-	if (isPowerOff()) return false; // wasn't running
-	NV(this)->_power_off();
 	return true; // was running
 }
 
-void Machine::powerCycle() volatile
+void Machine::powerCycle()
 {
 	// power-cycle the machine for reset
 	// does not change the suspend state

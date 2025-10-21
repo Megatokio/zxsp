@@ -47,7 +47,7 @@ public:
 		return i; // i = ~0u if not found
 	}
 
-	bool contains(const volatile Item* item) { return indexof(item) != ~0u; }
+	bool contains(const volatile Item* item) const { return indexof(item) != ~0u; }
 
 	void remove(Item* item)
 	{
@@ -75,13 +75,13 @@ class Machine : public IsaObject
 	friend class Item;
 	friend class Z80;
 
-public:
 	std::timed_mutex mutex;
 
-	void lock() volatile { NV(mutex).lock(); }
-	void unlock() volatile { NV(mutex).unlock(); }
-	bool trylock() volatile { return NV(mutex).try_lock(); }
-	bool trylock(int timeout_nsec) volatile { return NV(mutex).try_lock_for(std::chrono::nanoseconds(timeout_nsec)); }
+public:
+	void lock() { mutex.lock(); }
+	void unlock() { mutex.unlock(); }
+	bool trylock() { return mutex.try_lock(); }
+	bool trylock(int timeout_nsec) { return mutex.try_lock_for(std::chrono::nanoseconds(timeout_nsec)); }
 
 	volatile IMachineController* controller;
 
@@ -160,7 +160,7 @@ public:
 	SpectraVideo* findSpectraVideo() { return find<SpectraVideo>(); }
 	DivIDE*		  findDivIDE() { return find<DivIDE>(); }
 
-	bool contains(const volatile Item* item) { return all_items.contains(item); }
+	bool contains(const volatile Item* item) const { return all_items.contains(item); }
 
 	void setCrtc(Crtc* c) { cpu->setCrtc(crtc = c); }
 
@@ -294,10 +294,10 @@ public:
 	}
 
 	void _power_on(/*t=0*/ int32 start_cc = 1000);
-	void _power_off();
+	void _power_off() { is_power_on = false; }
 	void powerOn(/*t=0*/ int32 start_cc = 1000) volatile;
-	bool powerOff() volatile;
-	void powerCycle() volatile;
+	bool powerOff();
+	void powerCycle();
 	bool isPowerOn() const volatile { return is_power_on; }
 	bool isPowerOff() const volatile { return is_power_on == no; }
 	void reset(); // at current t & cc
@@ -310,7 +310,7 @@ public:
 	void stepOver();
 	void stepOut();
 	void _suspend() { is_suspended = true; }
-	bool suspend() volatile;
+	bool suspend();
 	void resume() volatile { is_suspended = false; }
 	bool isRunning() const volatile { return !is_suspended; }
 	bool isSuspended() const volatile { return is_suspended; }
