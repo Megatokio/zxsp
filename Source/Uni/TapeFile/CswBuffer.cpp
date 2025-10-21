@@ -741,6 +741,13 @@ void CswBuffer::addToAudioBuffer(
 {
 	assert(zpos >= 0 && zpos <= count);
 	assert(qpos <= end);
+
+	if (qoffs < 0.0)
+	{
+		logline("CswBuffer:addAudioToBuffer: qpos=%12g", qoffs); // -> rounding error
+		qoffs = 0.0;
+	}
+
 	assert(qoffs >= 0 && qoffs <= (qpos < end ? data[qpos] : 0));
 
 	if (qpos >= end) return;
