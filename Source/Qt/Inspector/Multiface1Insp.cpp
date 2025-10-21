@@ -96,7 +96,6 @@ void Multiface1Insp::slotJoystickSelected()
 	assert(validReference(mf1));
 
 	mf1->insertJoystick(JoystickID(joystick_selector->currentIndex()));
-	controller->addOverlayJoy(mf1);
 }
 
 void Multiface1Insp::update_joystick_selector()

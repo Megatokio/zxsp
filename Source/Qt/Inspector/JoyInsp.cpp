@@ -86,7 +86,6 @@ void JoyInsp::slotJoystickSelected()
 	{
 		int idx = joystick_selectors[i]->currentIndex();
 		if (idx >= 0) joy->insertJoystick(i, JoystickID(idx));
-		if (idx >= 0) controller->addOverlayJoy(joy);
 	}
 }
 

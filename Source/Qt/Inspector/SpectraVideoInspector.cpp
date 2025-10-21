@@ -170,7 +170,6 @@ void SpectraVideoInspector::slotJoystickSelected()
 	assert(validReference(spectra));
 
 	spectra->insertJoystick(JoystickID(js_selector->currentIndex()));
-	controller->addOverlayJoy(spectra);
 }
 
 void SpectraVideoInspector::update_joystick_selector()

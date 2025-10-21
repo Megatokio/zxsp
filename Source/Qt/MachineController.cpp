@@ -2250,10 +2250,7 @@ void MachineController::item_added(WeakPtr<Item> item_wp, bool force)
 		showaction->setShortcut(CTRL | Qt::Key_J);
 		showaction->setIcon(
 			QIcon(dynamic_cast<Joy*>(item)->getNumPorts() == 1 ? ":/Icons/joystick-1.gif" : ":/Icons/joystick-2.gif"));
-		FALLTHROUGH
-	case isa_SpectraVideo:
-	case isa_Multiface1:
-	case isa_SmartSDCard: addOverlayJoy(item); break;
+		break;
 	}
 
 	window_menu->insertAction(separator, showaction);
@@ -2292,71 +2289,6 @@ void MachineController::item_removed(Item* item, bool force)
 		addAction->setChecked(false);
 		addAction->setEnabled(true);
 		addAction->blockSignals(false);
-	}
-
-	removeOverlayJoy(item);
-}
-
-void MachineController::addOverlayJoy(volatile Item* /*item*/)
-{
-	xlogline("MachineController::addOverlayJoy: TODO");
-
-#if 0
-	switch (item->grp_id)
-	{
-	case isa_Joy:
-	{
-		auto* joy = dynamic_cast<Joy*>(item);
-		assert(joy);
-		for (uint i = 0; i < joy->getNumPorts(); i++)
-		{
-			if (joy->getJoystickID(i) != no_joystick)
-				screen->addOverlay(new OverlayJoystick(
-					screen, joysticks[joy->getJoystickID(i)], joy->getIdf(i), gui::Overlay::TopRight));
-		}
-		break;
-	}
-	case isa_SpectraVideo:
-	{
-		auto* joy = dynamic_cast<SpectraVideo*>(item);
-		assert(joy);
-		if (joy->isJoystickEnabled() && joy->getJoystickID() != no_joystick)
-			screen->addOverlay(
-				new OverlayJoystick(screen, joysticks[joy->getJoystickID()], joy->getIdf(), gui::Overlay::TopRight));
-		break;
-	}
-	case isa_Multiface1:
-	{
-		auto* joy = dynamic_cast<Multiface1*>(item);
-		assert(joy);
-		if (joy->isJoystickEnabled() && joy->getJoystickID() != no_joystick)
-			screen->addOverlay(
-				new OverlayJoystick(screen, joysticks[joy->getJoystickID()], joy->getIdf(), gui::Overlay::TopRight));
-		break;
-	}
-	case isa_SmartSDCard:
-	{
-		auto* joy = dynamic_cast<SmartSDCard*>(item);
-		assert(joy);
-		if (joy->isJoystickEnabled() && joy->getJoystickID() != no_joystick)
-			screen->addOverlay(
-				new OverlayJoystick(screen, joysticks[joy->getJoystickID()], joy->getIdf(), gui::Overlay::TopRight));
-		break;
-	}
-	default: break;
-	}
-#endif
-}
-
-void MachineController::removeOverlayJoy(Item* item)
-{
-	switch (item->grp_id)
-	{
-	case isa_SpectraVideo:
-	case isa_Multiface1:
-	case isa_SmartSDCard:
-	case isa_Joy:
-	default: break;
 	}
 }
 

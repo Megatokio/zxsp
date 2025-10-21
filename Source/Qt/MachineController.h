@@ -173,9 +173,6 @@ public:
 	void itemRemoved(Item*) volatile override;
 	void showMessage(MessageStyle, cstr text) override;
 
-	void addOverlayJoy(volatile Item*);
-	void removeOverlayJoy(Item*);
-
 signals:
 	void signal_keymapModified();
 	void signal_memoryModified(Memory*, uint how);
