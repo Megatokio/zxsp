@@ -309,9 +309,8 @@ public:
 	void stepOver();
 	void stepOut();
 	void _suspend() { is_suspended = true; }
-	void _resume() { is_suspended = false; }
 	bool suspend() volatile;
-	void resume() volatile;
+	void resume() volatile { is_suspended = false; }
 	bool isRunning() const volatile { return !is_suspended; }
 	bool isSuspended() const volatile { return is_suspended; }
 

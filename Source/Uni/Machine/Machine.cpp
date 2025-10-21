@@ -306,13 +306,6 @@ void Machine::memoryModified(Memory* m, uint how)
 	controller->memoryModified(m, how);
 }
 
-void Machine::resume() volatile
-{
-	// resume machine:
-
-	nvptr(this)->_resume();
-}
-
 bool Machine::suspend() volatile
 {
 	// suspend machine
@@ -1439,7 +1432,7 @@ void Machine::rzxLoadSnapshot(int32& cc_final, int32& ic_end)
 			rzxOutOfSync(usingstr("RZX file: load %s snapshot: TODO", ext));
 			return;
 		}
-		_resume();
+		resume();
 	}
 	catch (AnyError& e)
 	{
