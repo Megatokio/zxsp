@@ -1,4 +1,4 @@
-// auto generated 2017-11-08 16:08:53
+//auto generated 2025-10-22 22:57:45
 #pragma once
 #include "isa_id.h"
 #include "kio/kio.h"
@@ -94,12 +94,13 @@ struct ZxInfo
 	uint	 has_joystick_ports;
 	bool	 has_kempston_joystick_ports;
 	bool	 has_sinclair_joystick_ports;
-	bool	 hasWaitmap() const { return waitmap != 0; }
-	uint32	 cpuClockPredivider() const { return ula_cycles_per_second / cpu_cycles_per_second; }
-	bool	 isA(isa_id i) const; // -> zxsp_helpers.cpp
-	bool	 canAttachDivIDE() const { return has_zxsp_bus && !isA(isa_MachineTc2068); }
-	bool	 canAttachZxIf2() const { return has_zxsp_bus && !isA(isa_MachineTc2068) && !isA(isa_MachineZxPlus2a); }
-	bool	 canAttachSpectraVideo() const { return model <= zxplus2a_span && model != inves; }
+
+	bool   hasWaitmap() const { return waitmap != 0; }
+	uint32 cpuClockPredivider() const { return ula_cycles_per_second / cpu_cycles_per_second; }
+	bool   isA(isa_id i) const; // -> zxsp_helpers.cpp
+	bool   canAttachDivIDE() const { return has_zxsp_bus && !isA(isa_MachineTc2068); }
+	bool   canAttachZxIf2() const { return has_zxsp_bus && !isA(isa_MachineTc2068) && !isA(isa_MachineZxPlus2a); }
+	bool   canAttachSpectraVideo() const { return model <= zxplus2a_span && model != inves; }
 };
 
 extern ZxInfo zx_info[num_models];

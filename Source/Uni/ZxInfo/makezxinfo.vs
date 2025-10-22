@@ -79,30 +79,30 @@ var zxinfofile = "ZxInfo"			// basename only
 enum Language { british, american, french, spanish, portuguese };»,nl,nl
 
 	put#f,"enum Model{",nl
-	put#f,"unknown_model=-1,",nl
+	put#f,"\tunknown_model=-1,",nl
 	x=0
 	do
 		while ++x <= count prefixe
-		put#f,prefixe[x], ",", nl
+		put#f,"\t",prefixe[x], ",", nl
 	loop
-	put#f,"num_models",nl
+	put#f,"\tnum_models",nl
 	put#f,"};",nl,nl
 
 
-	put#f,"struct ZxInfo{",nl,"Model    model;",nl
+	put#f,"struct ZxInfo\n{",nl,"\tModel    model;",nl
 	y=0
 	do
 		while ++y <= count data
 		if types[y]=="" put+f,nl next then
-		put#f, (types[y]#"      ")[to 9], names[y], ";", nl
+		put#f, "\t", (types[y]#"      ")[to 9], names[y], ";", nl
 	loop
-	put#f,«\
-bool	hasWaitmap () const			{ return waitmap!=0; }
-uint32	cpuClockPredivider() const	{ return ula_cycles_per_second / cpu_cycles_per_second; }
-bool	isA(isa_id i) const			{ isa_id j=id; do { if(i==j) return yes; } while((j=isa_pid[j])); return no; }
-bool	canAttachDivIDE() const		{ return has_zxsp_bus && !isA(isa_MachineTc2068); }
-bool	canAttachZxIf2() const		{ return has_zxsp_bus && !isA(isa_MachineTc2068) && !isa_MachineZxPlus2a; }
-bool	canAttachSpectraVideo() const { return model<=zxplus2a_span && model!=inves; }
+	put#f,«
+	bool	 hasWaitmap() const { return waitmap != 0; }
+	uint32	 cpuClockPredivider() const { return ula_cycles_per_second / cpu_cycles_per_second; }
+	bool	 isA(isa_id i) const; // -> zxsp_helpers.cpp
+	bool	 canAttachDivIDE() const { return has_zxsp_bus && !isA(isa_MachineTc2068); }
+	bool	 canAttachZxIf2() const { return has_zxsp_bus && !isA(isa_MachineTc2068) && !isA(isa_MachineZxPlus2a); }
+	bool	 canAttachSpectraVideo() const { return model <= zxplus2a_span && model != inves; }
 	»
 	put#f,"};",nl,nl
 
