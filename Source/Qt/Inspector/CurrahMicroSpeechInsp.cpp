@@ -5,7 +5,7 @@
 #include "CurrahMicroSpeechInsp.h"
 #include "CurrahMicroSpeech.h"
 #include "Qt/qt_util.h"
-#include "Templates/RCPtr.h"
+#include "Templates/NVPtr.h"
 #include <QPainter>
 #include <QRadioButton>
 #include <QTimer>

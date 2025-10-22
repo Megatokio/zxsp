@@ -4,7 +4,7 @@
 
 #include "MultifaceInsp.h"
 #include "Multiface/Multiface.h"
-#include "Templates/RCPtr.h"
+#include "Templates/NVPtr.h"
 #include <QLabel>
 #include <QMouseEvent>
 #include <QTimer>

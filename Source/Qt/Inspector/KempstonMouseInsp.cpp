@@ -4,7 +4,7 @@
 
 #include "KempstonMouseInsp.h"
 #include "Mouse.h"
-#include "Templates/RCPtr.h"
+#include "Templates/NVPtr.h"
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>

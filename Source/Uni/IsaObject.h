@@ -14,9 +14,9 @@ extern cstr	  isa_names[]; // (default) item names
 
 class IsaObject
 {
+public:
 	RCDATA
 
-public:
 	const isa_id id;	 // precise isa_id for this item
 	const isa_id grp_id; // major base class of this item, e.g. isa_Joy or isa_Ula
 	cstr		 name;

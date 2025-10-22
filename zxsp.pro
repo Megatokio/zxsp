@@ -364,6 +364,8 @@ HEADERS += \
 	Libraries/Templates/HashMap.h \
 	Libraries/Templates/sort.h \
 	Libraries/Templates/RCPtr.h \
+	Libraries/Templates/NVPtr.h \
+	Libraries/Templates/RCArray.h \
 	Libraries/Templates/StrArray.h \
 	\
 	Libraries/cstrings/cstrings.h \

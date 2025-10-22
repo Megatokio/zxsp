@@ -12,6 +12,7 @@
 #include "Ram/ExternalRam.h"
 #include "SpectraVideo.h"
 #include "StereoSample.h"
+#include "Templates/NVPtr.h"
 #include "Templates/RCPtr.h"
 #include "Ula/Ula.h"
 #include "Ula/UlaZx80.h"

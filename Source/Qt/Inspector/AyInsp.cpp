@@ -5,7 +5,7 @@
 #include "AyInsp.h"
 #include "Ay/Ay.h"
 #include "Qt/qt_util.h"
-#include "Templates/RCPtr.h"
+#include "Templates/NVPtr.h"
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
