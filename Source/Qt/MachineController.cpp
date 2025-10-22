@@ -838,16 +838,13 @@ void MachineController::createActions()
 	action_nmi		= newAction("nmi_button.gif", "Push NMI", Qt::Key_N | SHIFT, [=] { nvptr(machine)->nmi(); });
 	action_suspend	= newAction("run-pause.png", "Halt CPU", Qt::Key_H | SHIFT, [=](bool f) { haltMachine(f); });
 	action_stepIn	= newAction("arrow-dn.png", "Step in", Qt::Key_I | SHIFT, [=] {
-		  assert(machine->isSuspended());
-		  nvptr(machine)->stepIn();
+		  if (machine->isSuspended()) nvptr(machine)->stepIn();
 	  });
 	action_stepOver = newAction("run-r.png", "Step over", Qt::Key_S | SHIFT, [=] {
-		assert(machine->isSuspended());
-		nvptr(machine)->stepOver();
+		if (machine->isSuspended()) nvptr(machine)->stepOver();
 	});
 	action_stepOut	= newAction("arrow-up.png", "Step out", Qt::Key_O | SHIFT, [=] {
-		 assert(machine->isSuspended());
-		 nvptr(machine)->stepOut();
+		 if (machine->isSuspended()) nvptr(machine)->stepOut();
 	 });
 	action_enable_breakpoints =
 		newAction(NOICON, "Enable breakpoints", Qt::Key_B | SHIFT, [=](bool f) { enableBreakpoints(f); });
