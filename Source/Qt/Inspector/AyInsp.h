@@ -27,7 +27,7 @@ class AyInsp : public Inspector
 	} value;
 
 public:
-	AyInsp(QWidget*, MachineController*, volatile Ay*);
+	AyInsp(QWidget*, MachineController*, volatile Ay*, cstr background = nullptr);
 
 protected:
 	void updateWidgets() override;

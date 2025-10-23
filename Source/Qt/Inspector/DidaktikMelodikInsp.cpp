@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2025 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -9,7 +9,7 @@ namespace gui
 {
 
 DidaktikMelodikInsp::DidaktikMelodikInsp(QWidget* w, MachineController* mc, volatile DidaktikMelodik* i) :
-	Inspector(w, mc, i, "/Images/didaktik_melodik.jpg")
+	AyInsp(w, mc, i, "/Images/didaktik_melodik_angled.jpg")
 {}
 
 } // namespace gui

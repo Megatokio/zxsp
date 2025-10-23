@@ -14,14 +14,15 @@
 namespace gui
 {
 
-static cstr es[] = {"\\＿＿＿",		"\\＿＿＿", "\\＿＿＿",	 "\\＿＿＿", "/＿＿＿", "/＿＿＿", "/＿＿＿",	"/＿＿＿",
-					"\\\\\\\\\\\\", "\\＿＿＿", "\\/\\/\\/", "\\￣￣￣", "//////",	"/￣￣￣", "/\\/\\/\\", "/＿＿＿"};
+static constexpr cstr es[] = {"\\＿＿＿", "\\＿＿＿", "\\＿＿＿",	  "\\＿＿＿", "/＿＿＿",   "/＿＿＿",
+							  "/＿＿＿",  "/＿＿＿",  "\\\\\\\\\\\\", "\\＿＿＿", "\\/\\/\\/", "\\￣￣￣",
+							  "//////",	  "/￣￣￣",  "/\\/\\/\\",	  "/＿＿＿"};
 
 static const QFont ff("Monaco" /*"Andale Mono"*/, 12);
 
 
-AyInsp::AyInsp(QWidget* w, MachineController* mc, volatile Ay* ay) :
-	Inspector(w, mc, ay, "/Backgrounds/light-150-s.jpg"),
+AyInsp::AyInsp(QWidget* w, MachineController* mc, volatile Ay* ay, cstr bg) :
+	Inspector(w, mc, ay, bg ? bg : "/Backgrounds/light-150-s.jpg"),
 	ay(ay),
 	value {0, 0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 {
@@ -51,8 +52,17 @@ AyInsp::AyInsp(QWidget* w, MachineController* mc, volatile Ay* ay) :
 		NV(this->ay)->setStereoMix(Ay::StereoMix(i));
 	});
 
+	int rmargin = 10;
+	int bmargin = 10;
+	if (bg)
+	{
+		QSize bgsz = background.size();
+		rmargin	   = bgsz.width() - 200 + 10;
+		bmargin	   = bgsz.height() - 300 + 10;
+	}
+
 	QGridLayout* g = new QGridLayout(this);
-	g->setContentsMargins(10, 10, 10, 10);
+	g->setContentsMargins(10, 10, rmargin, bmargin);
 	g->setVerticalSpacing(4);
 	g->setRowStretch(13, 100);
 	g->setColumnStretch(0, 33);
