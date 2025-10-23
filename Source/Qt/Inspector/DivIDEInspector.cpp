@@ -1,4 +1,4 @@
-// Copyright (c) 2014 - 2023 kio@little-bat.de
+// Copyright (c) 2014 - 2025 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -21,19 +21,19 @@
 namespace gui
 {
 
-static QRect box_nmi_button(269 + 4, 61 - 2, 19, 11 + 10);
-static QRect box_module(71, 2, 188, 85);
-static QRect box_eeprom(199, 132, 122, 32);
-static QRect box_jumper_E(202 + 1, 195, 20, 24);
-static QRect box_jumper_A(220 + 1, 194, 20, 25);
-static QRect box_jumper_EA(202 + 1, 194 + 1, 37, 24);
+static constexpr QRect box_nmi_button(269 + 4, 61 - 2, 19, 11 + 10);
+static constexpr QRect box_module(71, 2, 188, 85);
+static constexpr QRect box_eeprom(199, 132, 122, 32);
+static constexpr QRect box_jumper_E(202 + 1, 195, 20, 24);
+static constexpr QRect box_jumper_A(220 + 1, 194, 20, 25);
+static constexpr QRect box_jumper_EA(202 + 1, 194 + 1, 37, 24);
 
-static QRect box_led_green_hi(167, 73, 23, 24);
-static QRect box_led_yellow_hi(180, 74, 24, 23);
-static QRect box_led_red_hi(193, 73, 23, 24);
+static constexpr QRect box_led_green_hi(167, 73, 23, 24);
+static constexpr QRect box_led_yellow_hi(180, 74, 24, 23);
+static constexpr QRect box_led_red_hi(193, 73, 23, 24);
 
-static QRect box_label(102, 48, 128, 10); // module label
-static QFont font_label("Geneva", 10);	  // Geneva (weiter), Arial oder Gill Sans (enger)
+static constexpr QRect box_label(102, 48, 128, 10); // module label
+static const QFont	   font_label("Geneva", 10);	// Geneva (weiter), Arial oder Gill Sans (enger)
 
 
 DivIDEInspector::DivIDEInspector(QWidget* o, MachineController* mc, volatile DivIDE* divide) :
@@ -202,15 +202,6 @@ void DivIDEInspector::fillContextMenu(QMenu* menu)
 	ramGrp->addAction(action_ram32);
 	ramGrp->addAction(action_ram512);
 
-	menu->addAction("Insert ESXdos 0.8.5", this, &DivIDEInspector::load_default_rom);
-	menu->addAction("Insert EEprom …", this, [=] { load_rom(); });
-	menu->addAction("Recent EEproms …")->setMenu(new RecentFilesMenu(RecentDivideRoms, this, [=](cstr path) {
-		load_rom(path);
-	}));
-	menu->addAction("Save EEprom as …", this, &DivIDEInspector::save_rom);
-	menu->addAction(action_rom_wprot);
-	menu->addSeparator();
-
 	menu->addAction("Insert new empty 16M disc", this, [this] { insert_new_disk("16MB"); });
 	menu->addAction("Insert new empty 128M disc", this, [this] { insert_new_disk("128MB"); });
 	menu->addAction("Insert disc …", this, [=] { insert_disk(); }); // TODO: /dev/disk*
@@ -221,6 +212,15 @@ void DivIDEInspector::fillContextMenu(QMenu* menu)
 	menu->addAction(action_disk_wprot);
 	menu->addSeparator();
 
+	menu->addAction("Insert ESXdos 0.8.5", this, &DivIDEInspector::load_default_rom);
+	menu->addAction("Insert EEprom …", this, [=] { load_rom(); });
+	menu->addAction("Recent EEproms …")->setMenu(new RecentFilesMenu(RecentDivideRoms, this, [=](cstr path) {
+		load_rom(path);
+	}));
+	menu->addAction("Save EEprom as …", this, &DivIDEInspector::save_rom);
+	menu->addAction(action_rom_wprot);
+	menu->addSeparator();
+
 	menu->addAction(action_ram32);
 	menu->addAction(action_ram512);
 }
@@ -228,12 +228,12 @@ void DivIDEInspector::fillContextMenu(QMenu* menu)
 void DivIDEInspector::load_rom(cstr filepath)
 {
 	//	helper: load rom
-	//	if filepath==NULL load default rom
+	//	if filepath == nullptr load default rom
 
 	assert(validReference(divide));
 
-	bool f	 = machine->powerOff();
-	cstr err = nvptr(divide)->insertRom(filepath);
+	bool f	 = nvptr(machine)->powerOff();
+	cstr err = NV(divide)->insertRom(filepath);
 	if (f) machine->powerOn();
 
 	if (err) showWarning("Failed to load %s\n%s.", filepath ? filepath : "default rom", err);
@@ -252,7 +252,7 @@ void DivIDEInspector::load_default_rom()
 	load_rom(nullptr);
 }
 
-void DivIDEInspector::load_rom() // with requester
+void DivIDEInspector::load_rom() // with dialog
 {
 	xlogline("DivIDEInspector: slotLoadRom");
 
@@ -267,17 +267,16 @@ void DivIDEInspector::save_rom()
 	assert(validReference(divide));
 	assert(NV(divide)->getRom().count());
 
-	static cstr filter	 = "DivIDE Roms (*.rom);;All Files (*)";
-	cstr		filepath = selectSaveFile(this, "Save DivIDE Rom as:", filter);
+	cstr filter	  = "DivIDE Roms (*.rom);;All Files (*)";
+	cstr filepath = selectSaveFile(this, "Save DivIDE Rom as:", filter);
 	if (!filepath) return;
 
 	try
 	{
-		FD			   fd(filepath, 'w');
-		NVPtr<Machine> m {machine};
-		bool		   f = m->suspend();
+		FD	 fd(filepath, 'w');
+		bool f = nvptr(machine)->suspend();
 		NV(divide)->saveRom(fd);
-		if (f) m->resume();
+		if (f) machine->resume();
 		addRecentFile(RecentDivideRoms, filepath);
 		emit updateCustomTitle();
 	}
@@ -289,7 +288,7 @@ void DivIDEInspector::save_rom()
 
 void DivIDEInspector::toggle_jumper_E()
 {
-	// toggle rom write protection & enable jumper 'E'
+	// toggle jumper 'E': rom write protection & enable
 
 	xlogline("DivIDEInspector: slotToggleJumperE");
 	assert(validReference(divide));
@@ -305,9 +304,11 @@ void DivIDEInspector::insert_disk(cstr filepath)
 	assert(machine && object);
 	assert(validReference(divide));
 
-	bool f = machine->powerOff();
-	nvptr(divide)->insertDisk(filepath);
-	if (f) machine->powerOn();
+	// note: we don't want to power-cycle
+	// => the IdeDevice isn't reset(current time) instead is only reset(0) in it's ctor
+	bool f = nvptr(machine)->suspend();
+	NV(divide)->insertDisk(filepath);
+	if (f) machine->resume();
 
 	if (divide->isDiskInserted())
 	{
@@ -323,14 +324,11 @@ void DivIDEInspector::insert_disk()
 
 	if (divide->isDiskInserted())
 	{
-		NVPtr<Machine> m {machine};
-		bool		   f = m->suspend();
-		NV(divide)->ejectDisk();
-		if (f) m->resume();
-	}
-	if (divide->isDiskInserted()) return; // eject failed
+		eject_disk();
+		assert(!divide->isDiskInserted());
 
-	updateWidgets(); // update state & display
+		updateWidgets(); // update state & display: no CF module inserted
+	}
 
 	cstr filter	  = "Hard Disc images (*.img *.hdf *.dmg *.iso);;All Files (*)";
 	cstr filepath = selectLoadFile(this, "Insert Hard Disc Image", filter);
@@ -342,10 +340,9 @@ void DivIDEInspector::eject_disk()
 	xlogline("DivIDEInspector: slotEjectDisk");
 	assert(validReference(divide));
 
-	NVPtr<Machine> m {machine};
-	bool		   f = m->suspend();
+	bool f = nvptr(machine)->suspend();
 	NV(divide)->ejectDisk();
-	if (f) m->resume();
+	if (f) machine->resume();
 }
 
 void DivIDEInspector::toggle_disk_wprot()
@@ -353,7 +350,7 @@ void DivIDEInspector::toggle_disk_wprot()
 	xlogline("DivIDEInspector: slotToggleDiskWProt");
 	assert(validReference(divide));
 
-	nvptr(divide)->setDiskWritable(!NV(divide)->isDiskWritable());
+	nvptr(divide)->toggleDiskWritable();
 }
 
 void DivIDEInspector::set_ram(uint new_size)
@@ -362,10 +359,9 @@ void DivIDEInspector::set_ram(uint new_size)
 	assert(validReference(divide));
 
 	if (new_size == NV(divide)->getRam().count()) return;
-	NVPtr<Machine> m {machine};
-	bool		   f = m->suspend();
+	bool f = nvptr(machine)->suspend();
 	NV(divide)->setRamSize(new_size);
-	if (f) m->resume();
+	if (f) machine->resume();
 }
 
 void DivIDEInspector::insert_new_disk(cstr basename)
@@ -393,8 +389,8 @@ cstr DivIDEInspector::getCustomTitle()
 	// either return a custom name
 	// or return nullptr for default/item name
 
-	// wenn ein Rom geladen ist (was immer sein sollte)
-	// dann hänge den Rom-Namen an den Item-Namen an:
+	// if a ROM is loaded (which should always be the case)
+	// then append rom name to item name:
 
 	assert(validReference(divide));
 

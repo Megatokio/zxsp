@@ -1,4 +1,4 @@
-// Copyright (c) 2014 - 2023 kio@little-bat.de
+// Copyright (c) 2014 - 2025 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -359,6 +359,9 @@ void DivIDE::setJumperE(bool f)
 	// jumper set:	enable automatic memory paging by executing trigger addresses in Rom
 	//				write-protect Rom
 
+	assert(isMainThread());
+	assert(is_locked());
+
 	if (jumper_E == f) return;
 	jumper_E = f;
 
@@ -369,12 +372,17 @@ void DivIDE::setJumperE(bool f)
 
 void DivIDE::saveRom(FD& fd)
 {
+	assert(isMainThread());
+	assert(is_locked());
 	assert(rom.count() == 8 kB);
+
 	write_mem(fd, rom.getData(), 8 kB);
 }
 
 cstr DivIDE::insertRom(cstr path)
 {
+	assert(isMainThread());
+	assert(is_locked());
 	assert(rom.count() == 8 kB);
 
 	if (!path) path = catstr(appl_rsrc_path, default_rom_path);
@@ -404,6 +412,9 @@ cstr DivIDE::insertRom(cstr path)
 
 void DivIDE::ejectDisk()
 {
+	assert(isMainThread());
+	assert(is_locked());
+
 	delete cf_card;
 	cf_card = nullptr;
 }
@@ -411,6 +422,9 @@ void DivIDE::ejectDisk()
 void DivIDE::insertDisk(cstr path)
 {
 	// note: IdeCFCard shows alerts on error
+
+	assert(isMainThread());
+	assert(is_locked());
 
 	if (cf_card) ejectDisk();
 	cf_card = new IdeCFCard(path);		   // master
@@ -430,13 +444,15 @@ cstr DivIDE::getDiskFilename() const
 	else return basename_from_path(fpath);
 }
 
-void DivIDE::setDiskWritable(bool f)
+void DivIDE::toggleDiskWritable()
 {
-	if (cf_card) cf_card->setWritable(f);
+	if (cf_card) cf_card->setWritable(!cf_card->isWritable());
 }
 
 void DivIDE::setRamSize(uint sz)
 {
+	assert(isMainThread());
+	assert(is_locked());
 	assert(sz == 32 kB || sz == 512 kB);
 
 	if (sz == ram.count()) return;

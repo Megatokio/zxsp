@@ -192,6 +192,7 @@ Machine::Machine(IMachineController* parent, Model model, isa_id id) :
 	// the machine is not suspended.
 
 	xlogIn("new Machine");
+	assert(isMainThread());
 
 	// assert(cpu_clock*cpu_clock_predivider==ula_clock);
 
@@ -255,6 +256,7 @@ void Machine::load_rom()
 Machine::~Machine()
 {
 	xlogIn("~Machine");
+	assert(isMainThread());
 
 	is_power_on = no;
 

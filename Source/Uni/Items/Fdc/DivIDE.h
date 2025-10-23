@@ -65,7 +65,7 @@ public:
 	Memory& getRam() const { return *const_cast<MemoryPtr&>(ram).get(); }
 	Memory& getRom() const { return *const_cast<MemoryPtr&>(rom).get(); }
 	// cstr	getDiskFilepath	() const { return cf_card?cf_card->getFilepath():nullptr; }
-	void setDiskWritable(bool);
+	void toggleDiskWritable();
 
 protected:
 	~DivIDE() override;

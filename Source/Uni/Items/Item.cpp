@@ -69,8 +69,9 @@ Item::Item(Machine* machine, isa_id id, isa_id grp, Internal internal, cstr o_ad
 	romdis_in(0)
 {
 	xlogIn("new Item: %s", name);
-
+	assert(isMainThread());
 	assert(machine->is_locked());
+
 	_prev = machine->last_item();
 	if (_prev) _prev->_next = this;
 	assert(!_prev == this->isA(isa_Z80));
@@ -93,6 +94,7 @@ Item::Item(Machine* machine, isa_id id, isa_id grp, Internal internal, cstr o_ad
 Item::~Item()
 {
 	xlogIn("~Item: %s", name);
+	assert(isMainThread());
 
 	delete[] ioinfo;
 	if (_prev) _prev->_next = _next;
