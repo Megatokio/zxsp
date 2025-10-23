@@ -1934,6 +1934,7 @@ void MachineController::powerResetMachine()
 	nvptr(machine)->powerOff(); // must be suspended
 	setKeyboardMode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
 	machine->powerOn();
+	setWindowTitle(model_info->name);
 }
 
 void MachineController::resetMachine()
@@ -1990,6 +1991,7 @@ void MachineController::addExternalRam(isa_id item_id, bool add, uint options)
 	if (add) NV(machine)->addExternalRam(item_id, options);
 
 	if (f) machine->powerOn();
+	setWindowTitle(model_info->name);
 }
 
 void MachineController::addMultiface1(bool add)
@@ -2052,6 +2054,7 @@ void MachineController::addDivIDE(bool add)
 	if (f) machine->powerOn();
 
 	action_addDivIDE->setChecked(add);
+	setWindowTitle(model_info->name);
 }
 
 void MachineController::addSpectraVideo(bool add)
@@ -2082,6 +2085,7 @@ void MachineController::addSpectraVideo(bool add)
 	if (f) machine->powerOn();
 
 	action_addSpectraVideo->setChecked(add);
+	setWindowTitle(model_info->name);
 }
 
 void MachineController::showLenslok(bool f)
