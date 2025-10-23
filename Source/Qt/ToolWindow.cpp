@@ -113,68 +113,68 @@ void ToolWindow::kill()
 	inspector->saveSettings();
 }
 
-void ToolWindow::init()
-{
-	// setup the toolwindow with an empty inspector
-
-	item		   = nullptr;
-	show_action	   = nullptr;
-	toolbar		   = nullptr;
-	toolbar_height = 0;
-	// grp_id = preserve grp_id
-
-	inspector = new Inspector(this, machine_controller);
-	setWindowTitle("Empty inspector");
-
-	setFixedSize(inspector->size());
-	setCentralWidget(inspector);
-}
-
 void ToolWindow::init(volatile IsaObject* object, QAction* showaction)
 {
-	assert(object);
-	assert(showaction);
-
-	item   = object; // item or machine
-	grp_id = item->grp_id;
-
-	show_action = showaction;
-	showaction->blockSignals(true);
-	showaction->setChecked(on);
-	showaction->blockSignals(false);
-
-	inspector = Inspector::newInspector(this, machine_controller, object);
-	set_window_title();
-
-	toolbar		   = inspector->toolbar;
-	toolbar_height = 0;
-	if (toolbar)
+	if (!object) // setup the toolwindow with an empty inspector
 	{
-		toolbar->setAllowedAreas(Qt::TopToolBarArea);
-		connect(toolbar, &QToolBar::topLevelChanged, toolbar, [=] { adjust_size_timer.start(); });
-		addToolBar(toolbar);
-		setUnifiedTitleAndToolBarOnMac(1);
-		toolbar_height = settings.value(catstr(key_toolwindow_toolbar_height, tostr(grp_id)), 38).toInt();
+		item		   = nullptr;
+		show_action	   = nullptr;
+		toolbar		   = nullptr;
+		toolbar_height = 0;
+		// grp_id = preserve grp_id
+
+		inspector = new Inspector(this, machine_controller);
+		setWindowTitle("Empty inspector");
+
+		setFixedSize(inspector->size());
+		setCentralWidget(inspector);
 	}
+	else
+	{
+		item   = object; // item or machine
+		grp_id = item->grp_id;
 
-	xlogline(
-		"Toolwindow resized acc. to inspector to %i x %i + %i", inspector->width(), inspector->height(),
-		toolbar_height);
-	setMinimumSize(inspector->minimumSize() + QSize(0, toolbar_height));
-	xlogline("ToolWindow min size = %i x %i", minimumWidth(), minimumHeight());
-	setMaximumSize(inspector->maximumSize() + QSize(0, toolbar_height));
-	xlogline("ToolWindow max size = %i x %i", maximumWidth(), maximumHeight());
-	resize(inspector->width(), inspector->height() + toolbar_height);
-	xlogline("Toolwindow new size = %i x %i", width(), height());
-	xlogline("Inspector  new size = %i x %i", inspector->width(), inspector->height());
-	xlogline("ToolWindow: toolbar height = %i", toolbar_height);
-	// assert(width()==insp->width() && height()==insp->height()+toolbar_height);	might limited by display size
+		show_action = showaction;
+		if (showaction)
+		{
+			showaction->blockSignals(true);
+			showaction->setChecked(on);
+			showaction->blockSignals(false);
+		}
 
-	setCentralWidget(inspector);
-	adjust_size_timer.start();
+		inspector = Inspector::newInspector(this, machine_controller, object);
+		set_window_title();
 
-	connect(inspector, &Inspector::signalSizeConstraintsChanged, this, &ToolWindow::adjust_window_size);
-	connect(inspector, &Inspector::updateCustomTitle, this, &ToolWindow::set_window_title); // Tape, Disk, Rom, etc.
+		toolbar		   = inspector->toolbar;
+		toolbar_height = 0;
+		if (toolbar)
+		{
+			toolbar->setAllowedAreas(Qt::TopToolBarArea);
+			connect(toolbar, &QToolBar::topLevelChanged, toolbar, [=] { adjust_size_timer.start(); });
+			addToolBar(toolbar);
+			setUnifiedTitleAndToolBarOnMac(1);
+			toolbar_height = settings.value(catstr(key_toolwindow_toolbar_height, tostr(grp_id)), 38).toInt();
+		}
+
+		xlogline(
+			"Toolwindow resized acc. to inspector to %i x %i + %i", inspector->width(), inspector->height(),
+			toolbar_height);
+		setMinimumSize(inspector->minimumSize() + QSize(0, toolbar_height));
+		xlogline("ToolWindow min size = %i x %i", minimumWidth(), minimumHeight());
+		setMaximumSize(inspector->maximumSize() + QSize(0, toolbar_height));
+		xlogline("ToolWindow max size = %i x %i", maximumWidth(), maximumHeight());
+		resize(inspector->width(), inspector->height() + toolbar_height);
+		xlogline("Toolwindow new size = %i x %i", width(), height());
+		xlogline("Inspector  new size = %i x %i", inspector->width(), inspector->height());
+		xlogline("ToolWindow: toolbar height = %i", toolbar_height);
+		// assert(width()==insp->width() && height()==insp->height()+toolbar_height);	might limited by display size
+
+		setCentralWidget(inspector);
+		adjust_size_timer.start();
+
+		connect(inspector, &Inspector::signalSizeConstraintsChanged, this, &ToolWindow::adjust_window_size);
+		connect(inspector, &Inspector::updateCustomTitle, this, &ToolWindow::set_window_title); // Tape, Disk, Rom, etc.
+	}
 }
 
 
