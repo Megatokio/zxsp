@@ -1118,27 +1118,42 @@ void MachineController::startupOpenToolwindows()
 		if (settings.get_bool(key_startup_open_keyboard, no))
 		{
 			QAction* action = findShowActionForItem(machine->keyboard);
-			assert(action); // if(!action) logline("***no showaction for keyboard!***"); else
-			action->setChecked(yes);
+			if (!action) logline("***no showaction for keyboard!***"); // if started with snapshot for other machine
+			else action->setChecked(yes);
 		}
 
 		if (settings.get_bool(key_startup_open_taperecorder, no))
 		{
 			QAction* action = findShowActionForItem(machine->taperecorder);
-			assert(action); // if(!action) logline("***no showaction for taperecorder!***"); else
-			action->setChecked(yes);
+			if (!action) logline("***no showaction for taperecorder!***"); // if started with snapshot for other machine
+			else action->setChecked(yes);
 		}
 
 		if (settings.get_bool(key_startup_open_machine_image, no)) { action_showMachineImage->setChecked(yes); }
 
 		if (settings.get_bool(key_startup_open_disk_drive, no))
 		{
-			if (machine->fdc) findShowActionForItem(machine->fdc)->setChecked(yes);
-			else if (machine->mmu->isA(isa_MmuTc2068)) findShowActionForItem(machine->mmu)->setChecked(yes);
+			if (machine->fdc)
+			{
+				QAction* a = findShowActionForItem(machine->fdc);
+				if (a) a->setChecked(yes);
+				else logline("***no showaction for FDC!***"); // if started with snapshot for other machine
+			}
+			else if (machine->mmu->isA(isa_MmuTc2068))
+			{
+				QAction* a = findShowActionForItem(machine->mmu);
+				if (a) a->setChecked(yes);
+				else logline("***no showaction for TC2068 Dock!***"); // if started with snapshot for other machine
+			}
 			else
 			{
 				Item* divide = NV(machine)->find<DivIDE>();
-				if (divide) findShowActionForItem(divide)->setChecked(yes);
+				if (divide)
+				{
+					QAction* a = findShowActionForItem(divide);
+					if (a) a->setChecked(yes);
+					else logline("***no showaction for DivIDE!***"); // if started with snapshot for other machine
+				}
 			}
 		}
 	});
@@ -2189,7 +2204,11 @@ void MachineController::item_added(WeakPtr<Item> item_wp, bool force)
 	RCPtr<Item> item_rc {item_wp};
 	if (!item_rc) return;
 	Item* item = item_rc;
-	assert(NV(machine)->all_items.contains(item));
+	if (!NV(machine)->all_items.contains(item))
+	{
+		logline("MachineController::item_added: wrong machine but refcnt=%i", item->refcnt() - 1);
+		return;
+	}
 
 	// Ula and Mmu are handled as one item:
 	if (dynamic_cast<Mmu*>(item))
