@@ -1,7 +1,8 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2025 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#define loglevel 1
 #include "Qt/Settings.h"
 #include "Templates/StrArray.h"
 #include "kio/kio.h"
@@ -119,7 +120,16 @@ void Settings::set_StrArray(cstr key, StrArray& sa)
 {
 	QStringList qsl;
 	for (uint i = 0; i < sa.count(); i++) { qsl << sa[i]; }
-	setValue(key, qsl);
+	QSettings::setValue(key, qsl);
 }
+
+void Settings::setValue(cstr key, const QVariant& value)
+{
+	if (loglevel >= 1 && value.canConvert<QString>())
+		logline("Preferences::%s %s", key, value.toString().toUtf8().data());
+
+	QSettings::setValue(key, value);
+}
+
 
 } // namespace gui

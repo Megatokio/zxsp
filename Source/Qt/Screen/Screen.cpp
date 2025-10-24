@@ -8,6 +8,7 @@
 #include "MachineController.h"
 #include "MonoRenderer.h"
 #include "Overlays/Overlay.h"
+#include "Settings.h"
 #include "SpectraRenderer.h"
 #include "Tc2048Renderer.h"
 #include "ZxspRenderer.h"
@@ -414,6 +415,7 @@ void Screen::paint_screen(bool draw_passepartout)
 		ov->draw(p, zoom);
 	}
 
+	if (joystick_overlays[0] && settings.get_bool(key_show_joystick_overlays, true)) // TODO cache
 	{
 		p.translate(2, 2);
 		for (uint i = 0; i < NELEM(joystick_overlays); i++)

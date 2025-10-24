@@ -1,8 +1,8 @@
-#pragma once
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2025 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "ZxInfo/ZxInfo.h"
 #include "kio/kio.h"
 #include "zxsp_globals.h"
@@ -23,15 +23,17 @@ extern class Settings settings;
 // Keys:
 
 static constexpr char key_new_version_info[]		   = "settings/new_version_info";
-static constexpr char key_save_and_restore_session[]   = "settings/save_and_restore_session";  // bool
-static constexpr char key_saved_session[]			   = "settings/saved_session";			   // QString  … filepath
-static constexpr char key_startup_model[]			   = "settings/startup_model";			   // int
-static constexpr char key_startup_screen_size[]		   = "settings/startup_screen_size";	   // int: 1-4; 0=fullscreen
-static constexpr char key_startup_open_keyboard[]	   = "settings/startup_open_keyboard";	   // bool
-static constexpr char key_startup_open_taperecorder[]  = "settings/startup_open_taperecorder"; // bool
-static constexpr char key_startup_open_disk_drive[]	   = "settings/startup_open_disk_drive";   // bool
+static constexpr char key_save_and_restore_session[]   = "settings/save_and_restore_session";	// bool
+static constexpr char key_saved_session[]			   = "settings/saved_session";				// QString  … filepath
+static constexpr char key_startup_model[]			   = "settings/startup_model";				// int
+static constexpr char key_startup_screen_size[]		   = "settings/startup_screen_size";		// int 1-4,0=fullscreen
+static constexpr char key_startup_open_keyboard[]	   = "settings/startup_open_keyboard";		// bool
+static constexpr char key_startup_open_taperecorder[]  = "settings/startup_open_taperecorder";	// bool
+static constexpr char key_startup_open_disk_drive[]	   = "settings/startup_open_disk_drive";	// bool
 static constexpr char key_startup_open_machine_image[] = "settings/startup_open_machine_image"; // bool
-static constexpr char key_warn_if_audio_in_fails[]	   = "settings/audio_input_enabled";		// bool
+static constexpr char key_startup_audioin_enabled[]	   = "settings/startup_audioin_enabled";	// bool
+static constexpr char key_warn_if_audio_in_fails[]	   = "settings/warn_if_audio_in_fails";		// bool
+static constexpr char key_show_joystick_overlays[]	   = "settings/show_joystick_overlays";		// bool
 static constexpr char key_auto_start_stop_tape[]	   = "settings/auto_start_stop_tape";		// bool
 static constexpr char key_fast_load_tape[]			   = "settings/fast_load_tape";				// bool
 static constexpr char key_new_machine_keyboard_mode[]  = "settings/new_machine_keyboard_mode";	// int
@@ -40,8 +42,6 @@ static constexpr char key_always_attach_soundchip[]	   = "settings/always_attach
 static constexpr char key_always_attach_joystick[]	   = "settings/always_attach_joystick";		// bool
 static constexpr char key_always_attach_rampack[]	   = "settings/always_attach_rampack";		// bool
 static constexpr char key_use_individual_settings[]	   = "settings/use_individual_settings"; // bool: for each snapshot
-static constexpr char key_new_machine_audioin_enabled[] =
-	"settings/new_machine_audioin_enabled"; // bool: TODO: never set
 
 static constexpr char key_check_for_update[]	   = "settings/check_for_update";		// bool
 static constexpr char key_check_update_timestamp[] = "settings/check_update_timestamp"; // double
@@ -119,6 +119,7 @@ public:
 	void get_StrArray(cstr key, StrArray& result);
 	void set_StrArray(cstr key, StrArray& value);
 
+	void setValue(cstr key, const QVariant& value);
 
 private:
 	void setGifAnimateBorder(bool);

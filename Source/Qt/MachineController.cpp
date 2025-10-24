@@ -1386,7 +1386,7 @@ Machine* MachineController::initMachine(
 	setFilepath(nullptr);
 
 	setKeyboardMode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
-	enableAudioIn(settings.get_bool(key_new_machine_audioin_enabled, machine->audio_in_enabled));
+	enableAudioIn(settings.get_bool(key_startup_audioin_enabled, machine->audio_in_enabled));
 	setCentralWidget(screen);
 	if (this == front_machine_controller) activateWindow(); // else no focus on special conditions. Qt-bug?
 	action_setKbdBasic->setText(model == jupiter ? "Keyboard FORTH mode" : "Keyboard BASIC mode");
