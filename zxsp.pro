@@ -88,8 +88,7 @@ SOURCES +=	\
 	Libraries/kio/TestTimer.cpp \
 	Libraries/audio/WavFile.cpp \
 	Libraries/Z80/goodies/z80_clock_cycles.cpp \
-	Libraries/Z80/goodies/z80_opcode_length.cpp \
-	Libraries/Z80/goodies/z80_disass.cpp \
+	Libraries/Z80/goodies/z80_DisAss.cpp \
 	Libraries/Qt/QEventTypes.cpp \
 #	Libraries/Devices/File.cpp \
 #	Libraries/Devices/SerialDevice.cpp \
@@ -288,7 +287,6 @@ SOURCES +=	\
 	Source/Uni/Items/Multiface/Multiface128.cpp \
 	Source/Uni/Items/Multiface/Multiface3.cpp \
 	Source/Uni/Items/Multiface/Multiface.cpp \
-	Source/Uni/Items/Z80/Z80_Disassembler.cpp \
 	Source/Uni/Items/Z80/zxsp_Z80.cpp \
 	\
 	Source/Uni/Items/IcTester.cpp \
@@ -376,7 +374,7 @@ HEADERS += \
 	Libraries/audio/WavFile.h \
 	\
 	Libraries/Z80/goodies/z80_opcodes.h \
-	Libraries/Z80/goodies/z80_goodies.h \
+	Libraries/Z80/goodies/z80_DisAss.h \
 	Libraries/Z80/goodies/CpuID.h \
 #	\
 #	Libraries/Devices/devices_types.h \
@@ -606,7 +604,6 @@ HEADERS += \
 	Source/Uni/Items/Z80/Z80codesCB.h \
 	Source/Uni/Items/Z80/Z80codes.h \
 	Source/Uni/Items/Z80/Z80.h \
-	Source/Uni/Items/Z80/Z80_Disassembler.h \
 	Source/Uni/Items/Z80/Z80opcodes.h \
 	Source/Uni/Items/Z80/Z80options.h \
 	\

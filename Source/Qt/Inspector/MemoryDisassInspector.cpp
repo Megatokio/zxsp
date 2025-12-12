@@ -8,8 +8,8 @@
 #include "MachineController.h"
 #include "MemoryInspector.h"
 #include "MyLineEdit.h"
-#include "Z80/Z80_Disassembler.h"
 #include "Z80/Z80opcodes.h"
+#include "Z80/goodies/z80_DisAss.h"
 #include "zasm/Source/Z80Assembler.h"
 #include <QBoxLayout>
 #include <QComboBox>
@@ -43,12 +43,12 @@ static const int MAX_DISASS_COLS = 40;
 // ==================================================================================
 
 
-class CoreByteDisassembler : public Z80_Disassembler
+class CoreByteDisassembler : public z80::DisAss
 {
 public:
 	virtual const CoreByte* pointer(uint32 address) = 0;
-	CoreByte peek_cb(uint32 address) const { return *const_cast<CoreByteDisassembler*>(this)->pointer(address); }
-	uint8	 peek(uint32 address) const override { return *const_cast<CoreByteDisassembler*>(this)->pointer(address); }
+	CoreByte peek_cb(int32 address) const { return *const_cast<CoreByteDisassembler*>(this)->pointer(address); }
+	uint8	 peek(int32 address) const override { return *const_cast<CoreByteDisassembler*>(this)->pointer(address); }
 };
 
 
