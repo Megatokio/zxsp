@@ -36,8 +36,6 @@ public:
 
 	// Monochrome:
 	virtual bool sendFrame(uint8* frame_data, const zxsp::Size& frame_size, const zxsp::Rect& screen) = 0;
-	__attribute__((__deprecated__)) virtual bool
-	ffb_or_vbi(uint8* new_pixels, int frame_w, int frame_h, int scrn_w, int scrn_h, int x0, int y0, uint32 cc) = 0;
 
 	// Color:
 	virtual bool ffb_or_vbi(
@@ -49,16 +47,15 @@ public:
 class NoScreen : public IScreen
 {
 public:
-	bool ffb_or_vbi(uint8*, int, int, int, int, int, int, uint32) override { return true; }
 	bool sendFrame(uint8*, const zxsp::Size&, const zxsp::Rect&) override { return true; }
 	bool ffb_or_vbi(IoInfo*, uint, uint8*, uint32, uint, bool, uint32) override { return true; }
 };
 
 
-/* 
-  
-  
-  
+/*
+
+
+
 
 
 

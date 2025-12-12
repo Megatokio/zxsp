@@ -41,8 +41,6 @@ public:
 	// void removeOverlay(Overlay* o)
 	// bool isActive() const
 
-	__attribute__((__deprecated__)) bool
-	ffb_or_vbi(uint8* new_pixels, int frame_w, int frame_h, int scrn_w, int scrn_h, int x0, int y0, uint32 cc) override;
 	bool sendFrame(uint8* frame_data, const zxsp::Size& frame_size, const zxsp::Rect& screen) override;
 
 	bool ffb_or_vbi(IoInfo*, uint, uint8*, uint32, uint, bool, uint32) override { IERR(); } // color only

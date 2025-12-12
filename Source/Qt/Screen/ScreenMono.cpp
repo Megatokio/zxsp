@@ -18,40 +18,6 @@ static const uint16 i2g[2] = {0, 0xffff};
 static const uint16 i2b[2] = {0, 0xffff};
 
 
-bool ScreenMono::ffb_or_vbi(
-	uint8* new_pixels, int frame_w, int frame_h, int screen_w, int screen_h, int x0, int y0, uint32 cc)
-{
-	// store data for new FFB and trigger render thread.
-	// the arrays ioinfo[] and attr_pixels[] are managed by the caller.
-	// they are never deleted by this Screen or RenderThread.
-	// returns true  if new buffers must be retained and old buffers may now be reused.
-	// returns false if new buffers may be reused and old buffers must remain retained.
-
-	_mutex.lock();
-
-	bool ffb_ready = ~_what & FFB_OR_VBI;
-	frames_hit_percent *= 0.98f;
-	if (ffb_ready)
-	{
-		frames_hit_percent += 2.0f;
-
-		_what |= FFB_OR_VBI;
-		_new_pixels = new_pixels;
-		_frame_h	= frame_h;
-		_frame_w	= frame_w;
-		_screen_h	= screen_h;
-		_screen_w	= screen_w;
-		_screen_x0	= x0;
-		_screen_y0	= y0;
-		_cc			= cc;
-	}
-
-	_mutex.unlock();
-
-	if (ffb_ready) _sema.release();
-	return ffb_ready; // true --> retain new data for processing in progress, else still retain old data
-}
-
 bool ScreenMono::sendFrame(uint8* frame_data, const zxsp::Size& frame_size, const zxsp::Rect& screen)
 {
 	// store data for new FFB and trigger render thread.
@@ -216,7 +182,7 @@ void ScreenMono::paint_screen(bool draw_passepartout)
 	// note: glDrawPixels(w,h,format,type,data*)
 	glDrawPixels(
 		h_border * 2 + 256, v_border * 2 + 192, GL_COLOR_INDEX, GL_BITMAP,
-		screen_renderer->mono_octets + (qbx + qby * screen_renderer->width) / 8);
+		screen_renderer->mono_octets + (qbx + qby * int(screen_renderer->width)) / 8);
 
 	if (draw_passepartout && (v_black | h_black))
 	{

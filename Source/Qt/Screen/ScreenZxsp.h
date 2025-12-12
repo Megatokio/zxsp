@@ -31,36 +31,35 @@ public:
 		IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint32 cc_start_of_screenfile, uint cc_per_scanline,
 		bool flashphase, uint32 cc) override;
 
-	bool sendFrame(uint8*, const zxsp::Size&, const zxsp::Rect&) override { IERR(); }  // b&w only
-	bool ffb_or_vbi(uint8*, int, int, int, int, int, int, uint32) override { IERR(); } // b&w only
+	bool sendFrame(uint8*, const zxsp::Size&, const zxsp::Rect&) override { IERR(); } // b&w only
 };
 
 } // namespace gui
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

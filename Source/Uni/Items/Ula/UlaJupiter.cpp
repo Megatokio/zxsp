@@ -235,8 +235,9 @@ int32 UlaJupiter::doFrameFlyback(int32 /*cc*/)
 
 	machine->cpu->setInterrupt(0, 8 * cc_per_line);
 
-	bool new_buffer_in_use = screen->ffb_or_vbi(
-		frame_data, frame_w * 8, lines_per_frame, screen_w * 8, lines_in_screen, screen_x0 * 8, lines_before_screen, 0);
+	bool new_buffer_in_use = screen->sendFrame(
+		frame_data, zxsp::Size(frame_w * 8, lines_per_frame),
+		zxsp::Rect(screen_x0 * 8, lines_before_screen, screen_w * 8, lines_in_screen));
 	if (new_buffer_in_use) std::swap(frame_data, frame_data2);
 
 	return cpuCycleOfFrameFlyback(); // cc_per_frame for last frame
