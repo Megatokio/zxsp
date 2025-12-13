@@ -6,15 +6,15 @@
 
 #define APPL_VERSION_H	  0
 #define APPL_VERSION_M	  8
-#define APPL_VERSION_L	  44
-#define APPL_VERSION_STR  "0.8.44"
+#define APPL_VERSION_L	  45
+#define APPL_VERSION_STR  "0.8.45"
 #define APPL_VERSION_BETA true
 
 static constexpr char startup_info_message[] = "Welcome to version " APPL_VERSION_STR
 											   " of zxsp.\n"
-											   "This version fixes the disappeared TC2068 cartridge dock, "
-											   "adds register edit for the Didaktik Melodik, "
-											   "adds preference for joystick overlays and fixes some errors.\n"
+											   "This version adds support for the Fuller Box, "
+											   "without Orator due to lack of documentation,     "
+											   "and i need some feedback for the joystick.\n"
 											   "Please report any issue at\n"
 											   "github.com/Megatokio/zxsp/issues.";
 

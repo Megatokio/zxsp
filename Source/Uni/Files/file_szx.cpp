@@ -228,11 +228,8 @@ void Machine::szx_add_joystick(uint if_id, JoystickID js_id)
 		joy = addExternalItem(isa_KempstonJoy);
 		break;
 
-	case FULLER:
-		joy = addExternalItem(isa_FullerBox); // currently emulates only the AY chip
-		showWarning(
-			"Fuller joystick emulation requested. This is not yet implemented. "
-			"If you need this please file a bug report. (TODO)");
+	case FULLER: //
+		joy = addExternalItem(isa_FullerBox);
 		break;
 
 	case CURSOR:
@@ -274,7 +271,7 @@ void Machine::szx_add_joystick(uint if_id, JoystickID js_id)
 	// this is probably not a good idea:
 	// keys may become dead unexpectedly or the USB joystick does not exist.
 	// TODO: open the joystick toolwindow?
-	assert(dynamic_cast<Joy*>(joy));
+	assert(dynamic_cast<Joy*>(joy) || dynamic_cast<FullerBox*>(joy));
 	//static_cast<Joy*>(joy)->insertJoystick(port, js_id);
 }
 

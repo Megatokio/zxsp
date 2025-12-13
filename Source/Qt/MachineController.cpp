@@ -14,6 +14,7 @@
 #include "Files/Z80Head.h"
 #include "Files/file_szx.h"
 #include "Items/Ay/Ay.h"
+#include "Items/Ay/FullerBox.h"
 #include "Items/Joy/Joy.h"
 #include "Items/TapeRecorder.h"
 #include "Items/Ula/Mmu.h"
@@ -209,6 +210,20 @@ void MachineController::updateSomeMenuItems()
 						screen->setJoystickOverlay(jscnt++, ov);
 						if (jscnt == NELEM(joystick_overlays)) break;
 					}
+				}
+			}
+
+			// FullerBox is based on Ay but has a joystick port:
+			else if (FullerBox* fuller = dynamic_cast<FullerBox*>(item))
+			{
+				if (JoystickID id = fuller->getJoystickID())
+				{
+					JoystickOverlayPtr& ov = joystick_overlays[jscnt];
+					if (!ov) ov = new JoystickOverlay;
+					ov->setIdf(fuller->getIdf());
+					ov->setState(m->joystick_buttons[id]);
+					screen->setJoystickOverlay(jscnt++, ov);
+					if (jscnt == NELEM(joystick_overlays)) break;
 				}
 			}
 		}
@@ -879,8 +894,7 @@ void MachineController::createActions()
 	action_addKempstonJoy = newAction("joystick-k.gif", "Kempston joystick interface", NOKEY, ADDITEM(isa_KempstonJoy));
 	action_addKempstonMouse	  = newAction("mouse.png", "Kempston mouse interface", NOKEY, ADDITEM(isa_KempstonMouse));
 	action_addDidaktikMelodik = newAction("ay.gif", "Didaktik Melodik [ACB]", NOKEY, ADDITEM(isa_DidaktikMelodik));
-	// action_addZaxonAyMagic = newAction("ay.gif",         "Zaxon AY-Magic",               NOKEY,
-	// ADDITEM(isa_ZaxonAyMagic));
+	// action_addZaxonAyMagic = newAction("ay.gif", "Zaxon AY-Magic", NOKEY, ADDITEM(isa_ZaxonAyMagic));
 	action_addZonxBox	 = newAction("ay.gif", "Bi-Pak ZON X", NOKEY, ADDITEM(isa_ZonxBox));
 	action_addZonxBox81	 = newAction("ay.gif", "Bi-Pak ZON X-81", NOKEY, ADDITEM(isa_ZonxBox81));
 	action_addZxIf2		 = newAction("joystick-2.gif", "Sinclair ZX Interface 2", NOKEY, ADDITEM(isa_ZxIf2));
@@ -1353,7 +1367,6 @@ Machine* MachineController::initMachine(
 	action_addZxPrinter->setEnabled(off);
 	action_addPrinterTs2040->setEnabled(off);
 	action_addZxIf1->setEnabled(off);
-	action_addFullerBox->setEnabled(off);
 	action_addGrafPad->setEnabled(off);
 	action_addIcTester->setEnabled(off);
 	action_addFdcBeta128->setEnabled(off);

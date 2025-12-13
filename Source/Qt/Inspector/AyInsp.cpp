@@ -61,41 +61,41 @@ AyInsp::AyInsp(QWidget* w, MachineController* mc, volatile Ay* ay, cstr bg) :
 		bmargin	   = bgsz.height() - 300 + 10;
 	}
 
-	QGridLayout* g = new QGridLayout(this);
-	g->setContentsMargins(10, 10, rmargin, bmargin);
-	g->setVerticalSpacing(4);
-	g->setRowStretch(13, 100);
-	g->setColumnStretch(0, 33);
-	g->setColumnStretch(1, 66);
+	layout = new QGridLayout(this);
+	layout->setContentsMargins(10, 10, rmargin, bmargin);
+	layout->setVerticalSpacing(4);
+	layout->setRowStretch(13, 100);
+	layout->setColumnStretch(0, 33);
+	layout->setColumnStretch(1, 66);
 
-	g->addWidget(new QLabel("Clock"), 0, 0, Qt::AlignRight);
-	g->addWidget(clock, 0, 1);
-	g->addWidget(new QLabel("A pitch"), 1, 0, Qt::AlignRight);
-	g->addWidget(pitch_a, 1, 1);
-	g->addWidget(new QLabel("B pitch"), 2, 0, Qt::AlignRight);
-	g->addWidget(pitch_b, 2, 1);
-	g->addWidget(new QLabel("C pitch"), 3, 0, Qt::AlignRight);
-	g->addWidget(pitch_c, 3, 1);
-	g->addWidget(new QLabel("Noise pi."), 4, 0, Qt::AlignRight);
-	g->addWidget(pitch_n, 4, 1);
-	g->addWidget(new QLabel("Mixer"), 5, 0, Qt::AlignRight);
-	g->addWidget(mixer, 5, 1);
-	g->addWidget(new QLabel("A volume"), 6, 0, Qt::AlignRight);
-	g->addWidget(vol_a, 6, 1);
-	g->addWidget(new QLabel("B volume"), 7, 0, Qt::AlignRight);
-	g->addWidget(vol_b, 7, 1);
-	g->addWidget(new QLabel("C volume"), 8, 0, Qt::AlignRight);
-	g->addWidget(vol_c, 8, 1);
-	g->addWidget(new QLabel("Env pitch"), 9, 0, Qt::AlignRight);
-	g->addWidget(pitch_e, 9, 1);
-	g->addWidget(new QLabel("Env shape"), 10, 0, Qt::AlignRight);
-	g->addWidget(shape_e, 10, 1);
-	g->addWidget(new QLabel("Port A"), 11, 0, Qt::AlignRight);
-	g->addWidget(port_a, 11, 1);
-	g->addWidget(new QLabel("Port B"), 12, 0, Qt::AlignRight);
-	g->addWidget(port_b, 12, 1);
+	layout->addWidget(new QLabel("Clock"), 0, 0, Qt::AlignRight);
+	layout->addWidget(clock, 0, 1);
+	layout->addWidget(new QLabel("A pitch"), 1, 0, Qt::AlignRight);
+	layout->addWidget(pitch_a, 1, 1);
+	layout->addWidget(new QLabel("B pitch"), 2, 0, Qt::AlignRight);
+	layout->addWidget(pitch_b, 2, 1);
+	layout->addWidget(new QLabel("C pitch"), 3, 0, Qt::AlignRight);
+	layout->addWidget(pitch_c, 3, 1);
+	layout->addWidget(new QLabel("Noise pi."), 4, 0, Qt::AlignRight);
+	layout->addWidget(pitch_n, 4, 1);
+	layout->addWidget(new QLabel("Mixer"), 5, 0, Qt::AlignRight);
+	layout->addWidget(mixer, 5, 1);
+	layout->addWidget(new QLabel("A volume"), 6, 0, Qt::AlignRight);
+	layout->addWidget(vol_a, 6, 1);
+	layout->addWidget(new QLabel("B volume"), 7, 0, Qt::AlignRight);
+	layout->addWidget(vol_b, 7, 1);
+	layout->addWidget(new QLabel("C volume"), 8, 0, Qt::AlignRight);
+	layout->addWidget(vol_c, 8, 1);
+	layout->addWidget(new QLabel("Env pitch"), 9, 0, Qt::AlignRight);
+	layout->addWidget(pitch_e, 9, 1);
+	layout->addWidget(new QLabel("Env shape"), 10, 0, Qt::AlignRight);
+	layout->addWidget(shape_e, 10, 1);
+	layout->addWidget(new QLabel("Port A"), 11, 0, Qt::AlignRight);
+	layout->addWidget(port_a, 11, 1);
+	layout->addWidget(new QLabel("Port B"), 12, 0, Qt::AlignRight);
+	layout->addWidget(port_b, 12, 1);
 
-	g->addWidget(stereo, 13, 1);
+	layout->addWidget(stereo, 13, 1);
 
 	timer->start(1000 / 20);
 }

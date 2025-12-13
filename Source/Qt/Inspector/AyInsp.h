@@ -6,6 +6,7 @@
 #include "Inspector.h"
 #include <QComboBox>
 #include <QLineEdit>
+class QGridLayout;
 
 namespace gui
 {
@@ -25,6 +26,9 @@ class AyInsp : public Inspector
 		int		  stereo;
 		uint8	  regs[16];
 	} value;
+
+protected:
+	QGridLayout* layout;
 
 public:
 	AyInsp(QWidget*, MachineController*, volatile Ay*, cstr background = nullptr);
