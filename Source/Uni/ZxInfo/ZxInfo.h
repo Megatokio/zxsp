@@ -1,4 +1,4 @@
-//auto generated 2025-10-22 22:57:45
+//auto generated 2025-12-13 14:04:40
 #pragma once
 #include "isa_id.h"
 #include "kio/kio.h"

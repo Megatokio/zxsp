@@ -1,4 +1,4 @@
-//auto generated 2025-10-22 22:57:44
+//auto generated 2025-12-13 14:04:40
 
 #ifndef ZXDEFINITIONS_H
 #define ZXDEFINITIONS_H
@@ -890,8 +890,8 @@ const bool	   tc2068_has_sinclair_joystick_ports = no;
 
 const cstr	   ts2068_name						  = "Timex Sinclair 2068 (USA)";
 const bool	   ts2068_is_supported				  = 1;
-const bool	   ts2068_has_zxsp_bus				  = no;
-const bool	   ts2068_has_zx80_bus				  = yes;
+const bool	   ts2068_has_zxsp_bus				  = yes;
+const bool	   ts2068_has_zx80_bus				  = no;
 const isa_id   ts2068_id						  = isa_MachineTs2068;
 const cstr	   ts2068_nickname					  = "ts2068";
 const cstr	   ts2068_rom_filename				  = "ts2068.rom";

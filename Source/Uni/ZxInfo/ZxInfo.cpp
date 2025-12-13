@@ -1,4 +1,4 @@
-//auto generated 2025-10-22 22:57:45
+//auto generated 2025-12-13 14:04:40
 
 #include "ZxInfo.h"
 #include "kio/kio.h"
@@ -892,8 +892,8 @@ ZxInfo zx_info[num_models] = {
 	{ts2068,
 	 "Timex Sinclair 2068 (USA)",
 	 1,
-	 no,
 	 yes,
+	 no,
 	 isa_MachineTs2068,
 	 "ts2068",
 	 "ts2068.rom",
