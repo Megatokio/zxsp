@@ -3,72 +3,95 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #pragma once
-#include "Interfaces/IScreen.h"
 #include "Item.h"
-#include "kio/kio.h"
+#include "VideoData.h"
+#include "zxsp_types.h"
 
 namespace zxsp
 {
 
 class Crtc : public Item
 {
-	friend class Machine;
-
-protected:
-	const ZxInfo* info; // machine info
-	IScreen*	  screen;
-	CoreByte*	  video_ram; // current video ram
-
-	static constexpr int cc_per_byte = 4; // ula cycles per 8 pixels
-	int					 lines_in_screen; // lines in active screen area
-	int					 lines_before_screen;
-	int					 lines_after_screen;
-	int					 lines_per_frame;
-	int					 columns_in_screen = 32 * 8;
-	int					 cc_per_line;
-
-	uint8 border_color; // current border color
-	bool  is60hz;
-
 public:
-	uint8		 getBorderColor() const volatile { return border_color; }
-	virtual void setBorderColor(uint8) {}
-	CoreByte*	 getVideoRam() { return video_ram; }
-	IScreen*	 getScreen() { return screen; }
-
-	bool is60Hz() const volatile { return is60hz; }
-	bool is50Hz() const volatile { return !is60hz; }
-
-	int			  getLinesBeforeScreen() const volatile { return lines_before_screen; } // nominal
-	int			  getLinesInScreen() const volatile { return lines_in_screen; }			// nominal
-	int			  getLinesAfterScreen() const volatile { return lines_after_screen; }	// nominal
-	int			  getLinesPerFrame() const volatile { return lines_per_frame; }
-	int			  getColumnsInScreen() const volatile { return columns_in_screen; }
-	int			  getCcPerByte() const volatile { return cc_per_byte; }					 // const
-	int			  getCcPerLine() const volatile { return cc_per_line; }					 // nominal
-	int			  getBytesPerLine() const volatile { return cc_per_line / cc_per_byte; } // nominal
-	virtual int32 getCcPerFrame() const volatile { return lines_per_frame * cc_per_line; }
-
-	void		  attachToScreen(IScreen*);
-	virtual void  drawVideoBeamIndicator(int32 cc) = 0;
-	virtual int32 doFrameFlyback(int32 cc)		   = 0;
-	virtual int32 cpuCycleOfNextCrtRead()		   = 0;
-	virtual int32 updateScreenUpToCycle(int32 cc)  = 0;
-	virtual void  markVideoRam()				   = 0;
-	virtual void  set60Hz(bool f = 1) { is60hz = f; }
-	void		  set50Hz() { set60Hz(0); }
-
-protected:
 	Crtc(Machine*, isa_id, isa_id grp, Internal, cstr o_addr, cstr i_addr);
-	~Crtc() override = default;
 
-	// Item interface:
-	void powerOn(/*t=0*/ int32 cc) override;
-	void reset(Time t, int32 cc) override;
-	// void	input			(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
-	// void	output			(Time t, int32 cc, uint16 addr, uint8 byte) override;
-	// void	audioBufferEnd	(Time t) override;
-	// void	videoFrameEnd	(int32 cc) override;
+	virtual int32 updateScreenUpToCycle(int32 cc)  = 0; // Z80
+	virtual void  drawVideoBeamIndicator(int32 cc) = 0; // Machine::runForSound()
+	virtual int32 doFrameFlyback(int32 cc)		   = 0; // Machine::runForSound()
+
+	virtual void setBorderColor(uint8 b) { border_color = b; }			  // load .scr
+	CoreByte*	 getVideoRam() { return video_ram; }					  // load/save .scr
+	uint8		 getBorderColor() const volatile { return border_color; } // save .scr
+
+	ZxspVideoData* getZxspVideoData(VideoData::What, bool aux = no); // Ula
+	Zx80VideoData* getZx80VideoData(VideoData::What, bool aux = no); // Ula
+	void		   sendVideoData(VideoData*);						 // Ula
+
+	void		 setScreen(IScreen*); // ctor
+	virtual void markVideoRam() = 0;  // ctor
+
+	IScreen*  screen	   = nullptr;
+	CoreByte* video_ram	   = nullptr; // current video ram
+	uint8	  border_color = 0;		  // current border color
 };
 
+
+//
+// ----------------------------------
+//		Inline Implementations
+// ----------------------------------
+//
+
+inline void Crtc::setScreen(IScreen* newscreen)
+{
+	screen = newscreen;
+	if (screen) markVideoRam();
+}
+
+inline ZxspVideoData* Crtc::getZxspVideoData(VideoData::What what, bool aux)
+{
+	assert(screen);
+	VideoData* z = screen->getVideoData(what, aux);
+	assert(dynamic_cast<ZxspVideoData*>(z));
+	return static_cast<ZxspVideoData*>(z);
+}
+
+inline Zx80VideoData* Crtc::getZx80VideoData(VideoData::What what, bool aux)
+{
+	assert(screen);
+	VideoData* z = screen->getVideoData(what, aux);
+	assert(dynamic_cast<Zx80VideoData*>(z));
+	return static_cast<Zx80VideoData*>(z);
+}
+
+inline void Crtc::sendVideoData(VideoData* data)
+{
+	assert(screen);
+	screen->sendVideoData(data);
+}
+
+
 } // namespace zxsp
+
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/

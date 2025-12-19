@@ -584,7 +584,8 @@ void Machine::removeItem(Item* item)
 
 	if (cpu == item) cpu = nullptr;
 	if (mmu == item) mmu = nullptr;
-	if (ula == item) crtc = ula = nullptr;
+	if (ula == item) ula = nullptr;
+	if (crtc == item) crtc = nullptr;
 	if (keyboard == item) keyboard = nullptr;
 
 	if (ay == item) ay = find<Ay>();
@@ -711,24 +712,18 @@ void Machine::removeSpectraVideo()
 {
 	assert(isMainThread());
 	assert(is_locked());
+	assert(crtc);
+	assert(ula);
 
-	auto* spectra = find<SpectraVideo>();
+	auto* spectra = dynamic_cast<SpectraVideo*>(crtc);
+	if (!spectra) assert(!find<SpectraVideo>());
 	if (!spectra) return;
 
-	assert(crtc);
-	IScreen* screen = crtc->getScreen();
 	removeItem(spectra);
 
-	if (crtc == spectra)
-	{
-		crtc = find<Crtc>();
-		if (crtc)
-		{
-			crtc->attachToScreen(screen);
-			cpu->setCrtc(crtc);
-			if (isPowerOn()) crtc->powerOn(cpu->cpuCycle());
-		}
-	}
+	crtc = ula;
+	cpu->setCrtc(ula);
+	if (isPowerOn()) ula->powerOn(cpu->cpuCycle());
 }
 
 SpectraVideo* Machine::addSpectraVideo(uint dip_switches)
@@ -739,23 +734,19 @@ SpectraVideo* Machine::addSpectraVideo(uint dip_switches)
 	assert(isMainThread());
 	assert(is_locked());
 	assert(dynamic_cast<UlaZxsp*>(ula));
+	assert(crtc);
 
 	auto* spectra = dynamic_cast<SpectraVideo*>(crtc);
-	if (spectra) return spectra;
+	if (spectra) return spectra; // already attached
+	assert(!find<SpectraVideo>());
 
-	assert(crtc);
-	IScreen* screen = crtc->getScreen();
-	crtc->attachToScreen(nullptr);
+	addItem(spectra = new SpectraVideo(this, dip_switches));
 
-	spectra = find<SpectraVideo>();
-	if (!spectra) addItem(spectra = new SpectraVideo(this, dip_switches));
-
-	spectra->attachToScreen(screen);
 	cpu->setCrtc(spectra);
 	if (isPowerOn()) spectra->powerOn(cpu->cpuCycle());
 
 	Z80::c2c(crtc->getVideoRam(), spectra->getVideoRam(), 0x4000);
-	spectra->setBorderColor(crtc->getBorderColor());
+	spectra->setBorderColor(ula->getBorderColor());
 
 	crtc = spectra;
 	return spectra;

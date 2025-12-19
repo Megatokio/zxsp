@@ -3,10 +3,11 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #pragma once
+#include "Item.h"
 #include "Memory.h"
 #include "Ula/Crtc.h"
+#include "VideoData.h"
 #include "unix/files.h"
-
 
 namespace zxsp
 {
@@ -36,29 +37,39 @@ public:
 	bool own_romdis_state; // own state
 
 	// CRTC:
-	int32  current_frame; // counter, used for flash phase
-	int32  ccx;			  // next cc for reading from video ram
-	uint8* attr_pixel;	  // screen attribute and pixel triples
+	UlaZxsp*	   ula {nullptr};
+	ZxspVideoData* bucket {nullptr}; // the currently constructed video frame
+	//CoreByte*	   video_ram {nullptr}; // current video ram
+	int32 ccx			= 0; // next cc for reading from video ram
+	int	  frame_counter = 0; // counter, used for flash phase
 
-	// IoInfo*	ioinfo;					--> Item
-	// uint		ioinfo_count;			""
-	// uint		ioinfo_size;			""
-	uint8*	alt_attr_pixel; // alternate data set
-	uint	alt_ioinfo_size;
-	IoInfo* alt_ioinfo;
-	int		cc_per_side_border; // cc_per_line - 32 * cc_per_byte
-	int		cc_frame_end;		// lines_per_frame * cc_per_line
-	int		cc_screen_start;	// lines_before_screen*cc_per_line
 
 private:
+	// TODO: move to Crtc? Ula defines them too
+	static constexpr int cc_per_byte = 4; // ula cycles per 8 pixels
+
+	int lines_in_screen; // lines in active screen area
+	int lines_before_screen;
+	int lines_after_screen;
+	int lines_per_frame;
+	int cc_per_line;
+	int cc_before_screen;
+	//int columns_in_screen = 32 * 8;
+
+	int cc_per_side_border; // cc_per_line - 32 * cc_per_byte
+	int cc_frame_end;		// lines_per_frame * cc_per_line
+	int cc_screen_start;	// lines_before_screen*cc_per_line
+
 	void activate_hooks();
 	void deactivate_hooks();
 	void init_rom();
 	void map_shadow_ram();
-	bool get_flash_phase() const { return (current_frame >> 4) & 1; }
+	bool get_flash_phase() const { return (frame_counter >> 4) & 1; }
 	void setup_timing();
 	bool mmu_is_locked() const volatile noexcept { return port_7ffd & 0x20; }
-	void _reset();
+	void _reset(int32 cc);
+	void put_bucket(ZxspVideoData* bucket, int32 cc);
+	void get_bucket();
 
 public:
 	// same as in file .z80:
@@ -107,12 +118,13 @@ public:
 	bool	   isJoystickEnabled() const volatile { return joystick_enabled; }
 
 	// CRTC:
-	int32 cpuCycleOfNextCrtRead() override { return ccx; }
 	int32 updateScreenUpToCycle(int32 cc) override;
 	int32 doFrameFlyback(int32 cc) override;
 	void  drawVideoBeamIndicator(int32 cc) override;
-	void  markVideoRam() override;
-	void  setPort7ffd(uint8);
+	//CoreByte* getVideoRam() override { return video_ram; }
+	void markVideoRam() override;
+	void setPort7ffd(uint8);
+	bool getFlashPhase() { return (frame_counter >> 4) & 1; }
 
 	bool newVideoModesEnabled() volatile { return new_video_modes_enabled; }
 	void enableNewVideoModes(bool);

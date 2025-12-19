@@ -3,8 +3,8 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "UlaInves.h"
-#include "Interfaces/IScreen.h"
 #include "Machine.h"
+#include "Screen.h"
 #include "TapeRecorder.h"
 #include "Z80/Z80.h"
 #include "ZxInfo.h"

@@ -28,7 +28,6 @@ public:
 	void  setBorderColor(uint8) override { border_color = 0xFF; } // White: ZX80 has no "border color"
 	int32 cpuCycleOfInterrupt() override { return 1 << 30; }	  // ZX80 has no regular timer interrupt
 	int32 cpuCycleOfIrptEnd() override { return 1 << 30; }
-	int32 cpuCycleOfNextCrtRead() override { return 1 << 30; } // ZXSP++ only
 
 	int32		 cpuCycleOfFrameFlyback() override;
 	int32		 updateScreenUpToCycle(int32 cc) override;

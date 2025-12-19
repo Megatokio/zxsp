@@ -6,6 +6,7 @@
 #include "IoInfo.h"
 #include "Memory.h"
 #include "Ula.h"
+#include "VideoData.h"
 
 
 namespace zxsp
@@ -16,12 +17,11 @@ class UlaZxsp : public Ula
 	friend class SpectraVideo;
 
 protected:
-	int32				  cc_per_side_border;  // Zeit für Seitenborder+Strahlrücklauf
-	int32				  cc_waitmap_start;	   // Ab wann die Waitmap benutzt werden muss
-	int32				  cc_screen_start;	   // Erster cc für einen CRT Backcall
-	int32				  cc_waitmap_end;	   // Ab wann nicht mehr
-	int32				  cc_frame_end;		   // Total cpu clocks per Frame
-	static constexpr uint bytes_per_octet = 2; // bytes needed to store 8 pixels
+	int32 cc_per_side_border; // Zeit für Seitenborder+Strahlrücklauf
+	int32 cc_waitmap_start;	  // Ab wann die Waitmap benutzt werden muss
+	int32 cc_screen_start;	  // Erster cc für einen CRT Backcall
+	int32 cc_waitmap_end;	  // Ab wann nicht mehr
+	int32 cc_frame_end;		  // Total cpu clocks per Frame
 
 	uint  waitmap_size; // cc
 	uint8 waitmap[256]; // up to (16+32+16)*4 cc
@@ -30,15 +30,10 @@ protected:
 	MemoryPtr ram;
 
 	// CRTC:
-	int32  current_frame; // counter, used for flash phase
-	int32  ccx;			  // next cc for reading from video ram
-	uint8* attr_pixel;	  // specci screen attribute and pixel tupels
-	// IoInfo*	ioinfo;
-	// uint		ioinfo_count;
-	// uint		ioinfo_size;
-	uint8*	alt_attr_pixel; // alternate data set
-	IoInfo* alt_ioinfo;
-	uint	alt_ioinfo_size;
+	ZxspVideoData*	bucket		  = nullptr; // the currently constructed video frame
+	int32			ccx			  = 0;		 // next cc for reading from video ram
+	int				frame_counter = 0;		 // counter, used for flash phase
+	VideoData::What frame_type;
 
 	Sample earin_threshold_mic_lo;
 	Sample earin_threshold_mic_hi;
@@ -48,17 +43,20 @@ protected:
 	UlaZxsp(Machine*, isa_id, cstr oaddr, cstr iaddr);
 	~UlaZxsp() override;
 	void setupTiming() override;
+	void put_bucket(ZxspVideoData* bucket, int32 cc);
+	void get_bucket();
 
 
 	// ---- PUBLIC ------------------------------------------------------
 
 public:
-	static const int MIN_LINES_BEFORE_SCREEN = 24,
-					 MAX_LINES_BEFORE_SCREEN = 80, // nominal: 63/64, Pentagon: 80
-		MIN_LINES_AFTER_SCREEN				 = 24,
-					 MAX_LINES_AFTER_SCREEN	 = 2000, // note: used for padding for cpu clock overdrive!
-		MIN_BYTES_PER_LINE					 = 4 + 32 + 4,
-					 MAX_BYTES_PER_LINE		 = 256 / 4; // sizeof(waitmap)/cc_per_byte
+	static constexpr int //
+		MIN_LINES_BEFORE_SCREEN = 24,
+		MAX_LINES_BEFORE_SCREEN = 80,	// nominal: 63/64, Pentagon: 80
+		MIN_LINES_AFTER_SCREEN	= 24,	//
+		MAX_LINES_AFTER_SCREEN	= 2000, // note: used for padding for cpu clock overdrive!
+		MIN_BYTES_PER_LINE		= 4 + 32 + 4,
+		MAX_BYTES_PER_LINE		= 256 / 4; // sizeof(waitmap)/cc_per_byte
 
 public:
 	explicit UlaZxsp(Machine*);
@@ -103,9 +101,7 @@ public:
 	int		getWaitmapSize() { return int(waitmap_size); }
 	bool	hasWaitmap() const volatile { return waitmap_size != 0; }
 	int32	updateScreenUpToCycle(int32 cc) override;
-	bool	getFlashPhase() { return (current_frame >> 4) & 1; }
-	int32	cpuCycleOfNextCrtRead() override { return ccx; }
-	uint8*	newAttrPixelArray() { return new uint8[32 * 24 * 8 * bytes_per_octet]; }
+	bool	getFlashPhase() { return (frame_counter >> 4) & 1; }
 };
 
 

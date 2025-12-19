@@ -20,20 +20,26 @@
 
 
 TS2068:
-	Mode 1: 256x192 Pixels, 24 rows with 32 characters - Uses D_FILE_1 (Hex: 4000-57FF, Dec: 16384-22527) and A_FILE_1
-(Hex: 5800-5AFF, Dec: 22528-23296)
+	Mode 1: 256x192 Pixels, 24 rows with 32 characters:
+	Uses D_FILE_1 (Hex: 4000-57FF, Dec: 16384-22527)
+	and A_FILE_1 (Hex: 5800-5AFF, Dec: 22528-23296)
 
-	Mode 2: 512x192 Pixels, 24 rows with 64 characters. The INK colour is determined based on the PAPER colour selected.
-BRIGHT and FLASH are not supported. The hi-res screen uses the data area of screen 0 and screen 1 to create a 512x192
-pixel screen. Columns are taken alternately from screen 0 and screen 1. The attribute area is not used. In this mode all
-colours, including the BORDER, are BRIGHT, and the BORDER colour is the same as the PAPER colour.
+	Mode 2: 512x192 Pixels, 24 rows with 64 characters:
+	The INK colour is determined based on the PAPER colour selected.
+	BRIGHT and FLASH are not supported.
+	The hires screen uses the data area of screen 0 and screen 1 to create a 512x192 pixel screen.
+	Columns are taken alternately from screen 0 and screen 1. The attribute area is not used.
+	In this mode all colours, including the BORDER, are BRIGHT, and the BORDER colour
+	is the same as the PAPER colour.
 
-	Mode 3: Operationally the same as Mode 1, but uses D_FILE_2 (Hex: 6000-77FF, Dec: 24576-30719) and A_FILE_2 (Hex:
-7800-7AFF, Dec: 30720-31487) instead.
+	Mode 3: Operationally the same as Mode 1,
+	but uses D_FILE_2 (Hex: 6000-77FF, Dec: 24576-30719)
+	and A_FILE_2 (Hex: 7800-7AFF, Dec: 30720-31487) instead.
 
-	Mode 4: 'Ultra High Color Resoluton' mode uses D_FILE_1 to define pixel data (as with Mode 1)
-		but holds attribute values in D_FILE_2 - this contains 8 times as much memory as A_FILE_1,
-		allowing an attribute byte to be assigned to each row of pixels within each character.
+	Mode 4: 'Ultra High Color Resoluton' mode:
+	uses D_FILE_1 to define pixel data (as with Mode 1) but holds attribute values in D_FILE_2 -
+	this contains 8 times as much memory as A_FILE_1, allowing an attribute byte to be assigned
+	to each row of pixels within each character.
 
 
 from readme.txt in sna2jlo1.zip on nvg in /pub/sinclair/utils/ts2068
@@ -124,7 +130,10 @@ namespace zxsp
 #define cc_irpt_off 64
 
 
-UlaTc2048::UlaTc2048(Machine* m, isa_id id) : UlaZxsp(m, id, io_addr, io_addr), byte_ff(0) {}
+UlaTc2048::UlaTc2048(Machine* m, isa_id id) : //
+	UlaZxsp(m, id, io_addr, io_addr),
+	byte_ff(0)
+{}
 
 
 void UlaTc2048::powerOn(/*t=0*/ int32 cc)
@@ -134,7 +143,11 @@ void UlaTc2048::powerOn(/*t=0*/ int32 cc)
 	markVideoRam();
 	border_color = 0;
 	cpu->setInterrupt(cc_irpt_on, cc_irpt_off);
-	//	MmuTc2048Ptr(machine->mmu)->selectEXROM(0);		// get's it's own powerOn()
+	//	MmuTc2048Ptr(machine->mmu)->selectEXROM(0);	// get's it's own powerOn()
+	//	bucket->record_io(0, 0xfe, ula_out_byte);		// initial border color
+	if (!bucket) bucket = getZxspVideoData(VideoData::Tc2048Frame);
+	bucket->ioinfo_count = 0;
+	bucket->record_io(0, 0xff, byte_ff); // initial screen mode
 }
 
 void UlaTc2048::reset(Time t, int32 cc)
@@ -142,13 +155,15 @@ void UlaTc2048::reset(Time t, int32 cc)
 	// the TC2048 and TC/TS2068 had no reset button
 	// whether a reset via bus resetted the FF register is unknown
 	// anyway, it had a power switch, so everybody did power-cycle the computer to reset.
-	// so don't be picky here.
 	byte_ff = 0;
 	UlaZxsp::reset(t, cc);
 	markVideoRam();
 	border_color = 0;
 	cpu->setInterrupt(cc_irpt_on, cc_irpt_off);
 	//	MmuTc2048Ptr(machine->mmu)->selectEXROM(0);		// get's it's own reset()
+	assert(bucket && bucket->what == VideoData::Tc2048Frame);
+	bucket->record_io(cc, 0xfe, ula_out_byte); // initial border color
+	bucket->record_io(cc, 0xff, byte_ff);	   // initial screen mode
 }
 
 
@@ -173,7 +188,7 @@ void UlaTc2048::output(Time t, int32 cc, uint16 addr, uint8 byte)
 	{
 		if (byte == byte_ff) return;
 		updateScreenUpToCycle(cc);
-		record_ioinfo(cc, addr, byte);
+		bucket->record_io(cc, addr, byte);
 		setPortFF(byte);
 	}
 	else // addr = 0xFE => normal ULA access
@@ -216,7 +231,7 @@ int32 UlaTc2048::updateScreenUpToCycle(int32 cc)
 
 	bool twopages = byte_ff & 6; // 64 column mode OR high color mode read from both display files
 
-	uint8* zap = attr_pixel + 2 * (32 * row + col);
+	uint8* zap = bucket->attrpixels + 2 * (32 * row + col);
 
 b:
 	CoreByte* qp = video_ram + (32 * ((row & 0xc0) + ((row >> 3) & 0x7) + ((row & 7) << 3)) + col);
@@ -245,28 +260,17 @@ a:
 
 int32 UlaTc2048::doFrameFlyback(int32)
 {
-	updateScreenUpToCycle(cc_frame_end);	 // screen
-	ccx = lines_before_screen * cc_per_line; // update_screen_cc
-	current_frame++;						 // flash phase
-
 	cpu->setInterrupt(byte_ff & 0x40 ? 0x7fffffff : cc_irpt_on, cc_irpt_off); // bit 6 disables the interrupt
 
-	record_ioinfo(cc_frame_end, 0xfe, 0x00);		// for 60Hz models: remainder of screen is black
-	if (ioinfo_count == ioinfo_size) grow_ioinfo(); // required by Renderer
-	bool new_buffers_in_use = screen->ffb_or_vbi(
-		ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, getFlashPhase(),
-		90000 /*cc_frame_end*/);
-
-	if (new_buffers_in_use)
+	assert(screen);
+	if (machine->crtc == this)
 	{
-		std::swap(ioinfo, alt_ioinfo);
-		std::swap(ioinfo_size, alt_ioinfo_size);
-		std::swap(attr_pixel, alt_attr_pixel);
+		frame_counter++;
+		put_bucket(bucket, cc_frame_end);
+		get_bucket();
+		//bucket->record_io(0, 0xfe, ula_out_byte); // initial border color
+		bucket->record_io(0, 0xff, byte_ff); // initial screen mode
 	}
-
-	ioinfo_count = 0;
-	record_ioinfo(0, 0xfe, ula_out_byte);
-	record_ioinfo(0, 0xff, byte_ff);
 	return cc_frame_end; // cc_per_frame for last frame
 }
 

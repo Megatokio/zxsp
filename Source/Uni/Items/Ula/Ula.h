@@ -7,15 +7,18 @@
 #include "Item.h"
 #include "Keymap.h"
 #include "StereoSample.h"
-
+#include "VideoData.h"
 
 namespace zxsp
 {
 
 class Ula : public Crtc
 {
+	friend class Machine;
+	friend class TVDecoderMono;
+
 protected:
-	uint8 ula_out_byte; // last out byte to ula: border, beeper, ear_out
+	uint8 ula_out_byte = 0; // last out byte to ula: border, beeper, ear_out
 
 	// Beeper/tape out:
 	Sample beeper_volume;		  // 0.0 ... 1.0
@@ -27,15 +30,36 @@ public:
 
 protected:
 	Ula(Machine*, isa_id, cstr o_addr, cstr i_addr);
-	~Ula() override = default;
+	~Ula() override;
 
 	uint8		 readKeyboard(uint16 addr); // read bits from keyboard matrix
 	virtual void setupTiming() = 0;
 
 public:
+	//uint8	  getBorderColor() const volatile override { return ula_out_byte & 7; }
+	//void	  setBorderColor(uint8 b) override = 0;
+	//CoreByte* getVideoRam() override { return video_ram; }
+	//VideoDataReceiver* getScreen(); //TODO eliminate { return screen; }
+
+	bool is60Hz() const volatile { return is60hz; }
+	bool is50Hz() const volatile { return !is60hz; }
+
+	int			  getLinesBeforeScreen() const volatile { return lines_before_screen; } // nominal
+	int			  getLinesInScreen() const volatile { return lines_in_screen; }			// nominal
+	int			  getLinesAfterScreen() const volatile { return lines_after_screen; }	// nominal
+	int			  getLinesPerFrame() const volatile { return lines_per_frame; }
+	int			  getColumnsInScreen() const volatile { return columns_in_screen; }
+	int			  getCcPerByte() const volatile { return cc_per_byte; }					 // const
+	int			  getCcPerLine() const volatile { return cc_per_line; }					 // nominal
+	int			  getBytesPerLine() const volatile { return cc_per_line / cc_per_byte; } // nominal
+	virtual int32 getCcPerFrame() const volatile { return lines_per_frame * cc_per_line; }
+
+	virtual void set60Hz(bool f = 1);
+	void		 set50Hz() { set60Hz(0); }
+
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
-	// void	reset			(Time t, int32 cc) override;
+	// void reset(Time t, int32 cc) override;
 	// void	input			(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
 	// void	output			(Time t, int32 cc, uint16 addr, uint8 byte) override;
 	void audioBufferEnd(Time t) override;
@@ -62,6 +86,57 @@ public:
 
 	// helper for snapshot loader:
 	void set_ula_out_byte(uint8 b) noexcept { ula_out_byte = b; }
+
+protected:
+	const ZxInfo* info; // machine info
+
+	static constexpr int cc_per_byte = 4; // ula cycles per 8 pixels
+	int					 lines_in_screen; // lines in active screen area
+	int					 lines_before_screen;
+	int					 lines_after_screen;
+	int					 lines_per_frame;
+	int					 columns_in_screen = 32 * 8;
+	int					 cc_per_line;
+	int					 cc_before_screen;
+
+	bool is60hz;
 };
 
+
+//
+// ----------------------------------
+//		Inline Implementations
+// ----------------------------------
+//
+
 } // namespace zxsp
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/

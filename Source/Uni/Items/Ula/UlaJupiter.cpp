@@ -3,8 +3,8 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "UlaJupiter.h"
-#include "Interfaces/IScreen.h"
 #include "Machine.h"
+#include "Screen.h"
 #include "TapeRecorder.h"
 #include "Z80/Z80.h"
 #include "ZxInfo.h"
@@ -139,24 +139,14 @@ namespace zxsp
 // write port: switch on spkr
 
 
-UlaJupiter::~UlaJupiter()
-{
-	delete[] frame_data;
-	delete[] frame_data2;
-}
+UlaJupiter::~UlaJupiter() {}
 
-UlaJupiter::UlaJupiter(Machine* m, bool is60hz) :
-	Ula(m, isa_UlaJupiter, o_addr, i_addr),
-	frame_data(nullptr),
-	frame_data2(nullptr)
+UlaJupiter::UlaJupiter(Machine* m, bool is60hz) : Ula(m, isa_UlaJupiter, o_addr, i_addr)
 {
+	xlogIn("new UlaJupiter");
+
 	audio_mode	 = mixed_audio; // or: read from prefs?
 	border_color = 0x00;		// black
-
-	const int frame_data_alloc = (max_lines_per_frame + 1) * frame_w;
-
-	frame_data	= new uint8[frame_data_alloc];
-	frame_data2 = new uint8[frame_data_alloc];
 
 	UlaJupiter::set60Hz(is60hz);
 }
@@ -168,17 +158,16 @@ void UlaJupiter::set60Hz(bool is_60hz)
 	//				24   +  4  +  1   + 4          (60 Hz)
 	//	ZEICHEN:	32   +  8  +  4   + 8
 
-	lines_before_screen = is_60hz ? 32 : 56;
+	is60hz				= is_60hz;
 	lines_in_screen		= 192;
+	lines_before_screen = is_60hz ? 32 : 56;
 	lines_after_screen	= is_60hz ? 40 : 64;
 	lines_per_frame		= lines_before_screen + lines_in_screen + lines_after_screen;
-	cc_per_line			= int(info->cpu_cycles_per_line);
-	lines_per_frame		= lines_before_screen + lines_in_screen + lines_after_screen;
+	cc_per_line			= info->cpu_cycles_per_line;
+	cc_before_screen	= cc_per_line * lines_before_screen;
 
-	assert(cc_per_line == cc_per_byte * frame_w);
-	assert(lines_per_frame <= max_lines_per_frame);
-
-	Ula::set60Hz(is_60hz);
+	static constexpr int bytes_per_line = 32 + 8 + 4 + 8;
+	assert(cc_per_line == cc_per_byte * bytes_per_line);
 }
 
 void UlaJupiter::powerOn(int32 cc)
@@ -213,14 +202,17 @@ void UlaJupiter::markVideoRam()
 
 int32 UlaJupiter::doFrameFlyback(int32 /*cc*/)
 {
+	// we use ZxspVideoData for video output.
+	// the border is initially black and remains black because the Jupiter Ace could not change it.
+	// => we don't need to store any out() for the border at all.
+
+	assert(screen);
+
 	CoreByte* vram = machine->ram.getData(); // videoram = 1st 1K page (768 bytes = 24*32 char used); bit 7: inverse
 	CoreByte* cram = vram + 1024;			 // charram  = 2nd 1K page (1K = 128 char * 8 bytes/char )
 
-	int lines_per_frame = min(this->lines_per_frame, max_lines_per_frame);
-
-	memset(frame_data, 0x00, uint(frame_w * lines_per_frame));
-
-	uint8* z = frame_data + screen_x0 + lines_before_screen * frame_w; // first byte of screen$ data
+	ZxspVideoData* bucket = getZxspVideoData(VideoData::ZxspFrame);
+	uint8*		   pixels = bucket->attrpixels;
 
 	for (int charrow = 0; charrow < 24; charrow++)
 	{
@@ -228,21 +220,21 @@ int32 UlaJupiter::doFrameFlyback(int32 /*cc*/)
 		{
 			for (int x = 0; x < 32; x++)
 			{
-				CoreByte c = vram[charrow * 32 + x]; // current character  -  note: data byte is in low byte of uint16
-				char	 b = cram[(c & 0x007F) * 8 + y]; // current pixel octet from character glyph
-				*z++	   = (char(c) >> 7) ^ b;
+				CoreByte c = vram[charrow * 32 + x];	 // the character: data is in low byte of uint32
+				char	 b = cram[(c & 0x7F) * 8 + y];	 // the pixel octet from character glyph
+				*pixels++  = (int8(c) >> 7) ^ b;		 //
+				*pixels++  = 0x40 + (0 << 3) + (7 << 0); // bright, black paper, white ink
 			}
-			z += frame_w - 32;
 		}
 	}
 
+	bucket->ioinfo_count		   = 0;
+	bucket->cc_per_scanline		   = cc_per_line;
+	bucket->cc_start_of_screenfile = cc_before_screen;
+	bucket->cc					   = 1 << 30;
+	sendVideoData(bucket);
+
 	machine->cpu->setInterrupt(0, 8 * cc_per_line);
-
-	bool new_buffer_in_use = screen->sendFrame(
-		frame_data, zxsp::Size(frame_w * 8, lines_per_frame),
-		zxsp::Rect(screen_x0 * 8, lines_before_screen, screen_w * 8, lines_in_screen));
-	if (new_buffer_in_use) std::swap(frame_data, frame_data2);
-
 	return cpuCycleOfFrameFlyback(); // cc_per_frame for last frame
 }
 

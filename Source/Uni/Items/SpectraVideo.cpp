@@ -157,8 +157,7 @@ paul	(in essence): it replicates the timing of a zxsp 48k or a zx128k.
 #define i_addr "----.----.----.----"
 
 
-#define BYTES_PER_OCTET 3 // number of bytes stored per pixel octet for the renderer
-#define CC_PER_BYTE		4 // ula cycles per pixel block  ((2 bytes == 8 pixel))
+__unused static constexpr int bytes_per_octet = 3; // bytes needed to store 8 pixels for the renderer
 
 
 SpectraVideo::~SpectraVideo()
@@ -166,18 +165,10 @@ SpectraVideo::~SpectraVideo()
 	assert(isMainThread());
 	assert(machine->is_locked());
 
-	xlogIn("~SpectraVideoInterface");
+	xlogIn("~SpectraVideo");
 
 	ejectRom();
-
-	delete[] attr_pixel;
-	delete[] alt_attr_pixel;
-	delete[] alt_ioinfo;
 }
-
-
-#define IOSZ 100
-
 
 SpectraVideo::SpectraVideo(Machine* m, uint dip_switches) :
 	Crtc(m, isa_SpectraVideo, isa_SpectraVideo, external, o_addr, i_addr),
@@ -187,7 +178,7 @@ SpectraVideo::SpectraVideo(Machine* m, uint dip_switches) :
 	// port_7ffd(0),
 	// shadowram_ever_used(no),
 	shadowram(new Memory(m, "SPECTRA Video Ram", 0x8000)),
-	joystick_id(usb_joystick0),
+	joystick_id(no_joystick),
 	// port_254(0),
 	// port_239(0),
 	// port_247(0),
@@ -197,54 +188,49 @@ SpectraVideo::SpectraVideo(Machine* m, uint dip_switches) :
 	rom(nullptr),
 	filepath(nullptr),
 	own_romdis_state(false),
-	// current_frame(0),
-	// ccx(0),
-	attr_pixel(new uint8[32 * 24 * 8 * BYTES_PER_OCTET]),	  // transfer buffers -> screen
-	alt_attr_pixel(new uint8[32 * 24 * 8 * BYTES_PER_OCTET]), // swap buffer
-	alt_ioinfo_size(IOSZ),
-	alt_ioinfo(new IoInfo[IOSZ + 1]),
-	cc_per_side_border(cc_per_line - 32 * cc_per_byte),
-	cc_frame_end(lines_per_frame * cc_per_line),
-	cc_screen_start(lines_before_screen * cc_per_line)
+	ula(dynamic_cast<UlaZxsp*>(m->ula))
 {
 	assert(machine->isA(isa_MachineZxsp));
-
+	screen	  = ula->screen;
 	video_ram = &shadowram[0];
+	setup_timing();
 }
-
 
 void SpectraVideo::powerOn(int32 cc)
 {
 	Crtc::powerOn(cc);
-	assert(ioinfo_count == 0);
 
-	current_frame		= 0;
-	ccx					= cc_per_line * lines_before_screen;
-	shadowram_ever_used = no;
+	frame_counter = 0;
+	ccx			  = cc_screen_start;
+	if (!bucket) bucket = getZxspVideoData(VideoData::SpectraFrame);
+	assert(bucket->pixels_size >= 32 * 24 * 8 * 3);
+	bucket->ioinfo_count = 0;
+
 	setup_timing();
-	_reset();
+	_reset(0);
 }
-
 
 void SpectraVideo::setup_timing()
 {
-	UlaZxsp* ula = dynamic_cast<UlaZxsp*>(machine->ula);
 	assert(ula);
 
-	assert(cc_per_byte == 4);						// ula cycles per crtc address increment (= 8 pixels)
-	cc_per_line			= ula->cc_per_line;			// 48k: 224, +128k: 228
 	lines_before_screen = ula->lines_before_screen; // 48k: 64, +128k: 63
-	assert(lines_in_screen == 192);					// 192
-	lines_after_screen = ula->lines_after_screen;	// 56
-	lines_per_frame	   = ula->lines_per_frame;		// 312 / 311
+	lines_in_screen		= ula->lines_in_screen;		// 192
+	lines_after_screen	= ula->lines_after_screen;	// 56
+	lines_per_frame		= ula->lines_per_frame;		// 312 / 311
 
-	cc_per_side_border = ula->cc_per_side_border; // cc_per_line - 32 * cc_per_byte;
-	cc_frame_end	   = ula->cc_frame_end;		  // lines_per_frame * cc_per_line;
-	cc_screen_start	   = ula->cc_screen_start;	  // lines_before_screen*cc_per_line;
+	cc_per_line		   = ula->cc_per_line;					// 48k: 224, +128k: 228
+	cc_per_side_border = ula->cc_per_side_border;			// cc_per_line - 32 * cc_per_byte;
+	cc_frame_end	   = ula->cc_frame_end;					// lines_per_frame * cc_per_line;
+	cc_screen_start	   = ula->cc_screen_start;				// lines_before_screen*cc_per_line;
+	cc_before_screen   = cc_per_line * lines_before_screen; // == cc_screen_start
+
+	assert(cc_per_byte == 4);		// ula cycles per crtc address increment (= 8 pixels)
+	assert(lines_in_screen == 192); // 192
+	assert(lines_per_frame == lines_before_screen + lines_in_screen + lines_after_screen);
 }
 
-
-void SpectraVideo::_reset()
+void SpectraVideo::_reset(int32 cc)
 {
 	port_7fdf = 0;
 	port_7ffd = 0;
@@ -252,22 +238,20 @@ void SpectraVideo::_reset()
 	port_239  = 0; // ?
 	port_247  = 0; // ?
 
+	bucket->record_io(cc, 0x7FDF, 0);
+	bucket->record_io(cc, 0xFFFE, 0);
+
 	shadowram_ever_used = no;
 	map_shadow_ram();
 	init_rom();
 	markVideoRam();
 }
 
-
-void SpectraVideo::reset(Time t, int32 cc)
+void SpectraVideo::reset(Time, int32 cc)
 {
-	Crtc::reset(t, cc);
-
+	//Crtc::reset(t, cc);
 	updateScreenUpToCycle(cc);
-	record_ioinfo(cc, 0x7FDF, 0);
-	record_ioinfo(cc, 0xFFFE, 0);
-
-	_reset();
+	_reset(cc);
 }
 
 
@@ -324,9 +308,10 @@ void SpectraVideo::output(Time t, int32 cc, uint16 addr, uint8 byte)
 
 	if (~addr & 1) // ULA border
 	{
-		uint8 x	 = byte ^ port_254;
-		port_254 = byte;
-		if (x & 0xE7) record_ioinfo(cc, addr, byte);
+		uint8 x		 = byte ^ port_254;
+		port_254	 = byte;
+		border_color = byte;
+		if (x & 0xE7) bucket->record_io(cc, addr, byte);
 	}
 
 	if ((addr & 0x3A) == 0x3A) return;				// quick exit test: at least one bit must be 0
@@ -358,7 +343,7 @@ void SpectraVideo::output(Time t, int32 cc, uint16 addr, uint8 byte)
 	else if (addr == 0x7FDF && new_video_modes_enabled && byte != port_7fdf)
 	{
 		updateScreenUpToCycle(cc);
-		record_ioinfo(cc, 0x7FDF, byte);
+		bucket->record_io(cc, 0x7FDF, byte);
 		uint x	  = byte ^ port_7fdf;
 		port_7fdf = byte;
 		if (byte & (SHADOW_BANK_MASK | DISPLAY_BANK_MASK)) shadowram_ever_used = yes;
@@ -367,14 +352,13 @@ void SpectraVideo::output(Time t, int32 cc, uint16 addr, uint8 byte)
 	}
 }
 
-
-/*	Output to port 239: RS232
-	byte = %111C.111R
-		   C: 1 = CTS
-		   R: Comms_Out: 1 = RS232 Mode
-*/
 void SpectraVideo::setPort239(Time, uint8 byte)
 {
+	// Output to port 239: RS232
+	// byte = %111C.111R
+	//		  C: 1 = CTS
+	//		  R: Comms_Out: 1 = RS232 Mode
+
 	port_239 = byte;
 	if (rs232_enabled)
 	{
@@ -383,13 +367,12 @@ void SpectraVideo::setPort239(Time, uint8 byte)
 	}
 }
 
-
-/*	Output to port 247: RS232
-	byte = %0000.000X
-		   X: inverted data bit; 0=idle
-*/
 void SpectraVideo::setPort247(Time, uint8 byte)
 {
+	// Output to port 247: RS232
+	// byte = %0000.000X
+	//		  X: inverted data bit; 0=idle
+
 	port_247 = byte;
 	if (rs232_enabled)
 	{
@@ -398,32 +381,32 @@ void SpectraVideo::setPort247(Time, uint8 byte)
 	}
 }
 
-
 void SpectraVideo::setBorderColor(uint8 byte)
 {
 	if (!new_video_modes_enabled) byte &= 7;
-	port_254 = byte;
+	port_254	 = byte;
+	border_color = byte;
 	// updateScreenUpToCycle(cc);
-	record_ioinfo(machine->current_cc(), 0xFFFE, byte);
+	if (bucket) bucket->record_io(machine->current_cc(), 0xFFFE, byte);
 }
 
+void SpectraVideo::setVideoMode(uint8 mode)
+{
+	// set video mode at current cc
+	// only if new_video_modes_enabled
 
-/*	set video mode
-	at current cc
-	only if new_video_modes_enabled
-*/
-void SpectraVideo::setVideoMode(uint8 mode) { setPort7fdf(machine->current_cc(), mode); }
+	setPort7fdf(machine->current_cc(), mode);
+}
 
-
-/*	set video mode
-	only if new_video_modes_enabled
-*/
 void SpectraVideo::setPort7fdf(int32 cc, uint8 mode)
 {
+	// set video mode
+	// only if new_video_modes_enabled
+
 	if (new_video_modes_enabled)
 	{
 		updateScreenUpToCycle(cc);
-		record_ioinfo(cc, 0x7FDF, mode);
+		bucket->record_io(cc, 0x7FDF, mode);
 		port_7fdf = mode;
 		if (mode & (SHADOW_BANK_MASK | DISPLAY_BANK_MASK)) shadowram_ever_used = yes;
 		map_shadow_ram();
@@ -431,11 +414,10 @@ void SpectraVideo::setPort7fdf(int32 cc, uint8 mode)
 	}
 }
 
-
-/*	callback from Mmu128k:
- */
 void SpectraVideo::setPort7ffd(uint8 byte)
 {
+	// callback from Mmu128k:
+
 	if (has_port_7ffd)
 	{
 		// updateScreenUpToCycle(cc);
@@ -445,7 +427,6 @@ void SpectraVideo::setPort7ffd(uint8 byte)
 		markVideoRam();
 	}
 }
-
 
 int32 SpectraVideo::updateScreenUpToCycle(int32 cc)
 {
@@ -457,7 +438,7 @@ int32 SpectraVideo::updateScreenUpToCycle(int32 cc)
 	assert(col <= 30 || ccx >= (1 << 30));
 	assert((col & 1) == 0 || ccx >= (1 << 30));
 
-	uint8* zp = attr_pixel + 3 * (32 * row + col);
+	uint8* zp = bucket->attrpixels + 3 * (32 * row + col);
 
 	do {
 		uint lowbyte = ((row << 2) & 0xE0) | col;
@@ -532,69 +513,56 @@ int32 SpectraVideo::updateScreenUpToCycle(int32 cc)
 	return ccx = 1 << 30;
 }
 
+void SpectraVideo::put_bucket(ZxspVideoData* bucket, int32 cc)
+{
+	updateScreenUpToCycle(cc);
+	if (cc >= cc_frame_end)
+	{
+		bucket->record_io(cc_frame_end, 0xFFFE, 0); // remainder of screen is black
+		bucket->record_io(cc_frame_end, 0x7FDF, 0); // nötig?
+	}
+	bucket->flashphase			   = getFlashPhase();
+	bucket->cc_per_scanline		   = cc_per_line;
+	bucket->cc_start_of_screenfile = cc_before_screen;
+	bucket->cc					   = cc;
+	sendVideoData(bucket);
+}
+void SpectraVideo::get_bucket()
+{
+	bucket = getZxspVideoData(VideoData::SpectraFrame);
+	assert(bucket->pixels_size >= 32 * 24 * 8 * 3);
+	ccx					 = cc_before_screen; // update_screen_cc
+	bucket->ioinfo_count = 0;
+	bucket->record_io(0, 0xFFFE, port_254);
+	bucket->record_io(0, 0x7FDF, port_7fdf);
+}
 
 int32 SpectraVideo::doFrameFlyback(int32 /*cc*/) // called from runForSound()
 {
-	current_frame++; // flash phase
+	assert(screen);
+	assert(machine->crtc == this);
 
-	if (screen)
-	{
-		updateScreenUpToCycle(cc_frame_end);	 // screen
-		ccx = lines_before_screen * cc_per_line; // update_screen_cc
-
-		record_ioinfo(cc_frame_end, 0xfe, 0x00); // for 60Hz models: remainder of screen is black
-		bool new_buffers_in_use = screen->ffb_or_vbi(
-			ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, get_flash_phase(),
-			90000 /*cc_frame_end*/);
-
-		if (new_buffers_in_use)
-		{
-			std::swap(ioinfo, alt_ioinfo);
-			std::swap(ioinfo_size, alt_ioinfo_size);
-			std::swap(attr_pixel, alt_attr_pixel);
-		}
-	}
-
-	ioinfo_count = 0;
-	record_ioinfo(0, 0xFFFE, port_254);
-	record_ioinfo(0, 0x7FDF, port_7fdf);
+	frame_counter++; // flash phase
+	put_bucket(bucket, cc_frame_end);
+	get_bucket();
 
 	return cc_frame_end; // cc_per_frame for last frame
 }
 
-
 void SpectraVideo::drawVideoBeamIndicator(int32 cc) // called from runForSound()
 {
-	if (screen)
-	{
-		updateScreenUpToCycle(cc);
-		bool new_buffers_in_use = screen->ffb_or_vbi(
-			ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, get_flash_phase(), cc);
+	assert(screen);
+	assert(machine->crtc == this);
+	if (screen->avail()) return;
 
-		if (new_buffers_in_use)
-		{
-			std::swap(ioinfo, alt_ioinfo);
-			std::swap(ioinfo_size, alt_ioinfo_size);
-			std::swap(attr_pixel, alt_attr_pixel);
-
-			int32 n = 32 * 24 * 8;
-			if (ccx != 1 << 30)
-			{
-				int row = ccx / cc_per_line - lines_before_screen;
-				int col = ccx % cc_per_line / cc_per_byte;
-				n		= 32 * row + col;
-				assert(n <= 32 * 24 * 8);
-			}
-
-			memcpy(ioinfo, alt_ioinfo, ioinfo_count * sizeof(IoInfo));
-			memcpy(attr_pixel, alt_attr_pixel, BYTES_PER_OCTET * uint(n));
-		}
-	}
+	ZxspVideoData* aux_bucket = getZxspVideoData(VideoData::SpectraFrame, yes);
+	aux_bucket->attrpixels	  = bucket->attrpixels;
+	aux_bucket->ioinfo		  = bucket->ioinfo;
+	aux_bucket->ioinfo_count  = bucket->ioinfo_count;
+	aux_bucket->ioinfo_size	  = bucket->ioinfo_size;
+	put_bucket(aux_bucket, cc);
 }
 
-
-/*	enable or disable the new video modes
- */
 void SpectraVideo::enableNewVideoModes(bool f)
 {
 	assert(is_locked());
@@ -752,15 +720,13 @@ void SpectraVideo::deactivate_hooks()
 	machine->rom[ROM_CLOSE_CHANNEL] &= ~cpu_patch;
 }
 
-
-/*	Map/unmap shadow ram
-
-	note: if new video modes are disabled, then port_7fdf must be 0
-	note: if this is not a SPECTRA 128k, then port_7ffd must be 0
-	note: caller should test beforehand whether video mode or video page actually changed
-*/
 void SpectraVideo::map_shadow_ram()
 {
+	//	Map/unmap shadow ram:
+	//	note: if new video modes are disabled, then port_7fdf must be 0
+	//	note: if this is not a SPECTRA 128k, then port_7ffd must be 0
+	//	note: caller should test beforehand whether video mode or video page actually changed
+
 	// Writing to address $4000 goes to SPECTRA bank $7FDF bit 6
 	machine->cpu->mapWom2(0x4000, 0x4000, &shadowram[(port_7fdf & 0x40u) << 8]);
 
@@ -786,20 +752,20 @@ void SpectraVideo::map_shadow_ram()
 }
 
 
-/*	Update video_ram and CRTC flag bits in SPECTRA ram:
-	clear and set crtc flags in SPECTRA ram according to current display mode in port_7fdf
-	set video_ram according to bits in port_7fdf and port_7ffd
-	note: if new video modes are disabled, then port_7fdf must be 0
-	note: if this is not a SPECTRA 128k, then port_7ffd must be 0
-	note: caller should test beforehand whether video mode or video page actually changed
-*/
 void SpectraVideo::markVideoRam()
 {
-	//							 1B,8L	 1B,4L	 1B,2L	 1B,1L				2B,8L	2B,4L	2B,2L	2B,1L
-	static const uint a1[12] = {0x1800, 0x2000, 0x2000, 0x2000, 0, 0, 0, 0, 0x1800, 0x2000, 0x2000, 0x1800};
-	static const uint e1[12] = {0x1B00, 0x2600, 0x2C00, 0x3800, 0, 0, 0, 0, 0x1B00, 0x2600, 0x2C00, 0x1B00};
-	static const uint a2[12] = {0x1C00, 0x2800, 0x3000, 0x2000, 0, 0, 0, 0, 0x1C00, 0x2800, 0x3000, 0x2000};
-	static const uint e2[12] = {0x1F00, 0x2E00, 0x3C00, 0x3800, 0, 0, 0, 0, 0x1F00, 0x2E00, 0x3C00, 0x4000};
+	// Update video_ram and CRTC flag bits in SPECTRA ram:
+	// clear and set crtc flags in SPECTRA ram according to current display mode in port_7fdf
+	// set video_ram according to bits in port_7fdf and port_7ffd
+	// note: if new video modes are disabled, then port_7fdf must be 0
+	// note: if this is not a SPECTRA 128k, then port_7ffd must be 0
+	// note: caller should test beforehand whether video mode or video page actually changed
+
+	//								 1B,8L	 1B,4L	 1B,2L	 1B,1L				2B,8L	2B,4L	2B,2L	2B,1L
+	static constexpr uint a1[12] = {0x1800, 0x2000, 0x2000, 0x2000, 0, 0, 0, 0, 0x1800, 0x2000, 0x2000, 0x1800};
+	static constexpr uint e1[12] = {0x1B00, 0x2600, 0x2C00, 0x3800, 0, 0, 0, 0, 0x1B00, 0x2600, 0x2C00, 0x1B00};
+	static constexpr uint a2[12] = {0x1C00, 0x2800, 0x3000, 0x2000, 0, 0, 0, 0, 0x1C00, 0x2800, 0x3000, 0x2000};
+	static constexpr uint e2[12] = {0x1F00, 0x2E00, 0x3C00, 0x3800, 0, 0, 0, 0, 0x1F00, 0x2E00, 0x3C00, 0x4000};
 
 	CoreByte *v = &shadowram[0], *a, *e;
 	// videoram = SPECTRA bank ($7FFD bit 3) xor ($7FDF bit 5)

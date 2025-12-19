@@ -22,13 +22,29 @@ Ula::Ula(Machine* m, isa_id id, cstr o_addr, cstr i_addr) :
 	ula_out_byte(0),
 	beeper_volume(1.0),
 	beeper_current_sample(0.0),
-	beeper_last_sample_time(0.0)
-{}
+	beeper_last_sample_time(0.0),
+	info(m->model_info),
+	lines_in_screen(info->lines_in_screen),
+	lines_before_screen(info->lines_before_screen),
+	lines_after_screen(info->lines_after_screen),
+	lines_per_frame(lines_before_screen + lines_in_screen + lines_after_screen),
+	columns_in_screen(32 * 8),
+	cc_per_line(info->cpu_cycles_per_line),
+	cc_before_screen(cc_per_line * lines_before_screen),
+	is60hz(info->frames_per_second > 55)
+{
+	video_ram = machine->ram.getData();
+}
+
+Ula::~Ula() {}
 
 void Ula::powerOn(int32 cc)
 {
-	Crtc::powerOn(cc);
+	//assert(screen != nullptr);
 
+	Item::powerOn(cc);
+
+	border_color			= 0;
 	ula_out_byte			= 0;
 	beeper_current_sample	= 0.0f; // current beeper elongation
 	beeper_last_sample_time = 0.0;
@@ -55,8 +71,8 @@ void Ula::setBeeperVolume(Sample new_vol)
 
 uint8 Ula::readKeyboard(uint16 addr)
 {
-	/*	Z80 input: merge in the keys:
-		only bits 0-4 come from the keyboard  */
+	// Z80 input: merge in the keys:
+	// only bits 0-4 come from the keyboard
 
 	uint8 byte = 0xff;
 	if (keymap.keyPressed())
@@ -96,4 +112,46 @@ void Ula::setCcPerLine(int n)
 
 void Ula::setBytesPerLine(int n) { setCcPerLine(n * cc_per_byte); }
 
+
+void Ula::set60Hz(bool f)
+{
+	is60hz = f;
+	assert(f == (info->frames_per_second >= 55)); // must been set by caller
+
+	lines_in_screen		= info->lines_in_screen;
+	lines_before_screen = info->lines_before_screen;
+	lines_after_screen	= info->lines_after_screen;
+	lines_per_frame		= lines_before_screen + lines_in_screen + lines_after_screen;
+	cc_per_line			= info->cpu_cycles_per_line;
+	cc_before_screen	= cc_per_line * lines_before_screen;
+}
+
+
 } // namespace zxsp
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/

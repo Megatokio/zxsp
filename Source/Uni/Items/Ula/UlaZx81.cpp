@@ -126,9 +126,9 @@ WAIT test and related timing
 */
 
 #include "UlaZx81.h"
-#include "Interfaces/IScreen.h"
 #include "Keyboard.h"
 #include "Machine.h"
+#include "Screen.h"
 #include "TapeRecorder.h"
 #include "Z80/Z80.h"
 #include "ZxInfo.h"

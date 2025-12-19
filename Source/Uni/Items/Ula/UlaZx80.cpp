@@ -33,9 +33,9 @@
 */
 
 #include "UlaZx80.h"
-#include "Interfaces/IScreen.h"
 #include "Keyboard.h"
 #include "Machine.h"
+#include "Screen.h"
 #include "TapeRecorder.h"
 #include "Z80/Z80.h"
 #include "ZxInfo.h"
@@ -56,7 +56,7 @@ UlaZx80::~UlaZx80() {}
 
 UlaZx80::UlaZx80(Machine* m, isa_id _id, cstr oaddr, cstr iaddr) :
 	Ula(m, _id, oaddr, iaddr),
-	tv_decoder(screen, int32(m->model_info->cpu_cycles_per_second))
+	tv_decoder(this, int32(m->model_info->cpu_cycles_per_second))
 {}
 
 UlaZx80::UlaZx80(Machine* m, bool is60hz) : UlaZx80(m, isa_UlaZx80, o_addr, i_addr) { UlaZx80::set60Hz(is60hz); }
@@ -64,10 +64,10 @@ UlaZx80::UlaZx80(Machine* m, bool is60hz) : UlaZx80(m, isa_UlaZx80, o_addr, i_ad
 void UlaZx80::powerOn(int32 cc)
 {
 	xlogIn("UlaZx80:powerOn");
-	Ula::powerOn(cc);
-
 	assert(screen);
-	tv_decoder.reset(screen);
+
+	Ula::powerOn(cc);
+	tv_decoder.reset(cc);
 	set60Hz(is60hz);
 	beeper_volume		  = 0.0025f;
 	beeper_current_sample = -beeper_volume;

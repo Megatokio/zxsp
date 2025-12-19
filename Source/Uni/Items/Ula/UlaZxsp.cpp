@@ -20,8 +20,8 @@
 */
 
 #include "UlaZxsp.h"
-#include "Interfaces/IScreen.h"
 #include "Machine.h"
+#include "Screen.h"
 #include "TapeRecorder.h"
 #include "Z80/Z80.h"
 #include "ZxInfo.h"
@@ -41,9 +41,6 @@ namespace zxsp
 #define EAR_OUT_MASK	0x10
 
 
-#define IOSZ 100
-
-
 UlaZxsp::UlaZxsp(Machine* m, isa_id id, cstr oaddr, cstr iaddr) :
 	Ula(m, id, oaddr, iaddr),
 	cc_per_side_border(), // Zeit für Seitenborder+Strahlrücklauf
@@ -54,12 +51,7 @@ UlaZxsp::UlaZxsp(Machine* m, isa_id id, cstr oaddr, cstr iaddr) :
 	waitmap_size(0),
 	cpu(m->cpu),
 	ram(m->ram),
-	// current_frame(0),			// counter, used for flash phase
-	// ccx(0),					// next cc for reading from video_ram
-	attr_pixel(newAttrPixelArray()),	 // specci screen attribute and pixel tupels
-	alt_attr_pixel(newAttrPixelArray()), // alternate data set
-	alt_ioinfo(new IoInfo[IOSZ + 1]),
-	alt_ioinfo_size(IOSZ),
+	frame_type(m->model == tc2048 ? VideoData::Tc2048Frame : VideoData::ZxspFrame),
 	earin_threshold_mic_lo(info->earin_threshold_mic_lo),
 	earin_threshold_mic_hi(info->earin_threshold_mic_hi)
 {
@@ -70,31 +62,32 @@ UlaZxsp::UlaZxsp(Machine* m, isa_id id, cstr oaddr, cstr iaddr) :
 	m->cpu_options |= cpu_floating_bus;
 }
 
+UlaZxsp::UlaZxsp(Machine* m) : //
+	UlaZxsp(m, isa_UlaZxsp, io_addr, io_addr)
+{}
 
-UlaZxsp::UlaZxsp(Machine* m) : UlaZxsp(m, isa_UlaZxsp, io_addr, io_addr) {}
-
-
-UlaTk90x::UlaTk90x(Machine* m, bool is60hz) : UlaZxsp(m, isa_UlaTk90x, io_addr, io_addr) { UlaTk90x::set60Hz(is60hz); }
-
+UlaTk90x::UlaTk90x(Machine* m, bool is60hz) : //
+	UlaZxsp(m, isa_UlaTk90x, io_addr, io_addr)
+{
+	UlaTk90x::set60Hz(is60hz);
+}
 
 UlaZxsp::~UlaZxsp()
 {
-	xlogIn("~UlaZxsp");
-	delete[] attr_pixel;
-	delete[] alt_attr_pixel;
-	delete[] alt_ioinfo;
+	xlogIn("~UlaZxsp"); //
 }
-
 
 void UlaZxsp::powerOn(int32 cc)
 {
-	xlogIn("UlaZxsp:Init");
-
-	current_frame = 0;
-	ccx			  = cc_per_line * lines_before_screen;
+	xlogIn("UlaZxsp:powerOn");
 
 	// ear/mic:
 	Ula::powerOn(cc);
+
+	frame_counter = 0;
+	ccx			  = cc_before_screen;
+	if (!bucket) bucket = getZxspVideoData(frame_type);
+	bucket->record_io(0, 0xfe, ula_out_byte); // initial border color
 
 	// item refs:
 	cpu		  = machine->cpu;
@@ -307,7 +300,7 @@ void UlaZxsp::output(Time now, int32 cc, uint16 addr, uint8 byte)
 	// --- BORDER ---
 	if (x & BORDER_OUT_MASK)
 	{
-		record_ioinfo(cc, addr, byte);
+		bucket->record_io(cc, addr, byte);
 		border_color = byte & BORDER_OUT_MASK;
 	}
 }
@@ -382,7 +375,7 @@ int32 UlaZxsp::updateScreenUpToCycle(int32 cc)
 	assert(col <= 30 || ccx >= (1 << 30));
 	assert((col & 1) == 0 || ccx >= (1 << 30));
 
-	uint8* zp = attr_pixel + 2 * (32 * row + col);
+	uint8* zp = bucket->attrpixels + 2 * (32 * row + col);
 
 	do {
 		CoreByte* qp = video_ram + (32 * ((row & 0xc0) + ((row >> 3) & 0x7) + ((row & 7) << 3)) + col);
@@ -410,85 +403,69 @@ int32 UlaZxsp::updateScreenUpToCycle(int32 cc)
 	return ccx = 1 << 30;
 }
 
+void UlaZxsp::put_bucket(ZxspVideoData* bucket, int32 cc)
+{
+	updateScreenUpToCycle(cc);
+	if (cc >= cc_frame_end) bucket->record_io(cc_frame_end, 0xfe, 0); // remainder of screen is black
+	bucket->flashphase			   = getFlashPhase();
+	bucket->cc_per_scanline		   = cc_per_line;
+	bucket->cc_start_of_screenfile = cc_before_screen;
+	bucket->cc					   = cc;
+	sendVideoData(bucket);
+}
+void UlaZxsp::get_bucket()
+{
+	bucket = getZxspVideoData(frame_type);
+	assert(bucket->pixels_size >= 32 * 24 * 8 * 2);
+	ccx					 = cc_before_screen; // update_screen_cc
+	bucket->ioinfo_count = 0;
+	bucket->record_io(0, 0xfe, ula_out_byte); // initial border color
+}
+
 int32 UlaZxsp::doFrameFlyback(int32 /*cc*/) // called from runForSound()
 {
-	uint int_dur = machine->model == pentagon128 ? 36 // 36:	pentagon128.gif from sblive.narod.ru
-												   :
-												   48; // 48:	comments on .rzx
-	cpu->setInterrupt(0, int_dur);					   // Interrupt
+	uint int_dur = machine->model == pentagon128 ? 36 : 48;
+	// 36:	pentagon128.gif from sblive.narod.ru
+	// 48:	comments on .rzx
+	cpu->setInterrupt(0, int_dur); // Interrupt
 
-	current_frame++; // flash phase
-
-	if (screen)
+	assert(screen);
+	if (machine->crtc == this)
 	{
-		updateScreenUpToCycle(cc_frame_end);	 // screen
-		ccx = lines_before_screen * cc_per_line; // update_screen_cc
-
-		record_ioinfo(cc_frame_end, 0xfe, 0); // for 60Hz models: remainder of screen is black
-		bool new_buffers_in_use = screen->ffb_or_vbi(
-			ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, getFlashPhase(),
-			90000 /*cc_frame_end*/);
-
-		if (new_buffers_in_use)
-		{
-			std::swap(ioinfo, alt_ioinfo);
-			std::swap(ioinfo_size, alt_ioinfo_size);
-			std::swap(attr_pixel, alt_attr_pixel);
-		}
-
-		ioinfo_count = 0;
-		record_ioinfo(0, 0xfe, ula_out_byte);
+		frame_counter++; // flash phase
+		put_bucket(bucket, cc_frame_end);
+		get_bucket();
 	}
-
 	return cc_frame_end; // cc_per_frame for last frame
 }
 
 void UlaZxsp::drawVideoBeamIndicator(int32 cc) // called from runForSound()
 {
-	updateScreenUpToCycle(cc);
-	bool new_buffers_in_use = screen->ffb_or_vbi(
-		ioinfo, ioinfo_count, attr_pixel, cc_screen_start, cc_per_side_border + 128, getFlashPhase(), cc);
+	assert(screen);
+	if (machine->crtc != this || screen->avail()) return;
 
-	if (new_buffers_in_use)
-	{
-		std::swap(ioinfo, alt_ioinfo);
-		std::swap(ioinfo_size, alt_ioinfo_size);
-		std::swap(attr_pixel, alt_attr_pixel);
-
-		uint32 n = 32 * 24 * 8;
-		if (ccx != 1 << 30)
-		{
-			int row = ccx / cc_per_line - lines_before_screen;
-			int col = ccx % cc_per_line / cc_per_byte;
-			n		= 32 * row + col;
-			assert(n <= 32 * 24 * 8);
-		}
-
-		memcpy(ioinfo, alt_ioinfo, ioinfo_count * sizeof(IoInfo));
-		memcpy(attr_pixel, alt_attr_pixel, bytes_per_octet * n);
-	}
+	ZxspVideoData* aux_bucket = getZxspVideoData(frame_type, yes);
+	aux_bucket->attrpixels	  = bucket->attrpixels;
+	aux_bucket->ioinfo		  = bucket->ioinfo;
+	aux_bucket->ioinfo_count  = bucket->ioinfo_count;
+	aux_bucket->ioinfo_size	  = bucket->ioinfo_size;
+	put_bucket(aux_bucket, cc);
 }
 
-
-/*	50 / 60 Hz Umschaltung
-	Diese Funktion passt für 48K Spectrums und TK90x/TK95
-Chilenischer NTSC Spectrum:
-	The CPU is clocked at 3.5275 MHz
-	One frame lasts 0xe700 (59136) tstates, giving a frame rate of 3.5275×106 / 59136 = 59.65 Hz
-	224 tstates per line implies 264 lines per frame.
-	The first contended cycle is at 0x22ff (8959). This implies 40 lines of upper border, 192 lines of picture and 32
-lines of lower border/retrace. The contention pattern is confirmed as being the same 6,5,4,3,2,1,0,0 as on the 48K
-machine.
-*/
 void UlaTk90x::set60Hz(bool is60hz)
 {
+	// 50 / 60 Hz switch
+	// This version is suitable for 48K Spectrums and TK90x/TK95
+	// Chilenean NTSC Spectrum:
+	// The CPU is clocked at 3.5275 MHz
+	// One frame lasts 0xe700 (59136) cc, giving a frame rate of 3.5275×106 / 59136 = 59.65 Hz
+	// 224 cc per line => 264 lines per frame.
+	// The first contended cycle is at 0x22ff (8959).
+	// => 40 lines of upper border, 192 lines of picture and 32 lines of lower border/retrace.
+	// The contention pattern is confirmed as being the same 6,5,4,3,2,1,0,0 as on the 48K machine.
+
 	assert(machine->model == tk90x || machine->model == tk95);
 	info = is60hz ? machine->model_info : &zx_info[zxsp_i3];
-
-	lines_before_screen = info->lines_before_screen; // 63 or 64 for 50 Hz
-	// lines_in_screen	= m->lines_in_screen;			// 192
-	lines_after_screen = info->lines_after_screen;	// 56 for 50 Hz
-	cc_per_line		   = info->cpu_cycles_per_line; // Total cpu cycles per line
 
 	Ula::set60Hz(is60hz);
 	setupTiming();
