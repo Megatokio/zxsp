@@ -5,7 +5,7 @@
 #include "UlaInsp.h"
 #include "Machine.h"
 #include "MachineController.h"
-#include "Qt/Screen/Screen.h"
+#include "Qt/Screen.h"
 #include "Qt/qt_util.h"
 #include "Ula/Mmu.h"
 #include "Ula/Mmu128k.h"
@@ -531,28 +531,28 @@ void UlaInsp::updateWidgets()
 
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

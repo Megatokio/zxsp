@@ -5,8 +5,8 @@
 #include "Multiface1Insp.h"
 #include "MachineController.h"
 #include "Multiface/Multiface1.h"
-#include "Overlays/Overlay.h"
-#include "Screen/Screen.h"
+#include "Qt/Overlays/Overlay.h"
+#include "Qt/Screen.h"
 #include "Settings.h"
 #include "UsbJoystick.h"
 #include <QCheckBox>

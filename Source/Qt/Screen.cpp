@@ -6,12 +6,9 @@
 #include "IsaObject.h"
 #include "Machine.h"
 #include "MachineController.h"
-#include "MonoRenderer.h"
 #include "Overlays/Overlay.h"
+#include "Renderer.h"
 #include "Settings.h"
-#include "SpectraRenderer.h"
-#include "Tc2048Renderer.h"
-#include "ZxspRenderer.h"
 #include "unix/os_utilities.h"
 #include <QApplication>
 #include <QGLFormat>
@@ -23,6 +20,21 @@
 
 namespace zxsp
 {
+
+static void log_sysload()
+{
+	static int n;
+	if ((++n & 0xFF) == 0)
+	{
+		double loads[3];
+		sysLoad(loads);
+
+		static double average = 0.1;
+		double		  load	  = cpuLoad();
+		average				  = average * 0.9 + load * 0.1;
+		logline("sysLoad = %1.3f, cpuLoad = %.2f%% (avg = %.2f%%)", loads[0], load * 100, average * 100);
+	}
+}
 
 // =========================================================================
 //							Render Thread
@@ -68,17 +80,11 @@ QGL::NoSampleBuffers		Disables the use of sample buffers.
 QGL::NoDeprecatedFunctions	Disables the use of deprecated functionality for OpenGL 3.x contexts (forward compatible)
 */
 
-Screen::Screen(QWidget* owner, isa_id id) :
+Screen::Screen(QWidget* owner, const Size& fb) :
 	QGLWidget(QGLFormat(QGL::SingleBuffer), owner),
-	render_thread(new RenderThread(this)),
-	id(id),
-	_what(IDLE),
-	_gifmovie_filepath(nullptr),
-	_screenshot_filepath(nullptr),
-	frames_hit_percent(100.0f),
-	zoom(calc_zoom()),
-	screen_renderer(newRenderer()),
-	gif_writer(nullptr)
+	current_frame(fb.width, fb.height),
+	thread(new RenderThread(this)),
+	zoom(calc_zoom())
 {
 	xlogIn("new Screen");
 
@@ -90,82 +96,28 @@ Screen::Screen(QWidget* owner, isa_id id) :
 	doneCurrent(); // release OGL context so that render_thread can aquire it
 
 #if QT_VERSION >= 0x050000
-	context()->moveToThread(render_thread);
+	context()->moveToThread(thread);
 	xlogline("moved context to render_thread");
 #endif
 
-	render_thread->start(); // start default run() which calls exec() to run the event loop
+	thread->start(); // start default run() which calls exec() to run the event loop
 }
 
 Screen::~Screen()
 {
 	xlogIn("~Screen");
 
-	_mutex.lock();
-	_what |= TERMI;
-	_mutex.unlock();
-	_sema.release();
-
-	render_thread->wait();
-
-	delete gif_writer;
-	delete[] _gifmovie_filepath;
-	delete[] _screenshot_filepath;
+	termi = true;
+	in_queue.sema.release();
+	thread->wait();
+	delete thread;
+	delete gif_recorder;
 }
 
 void Screen::initializeGL()
 {
 	// Setup resources needed by the OpenGL implementation to render the scene.
 	QGLWidget::initializeGL();
-}
-
-GifWriter* Screen::newGifWriter(bool update_border, uint fps)
-{
-	switch (uint(id))
-	{
-	case isa_ScreenTc2048: return new Tc2048GifWriter(update_border, fps);
-	case isa_ScreenZxsp: return new ZxspGifWriter(update_border, fps);
-	case isa_ScreenSpectra: return new SpectraGifWriter(update_border, fps);
-	case isa_ScreenMono: return new MonoGifWriter(update_border, fps);
-	default: IERR();
-	}
-}
-
-Renderer* Screen::newRenderer()
-{
-	// Instances of Renderer can't be returned by a overloaded function,
-	// because we call this in the constructor!
-
-	switch (uint(id))
-	{
-	case isa_ScreenTc2048: return new Tc2048Renderer();
-	case isa_ScreenZxsp: return new ZxspRenderer();
-	case isa_ScreenSpectra: return new SpectraRenderer();
-	case isa_ScreenMono: return new MonoRenderer();
-	default: IERR();
-	}
-}
-
-void Screen::setFlavour(isa_id new_id)
-{
-	// set screen renderer
-	// note: we want to replace a zxsp screen with a Spectra screen
-	// without actually replacing the current screen widget.
-	// therefore ScreenZxsp must be able to mogrify into any of it's 'flavours'.
-	// subclassing does not work, because it would require to create a new instance of the new class.
-
-	if (isA(isa_ScreenZxsp))
-		assert(new_id == isa_ScreenZxsp || new_id == isa_ScreenTc2048 || new_id == isa_ScreenSpectra);
-	if (isA(isa_ScreenMono)) assert(new_id == isa_ScreenMono);
-
-	if (this->id == new_id) return;
-
-	this->id = new_id;
-
-	_mutex.lock();
-	delete screen_renderer;
-	screen_renderer = newRenderer();
-	_mutex.unlock();
 }
 
 
@@ -179,13 +131,15 @@ void Screen::resizeGL(int, int) { abort("Screen::resizeGL(int,int) called!"); }
 
 void Screen::paintEvent(QPaintEvent*)
 {
-	repaint(); //	QGLWidget::paintEvent(e);	MUST NOT BE CALLED!
+	assert(isMainThread());
+	repaint(); // QGLWidget::paintEvent(e);	MUST NOT BE CALLED!
 }
 
 void Screen::resizeEvent(QResizeEvent*)
 {
+	assert(isMainThread());
 	calc_zoom();
-	repaint(); //	QGLWidget::paintEvent(e);	MUST NOT BE CALLED!
+	repaint(); // QGLWidget::paintEvent(e);	MUST NOT BE CALLED!
 }
 
 void Screen::repaint()
@@ -194,103 +148,95 @@ void Screen::repaint()
 	// to be used in paintGL(), resizeGL(w,h), paintEvent() and resizeEvent().
 	// the method waits until the render thread has painted the entire screen.
 
-	_mutex.lock();
-
-	assert(!(_what & REPAINT));
-	assert(_wait_repaint_sema.available() == 0);
-	//_wait_repaint_sema.acquire(_wait_repaint_sema.available());
-
-	_what |= REPAINT;
-
-	_mutex.unlock();
-
-	_sema.release();
-	_wait_repaint_sema.acquire();
+	_repaint = true;
+	wait_repaint_sema.acquire(); // TODO: geht das auch ohne?
 }
 
 void Screen::saveScreenshot(cstr path)
 {
-	if (_screenshot_filepath) return;
-	_screenshot_filepath = newcopy(path);
+	assert(isMainThread());
+
+	// replace screen.out_queue with own queue:
+	FrameDataQueue* qout = out_queue; // remember
+	FrameDataQueue	qin;			  // new queue
+	out_queue = &qin;				  // replace out_queue
+
+	// wait for next framedata:
+	while (!qin.avail() && !termi) { qin.sema.acquire(); }
+
+	// save screenshot:
+	if (qin.avail())
+	{
+		FrameData* framedata = qin.get();
+		GifWriter::saveScreenshot(path, framedata);
+		qout->put(framedata);
+	}
+
+	// restore screen.out_queue:
+	FrameDataQueue::mutex.lock();
+	out_queue = qout;
+	FrameDataQueue::mutex.unlock();
+	qin.flush_to(qout);
 }
 
 void Screen::startRecording(cstr path, bool with_border)
 {
-	if (_gifmovie_filepath) return;
-	_gifmovie_with_bordereffects = with_border;
-	_gifmovie_filepath			 = newcopy(path);
+	assert(isMainThread());
+	if (gif_recorder) return;
+
+	gif_recorder = new GifRecorder(out_queue);
+	out_queue	 = &gif_recorder->in_queue;
+	gif_recorder->startRecording(path, with_border, 50);
 }
 
 void Screen::stopRecording()
 {
-	_mutex.lock();
-	_what |= STOPMOVIE;
-	_mutex.unlock();
-	_sema.release();
+	assert(isMainThread());
+	if (!gif_recorder) return;
+
+	gif_recorder->stopRecording();
+
+	// restore screen.out_queue:
+	// TODO: if multiple long running patches are possible then we may restore the wrong ptr!
+	FrameDataQueue::mutex.lock();
+	out_queue = gif_recorder->out_queue;
+	FrameDataQueue::mutex.unlock();
+	gif_recorder->in_queue.flush_to(out_queue);
+
+	delete gif_recorder;
+	gif_recorder = nullptr;
 }
 
 void Screen::do_render_thread()
 {
 	// run the event loop of the render thread.
 	// waits for requests and executes them.
-	// possible requests are: TERMI, REPAINT and FFB
 
 	try
 	{
 		for (;;)
 		{
-			_sema.acquire();
-			if (_what & TERMI) break;
-			_mutex.lock();
+			in_queue.sema.acquire();
+			if (termi) break;
 
-			if (_what & FFB_OR_VBI)
+			if (_repaint)
 			{
-				do_ffb_or_vbi(); // must unlock mutex after parameter transfer
-
-				_mutex.lock();
-				_what &= ~FFB_OR_VBI;
-				_mutex.unlock();
-				continue;
+				_repaint = false;
+				if (isVisible()) do_draw_screen(true);
+				wait_repaint_sema.release();
 			}
 
-			if (_what & STOPMOVIE)
+			if (in_queue.avail())
 			{
-				_what &= ~STOPMOVIE;
-				_mutex.unlock();
-
-				if (gif_writer) try
-					{
-						gif_writer->stopRecording();
-					}
-					catch (FileError& e)
-					{
-						showWarning("File error: %s", e.what());
-					}
-				delete gif_writer;
-				gif_writer = nullptr;
-				continue;
-			}
-
-			if (_what & REPAINT)
-			{
-				_what &= ~REPAINT;
-				_mutex.unlock();
-
-				if (isVisible()) paint_screen(yes);
-				_wait_repaint_sema.release();
-				continue;
-			}
-
-			xlogline("Screen::do_render_thread: unknown command");
-			for (uint m = 16; m; m += m)
-			{
-				if (_what & m)
+				FrameData* framedata = in_queue.get();
+				if (!in_queue.avail() && isVisible())
 				{
-					_what -= m;
-					break;
+					zxspRenderer(&current_frame, framedata);
+					do_draw_screen(false);
 				}
-			} // reset one bit
-			_mutex.unlock();
+				assert(out_queue);
+				put(out_queue, framedata); // also locks the pointer
+			}
 		}
 	}
 	catch (std::exception& e)
@@ -311,22 +257,9 @@ void Screen::draw_rect(int x, int y, int w, int h, RgbaColor color)
 	glDrawPixels(1, 1, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, &color);
 }
 
-void Screen::paint_screen(bool draw_passepartout)
+void Screen::do_draw_screen(bool draw_passepartout)
 {
 	makeCurrent();
-
-	int hf = (screen_renderer->width - 2 * screen_renderer->h_border) / 256; // hor. stretch factor 256 -> 512
-
-	// setup geometry
-	int zoom	 = minmax(1, min(width() / 256, height() / 192), 4); // getZoom()
-	int w		 = (width() + zoom - 1) / zoom;						 // window size
-	int h		 = (height() + zoom - 1) / zoom;
-	int x		 = (w + 1 - 256) / 2; // position of screenfile in this widget
-	int y		 = (h + 1 - 192) / 2;
-	int v_border = min(y, V_BORDER_MAX);
-	int h_border = min(x, H_BORDER_MAX);
-	int h_black	 = x - h_border;
-	int v_black	 = y - v_border;
 
 	// create painter (for drawing overlays) but first do native openGL painting:
 	QPainter p(this);
@@ -350,66 +283,72 @@ void Screen::paint_screen(bool draw_passepartout)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+	// setup geometry
+	// all coordinates are measured in standard zxsp pixels, e.g. screen = 256x192:
+	const VideoFrame& cf = current_frame;
+
+	int zoom = minmax(1, min(width() / 256, height() / 192), 4); // getZoom()
+	int w	 = (width() + zoom - 1) / zoom;						 // widget size
+	int h	 = (height() + zoom - 1) / zoom;					 //
+	int x0	 = (w - cf.frameWidth() / cf.hf + 1) / 2;			 // position of frame inside widget
+	int y0	 = (h - cf.frameHeight() + 1) / 2;					 // mostly negative!
+
 	// draw passpartout, if required:
 	//	note on cpu usage:							zoom=2	fullscreen		(oGL only, no Painter)
 	//	passepartout only drawn when requested		8.1%	7.5%			approx.
 	//	passepartout always drawn, border only		10.6%	16.6%			approx.
 	//	passepartout always drawn, full rect		18.5%	20.2%			approx.
 	//
-	//
-	//	note on overlays:
-	//	transparent pixels draw opaque, because the underlying pixels were not drawn (opacity 0%)
-	//	Mist...
-	//
-	if (draw_passepartout && (v_black > 0 || h_black > 0))
+	if (draw_passepartout)
 	{
-		static const int screen_h = 192 + 2 * V_BORDER_MAX;
-		static const int screen_w = 256 + 2 * H_BORDER_MAX;
+		// measurement in real (widget) pixels:
+		int frame_height = cf.frameHeight() * zoom;
+		int left_black	 = x0 * zoom;
+		int top_black	 = y0 * zoom;
+		int bottom_black = height() - (top_black + frame_height);
+		int right_black	 = width() - (left_black + cf.frameWidth() / cf.hf * zoom);
 
-		if (v_black > 0)
-		{
-			draw_rect(0, 0, width(), zoom * v_black, black);
-			draw_rect(0, zoom * v_black + zoom * screen_h, width(), zoom * v_black, black);
-		}
-		if (h_black > 0)
-		{
-			draw_rect(0, zoom * v_black, zoom * h_black, zoom * screen_h, black);
-			draw_rect(zoom * h_black + zoom * screen_w, zoom * v_black, zoom * h_black, zoom * screen_h, black);
-		}
+		if (top_black > 0) draw_rect(0, 0, width(), top_black, black);
+		if (left_black > 0) draw_rect(0, top_black, left_black, frame_height, black);
+		if (bottom_black > 0) draw_rect(0, height() - bottom_black, width(), bottom_black, black);
+		if (right_black > 0) draw_rect(width() - right_black, top_black, right_black, frame_height, black);
 	}
 
 	// setup new pixels unpacking, transfer, mapping & rasterization:
-	int qsx = screen_renderer->h_border; // position of screenfile in screen_renderer.bits[]
-	int qsy = screen_renderer->v_border;
-	int qbx = qsx - h_border * hf; // position of visible rect in screen_renderer.bits[]
-	int qby = qsy - v_border;
-
-	glRasterPos2i(zoom * h_black, zoom * v_black); // window coordinates
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);		   // if RGBA
-	glPixelZoom(GLfloat(zoom) / hf, -zoom);
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, screen_renderer->width); // number of pixels
-
-	// enable blending, if image from screen renderer has transparency:		Denk…
-	// glEnable(GL_BLEND);
-	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+	glRasterPos2i(x0 * zoom, y0 * zoom); // window coordinates
+	glPixelZoom(GLfloat(zoom) / cf.hf, -zoom);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, sizeof(RgbaColor)); // if RGBA
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, cf.frameWidth());  // number of pixels
 	// note: glDrawPixels(w,h,format,type,data*)
-	glDrawPixels(
-		h_border * 2 * hf + 256 * hf, v_border * 2 + 192, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8,
-		screen_renderer->bits + qbx + qby * screen_renderer->width);
-
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+	glDrawPixels(cf.frameWidth(), cf.frameHeight(), GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, cf.pixels);
 
 	uint err = glGetError();
 	if (err) logline("OpenGL error: $%04x", err);
 
-	p.endNativePainting();
+	// flush drawing to screen:
+	// without Painter, resize() was (nearly) flicker-free:
+	//
+	//	if(doubleBuffer()) swapBuffers();
+	//	else glFlush();				// flush all buffered commands to the GPU
+	//	//else glFinish();			// also blocks until done
 
+	// doneCurrent();
+
+	p.endNativePainting();
+	draw_overlays(p, zoom);
+	if (loglevel >= 1) log_sysload();
+}
+
+void Screen::draw_overlays(QPainter& p, int zoom)
+{
 	p.setBackgroundMode(Qt::BGMode::TransparentMode);
 	p.scale(zoom, zoom);
 
 	if (auto* ov = rzx_overlay.get())
 	{
+		int w = (width() + zoom - 1) / zoom; // window size
+		int h = (height() + zoom - 1) / zoom;
+
 		ov->x = w - ov->w;
 		ov->y = h - ov->h;
 		ov->draw(p, zoom);
@@ -428,39 +367,15 @@ void Screen::paint_screen(bool draw_passepartout)
 			p.translate(0, ov->h + 2);
 		}
 	}
-
-	// flush drawing to screen:
-	// without Painter resize() was (nearly) flicker-free:
-	//
-	//	if(doubleBuffer()) swapBuffers();
-	//	else glFlush();				// flush all buffered commands to the GPU
-	//	//else glFinish();			// also blocks until done
-
-	// doneCurrent();
-
-	if (loglevel >= 1)
-	{
-		static int n;
-		if ((++n & 0xFF) == 0)
-		{
-			double loads[3];
-			sysLoad(loads);
-
-			static double average = 0.1;
-			double		  load	  = cpuLoad();
-			average				  = average * 0.9 + load * 0.1;
-			logline("sysLoad = %1.3f, cpuLoad = %.2f%% (avg = %.2f%%)", loads[0], load * 100, average * 100);
-		}
-	}
 }
 
 void Screen::setRzxOverlay(const RzxOverlayPtr& p)
 {
 	if (rzx_overlay == p) return;
 
-	_mutex.lock();
+	mutex.lock();
 	rzx_overlay = p;
-	_mutex.unlock();
+	mutex.unlock();
 }
 
 void Screen::setJoystickOverlay(uint index, const JoystickOverlayPtr& p)
@@ -469,31 +384,30 @@ void Screen::setJoystickOverlay(uint index, const JoystickOverlayPtr& p)
 
 	if (joystick_overlays[index] == p) return;
 
-	_mutex.lock();
+	mutex.lock();
 	joystick_overlays[index] = p;
-	_mutex.unlock();
+	mutex.unlock();
 }
 
 void Screen::setNumJoystickOverlays(uint n)
 {
-	_mutex.lock();
+	mutex.lock();
 	while (n < NELEM(joystick_overlays))
 	{
 		joystick_overlays[n++] = nullptr; //
 	}
-	_mutex.unlock();
+	mutex.unlock();
 }
 
 void Screen::removeAllOverlays()
 {
-	_mutex.lock();
+	mutex.lock();
 	rzx_overlay = nullptr;
 	for (uint i = 0; i < NELEM(joystick_overlays); i++)
 	{
 		joystick_overlays[i] = nullptr; //
 	}
-	_mutex.unlock();
+	mutex.unlock();
 }
-
 
 } // namespace zxsp

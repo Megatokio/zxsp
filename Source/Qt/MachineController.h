@@ -88,7 +88,7 @@ private:
 	WindowMenu* window_menu;
 
 	//	static Model best_model_for_file(cstr filepath);
-	Screen*		   newScreenForModel(Model);
+	//Screen*		   newScreenForModel(Model);
 	RCPtr<Machine> newMachineForModel(Model);
 
 	QAction*

@@ -51,8 +51,7 @@
 #include "Qt/qt_util.h"
 #include "Ram/Zx3kRam.h"
 #include "RecentFilesMenu.h"
-#include "Screen/ScreenMono.h"
-#include "Screen/ScreenZxsp.h"
+#include "Screen.h"
 #include "Settings.h"
 #include "SpectraVideo.h"
 #include "ToolWindow.h"
@@ -303,54 +302,54 @@ RCPtr<Machine> MachineController::newMachineForModel(Model model)
 	return m;
 }
 
-Screen* MachineController::newScreenForModel(Model model)
-{
-	// create Screen instance for model
-	// screen.parent := this
-	// currently there are ScreenZxsp and ScreenMono
+//Screen* MachineController::newScreenForModel(Model model)
+//{
+//	// create Screen instance for model
+//	// screen.parent := this
+//	// currently there are ScreenZxsp and ScreenMono
 
-	assert(in_machine_ctor);
+//	assert(in_machine_ctor);
 
-	switch (model)
-	{
-	case zx80:
-	case zx81:
-	case ts1000:
-	case ts1500:
-	case tk85:
-	case jupiter: return new ScreenMono(this);
+//	switch (model)
+//	{
+//	case zx80:
+//	case zx81:
+//	case ts1000:
+//	case ts1500:
+//	case tk85:
+//	case jupiter: return new ScreenMono(this);
 
-	case zxsp_i1:
-	case zxsp_i2:
-	case zxsp_i3:
-	case zxplus:
-	case inves:
-	case zx128:
-	case zx128_span:
-	case zxplus2:
-	case zxplus2_frz:
-	case zxplus2_span:
-	case zxplus3:
-	case zxplus3_span:
-	case zxplus2a:
-	case zxplus2a_span:
-	case tk90x:
-	case tk95:
-	case pentagon128:
-	case zxplus_span:
-	case scorpion: return new ScreenZxsp(this);
+//	case zxsp_i1:
+//	case zxsp_i2:
+//	case zxsp_i3:
+//	case zxplus:
+//	case inves:
+//	case zx128:
+//	case zx128_span:
+//	case zxplus2:
+//	case zxplus2_frz:
+//	case zxplus2_span:
+//	case zxplus3:
+//	case zxplus3_span:
+//	case zxplus2a:
+//	case zxplus2a_span:
+//	case tk90x:
+//	case tk95:
+//	case pentagon128:
+//	case zxplus_span:
+//	case scorpion: return new ScreenZxsp(this);
 
-	case u2086:
-	case tc2048:
-	case tc2068:
-	case ts2068: return new ScreenZxsp(this, isa_ScreenTc2048);
+//	case u2086:
+//	case tc2048:
+//	case tc2068:
+//	case ts2068: return new ScreenZxsp(this, isa_ScreenTc2048);
 
-	case samcoupe:
-	case unknown_model:
-	case num_models: break;
-	}
-	IERR();
-}
+//	case samcoupe:
+//	case unknown_model:
+//	case num_models: break;
+//	}
+//	IERR();
+//}
 
 void MachineController::loadSnapshot(cstr filename)
 {
@@ -1387,7 +1386,7 @@ Machine* MachineController::initMachine(
 	model_actiongroup->actions().at(model)->setChecked(1);
 
 	// Create machine:
-	screen		  = newScreenForModel(model);
+	screen		  = new Screen(this, Size {});
 	auto machine  = newMachineForModel(model); // not powered on, not suspended
 	this->machine = machine;				   // volatile
 	this->model = model = machine->model;
@@ -2102,12 +2101,10 @@ void MachineController::addSpectraVideo(bool add)
 		if (settings.get_bool(key_spectra_enable_new_video_modes, true)) dip_switches |= Dip::EnableNewVideoModes;
 
 		NV(machine)->addSpectraVideo(dip_switches);
-		screen->setFlavour(isa_ScreenSpectra);
 	}
 	else
 	{
-		NV(machine)->removeSpectraVideo();
-		screen->setFlavour(machine->isA(isa_UlaTc2048) ? isa_ScreenTc2048 : isa_ScreenZxsp);
+		NV(machine)->removeSpectraVideo(); //
 	}
 
 	if (f) machine->powerOn();

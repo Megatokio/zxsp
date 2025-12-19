@@ -7,8 +7,8 @@
 #include "MachineController.h"
 #include "Qt/QEventTypes.h"
 #include "Qt/Settings.h"
-#include "Screen/Screen.h"
-#include "ZxspRenderer.h"
+#include "Renderer.h"
+#include "Screen.h"
 #include "cpp/cppthreads.h"
 #include <QMenu>
 #include <QMouseEvent>
@@ -22,6 +22,7 @@
 
 namespace zxsp
 {
+using RgbaVideoFrame = zxsp::VideoFrame<RgbaColor>;
 
 /*	7 ZX Spectrum games which used the Lenslok protection system:
  */
@@ -157,20 +158,20 @@ static uint get_game_id(cstr name)
 	Berechne Farb-Mittelwert in der Box
 	Wenn die Box über den Rand des Renderer-Screens übersteht, wird für die überstehenden Bereiche Schwarz verwendet.
 */
-static uint32 blur_color(const Renderer& renderer, const QRect& box)
+static uint32 blur_color(const RgbaVideoFrame& renderer, const QRect& box)
 {
 	//	assert(box.intersects(QRect(0,0,renderer.width,renderer.height)));
 
 	int	 n = box.width() * box.height();
 	int	 l = max(box.left(), 0);
-	int	 r = min(box.right(), int(renderer.width));
+	int	 r = min(box.right(), int(renderer.frame.width));
 	int	 t = max(box.top(), 0);
-	int	 b = min(box.bottom(), int(renderer.height));
+	int	 b = min(box.bottom(), int(renderer.frame.height));
 	uint R = 0, G = 0, B = 0;
 
 	for (int y = t; y < b; y++)
 	{
-		RgbaColor* row = renderer.bits + y * renderer.width;
+		RgbaColor* row = renderer.pixels + y * renderer.frame.width;
 		for (int x = l; x < r; x++)
 		{
 			RgbaColor pixel = row[x];
@@ -194,7 +195,7 @@ static uint32 blur_color(const Renderer& renderer, const QRect& box)
 */
 void Lenslok::draw_prism(QPainter& painter, QRectF qbox, const QRectF& zbox)
 {
-	Renderer& renderer = dynamic_cast<ZxspRenderer&>(*controller->getScreen()->getScreenRenderer());
+	RgbaVideoFrame& videoframe = controller->getScreen()->getCurrentFrame();
 
 	// Koordinaten der auf Integer ausgeweiteten Quell-Box:
 	int l = floor(qbox.left());
@@ -210,26 +211,10 @@ void Lenslok::draw_prism(QPainter& painter, QRectF qbox, const QRectF& zbox)
 	bool	  f	 = 0; // Flag, ob Image-Hintergrund gelöscht werden muss
 
 	// box in renderer.screen croppen:
-	if (l < 0)
-	{
-		f = 1;
-		l = 0;
-	}
-	if (t < 0)
-	{
-		f = 1;
-		t = 0;
-	}
-	if (r > int(renderer.width))
-	{
-		f = 1;
-		r = renderer.width;
-	}
-	if (b > int(renderer.height))
-	{
-		f = 1;
-		b = renderer.height;
-	}
+	if (l < 0) { f = 1, l = 0; }
+	if (t < 0) { f = 1, t = 0; }
+	if (r > videoframe.frame.width) { f = 1, r = videoframe.frame.width; }
+	if (b > videoframe.frame.height) { f = 1, b = videoframe.frame.height; }
 
 	// paint it black:
 	if (f)
@@ -244,7 +229,8 @@ void Lenslok::draw_prism(QPainter& painter, QRectF qbox, const QRectF& zbox)
 	r -= dx;
 	for (int y = t; y < b; y++) // screen coord.
 	{
-		RgbaColor* qrow = renderer.bits + renderer.width * y + dx;
+		//assert(renderer.bits_per_pixel == 32);
+		RgbaColor* qrow = videoframe.pixels + videoframe.frame.width * y + dx;
 		uint32*	   zrow = (uint32*)image.scanLine(y - dy);
 		for (int x = l; x < r; x++) { zrow[x] = 0xff000000 + (qrow[x] >> 8); }
 	}
@@ -276,14 +262,13 @@ void Lenslok::paintEvent(QPaintEvent*)
 
 	// Lenslok flipped => decoding mode:
 
-	Screen*	  screen		  = controller->getScreen();
-	Renderer* screen_renderer = screen->getScreenRenderer();
-	qreal	  vzoom			  = screen->getZoom();
-	qreal	  hzoom			  = vzoom / screen->getHF();
+	Screen*			screen	   = controller->getScreen();
+	RgbaVideoFrame& videoframe = screen->getCurrentFrame();
+	qreal			vzoom	   = screen->getZoom();
+	qreal			hzoom	   = vzoom / screen->getHF();
 
-	//	if(screen->getHF()!=1) return;									// TC2048: hor. Skalierung bei zoom==1|3 nicht
-	// integer!
-	//=> Probleme…
+	// if(screen->getHF()!=1) return;	// TC2048: hor. Skalierung bei zoom==1|3 nicht integer!
+	//											   => Probleme…
 
 	QRect prism_box(zxsp::prism_box.translated(geometry().topLeft())); // Lenslok prism box in glob. coord.
 	QRect window_box(controller->geometry());						   // Specci screen box in glob. coord.
@@ -291,20 +276,26 @@ void Lenslok::paintEvent(QPaintEvent*)
 
 	// Lenslok over Specci window:
 
-	// wir manipulieren nur den Ausschnitt, der über dem Specci-Fensters liegt:
+	// we only modify the area which actually lies over the Specci window:
 
 	p.setClipRect(window_box.intersected(prism_box).translated(-this->pos()));
 
-	// window_box auf gesamten Renderer-Screen erweitern:
+	// enlarge window_box to cover the whole videoframe:
 
-	window_box.moveLeft(window_box.left() + screen->getLeftBorder() - screen_renderer->h_border * hzoom);
-	window_box.moveTop(window_box.top() + screen->getTopBorder() - screen_renderer->v_border * vzoom);
-	//	window_box.setWidth(screen_renderer->width*hzoom);		not used
-	//	window_box.setHeight(screen_renderer->height*vzoom);	not used
+	window_box.moveLeft(
+		window_box.left()					// Specci screen box in glob. coord.
+		+ screen->getLeftBorder()			// visible left border in real pixels
+		- videoframe.leftBorder() * hzoom); // left border in the rendered videoframe
+	window_box.moveTop(
+		window_box.top()		 //
+		+ screen->getTopBorder() //
+		- videoframe.topBorder() * vzoom);
+	//	window_box.setWidth(videoframe->width*hzoom);	not used
+	//	window_box.setHeight(videoframe->height*vzoom);	not used
 
-	// zeichne die 4 mattierten Bereiche:
+	// draw the 4 matted areas:
 
-	p.setCompositionMode(QPainter::CompositionMode_DestinationOver); // Pixel _unter_ die Linse malen
+	p.setCompositionMode(QPainter::CompositionMode_DestinationOver); // draw pixels _below_ the lens
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -318,12 +309,12 @@ void Lenslok::paintEvent(QPaintEvent*)
 		qreal r = floor((geometry().x() + x1 - window_box.x()) / hzoom);
 		qreal b = floor((geometry().y() + y1 - window_box.y()) / vzoom);
 
-		uint32 color = blur_color(*screen_renderer, QRect(l, t, r - l, b - t));
+		uint32 color = blur_color(videoframe, QRect(l, t, r - l, b - t));
 
 		p.fillRect(x0, y0, x1 - x0, y1 - y0, color);
 	}
 
-	// zeichne die 12 Prismen:
+	// draw the 12 Prisms:
 
 	int center = geometry().x() + (x3 + x4) / 2;
 

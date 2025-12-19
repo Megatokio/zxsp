@@ -6,7 +6,7 @@
 #include "Joy/Joy.h"
 #include "Machine.h"
 #include "MachineController.h"
-#include "Screen/Screen.h"
+#include "Qt/Screen.h"
 #include "UsbJoystick.h"
 #include <QBrush>
 #include <QColor>
