@@ -3,7 +3,6 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "TVDecoderMono.h"
-#include "Libraries/kio/kio.h"
 
 namespace zxsp
 {
@@ -13,12 +12,12 @@ static constexpr float sec_per_scanline = 64e-6f;
 template<typename T>
 static inline void memset(void* z, int byte, T size)
 {
-	memset(z, byte, size_t(size));
+	::memset(z, byte, size_t(size));
 }
 
 
-TVDecoderMono::TVDecoderMono(IScreen* screen, int32 cc_per_sec, uint8 background_color) :
-	screen(screen),
+TVDecoderMono::TVDecoderMono(Crtc* crtc, int32 cc_per_sec, uint8 background_color) :
+	crtc(crtc),
 	cc_per_sec(cc_per_sec),
 	typ_cc_per_line(int32(cc_per_sec * sec_per_scanline + 0.5f)),
 	min_cc_per_line(int32(cc_per_sec * sec_per_scanline * 0.9f)),
@@ -29,37 +28,37 @@ TVDecoderMono::TVDecoderMono(IScreen* screen, int32 cc_per_sec, uint8 background
 	//fb_lines(max_cc_per_frame / min_cc_per_line + 2),
 	fb_bytes_per_line(((max_cc_per_line + 15) >> 2) & ~3),
 	fb_cc_per_line(fb_bytes_per_line << 2),
-	frame_data(nullptr),
-	frame_data2(nullptr),
 	background_color(background_color),
 	foreground_color(~background_color)
 {
-	frame_data	= new uint8[(max_lines_per_frame + 1) * fb_bytes_per_line];
-	frame_data2 = new uint8[(max_lines_per_frame + 1) * fb_bytes_per_line];
-	reset(screen);
-}
+	cc_pixel_offset = 0;
+	cc_per_line		= typ_cc_per_line;
+	cc_per_frame	= cc_per_sec / 50;
 
-TVDecoderMono::~TVDecoderMono()
-{
-	delete[] frame_data;
-	delete[] frame_data2;
-}
+	sync_active	  = false;
+	cc_sync_start = 0;
 
-void TVDecoderMono::reset(IScreen* s)
-{
-	screen = s;
-
-	cc_pixel_offset			= 0;
-	cc_frame_start			= 0;
-	cc_line_start			= 0;
-	cc_per_line				= typ_cc_per_line;
-	cc_per_frame			= cc_per_sec / 50;
-	cc_sync_start			= 0;
-	idx_line_start			= 0;
-	ccc						= 0;
-	sync_active				= false;
-	current_line			= 0;
 	auto_position_countdown = 0;
+}
+
+TVDecoderMono::~TVDecoderMono() //
+{
+	delete bucket;
+}
+
+void TVDecoderMono::reset(int32 cc)
+{
+	assert(crtc->screen);
+	if (!bucket) bucket = crtc->getZx80VideoData(VideoData::Zx80Frame);
+	assert_ge(bucket->pixels_size, max_lines_per_frame * (max_cc_per_line + 3) / 4);
+
+	current_line   = 0;
+	idx_line_start = 0;
+	// cc_sync_start = 0;
+	cc_frame_start = cc;
+	cc_line_start  = cc;
+	ccc			   = cc;
+
 	reset_auto_position_data();
 }
 
@@ -80,7 +79,7 @@ inline void TVDecoderMono::store_pixels(int32 cc, uint8 pixels)
 
 	assert(idx >= 0 && idx < fb_bytes_per_line);
 
-	uint8* p = &frame_data[idx_line_start + idx];
+	uint8* p = bucket->pixel_octets + (idx_line_start + idx);
 
 	if ((cc & 3) == 0) // byte aligned :-)
 	{
@@ -106,8 +105,8 @@ void TVDecoderMono::clear_pixels(int32 cca, int32 cce, uint8 color)
 
 	assert(cca >= 0 && cca <= cce && cce <= fb_cc_per_line);
 
-	uint8* p = &frame_data[idx_line_start + (cca >> 2)];
-	uint8* e = &frame_data[idx_line_start + ((cce + 3) >> 2)];
+	uint8* p = bucket->pixel_octets + (idx_line_start + (cca >> 2));
+	uint8* e = bucket->pixel_octets + (idx_line_start + ((cce + 3) >> 2));
 
 	if (cca & 3)
 	{
@@ -261,11 +260,14 @@ void TVDecoderMono::send_frame(int32 cc)
 {
 	auto_position_screen();
 
-	zxsp::Size frame_size {fb_bytes_per_line << 3, max_lines_per_frame};
-	zxsp::Rect screen_rect {screen_position, zxsp::Size {256, 192}};
+	bucket->frame  = Size {fb_bytes_per_line << 3, max_lines_per_frame};
+	bucket->screen = {screen_position, Size {256, 192}};
+	bucket->cc_row = 0; //TODO
+	bucket->cc_col = 0; //TODO
 
-	bool swapped = screen->sendFrame(frame_data, frame_size, screen_rect);
-	if (swapped) std::swap(frame_data, frame_data2);
+	crtc->sendVideoData(bucket);
+	bucket = crtc->getZx80VideoData(VideoData::Zx80Frame);
+	assert(bucket->pixels_size >= max_lines_per_frame * (max_cc_per_line + 3) / 4);
 
 	current_line   = 0;
 	idx_line_start = 0;
@@ -325,7 +327,8 @@ void TVDecoderMono::syncOn(int32 cc, bool new_state)
 			lines_in_screen	   = last_screen_line + 1 - first_screen_line;
 			lines_below_screen = lines_per_frame - (last_screen_line + 1);
 
-			memset(frame_data + idx_line_start, black, max_lines_per_frame * fb_bytes_per_line - idx_line_start);
+			memset(
+				bucket->pixel_octets + idx_line_start, black, max_lines_per_frame * fb_bytes_per_line - idx_line_start);
 			send_frame(cc);
 			clear_screen_up_to_cc(cc + 16, black); // back porch
 		}

@@ -2,7 +2,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "ZxspRenderer.h"
+#include "Renderer.h"
 #include "Templates/Array.h"
 #include "graphics/gif/GifEncoder.h"
 #include "unix/os_utilities.h"
@@ -13,13 +13,36 @@
 namespace zxsp
 {
 
-#define opacity 0xFFFFFFFF // e.g. 0xFFFFFF80 for fading out tv image
 
-const RgbaColor zxsp_rgba_colors[16] = // RGBA
-	{opacity & black,		opacity& blue,		  opacity& red,			  opacity& magenta,
-	 opacity& green,		opacity& cyan,		  opacity& yellow,		  opacity& white,
-	 opacity& bright_black, opacity& bright_blue, opacity& bright_red,	  opacity& bright_magenta,
-	 opacity& bright_green, opacity& bright_cyan, opacity& bright_yellow, opacity& bright_white};
+constexpr RgbaColor zxsp_rgba_colors[16] = { // RGBA
+	black,		  blue,		   red,		   magenta,		   green,		 cyan,		  yellow,		 white,
+	bright_black, bright_blue, bright_red, bright_magenta, bright_green, bright_cyan, bright_yellow, bright_white};
+
+
+/* global ZX Spectrum color table:
+		8 x normal brightness
+		8 x bright
+*/
+using GifColor						  = uint8;
+static constexpr GifColor transp	  = 8;										// 'bright black' used for transparency
+static constexpr Comp	  F			  = (bright_white >> 8) & 0xff;				// "bright": full brightness
+static constexpr Comp	  H			  = (white >> 8) & 0xff;					// "normal": reduced brightness: 80%
+static constexpr Comp	  zx_colors[] = {										//
+	0, 0, 0, 0, 0, H, H, 0, 0, H, 0, H, 0, H, 0, 0, H, H, H, H, 0, H, H, H, // r,g,b
+	0, 0, 0, 0, 0, F, F, 0, 0, F, 0, F, 0, F, 0, 0, F, F, F, F, 0, F, F, F};
+static Colormap			  zxsp_colormap(zx_colors, 16, transp);
+
+
+template<typename Color>
+inline constexpr Color color(int index)
+{
+	return zxsp_rgba_colors[index];
+}
+template<>
+inline constexpr uint8 color<uint8>(int index)
+{
+	return index;
+}
 
 
 /*	rendere Ausgaben der Zxsp Ula in bits[].
@@ -32,10 +55,52 @@ const RgbaColor zxsp_rgba_colors[16] = // RGBA
 	attr_pixels[192*32]: von der ULA ausgegebene Attribut/Pixel-Pärchen
 		pro Scanline werden 32 Pärchen (64 Bytes) ausgegeben
 */
-void ZxspRenderer::drawScreen(
-	IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
-	bool flashphase, uint32 cc_vbi)
+template<typename Color>
+void zxspRenderer(VideoFrame<Color>* videoframe, VideoData* _data)
 {
+	// the zxspRenderer is used to divert to the actually needed renderer:
+	switch (_data->what)
+	{
+	default: TODO();
+	case VideoData::Zx80Frame: return zx80Renderer(videoframe, _data);
+	case VideoData::Tc2048Frame: return tc2048Renderer(videoframe, _data);
+	case VideoData::SpectraFrame: return spectraRenderer(videoframe, _data);
+	case VideoData::ZxspFrame: break;
+	}
+
+	static constexpr bool is_ic = sizeof(Color) == 1;
+
+	ZxspVideoData* newdata = reinterpret_cast<ZxspVideoData*>(_data);
+	videoframe->cmap	   = &zxsp_colormap; // for GifRecorder
+
+	static constexpr int screen_width  = 256;
+	static constexpr int screen_height = 192;
+	static constexpr int h_border	   = is_ic ? 32 : 6 * 8;		   // pixels, must be N*8
+	static constexpr int v_border	   = is_ic ? 24 : 6 * 6;		   // pixels
+	static constexpr int width		   = screen_width + 2 * h_border;  // width of bits[]
+	static constexpr int height		   = screen_height + 2 * v_border; // height of bits[]
+
+	static constexpr int pixel_per_cc = 2;
+	static constexpr int cc_screen	  = screen_width / pixel_per_cc; // 128 -> 256 pixel
+	static constexpr int cc_h_border  = h_border / pixel_per_cc;	 // 32  -> 64 pixel
+
+	if unlikely (videoframe->max_width != width || videoframe->max_height != height) //
+		videoframe->resize(width, height);
+
+	//videoframe->frame  = Size {width, height};
+	//videoframe->screen = Rect {h_border, v_border, screen_width, screen_height};
+
+	assert_eq(videoframe->frame.width, width);
+	assert_eq(videoframe->frame.height, height);
+	assert(videoframe->screen.top() == v_border);
+	assert(videoframe->screen.left() == h_border);
+	assert(videoframe->screen.width() == screen_width);
+	assert(videoframe->screen.height() == screen_height);
+
+	int	  cc_per_scanline		 = newdata->cc_per_scanline;
+	int32 cc_start_of_screenfile = newdata->cc_start_of_screenfile;
+	int32 cc_vbi				 = newdata->cc;
+
 	assert((cc_start_of_screenfile & 3) == 0);
 
 	cc_start_of_screenfile += 4;
@@ -43,36 +108,56 @@ void ZxspRenderer::drawScreen(
 
 	int32 cc_row_flyback			 = cc_per_scanline - cc_screen - 2 * cc_h_border;
 	int32 cc_start_of_visible_screen = cc_start_of_screenfile - cc_h_border - v_border * cc_per_scanline;
-	if (int32(cc_vbi) < cc_start_of_visible_screen)
-		return; // video beam ist noch über dem sichtbaren Bildschirmausschnitt
+	if (cc_vbi < cc_start_of_visible_screen) return; // video beam is still above visible border
 	int32 cc_end_of_visible_screen =
-		min(int32(cc_vbi), cc_start_of_visible_screen + int(height) * int(cc_per_scanline) - cc_row_flyback);
+		min(cc_vbi, cc_start_of_visible_screen + height * cc_per_scanline - cc_row_flyback);
 
 	// draw border and screenfile:
 
-	RgbaColor bordercolor = black;
+	enum : Color {
+		black		   = color<Color>(0),
+		blue		   = color<Color>(1),
+		red			   = color<Color>(2),
+		magenta		   = color<Color>(3),
+		green		   = color<Color>(4),
+		cyan		   = color<Color>(5),
+		yellow		   = color<Color>(6),
+		white		   = color<Color>(7),
+		bright_black   = color<Color>(8),
+		bright_blue	   = color<Color>(9),
+		bright_red	   = color<Color>(10),
+		bright_magenta = color<Color>(11),
+		bright_green   = color<Color>(12),
+		bright_cyan	   = color<Color>(13),
+		bright_yellow  = color<Color>(14),
+		bright_white   = color<Color>(15)
+	};
 
-	int32 cc_io			   = cc_start_of_visible_screen;
+	Color	bordercolor	 = black;
+	bool	flashphase	 = newdata->flashphase;
+	IoInfo* ioinfo		 = newdata->ioinfo;
+	int		ioinfo_count = newdata->ioinfo_count;
+	assert(ioinfo_count < newdata->ioinfo_size);
 	ioinfo[ioinfo_count++] = IoInfo(cc_end_of_visible_screen, 0xfe, 0); // stopper
-	RgbaColor* p		   = bits;										// current pixel pointer
-	RgbaColor* a		   = bits;										// current start of row
-	uint	   row		   = 0;											// current row in bits[]
+	int32  cc_io		   = cc_start_of_visible_screen;
+	Color* p			   = videoframe->pixels;  // current pixel pointer
+	Color* a			   = videoframe->pixels;  // current start of row
+	uint   row			   = 0;					  // current row in bits[]
+	uint8* q			   = newdata->attrpixels; // attr_pixels[] source pointer
 
-	uint8* q = attr_pixels; // attr_pixels[] source pointer
-
-	for (IoInfo* io = ioinfo; cc_io < int32(cc_end_of_visible_screen); io++)
+	for (IoInfo* io = ioinfo; cc_io < cc_end_of_visible_screen; io++)
 	{
 		if (io->addr & 1) continue; // no ula address
 
-		if (int32(io->cc) > cc_start_of_visible_screen)
+		if (io->cc > cc_start_of_visible_screen)
 		{
-			int32 cc = min(cc_end_of_visible_screen, int32(io->cc + 3) & ~3) - cc_start_of_visible_screen;
+			int32 cc = min(cc_end_of_visible_screen, (io->cc + 3) & ~3) - cc_start_of_visible_screen;
 
 			int end_row = cc / cc_per_scanline;
-			int end_col = min(uint(width), cc % cc_per_scanline * pixel_per_cc);
+			int end_col = min(width, cc % cc_per_scanline * pixel_per_cc);
 			assert(end_row < height);
-			RgbaColor* ee = bits + end_row * width + end_col; // cc_io end pointer
-			RgbaColor* e;									  // intermediate ent pointers
+			Color* ee = videoframe->pixels + end_row * width + end_col; // cc_io end pointer
+			Color* e;													// intermediate end pointers
 
 			// draw all border pixels up to cc_io:
 			while (p < ee)
@@ -92,8 +177,8 @@ void ZxspRenderer::drawScreen(
 
 						if (attr & 0x80 && flashphase) pixels ^= 0xff;
 
-						uint pen_color	 = zxsp_rgba_colors[(attr & 7) + ((attr >> 3) & 8)];
-						uint paper_color = zxsp_rgba_colors[(attr >> 3) & 15];
+						Color pen_color	  = color<Color>((attr & 7) + ((attr >> 3) & 8));
+						Color paper_color = color<Color>((attr >> 3) & 15);
 
 						for (int m = 0x80; m; m = m >> 1) { *p++ = pixels & m ? pen_color : paper_color; }
 					}
@@ -111,20 +196,23 @@ void ZxspRenderer::drawScreen(
 			}
 		}
 
-		cc_io		= io->cc;
-		bordercolor = zxsp_rgba_colors[io->byte & 7];
+		cc_io		= max(cc_io, io->cc);
+		bordercolor = color<Color>(io->byte & 7);
 	}
 
-	if (p < bits + width * height) // Video beam indicator
+	assert(p <= videoframe->pixels + width * height);
+
+	if (p < videoframe->pixels + width * height) // Video beam indicator
 	{
-		assert(p <= bits + width * height - 8);
-		RgbaColor c = int(system_time * 6) & 1 ? bright_yellow : bright_red;
+		assert(p <= videoframe->pixels + width * height - 8);
+		Color c = int(system_time * 6) & 1 ? bright_yellow : bright_red;
 		for (int i = 0; i < 8; i++) p[i] = c;
-		return;
 	}
-
-	assert(p == bits + width * height);
 }
+
+// instantiate:
+template void zxspRenderer(VideoFrame<RgbaColor>* videoframe, VideoData* newframedata);
+template void zxspRenderer(VideoFrame<uint8>* videoframe, VideoData* newframedata);
 
 
 // ================================================================================
@@ -133,19 +221,20 @@ void ZxspRenderer::drawScreen(
 // ================================================================================
 
 
-using GifColor = uint8;
+//using GifColor = uint8;
 
-/* global ZX Spectrum color table:
-		8 x normal brightness
-		8 x bright
-*/
-const GifColor transp	   = 8;	   // 'bright black' used for transparency
-const Comp	   F		   = 0xFF; // "bright": full brightness
-const Comp	   H		   = 0xCC; // "normal": reduced brightness: 80%
-const Comp	   zx_colors[] = {0, 0, 0, 0, 0, H, H, 0, 0, H, 0, H, 0, H, 0, 0, H, H, H, H, 0, H, H, H, // r,g,b
-							  0, 0, 0, 0, 0, F, F, 0, 0, F, 0, F, 0, F, 0, 0, F, F, F, F, 0, F, F, F};
-const Colormap zxsp_colormap(zx_colors, 16, transp);
+///* global ZX Spectrum color table:
+//		8 x normal brightness
+//		8 x bright
+//*/
+//const GifColor transp	   = 8;	   // 'bright black' used for transparency
+//const Comp	   F		   = 0xFF; // "bright": full brightness
+//const Comp	   H		   = 0xCC; // "normal": reduced brightness: 80%
+//const Comp	   zx_colors[] = {0, 0, 0, 0, 0, H, H, 0, 0, H, 0, H, 0, H, 0, 0, H, H, H, H, 0, H, H, H, // r,g,b
+//							  0, 0, 0, 0, 0, F, F, 0, 0, F, 0, F, 0, F, 0, 0, F, F, F, F, 0, F, F, F};
+//const Colormap zxsp_colormap(zx_colors, 16, transp);
 
+#if 0
 
 ZxspGifWriter::ZxspGifWriter(bool update_border, uint frames_per_second) :
 	GifWriter(isa_ZxspGifWriter, zxsp_colormap, 256, 192, 32, 24, update_border, frames_per_second)
@@ -330,6 +419,8 @@ void ZxspGifWriter::saveScreenshot(
 	delete bits2;
 	bits2 = nullptr;
 }
+
+#endif
 
 
 } // namespace zxsp

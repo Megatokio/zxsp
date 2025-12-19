@@ -2,7 +2,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "SpectraRenderer.h"
+#include "Renderer.h"
 #include "Templates/Array.h"
 #include "graphics/gif/GifEncoder.h"
 #include "unix/os_utilities.h"
@@ -17,90 +17,194 @@ namespace zxsp
 #define EXTRA_COLOURS	   0x04
 
 
-#define COLOR(G, R, B) 0xffu + ((R)*85u << 24) + ((G)*85u << 16) + ((B)*85u << 8)
+// Specci color:  IGRB1111
+// Spectra color: GRB222
+// Qt color:      ARGB8888
+#define COLOR(G, R, B) 0xff000000u + ((R)*85u << 16) + ((G)*85u << 8) + ((B)*85u << 0)
+
+static constexpr RgbaColor zxsp_colors[16] = {						// G R B
+	COLOR(0, 0, 0), COLOR(0, 0, 2), COLOR(0, 2, 0), COLOR(0, 2, 2), //
+	COLOR(2, 0, 0), COLOR(2, 0, 2), COLOR(2, 2, 0), COLOR(2, 2, 2), //
+	COLOR(0, 0, 0), COLOR(0, 0, 3), COLOR(0, 3, 0), COLOR(0, 3, 3), //
+	COLOR(3, 0, 0), COLOR(3, 0, 3), COLOR(3, 3, 0), COLOR(3, 3, 3)};
+
+static constexpr RgbaColor spectra_colors[64] = {					// G R B
+	COLOR(0, 0, 0), COLOR(0, 0, 1), COLOR(0, 0, 2), COLOR(0, 0, 3), //
+	COLOR(0, 1, 0), COLOR(0, 1, 1), COLOR(0, 1, 2), COLOR(0, 1, 3), //
+	COLOR(0, 2, 0), COLOR(0, 2, 1), COLOR(0, 2, 2), COLOR(0, 2, 3), //
+	COLOR(0, 3, 0), COLOR(0, 3, 1), COLOR(0, 3, 2), COLOR(0, 3, 3),
+
+	COLOR(1, 0, 0), COLOR(1, 0, 1), COLOR(1, 0, 2), COLOR(1, 0, 3), //
+	COLOR(1, 1, 0), COLOR(1, 1, 1), COLOR(1, 1, 2), COLOR(1, 1, 3), //
+	COLOR(1, 2, 0), COLOR(1, 2, 1), COLOR(1, 2, 2), COLOR(1, 2, 3), //
+	COLOR(1, 3, 0), COLOR(1, 3, 1), COLOR(1, 3, 2), COLOR(1, 3, 3),
+
+	COLOR(2, 0, 0), COLOR(2, 0, 1), COLOR(2, 0, 2), COLOR(2, 0, 3), //
+	COLOR(2, 1, 0), COLOR(2, 1, 1), COLOR(2, 1, 2), COLOR(2, 1, 3), //
+	COLOR(2, 2, 0), COLOR(2, 2, 1), COLOR(2, 2, 2), COLOR(2, 2, 3), //
+	COLOR(2, 3, 0), COLOR(2, 3, 1), COLOR(2, 3, 2), COLOR(2, 3, 3),
+
+	COLOR(3, 0, 0), COLOR(3, 0, 1), COLOR(3, 0, 2), COLOR(3, 0, 3), //
+	COLOR(3, 1, 0), COLOR(3, 1, 1), COLOR(3, 1, 2), COLOR(3, 1, 3), //
+	COLOR(3, 2, 0), COLOR(3, 2, 1), COLOR(3, 2, 2), COLOR(3, 2, 3), //
+	COLOR(3, 3, 0), COLOR(3, 3, 1), COLOR(3, 3, 2), COLOR(3, 3, 3)};
 
 
-const RgbaColor standard_rgba_colors[16] = // RGBA
-	{									   // G R B
-		COLOR(0, 0, 0), COLOR(0, 0, 2), COLOR(0, 2, 0), COLOR(0, 2, 2), COLOR(2, 0, 0), COLOR(2, 0, 2),
-		COLOR(2, 2, 0), COLOR(2, 2, 2), COLOR(0, 0, 0), COLOR(0, 0, 3), COLOR(0, 3, 0), COLOR(0, 3, 3),
-		COLOR(3, 0, 0), COLOR(3, 0, 3), COLOR(3, 3, 0), COLOR(3, 3, 3)};
-
-const RgbaColor enhanced_rgba_colors[64] = // RGBA; note: Specci colors are GRB
-	{COLOR(0, 0, 0), COLOR(0, 0, 1), COLOR(0, 0, 2), COLOR(0, 0, 3), COLOR(0, 1, 0), COLOR(0, 1, 1),
-	 COLOR(0, 1, 2), COLOR(0, 1, 3), COLOR(0, 2, 0), COLOR(0, 2, 1), COLOR(0, 2, 2), COLOR(0, 2, 3),
-	 COLOR(0, 3, 0), COLOR(0, 3, 1), COLOR(0, 3, 2), COLOR(0, 3, 3),
-
-	 COLOR(1, 0, 0), COLOR(1, 0, 1), COLOR(1, 0, 2), COLOR(1, 0, 3), COLOR(1, 1, 0), COLOR(1, 1, 1),
-	 COLOR(1, 1, 2), COLOR(1, 1, 3), COLOR(1, 2, 0), COLOR(1, 2, 1), COLOR(1, 2, 2), COLOR(1, 2, 3),
-	 COLOR(1, 3, 0), COLOR(1, 3, 1), COLOR(1, 3, 2), COLOR(1, 3, 3),
-
-	 COLOR(2, 0, 0), COLOR(2, 0, 1), COLOR(2, 0, 2), COLOR(2, 0, 3), COLOR(2, 1, 0), COLOR(2, 1, 1),
-	 COLOR(2, 1, 2), COLOR(2, 1, 3), COLOR(2, 2, 0), COLOR(2, 2, 1), COLOR(2, 2, 2), COLOR(2, 2, 3),
-	 COLOR(2, 3, 0), COLOR(2, 3, 1), COLOR(2, 3, 2), COLOR(2, 3, 3),
-
-	 COLOR(3, 0, 0), COLOR(3, 0, 1), COLOR(3, 0, 2), COLOR(3, 0, 3), COLOR(3, 1, 0), COLOR(3, 1, 1),
-	 COLOR(3, 1, 2), COLOR(3, 1, 3), COLOR(3, 2, 0), COLOR(3, 2, 1), COLOR(3, 2, 2), COLOR(3, 2, 3),
-	 COLOR(3, 3, 0), COLOR(3, 3, 1), COLOR(3, 3, 2), COLOR(3, 3, 3)};
+static constexpr uint8 c16map[16] = {
+	2 * (0 + 0),	  // black
+	2 * (0 + 1),	  // blue
+	2 * (4 + 0),	  // red,
+	2 * (4 + 1),	  // magenta,
+	2 * (16 + 0 + 0), // green,
+	2 * (16 + 0 + 1), // cyan,
+	2 * (16 + 4 + 0), // yellow,
+	2 * (16 + 4 + 1), // white,
+	3 * (0 + 0),	  // bright black
+	3 * (0 + 1),	  // bright blue
+	3 * (4 + 0),	  // bright red,
+	3 * (4 + 1),	  // bright magenta,
+	3 * (16 + 0 + 0), // bright green,
+	3 * (16 + 0 + 1), // bright cyan,
+	3 * (16 + 4 + 0), // bright yellow,
+	3 * (16 + 4 + 1), // bright white,
+};
 
 
-inline RgbaColor rgbaColorForBorderbyte(uint8 b)
+template<typename Color>
+inline constexpr Color zxsp_color(int index)
 {
-	return COLOR(((b >> 1) & 2) + ((b >> 7) & 1), ((b >> 0) & 2) + ((b >> 6) & 1), ((b << 1) & 2) + ((b >> 5) & 1));
+	return zxsp_colors[index];
+}
+template<>
+inline constexpr uint8 zxsp_color<uint8>(int index)
+{
+	// gif ctor assumes that spectra colors might be used
+	// => gif global color map must contain all 64 colors
+	// => zxsp colors must be mapped to their spectra index
+
+	return c16map[index];
+}
+template<typename Color>
+inline constexpr Color spectra_color(int index)
+{
+	return spectra_colors[index];
+}
+template<>
+inline constexpr uint8 spectra_color<uint8>(int index)
+{
+	return index;
+}
+
+template<typename Color>
+inline constexpr Color colorForBorderbyte(uint8 bb)
+{
+	int g = ((bb >> 1) & 2) + ((bb >> 7) & 1);
+	int r = ((bb >> 0) & 2) + ((bb >> 6) & 1);
+	int b = ((bb << 1) & 2) + ((bb >> 5) & 1);
+
+	// return COLOR(g, r, b);
+	return spectra_color<Color>(g * 16 + r * 4 + b);
 }
 
 
-/*	rendere Ausgaben der Zxsp Ula in bits[].
+/*	rendere VideoFrame acc. to Spectra Ula.
 
-	ioinfo[]: alle OUTs zur ULA
+	ioinfo[]: all OUTs to ULA
 		-> set Border
-		ioinfo[] muss mit einem OUT anfangen, das die Bordercolor setzt!
-		ioinfo[] muss am Ende noch einen freien Platz haben!
+		ioinfo[] must start with an OUT which sets the border color.
+		ioinfo[] must have at least one spare space at the end. TODO: ELIMINATE!
 
 	attr_pixels[192*32]: von der ULA ausgegebene Attribut/Pixel-Pärchen
 		pro Scanline werden 32 Pärchen (64 Bytes) ausgegeben
 */
-void SpectraRenderer::drawScreen(
-	IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
-	bool flashphase, uint32 cc_vbi)
+template<typename Color>
+void spectraRenderer(VideoFrame<Color>* videoframe, VideoData* _data)
 {
-	assert((cc_start_of_screenfile & 3) == 0);
+	assert(_data->what == VideoData::SpectraFrame);
+	ZxspVideoData* newdata = reinterpret_cast<ZxspVideoData*>(_data);
 
-	cc_start_of_screenfile += 4;
-	cc_vbi = (cc_vbi + 3) & ~3u;
+	static constexpr bool ic = sizeof(Color) == 1;
 
-	uint32 cc_row_flyback			  = cc_per_scanline - cc_screen - 2 * cc_h_border;
-	uint32 cc_start_of_visible_screen = cc_start_of_screenfile - cc_h_border - v_border * cc_per_scanline;
-	if (cc_vbi < cc_start_of_visible_screen) return; // video beam ist noch über dem sichtbaren Bildschirmausschnitt
-	uint32 cc_end_of_visible_screen =
+	static constexpr int h_border	   = ic ? 32 : 48; // zxsp pixels, must be N*8
+	static constexpr int v_border	   = ic ? 24 : 36;
+	static constexpr int screen_width  = 256;
+	static constexpr int screen_height = 192;
+	static constexpr int width		   = screen_width + 2 * h_border;
+	static constexpr int height		   = screen_height + 2 * v_border;
+
+	if unlikely (videoframe->max_width != width || videoframe->max_height != height) //
+		videoframe->resize(width, height, 1);
+
+	static constexpr int pixel_per_cc = 2;
+	static constexpr int cc_screen	  = screen_width / pixel_per_cc;
+	static constexpr int cc_h_border  = h_border / pixel_per_cc;
+
+	enum : Color {
+		black		   = zxsp_color<Color>(0),
+		blue		   = zxsp_color<Color>(1),
+		red			   = zxsp_color<Color>(2),
+		magenta		   = zxsp_color<Color>(3),
+		green		   = zxsp_color<Color>(4),
+		cyan		   = zxsp_color<Color>(5),
+		yellow		   = zxsp_color<Color>(6),
+		white		   = zxsp_color<Color>(7),
+		bright_black   = zxsp_color<Color>(8),
+		bright_blue	   = zxsp_color<Color>(9),
+		bright_red	   = zxsp_color<Color>(10),
+		bright_magenta = zxsp_color<Color>(11),
+		bright_green   = zxsp_color<Color>(12),
+		bright_cyan	   = zxsp_color<Color>(13),
+		bright_yellow  = zxsp_color<Color>(14),
+		bright_white   = zxsp_color<Color>(15)
+	};
+
+	assert((newdata->cc_start_of_screenfile & 3) == 0);
+
+	int32 cc_start_of_screenfile	 = newdata->cc_start_of_screenfile + 4;
+	int32 cc_vbi					 = (newdata->cc + 3) & ~3;
+	int32 cc_per_scanline			 = newdata->cc_per_scanline;
+	int32 cc_row_flyback			 = cc_per_scanline - cc_screen - 2 * cc_h_border;
+	int32 cc_start_of_visible_screen = cc_start_of_screenfile - cc_h_border - v_border * cc_per_scanline;
+	int32 cc_end_of_visible_screen =
 		min(cc_vbi, cc_start_of_visible_screen + height * cc_per_scanline - cc_row_flyback);
+	if (cc_vbi < cc_start_of_visible_screen) return;
+
+	assert_ge(videoframe->max_width, width);
+	assert_ge(videoframe->max_height, height);
+
+	assert(videoframe->frame.width == width);
+	assert(videoframe->frame.height == height);
+	assert(videoframe->screen.top() == v_border);
+	assert(videoframe->screen.left() == h_border);
+	assert(videoframe->screen.width() == screen_width);
+	assert(videoframe->screen.height() == screen_height);
 
 	// draw border and screenfile:
 
-	RgbaColor bordercolor = black;
-
-	uint8 borderbyte = 0;
-	uint8 video_mode = 0;
-
-	uint32 cc_io		   = cc_start_of_visible_screen;
-	ioinfo[ioinfo_count++] = IoInfo(cc_end_of_visible_screen, 0xfe, 0); // stopper
-	RgbaColor* p		   = bits;										// current pixel pointer
-	RgbaColor* a		   = bits;										// current start of row
-	uint	   row		   = 0;											// current row in bits[]
-
-	uint8* q = attr_pixels; // attr_pixels[] source pointer
+	Color	bordercolor	   = black;
+	uint8	borderbyte	   = 0;
+	uint8	video_mode	   = 0;
+	bool	flashphase	   = newdata->flashphase;
+	IoInfo* ioinfo		   = newdata->ioinfo;
+	int		ioinfo_count   = newdata->ioinfo_count;
+	int32	cc_io		   = cc_start_of_visible_screen;
+	ioinfo[ioinfo_count++] = IoInfo(cc_end_of_visible_screen, 0xfe, 0); // stopper TODO REWORK!!!
+	Color* p			   = videoframe->pixels;						// current pixel pointer
+	Color* a			   = videoframe->pixels;						// current start of row
+	uint   row			   = 0;											// current row in bits[]
+	uint8* q			   = newdata->attrpixels;						// attr_pixels[] source pointer
 
 	for (IoInfo* io = ioinfo; cc_io < cc_end_of_visible_screen; io++)
 	{
 		if (io->cc > cc_start_of_visible_screen)
 		{
-			uint32 cc = min(cc_end_of_visible_screen, (io->cc + 3) & ~3u) - cc_start_of_visible_screen;
+			int32 cc = min(cc_end_of_visible_screen, (io->cc + 3) & ~3) - cc_start_of_visible_screen;
 
-			uint end_row = cc / cc_per_scanline;
-			uint end_col = min(uint(width), cc % cc_per_scanline * pixel_per_cc);
+			int end_row = cc / cc_per_scanline;
+			int end_col = min(width, cc % cc_per_scanline * pixel_per_cc);
 			assert(end_row < height);
-			RgbaColor* ee = bits + end_row * width + end_col; // cc_io end pointer
-			RgbaColor* e;									  // intermediate ent pointers
+			Color* ee = videoframe->pixels + end_row * width + end_col; // cc_io end pointer
+			Color* e;													// intermediate end pointers
 
 			// draw all border pixels up to cc_io:
 			while (p < ee)
@@ -120,7 +224,7 @@ void SpectraRenderer::drawScreen(
 						uint attr2	= *q++;
 						uint m		= 0x80;
 
-						RgbaColor color1, color2, color3, color4;
+						Color color1, color2, color3, color4;
 
 						if (video_mode & DOUBLE_BYTE_COLOUR)
 						{
@@ -136,10 +240,9 @@ void SpectraRenderer::drawScreen(
 
 							if (video_mode & EXTRA_COLOURS) // 2-byte attr, extra colors
 							{
-								color1 = enhanced_rgba_colors[attr1 & 0x3F]; // fullcell: pen; halfcell: penR
-								color2 = enhanced_rgba_colors[attr2 & 0x3F]; // fullcell: pap; halfcell: penL
-								//															  halfcell: pap=black  ((future: papL
-								//and papR may be black or white))
+								color1 = spectra_color<Color>(attr1 & 0x3F); // fullcell: pen; halfcell: penR
+								color2 = spectra_color<Color>(attr2 & 0x3F); // fullcell: pap; halfcell: penL
+								// halfcell: pap=black  ((future: papL and papR may be black or white))
 
 								if (video_mode & HALFCELLMODE)
 								{
@@ -151,12 +254,12 @@ void SpectraRenderer::drawScreen(
 							}
 							else // 2-byte attr, standard colors
 							{
-								color1 = standard_rgba_colors[(attr1 & 7) + ((attr1 >> 3) & 8)]; // fullcell: pen;
-																								 // halfcell: penR
-								color2 = standard_rgba_colors[(attr2 & 7) + ((attr2 >> 3) & 8)]; // fullcell: pap;
-																								 // halfcell: papR
-								color3 = standard_rgba_colors[(attr1 >> 3) & 15];				 //				  halfcell: penL
-								color4 = standard_rgba_colors[(attr2 >> 3) & 15];				 //				  halfcell: papL
+								color1 = zxsp_color<Color>((attr1 & 7) + ((attr1 >> 3) & 8)); // fullcell: pen;
+																							  // halfcell: penR
+								color2 = zxsp_color<Color>((attr2 & 7) + ((attr2 >> 3) & 8)); // fullcell: pap;
+																							  // halfcell: papR
+								color3 = zxsp_color<Color>((attr1 >> 3) & 15);				  // halfcell: penL
+								color4 = zxsp_color<Color>((attr2 >> 3) & 15);				  // halfcell: papL
 
 								if (video_mode & HALFCELLMODE)
 								{
@@ -172,16 +275,15 @@ void SpectraRenderer::drawScreen(
 							if (attr1 & 0x80 && flashphase) pixels ^= 0xff;
 
 							if (video_mode & EXTRA_COLOURS)					 // 1-byte attr, extra colors
-							{												 //				  halfcell: pap=black
-								color1 = enhanced_rgba_colors[attr1 & 0x3F]; // fullcell: pen; halfcell: penR
-								color2 =
-									attr1 & 0x40 ? standard_rgba_colors[7] : black; // fullcell: pap; halfcell: penL
+							{												 //				halfcell: pap=black
+								color1 = spectra_color<Color>(attr1 & 0x3F); // fullcell: pen; halfcell: penR
+								color2 = attr1 & 0x40 ? white : black;		 // fullcell: pap; halfcell: penL
 							}
 							else // 1-byte attr, standard colors
 							{	 //				  halfcell: pap=black
-								color1 = standard_rgba_colors[(attr1 & 7) + ((attr1 >> 3) & 8)]; // fullcell: pen;
-																								 // halfcell: penR
-								color2 = standard_rgba_colors[(attr1 >> 3) & 15]; // fullcell: pap; halfcell: penL
+								color1 = zxsp_color<Color>((attr1 & 7) + ((attr1 >> 3) & 8)); // fullcell: pen;
+																							  // halfcell: penR
+								color2 = zxsp_color<Color>((attr1 >> 3) & 15); // fullcell: pap; halfcell: penL
 							}
 
 							if (video_mode & HALFCELLMODE)
@@ -209,53 +311,55 @@ void SpectraRenderer::drawScreen(
 
 		cc_io = io->cc;
 
-		if (~io->addr & 1) borderbyte = io->byte;
-		else if (io->addr == 0x7FDF) video_mode = io->byte;
+		if (~io->addr & 1) //
+			borderbyte = io->byte;
+		else if (io->addr == 0x7FDF) //
+			video_mode = io->byte;
 
-		bordercolor = video_mode & ENHANCED_BORDER // enhanced border?
-						  ?
-						  video_mode & EXTRA_COLOURS //  enhanced border: extra colours?
-							  ?
-						  rgbaColorForBorderbyte(borderbyte) //   enhanced border, extra colours
-						  :
-						  (borderbyte & 0x80) && flashphase //   enhanced border, basic colours: flash?
-								  ?
-						  borderbyte & 0x20 //    flash: flash with black or white?
-									  ?
-						  borderbyte & 0x40 //     flash with white: dimm or bright?
-										  ?
-						  COLOR(3, 3, 3) /*bright white*/ //      bright
-						  :
-						  COLOR(2, 2, 2) /*dimm white*/ //      dimm
-						  :
-						  COLOR(0, 0, 0) /*black*/ //     flash with black
-						  :
-						  standard_rgba_colors[(borderbyte & 7) + ((borderbyte >> 3) & 8)] //    not flashing: 8 basic
-																						   //    colours bright or dimm
-						  :
-						  standard_rgba_colors[borderbyte & 7]; //  standard border
+		bordercolor =										//
+			video_mode & ENHANCED_BORDER ?					// enhanced border?
+				video_mode & EXTRA_COLOURS ?				// enhanced border: extra colours?
+					colorForBorderbyte<Color>(borderbyte) : // enhanced border, extra colours
+					(borderbyte & 0x80) && flashphase ?		// enhanced border, basic colours: flash?
+						borderbyte & 0x20 ?					// flash: flash with black or white?
+							borderbyte & 0x40 ?				// flash with white: dimm or bright?
+								bright_white :				// bright white
+								white :						// dimm white
+							black :							// flash with black
+						zxsp_color<Color>(
+							(borderbyte & 7) +
+							((borderbyte >> 3) & 8)) : // not flashing: 8 basic colours bright or dimm
+				zxsp_color<Color>(borderbyte & 7);	   // standard border
 	}
 
-	if (p < bits + width * height) // Video beam indicator
+	if (p < videoframe->pixels + width * height) // Video beam indicator
 	{
-		assert(p <= bits + width * height - 8);
-		RgbaColor c = int(system_time * 6) & 1 ? bright_yellow : bright_red;
+		assert_le(p, videoframe->pixels + width * height - 8);
+		Color c = int(system_time * 6) & 1 ? bright_yellow : bright_red;
 		for (uint i = 0; i < 8; i++) p[i] = c;
 		return;
 	}
 
-	assert(p == bits + width * height);
+	assert(p == videoframe->pixels + width * height);
 }
+
+template void spectraRenderer(VideoFrame<RgbaColor>* videoframe, VideoData* newframedata);
+template void spectraRenderer(VideoFrame<uint8>* videoframe, VideoData* newframedata);
 
 
 // ================================================================================
 //		Gif file handling
 //		save a screenshot or record movie
+//
+// note: to be removed.
+// new GifRecorder creates Gif file from VideoFrame.
+//
 // ================================================================================
 
+#if 0
 
-#undef COLOR
-#define COLOR(G, R, B) R * 85, G * 85, B * 85
+  #undef COLOR
+  #define COLOR(G, R, B) R * 85, G * 85, B * 85
 
 const Comp spectra_colors[65 * 3] = // R,G,B,		note: Specci colors are GRB
 	{
@@ -282,10 +386,10 @@ using GifColor = uint8;
 const GifColor transp = 64;
 const Colormap spectra_colormap(spectra_colors, 65, transp);
 
-#define B	 2
-#define R	 8
-#define G	 32
-#define H(C) (C) / 2 * 3
+  #define B	   2
+  #define R	   8
+  #define G	   32
+  #define H(C) (C) / 2 * 3
 
 // conversion table: basic color [0..15] -> index in spectra_colors[]
 static GifColor basic_colors[16] = {
@@ -308,10 +412,10 @@ static GifColor basic_colors[16] = {
 	H(G + R + B) // dimm white
 };
 
-#undef R
-#undef G
-#undef B
-#undef H
+  #undef R
+  #undef G
+  #undef B
+  #undef H
 
 inline GifColor gifColorForBorderbyte(uint8 b)
 {
@@ -474,30 +578,24 @@ void SpectraGifWriter::drawScreen(
 		if (~io->addr & 1) borderbyte = io->byte;
 		else if (io->addr == 0x7FDF) video_mode = io->byte;
 
-		bordercolor = video_mode & ENHANCED_BORDER // enhanced border?
-						  ?
-						  video_mode & EXTRA_COLOURS //  enhanced border: extra colours?
-							  ?
-						  gifColorForBorderbyte(borderbyte) //   enhanced border, extra colours
-						  :
-						  (borderbyte & 0x80) && flashphase //   enhanced border, basic colours: flash?
-								  ?
-						  borderbyte & 0x20 //    flash: flash with black or white?
-									  ?
-						  borderbyte & 0x40 //     flash with white: dimm or bright?
-										  ?
-						  63 /*bright white*/ //      bright
-						  :
-						  42 /*dimm white*/ //      dimm
-						  :
-						  0 /*black*/ //     flash with black
-						  :
-						  basic_colors[(borderbyte & 7) + ((borderbyte >> 3) & 8)] //    not flashing: 8 basic colours
-																				   //    bright or dimm
-						  :
-						  basic_colors[borderbyte & 7]; //  standard border
+		bordercolor =
+			video_mode & ENHANCED_BORDER ?				// enhanced border?
+				video_mode & EXTRA_COLOURS ?			// enhanced border: extra colours?
+					gifColorForBorderbyte(borderbyte) : // enhanced border, extra colours
+					(borderbyte & 0x80) && flashphase ? // enhanced border, basic colours: flash?
+						borderbyte & 0x20 ?				// flash: flash with black or white?
+							borderbyte & 0x40 ?			// flash with white: dimm or bright?
+								63 /*bright white*/ :	// bright
+								42 /*dimm white*/ :		// dimm
+							0 /*black*/ :				// flash with black
+						basic_colors[(borderbyte & 7) + ((borderbyte >> 3) & 8)] : // not flashing: 8 basic colours
+																					 // bright or dimm
+				basic_colors[borderbyte & 7];									   // standard border
 	}
 
 	assert(p == bits->getData() + width * height);
 }
+#endif
+
+
 } // namespace zxsp

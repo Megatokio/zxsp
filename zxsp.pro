@@ -93,7 +93,7 @@ SOURCES +=	\
 #	Libraries/Devices/File.cpp \
 #	Libraries/Devices/SerialDevice.cpp \
 #	Libraries/Devices/StdFile.cpp \
-	Source/Uni/Video/FrameData.cpp \
+	Source/Uni/Video/VideoData.cpp \
 	Source/Uni/Video/GifRecorder.cpp \
 	\
 	zasm/Source/Error.cpp \
@@ -340,7 +340,7 @@ HEADERS += \
 	Libraries/kio/util/count1bits.h \
 	Libraries/kio/TestTimer.h \
 	Libraries/Qt/QEventTypes.h \
-	Source/Uni/Video/FrameData.h \
+	Source/Uni/Video/VideoData.h \
 	Source/Uni/Video/GifRecorder.h \
 	\
 	Libraries/unix/log.h \

@@ -32,18 +32,11 @@ protected:
 	uint16	 out_bits;
 	Internal _internal;
 
-	IoInfo* ioinfo;
-	uint	ioinfo_count;
-	uint	ioinfo_size;
-
 	bool ramdis_in; // RAMCS state    ZX80/81
 	bool romdis_in; // ROMCS state    ZX81/ZXSP/128/+2/+2A/+3
 
 protected:
 	Item(Machine*, isa_id, isa_id grp, Internal, cstr o_addr, cstr i_addr);
-
-	void grow_ioinfo();
-	void record_ioinfo(int32 cc, uint16 addr, uint8 byte, uint8 mask = 0xff);
 
 	void showMessage(MessageStyle s, cstr text);
 
@@ -120,11 +113,5 @@ inline void	 Item::writeMemory(Time t, int32 cc, uint16 a, uint8 n) { _prev->wri
 // chain ends in Mmu
 inline void Item::ramCS(bool active) { _prev->ramCS(active); }
 inline void Item::romCS(bool active) { _prev->romCS(active); }
-
-inline void Item::record_ioinfo(int32 cc, uint16 addr, uint8 byte, uint8 mask)
-{
-	if (ioinfo_count == ioinfo_size) grow_ioinfo();
-	ioinfo[ioinfo_count++] = IoInfo(cc, addr, byte, mask);
-}
 
 } // namespace zxsp

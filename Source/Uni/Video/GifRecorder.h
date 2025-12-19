@@ -3,20 +3,20 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #pragma once
-#include "FrameData.h"
-#include "Libraries/kio/kio.h"
 #include "Renderer.h"
-#include "graphics/gif/GifEncoder.h"
+#include "VideoData.h"
 
 namespace zxsp
 {
 
-struct GifWriter
+struct GifWriter : public VideoDataReceiver
 {
-	static void saveScreenshot(cstr path, const FrameData*);
+	// the GifWriter unlinks & deletes itself once the screenshot is made
+	GifWriter(cstr path);
+	static void saveScreenshot(cstr path, const VideoData*);
 };
 
-class GifRecorder
+class GifRecorder : public VideoDataReceiver
 {
 	friend class GifRenderThread;
 	NO_COPY_MOVE(GifRecorder);
@@ -24,24 +24,19 @@ class GifRecorder
 public:
 	using VideoFrame = zxsp::VideoFrame<uint8>;
 
-	GifRecorder(FrameDataQueue* out_queue);
+	GifRecorder(cstr path, bool update_border, int frames_per_second);
 	~GifRecorder();
-	void startRecording(cstr path, bool update_border, int frames_per_second);
 	void stopRecording();
 
-	FrameDataQueue	in_queue;
-	FrameDataQueue* out_queue;
-	QThread*		thread;
-	bool			termi = false;
-
-	const Colormap* global_colormap {nullptr};
+	const Colormap* global_colormap = nullptr;
 	const Size		frame {};  // video frame incl. border
 	const Rect		screen {}; // position & size of screen file
 
 private:
+	void start_recording(cstr path, bool update_border, int frames_per_second);
 	void do_render_thread();
 	void write_diff2_to_file();
-	void writeFrame(const FrameData*);
+	void writeFrame(const VideoData*);
 
 	int		   frame_count	 = 0;		   // for bits2
 	Pixelmap*  bits			 = nullptr;	   // new screen

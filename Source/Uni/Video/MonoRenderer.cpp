@@ -2,235 +2,344 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "MonoRenderer.h"
-#include "Templates/Array.h"
-#include "graphics/gif/GifEncoder.h"
-#include "unix/os_utilities.h"
-#include "version.h"
+#include "Renderer.h"
 
 namespace zxsp
 {
 
-/*	rendere Ausgaben der B&W Ula in mono_octets[].
- */
-void MonoRenderer::drawScreen(
-	uint8* new_pixels, uint q_screen_width, uint q_screen_height, uint q_width, uint q_height, uint q_h_border,
-	uint q_v_border, uint32 cc_vbi)
+#define B black
+#define W white
+static constexpr RgbaColor four_rgba_pixels[16][4] = {
+	{B, B, B, B}, {B, B, B, W}, {B, B, W, B}, {B, B, W, W}, //
+	{B, W, B, B}, {B, W, B, W}, {B, W, W, B}, {B, W, W, W}, //
+	{W, B, B, B}, {W, B, B, W}, {W, B, W, B}, {W, B, W, W}, //
+	{W, W, B, B}, {W, W, B, W}, {W, W, W, B}, {W, W, W, W}, //
+};
+#undef B
+#undef W
+
+static constexpr uint8 four_ic_pixels[16][4] = {
+	{0, 0, 0, 0}, {0, 0, 0, 1}, {0, 0, 1, 0}, {0, 0, 1, 1}, //
+	{0, 1, 0, 0}, {0, 1, 0, 1}, {0, 1, 1, 0}, {0, 1, 1, 1}, //
+	{1, 0, 0, 0}, {1, 0, 0, 1}, {1, 0, 1, 0}, {1, 0, 1, 1}, //
+	{1, 1, 0, 0}, {1, 1, 0, 1}, {1, 1, 1, 0}, {1, 1, 1, 1}, //
+};
+
+template<typename Color>
+inline constexpr Color color(int index)
 {
-	//	assert(!(q_screen_w&7));
-	assert(!(q_width & 7));
-	//	assert(!(q_screen_x0&7));
-	//	assert(q_screen_w<q_frame_w);
-	//	assert(q_screen_h<q_frame_h);
-	//	assert(q_frame_w>=screen_width);
-	//	assert(q_frame_h>=screen_height);
+	return index ? white : black;
+}
+template<>
+inline constexpr uint8 color<uint8>(int index)
+{
+	return index;
+}
+template<typename Color>
+inline constexpr const Color* four_pixels(int nibble)
+{
+	return four_rgba_pixels[nibble];
+}
+template<>
+inline constexpr const uint8* four_pixels<uint8>(int nibble)
+{
+	return four_ic_pixels[nibble];
+}
 
-	if (cc_vbi) TODO();
 
-	// normalize q_h|v_border to 256x192 pixel screen:
-	q_h_border += (screen_width - q_screen_width) / 2;
-	q_v_border += (screen_height - q_screen_height) / 2;
+using GifColor							= uint8;
+static constexpr Comp	  B				= (black >> 8) & 0xff;
+static constexpr Comp	  W				= (white >> 8) & 0xff;
+static constexpr GifColor transp		= 2; // transparent color index
+static constexpr Comp	  zx80_colors[] = {B, B, B, W, W, W, 0, 0, 0};
+static const Colormap	  zx80_colormap(zx80_colors, 3, transp);
 
-	// source and destination boxes:
-	int qx = 0, qy = 0, qw = q_width, qh = q_height; // qbox = source
-	int zx = 0, zy = 0, zw = width, zh = height;	 // zbox = dest
+//static_assert(native_byteorder == little_endian, "");
+//#define C(a, b, c, d) uint32(a + (b << 8) + (c << 16) + (d << 24))
+//static constexpr uint32 four_ic_pixels[16] = {
+//	C(0, 0, 0, 0), C(0, 0, 0, 1), C(0, 0, 1, 0), C(0, 0, 1, 1), //
+//	C(0, 1, 0, 0), C(0, 1, 0, 1), C(0, 1, 1, 0), C(0, 1, 1, 1), //
+//	C(1, 0, 0, 0), C(1, 0, 0, 1), C(1, 0, 1, 0), C(1, 0, 1, 1), //
+//	C(1, 1, 0, 0), C(1, 1, 0, 1), C(1, 1, 1, 0), C(1, 1, 1, 1), //
+//};
+//#undef C
 
-	// shift boxes to meet at screen_P0:
-	int dx = q_h_border - h_border;
-	if (dx > 0) qx += dx;
-	else zx -= dx;
-	int dy = q_v_border - v_border;
-	if (dy > 0) qy += dy;
-	else zy -= dy;
 
-	// limit box width and height:
-	qw = min(qw, int(q_width) - qx);
-	qh = min(qh, int(q_height) - qy);
-	zw = min(zw, width - zx);
-	zh = min(zh, height - zy);
+#if 0
+static inline void copy_framebuffer(Size fb, const uint8* qp, uint8* _zp, int d, int l, int r)
+{
+	assert((size_t(_zp) & 3) == 0);
+	assert((r | 4) == 4);
+	assert((l | 4) == 4);
 
-	// use smaller width and height:
-	int w = min(qw, zw) / 8;
-	int h = min(qh, zh);
+	uint32* zp = reinterpret_cast<uint32*>(_zp);
 
-	// offset to add to pointers after each row:
-	int qo = q_width / 8 - w;
-	int zo = width / 8 - w;
+	const uint32 white = 0xffffffff;
+	const uint32 black = 0x000000ff;
 
-	// source, destination and dest_end pointers:
-	const uint8* qp = new_pixels + qy * q_width / 8 + qx / 8;
-	uint8*		 zp = mono_octets;
-	uint8*		 ze;
+	for (int y = 0; y < fb.height; y++)
+	{
+		uint32* ze = zp + (fb.width - r) / 4;
 
-	// paint pixels before frame buffer data with black color:
-	for (ze = zp + zy * width / 8 + zx / 8; zp < ze;) *zp++ = 0;
+		if (l)
+		{
+			*zp++ = four_ic_pixels[*qp++ & 15]; // read and skip nibble
+		}
+
+		for (uint8 octet = *qp++;;)
+		{
+			if (octet == 0xff) do // speed-up
+				{
+					*zp++ = white;
+					*zp++ = white;
+					if (zp >= ze) goto row_end;
+				}
+				while ((octet = *qp++) == 0xff);
+
+			if (octet == 0x00) do // speed_up
+				{
+					*zp++ = black;
+					*zp++ = black;
+					if (zp >= ze) goto row_end;
+				}
+				while ((octet = *qp++) == 0x00);
+
+			do {
+				*zp++ = four_ic_pixels[octet >> 4];
+				*zp++ = four_ic_pixels[octet & 15];
+				if (zp >= ze) goto row_end;
+			}
+			while ((octet = *qp++) != 0x00 && octet != 0xff);
+		}
+
+	row_end:
+		if (r)
+		{
+			*zp++ = four_ic_pixels[(*qp) >> 4]; // read and not skip nibble
+		}
+		qp += d; // skip to next row start
+	}
+
+	assert(u8ptr(zp) == _zp + fb.width * fb.height);
+}
+
+static inline void copy_framebuffer(Size fb, const uint8* qp, RgbaColor* zp, int d, int l, int r)
+{
+	for (int y = 0; y < fb.height; y++)
+	{
+		RgbaColor* ze = zp + (fb.width - r);
+
+		if (l)
+		{
+			const RgbaColor* q = four_rgba_pixels[*qp++ & 15]; // read and skip nibble
+			for (int i = 0; i < 4; i++) *zp++ = *q++;
+		}
+
+		for (uint8 octet = *qp++;;)
+		{
+			if (octet == 0xff) do // speed-up
+				{
+					for (int i = 0; i < 8; i++) *zp++ = white;
+					if (zp >= ze) goto row_end;
+				}
+				while ((octet = *qp++) == 0xff);
+
+			if (octet == 0x00) do // speed_up
+				{
+					for (int i = 0; i < 8; i++) *zp++ = black;
+					if (zp >= ze) goto row_end;
+				}
+				while ((octet = *qp++) == 0x00);
+
+			do {
+				const RgbaColor* q = four_rgba_pixels[octet >> 4];
+				for (int i = 0; i < 4; i++) *zp++ = *q++;
+				q = four_rgba_pixels[octet & 15];
+				for (int i = 0; i < 4; i++) *zp++ = *q++;
+				if (zp >= ze) goto row_end;
+			}
+			while ((octet = *qp++) != 0x00 && octet != 0xff);
+		}
+
+	row_end:
+		if (r)
+		{
+			const RgbaColor* q = four_rgba_pixels[(*qp) >> 4]; // read and not skip nibble
+			for (int i = 0; i < 4; i++) *zp++ = *q++;
+		}
+		qp += d; // skip to next row start
+	}
+
+	//assert(zp == videoframe->pixels + fb_width * fb_height);
+}
+#endif
+
+
+template<typename Color>
+void zx80Renderer(VideoFrame<Color>* videoframe, VideoData* newframedata)
+{
+	// render b&w video image in newframedata into the output videoframe.
+	// the input frame is cropped to fit in the limits of the videoframe.
+	// the final frame size and screen rect are stored into the videoframe.
+	// the pixels from the input frame are rendered into the videoframe.
+
+	assert(newframedata->what == VideoData::Zx80Frame);
+	Zx80VideoData* newdata = reinterpret_cast<Zx80VideoData*>(newframedata);
+
+	assert(videoframe->max_width >= 256);
+	assert(videoframe->max_height >= 192);
+	assert(videoframe->max_width % 8 == 0);
+
+	assert(newdata->screen.left() % 8 == 0);
+	assert(newdata->screen.width() % 8 == 0);
+	assert(newdata->frame.width % 8 == 0);
+
+	assert(newdata->screen.left() >= 0);
+	assert(newdata->screen.width() > 0);
+	assert(newdata->screen.left() + newdata->screen.width() <= newdata->frame.width);
+	assert(newdata->screen.top() >= 0);
+	assert(newdata->screen.height() > 0);
+	assert(newdata->screen.top() + newdata->screen.height() <= newdata->frame.height);
+
+	// provide colormap for GifRecorder:
+	videoframe->cmap	 = &zx80_colormap;
+	videoframe->flashing = false;
+
+	// crop frame to videoframe.fb_size:
+	int fb_height	  = videoframe->max_height;
+	int top_border	  = newdata->screen.top();
+	int screen_height = min(newdata->screen.height(), fb_height);
+	int bottom_border = newdata->frame.height - top_border - screen_height;
+
+	bottom_border = min(bottom_border, (fb_height - screen_height) / 2);
+	top_border	  = min(top_border, (fb_height - screen_height + 1) / 2);
+	fb_height	  = top_border + screen_height + bottom_border;
+
+	int fb_width	 = videoframe->max_width;
+	int left_border	 = newdata->screen.left();
+	int screen_width = min(newdata->screen.width(), fb_width);
+	int right_border = newdata->frame.width - left_border - screen_width;
+
+	right_border = min(right_border, (fb_width - screen_width) / 2);
+	left_border	 = min(left_border, (fb_width - screen_width) / 2);
+	fb_width	 = left_border + screen_width + right_border;
+
+	// store frame size and screen rect:
+	videoframe->frame  = {fb_width, fb_height};
+	videoframe->screen = {left_border, top_border, screen_width, screen_height}; // {xywh}
+
 
 	// copy frame buffer:
-	for (ze = zp + h * width / 8; zp < ze;)
+
+	enum : Color {
+		black = color<Color>(0), //
+		white = color<Color>(1)	 //
+	};
+
+	// source and destination pointers:
+	int			 bpr = newdata->frame.width / 8; // bytes per row (source)
+	Color*		 zp	 = videoframe->pixels;
+	const uint8* qp	 = newdata->pixel_octets +					   //
+					  (newdata->screen.top() - top_border) * bpr + //
+					  (newdata->screen.left() - left_border) / 8;  // round down if (left_border&4) != 0
+
+	int l = left_border & 4;  // left border nibble is read and skipped => account in w
+	int r = right_border & 4; // right border nibble is read and not skipped => not account in w
+	int w = (left_border + l + screen_width + right_border) / 8; // source bytes read per row
+	int d = bpr - w;											 // offset to skip gap to next row
+
+	//copy_framebuffer(videoframe->frame, qp, zp, d, l, r);
+
+	for (int y = 0; y < videoframe->frame.height; y++)
 	{
-		// copy one row:
-		for (uint8* ze = zp + w; zp < ze;) *zp++ = *qp++;
-		// skip reminder of bytes in row
-		for (uint8* ze = zp + zo; zp < ze;) *zp++ = 0;
-		qp += qo;
+		Color* ze = zp + (videoframe->frame.width - r);
+
+		if (l)
+		{
+			const Color* q = four_pixels<Color>(*qp++ & 15); // read and skip nibble
+			for (int i = 0; i < 4; i++) *zp++ = *q++;
+		}
+
+		for (uint8 octet = *qp++;;)
+		{
+			if (octet == 0xff) do // speed-up
+				{
+					for (int i = 0; i < 8; i++) *zp++ = white;
+					if (zp >= ze) goto row_end;
+				}
+				while ((octet = *qp++) == 0xff);
+
+			if (octet == 0x00) do // speed_up
+				{
+					for (int i = 0; i < 8; i++) *zp++ = black;
+					if (zp >= ze) goto row_end;
+				}
+				while ((octet = *qp++) == 0x00);
+
+			do {
+				const Color* q = four_pixels<Color>(octet >> 4);
+				for (int i = 0; i < 4; i++) *zp++ = *q++;
+				q = four_pixels<Color>(octet & 15);
+				for (int i = 0; i < 4; i++) *zp++ = *q++;
+				if (zp >= ze) goto row_end;
+			}
+			while ((octet = *qp++) != 0x00 && octet != 0xff);
+		}
+
+	row_end:
+		if (r)
+		{
+			const Color* q = four_pixels<Color>((*qp) >> 4); // read and not skip nibble
+			for (int i = 0; i < 4; i++) *zp++ = *q++;
+		}
+		qp += d; // skip to next row start
 	}
 
-	// paint pixels behind frame buffer data with black color:
-	for (ze = mono_octets + height * width / 8; zp < ze;) *zp++ = 0;
+	//assert(zp == videoframe->pixels + fb_width * fb_height);
 
-	assert(ze == mono_octets + width * height / 8);
+
+	// videobeam indicator:
+	//	static constexpr int pixel_per_cc = 2;
+	//	int	  cc_screen	  = q_screen_width / pixel_per_cc; // 128 -> 256 pixel
+	//	int	  cc_h_border = q_left_border / pixel_per_cc;  // 32  -> 64 pixel
+	//	int	  cc_per_scanline		 = newdata->cc_per_scanline;
+	//	int32 cc_start_of_screenfile = newdata->cc_start_of_screenfile;
+	//	int32 cc_vbi = newdata->cc;
+	//	if (cc_vbi) TODO();
 }
 
+template void zx80Renderer(VideoFrame<RgbaColor>* videoframe, VideoData* newframedata);
+template void zx80Renderer(VideoFrame<uint8>* videoframe, VideoData* newframedata);
 
-// ================================================================================
-//		Gif file handling
-//		save a screenshot or record movie
-// ================================================================================
-
-using GifColor = uint8;
-// const GifColor gifcolor_black  = 0;
-// const GifColor gifcolor_white  = 1;
-const GifColor transp = 2;
-
-const Comp	   mono_colors[] = {0, 0, 0, 255, 255, 255, 0, 0, 0};
-const Colormap mono_colormap(mono_colors, 2, transp);
-const Colormap mono_colormap_with_trans(mono_colors, 3, transp);
-
-
-MonoGifWriter::MonoGifWriter(bool update_border, uint frames_per_second) :
-	GifWriter(isa_MonoGifWriter, mono_colormap_with_trans, 256, 192, 32, 24, update_border, frames_per_second)
-{}
-
-
-void MonoGifWriter::drawScreen(
-	uint8* new_pixels, uint q_screen_width, uint q_screen_height, uint q_width, uint q_height, uint q_h_border,
-	uint q_v_border)
-{
-	//	assert(!(q_screen_w&7));
-	assert(!(q_width & 7));
-	//	assert(!(q_screen_x0&7));
-	//	assert(q_screen_w<q_frame_w);
-	//	assert(q_screen_h<q_frame_h);
-	//	assert(q_frame_w>=screen_width);
-	//	assert(q_frame_h>=screen_height);
-
-	if (!bits) bits = new Pixelmap(width, height);
-
-	// normalize q_h|v_border to 256x192 pixel screen:
-	q_h_border += (screen_width - q_screen_width) / 2;
-	q_v_border += (screen_height - q_screen_height) / 2;
-
-	// source and destination boxes:
-	int qx = 0, qy = 0, qw = q_width, qh = q_height; // qbox = source
-	int zx = 0, zy = 0, zw = width, zh = height;	 // zbox = dest
-
-	// shift boxes to meet at screen_P0:
-	int dx = q_h_border - h_border;
-	if (dx > 0) qx += dx;
-	else zx -= dx;
-	int dy = q_v_border - v_border;
-	if (dy > 0) qy += dy;
-	else zy -= dy;
-
-	// limit box width and height:
-	qw = min(qw, int(q_width) - qx);
-	qh = min(qh, int(q_height) - qy);
-	zw = min(zw, width - zx);
-	zh = min(zh, height - zy);
-
-	// use smaller width and height:
-	int w = min(qw, zw);
-	int h = min(qh, zh);
-
-	// offset to add to pointers after each row:
-	int qo = q_width / 8 - w / 8;
-	int zo = width - w;
-
-	// source, destination and dest_end pointers:
-	const uint8* qp = new_pixels + qy * q_width / 8 + qx / 8;
-	GifColor*	 zp = bits->getData();
-	GifColor*	 ze;
-	GifColor*	 zee = bits->getData() + width * height;
-
-	// paint pixels before frame buffer data with black color:
-	for (ze = zp + zy * width + zx; zp < ze;) *zp++ = 0;
-
-	// copy frame buffer:
-	for (ze = min(zee, zp + h * width); zp < ze;)
-	{
-		// copy one row:
-		for (uint8* ze = zp + w; zp < ze;)
-		{
-			uint8 pixels = *qp++;
-			for (uint s = 8; s--;) { *zp++ = (pixels >> s) & 1; }
-		}
-		// skip reminder of bytes in row
-		for (uint8* ze = min(zee, zp + zo); zp < ze;) *zp++ = 0;
-		qp += qo;
-	}
-
-	// paint pixels behind frame buffer data with black color:
-	while (zp < zee) *zp++ = 0;
-
-	assert(zp == zee);
-}
-
-
-/*	append frame to a gif movie
-	this is the version for b&w screens
-*/
-void MonoGifWriter::writeFrame(
-	uint8* new_pixels, uint screen_w, uint screen_h, uint frame_h, uint frame_w, uint screen_x0, uint screen_y0)
-{
-	assert(gif_encoder.imageInProgress());
-	assert(bits && bits2 && diff && diff2);
-
-	if (update_border || frame_count == 0) bits->setFrame(0, 0, width, height);
-	else bits->setFrame(h_border, v_border, screen_width, screen_height);
-
-	drawScreen(new_pixels, screen_w, screen_h, frame_h, frame_w, screen_x0, screen_y0); // bits := new screen
-	*diff = *bits;
-
-	if (frame_count == 0) {} // first screen
-	else					 // subsequent screen
-	{
-		diff->reduceToDiff(*bits2, global_colormap.transpColor());
-		if (diff->isEmpty()) // no change -> increase duration
-		{
-			frame_count++;
-			return;
-		}
-		else // screen changed -> write old screen to file
-		{
-			write_diff2_to_file();
-		}
-	}
-
-	std::swap(bits, bits2);
-	std::swap(diff, diff2);
-	frame_count = 1;
-}
-
-
-void MonoGifWriter::saveScreenshot(
-	cstr path, uint8* new_pixels, uint screen_w, uint screen_h, uint frame_h, uint frame_w, uint screen_x0,
-	uint screen_y0)
-{
-	assert(!gif_encoder.imageInProgress());
-	assert(!bits); // else we'd need to fix the bbox
-
-	drawScreen(new_pixels, screen_w, screen_h, frame_h, frame_w, screen_x0, screen_y0);
-
-	// Write to file:
-	gif_encoder.openFile(path);
-	gif_encoder.writeScreenDescriptor(width, height, mono_colormap);
-	gif_encoder.writeCommentBlock(
-		usingstr("created on %s by %s with %s %s\n", datestr(now()), getUser(), APPL_NAME, APPL_VERSION_STR));
-	gif_encoder.writeImage(*bits, mono_colormap);
-	gif_encoder.closeFile();
-
-	delete bits;
-	bits = nullptr;
-}
 
 } // namespace zxsp
+
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/

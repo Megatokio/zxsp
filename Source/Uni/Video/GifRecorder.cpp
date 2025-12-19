@@ -4,7 +4,6 @@
 
 #include "GifRecorder.h"
 #include "Templates/Array.h"
-#include "graphics/gif/GifEncoder.h"
 #include "unix/os_utilities.h"
 #include "version.h"
 #include <QSemaphore>
@@ -20,6 +19,8 @@
 namespace zxsp
 {
 
+GifWriter::GifWriter(cstr path) { TODO(); }
+
 class GifRenderThread : public QThread
 {
 	GifRecorder* recorder;
@@ -29,23 +30,20 @@ public:
 	explicit GifRenderThread(GifRecorder* r) : QThread(), recorder(r) {}
 };
 
-GifRecorder::GifRecorder(FrameDataQueue* out_queue) : //
-	out_queue(out_queue),
-	thread(new GifRenderThread(this))
-{}
+GifRecorder::GifRecorder(cstr path, bool update_border, int frames_per_second)
+{
+	start_recording(path, update_border, frames_per_second);
+	start(new GifRenderThread(this));
+}
 
-GifRecorder::~GifRecorder() { stopRecording(); }
+GifRecorder::~GifRecorder() //
+{
+	stopRecording();
+}
 
 void GifRecorder::stopRecording()
 {
-	if (thread)
-	{
-		termi = true;
-		in_queue.sema.release();
-		thread->wait();
-		delete thread;
-		thread = nullptr;
-	}
+	stop();
 
 	if (gif_encoder.imageInProgress())
 	{
@@ -65,15 +63,15 @@ void GifRecorder::stopRecording()
 
 void GifRecorder::do_render_thread()
 {
-	for (;;)
+	while (!_termi)
 	{
-		in_queue.sema.acquire();
-		if (termi) break;
-		if (in_queue.avail()) { writeFrame(in_queue.get()); }
+		VideoData* data = getVideoData();
+		if (data) writeFrame(data);
+		// else termi
 	}
 }
 
-void GifRecorder::startRecording(cstr path, bool update_border, int frames_per_second)
+void GifRecorder::start_recording(cstr path, bool update_border, int frames_per_second)
 {
 	assert(!gif_encoder.imageInProgress());
 	assert(!bits && !bits2 && !diff && !diff2);
@@ -94,8 +92,6 @@ void GifRecorder::startRecording(cstr path, bool update_border, int frames_per_s
 	diff2		= new Pixelmap(frame.width, frame.height);
 
 	TODO(); // TODO: global_colormap, frame and screen
-
-	thread->start();
 }
 
 void GifRecorder::write_diff2_to_file()
@@ -105,6 +101,16 @@ void GifRecorder::write_diff2_to_file()
 	int delay = (frame_count * 100 + frames_per_second / 2) / frames_per_second;
 	gif_encoder.writeGraphicControlBlock(delay, cmap.transpColor());
 	gif_encoder.writeImage(*diff2, cmap);
+}
+
+void GifRecorder::writeFrame(const VideoData*)
+{
+	TODO(); //
+}
+
+void GifWriter::saveScreenshot(cstr path, const VideoData*) // static
+{
+	TODO(); //
 }
 
 #if 0

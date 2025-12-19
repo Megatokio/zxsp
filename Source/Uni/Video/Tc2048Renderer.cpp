@@ -2,7 +2,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "Tc2048Renderer.h"
+#include "Renderer.h"
 #include "Ula/UlaTc2048.h"
 #include "zxsp_globals.h"
 
@@ -33,6 +33,200 @@ namespace zxsp
 		111 = White/Black		(7)
 */
 
+static constexpr RgbaColor zxsp_colors[16] = {
+	black,		  blue,		   red,		   magenta,		   green,		 cyan,		  yellow,		 white,
+	bright_black, bright_blue, bright_red, bright_magenta, bright_green, bright_cyan, bright_yellow, bright_white};
+
+template<typename Color>
+inline constexpr Color color(int index)
+{
+	return zxsp_colors[index];
+}
+template<>
+inline constexpr uint8 color<uint8>(int index)
+{
+	return index;
+}
+
+template<typename Color>
+void tc2048Renderer(VideoFrame<Color>* videoframe, VideoData* _data)
+{
+	assert(_data->what == VideoData::Tc2048Frame);
+	Tc2048VideoData* newdata = reinterpret_cast<Tc2048VideoData*>(_data);
+
+	static constexpr bool ic = sizeof(Color) == 1;
+	static constexpr int  hf = 2; // hor. scaling factor: 256 -> 512 pixels/line
+
+	static constexpr int h_border	   = (ic ? 32 : 48) * hf; // half-width pixels, must be N*16
+	static constexpr int v_border	   = ic ? 24 : 36;
+	static constexpr int screen_width  = 256 * hf;
+	static constexpr int screen_height = 192;
+	static constexpr int width		   = screen_width + 2 * h_border;
+	static constexpr int height		   = screen_height + 2 * v_border;
+
+	if unlikely (videoframe->max_width != width || videoframe->max_height != height) //
+		videoframe->resize(width, height, hf);
+
+	static constexpr int pixel_per_cc = 2 * hf;
+	static constexpr int cc_in_screen = screen_width / pixel_per_cc;
+	static constexpr int cc_h_border  = h_border / pixel_per_cc;
+
+	enum : Color {
+		black		   = color<Color>(0),
+		blue		   = color<Color>(1),
+		red			   = color<Color>(2),
+		magenta		   = color<Color>(3),
+		green		   = color<Color>(4),
+		cyan		   = color<Color>(5),
+		yellow		   = color<Color>(6),
+		white		   = color<Color>(7),
+		bright_black   = color<Color>(8),
+		bright_blue	   = color<Color>(9),
+		bright_red	   = color<Color>(10),
+		bright_magenta = color<Color>(11),
+		bright_green   = color<Color>(12),
+		bright_cyan	   = color<Color>(13),
+		bright_yellow  = color<Color>(14),
+		bright_white   = color<Color>(15)
+	};
+
+	assert((newdata->cc_start_of_screenfile & 3) == 0);
+
+	int32 cc_start_of_screenfile	 = newdata->cc_start_of_screenfile + 4;
+	int32 cc_vbi					 = (newdata->cc + 3) & ~3;
+	int32 cc_per_scanline			 = newdata->cc_per_scanline;
+	int32 cc_row_flyback			 = cc_per_scanline - cc_in_screen - 2 * cc_h_border;
+	int32 cc_start_of_visible_screen = cc_start_of_screenfile - cc_h_border - v_border * cc_per_scanline;
+	int32 cc_end_of_visible_screen =
+		min(cc_vbi, cc_start_of_visible_screen + height * cc_per_scanline - cc_row_flyback);
+	if (cc_vbi < cc_start_of_visible_screen) return;
+
+	// draw border and screenfile:
+
+	Color mode32_bordercolor = black;
+	Color bordercolor		 = black;
+	bool  mode64			 = no;
+
+	Color paper_color = bordercolor;  // mode64
+	Color pen_color	  = bright_white; // mode64
+
+	int32 cc_io = cc_start_of_visible_screen;
+
+	IoInfo* ioinfo		 = newdata->ioinfo;
+	int		ioinfo_count = newdata->ioinfo_count;
+
+	// TODO: aux videodata => overwrites ioinfo for the regular videodata! => handle stopper differently!
+	assert(ioinfo_count <= newdata->ioinfo_size);						// note: record_io() allocates 1 more
+	ioinfo[ioinfo_count++] = IoInfo(cc_end_of_visible_screen, 0xfe, 0); // stopper
+
+	Color* p   = videoframe->pixels;  // current pixel pointer	// GIF RENDERER: anpassen!
+	Color* a   = p;					  // current start of row	// GIF RENDERER: anpassen!
+	uint   row = 0;					  // current row in bits[]
+	uint8* q   = newdata->attrpixels; // attr_pixels[] source pointer
+
+
+	for (IoInfo* io = ioinfo; cc_io < cc_end_of_visible_screen; io++)
+	{
+		if ((io->addr & 0xfe) != 0xfe) continue; // no ula address
+
+		if (io->cc > cc_start_of_visible_screen)
+		{
+			int32 cc = min(cc_end_of_visible_screen, int(io->cc + 3) & ~3) - cc_start_of_visible_screen;
+
+			int end_row = cc / cc_per_scanline;
+			int end_col = min(uint(width), cc % cc_per_scanline * pixel_per_cc);
+			assert(end_row < height);
+			Color* ee = videoframe->pixels + end_row * width + end_col; // cc_io end pointer
+			Color* e;													// intermediate ent pointers
+
+			// draw all border pixels up to cc_io:
+			while (p < ee)
+			{
+				if (row >= v_border && row < v_border + screen_height) // if inside screenfile region:
+				{
+					e = min(a + h_border, ee);
+					while (p < e) { *p++ = bordercolor; } // draw left border
+					if (p < a + h_border) break;		  // exit pixel loop if at cc_io
+
+					// draw screen row:
+					if (mode64) // 64 column mode
+					{
+						e = min(ee, e + screen_width);
+						while (p < e)
+						{
+							uint pixels = *q++;
+							for (uint m = 0x80; m; m = m >> 1) { *p++ = pixels & m ? pen_color : paper_color; }
+						}
+					}
+					else // 32 column mode
+					{
+						e = min(ee, e + screen_width);
+						while (p < e)
+						{
+							uint pixels = *q++;
+							uint attr	= *q++;
+
+							if (attr & 0x80 && newdata->flashphase) pixels ^= 0xff;
+
+							pen_color	= color<Color>((attr & 7) + ((attr >> 3) & 8));
+							paper_color = color<Color>((attr >> 3) & 15);
+
+							for (uint m = 0x80; m; m = m >> 1)
+							{
+								if (pixels & m)
+								{
+									*p++ = pen_color;
+									*p++ = pen_color;
+								}
+								else
+								{
+									*p++ = paper_color;
+									*p++ = paper_color;
+								}
+							}
+						}
+					}
+				}
+
+				// draw (remainder of) screen row
+				e = min(a + width, ee);
+				while (p < e) { *p++ = bordercolor; }
+
+				if (p == a + width) { a = p, row++; } // advance row number if end of row reached
+			}
+		}
+
+		cc_io = io->cc;
+
+		if (io->addr & 1) // out(0xff)
+		{
+			mode64		= io->byte & 4;
+			int i		= 8 + (io->byte >> 3) & 7;
+			pen_color	= color<Color>(i);
+			paper_color = color<Color>(15 - i);
+			bordercolor = mode64 ? paper_color : mode32_bordercolor;
+		}
+		else // out(0xfe)
+		{
+			mode32_bordercolor = color<Color>(io->byte & 7);
+			if (!mode64) bordercolor = mode32_bordercolor;
+		}
+	}
+
+	if (p < videoframe->pixels + width * height) // Video beam indicator
+	{
+		assert(p <= videoframe->pixels + width * height - 16);
+		Color c = int(system_time * 6) & 1 ? bright_yellow : bright_red;
+		for (uint i = 0; i < 16; i++) p[i] = c;
+		return;
+	}
+
+	assert(p == videoframe->pixels + width * height);
+}
+
+template void tc2048Renderer(VideoFrame<RgbaColor>* videoframe, VideoData* newframedata);
+template void tc2048Renderer(VideoFrame<uint8>* videoframe, VideoData* newframedata);
+
 
 /*	rendere Ausgaben der Tc2048 Ula in bits[].
 
@@ -47,6 +241,7 @@ namespace zxsp
 		32 column mode: high byte = pixels;      low byte = attr
 		64 column mode: high byte = left pixels; low byte = right pixels
 */
+#if 0
 void Tc2048Renderer::drawScreen(
 	IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
 	bool flashphase, uint32 cc_vbi)
@@ -74,9 +269,9 @@ void Tc2048Renderer::drawScreen(
 
 	int32 cc_io			   = cc_start_of_visible_screen;
 	ioinfo[ioinfo_count++] = IoInfo(cc_end_of_visible_screen, 0xfe, 0); // stopper
-	RgbaColor* p		   = bits; // current pixel pointer	// GIF RENDERER: anpassen!
-	RgbaColor* a		   = bits; // current start of row		// GIF RENDERER: anpassen!
-	uint	   row		   = 0;	   // current row in bits[]
+	RgbaColor* p		   = rgba_pixels; // current pixel pointer	// GIF RENDERER: anpassen!
+	RgbaColor* a		   = rgba_pixels; // current start of row		// GIF RENDERER: anpassen!
+	uint	   row		   = 0;			  // current row in bits[]
 
 	uint8* q = attr_pixels; // attr_pixels[] source pointer
 
@@ -91,8 +286,8 @@ void Tc2048Renderer::drawScreen(
 			int end_row = cc / cc_per_scanline;
 			int end_col = min(uint(width), cc % cc_per_scanline * pixel_per_cc);
 			assert(end_row < height);
-			RgbaColor* ee = bits + end_row * width + end_col; // cc_io end pointer
-			RgbaColor* e;									  // intermediate ent pointers
+			RgbaColor* ee = rgba_pixels + end_row * width + end_col; // cc_io end pointer
+			RgbaColor* e;											 // intermediate ent pointers
 
 			// draw all border pixels up to cc_io:
 			while (p < ee)
@@ -171,16 +366,17 @@ void Tc2048Renderer::drawScreen(
 		}
 	}
 
-	if (p < bits + width * height) // Video beam indicator
+	if (p < rgba_pixels + width * height) // Video beam indicator
 	{
-		assert(p <= bits + width * height - 16);
+		assert(p <= rgba_pixels + width * height - 16);
 		RgbaColor c = int(system_time * 6) & 1 ? bright_yellow : bright_red;
 		for (uint i = 0; i < 16; i++) p[i] = c;
 		return;
 	}
 
-	assert(p == bits + width * height);
+	assert(p == rgba_pixels + width * height);
 }
+#endif
 
 
 // ================================================================================
@@ -188,6 +384,7 @@ void Tc2048Renderer::drawScreen(
 //		save a screenshot or record movie
 // ================================================================================
 
+#if 0
 
 using GifColor = uint8;
 
@@ -336,5 +533,7 @@ void Tc2048GifWriter::drawScreen(
 
 	assert(p == bits->getData() + width * height);
 }
+
+#endif
 
 } // namespace zxsp

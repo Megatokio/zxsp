@@ -3,34 +3,33 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #pragma once
-#include "IoInfo.h"
-#include "IsaObject.h"
+#include "VideoData.h"
 #include "graphics/gif/GifEncoder.h"
-
 
 namespace zxsp
 {
 
-using RgbaColor = uint32;					 // RGBA for OpenGL
-extern const RgbaColor zxsp_rgba_colors[16]; // RGBA in ZxspRenderer.cpp
+using RgbaColor = uint32;					 // actually ARGB for Qt
+extern const RgbaColor zxsp_rgba_colors[16]; // ZxspRenderer.cpp
 
-constexpr RgbaColor black		   = 0x000000FF;
-constexpr RgbaColor blue		   = 0x0000CCFF;
-constexpr RgbaColor red			   = 0xCC0000FF;
-constexpr RgbaColor magenta		   = 0xCC00CCFF;
-constexpr RgbaColor green		   = 0x00CC00FF;
-constexpr RgbaColor cyan		   = 0x00CCCCFF;
-constexpr RgbaColor yellow		   = 0xCCCC00FF;
-constexpr RgbaColor white		   = 0xCCCCCCFF;
-constexpr RgbaColor bright_black   = 0x000000FF;
-constexpr RgbaColor bright_blue	   = 0x0000FFFF;
-constexpr RgbaColor bright_red	   = 0xFF0000FF;
-constexpr RgbaColor bright_magenta = 0xFF00FFFF;
-constexpr RgbaColor bright_green   = 0x00FF00FF;
-constexpr RgbaColor bright_cyan	   = 0x00FFFFFF;
-constexpr RgbaColor bright_yellow  = 0xFFFF00FF;
-constexpr RgbaColor bright_white   = 0xFFFFFFFF;
-constexpr RgbaColor grey		   = 0x808080FF;
+// ARGB for Qt:
+constexpr RgbaColor black		   = 0xff000000;
+constexpr RgbaColor blue		   = 0xff0000CC;
+constexpr RgbaColor red			   = 0xffCC0000;
+constexpr RgbaColor magenta		   = 0xffCC00CC;
+constexpr RgbaColor green		   = 0xff00CC00;
+constexpr RgbaColor cyan		   = 0xff00CCCC;
+constexpr RgbaColor yellow		   = 0xffCCCC00;
+constexpr RgbaColor white		   = 0xffCCCCCC;
+constexpr RgbaColor bright_black   = 0xff000000;
+constexpr RgbaColor bright_blue	   = 0xff0000FF;
+constexpr RgbaColor bright_red	   = 0xffFF0000;
+constexpr RgbaColor bright_magenta = 0xffFF00FF;
+constexpr RgbaColor bright_green   = 0xff00FF00;
+constexpr RgbaColor bright_cyan	   = 0xff00FFFF;
+constexpr RgbaColor bright_yellow  = 0xffFFFF00;
+constexpr RgbaColor bright_white   = 0xffFFFFFF;
+constexpr RgbaColor grey		   = 0xff808080;
 
 
 // ===========================================================
@@ -38,68 +37,103 @@ constexpr RgbaColor grey		   = 0x808080FF;
 // ===========================================================
 
 
-class Renderer : public IsaObject
+template<typename Color>
+class VideoFrame
 {
-protected:
-	Renderer(isa_id id, uint screen_width, uint screen_height, uint h_border, uint v_border, bool color);
-
 public:
-	uint screen_width;	// = 256
-	uint screen_height; // = 192
-	uint h_border;		// = 64,				// pixel, must be N*8
-	uint v_border;		// = 48,				// pixel, must be N*8
-	uint width;			// total width of bits[]
-	uint height;		// total height of bits[]
+	int	   max_width  = 0; // max. videoframe width
+	int	   max_height = 0; // max. videoframe height
+	Color* pixels	  = nullptr;
 
-	union
+	// filled in by Renderer:
+	int				hf = 1;				 // hor. stretch factor: hf=2 for 64 char mode
+	Size			frame {0, 0};		 // actual size of frame
+	Rect			screen {0, 0, 0, 0}; // size & position of screen
+	const Colormap* cmap	 = nullptr;	 // used by GifRecorder
+	bool			flashing = no;
+
+	VideoFrame() = default;
+	VideoFrame(int max_w, int max_h, int hf = 1) :
+		max_width(max_w),
+		max_height(max_h),
+		pixels(new Color[max_w * (max_h + 1)]),
+		hf(hf),
+		frame(max_w, max_h),
+		screen((max_w - 256 * hf) / 2, (max_h - 192) / 2, 256 * hf, 192)
+	{}
+	~VideoFrame() { delete[] pixels; }
+
+	void resize(int max_w, int max_h, int hf = 1)
 	{
-		RgbaColor* bits;
-		uint8*	   mono_octets;
-	};
+		delete[] pixels;
+		new (this) VideoFrame(max_w, max_h, hf);
+	}
 
-	~Renderer() override { delete[] bits; }
+	int frameWidth() const { return frame.width; }
+	int frameHeight() const { return frame.height; }
+	int screenWidth() const { return screen.width(); }
+	int screenHeight() const { return screen.height(); }
+	int topBorder() const { return screen.top(); }
+	int leftBorder() const { return screen.left(); }
+	int rightBorder() const { return frame.width - screen.width() - leftBorder(); }
+	int bottomBorder() const { return frame.height - screen.height() - topBorder(); }
 };
 
 
-// ===========================================================
-//					gif file creation:
-// ===========================================================
+// create VideoFrame for display:
 
+template<typename T>
+void zx80Renderer(VideoFrame<T>*, VideoData*);
+template<typename T>
+void zxspRenderer(VideoFrame<T>*, VideoData*);
+template<typename T>
+void tc2048Renderer(VideoFrame<T>*, VideoData*);
+template<typename T>
+void spectraRenderer(VideoFrame<T>*, VideoData*);
 
-/*	Base class for Gif Writer.
-	Sub classes must provide drawScreen(…), writeFrame(…) and saveScreenShot(…).
-*/
-class GifWriter : public IsaObject
-{
-protected:					  // values for 32 column mode:
-	const uint screen_width;  // = 256
-	const uint screen_height; // = 192
-	const uint h_border;	  // = 32		// pixel, must be N*8
-	const uint v_border;	  // = 24		// pixel
-	const uint width;		  // = total width of bits[]
-	const uint height;		  // = total height of bits[]
-
-	uint	  frame_count;			 // for bits2
-	Pixelmap* bits;					 // new screen
-	Pixelmap* diff;					 // provided for diff
-	Pixelmap* bits2;				 // old screen, not yet written to file
-	Pixelmap* diff2;				 // old screen, not yet written to file, diff image to what is already in file
-	bool	  update_border;		 // auch mit border animation?
-	uint	  frames_per_second;	 // animation speed
-	uint	  frames_per_flashphase; // for screenshot
-
-	const Colormap& global_colormap;
-	GifEncoder		gif_encoder;
-
-	void write_diff2_to_file();
-
-	GifWriter(
-		isa_id id, const Colormap&, uint screen_width, uint screen_height, uint h_border, uint v_border,
-		bool update_border, uint frames_per_second);
-
-public:
-	void startRecording(cstr path);
-	void stopRecording();
-};
+extern template void zx80Renderer(VideoFrame<uint8>*, VideoData*);
+extern template void zx80Renderer(VideoFrame<RgbaColor>*, VideoData*);
+extern template void zxspRenderer(VideoFrame<uint8>*, VideoData*);
+extern template void zxspRenderer(VideoFrame<RgbaColor>*, VideoData*);
+extern template void tc2048Renderer(VideoFrame<uint8>*, VideoData*);
+extern template void tc2048Renderer(VideoFrame<RgbaColor>*, VideoData*);
+extern template void spectraRenderer(VideoFrame<uint8>*, VideoData*);
+extern template void spectraRenderer(VideoFrame<RgbaColor>*, VideoData*);
 
 } // namespace zxsp
+
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/

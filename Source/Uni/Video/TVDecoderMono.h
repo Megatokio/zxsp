@@ -3,8 +3,8 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #pragma once
-#include "Interfaces/IScreen.h"
-#include "kio/kio.h"
+#include "Items/Ula/Crtc.h"
+#include "VideoData.h"
 
 /*
 	This class accepts callbacks related to creating a video signal
@@ -21,7 +21,7 @@ class TVDecoderMono
 {
 	NO_COPY_MOVE(TVDecoderMono);
 
-	IScreen* screen;
+	Crtc* crtc;
 
 	static constexpr int32 min_lines_per_frame = 262 - 26;
 	static constexpr int32 max_lines_per_frame = 312 + 32;
@@ -38,8 +38,7 @@ class TVDecoderMono
 	const int32 fb_bytes_per_line;
 	const int32 fb_cc_per_line;
 
-	uint8* frame_data;	// buffer for decoded monochrome video signal
-	uint8* frame_data2; // buffer for decoded monochrome video signal
+	Zx80VideoData* bucket = nullptr;
 
 	uint8 background_color;
 	uint8 foreground_color;
@@ -62,11 +61,11 @@ class TVDecoderMono
 	int last_screen_line;
 
 	// auto positioning:
-	uint8		cc_left[max_lines_per_frame + 1];  // collect data
-	uint8		cc_right[max_lines_per_frame + 1]; // collect data
-	zxsp::Point new_screen_position {40 + 32, 32};
-	int			new_cc_pixel_offset		= 0;
-	int			auto_position_countdown = 0;
+	uint8 cc_left[max_lines_per_frame + 1];	 // collect data
+	uint8 cc_right[max_lines_per_frame + 1]; // collect data
+	Point new_screen_position {40 + 32, 32};
+	int	  new_cc_pixel_offset	  = 0;
+	int	  auto_position_countdown = 0;
 
 public:
 	int lines_above_screen = 56; // for display in Ula Inspector
@@ -77,10 +76,10 @@ public:
 	static constexpr uint8 black = 0x00;
 	static constexpr uint8 white = 0xff;
 
-	TVDecoderMono(IScreen*, int32 cc_per_sec, uint8 background_color = white);
+	TVDecoderMono(Crtc* crtc, int32 cc_per_sec, uint8 background_color = white);
 	~TVDecoderMono();
 
-	void reset(IScreen*); // no need to call
+	//void reset(VideoDataReceiver*); // no need to call
 	void setBackgroundColor(uint8 c)
 	{
 		background_color = c;
@@ -99,6 +98,7 @@ public:
 	int32 getCcPerFrame() const volatile { return cc_per_frame; }
 	int32 getCycleOfFrameStart() const volatile { return cc_frame_start; }
 	int32 getCcForFrameEnd() const;
+	void  reset(int32 cc);
 
 private:
 	void store_pixels(int32 cc, uint8 pixels);
