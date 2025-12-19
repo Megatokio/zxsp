@@ -43,23 +43,23 @@ enum isa_id {
 	M_ISA(		isa_OverlayTimeline,	isa_Overlay,		"Timeline Overlay" ),
 	M_ISA(		isa_OverlaySingleStep,	isa_Overlay,		"SingleStep Overlay" ),
 
-	M_ISA(	isa_Screen,					isa_none,			"OpenGL Screen" ),		// note: not a IsaObject
-	M_ISA(		isa_ScreenZxsp,			isa_Screen,			"ScreenZxsp" ),
-	M_ISA(			isa_ScreenTc2048,	isa_ScreenZxsp,		"ScreenTc2048" ),
-	M_ISA(			isa_ScreenSpectra,	isa_ScreenZxsp,		"ScreenSpectra" ),
-	M_ISA(		isa_ScreenMono,			isa_Screen,			"ScreenMono" ),
+//	M_ISA(	isa_Screen,					isa_none,			"OpenGL Screen" ),		// note: not a IsaObject
+//	M_ISA(		isa_ScreenZxsp,			isa_Screen,			"ScreenZxsp" ),
+//	M_ISA(			isa_ScreenTc2048,	isa_ScreenZxsp,		"ScreenTc2048" ),
+//	M_ISA(			isa_ScreenSpectra,	isa_ScreenZxsp,		"ScreenSpectra" ),
+//	M_ISA(		isa_ScreenMono,			isa_Screen,			"ScreenMono" ),
 
-	M_ISA(	isa_Renderer,				isa_none,			"Screen Renderer" ),
-	M_ISA(		isa_ZxspRenderer,		isa_Renderer,		"Zxsp Screen Renderer" ),
-	M_ISA(			isa_Tc2048Renderer,	isa_ZxspRenderer,	"Tc2048 Screen Renderer" ),
-	M_ISA(			isa_SpectraRenderer,isa_ZxspRenderer,	"SPECTRA Screen Renderer" ),
-	M_ISA(		isa_MonoRenderer,		isa_Renderer,		"Monochrome Screen Renderer" ),
+//	M_ISA(	isa_Renderer,				isa_none,			"Screen Renderer" ),
+//	M_ISA(		isa_ZxspRenderer,		isa_Renderer,		"Zxsp Screen Renderer" ),
+//	M_ISA(			isa_Tc2048Renderer,	isa_ZxspRenderer,	"Tc2048 Screen Renderer" ),
+//	M_ISA(			isa_SpectraRenderer,isa_ZxspRenderer,	"SPECTRA Screen Renderer" ),
+//	M_ISA(		isa_MonoRenderer,		isa_Renderer,		"Monochrome Screen Renderer" ),
 
-	M_ISA(	isa_GifWriter,				isa_none,			"Gif File Writer" ),
-	M_ISA(		isa_ZxspGifWriter,		isa_GifWriter,		"Zxsp Gif Writer" ),
-	M_ISA(			isa_Tc2048GifWriter,isa_ZxspGifWriter,	"Tc2048 Gif Writer" ),
-	M_ISA(			isa_SpectraGifWriter,isa_ZxspGifWriter,	"SPECTRA Gif Writer" ),
-	M_ISA(		isa_MonoGifWriter,		isa_GifWriter,		"Monochrome Gif Writer" ),
+//	M_ISA(	isa_GifWriter,				isa_none,			"Gif File Writer" ),
+//	M_ISA(		isa_ZxspGifWriter,		isa_GifWriter,		"Zxsp Gif Writer" ),
+//	M_ISA(			isa_Tc2048GifWriter,isa_ZxspGifWriter,	"Tc2048 Gif Writer" ),
+//	M_ISA(			isa_SpectraGifWriter,isa_ZxspGifWriter,	"SPECTRA Gif Writer" ),
+//	M_ISA(		isa_MonoGifWriter,		isa_GifWriter,		"Monochrome Gif Writer" ),
 
 	M_ISA(	isa_Joystick,				isa_none,			"Realworld Joystick" ),	// note: a physical joystick interface
 	M_ISA(		isa_UsbJoystick,		isa_Joystick,		"USB Joystick" ),

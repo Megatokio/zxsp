@@ -86,16 +86,6 @@ class Memory;
 class MemoryPtr;
 
 class IsaObject;
-class Renderer;
-class ZxspRenderer;
-class Tc2048Renderer;
-class SpectraRenderer;
-class MonoRenderer;
-class GifWriter;
-class ZxspGifWriter;
-class Tc2048GifWriter;
-class SpectraGifWriter;
-class MonoGifWriter;
 class Machine;
 class MachineZx80;
 class MachineZx81;

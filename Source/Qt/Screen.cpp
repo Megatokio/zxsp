@@ -2,6 +2,8 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#define loglevel 1
+
 #include "Screen.h"
 #include "IsaObject.h"
 #include "Machine.h"
@@ -40,12 +42,15 @@ static void log_sysload()
 //							Render Thread
 // =========================================================================
 
-class RenderThread : public QThread
+class ScreenUpdateThread : public QThread
 {
 	Screen* screen;
 	void	run() override { screen->do_render_thread(); } // started by QThread::start()
 public:
-	explicit RenderThread(Screen* screen) : QThread(screen), screen(screen) {}
+	explicit ScreenUpdateThread(Screen* screen) : QThread(screen), screen(screen) //
+	{
+		setObjectName("ScreenUpdateThread");
+	}
 };
 
 
@@ -80,13 +85,13 @@ QGL::NoSampleBuffers		Disables the use of sample buffers.
 QGL::NoDeprecatedFunctions	Disables the use of deprecated functionality for OpenGL 3.x contexts (forward compatible)
 */
 
-Screen::Screen(QWidget* owner, const Size& fb) :
-	QGLWidget(QGLFormat(QGL::SingleBuffer), owner),
-	current_frame(fb.width, fb.height),
-	thread(new RenderThread(this)),
-	zoom(calc_zoom())
+Screen::Screen(QWidget* owner) : //
+	QGLWidget(QGLFormat(QGL::SingleBuffer), owner)
 {
 	xlogIn("new Screen");
+
+	link(&_pool);
+	calc_zoom();
 
 	setAttribute(Qt::WA_OpaquePaintEvent, 1); // we paint all pixels
 	// setAttribute(Qt::WA_NoSystemBackground,1);	// the widget has transparent parts
@@ -95,22 +100,28 @@ Screen::Screen(QWidget* owner, const Size& fb) :
 	assert(context()->isValid());
 	doneCurrent(); // release OGL context so that render_thread can aquire it
 
+	QThread* worker = new ScreenUpdateThread(this);
+
 #if QT_VERSION >= 0x050000
-	context()->moveToThread(thread);
+	context()->moveToThread(worker);
 	xlogline("moved context to render_thread");
 #endif
 
-	thread->start(); // start default run() which calls exec() to run the event loop
+	start(worker); // start default run() which runs the event loop
 }
 
 Screen::~Screen()
 {
 	xlogIn("~Screen");
 
-	termi = true;
-	in_queue.sema.release();
-	thread->wait();
-	delete thread;
+	stop(); // own thread
+
+	while (_next)
+	{
+		_next->stop();
+		_next->unlink();
+	}
+
 	delete gif_recorder;
 }
 
@@ -132,77 +143,50 @@ void Screen::resizeGL(int, int) { abort("Screen::resizeGL(int,int) called!"); }
 void Screen::paintEvent(QPaintEvent*)
 {
 	assert(isMainThread());
-	repaint(); // QGLWidget::paintEvent(e);	MUST NOT BE CALLED!
+	//repaint();  we get 50 new frames per second anyway
+	// QGLWidget::paintEvent(e);	MUST NOT BE CALLED!
 }
 
 void Screen::resizeEvent(QResizeEvent*)
 {
 	assert(isMainThread());
 	calc_zoom();
-	repaint(); // QGLWidget::paintEvent(e);	MUST NOT BE CALLED!
+	//repaint();  we get 50 new frames per second anyway
+	// QGLWidget::paintEvent(e);	MUST NOT BE CALLED!
 }
 
-void Screen::repaint()
+//void Screen::repaint()
+//{
+//	// store a repaint request.
+//	// to be used in paintGL(), resizeGL(w,h), paintEvent() and resizeEvent().
+
+//	no longer used
+
+//	_repaint = true;
+//	_sema.release();
+//}
+
+void Screen::saveScreenshot(cstr path) //
 {
-	// store a repaint request.
-	// to be used in paintGL(), resizeGL(w,h), paintEvent() and resizeEvent().
-	// the method waits until the render thread has painted the entire screen.
-
-	_repaint = true;
-	wait_repaint_sema.acquire(); // TODO: geht das auch ohne?
-}
-
-void Screen::saveScreenshot(cstr path)
-{
-	assert(isMainThread());
-
-	// replace screen.out_queue with own queue:
-	FrameDataQueue* qout = out_queue; // remember
-	FrameDataQueue	qin;			  // new queue
-	out_queue = &qin;				  // replace out_queue
-
-	// wait for next framedata:
-	while (!qin.avail() && !termi) { qin.sema.acquire(); }
-
-	// save screenshot:
-	if (qin.avail())
-	{
-		FrameData* framedata = qin.get();
-		GifWriter::saveScreenshot(path, framedata);
-		qout->put(framedata);
-	}
-
-	// restore screen.out_queue:
-	FrameDataQueue::mutex.lock();
-	out_queue = qout;
-	FrameDataQueue::mutex.unlock();
-	qin.flush_to(qout);
+	link(new GifWriter(path));
 }
 
 void Screen::startRecording(cstr path, bool with_border)
 {
 	assert(isMainThread());
-	if (gif_recorder) return;
 
-	gif_recorder = new GifRecorder(out_queue);
-	out_queue	 = &gif_recorder->in_queue;
-	gif_recorder->startRecording(path, with_border, 50);
+	if (gif_recorder) return;
+	gif_recorder = new GifRecorder(path, with_border, 50);
+	link(gif_recorder);
 }
 
 void Screen::stopRecording()
 {
 	assert(isMainThread());
+
 	if (!gif_recorder) return;
-
+	gif_recorder->unlink();
 	gif_recorder->stopRecording();
-
-	// restore screen.out_queue:
-	// TODO: if multiple long running patches are possible then we may restore the wrong ptr!
-	FrameDataQueue::mutex.lock();
-	out_queue = gif_recorder->out_queue;
-	FrameDataQueue::mutex.unlock();
-	gif_recorder->in_queue.flush_to(out_queue);
-
 	delete gif_recorder;
 	gif_recorder = nullptr;
 }
@@ -214,29 +198,21 @@ void Screen::do_render_thread()
 
 	try
 	{
-		for (;;)
+		while (!_termi)
 		{
-			in_queue.sema.acquire();
-			if (termi) break;
-
-			if (_repaint)
+			if (VideoData* framedata = VideoDataReceiver::getVideoData())
 			{
-				_repaint = false;
-				if (isVisible()) do_draw_screen(true);
-				wait_repaint_sema.release();
-			}
-
-			if (in_queue.avail())
-			{
-				FrameData* framedata = in_queue.get();
-				if (!in_queue.avail() && isVisible())
+				if (isVisible())
 				{
 					zxspRenderer(&current_frame, framedata);
-					do_draw_screen(false);
+					do_draw_screen();
 				}
-				assert(out_queue);
-				put(out_queue, framedata); // also locks the pointer
+				fwdVideoData(framedata);
 			}
+			//			else if (_repaint)
+			//			{
+			//				if (isVisible() && current_frame.pixels) do_draw_screen();
+			//			}
 		}
 	}
 	catch (std::exception& e)
@@ -250,132 +226,85 @@ void Screen::do_render_thread()
 #endif
 }
 
-void Screen::draw_rect(int x, int y, int w, int h, RgbaColor color)
+void Screen::do_draw_screen()
 {
-	glRasterPos2i(x, y); // window coordinates
-	glPixelZoom(w, -h);
-	glDrawPixels(1, 1, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, &color);
-}
-
-void Screen::do_draw_screen(bool draw_passepartout)
-{
-	makeCurrent();
-
-	// create painter (for drawing overlays) but first do native openGL painting:
 	QPainter p(this);
-	p.beginNativePainting();
-	(void)glGetError(); // clear error
+	//_repaint = false;
 
-	// update viewport ((imageable area))
-	// glViewport specifies the affine transformation of x and y
-	// from normalized device coordinates to window coordinates.
-	glViewport(0, 0, width(), height());
-
-	// setup projection matrix
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	// glOrtho describes a transformation that produces a parallel projection.
-	// The current matrix is multiplied by this matrix
-	// and the result replaces the current matrix
-	glOrtho(0, width(), height(), 0, -1, 1); // left, right, bottom, top, near_, far_clipping_plane
-
-	// setup new_pixels unpacking, transfer, mapping & rasterization
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	// setup geometry
-	// all coordinates are measured in standard zxsp pixels, e.g. screen = 256x192:
 	const VideoFrame& cf = current_frame;
+	assert(cf.pixels);
 
-	int zoom = minmax(1, min(width() / 256, height() / 192), 4); // getZoom()
-	int w	 = (width() + zoom - 1) / zoom;						 // widget size
-	int h	 = (height() + zoom - 1) / zoom;					 //
-	int x0	 = (w - cf.frameWidth() / cf.hf + 1) / 2;			 // position of frame inside widget
-	int y0	 = (h - cf.frameHeight() + 1) / 2;					 // mostly negative!
+	// all coordinates are in zxsp screen pixels [256x192]:
+	int w	 = width();
+	int h	 = height();
+	int zoom = minmax(1, min(w / 256, h / 192), 4);
 
-	// draw passpartout, if required:
-	//	note on cpu usage:							zoom=2	fullscreen		(oGL only, no Painter)
-	//	passepartout only drawn when requested		8.1%	7.5%			approx.
-	//	passepartout always drawn, border only		10.6%	16.6%			approx.
-	//	passepartout always drawn, full rect		18.5%	20.2%			approx.
-	//
-	if (draw_passepartout)
-	{
-		// measurement in real (widget) pixels:
-		int frame_height = cf.frameHeight() * zoom;
-		int left_black	 = x0 * zoom;
-		int top_black	 = y0 * zoom;
-		int bottom_black = height() - (top_black + frame_height);
-		int right_black	 = width() - (left_black + cf.frameWidth() / cf.hf * zoom);
+	w = (w + zoom - 1) / zoom;
+	h = (h + zoom - 1) / zoom;
 
-		if (top_black > 0) draw_rect(0, 0, width(), top_black, black);
-		if (left_black > 0) draw_rect(0, top_black, left_black, frame_height, black);
-		if (bottom_black > 0) draw_rect(0, height() - bottom_black, width(), bottom_black, black);
-		if (right_black > 0) draw_rect(width() - right_black, top_black, right_black, frame_height, black);
-	}
+	int x0 = (w - cf.frameWidth() / cf.hf) / 2; // position of frame inside widget
+	int y0 = (h - cf.frameHeight()) / 2;		// mostly negative!
 
-	// setup new pixels unpacking, transfer, mapping & rasterization:
-	glRasterPos2i(x0 * zoom, y0 * zoom); // window coordinates
-	glPixelZoom(GLfloat(zoom) / cf.hf, -zoom);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, sizeof(RgbaColor)); // if RGBA
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, cf.frameWidth());  // number of pixels
-	// note: glDrawPixels(w,h,format,type,data*)
-	glDrawPixels(cf.frameWidth(), cf.frameHeight(), GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, cf.pixels);
-
-	uint err = glGetError();
-	if (err) logline("OpenGL error: $%04x", err);
-
-	// flush drawing to screen:
-	// without Painter, resize() was (nearly) flicker-free:
-	//
-	//	if(doubleBuffer()) swapBuffers();
-	//	else glFlush();				// flush all buffered commands to the GPU
-	//	//else glFinish();			// also blocks until done
-
-	// doneCurrent();
-
-	p.endNativePainting();
-	draw_overlays(p, zoom);
-	if (loglevel >= 1) log_sysload();
-}
-
-void Screen::draw_overlays(QPainter& p, int zoom)
-{
-	p.setBackgroundMode(Qt::BGMode::TransparentMode);
 	p.scale(zoom, zoom);
 
-	if (auto* ov = rzx_overlay.get())
+	// draw passepartout
+	if (y0 >= 0) // top + bottom
 	{
-		int w = (width() + zoom - 1) / zoom; // window size
-		int h = (height() + zoom - 1) / zoom;
-
-		ov->x = w - ov->w;
-		ov->y = h - ov->h;
-		ov->draw(p, zoom);
+		const int bottom_black = h - cf.frameHeight() - y0;
+		p.fillRect(0, 0, w, y0, black);
+		p.fillRect(0, h - bottom_black, w, bottom_black, black);
+	}
+	if (x0 >= 0) // left + right
+	{
+		const int right_black = w - cf.frameWidth() / cf.hf - x0;
+		p.fillRect(0, y0, x0, cf.frameHeight(), black);
+		p.fillRect(w - right_black, y0, right_black, cf.frameHeight(), black);
 	}
 
-	if (joystick_overlays[0] && settings.get_bool(key_show_joystick_overlays, true)) // TODO cache
+	QImage img(ucharptr(cf.pixels), cf.frameWidth(), cf.frameHeight(), QImage::Format_RGB32);
+	p.drawImage(QRect(x0, y0, cf.frameWidth() / cf.hf, cf.frameHeight()), img);
+
+	// draw overlays:
+	if (rzx_overlay || joystick_overlays[0])
 	{
-		p.translate(2, 2);
-		for (uint i = 0; i < NELEM(joystick_overlays); i++)
+		p.setBackgroundMode(Qt::BGMode::TransparentMode);
+
+		overlay_mutex.lock();
+
+		if (auto* ov = rzx_overlay.get())
 		{
-			auto* ov = joystick_overlays[i].get();
-			if (!ov) break;
-			ov->x = 0;
-			ov->y = 0;
+			ov->x = w - ov->w;
+			ov->y = h - ov->h;
 			ov->draw(p, zoom);
-			p.translate(0, ov->h + 2);
 		}
+
+		if (joystick_overlays[0] && settings.get_bool(key_show_joystick_overlays, true)) // TODO cache
+		{
+			p.translate(2, 2);
+			for (uint i = 0; i < NELEM(joystick_overlays); i++)
+			{
+				auto* ov = joystick_overlays[i].get();
+				if (!ov) break;
+				ov->x = 0;
+				ov->y = 0;
+				ov->draw(p, zoom);
+				p.translate(0, ov->h + 2);
+			}
+		}
+
+		overlay_mutex.unlock();
 	}
+
+	if (loglevel >= 1) log_sysload();
 }
 
 void Screen::setRzxOverlay(const RzxOverlayPtr& p)
 {
 	if (rzx_overlay == p) return;
 
-	mutex.lock();
+	overlay_mutex.lock();
 	rzx_overlay = p;
-	mutex.unlock();
+	overlay_mutex.unlock();
 }
 
 void Screen::setJoystickOverlay(uint index, const JoystickOverlayPtr& p)
@@ -384,30 +313,30 @@ void Screen::setJoystickOverlay(uint index, const JoystickOverlayPtr& p)
 
 	if (joystick_overlays[index] == p) return;
 
-	mutex.lock();
+	overlay_mutex.lock();
 	joystick_overlays[index] = p;
-	mutex.unlock();
+	overlay_mutex.unlock();
 }
 
 void Screen::setNumJoystickOverlays(uint n)
 {
-	mutex.lock();
+	overlay_mutex.lock();
 	while (n < NELEM(joystick_overlays))
 	{
 		joystick_overlays[n++] = nullptr; //
 	}
-	mutex.unlock();
+	overlay_mutex.unlock();
 }
 
 void Screen::removeAllOverlays()
 {
-	mutex.lock();
+	overlay_mutex.lock();
 	rzx_overlay = nullptr;
 	for (uint i = 0; i < NELEM(joystick_overlays); i++)
 	{
 		joystick_overlays[i] = nullptr; //
 	}
-	mutex.unlock();
+	overlay_mutex.unlock();
 }
 
 } // namespace zxsp

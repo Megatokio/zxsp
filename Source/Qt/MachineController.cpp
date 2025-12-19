@@ -302,55 +302,6 @@ RCPtr<Machine> MachineController::newMachineForModel(Model model)
 	return m;
 }
 
-//Screen* MachineController::newScreenForModel(Model model)
-//{
-//	// create Screen instance for model
-//	// screen.parent := this
-//	// currently there are ScreenZxsp and ScreenMono
-
-//	assert(in_machine_ctor);
-
-//	switch (model)
-//	{
-//	case zx80:
-//	case zx81:
-//	case ts1000:
-//	case ts1500:
-//	case tk85:
-//	case jupiter: return new ScreenMono(this);
-
-//	case zxsp_i1:
-//	case zxsp_i2:
-//	case zxsp_i3:
-//	case zxplus:
-//	case inves:
-//	case zx128:
-//	case zx128_span:
-//	case zxplus2:
-//	case zxplus2_frz:
-//	case zxplus2_span:
-//	case zxplus3:
-//	case zxplus3_span:
-//	case zxplus2a:
-//	case zxplus2a_span:
-//	case tk90x:
-//	case tk95:
-//	case pentagon128:
-//	case zxplus_span:
-//	case scorpion: return new ScreenZxsp(this);
-
-//	case u2086:
-//	case tc2048:
-//	case tc2068:
-//	case ts2068: return new ScreenZxsp(this, isa_ScreenTc2048);
-
-//	case samcoupe:
-//	case unknown_model:
-//	case num_models: break;
-//	}
-//	IERR();
-//}
-
 void MachineController::loadSnapshot(cstr filename)
 {
 	// load snapshot file
@@ -1219,6 +1170,10 @@ MachineController::MachineController(QString filepath) :
 
 	xlogIn("new MachineController(\"%s\")", filepath.toUtf8().data());
 
+	screen = new Screen(this);
+	setCentralWidget(screen);
+	createMainmenubar();
+
 	if (!gui_timer)
 	{
 		gui_timer = new QTimer();
@@ -1226,8 +1181,6 @@ MachineController::MachineController(QString filepath) :
 		connect(gui_timer, &QTimer::timeout, &guiTimerCallback);
 		gui_timer->start(5);
 	}
-
-	createMainmenubar();
 
 	Model model = settings.get_Model(key_startup_model, zxsp_i3);
 	if (!filepath.isEmpty()) model = bestModelForFile(filepath.toUtf8().data(), model);
@@ -1315,8 +1268,6 @@ void MachineController::killMachine()
 	assert(machine.refcnt() == 1);
 	machine = nullptr;
 
-	delete screen;
-	screen = nullptr;
 	if (debug)
 		foreach (ToolWindow* toolwindow, tool_windows) { assert(toolwindow->item == nullptr); }
 
@@ -1386,7 +1337,6 @@ Machine* MachineController::initMachine(
 	model_actiongroup->actions().at(model)->setChecked(1);
 
 	// Create machine:
-	screen		  = new Screen(this, Size {});
 	auto machine  = newMachineForModel(model); // not powered on, not suspended
 	this->machine = machine;				   // volatile
 	this->model = model = machine->model;
@@ -1399,7 +1349,6 @@ Machine* MachineController::initMachine(
 
 	setKeyboardMode(settings.get_KbdMode(key_new_machine_keyboard_mode, kbdbasic));
 	enableAudioIn(settings.get_bool(key_startup_audioin_enabled, machine->audio_in_enabled));
-	setCentralWidget(screen);
 	if (this == front_machine_controller) activateWindow(); // else no focus on special conditions. Qt-bug?
 	action_setKbdBasic->setText(model == jupiter ? "Keyboard FORTH mode" : "Keyboard BASIC mode");
 

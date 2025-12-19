@@ -4,50 +4,32 @@
 
 #pragma once
 #include "GifRecorder.h"
-#include "Interfaces/IScreen.h"
 #include "Item.h"
+#include "Machine.h"
 #include "Overlays/Overlay.h"
 #include "Renderer.h"
 #include "Templates/Queue.h"
-#include "Video/FrameData.h"
-#include "graphics/geometry.h"
-#include "zxsp_types.h"
+#include "Video/VideoData.h"
 #include <QGLWidget>
 #include <QMutex>
-#include <QSemaphore>
 #include <QThread>
-
 
 namespace zxsp
 {
-using coord			 = zxsp::coord;
-using Point			 = zxsp::Point;
-using Size			 = zxsp::Size;
-using Dist			 = zxsp::Dist;
-using Rect			 = zxsp::Rect;
-using FrameData		 = zxsp::FrameData;
-using FrameDataQueue = zxsp::FrameDataQueue;
 
-
-class Screen : public QGLWidget
+class Screen : public QGLWidget, public IScreen
 {
 	NO_COPY_MOVE(Screen);
-	friend class RenderThread;
-	using VideoFrame  = zxsp::VideoFrame<RgbaColor>;
-	using GifRecorder = zxsp::GifRecorder;
+	friend class ScreenUpdateThread;
+	using VideoFrame = zxsp::VideoFrame<RgbaColor>;
 
 public:
-	Screen(QWidget* owner, const Size& fb_size);
+	explicit Screen(QWidget* owner);
 	~Screen() override;
 
-	VideoFrame&		getCurrentFrame() { return current_frame; }
-	FrameDataQueue* getFrameDataInQueue() { return &in_queue; }
-	void			setFrameDataOutQueue(FrameDataQueue* q) { out_queue = q; }
-
-	int	 getZoom() const { return zoom; /*minmax(1, min(width()/256, height()/192), 4); */ }
-	bool isActive() const { return windowState() & Qt::WindowActive; }
-
-	void repaint();
+	VideoFrame& getCurrentFrame() { return current_frame; }
+	int			getZoom() const { return zoom; }
+	bool		isActive() const { return windowState() & Qt::WindowActive; }
 
 	void saveScreenshot(cstr path);
 	void startRecording(cstr path, bool update_border);
@@ -61,6 +43,7 @@ public:
 	using RzxOverlayPtr		 = RCPtr<RzxOverlay>;
 	using JoystickOverlayPtr = RCPtr<JoystickOverlay>;
 
+	QMutex			   overlay_mutex;
 	RzxOverlayPtr	   rzx_overlay;
 	JoystickOverlayPtr joystick_overlays[4];
 	void			   setRzxOverlay(const RzxOverlayPtr&);
@@ -68,25 +51,15 @@ public:
 	void			   setNumJoystickOverlays(uint);
 	void			   removeAllOverlays();
 
-protected:
-	// the queues do NOT take ownership of the objects:
-	VideoFrame		current_frame;
-	FrameDataQueue	in_queue;
-	FrameDataQueue* out_queue {nullptr};
-	QThread*		thread {nullptr};
-	bool			termi	 = false;
-	bool			_repaint = false;
-	QSemaphore		wait_repaint_sema; // TODO: nötig?
-	float			frames_hit_percent {100.0f};
-	int				zoom;
-	GifRecorder*	gif_recorder {nullptr};
-	QMutex			mutex; // for overlays
+private:
+	VideoFrame	 current_frame;
+	GifRecorder* gif_recorder		= nullptr;
+	float		 frames_hit_percent = 100.0f;
+	int			 zoom				= 1;
 
 	void do_render_thread();
-	void draw_rect(int x, int y, int w, int h, RgbaColor color);
-	void draw_overlays(QPainter&, int zoom);
-	int	 calc_zoom() { return zoom = minmax(1, min(width() / 256, height() / 192), 4); }
-	void do_draw_screen(bool draw_passepartout = yes);
+	void calc_zoom() { zoom = minmax(1, min(width() / 256, height() / 192), 4); }
+	void do_draw_screen();
 
 	void paintGL() override;				  // Qt reimplement
 	void resizeGL(int, int) override;		  // Qt reimplement

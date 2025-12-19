@@ -88,7 +88,6 @@ private:
 	WindowMenu* window_menu;
 
 	//	static Model best_model_for_file(cstr filepath);
-	//Screen*		   newScreenForModel(Model);
 	RCPtr<Machine> newMachineForModel(Model);
 
 	QAction*
@@ -155,8 +154,7 @@ public:
 	~MachineController() override;
 
 	volatile Machine* getMachine() { return machine.get(); }
-	Screen*			  getScreen() volatile { return screen; } // callback from running machine
-	void			  setScreen(Screen*);
+	Screen*			  getScreen() volatile { return screen; } // --> Lenslok
 
 	Model		  getModel() { return model; }
 	const ZxInfo* getModelInfo() { return model_info; } // generic model info

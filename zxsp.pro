@@ -93,6 +93,8 @@ SOURCES +=	\
 #	Libraries/Devices/File.cpp \
 #	Libraries/Devices/SerialDevice.cpp \
 #	Libraries/Devices/StdFile.cpp \
+	Source/Uni/Video/FrameData.cpp \
+	Source/Uni/Video/GifRecorder.cpp \
 	\
 	zasm/Source/Error.cpp \
 	zasm/Source/Label.cpp \
@@ -130,10 +132,7 @@ SOURCES +=	\
 	Source/Qt/RecentFilesMenu.cpp \
 	Source/Qt/Lenslok.cpp \
 	Source/Qt/Mouse.cpp \
-	\
-	Source/Qt/Screen/Screen.cpp \
-	Source/Qt/Screen/ScreenMono.cpp \
-	Source/Qt/Screen/ScreenZxsp.cpp \
+	Source/Qt/Screen.cpp \
 	\
 	Source/Qt/Inspector/SpectraVideoInspector.cpp \
 	Source/Qt/Inspector/WalkmanInspector.cpp \
@@ -304,7 +303,6 @@ SOURCES +=	\
 	\
 	Source/Uni/Video/ZxspRenderer.cpp \
 	Source/Uni/Video/Tc2048Renderer.cpp \
-	Source/Uni/Video/Renderer.cpp \
 	Source/Uni/Video/MonoRenderer.cpp \
 	Source/Uni/Video/SpectraRenderer.cpp \
 	Source/Uni/Video/TVDecoderMono.cpp \
@@ -342,6 +340,8 @@ HEADERS += \
 	Libraries/kio/util/count1bits.h \
 	Libraries/kio/TestTimer.h \
 	Libraries/Qt/QEventTypes.h \
+	Source/Uni/Video/FrameData.h \
+	Source/Uni/Video/GifRecorder.h \
 	\
 	Libraries/unix/log.h \
 	Libraries/unix/os_utilities.h \
@@ -466,10 +466,7 @@ HEADERS += \
 	Source/Qt/Inspector/MultifaceInsp.h \
 	Source/Qt/Inspector/SmartSDCardInspector.h \
 	\
-	Source/Qt/Screen/ScreenMono.h \
-	Source/Qt/Screen/ScreenZxsp.h \
-	Source/Qt/Screen/Screen.h \
-	\
+	Source/Qt/Screen.h \
 	Source/Qt/Dialogs/ConfigDialog.h \
 	Source/Qt/Dialogs/ConfigureKeyboardJoystickDialog.h \
 	Source/Qt/Overlays/Overlay.h \
@@ -496,7 +493,6 @@ HEADERS += \
 
 HEADERS += \
 	Source/Uni/Interfaces/IMachineController.h \
-	Source/Uni/Interfaces/IScreen.h \
 	\
 	Source/Uni/Audio/StereoSample.h \
 	\
@@ -622,11 +618,7 @@ HEADERS += \
 	Source/Uni/Items/SP0256.h \
 	Source/Uni/Items/MassStorage.h \
 	\
-	Source/Uni/Video/ZxspRenderer.h \
-	Source/Uni/Video/Tc2048Renderer.h \
 	Source/Uni/Video/Renderer.h \
-	Source/Uni/Video/MonoRenderer.h \
-	Source/Uni/Video/SpectraRenderer.h \
 	Source/Uni/Video/TVDecoderMono.h \
 	\
 	Source/Uni/ZxInfo/ZxInfo.h \
