@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -10,6 +10,9 @@
 #include "ZxInfo.h"
 #include "unix/files.h"
 
+
+namespace zxsp
+{
 
 #define WINDING_SPEED 40.0
 
@@ -731,3 +734,5 @@ void TapeRecorder::newBlockBeforeCurrent() // add block before current and goto 
 
 	tapefile->insertBlockBeforeCurrent();
 }
+
+} // namespace zxsp

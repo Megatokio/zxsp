@@ -1,8 +1,8 @@
-#pragma once
-// Copyright (c) 1994 - 2023 kio@little-bat.de
+// Copyright (c) 1994 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Item.h"
 #include "Keymap.h"
 #include "ZxInfo/ZxInfo.h"
@@ -12,6 +12,9 @@
 //		kbdphys						// prefer physical translation (from scan code)
 //		kbdlog						// use logical translation (from character code)
 
+
+namespace zxsp
+{
 
 using AsciiToZxkeyMap = uint8[0x80]; // Unicode     -> enum ZxspKey	(mapping 'by meaning')
 using OskeyToZxkeyMap = uint8[0x40]; // OSX keycode -> enum ZxspKey	(mapping 'by key position')
@@ -139,3 +142,5 @@ private:
 
 	void convert_to_matrix(Keymap&) override;
 };
+
+} // namespace zxsp

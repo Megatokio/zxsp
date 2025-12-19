@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -134,6 +134,9 @@ bank controller registers:
 		14:	copy HOLD to ABN
 */
 
+
+namespace zxsp
+{
 
 // out:	1111.0100	F4
 //		1111.1100	FC
@@ -461,3 +464,5 @@ void MmuTc2068::insertCartridge(cstr filepath)
 	ejectCartridge();
 	cartridge = new TccRom(machine, filepath);
 }
+
+} // namespace zxsp

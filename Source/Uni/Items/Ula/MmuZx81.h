@@ -1,10 +1,13 @@
-#pragma once
-// Copyright (c) 2008 - 2023 kio@little-bat.de
+// Copyright (c) 2008 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "MmuZx80.h"
 
+
+namespace zxsp
+{
 
 class MmuZx81 : public MmuZx80
 {
@@ -31,3 +34,5 @@ protected:
 	// void	ramCS		(bool disable) override;  // called from read-side item ----> daisy chain
 	//  currently not used. Ram extensions simply add to machine.ram.
 };
+
+} // namespace zxsp

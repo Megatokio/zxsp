@@ -1,14 +1,14 @@
-#pragma once
-// Copyright (c) 2002 - 2023 kio@little-bat.de
+// Copyright (c) 2002 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Screen.h"
-struct IoInfo;
 
 
-namespace gui
+namespace zxsp
 {
+struct IoInfo;
 
 class ScreenZxsp : public Screen
 {
@@ -34,7 +34,7 @@ public:
 	bool sendFrame(uint8*, const zxsp::Size&, const zxsp::Rect&) override { IERR(); } // b&w only
 };
 
-} // namespace gui
+} // namespace zxsp
 
 
 /*

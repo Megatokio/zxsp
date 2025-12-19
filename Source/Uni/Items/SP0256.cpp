@@ -1,4 +1,4 @@
-// Copyright (c) 2014 - 2023 kio@little-bat.de
+// Copyright (c) 2014 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -8,6 +8,9 @@
 #include "unix/FD.h"
 #include <math.h>
 
+
+namespace zxsp
+{
 
 #define PRINT_STATISTICS  0
 #define DISASS_ALLOPHONES 0
@@ -2070,3 +2073,5 @@ void SP0256::logDeltaD()
 	log("F4=%+4i,%+4i ", COF(B4), COF(F4));
 	log("F5=%+4i,%+4i ", COF(B5), COF(F5));
 }
+
+} // namespace zxsp

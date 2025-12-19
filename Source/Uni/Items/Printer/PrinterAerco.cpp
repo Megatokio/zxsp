@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -11,8 +11,13 @@
 //    Port: ---- ---- 0111 1111
 //	  Port # 0111 1111 RW
 
+namespace zxsp
+{
+
 static cstr o_addr = nullptr; // TODO
 static cstr i_addr = nullptr; // TODO
 
 
 PrinterAerco::PrinterAerco(Machine* m) : Printer(m, isa_PrinterAerco, external, o_addr, i_addr) {}
+
+} // namespace zxsp

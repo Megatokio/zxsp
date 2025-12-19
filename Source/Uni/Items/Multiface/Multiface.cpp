@@ -1,10 +1,13 @@
-// Copyright (c) 2015 - 2023 kio@little-bat.de
+// Copyright (c) 2015 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Multiface.h"
 #include "Machine.h"
 
+
+namespace zxsp
+{
 
 Multiface::Multiface(Machine* m, isa_id id, cstr romfile, cstr o_addr, cstr i_addr) :
 	Item(m, id, isa_Multiface, external, o_addr, i_addr),
@@ -59,3 +62,5 @@ void Multiface::page_out()
 	paged_in = no;
 	prev()->romCS(no);
 }
+
+} // namespace zxsp

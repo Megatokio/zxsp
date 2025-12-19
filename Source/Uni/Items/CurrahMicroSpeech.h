@@ -1,12 +1,15 @@
-#pragma once
-// Copyright (c) 2014 - 2023 kio@little-bat.de
+// Copyright (c) 2014 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Item.h"
 #include "Memory.h"
-class SP0256;
 
+namespace zxsp
+{
+
+class SP0256;
 
 class CurrahMicroSpeech : public Item
 {
@@ -49,3 +52,5 @@ protected:
 	uint8 readMemory(Time t, int32 cc, uint16 addr, uint8 byte) override;  // memory mapped i/o
 	void  writeMemory(Time t, int32 cc, uint16 addr, uint8 byte) override; // memory mapped i/o
 };
+
+} // namespace zxsp

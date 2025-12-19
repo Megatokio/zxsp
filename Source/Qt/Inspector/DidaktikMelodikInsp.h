@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2025 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -6,7 +6,7 @@
 #include "Ay/AySubclasses.h"
 #include "AyInsp.h"
 
-namespace gui
+namespace zxsp
 {
 
 class DidaktikMelodikInsp : public AyInsp
@@ -15,4 +15,4 @@ public:
 	DidaktikMelodikInsp(QWidget*, MachineController*, volatile DidaktikMelodik*);
 };
 
-} // namespace gui
+} // namespace zxsp

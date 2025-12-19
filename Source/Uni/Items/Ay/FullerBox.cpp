@@ -1,4 +1,4 @@
-// Copyright (c) 2004 - 2025 kio@little-bat.de
+// Copyright (c) 2004 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -19,6 +19,9 @@
    - we must intercept input() for the joystick, but can forward to Ay::input() if needed without problems,
 	 because Ay::input() does not need to (and does not) check the address.
 */
+
+namespace zxsp
+{
 
 // to be verified:
 static cstr sel_ay = "----.----.001-.----"; // $3F select
@@ -82,6 +85,7 @@ void FullerBox::input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 //void FullerBox::output(Time t, int32 cc, uint16 addr, uint8 byte) { Ay::output(t, cc, addr, byte); }
 //void FullerBox::audioBufferEnd(Time t) { Ay::audioBufferEnd(t); }
 
+} // namespace zxsp
 
 /*
 

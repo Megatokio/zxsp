@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -13,6 +13,9 @@
 	and that not affected bits are not driven at all.
 */
 
+
+namespace zxsp
+{
 
 #define O_ADDR nullptr
 #define I_ADDR "----.----.----.---0"
@@ -60,3 +63,5 @@ void CursorJoy::input(Time, int32, uint16 addr, uint8& byte, uint8& mask)
 
 
 ProtekJoy::ProtekJoy(Machine* m) : CursorJoy(m, isa_ProtekJoy) {}
+
+} // namespace zxsp

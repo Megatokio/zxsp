@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -20,6 +20,9 @@ except one OUT instruction setting proper video mode after reset.
 */
 
 
+namespace zxsp
+{
+
 MachineTc2048::MachineTc2048(IMachineController* m, Model model, isa_id id) : MachineZxsp(m, model, id) {}
 
 MachineTc2048::MachineTc2048(IMachineController* m) : MachineZxsp(m, tc2048, isa_MachineTc2048)
@@ -37,3 +40,5 @@ void MachineTc2048::loadScr(FD& fd)
 	ula->setPortFF(ula->getPortFF() & 0x3F); // reset video-related bits
 	MachineZxsp::loadScr(fd);
 }
+
+} // namespace zxsp

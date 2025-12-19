@@ -1,12 +1,15 @@
-#pragma once
-// Copyright (c) 2004 - 2023 kio@little-bat.de
+// Copyright (c) 2004 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Templates/RCPtr.h"
 #include "helpers.h"
 #include "isa_id.h"
 #include "kio/kio.h"
+
+namespace zxsp
+{
 
 extern isa_id isa_pid[];   // parent id of id
 extern cstr	  isa_names[]; // (default) item names
@@ -41,3 +44,5 @@ public:
 	isa_id isaId() const volatile { return id; }
 	isa_id grpId() const volatile { return grp_id; }
 };
+
+} // namespace zxsp

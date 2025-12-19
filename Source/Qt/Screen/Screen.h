@@ -1,8 +1,8 @@
-#pragma once
-// Copyright (c) 2002 - 2023 kio@little-bat.de
+// Copyright (c) 2002 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Interfaces/IScreen.h"
 #include "Item.h"
 #include "Overlays/Overlay.h"
@@ -11,11 +11,11 @@
 #include <QGLWidget>
 #include <QMutex>
 #include <QSemaphore>
-struct IoInfo;
 
 
-namespace gui
+namespace zxsp
 {
+struct IoInfo;
 
 #define H_BORDER_MAX 64 // in 32 column mode
 #define V_BORDER_MAX 48
@@ -109,7 +109,7 @@ public:
 	void			   removeAllOverlays();
 };
 
-} // namespace gui
+} // namespace zxsp
 
 
 /*

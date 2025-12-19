@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -9,6 +9,9 @@
 #include "Machine.h"
 #include "Ula/MmuTc2068.h"
 
+
+namespace zxsp
+{
 
 // ------------------------------------------------------------------------
 // ZX Spectrum 128k:
@@ -203,3 +206,5 @@ ZaxonAyMagic::ZaxonAyMagic(Machine* m) : Ay(m, isa_ZaxonAyMagic, external, zs, z
 ZonxBox81::ZonxBox81(Machine* m) : Ay(m, isa_ZonxBox81, external, s81, w81, r81, m->cpu_clock / 2, Ay::mono) {}
 
 ZonxBox::ZonxBox(Machine* m) : Ay(m, isa_ZonxBox, external, s82, w82, r82, m->cpu_clock / 2, Ay::mono) {}
+
+} // namespace zxsp

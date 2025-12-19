@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -12,6 +12,9 @@
 	erweitert den 3k Jupiter ACE auf 19k
 */
 
+
+namespace zxsp
+{
 
 //  c'tor
 //  note: Jupiter Forth will not use full ram unless reset
@@ -33,3 +36,5 @@ Jupiter16kRam::~Jupiter16kRam()
 	machine->ram.shrink(3 * 1024);
 	machine->mmu->mapMem(); // map new memory to cpu & to set videoram
 }
+
+} // namespace zxsp

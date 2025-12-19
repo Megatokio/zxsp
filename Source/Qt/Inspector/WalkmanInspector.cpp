@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -17,7 +17,7 @@
 #include <QVBoxLayout>
 
 
-namespace gui
+namespace zxsp
 {
 
 WalkmanInspector::WalkmanInspector(QWidget* parent, MachineController* mc, volatile Walkman* tr) :
@@ -113,4 +113,4 @@ void WalkmanInspector::updateWidgets()
 	}
 }
 
-} // namespace gui
+} // namespace zxsp

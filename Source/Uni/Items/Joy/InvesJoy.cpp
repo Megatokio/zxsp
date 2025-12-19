@@ -1,4 +1,4 @@
-// Copyright (c) 2006 - 2023 kio@little-bat.de
+// Copyright (c) 2006 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -24,6 +24,9 @@
 */
 
 
+namespace zxsp
+{
+
 #define o_addr nullptr
 #define i_addr "----.----.--0-.----"
 
@@ -43,3 +46,5 @@ InvesJoy::InvesJoy(Machine* m) : KempstonJoy(m, isa_InvesJoy, internal, i_addr) 
 //	mask = 0xff;
 //	byte = machine==frontMachine ? joystick()->getState() : 0x00;
 // }
+
+} // namespace zxsp

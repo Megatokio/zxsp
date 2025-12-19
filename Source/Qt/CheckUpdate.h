@@ -1,8 +1,8 @@
-#pragma once
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "kio/kio.h"
 #include "unix/FD.h"
 #include <QNetworkRequest>
@@ -11,7 +11,7 @@ class QNetworkAccessManager;
 class QNetworkReply;
 
 
-namespace gui
+namespace zxsp
 {
 extern void checkUpdate(bool verbose);
 
@@ -42,4 +42,4 @@ private:
 	void slot_finished();
 };
 
-} // namespace gui
+} // namespace zxsp

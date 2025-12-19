@@ -1,4 +1,4 @@
-// Copyright (c) 2008 - 2023 kio@little-bat.de
+// Copyright (c) 2008 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -11,6 +11,9 @@
 #include "Ula/MmuZx81.h"
 #include "Z80/Z80.h"
 
+
+namespace zxsp
+{
 
 // how much space must be left free in addition to the program loaded?
 // note: a ZX81 tape file contains the screen file,
@@ -309,6 +312,7 @@ void MachineZx81::loadP81(FD& fd, bool p81) noexcept(false) /*file_error,data_er
 	else if (0x4009 + len > cpu->getRegisters().sp) { showInfo("Note: The machine stack was overwritten by the data"); }
 }
 
+} // namespace zxsp
 
 /*	Notes:
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -9,7 +9,7 @@
 #include <QPushButton>
 
 
-namespace gui
+namespace zxsp
 {
 
 KempstonJoyInsp::KempstonJoyInsp(QWidget* w, MachineController* mc, volatile KempstonJoy* j) :
@@ -32,4 +32,4 @@ KempstonJoyInsp::KempstonJoyInsp(QWidget* w, MachineController* mc, volatile Kem
 	g->addWidget(button_scan_usb, 2, 2, Qt::AlignHCenter | Qt::AlignVCenter);
 }
 
-} // namespace gui
+} // namespace zxsp

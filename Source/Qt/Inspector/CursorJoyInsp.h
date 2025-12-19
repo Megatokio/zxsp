@@ -1,12 +1,12 @@
 #pragma once
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Joy/CursorJoy.h"
 #include "JoyInsp.h"
 
-namespace gui
+namespace zxsp
 {
 
 class CursorJoyInsp : public JoyInsp
@@ -25,4 +25,4 @@ public:
 	ProtekJoyInsp(QWidget* w, MachineController* mc, volatile ProtekJoy* j);
 };
 
-} // namespace gui
+} // namespace zxsp

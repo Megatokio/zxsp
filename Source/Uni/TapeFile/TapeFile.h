@@ -1,7 +1,12 @@
-#pragma once
-// Copyright (c) 2000 - 2023 kio@little-bat.de
+// Copyright (c) 2000 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
+
+#pragma once
+#include "CswBuffer.h"
+#include "TapeData.h"
+#include "TapeFileDataBlock.h"
+#include "Templates/Array.h"
 
 /*	class TapeFile
 	--------------
@@ -46,12 +51,6 @@ note:
 	Declared in	AudioToolbox/AudioFile.h
 */
 
-#include "CswBuffer.h"
-#include "TapeData.h"
-#include "TapeFileDataBlock.h"
-#include "Templates/Array.h"
-
-
 /*  Manage a tape file
 	not re-entrant!
 	tapes are split in TapeFileDataBlocks
@@ -64,6 +63,9 @@ note:
 	=> cached values are always valid
 */
 
+
+namespace zxsp
+{
 
 class TapeFile : protected Array<TapeFileDataBlock*>
 {
@@ -212,3 +214,5 @@ public:
 
 
 using TapeFilePtr = TapeFile*;
+
+} // namespace zxsp

@@ -1,12 +1,15 @@
-#pragma once
-// Copyright (c) 2002 - 2023 kio@little-bat.de
+// Copyright (c) 2002 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Z80/Z80.h"
 #include "ZxInfo/ZxInfo.h"
 #include "kio/kio.h"
 
+
+namespace zxsp
+{
 
 #define z80v1len  30
 #define z80v2len  55
@@ -67,3 +70,5 @@ struct Z80Head
 	bool isVersion300() const { return (pch | pcl) == 0 && h2lenl > 23; }
 	bool varyingRamsize() const { return model >= 76 && model <= 83; }
 };
+
+} // namespace zxsp

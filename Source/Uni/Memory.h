@@ -1,17 +1,21 @@
-#pragma once
-// Copyright (c) 2007 - 2023 kio@little-bat.de
+// Copyright (c) 2007 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
+
+#pragma once
+#include "Templates/Array.h"
+#include "Templates/RCPtr.h"
+#include "cpp/cppthreads.h"
+#include "kio/kio.h"
 
 /*
 	Internal or external memory
 	copy c'tor creates shared instances
 */
 
-#include "Templates/Array.h"
-#include "Templates/RCPtr.h"
-#include "cpp/cppthreads.h"
-#include "kio/kio.h"
+
+namespace zxsp
+{
 
 using CoreByte = uint32; // Z80
 class Machine;
@@ -21,6 +25,7 @@ class Memory
 {
 	RCDATA
 	friend class MemoryPtr;
+	friend RCPtr<Memory>;
 
 	void operator=(const Memory&); // prohibit
 	Memory(const Memory&);		   // prohibit
@@ -77,3 +82,5 @@ public:
 	void shrink(uint newcnt) { get()->shrink(newcnt); }
 	void grow(uint newcnt) { get()->grow(newcnt); }
 };
+
+} // namespace zxsp

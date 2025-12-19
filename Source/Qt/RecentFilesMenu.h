@@ -1,13 +1,13 @@
-#pragma once
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "kio/kio.h"
 #include <QMenu>
 
 
-namespace gui
+namespace zxsp
 {
 
 /*	List of implemented "recent files" lists:
@@ -51,4 +51,4 @@ extern void	   addRecentFile(ListId, QString fpath);
 extern QString getRecentFile(ListId, int position = 0);
 extern void	   clearRecentFiles(ListId);
 
-} // namespace gui
+} // namespace zxsp

@@ -1,4 +1,4 @@
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -10,6 +10,9 @@
 #include "Ula/MmuPlus3.h"
 #include "Ula/UlaPlus3.h"
 
+
+namespace zxsp
+{
 
 MachineZxPlus2a::MachineZxPlus2a(IMachineController* m, Model model, isa_id id) : MachineZx128(m, model, id) {}
 
@@ -26,3 +29,5 @@ MachineZxPlus2a::MachineZxPlus2a(IMachineController* m, Model model) : MachineZx
 	addItem(new PrinterPlus3(this));
 	addItem(new Plus2aTapeRecorder(this));
 }
+
+} // namespace zxsp

@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -17,7 +17,7 @@
 #include <QtGui>
 
 
-namespace gui
+namespace zxsp
 {
 
 ZxIf2Insp::ZxIf2Insp(QWidget* w, MachineController* mc, volatile ZxIf2* zxif2) :
@@ -140,4 +140,4 @@ void ZxIf2Insp::insertRom(cstr filepath)
 	addRecentFile(RecentFiles, filepath);
 }
 
-} // namespace gui
+} // namespace zxsp

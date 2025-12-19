@@ -1,4 +1,4 @@
-// Copyright (c) 2015 - 2023 kio@little-bat.de
+// Copyright (c) 2015 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -9,7 +9,7 @@
 #include <QMouseEvent>
 #include <QTimer>
 
-namespace gui
+namespace zxsp
 {
 
 MultifaceInsp::MultifaceInsp(
@@ -67,7 +67,7 @@ void MultifaceInsp::updateWidgets()
 	if (label_paged_in->isVisible() != mf->isPagedIn()) label_paged_in->setVisible(mf->isPagedIn());
 }
 
-} // namespace gui
+} // namespace zxsp
 
 
 /*

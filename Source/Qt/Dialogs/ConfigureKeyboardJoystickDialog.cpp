@@ -1,4 +1,4 @@
-// Copyright (c) 2016 - 2023 kio@little-bat.de
+// Copyright (c) 2016 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -20,7 +20,7 @@
 #include <fnmatch.h>
 
 
-namespace gui
+namespace zxsp
 {
 
 // =================================================
@@ -600,4 +600,4 @@ void ConfigureKeyboardJoystickDialog::paintEvent(QPaintEvent* e)
 	p.drawEllipse(xm - 16, ym - 16, 2 * 16, 2 * 16);
 }
 
-} // namespace gui
+} // namespace zxsp

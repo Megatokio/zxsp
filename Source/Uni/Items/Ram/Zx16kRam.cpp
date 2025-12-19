@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -14,6 +14,9 @@
 	Note: TS 1500 wurde dadurch auf 32k erweitert!  TODO
 */
 
+
+namespace zxsp
+{
 
 // protected
 Zx16kRam::Zx16kRam(Machine* m, isa_id id) : ExternalRam(m, id)
@@ -49,3 +52,5 @@ Zx16kRam::~Zx16kRam()
 	machine->ram.shrink(machine->model_info->ram_size);
 	machine->mmu->mapMem(); // map new memory to cpu & to set videoram
 }
+
+} // namespace zxsp

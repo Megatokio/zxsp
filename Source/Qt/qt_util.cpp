@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -12,7 +12,7 @@
 #include <QTimer>
 
 
-namespace gui
+namespace zxsp
 {
 
 /*
@@ -244,4 +244,4 @@ uint16 printablechar(uint8 c)
 	return c < 0x20u ? 0xB7 : c < 0x7Fu ? c : c <= 0xA0u || c == 0xADu ? 0xB7 : c; // unprintable -> middle-dot
 }
 
-} // namespace gui
+} // namespace zxsp

@@ -1,14 +1,16 @@
-// Copyright (c) 2013 - 2023 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#ifndef DISKDRIVE_H
-#define DISKDRIVE_H
-
+#pragma once
 #include "Files/FloppyDisk.h"
 #include "Templates/RCPtr.h"
 #include "kio/kio.h"
 #include "zxsp_types.h"
+
+
+namespace zxsp
+{
 
 enum FddType { NoDrive = 1, Drive525 = 2, Drive35 = 4, Drive3 = 8 };
 
@@ -16,6 +18,7 @@ enum FddType { NoDrive = 1, Drive525 = 2, Drive35 = 4, Drive3 = 8 };
 class FloppyDiskDrive
 {
 	RCDATA
+	friend RCPtr<FloppyDiskDrive>;
 
 public:
 	Machine* const machine; // used for audio_out only
@@ -137,5 +140,4 @@ inline void FloppyDiskDrive::writeByte(uint head, uint bytepos, uint8 byte)
 	if (disk) disk->writeByte(head ^ side_B_up, track, bytepos, byte);
 }
 
-
-#endif
+} // namespace zxsp

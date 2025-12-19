@@ -1,4 +1,4 @@
-// Copyright (c) 2016 - 2025 kio@little-bat.de
+// Copyright (c) 2016 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -14,7 +14,7 @@
 // (same as in zxsp_globals.h)
 extern void showMessage(MessageStyle, cstr text);
 
-namespace gui
+namespace zxsp
 {
 
 extern void showMessage(QWidget* parent, MessageStyle, cstr text);
@@ -87,4 +87,4 @@ protected:
 	void keyReleaseEvent(QKeyEvent*) override;
 };
 
-} // namespace gui
+} // namespace zxsp

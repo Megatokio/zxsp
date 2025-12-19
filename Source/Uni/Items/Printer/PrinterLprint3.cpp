@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -12,7 +12,12 @@
 //    #define P_LPRINT_OFF                    0x7b    /* Page out LPRINT ROM */
 //    #define B_LPRINT_OFF                    0x84    /* ---- ---- 0--- -0-- */
 
+namespace zxsp
+{
+
 static cstr o_addr = nullptr; // TODO
 static cstr i_addr = nullptr; // TODO
 
 PrinterLprint3::PrinterLprint3(Machine* m) : Printer(m, isa_PrinterLprint3, external, o_addr, i_addr) {}
+
+} // namespace zxsp

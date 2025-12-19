@@ -1,8 +1,8 @@
-#pragma once
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Joy.h"
 
 
@@ -10,6 +10,10 @@
 // A cursor joystick interfaces maps to keys 5 (left), 6 (down), 7 (up), 8 (right) and 0 (fire).
 // Reading a cursor joystick thus requires a combination of bit 4 of port 0xf7fe and bits 0, 2, 3 and 4 of port 0xeffe.
 // Common interfaces offering a cursor joystick option included those produced by Protek and AGF.
+
+
+namespace zxsp
+{
 
 class CursorJoy : public Joy
 {
@@ -35,3 +39,5 @@ public:
 protected:
 	~ProtekJoy() override = default;
 };
+
+} // namespace zxsp

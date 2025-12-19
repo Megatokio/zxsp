@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -9,7 +9,7 @@
 #include <QPushButton>
 
 
-namespace gui
+namespace zxsp
 {
 
 Tc2068JoyInsp::Tc2068JoyInsp(QWidget* w, MachineController* mc, volatile Tc2068Joy* joy, cstr img_path) :
@@ -55,4 +55,4 @@ void Tc2068JoyInsp::updateWidgets()
 }
 */
 
-} // namespace gui
+} // namespace zxsp

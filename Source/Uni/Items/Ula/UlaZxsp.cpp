@@ -1,4 +1,4 @@
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -26,6 +26,9 @@
 #include "Z80/Z80.h"
 #include "ZxInfo.h"
 
+
+namespace zxsp
+{
 
 #define io_addr "----.----.----.---0" // übliche Adresse: $FE     BESTÄTIGT
 
@@ -505,3 +508,5 @@ void UlaTk90x::set60Hz(bool is60hz)
 	Ula::set60Hz(is60hz);
 	setupTiming();
 }*/
+
+} // namespace zxsp

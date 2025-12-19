@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2025 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -12,7 +12,7 @@
 #include <QStringList>
 
 
-namespace gui
+namespace zxsp
 {
 
 //  Vault for all program settings:
@@ -132,4 +132,4 @@ void Settings::setValue(cstr key, const QVariant& value)
 }
 
 
-} // namespace gui
+} // namespace zxsp

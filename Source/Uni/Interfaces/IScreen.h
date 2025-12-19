@@ -1,20 +1,20 @@
-// Copyright (c) 2023 - 2023 kio@little-bat.de
+// Copyright (c) 2023 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
 #pragma once
 #include "graphics/geometry.h"
 #include "isa_id.h"
-struct IoInfo;
 
 namespace zxsp
 {
+struct IoInfo;
+
 using coord = int32;
 using Point = geometry::Point<coord>;
 using Size	= geometry::Size<coord>;
 using Dist	= geometry::Dist<coord>;
 using Rect	= geometry::Rect<coord>;
-} // namespace zxsp
 
 
 /*
@@ -51,6 +51,7 @@ public:
 	bool ffb_or_vbi(IoInfo*, uint, uint8*, uint32, uint, bool, uint32) override { return true; }
 };
 
+} // namespace zxsp
 
 /*
 

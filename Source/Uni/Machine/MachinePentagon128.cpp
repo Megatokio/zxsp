@@ -1,4 +1,4 @@
-// Copyright (c) 2016 - 2023 kio@little-bat.de
+// Copyright (c) 2016 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -13,6 +13,9 @@
 #include "kio/kio.h"
 
 
+namespace zxsp
+{
+
 MachinePentagon128::MachinePentagon128(IMachineController* mc) : MachineZx128(mc, pentagon128, isa_MachinePentagon128)
 {
 	addItem(new Z80(this));			   // must be 1st item
@@ -23,3 +26,5 @@ MachinePentagon128::MachinePentagon128(IMachineController* mc) : MachineZx128(mc
 	addItem(new Tc2048Joy(this)); // TODO: use own image!
 	addItem(new Walkman(this));
 }
+
+} // namespace zxsp

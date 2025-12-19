@@ -1,4 +1,4 @@
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -14,6 +14,9 @@
 #include "Z80/Z80opcodes.h"
 #include "zxsp_helpers.h"
 
+
+namespace zxsp
+{
 
 MachineZxsp::MachineZxsp(IMachineController* m, Model model, isa_id id) : Machine(m, model, id) {}
 
@@ -415,6 +418,8 @@ void MachineZxsp::loadSna(FD& fd)
 	if (sp <= 0x4000) showWarning("Stack within rom: $%4X", uint(sp));
 	xlogline(" snapshot loaded ok");
 }
+
+} // namespace zxsp
 
 
 // ###############################################################################

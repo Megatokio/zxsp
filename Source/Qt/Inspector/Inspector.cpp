@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -67,7 +67,7 @@
 #include <QTimer>
 
 
-namespace gui
+namespace zxsp
 {
 
 bool Inspector::validReference(volatile Item* item)
@@ -338,4 +338,4 @@ Inspector* Inspector::newInspector(QWidget* p, MachineController* mc, volatile I
 	return new Inspector(p, mc, item);
 }
 
-} // namespace gui
+} // namespace zxsp

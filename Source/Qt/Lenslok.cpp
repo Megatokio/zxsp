@@ -1,4 +1,4 @@
-// Copyright (c) 2013 - 2023 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -20,7 +20,7 @@
 // #define y1 _y1 // <math.h>
 
 
-namespace gui
+namespace zxsp
 {
 
 /*	7 ZX Spectrum games which used the Lenslok protection system:
@@ -285,9 +285,9 @@ void Lenslok::paintEvent(QPaintEvent*)
 	// integer!
 	//=> Probleme…
 
-	QRect prism_box(gui::prism_box.translated(geometry().topLeft())); // Lenslok prism box in glob. coord.
-	QRect window_box(controller->geometry());						  // Specci screen box in glob. coord.
-	if (!window_box.intersects(prism_box)) return;					  // Lenslok komplett außerhalb des Specci-Fensters
+	QRect prism_box(zxsp::prism_box.translated(geometry().topLeft())); // Lenslok prism box in glob. coord.
+	QRect window_box(controller->geometry());						   // Specci screen box in glob. coord.
+	if (!window_box.intersects(prism_box)) return; // Lenslok komplett außerhalb des Specci-Fensters
 
 	// Lenslok over Specci window:
 
@@ -308,9 +308,9 @@ void Lenslok::paintEvent(QPaintEvent*)
 
 	for (int i = 0; i < 4; i++)
 	{
-		static int L[] = {gui::x0, x2, x4, x6};
+		static int L[] = {zxsp::x0, x2, x4, x6};
 		int		   x0  = L[i];
-		static int R[] = {gui::x1, x3, x5, x7};
+		static int R[] = {zxsp::x1, x3, x5, x7};
 		int		   x1  = R[i];
 
 		qreal l = ceil((geometry().x() + x0 - window_box.x()) / hzoom);
@@ -489,4 +489,4 @@ void Lenslok::select_game()
 	update();
 }
 
-} // namespace gui
+} // namespace zxsp

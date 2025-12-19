@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -55,6 +55,9 @@ Multiface 128 acc. to v36 circuit as reverse engineered by velesoft:
 		wenn der NMI durch den Taster des MF128 erzeugt wurde:
 			blendet den Speicher des MF128 ein
 */
+
+namespace zxsp
+{
 
 static cstr o_addr = "----.----.----.----"; // any address!
 static cstr i_addr = "----.----.-011.-1--";
@@ -172,3 +175,5 @@ void Multiface128::triggerNmi()
 	mf_enabled	= yes;
 	machine->cpu->triggerNmi();
 }
+
+} // namespace zxsp

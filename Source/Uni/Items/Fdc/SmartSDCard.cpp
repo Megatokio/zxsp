@@ -1,4 +1,4 @@
-// Copyright (c) 2015 - 2023 kio@little-bat.de
+// Copyright (c) 2015 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -208,6 +208,9 @@
 		• When the jumper is across 2-3, the Spectrum model is Original Spectrum 48k, 128, or +2
 
 */
+
+namespace zxsp
+{
 
 #define _port_flashrom 0xfafb // 1111.1010.1111.1011		all bits decoded - confirmed
 #define _port_ram	   0xfaf3 // 1111.1010.1111.0011		all bits decoded - confirmed
@@ -1032,3 +1035,5 @@ uint8 SmartSDCard::peekJoystickButtonsFUDLR() const volatile
 {
 	return dip_joystick_enabled ? machine->peekJoystickButtons(joystick_id) : 0x00;
 }
+
+} // namespace zxsp

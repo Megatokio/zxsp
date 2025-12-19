@@ -1,4 +1,4 @@
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -8,6 +8,9 @@
 #include "Ula/UlaZx81.h"
 #include "Z80/Z80.h"
 
+
+namespace zxsp
+{
 
 void MmuZx81::powerOn(/*t=0*/ int32 cc)
 {
@@ -46,3 +49,5 @@ void MmuZx81::romCS(bool f)
 	uint16 waitmap_size = static_cast<UlaZx81*>(ula)->waitmap_size;
 	cpu->mapRom(0, rom_size, &rom[0], waitmap, waitmap_size);
 }
+
+} // namespace zxsp

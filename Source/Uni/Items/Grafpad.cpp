@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -13,8 +13,13 @@
 //    #define P_GRAFPAD_Y                     0xff7f  /* Pen position Y coordinate   */
 
 
+namespace zxsp
+{
+
 static cstr o_addr = 0;
 static cstr i_addr = 0;
 
 
 GrafPad::GrafPad(Machine* m) : Item(m, isa_GrafPad, isa_Item, external, o_addr, i_addr) {}
+
+} // namespace zxsp

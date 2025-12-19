@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -37,6 +37,9 @@
 	have more than two switches on at a time, as this can lead to overloading.
 */
 
+
+namespace zxsp
+{
 
 Memotech64kRam::Memotech64kRam(Machine* m, uint dip_switches) :
 	ExternalRam(m, isa_Memotech64kRam),
@@ -116,3 +119,5 @@ void Memotech64kRam::map_dip_switched_ram()
 			machine->cpu->mapRam(0x3000, 0x1000, &machine->ram[0xf000], waitmap, wm_size); // 12k-16k: Ram
 	}
 }
+
+} // namespace zxsp

@@ -1,4 +1,4 @@
-// Copyright (c) 2006 - 2023 kio@little-bat.de
+// Copyright (c) 2006 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -31,6 +31,9 @@
 //	Vertical postition:  IN 65503
 //	Buttons: IN 64223 [255 = None], [254 = Left], [253 = Right], [252 = Both]
 
+
+namespace zxsp
+{
 
 #define o_addr nullptr
 #define i_addr "----.--1-.--0-.----"
@@ -77,32 +80,33 @@ void KempstonMouse::setScale(int n)
 	scale = n;
 }
 
+} // namespace zxsp
 
 /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */

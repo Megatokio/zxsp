@@ -1,4 +1,4 @@
-// Copyright (c) 2002 - 2023 kio@little-bat.de
+// Copyright (c) 2002 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -20,7 +20,7 @@
 #include <QThread>
 
 
-namespace gui
+namespace zxsp
 {
 
 bool ScreenZxsp::ffb_or_vbi(
@@ -137,4 +137,4 @@ void ScreenZxsp::do_ffb_or_vbi()
 }
 
 
-} // namespace gui
+} // namespace zxsp

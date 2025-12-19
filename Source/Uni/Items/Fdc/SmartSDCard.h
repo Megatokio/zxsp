@@ -1,12 +1,15 @@
-#pragma once
-// Copyright (c) 2015 - 2023 kio@little-bat.de
+// Copyright (c) 2015 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "MassStorage.h"
 #include "Memory.h"
 #include "Z80/Z80.h"
 
+
+namespace zxsp
+{
 
 class Sio
 {
@@ -119,3 +122,5 @@ private:
 	// bool	memory_disabled()			{ return !dip_memory_enabled || (config&memory_disabled); }
 	int read_memory(int32 cc, uint16 pc, uint8 byte);
 };
+
+} // namespace zxsp

@@ -1,11 +1,14 @@
-#pragma once
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "UlaZxsp.h"
 #include "zxsp_types.h"
 
+
+namespace zxsp
+{
 
 class Ula128k : public UlaZxsp
 {
@@ -28,3 +31,5 @@ protected:
 	void  markVideoRam() override;
 	int32 addWaitCycles(int32 cc, uint16 addr) const volatile override;
 };
+
+} // namespace zxsp

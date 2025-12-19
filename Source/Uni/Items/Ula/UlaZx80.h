@@ -1,4 +1,4 @@
-// Copyright (c) 2008 - 2023 kio@little-bat.de
+// Copyright (c) 2008 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -6,6 +6,8 @@
 #include "TVDecoderMono.h"
 #include "Ula.h"
 
+namespace zxsp
+{
 
 class UlaZx80 : public Ula
 {
@@ -51,3 +53,5 @@ protected:
 	uint8 lcntr; // 3 bit low line counter [0..7] of ula
 	bool  vsync;
 };
+
+} // namespace zxsp

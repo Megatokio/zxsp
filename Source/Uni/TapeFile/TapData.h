@@ -1,8 +1,8 @@
-#pragma once
-// Copyright (c) 1994 - 2023 kio@little-bat.de
+// Copyright (c) 1994 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "RlesData.h"
 #include "TapeData.h"
 #include "TapeFile.h"
@@ -24,6 +24,9 @@
 	readFile (cstr fpath, TapeFile&) and writeFile (cstr fpath, TapeFile&)
 */
 
+
+namespace zxsp
+{
 
 class TapData : public TapeData
 {
@@ -67,3 +70,5 @@ public:
 	static void readFile(cstr fpath, TapeFile&);
 	static void writeFile(cstr fpath, TapeFile&);
 };
+
+} // namespace zxsp

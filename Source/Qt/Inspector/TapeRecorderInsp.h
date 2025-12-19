@@ -1,8 +1,8 @@
-#pragma once
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Inspector.h"
 #include "MySimpleToggleButton.h"
 #include "RecentFilesMenu.h"
@@ -14,7 +14,7 @@
 #include <QTimer>
 
 
-namespace gui
+namespace zxsp
 {
 
 enum CassBody { BlueBody };			 // available cassette bodies
@@ -177,4 +177,4 @@ public:
 	Plus2aTapeRecorderInsp(QWidget*, MachineController*, volatile Plus2aTapeRecorder*);
 };
 
-} // namespace gui
+} // namespace zxsp

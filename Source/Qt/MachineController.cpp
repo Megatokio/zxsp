@@ -1,4 +1,4 @@
-// Copyright (c) 2002 - 2023 kio@little-bat.de
+// Copyright (c) 2002 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -76,7 +76,7 @@
 #include <QtGui>
 #include <thread>
 
-namespace gui
+namespace zxsp
 {
 
 MachineController* front_machine_controller = nullptr;
@@ -960,11 +960,11 @@ void MachineController::createActions()
 			nvptr(machine)->set50Hz();
 			switch (uint(model))
 			{
-			case zx80: gui::settings.setValue(key_framerate_zx80_60hz, false); break;
-			case jupiter: gui::settings.setValue(key_framerate_jupiter_60hz, false); break;
-			case tk85: gui::settings.setValue(key_framerate_tk85_60hz, false); break;
-			case tk90x: gui::settings.setValue(key_framerate_tk90x_60hz, false); break;
-			case tk95: gui::settings.setValue(key_framerate_tk95_60hz, false); break;
+			case zx80: settings.setValue(key_framerate_zx80_60hz, false); break;
+			case jupiter: settings.setValue(key_framerate_jupiter_60hz, false); break;
+			case tk85: settings.setValue(key_framerate_tk85_60hz, false); break;
+			case tk90x: settings.setValue(key_framerate_tk90x_60hz, false); break;
+			case tk95: settings.setValue(key_framerate_tk95_60hz, false); break;
 			}
 		}
 	});
@@ -974,11 +974,11 @@ void MachineController::createActions()
 			nvptr(machine)->set60Hz();
 			switch (uint(model))
 			{
-			case zx80: gui::settings.setValue(key_framerate_zx80_60hz, true); break;
-			case jupiter: gui::settings.setValue(key_framerate_jupiter_60hz, true); break;
-			case tk85: gui::settings.setValue(key_framerate_tk85_60hz, true); break;
-			case tk90x: gui::settings.setValue(key_framerate_tk90x_60hz, true); break;
-			case tk95: gui::settings.setValue(key_framerate_tk95_60hz, true); break;
+			case zx80: settings.setValue(key_framerate_zx80_60hz, true); break;
+			case jupiter: settings.setValue(key_framerate_jupiter_60hz, true); break;
+			case tk85: settings.setValue(key_framerate_tk85_60hz, true); break;
+			case tk90x: settings.setValue(key_framerate_tk90x_60hz, true); break;
+			case tk95: settings.setValue(key_framerate_tk95_60hz, true); break;
 			}
 		}
 	});
@@ -2510,10 +2510,10 @@ void MachineController::hideInspector(IsaObject* item, bool force)
 
 void MachineController::showMessage(MessageStyle ms, cstr text)
 {
-	gui::showMessage(this, ms, text); //
+	zxsp::showMessage(this, ms, text); //
 }
 
-} // namespace gui
+} // namespace zxsp
 
 
 /*

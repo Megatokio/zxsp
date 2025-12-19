@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -10,7 +10,7 @@
 #include <QPushButton>
 
 
-namespace gui
+namespace zxsp
 {
 
 CursorJoyInsp::CursorJoyInsp(QWidget* w, MachineController* mc, volatile CursorJoy* joy, cstr backgroundimage) :
@@ -67,4 +67,4 @@ ProtekJoyInsp::ProtekJoyInsp(QWidget* w, MachineController* mc, volatile ProtekJ
 {}
 
 
-} // namespace gui
+} // namespace zxsp

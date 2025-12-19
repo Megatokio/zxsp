@@ -1,7 +1,9 @@
-#pragma once
-// Copyright (c) 2000 - 2023 kio@little-bat.de
+// Copyright (c) 2000 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
+
+#pragma once
+#include "zxsp_types.h"
 
 /*	Buffer for csw bytes: runlength encoded compressed square wave data.
 	Stores an audio signal as one-bit samples, and compacts this further
@@ -51,8 +53,6 @@
 			due to rounding akku may refer ±0.5 into the opposite pulse.
 */
 
-#include "zxsp_types.h"
-
 /*  Notes:
 
 	total samples = 2^32-1  ==  20 minutes at 3.5MHz
@@ -90,6 +90,9 @@
 	this is for converting to or from TapeData.
 */
 
+
+namespace zxsp
+{
 
 using CC = uint32;
 
@@ -199,3 +202,5 @@ public:
 	void writePureData(cu8ptr bu, uint32 total_bits, Time bit0, Time bit1);
 	void writeTzxPause(Time);
 };
+
+} // namespace zxsp

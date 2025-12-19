@@ -1,4 +1,4 @@
-// Copyright (c) 1994 - 2023 kio@little-bat.de
+// Copyright (c) 1994 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -11,7 +11,7 @@
 #include <QMenu>
 #include <QtGui>
 
-namespace gui
+namespace zxsp
 {
 
 enum ZxspKey // Names for specci keys
@@ -817,7 +817,7 @@ bool KeyboardInspector::event(QEvent* e)
 	return Inspector::event(e);
 }
 
-} // namespace gui
+} // namespace zxsp
 
 
 /*

@@ -1,4 +1,4 @@
-// Copyright (c) 2013 - 2023 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -11,9 +11,12 @@
 #include <math.h>
 
 
+namespace zxsp
+{
+
 inline uint16 random(uint n) //	16 bit random number in range [0 ... [n
 {
-	return (uint32(n) * uint16(random())) >> 16;
+	return (uint32(n) * uint16(::random())) >> 16;
 }
 
 /*	Default Constructor
@@ -171,8 +174,7 @@ RCPtr<FloppyDiskDrive> FloppyDiskDrive::noFloppyDiskDrive()
 RCPtr<FloppyDiskDrive> FloppyDiskDrive::newFloppyDiskDrive(
 	Machine* m, FddType fddtype, uint heads, uint tracks, Time step_delay, uint bytes_per_track)
 {
-	return RCPtr<FloppyDiskDrive>(
-		new FloppyDiskDrive(m, fddtype, heads, tracks, step_delay, bytes_per_track));
+	return RCPtr<FloppyDiskDrive>(new FloppyDiskDrive(m, fddtype, heads, tracks, step_delay, bytes_per_track));
 }
 
 FloppyDiskDrive::~FloppyDiskDrive()
@@ -402,6 +404,7 @@ void FloppyDiskDrive::update_signals()
 	if (type == Drive35 && !motor_on) is_track0 = no; // 3.5" don't report track 0 if motor is off
 }
 
+} // namespace zxsp
 
 /*
 

@@ -1,4 +1,4 @@
-// Copyright (c) 1994 - 2023 kio@little-bat.de
+// Copyright (c) 1994 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -8,6 +8,9 @@
 #include "Ula/Ula.h"
 #include "ZxInfo.h"
 
+
+namespace zxsp
+{
 
 // Modifier key masks for sticky keys on visual keyboard:
 #define capsshiftsticky	   0x0001 // caps shift key no longer pressed but still considered down
@@ -32,7 +35,7 @@ enum ZxspKey : uint8 {
 	up = 0x80, // key-up marker for BtZxKbd
 
 	// clang-format off
-	
+
 	CSH = 0x00,	Z,	X,	C,	V,	/*	left bottom row	*/	cZ1, cZ2, cZ3,	/*	EDIT, CAPS LOCK, TRUE VIDEO		*/
 	A = 0x10,	S,	D,	F,	G,	/* 	...				*/ 	cZ4, cZ5, cZ6,	/*	INV.VIDEO, CRSR LEFT, CRSR DOWN	*/
 	Q = 0x20,	W,	E,	R,	T,	/*	...				*/ 	cZ7, cZ8, cZ9,	/*	CRSR UP, CRSR RIGHT, GRAPHICS	*/
@@ -803,3 +806,5 @@ void Keyboard::realKeyUp(uint16 unicode, uint8 oskeycode, KeyboardModifiers modi
 	stickykeys = 0x0000; // key up => release sticky keys
 	update_keymap();
 }
+
+} // namespace zxsp

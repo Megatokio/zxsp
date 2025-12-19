@@ -1,4 +1,4 @@
-// Copyright (c) 2014 - 2025 kio@little-bat.de
+// Copyright (c) 2014 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -8,6 +8,9 @@
 #include "Z80/Z80.h"
 #include "zxsp_helpers.h"
 
+
+namespace zxsp
+{
 
 /*	TODO:
 	cpu patch tested in every M1 cycle -> BC, ED etc.
@@ -460,3 +463,6 @@ void DivIDE::setRamSize(uint sz)
 	ram.shrink(sz);
 	if (machine->isPowerOn()) mapMemory();
 }
+
+
+} // namespace zxsp

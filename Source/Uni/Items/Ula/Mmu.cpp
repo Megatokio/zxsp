@@ -1,4 +1,4 @@
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -6,6 +6,9 @@
 #include "Machine.h"
 #include "Z80/Z80.h"
 
+
+namespace zxsp
+{
 
 /*	creator for use by derived classes:
  */
@@ -29,3 +32,5 @@ void Mmu::powerOn(int32 cc)
 	//	ram  = machine->ram;	// => shared array
 	//	rom  = machine->rom;	// => shared array
 }
+
+} // namespace zxsp

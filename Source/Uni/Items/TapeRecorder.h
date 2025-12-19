@@ -1,7 +1,12 @@
-#pragma once
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
+
+#pragma once
+#include "Item.h"
+#include "Machine.h"
+#include "TapeFile.h"
+
 
 /*	Item TapeRecorder
 	-----------------
@@ -14,11 +19,6 @@
 
 	Der Item TapeRecorder kann nicht von AudioIn/Out lesen/schreiben!
 */
-
-#include "Item.h"
-#include "Machine.h"
-#include "TapeFile.h"
-
 
 /*  Implementation Notes
 
@@ -53,6 +53,9 @@
 			 Beim Speichern einer Datei werden bei Bedarf CswBuffer oder TapeData anderen Typs konvertiert.
 */
 
+
+namespace zxsp
+{
 
 class TapeRecorder : public Item
 {
@@ -260,3 +263,5 @@ class Walkman : public TapeRecorder
 public:
 	Walkman(Machine*, bool auto_start = yes, bool fast_load = yes);
 };
+
+} // namespace zxsp

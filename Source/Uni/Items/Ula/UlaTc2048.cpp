@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -110,6 +110,9 @@ changes. (There are also #F5 and #F6 ports decoded for AY-3-8912, but since no d
 they don't make any problem.)
 */
 
+
+namespace zxsp
+{
 
 #define io_addr "----.----.1111.111-"
 
@@ -308,3 +311,5 @@ void UlaTc2048::markVideoRam()
 		RES(0x2000, 24 * 32 * 9);
 	}
 }
+
+} // namespace zxsp

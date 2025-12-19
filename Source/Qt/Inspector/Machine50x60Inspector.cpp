@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -11,7 +11,7 @@
 #include <QSettings>
 
 
-namespace gui
+namespace zxsp
 {
 
 /*	Inspector for Machine
@@ -59,4 +59,4 @@ Machine50x60Inspector::Machine50x60Inspector(QWidget* p, MachineController* mc, 
 	connect(action_60hz, &QAction::toggled, btn_60hz, &QAbstractButton::setChecked);
 }
 
-} // namespace gui
+} // namespace zxsp

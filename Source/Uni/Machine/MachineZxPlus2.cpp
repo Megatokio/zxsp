@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -13,6 +13,9 @@
 #include "Ula/Ula128k.h"
 
 
+namespace zxsp
+{
+
 MachineZxPlus2::MachineZxPlus2(IMachineController* m, Model model) : MachineZx128(m, model, isa_MachineZxPlus2)
 {
 	assert(model == zxplus2 || model == zxplus2_span || model == zxplus2_frz);
@@ -25,3 +28,5 @@ MachineZxPlus2::MachineZxPlus2(IMachineController* m, Model model) : MachineZx12
 	addItem(new ZxPlus2Joy(this));
 	addItem(new Plus2TapeRecorder(this));
 }
+
+} // namespace zxsp

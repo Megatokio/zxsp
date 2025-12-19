@@ -1,4 +1,4 @@
-// Copyright (c) 2013 - 2023 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -13,6 +13,9 @@
 	The image is b&w only.
 	The TV image synchronizes to approx. 45 to 65 Hz.
  */
+
+namespace zxsp
+{
 
 class TVDecoderMono
 {
@@ -108,3 +111,5 @@ private:
 	void update_left_border_info(int line, int32 cc);
 	void reset_auto_position_data();
 };
+
+} // namespace zxsp

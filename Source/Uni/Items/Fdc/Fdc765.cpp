@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -6,6 +6,9 @@
 #include "FloppyDiskDrive.h"
 #include "Machine/Machine.h"
 
+
+namespace zxsp
+{
 
 enum Command {
 	mRdTr	  = 1 << 2,	   // ReadTrack
@@ -1122,3 +1125,5 @@ void Fdc765::initForSnapshot(int32 cc)
 	//	uint8	byte, actual_log2ssize; // byte_for_cpuxxxxx, byte_from_cpuxxxxx;
 	//	bool	f,eq,le,ge,skip;
 }
+
+} // namespace zxsp

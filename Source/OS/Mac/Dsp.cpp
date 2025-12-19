@@ -1,4 +1,4 @@
-// Copyright (c) 2002 - 2023 kio@little-bat.de
+// Copyright (c) 2002 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -18,6 +18,8 @@ Frequency samples_per_second = 44100;
 
 namespace os
 {
+using namespace zxsp;
+
 
 // ---- core audio interrupt ----
 
@@ -331,7 +333,7 @@ static OSStatus audioDeviceIOProc(
 
 			ShiftOutputStitching();
 			CopyInputToOutputBuffer();
-			nvptr(&gui::machine_list)->runMachinesForSound(audio_in_buffer, audio_out_buffer); // DOIT!
+			nvptr(&zxsp::machine_list)->runMachinesForSound(audio_in_buffer, audio_out_buffer); // DOIT!
 			if (audio_output_device_enabled && audio_output_volume > 0.0f)
 			{
 				if (0) HighpassOutputBuffer();
@@ -650,7 +652,7 @@ void startCoreAudio(bool input_enabled) //, int playthrough_mode)
 	}
 	catch (AnyError& e)
 	{
-		if (gui::settings.get_bool(gui::key_warn_if_audio_in_fails, yes))
+		if (settings.get_bool(key_warn_if_audio_in_fails, yes))
 		{
 			xlogline("Dsp: Audio input setup failed:");
 			xlogline(status ? "Dsp: %s: error = %i." : "Dsp: %s.", e.what(), int(status));

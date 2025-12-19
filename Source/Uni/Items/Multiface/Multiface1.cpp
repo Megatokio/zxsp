@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -90,6 +90,9 @@ Deduced from from Circuit:
 */
 
 
+namespace zxsp
+{
+
 static constexpr cstr o_addr = "----.----.-001.--1-"; // read Kempston Joystick, page ram+rom if bit7=1
 static constexpr cstr i_addr = "----.----.-001.--1-"; // nmi-taster wieder scharf schalten
 
@@ -180,3 +183,5 @@ uint8 Multiface1::peekJoystickButtonsFUDLR() const volatile
 {
 	return joystick_enabled ? machine->peekJoystickButtons(joystick_id) : 0x00;
 }
+
+} // namespace zxsp

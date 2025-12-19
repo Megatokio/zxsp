@@ -1,6 +1,11 @@
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
+
+#include "Ay.h"
+#include "Machine.h"
+#include "ZxInfo/ZxInfo.h"
+
 
 /*	AY-3-8912 sound chip emulation
 	------------------------------
@@ -20,13 +25,12 @@ $BFFD	%1011.----.----.--0-	ZX128 AY reg. write -/o
 */
 
 
+namespace zxsp
+{
+
 /* ==================================================================
 		Hardware independent part
 ================================================================== */
-
-#include "Ay.h"
-#include "Machine.h"
-#include "ZxInfo/ZxInfo.h"
 
 #undef BIT
 #define BIT(N, B) (((N) >> (B)) & 1) // get bit value at bit position B
@@ -807,3 +811,5 @@ void Ay::setClock(Frequency psg_cycles_per_second)
 	envelope.time_for_cycle /= freq_factor;
 	envelope.reload /= freq_factor;
 }
+
+} // namespace zxsp

@@ -1,10 +1,13 @@
-#pragma once
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "ExternalRam.h"
 
+
+namespace zxsp
+{
 
 //  Memory Extension for the Sinclair ZX80 and ZX81.
 //  Extend memory to 16k
@@ -48,3 +51,5 @@ public:
 protected:
 	~Ts1016Ram() override = default;
 };
+
+} // namespace zxsp

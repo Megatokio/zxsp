@@ -1,4 +1,4 @@
-// Copyright (c) 2016 - 2023 kio@little-bat.de
+// Copyright (c) 2016 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -119,6 +119,9 @@ Special Cases:
 		Der vorige Block ist ein Snapshot
 */
 
+
+namespace zxsp
+{
 
 /*	CREATOR
 	state = EndOfFile
@@ -826,3 +829,5 @@ cstr RzxFile::getFirstSnapshot(cstr filename)
 	if (rzx.blocks.count() && rzx.blocks.last().isaSnapshotBlock()) return rzx.blocks.last().snapshot_filename;
 	else return nullptr;
 }
+
+} // namespace zxsp

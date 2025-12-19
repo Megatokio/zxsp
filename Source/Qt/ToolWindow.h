@@ -1,8 +1,8 @@
-#pragma once
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "IsaObject.h"
 #include "kio/kio.h"
 #include "zxsp_types.h"
@@ -10,7 +10,7 @@
 #include <QMenu>
 #include <QTimer>
 
-namespace gui
+namespace zxsp
 {
 class MachineController;
 
@@ -55,4 +55,4 @@ public:
 	void fillContextMenu(QMenu*);
 };
 
-} // namespace gui
+} // namespace zxsp

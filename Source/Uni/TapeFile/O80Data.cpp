@@ -1,4 +1,4 @@
-// Copyright (c) 2000 - 2023 kio@little-bat.de
+// Copyright (c) 2000 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -47,6 +47,9 @@
 		.o files:           typically there is some garbage at the file end
 */
 
+
+namespace zxsp
+{
 
 // ###############################################################################
 // constants
@@ -347,10 +350,10 @@ CswBuffer::CswBuffer(const O80Data& o80data, uint32 ccps) : CswBuffer(ccps, 0, 6
 	writePulse(5.0, 0);
 
 	// data
-	double f	   = double(::ccps / ccps);
-	uint   zx81lo  = uint(::zx81lo * f + 0.5);
-	uint   zx81hi  = uint(::zx81hi * f + 0.5);
-	uint   zx81ooo = uint(::zx81ooo * f + 0.5);
+	double f	   = double(zxsp::ccps / ccps);
+	uint   zx81lo  = uint(zxsp::zx81lo * f + 0.5);
+	uint   zx81hi  = uint(zxsp::zx81hi * f + 0.5);
+	uint   zx81ooo = uint(zxsp::zx81ooo * f + 0.5);
 
 	for (uint i = 0; i < o80data.data.count(); i++)
 	{
@@ -538,3 +541,5 @@ void O80Data::writeFile(cstr fpath, TapeFile& data) noexcept(false) // file_erro
 		else xlogline("error: no suitable block in TapeFile");
 	}
 }
+
+} // namespace zxsp

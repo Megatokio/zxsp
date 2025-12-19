@@ -1,15 +1,15 @@
-#pragma once
-// Copyright (c) 2013 - 2023 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Inspector.h"
 #include "Ula/MmuTc2068.h"
 #include <QRect>
 class QPushButton;
 
 
-namespace gui
+namespace zxsp
 {
 
 class TccDockInspector : public Inspector
@@ -60,4 +60,4 @@ private:
 	void insert_again();			  // ""
 };
 
-} // namespace gui
+} // namespace zxsp

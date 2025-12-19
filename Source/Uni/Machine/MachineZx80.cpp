@@ -1,4 +1,4 @@
-// Copyright (c) 2008 - 2023 kio@little-bat.de
+// Copyright (c) 2008 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -15,6 +15,9 @@
 #include "ZxInfo.h"
 #include "unix/FD.h"
 
+
+namespace zxsp
+{
 
 // how much space must be left free in addition to the program loaded?
 // note: a ZX80 tape file does not contain the screen file
@@ -186,6 +189,7 @@ void MachineZx80::loadO80(FD& fd) noexcept(false) /*file_error,data_error*/
 	else if (0x4000 + len > cpu->getRegisters().sp) showInfo("Note: The machine stack was overwritten by the data");
 }
 
+} // namespace zxsp
 
 /*	-------------------------------------------------------------------------
 

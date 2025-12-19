@@ -1,4 +1,4 @@
-// Copyright (c) 2008 - 2023 kio@little-bat.de
+// Copyright (c) 2008 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -122,6 +122,9 @@
 ; $2800 - $2BFF to build the TV picture. It is not possible for the ROM or User
 ; to read back the information from either address.
 */
+
+namespace zxsp
+{
 
 #define o_addr		 "----.----.----.---0" // übliche Adresse: $FE
 #define MIC_OUT_BIT	 3
@@ -325,3 +328,5 @@ void UlaJupiter::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask
 	}
 	else byte &= ~EAR_IN_MASK;
 }
+
+} // namespace zxsp

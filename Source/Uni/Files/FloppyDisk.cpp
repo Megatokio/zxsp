@@ -1,4 +1,4 @@
-// Copyright (c) 2013 - 2023 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -6,6 +6,9 @@
 #include "unix/files.h"
 #include "version.h"
 #include "zxsp_globals.h"
+
+namespace zxsp
+{
 
 static const uint8 DAM	= 0xFB; // data address mark
 static const uint8 DDAM = 0xF8; // deleted data address mark
@@ -913,3 +916,5 @@ void FloppyDisk::write_extended_disk_file(FD& fd) const
 			}
 		}
 }
+
+} // namespace zxsp

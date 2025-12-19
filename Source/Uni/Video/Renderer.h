@@ -1,12 +1,15 @@
-#pragma once
-// Copyright (c) 2013 - 2023 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "IoInfo.h"
 #include "IsaObject.h"
 #include "graphics/gif/GifEncoder.h"
 
+
+namespace zxsp
+{
 
 using RgbaColor = uint32;					 // RGBA for OpenGL
 extern const RgbaColor zxsp_rgba_colors[16]; // RGBA in ZxspRenderer.cpp
@@ -98,3 +101,5 @@ public:
 	void startRecording(cstr path);
 	void stopRecording();
 };
+
+} // namespace zxsp

@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -13,6 +13,9 @@
 // der TS1000 wurde vermutlich unter Ignorierung seiner eingebauten 2k erweitert
 // Effektiv wurde also der Speicher auf 2, 3 oder 4k erweitert.
 
+
+namespace zxsp
+{
 
 Zx3kRam::Zx3kRam(Machine* m, uint sz) : ExternalRam(m, isa_Zx3kRam)
 {
@@ -59,3 +62,5 @@ void Zx3kRam::setRamSize(uint sz)
 
 	machine->mmu->mapMem(); // map new memory to cpu & to set videoram
 }
+
+} // namespace zxsp

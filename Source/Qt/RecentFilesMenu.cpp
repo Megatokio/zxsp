@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -9,7 +9,7 @@
 #include <QSettings>
 
 
-namespace gui
+namespace zxsp
 {
 
 /*	Max. files per list:
@@ -191,4 +191,4 @@ void RecentFilesMenu::add_file(QString fpath, int oldidx)
 	while (actions().count() > MAX_ENTRIES + 2) removeAction(actions().at(MAX_ENTRIES));
 }
 
-} // namespace gui
+} // namespace zxsp

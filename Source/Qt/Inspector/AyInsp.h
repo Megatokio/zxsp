@@ -1,14 +1,14 @@
-#pragma once
-// Copyright (c) 2002 - 2023 kio@little-bat.de
+// Copyright (c) 2002 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Inspector.h"
 #include <QComboBox>
 #include <QLineEdit>
 class QGridLayout;
 
-namespace gui
+namespace zxsp
 {
 
 class AyInsp : public Inspector
@@ -42,4 +42,4 @@ private:
 	void	   handle_return_in_led(QLineEdit*);
 };
 
-} // namespace gui
+} // namespace zxsp

@@ -1,4 +1,4 @@
-// Copyright (c) 1996 - 2023 kio@little-bat.de
+// Copyright (c) 1996 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -37,6 +37,9 @@
 #include "Z80macros.h"		// required and optional macros
 #include "Z80options.h"		// customizations, other includes and/or typedefs
 
+
+namespace zxsp
+{
 
 // conversion table:   A -> Z80-flags with S, Z, V=parity and C=0
 // 2013-06-12:		   A -> Z80-flags with S, Z, V=parity and C=0, bits 3 and 5 verbatim from A
@@ -844,3 +847,5 @@ x:
 	SAVE_REGISTERS;
 	return result;
 }
+
+} // namespace zxsp

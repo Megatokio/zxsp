@@ -1,14 +1,17 @@
-#pragma once
-// Copyright (c) 2007 - 2023 kio@little-bat.de
+// Copyright (c) 2007 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "kio/kio.h"
 #include <QApplication>
 #include <QEvent>
 #include <QWidget>
 #include <Qt>
 
+
+namespace zxsp
+{
 
 class Mouse
 {
@@ -35,3 +38,5 @@ public:
 
 
 extern Mouse mouse;
+
+}

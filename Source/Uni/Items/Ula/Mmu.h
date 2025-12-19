@@ -1,12 +1,15 @@
-#pragma once
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Item.h"
 #include "Memory.h"
 #include "zxsp_types.h"
 
+
+namespace zxsp
+{
 
 class Mmu : public Item
 {
@@ -91,3 +94,5 @@ protected:
 	uint8 readMemory(Time, int32, uint16, uint8 n) override { return n; } // returns byte read
 	void  writeMemory(Time, int32, uint16, uint8) override {}
 };
+
+} // namespace zxsp

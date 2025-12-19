@@ -1,8 +1,8 @@
-#pragma once
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Joy.h"
 
 
@@ -19,6 +19,9 @@
 		bits 5-7:	111				SAMS says bit 7 is fire which seems to be true
 */
 
+
+namespace zxsp
+{
 
 class Tc2068Joy : public Joy
 {
@@ -54,3 +57,5 @@ class U2086Joy : public Tc2068Joy
 public:
 	explicit U2086Joy(Machine* m);
 };
+
+} // namespace zxsp

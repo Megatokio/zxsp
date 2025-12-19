@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2025 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -8,7 +8,7 @@
 class QComboBox;
 class QPushButton;
 
-namespace gui
+namespace zxsp
 {
 class FullerBoxInsp : public AyInsp
 {
@@ -33,4 +33,4 @@ private:
 	uint8				js_state;
 };
 
-} // namespace gui
+} // namespace zxsp

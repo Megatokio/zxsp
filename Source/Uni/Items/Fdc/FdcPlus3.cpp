@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -82,6 +82,9 @@ Summary:
 */
 
 
+namespace zxsp
+{
+
 static cstr i_addr = "001- ---- ---- --0-";
 static cstr o_addr = "0011 ---- ---- --0-";
 
@@ -110,3 +113,5 @@ void FdcPlus3::removeDiskDrive(uint n)
 	Fdc765::removeDiskDrive(n);
 	Fdc765::removeDiskDrive(n ^ 2); // mirrored position
 }
+
+} // namespace zxsp

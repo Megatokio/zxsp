@@ -1,9 +1,12 @@
-// Copyright (c) 2013 - 2023 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "TVDecoderMono.h"
 #include "Libraries/kio/kio.h"
+
+namespace zxsp
+{
 
 static constexpr float sec_per_scanline = 64e-6f;
 
@@ -407,3 +410,5 @@ void TVDecoderMono::shiftCcTimeBase(int32 cc_delta)
 	cc_sync_start -= cc_delta;
 	ccc -= cc_delta;
 }
+
+} // namespace zxsp

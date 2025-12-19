@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2025 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -6,6 +6,9 @@
 #include "Joy/SinclairJoy.h"
 #include "Memory.h"
 
+
+namespace zxsp
+{
 
 class ZxIf2 : public SinclairJoy
 {
@@ -26,3 +29,5 @@ public:
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
 };
+
+} // namespace zxsp

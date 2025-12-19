@@ -1,4 +1,4 @@
-// Copyright (c) 2006 - 2023 kio@little-bat.de
+// Copyright (c) 2006 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -24,6 +24,9 @@
 //    #define B_KEMPSTON                      0x20    /* ---- ---- --0- ---- */
 
 
+namespace zxsp
+{
+
 // #define  o_addr	nullptr
 // #define  i_addr	"----.----.000-.----"       // Issue 4
 
@@ -43,3 +46,5 @@ void KempstonJoy::input(Time /*t*/, int32 /*cc*/, uint16 /*addr*/, uint8& byte, 
 	mask = 0xff;
 	byte &= getButtonsFUDLR(0);
 }
+
+} // namespace zxsp

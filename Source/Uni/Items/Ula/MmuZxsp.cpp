@@ -1,4 +1,4 @@
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -7,6 +7,9 @@
 #include "Ula/UlaZxsp.h"
 #include "Z80/Z80.h"
 
+
+namespace zxsp
+{
 
 /*	creator for use by derived classes:
 	for models with mmu
@@ -77,3 +80,5 @@ void MmuZxsp::romCS(bool f)
 
 	cpu->mapRom(0x0000, 0x4000, &rom[0], nullptr, 0);
 }
+
+} // namespace zxsp

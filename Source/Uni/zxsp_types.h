@@ -1,8 +1,8 @@
-#pragma once
-// Copyright (c) 2002 - 2023 kio@little-bat.de
+// Copyright (c) 2002 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "ZxInfo/ZxInfo.h"
 
 
@@ -61,13 +61,17 @@ enum MouseButtons // same as Qt
 	middle_button = 4,
 };
 
+
 class GifEncoder;
 class Pixelmap;
-class ZxPixelmap;
 using Comp = uchar;
 class Colormap;
+
 struct ZxInfo;
 
+
+namespace zxsp
+{
 class TapeFile;
 class TapeRecorder;
 class TapeData;
@@ -79,6 +83,7 @@ class RlesData;
 class CswBuffer;
 
 class Memory;
+class MemoryPtr;
 
 class IsaObject;
 class Renderer;
@@ -183,3 +188,5 @@ class KempstonMouse;
 class SpectraVideo;
 class DivIDE;
 class CurrahMicroSpeech;
+
+} // namespace zxsp

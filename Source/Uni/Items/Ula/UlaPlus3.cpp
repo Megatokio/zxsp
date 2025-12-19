@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -39,6 +39,9 @@
 // o_addr_plus3 = "01--.----.----.--0-"		üblicher Port: 0x7ffd		WoS
 //											Reading from 0x7ffd returns floating bus values. WoS
 
+
+namespace zxsp
+{
 
 #define i_addr "----.----.----.---0"
 #define o_addr "----.----.----.----"
@@ -128,3 +131,5 @@ void UlaPlus3::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 int32 UlaPlus3::addWaitCycles(int32 cc, uint16 /*addr*/) const volatile { return cc; }
 
 uint8 UlaPlus3::getFloatingBusByte(int32 /*cc*/) { return 0xff; }
+
+} // namespace zxsp

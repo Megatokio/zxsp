@@ -1,4 +1,4 @@
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -8,6 +8,9 @@
 #include "Ula/UlaZx81.h"
 #include "Z80/Z80.h"
 
+
+namespace zxsp
+{
 
 void MmuZx80::powerOn(int32 cc)
 {
@@ -105,3 +108,5 @@ void MmuZx80::mapMem()
 		for (uint i = 0; i < CPU_PAGESIZE; i++) { p[i] |= option | cpu_crtc_zx81; }
 	}
 }
+
+} // namespace zxsp

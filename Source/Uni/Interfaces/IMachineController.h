@@ -1,4 +1,4 @@
-// Copyright (c) 2023 - 2025 kio@little-bat.de
+// Copyright (c) 2023 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -6,6 +6,9 @@
 #include "Templates/RCPtr.h"
 #include "zxsp_types.h"
 #include <memory>
+
+namespace zxsp
+{
 
 class IMachineController
 {
@@ -18,3 +21,5 @@ public:
 	virtual void itemRemoved(Item*) volatile				  = 0;
 	virtual void showMessage(MessageStyle, cstr text)		  = 0;
 };
+
+} // namespace zxsp

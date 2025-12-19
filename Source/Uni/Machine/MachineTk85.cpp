@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -10,6 +10,9 @@
 #include "Ula/MmuTk85.h"
 
 
+namespace zxsp
+{
+
 MachineTk85::MachineTk85(IMachineController* m, bool is60hz) : MachineZx81(m, isa_MachineTk85, tk85)
 {
 	addItem(new Z80(this));
@@ -20,3 +23,5 @@ MachineTk85::MachineTk85(IMachineController* m, bool is60hz) : MachineZx81(m, is
 	addItem(new Tk85Joy(this));
 	addItem(new TS2020(this));
 }
+
+} // namespace zxsp

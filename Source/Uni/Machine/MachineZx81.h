@@ -1,11 +1,14 @@
-#pragma once
-// Copyright (c) 2008 - 2023 kio@little-bat.de
+// Copyright (c) 2008 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Machine.h"
 #include "Ula/UlaZx81.h"
 
+
+namespace zxsp
+{
 
 class MachineZx81 : public Machine
 {
@@ -23,3 +26,5 @@ public:
 	void loadP81(FD&, bool p81) override;
 	void saveP81(FD&, bool p81) override;
 };
+
+} // namespace zxsp

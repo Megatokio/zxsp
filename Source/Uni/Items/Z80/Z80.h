@@ -1,5 +1,4 @@
-#pragma once
-// Copyright (c) 1996 - 2023 kio@little-bat.de
+// Copyright (c) 1996 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -7,10 +6,14 @@
 	Z80 cpu emulation version 2.2.4
 */
 
+#pragma once
 #define Z80_H
 #include "Item.h"
 #include "Z80options.h"
 
+
+namespace zxsp
+{
 
 // ----	memory pages ----
 
@@ -262,3 +265,5 @@ protected:
 	int32	cc_nmi;			  // cycle for nmi trigger
 	uint16	stack_breakpoint; //
 };
+
+} // namespace zxsp

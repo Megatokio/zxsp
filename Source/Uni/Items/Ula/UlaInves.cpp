@@ -1,4 +1,4 @@
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -9,6 +9,9 @@
 #include "Z80/Z80.h"
 #include "ZxInfo.h"
 
+
+namespace zxsp
+{
 
 #define MIN_LINES_BEFORE_SCREEN 24
 #define MAX_LINES_BEFORE_SCREEN 72
@@ -168,3 +171,5 @@ void UlaInves::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 int32 UlaInves::addWaitCycles(int32 cc, uint16 /*addr*/) const volatile { return cc; }
 
 uint8 UlaInves::getFloatingBusByte(int32 /*cc*/) { return 0xff; }
+
+} // namespace zxsp

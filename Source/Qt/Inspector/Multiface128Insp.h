@@ -1,12 +1,12 @@
-#pragma once
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Multiface/Multiface128.h"
 #include "MultifaceInsp.h"
 
-namespace gui
+namespace zxsp
 {
 
 class Multiface128Insp : public MultifaceInsp
@@ -20,4 +20,4 @@ protected:
 	void updateWidgets() override;
 };
 
-} // namespace gui
+} // namespace zxsp

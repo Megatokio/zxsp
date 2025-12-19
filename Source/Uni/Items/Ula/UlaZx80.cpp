@@ -1,4 +1,4 @@
-// Copyright (c) 2008 - 2023 kio@little-bat.de
+// Copyright (c) 2008 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -40,6 +40,9 @@
 #include "Z80/Z80.h"
 #include "ZxInfo.h"
 
+
+namespace zxsp
+{
 
 #define o_addr "----.----.----.----" // übliche Adresse: $FF
 #define i_addr "----.----.----.----" // übliche Adresse: $FE, but we need to see all IN as well
@@ -295,3 +298,5 @@ int32 UlaZx80::doFrameFlyback(int32 cc)
 }
 
 void UlaZx80::drawVideoBeamIndicator(int32 cc) { tv_decoder.drawVideoBeamIndicator(cc); }
+
+} // namespace zxsp

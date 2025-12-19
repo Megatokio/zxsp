@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -46,6 +46,9 @@
 	evtl. das Rom an Machine.rom anhängen oder anderweitig für MemoryInspector::AllRom und MemoryInspector::RomPages
    sichtbarmachen
 */
+
+namespace zxsp
+{
 
 #define o_addr nullptr
 #define i_addr "----.----.----.---0"
@@ -101,3 +104,5 @@ void ZxIf2::powerOn(/*t=0*/ int32 cc)
 		prev()->romCS(true);
 	}
 }
+
+} // namespace zxsp

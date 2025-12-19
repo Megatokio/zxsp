@@ -1,4 +1,4 @@
-// Copyright (c) 2013 - 2023 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -8,6 +8,8 @@
 #include "unix/os_utilities.h"
 #include "version.h"
 
+namespace zxsp
+{
 
 /*	rendere Ausgaben der B&W Ula in mono_octets[].
  */
@@ -230,3 +232,5 @@ void MonoGifWriter::saveScreenshot(
 	delete bits;
 	bits = nullptr;
 }
+
+} // namespace zxsp

@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -8,7 +8,7 @@
 #include <QLabel>
 #include <QPushButton>
 
-namespace gui
+namespace zxsp
 {
 
 Tk85JoyInsp::Tk85JoyInsp(QWidget* p, MachineController* mc, volatile Tk85Joy* joy) :
@@ -31,4 +31,4 @@ Tk85JoyInsp::Tk85JoyInsp(QWidget* p, MachineController* mc, volatile Tk85Joy* jo
 	g->addWidget(button_scan_usb, 2, 2, Qt::AlignHCenter | Qt::AlignVCenter);
 }
 
-} // namespace gui
+} // namespace zxsp

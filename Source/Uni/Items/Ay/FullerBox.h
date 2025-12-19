@@ -1,10 +1,13 @@
-// Copyright (c) 2004 - 2025 kio@little-bat.de
+// Copyright (c) 2004 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "Ay.h"
 #pragma once
+#include "Ay.h"
 
+
+namespace zxsp
+{
 
 class FullerBox : public Ay
 {
@@ -36,3 +39,5 @@ protected:
 
 	JoystickID joystick_id = no_joystick;
 };
+
+} // namespace zxsp

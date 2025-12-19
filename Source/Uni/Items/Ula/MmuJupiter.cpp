@@ -1,4 +1,4 @@
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -53,6 +53,9 @@
 */
 
 
+namespace zxsp
+{
+
 MmuJupiter::MmuJupiter(Machine* m) : Mmu(m, isa_MmuJupiter, nullptr, nullptr) { xlogIn("new MmuJupiter"); }
 
 
@@ -79,3 +82,5 @@ void MmuJupiter::powerOn(int32 cc)
 
 	if (ram.count() == 19 kB) cpu->mapRam(0x4000, 16 kB, &ram[0x0C00], nullptr, 0); // ram extension
 }
+
+} // namespace zxsp

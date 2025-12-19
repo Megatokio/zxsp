@@ -1,13 +1,16 @@
-#pragma once
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Joy/Joy.h"
 #include "Memory.h"
 #include "Multiface.h"
 #include "Templates/Array.h"
 
+
+namespace zxsp
+{
 
 class Multiface1 final : public Multiface
 {
@@ -36,3 +39,5 @@ protected:
 	uint8 handleRomPatch(uint16 pc, uint8 o) override; // returns new opcode
 	void  triggerNmi() override;
 };
+
+} // namespace zxsp

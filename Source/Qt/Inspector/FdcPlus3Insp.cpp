@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -18,7 +18,7 @@
 #include <QTimer>
 
 
-namespace gui
+namespace zxsp
 {
 
 // overlay images:
@@ -471,4 +471,4 @@ void FdcPlus3Insp::insert_disk(cstr filepath)
 	// setState(current_disk ? Ejected : NoDisk);
 }
 
-} // namespace gui
+} // namespace zxsp

@@ -1,4 +1,4 @@
-// Copyright (c) 2008 - 2023 kio@little-bat.de
+// Copyright (c) 2008 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -134,6 +134,9 @@ WAIT test and related timing
 #include "ZxInfo.h"
 #include <functional>
 
+
+namespace zxsp
+{
 
 #define o_addr "----.----.----.----" // übliche Adresse: $FF
 #define i_addr "----.----.----.---0" // übliche Adresse: $FE
@@ -469,3 +472,5 @@ void UlaZx81::drawVideoBeamIndicator(int32 cc)
 	run_hsync(cc);
 	tv_decoder.drawVideoBeamIndicator(cc);
 }
+
+} // namespace zxsp

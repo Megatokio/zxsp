@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -13,7 +13,7 @@
 #include <QPushButton>
 #include <QtGui>
 
-namespace gui
+namespace zxsp
 {
 
 JoyInsp::JoyInsp(QWidget* w, MachineController* mc, volatile Joy* joy, cstr imgpath) :
@@ -139,4 +139,4 @@ void JoyInsp::update_joystick_selectors()
 	}
 }
 
-} // namespace gui
+} // namespace zxsp

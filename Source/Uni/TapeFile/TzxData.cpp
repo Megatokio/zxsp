@@ -1,4 +1,4 @@
-// Copyright (c) 2000 - 2023 kio@little-bat.de
+// Copyright (c) 2000 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -11,6 +11,9 @@
 #include <math.h>
 #include <zlib.h>
 
+
+namespace zxsp
+{
 
 // timing constants:
 //
@@ -2405,3 +2408,5 @@ TapData::TapData(const TzxData& /*q*/) : TapData(no, no) { TODO(); }
 	evtl. we can tell beforehand that it's not convertible
 */
 O80Data::O80Data(const TzxData& /*q*/) : O80Data() { TODO(); }
+
+} // namespace zxsp

@@ -1,4 +1,4 @@
-// Copyright (c) 2002 - 2023 kio@little-bat.de
+// Copyright (c) 2002 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -15,7 +15,7 @@
 #include <QTimer>
 
 
-namespace gui
+namespace zxsp
 {
 
 Z80Insp::Z80Insp(QWidget* window, MachineController* mc, volatile Z80* cpu) :
@@ -348,7 +348,7 @@ void Z80Insp::slotSetInterrupt(bool checked)
 	else nvptr(cpu)->clearInterrupt();
 }
 
-} // namespace gui
+} // namespace zxsp
 
 
 /*

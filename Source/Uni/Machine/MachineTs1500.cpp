@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -10,6 +10,9 @@
 #include "Ula/MmuTs1500.h"
 
 
+namespace zxsp
+{
+
 MachineTs1500::MachineTs1500(IMachineController* m) : MachineZx81(m, isa_MachineTs1500, ts1500)
 {
 	addItem(new Z80(this));		// must be 1st item
@@ -18,3 +21,5 @@ MachineTs1500::MachineTs1500(IMachineController* m) : MachineZx81(m, isa_Machine
 	addItem(new KeyboardZx81(this, isa_KbdTs1500));
 	addItem(new TS2020(this));
 }
+
+} // namespace zxsp

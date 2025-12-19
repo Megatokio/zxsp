@@ -1,4 +1,4 @@
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -12,6 +12,9 @@
 #include "Z80/Z80.h"
 #include "ZxInfo.h"
 
+
+namespace zxsp
+{
 
 MachineZx128::MachineZx128(IMachineController* m, Model model, isa_id id) : MachineZxsp(m, model, id) {}
 
@@ -27,3 +30,5 @@ MachineZx128::MachineZx128(IMachineController* m, Model model) : MachineZxsp(m, 
 	addItem(new AyForZx128(this));
 	addItem(new Walkman(this));
 }
+
+} // namespace zxsp

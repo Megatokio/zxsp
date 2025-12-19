@@ -1,4 +1,4 @@
-// Copyright (c) 2013 - 2025 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -18,6 +18,9 @@
 #include "Machine.h"
 #include "Ula/Mmu.h"
 #include <zlib.h>
+
+namespace zxsp
+{
 
 #if defined(__LITTLE_ENDIAN__)
   #define ID(A, B, C, D) ((A << 0) + (B << 8) + (C << 16) + (D << 24))
@@ -572,6 +575,8 @@ void Machine::loadSZX(FD& fd)
 }
 
 void Machine::saveSZX(FD&) {}
+
+} // namespace zxsp
 
 /*
 

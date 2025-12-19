@@ -1,4 +1,4 @@
-// Copyright (c) 2002 - 2023 kio@little-bat.de
+// Copyright (c) 2002 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -8,17 +8,20 @@
 #include "unix/files.h"
 #include "zasm/Source/Z80Assembler.h"
 
-constexpr uint snalen = 27;
-
 bool ZxInfo::isA(isa_id i) const
 {
 	isa_id j = id;
 	do {
 		if (i == j) return yes;
 	}
-	while ((j = isa_pid[j]));
+	while ((j = zxsp::isa_pid[j]));
 	return no;
 }
+
+namespace zxsp
+{
+
+constexpr uint snalen = 27;
 
 void write_mem(FD& fd, const CoreByte* q, uint32 cnt)
 {
@@ -147,7 +150,7 @@ Model bestModelForFile(cstr fpath, Model default_model)
 
 dflt_zxsp:
 	return language == spanish	  ? inves :
-		   language == portuguese ? tk95 : // language==american ? ts2068			TODO									
+		   language == portuguese ? tk95 : // language==american ? ts2068			TODO
 									zxsp_i3;
 
 dflt_zx81:
@@ -155,3 +158,5 @@ dflt_zx81:
 		   language == portuguese ? tk85 : // language==spanish ? zx81
 									zx81;
 }
+
+} // namespace zxsp

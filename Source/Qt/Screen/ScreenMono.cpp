@@ -1,4 +1,4 @@
-// Copyright (c) 2008 - 2023 kio@little-bat.de
+// Copyright (c) 2008 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -9,7 +9,7 @@
 #include "zxsp_globals.h"
 
 
-namespace gui
+namespace zxsp
 {
 
 // colors & pixels:
@@ -208,4 +208,4 @@ void ScreenMono::paint_screen(bool draw_passepartout)
 	doneCurrent();
 }
 
-} // namespace gui
+} // namespace zxsp

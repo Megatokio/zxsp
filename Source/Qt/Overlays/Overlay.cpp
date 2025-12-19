@@ -1,4 +1,4 @@
-// Copyright (c) 2016 - 2023 kio@little-bat.de
+// Copyright (c) 2016 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -14,7 +14,7 @@
 #include <QPainter>
 #include <QPen>
 
-namespace gui
+namespace zxsp
 {
 
 Overlay::Overlay(isa_id id, Location p) : IsaObject(id, isa_Overlay), location(p) {}
@@ -148,7 +148,7 @@ void JoystickOverlay::draw(QPainter& p, int zoom)
 }
 
 
-} // namespace gui
+} // namespace zxsp
 
 /*
 

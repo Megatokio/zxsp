@@ -1,4 +1,4 @@
-// Copyright (c) 2000 - 2023 kio@little-bat.de
+// Copyright (c) 2000 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -10,6 +10,9 @@
 #include "unix/file_utilities.h"
 #include "unix/tempmem.h"
 
+
+namespace zxsp
+{
 
 void PzxData::kill() {}
 
@@ -511,4 +514,6 @@ a:
 	} // switch(id)
 
 	return; // ok
+}
+
 }

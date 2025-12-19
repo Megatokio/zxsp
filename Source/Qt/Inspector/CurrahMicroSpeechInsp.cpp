@@ -1,4 +1,4 @@
-// Copyright (c) 2015 - 2023 kio@little-bat.de
+// Copyright (c) 2015 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -10,7 +10,7 @@
 #include <QRadioButton>
 #include <QTimer>
 
-namespace gui
+namespace zxsp
 {
 
 /*	Allophone names for the AL2 rom:
@@ -278,7 +278,7 @@ void CurrahMicroSpeechInsp::paintEvent(QPaintEvent* e)
 	}
 }
 
-} // namespace gui
+} // namespace zxsp
 
 
 /*

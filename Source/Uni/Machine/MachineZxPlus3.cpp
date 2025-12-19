@@ -1,4 +1,4 @@
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -10,6 +10,9 @@
 #include "TapeRecorder.h"
 #include "Ula/MmuPlus3.h"
 #include "Ula/UlaPlus3.h"
+
+namespace zxsp
+{
 
 MachineZxPlus3::MachineZxPlus3(IMachineController* m, Model model) : MachineZxPlus2a(m, model, isa_MachineZxPlus3)
 {
@@ -25,3 +28,5 @@ MachineZxPlus3::MachineZxPlus3(IMachineController* m, Model model) : MachineZxPl
 	addItem(new PrinterPlus3(this));
 	addItem(new Walkman(this));
 }
+
+} // namespace zxsp

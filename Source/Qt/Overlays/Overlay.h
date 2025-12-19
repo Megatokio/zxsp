@@ -1,17 +1,16 @@
-#pragma once
-// Copyright (c) 2016 - 2023 kio@little-bat.de
+// Copyright (c) 2016 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "IsaObject.h"
 #include "gui_types.h"
 #include <QFont>
 #include <QPen>
 #include <QPixmap>
 #include <QPolygon>
-class IScreen;
 
-namespace gui
+namespace zxsp
 {
 
 /*
@@ -77,4 +76,4 @@ private:
 	void setZoom(int zoom);
 };
 
-} // namespace gui
+} // namespace zxsp

@@ -1,11 +1,13 @@
-#pragma once
-// Copyright (c) 2013 - 2023 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "ZxspRenderer.h"
 #include "graphics/gif/GifEncoder.h"
 
+namespace zxsp
+{
 
 // ===========================================================
 //					screen renderer:
@@ -60,3 +62,5 @@ public:
 		IoInfo* ioinfo, uint ioinfo_count, uint8* attr_pixels, uint cc_per_scanline, uint32 cc_start_of_screenfile,
 		bool flashphase) override;
 };
+
+} // namespace zxsp

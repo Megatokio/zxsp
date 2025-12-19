@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -28,7 +28,7 @@
 #include <Templates/Array.h>
 
 
-namespace gui
+namespace zxsp
 {
 
 // offset mouse pointer hotspot -> 'feeled' hotspot
@@ -658,7 +658,7 @@ void MemoryAccessInspector::update_tooltip()
 	QToolTip::showText(gpos, usingstr("$%04X: $%02X", data.baseaddress + offset, byte), graphics_view, QRect());
 }
 
-} // namespace gui
+} // namespace zxsp
 
 
 /*

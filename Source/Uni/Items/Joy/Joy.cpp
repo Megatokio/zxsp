@@ -1,10 +1,13 @@
-// Copyright (c) 2006 - 2023 kio@little-bat.de
+// Copyright (c) 2006 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "Joy.h"
 #include "Machine/Machine.h"
 
+
+namespace zxsp
+{
 
 Joy::Joy(Machine* m, isa_id id, Internal internal, cstr o_addr, cstr i_addr, cstr idf1, cstr idf2, cstr idf3) :
 	Item(m, id, isa_Joy, internal, o_addr, i_addr),
@@ -25,3 +28,5 @@ Joy::Joy(Machine* m, isa_id id, Internal internal, cstr o_addr, cstr i_addr, cst
 
 uint8 Joy::getButtonsFUDLR(uint i) { return machine->getJoystickButtons(joystick_id[i]); }
 uint8 Joy::peekButtonsFUDLR(uint i) const volatile { return machine->peekJoystickButtons(joystick_id[i]); }
+
+} // namespace zxsp

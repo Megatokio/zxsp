@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -24,6 +24,9 @@
 	except that the pattern starts at a different number of T-states after the interrupt, than the usual 14344.
 */
 
+
+namespace zxsp
+{
 
 #define o_addr "----.----.1111.0100"
 #define i_addr "----.----.1111.0100"
@@ -77,3 +80,5 @@ void MmuTc2048::input(Time, int32 /*cc*/, uint16 /*addr*/, uint8& byte, uint8& m
 /*	write port F4
  */
 void MmuTc2048::output(Time, int32, uint16 /*addr*/, uint8 byte) { port_F4 = byte; }
+
+} // namespace zxsp

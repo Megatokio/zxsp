@@ -1,11 +1,13 @@
-#pragma once
-// Copyright (c) 2014 - 2023 kio@little-bat.de
+// Copyright (c) 2014 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-
+#pragma once
 #include "zxsp_types.h"
 
+
+namespace zxsp
+{
 
 class SP0256
 {
@@ -136,3 +138,5 @@ private:
 	void  set_clock(Frequency);
 	void  set_volume(Sample);
 };
+
+} // namespace zxsp

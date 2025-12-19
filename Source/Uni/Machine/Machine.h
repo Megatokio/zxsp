@@ -1,8 +1,8 @@
-#pragma once
-// Copyright (c) 2002 - 2023 kio@little-bat.de
+// Copyright (c) 2002 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Fdc/DivIDE.h"
 #include "Files/RzxFile.h"
 #include "Interfaces/IMachineController.h"
@@ -20,6 +20,9 @@
 #include "zxsp_globals.h"
 #include <math.h>
 
+
+namespace zxsp
+{
 
 inline double samples_per_dsp_buffer() { return DSP_SAMPLES_PER_BUFFER; }
 inline Time	  seconds_per_dsp_buffer() { return DSP_SAMPLES_PER_BUFFER / samples_per_second; }
@@ -349,6 +352,8 @@ public:
 	uint8		getMouseButtons() const volatile { return mouse_buttons; }
 	zxsp::Point getMousePosition() const volatile { return NV(mouse_position); }
 };
+
+} // namespace zxsp
 
 
 // =============================================================================================

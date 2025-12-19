@@ -1,4 +1,4 @@
-// Copyright (c) 2023 - 2025 kio@little-bat.de
+// Copyright (c) 2023 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -21,5 +21,4 @@ extern void showMessage(MessageStyle, cstr text);
 extern Frequency samples_per_second; // for audio output channel
 extern Time		 system_time;		 // monotonic real time [seconds]
 extern cstr		 appl_rsrc_path;	 // where are the roms, audio fx,
-
-extern uint num_usb_joysticks; // OS/Mac/UsbJoystick.h
+extern uint		 num_usb_joysticks;	 // OS/Mac/UsbJoystick.h

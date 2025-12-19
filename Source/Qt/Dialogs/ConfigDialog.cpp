@@ -1,4 +1,4 @@
-// Copyright (c) 2016 - 2025 kio@little-bat.de
+// Copyright (c) 2016 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -20,7 +20,7 @@
 #include <QWidget>
 
 
-namespace gui
+namespace zxsp
 {
 
 // helper
@@ -333,20 +333,18 @@ void showQueuedMessages()
 
 void showMessage(QWidget* parent, MessageStyle ms, cstr text)
 {
-	using namespace gui;
-
 	static const uint styles[] = {ConfigDialog::InfoStyle, ConfigDialog::WarningStyle, ConfigDialog::AlertStyle};
 	static const cstr titles[] = {"Information:", "Problem:", "Alert:"};
 
 	showMessage(parent, styles[ms], titles[ms], text);
 }
 
-} // namespace gui
+} // namespace zxsp
 
 
 void showMessage(MessageStyle ms, cstr text)
 {
-	gui::showMessage(nullptr, ms, text); //
+	zxsp::showMessage(nullptr, ms, text); //
 }
 
 

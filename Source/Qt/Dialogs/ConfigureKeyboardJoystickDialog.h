@@ -1,5 +1,5 @@
 #pragma once
-// Copyright (c) 2016 - 2023 kio@little-bat.de
+// Copyright (c) 2016 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -10,7 +10,7 @@ class QLabel;
 class QPushButton;
 class QRadioButton;
 
-namespace gui
+namespace zxsp
 {
 class KbdLed;
 class MachineController;
@@ -52,4 +52,4 @@ protected:
 	void paintEvent(QPaintEvent*);
 };
 
-} // namespace gui
+} // namespace zxsp

@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -14,7 +14,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-namespace gui
+namespace zxsp
 {
 
 Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile Multiface1* mf) :
@@ -122,7 +122,7 @@ void Multiface1Insp::update_joystick_selector()
 	joystick_selector->setCurrentIndex(mf1->getJoystickID());
 }
 
-} // namespace gui
+} // namespace zxsp
 
 
 /*

@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -28,6 +28,9 @@ kio: so i believe this TK90X info also applies:
 	and NTSC (60 Hz) as used in USA and many other countries.
 */
 
+namespace zxsp
+{
+
 MachineTk95::MachineTk95(IMachineController* m, bool is60hz) : MachineZxsp(m, tk95, isa_MachineTk95)
 {
 	addItem(new Z80(this));
@@ -37,3 +40,5 @@ MachineTk95::MachineTk95(IMachineController* m, bool is60hz) : MachineZxsp(m, tk
 	addItem(new Tk95Joy(this));
 	addItem(new TS2020(this));
 }
+
+} // namespace zxsp

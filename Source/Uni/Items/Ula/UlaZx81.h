@@ -1,10 +1,12 @@
-#pragma once
-// Copyright (c) 2008 - 2023 kio@little-bat.de
+// Copyright (c) 2008 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "UlaZx80.h"
 
+namespace zxsp
+{
 
 class UlaZx81 : public UlaZx80
 {
@@ -53,3 +55,5 @@ private:
 	void disable_nmi(int32 cc);
 	void enable_nmi(int32 cc);
 };
+
+} // namespace zxsp

@@ -1,4 +1,4 @@
-// Copyright (c) 2000 - 2023 kio@little-bat.de
+// Copyright (c) 2000 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -19,6 +19,9 @@
 #include "zxsp_globals.h"
 #include <cmath>
 
+
+namespace zxsp
+{
 
 #define dB05 18426 // 32767 / sqrt(10^0.5)
 #define dB10 10362 // 32767 / sqrt(10^1)
@@ -815,3 +818,5 @@ void AudioData::writeFile(cstr fpath, TapeFile& tapeblocks) noexcept(false) // f
 	(void)tapeblocks;
 	(void)fpath;
 }
+
+} // namespace zxsp

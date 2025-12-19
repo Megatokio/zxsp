@@ -1,4 +1,4 @@
-// Copyright (c) 2023 - 2023 kio@little-bat.de
+// Copyright (c) 2023 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -14,7 +14,7 @@ class KbdJoystick;
 class UsbJoystick;
 
 
-namespace gui
+namespace zxsp
 {
 class Application;
 class WindowMenu;
@@ -82,4 +82,4 @@ class Memotech64kRamInsp;
 class MemoryInspector;
 class SpectraVideoInspector;
 class DivIDEInspector;
-} // namespace gui
+} // namespace zxsp

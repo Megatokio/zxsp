@@ -1,8 +1,8 @@
-#pragma once
-// Copyright (c) 2000 - 2023 kio@little-bat.de
+// Copyright (c) 2000 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "IsaObject.h"
 #include "Templates/Array.h"
 #include "zxsp_types.h"
@@ -24,6 +24,9 @@
 	The visual representation of a "TapeRecorder" is the "TapeRecorderInspector".
 */
 
+
+namespace zxsp
+{
 
 class TapeData : public IsaObject
 {
@@ -100,3 +103,5 @@ inline AudioData& AudioDataRef(const TapeData& p)
 	assert(p.isA(isa_AudioData));
 	return (AudioData&)p;
 }
+
+} // namespace zxsp

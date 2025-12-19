@@ -1,4 +1,4 @@
-// Copyright (c) 2014 - 2023 kio@little-bat.de
+// Copyright (c) 2014 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -52,6 +52,9 @@
 		ld ($1000),a	; write command
 */
 
+
+namespace zxsp
+{
 
 #define o_addr "00-- ---- ---- ----" // 0x38 = RST 7 fully decoded, $1xxx and $3xxx
 #define i_addr "000- ---- ---- ----" // 0x38 = RST 7 fully decoded, $1xxx
@@ -462,3 +465,5 @@ void CurrahMicroSpeech::add_history(uint8 command)
 	history[lastwp & mask] = command + pitch;
 	++lastwp;
 }
+
+} // namespace zxsp

@@ -1,4 +1,4 @@
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -6,6 +6,9 @@
 #include "Keyboard.h"
 #include "Machine.h"
 
+
+namespace zxsp
+{
 
 /*	constructor for derived classes
 	note: the ula is added like an item with no i/o
@@ -92,3 +95,5 @@ void Ula::setCcPerLine(int n)
 }
 
 void Ula::setBytesPerLine(int n) { setCcPerLine(n * cc_per_byte); }
+
+} // namespace zxsp

@@ -1,6 +1,11 @@
-// Copyright (c) 2000 - 2023 kio@little-bat.de
+// Copyright (c) 2000 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
+
+#include "MetaData.h"
+#include "RlesData.h"
+#include "TapeData.h"
+#include "templates/Buffer.h"
 
 /*	class PzxData
 	--------------
@@ -14,15 +19,8 @@
 	- tap, o80, p81  (eventually)
 */
 
-
-#ifndef PzxData_h
-#define PzxData_h
-
-#include "MetaData.h"
-#include "RlesData.h"
-#include "TapeData.h"
-#include "templates/Buffer.h"
-
+namespace zxsp
+{
 
 typedef Buffer<uint8> charBuffer;
 
@@ -84,4 +82,4 @@ public:
 	static void writeFile(cstr fpath, AoP<TapeData>&, MetaData&) throw(file_error, data_error, bad_alloc);
 };
 
-#endif
+}

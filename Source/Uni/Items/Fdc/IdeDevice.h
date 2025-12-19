@@ -1,14 +1,17 @@
-#pragma once
-// Copyright (c) 2014 - 2023 kio@little-bat.de
+// Copyright (c) 2014 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "cpp/cppthreads.h"
 #include "kio/kio.h"
 #include "unix/FD.h"
 #include "zxsp_types.h"
 #include <unistd.h>
 
+
+namespace zxsp
+{
 
 class IdeDevice // Base class for IdeCFcard, IdeHadDisk and IdeCDrom
 {
@@ -213,3 +216,5 @@ class IdeCDRom : public IdeDevice
 public:
 	explicit IdeCDRom(cstr filepath, bool master = yes) : IdeDevice(filepath, CDRom, master) {}
 };
+
+} // namespace zxsp

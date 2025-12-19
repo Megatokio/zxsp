@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -14,6 +14,9 @@
 	and that not affected bits are not driven at all.
 */
 
+
+namespace zxsp
+{
 
 #define O_ADDR nullptr
 #define I_ADDR "----.----.----.---0"
@@ -86,3 +89,5 @@ ZxPlus3Joy::ZxPlus3Joy(Machine* m) : SinclairJoy(m, isa_ZxPlus3Joy, internal) {}
 //	über Adapter auch linker Joystick (12345) mit COMMON an Pin 7.
 Tk90xJoy::Tk90xJoy(Machine* m) : SinclairJoy(m, isa_Tk90xJoy, internal) {}
 Tk95Joy::Tk95Joy(Machine* m) : SinclairJoy(m, isa_Tk95Joy, internal) {}
+
+} // namespace zxsp

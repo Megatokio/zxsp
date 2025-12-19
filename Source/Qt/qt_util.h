@@ -1,14 +1,14 @@
-#pragma once
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "kio/kio.h"
 #include <QRgb>
 #include <QWidget>
 
 
-namespace gui
+namespace zxsp
 {
 
 extern void setColors(QWidget* widget, QRgb foregroundcolor, QRgb backgroundcolor = 0 /*transparent*/);
@@ -21,4 +21,4 @@ extern int32  intValue(cstr);
 extern double mhzValue(cstr);
 extern uint16 printablechar(uint8 c); // unprintable -> middle-dot
 
-} // namespace gui
+} // namespace zxsp

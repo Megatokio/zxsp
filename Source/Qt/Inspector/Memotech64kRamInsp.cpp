@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -10,7 +10,7 @@
 #include <QLabel>
 
 
-namespace gui
+namespace zxsp
 {
 
 static constexpr uint dipsw[5] = {8, 4, 2, 6, 1}; // {0b1000,0b0100,0b0010,0b0110,0b0001};
@@ -54,4 +54,4 @@ Memotech64kRamInsp::Memotech64kRamInsp(QWidget* p, MachineController* mc, volati
 	l->move(10, 145);
 }
 
-} // namespace gui
+} // namespace zxsp

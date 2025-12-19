@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -8,6 +8,9 @@
 #include "Z80/Z80.h"
 #include "Z80/Z80options.h"
 
+
+namespace zxsp
+{
 
 // o_addr_128	=	"0---.----.----.--0-"		// üblicher Port: 0x7ffd
 // o_addr_48k	=	"----.----.----.---0"		// übliche Adresse: $FE     BESTÄTIGT
@@ -135,3 +138,5 @@ int32 Ula128k::addWaitCycles(int32 cc, uint16 addr) const volatile
 	}
 	return cc;
 }
+
+} // namespace zxsp

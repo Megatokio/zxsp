@@ -1,10 +1,13 @@
-#pragma once
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Ay.h"
 
+
+namespace zxsp
+{
 
 class AyForZx128 final : public Ay
 {
@@ -69,3 +72,5 @@ public:
 protected:
 	~ZonxBox81() override = default;
 };
+
+} // namespace zxsp

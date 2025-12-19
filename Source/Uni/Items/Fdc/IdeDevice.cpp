@@ -1,4 +1,4 @@
-// Copyright (c) 2014 - 2023 kio@little-bat.de
+// Copyright (c) 2014 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -113,6 +113,9 @@ active disk head. bit 6    : write bit. This bit is set when the device is writi
 bit indicates if a floppy is present in the floppy drive. Here it has no meaning.
 */
 
+
+namespace zxsp
+{
 
 #define MAX_SECTORS_PER_MULTIPLE 64 // must be 2^N
 #define ATA_VERSION				 5	// must be 5.	handles up to 128 GiB for CF => always suitable
@@ -1513,3 +1516,5 @@ void IdeDevice::handle_command(Time t, uint8 cmd)
 	error_register	= error_ABORT_mask;
 	status_register = status_RDY_mask | status_ERROR_mask;
 }
+
+} // namespace zxsp

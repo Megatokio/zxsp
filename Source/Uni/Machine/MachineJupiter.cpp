@@ -1,4 +1,4 @@
-// Copyright (c) 2008 - 2023 kio@little-bat.de
+// Copyright (c) 2008 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -10,6 +10,9 @@
 #include "Ula/MmuJupiter.h"
 #include "Ula/UlaJupiter.h"
 
+
+namespace zxsp
+{
 
 // bit masks for z80 flag register:
 #define S_FLAG 0x80
@@ -460,3 +463,5 @@ void MachineJupiter::saveAce(FD& fd)
 	static uint8 ed00[2] = {0xed, 0};
 	fd.write_bytes(ed00, 2);
 }
+
+} // namespace zxsp

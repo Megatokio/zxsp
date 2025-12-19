@@ -1,8 +1,8 @@
-#pragma once
-// Copyright (c) 2000 - 2023 kio@little-bat.de
+// Copyright (c) 2000 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "TapeData.h"
 #include "TapeFile.h"
 #include "audio/AudioDecoder.h"
@@ -32,6 +32,9 @@ note:
 */
 
 
+namespace zxsp
+{
+
 class AudioData : public TapeData
 {
 	friend CswBuffer::CswBuffer(const AudioData&, uint32);
@@ -57,3 +60,5 @@ public:
 	static void readFile(cstr fpath, TapeFile&);
 	static void writeFile(cstr fpath, TapeFile&);
 };
+
+} // namespace zxsp

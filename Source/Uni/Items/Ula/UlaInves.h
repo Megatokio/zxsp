@@ -1,10 +1,13 @@
-#pragma once
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "UlaZxsp.h"
 
+
+namespace zxsp
+{
 
 class UlaInves : public UlaZxsp
 {
@@ -27,3 +30,5 @@ protected:
 	uint8 getFloatingBusByte(int32 cc) override;
 	void  setupTiming() override;
 };
+
+} // namespace zxsp

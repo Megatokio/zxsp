@@ -1,4 +1,4 @@
-// Copyright (c) 2013 - 2023 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -6,6 +6,9 @@
 #include "Ula/UlaTc2048.h"
 #include "zxsp_globals.h"
 
+
+namespace zxsp
+{
 
 /*	TS2068:
 	Port 0xFF: set display mode:
@@ -333,3 +336,5 @@ void Tc2048GifWriter::drawScreen(
 
 	assert(p == bits->getData() + width * height);
 }
+
+} // namespace zxsp

@@ -1,15 +1,15 @@
-#pragma once
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Memory.h"
 #include "MemoryInspector.h"
 #include "Templates/Array.h"
 class QComboBox;
 
 
-namespace gui
+namespace zxsp
 {
 class GWidgetRGB;
 
@@ -73,4 +73,4 @@ private:
 	void slotSetBytesPerRow(int); // combobox_bytes_per_row
 };
 
-} // namespace gui
+} // namespace zxsp

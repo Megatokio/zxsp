@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -13,7 +13,7 @@
 #include <QVariant>
 
 
-namespace gui
+namespace zxsp
 {
 
 Zx3kInsp::Zx3kInsp(QWidget* parent, MachineController* mc, volatile Zx3kRam* zx3kram) :
@@ -58,4 +58,4 @@ void Zx3kInsp::slotSetRamSize(uint newsize)
 	settings.setValue(key_zx3k_ramsize, newsize);
 }
 
-} // namespace gui
+} // namespace zxsp

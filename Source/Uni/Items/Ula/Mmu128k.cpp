@@ -1,4 +1,4 @@
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -13,6 +13,9 @@
 #include "ZxInfo.h"
 #include "unix/FD.h"
 
+
+namespace zxsp
+{
 
 // ZX Spectrum 128K / +2 Memory Control
 #define o_addr_128 "0---.----.----.--0-" // üblicher Port: 0x7ffd
@@ -133,3 +136,5 @@ void Mmu128k::romCS(bool f)
 
 	page_rom_128k();
 }
+
+} // namespace zxsp

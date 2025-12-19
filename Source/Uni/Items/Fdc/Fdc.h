@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -6,6 +6,9 @@
 #include "FloppyDiskDrive.h"
 #include "MassStorage.h"
 
+
+namespace zxsp
+{
 
 class Fdc : public MassStorage
 {
@@ -43,3 +46,5 @@ protected:
 	virtual void  send_byte_to_dma(uint8) {}			 // to be reimplemented if fdc uses dma
 	virtual uint8 read_byte_from_dma() { return 0xFF; }	 // to be reimplemented if fdc uses dma
 };
+
+} // namespace zxsp

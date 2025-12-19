@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2025 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -10,7 +10,7 @@
 #include <QGridLayout>
 #include <QPushButton>
 
-namespace gui
+namespace zxsp
 {
 
 FullerBoxInsp::FullerBoxInsp(QWidget* w, MachineController* mc, volatile FullerBox* i) :
@@ -107,7 +107,7 @@ void FullerBoxInsp::slotSetKeyboardJoystickKeys()
 	d->show();
 }
 
-} // namespace gui
+} // namespace zxsp
 
 
 /*

@@ -1,4 +1,4 @@
-// Copyright (c) 2013 - 2025 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -7,7 +7,11 @@
 #include "kio/kio.h"
 
 
+namespace zxsp
+{
 extern Model modelForSZX(FD& fd);
+}
+
 
 /*
 void Machine::loadSZX(FD&);

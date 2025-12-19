@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -18,7 +18,12 @@
 //    between scans, so the stylus must be turned off before attempting to detect the edge of the paper.
 
 
+namespace zxsp
+{
+
 #define o_addr "---- ---- ---- -0--"
 #define i_addr nullptr
 
 ZxPrinter::ZxPrinter(Machine* m) : Printer(m, isa_ZxPrinter, external, o_addr, i_addr) {}
+
+} // namespace zxsp

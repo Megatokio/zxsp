@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -33,7 +33,12 @@
 //        the start of a new line.
 
 
+namespace zxsp
+{
+
 static cstr o_addr = nullptr; // TODO
 static cstr i_addr = nullptr; // TODO
 
 PrinterTs2040::PrinterTs2040(Machine* m) : Printer(m, isa_PrinterTs2040, external, o_addr, i_addr) {}
+
+} // namespace zxsp

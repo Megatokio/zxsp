@@ -1,13 +1,16 @@
-#pragma once
-// Copyright (c) 2015 - 2023 kio@little-bat.de
+// Copyright (c) 2015 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "kio/kio.h"
 
 
 /*	Keymap as used by Keyboard:
  */
+
+namespace zxsp
+{
 
 union Keymap
 {
@@ -25,3 +28,5 @@ union Keymap
 	void set_key(uint8 spec) { row[(spec >> 4) & 7] &= ~(1 << (spec & 7)); }
 	bool get_key(uint8 spec) { return !(row[(spec >> 4) & 7] & (1 << (spec & 7))); }
 };
+
+} // namespace zxsp

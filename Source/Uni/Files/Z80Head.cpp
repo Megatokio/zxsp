@@ -1,4 +1,4 @@
-// Copyright (c) 2002 - 2023 kio@little-bat.de
+// Copyright (c) 2002 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -121,6 +121,9 @@
 */
 
 
+namespace zxsp
+{
+
 /*  read a .z80 header
 	reads v1.45, ≥v2.01 header of any size (( ≤ sizeof(Z80Head) ))
 */
@@ -177,7 +180,7 @@ void Z80Head::write(FD& fd)
 void Z80Head::setZxspModel(Model zxmodel, bool if1, bool mgt)
 {
 	// clang-format off
-	
+
 	switch (zxmodel)
 	{
 	case zxsp_i1:
@@ -189,7 +192,7 @@ void Z80Head::setZxspModel(Model zxmodel, bool if1, bool mgt)
 		FALLTHROUGH
 
 	case zxsp_i3:
-		if (0) 
+		if (0)
 
 	case zxplus:
 		rldiremu |= 0x20; // plus
@@ -199,9 +202,9 @@ void Z80Head::setZxspModel(Model zxmodel, bool if1, bool mgt)
 	case zxplus2:
 		rldiremu |= 0x80; // +2
 		FALLTHROUGH
-				
-	case zx128: 
-		model = if1 ? 5 : mgt ? 6 : 4; 
+
+	case zx128:
+		model = if1 ? 5 : mgt ? 6 : 4;
 		break;
 
 	case tk85: model = 76; break;	// 60 Hz
@@ -210,7 +213,7 @@ void Z80Head::setZxspModel(Model zxmodel, bool if1, bool mgt)
 	case zx80: model = 80; break;
 	case zx81: model = 81; break;
 	case jupiter: model = 83; break;
-		
+
 	case zxplus_span:
 	case inves: model = 84; break;
 
@@ -226,7 +229,7 @@ void Z80Head::setZxspModel(Model zxmodel, bool if1, bool mgt)
 		model = 7;
 		rldiremu |= 0x80;
 		break;
-		
+
 	case zxplus2a_span: model = 90; break;
 
 	case tc2048: model = 14; break;
@@ -481,3 +484,5 @@ Model modelForZ80(FD& fd)
 
 	return head.getZxspModel();
 }
+
+} // namespace zxsp

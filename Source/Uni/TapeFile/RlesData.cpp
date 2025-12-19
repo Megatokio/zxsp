@@ -1,4 +1,4 @@
-// Copyright (c) 2000 - 2023 kio@little-bat.de
+// Copyright (c) 2000 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -114,6 +114,9 @@ lt. RamSoft "ZX Spectrum Loaders Guide":
 
 // ################################################################################
 
+
+namespace zxsp
+{
 
 RlesData::RlesData() : TapeData(isa_RlesData) {}
 
@@ -376,3 +379,5 @@ void RlesData::WriteToFile( int fd ) const 			// .rles file
 //{
 //	return 0;	// TODO
 // }
+
+} // namespace zxsp

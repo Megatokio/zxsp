@@ -1,9 +1,12 @@
-#pragma once
-// Copyright (c) 2006 - 2023 kio@little-bat.de
+// Copyright (c) 2006 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Item.h"
+
+namespace zxsp
+{
 
 class KempstonMouse : public Item
 {
@@ -27,3 +30,5 @@ public:
 	uint8 getYPos() const volatile { return uint8(y / scale); }
 	uint8 getButtons() const volatile { return buttons & 3; }
 };
+
+} // namespace zxsp

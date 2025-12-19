@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -10,7 +10,7 @@
 #include <QtGui>
 
 
-namespace gui
+namespace zxsp
 {
 
 InvesJoyInsp::InvesJoyInsp(QWidget* w, MachineController* mc, volatile InvesJoy* joy) :
@@ -33,4 +33,4 @@ InvesJoyInsp::InvesJoyInsp(QWidget* w, MachineController* mc, volatile InvesJoy*
 	g->addWidget(button_scan_usb, 2, 2, Qt::AlignHCenter | Qt::AlignVCenter);
 }
 
-} // namespace gui
+} // namespace zxsp

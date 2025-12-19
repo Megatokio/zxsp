@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -12,6 +12,9 @@
 #include "Z80/Z80.h"
 #include "ZxInfo.h"
 
+
+namespace zxsp
+{
 
 MachineTc2068::MachineTc2068(IMachineController* m, Model model) : MachineTc2048(m, model, isa_MachineTc2068)
 {
@@ -36,3 +39,5 @@ void MachineTc2068::insertCartridge(cstr fpath)
 	dock->insertCartridge(fpath);
 	if (f) powerOn();
 }
+
+} // namespace zxsp

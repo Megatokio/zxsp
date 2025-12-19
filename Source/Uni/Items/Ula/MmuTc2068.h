@@ -1,11 +1,14 @@
-#pragma once
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Files/TccRom.h"
 #include "MmuTc2048.h"
 
+
+namespace zxsp
+{
 
 class MmuTc2068 : public MmuTc2048
 {
@@ -69,3 +72,5 @@ protected:
 private:
 	void set_port_f4(uint8, uint8);
 };
+
+} // namespace zxsp

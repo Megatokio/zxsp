@@ -1,8 +1,8 @@
-#pragma once
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "kio/kio.h"
 #include <QBrush>
 #include <QFont>
@@ -13,7 +13,7 @@
 #include <QSemaphore>
 #include <QWidget>
 
-namespace gui
+namespace zxsp
 {
 
 enum {
@@ -110,4 +110,4 @@ signals:
 public slots:
 };
 
-} // namespace gui
+} // namespace zxsp

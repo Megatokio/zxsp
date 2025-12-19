@@ -1,4 +1,4 @@
-// Copyright (c) 2013 - 2023 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -19,7 +19,7 @@
 #include <QPushButton>
 #include <QTimer>
 
-namespace gui
+namespace zxsp
 {
 
 SpectraVideoInspector::SpectraVideoInspector(QWidget* w, MachineController* mc, volatile SpectraVideo* spectra) :
@@ -306,7 +306,7 @@ void SpectraVideoInspector::insertRom(cstr filepath)
 	addRecentFile(RecentFiles, filepath);
 }
 
-} // namespace gui
+} // namespace zxsp
 
 
 /*

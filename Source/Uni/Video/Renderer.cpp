@@ -1,4 +1,4 @@
-// Copyright (c) 2013 - 2023 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -7,6 +7,8 @@
 #include "unix/os_utilities.h"
 #include "version.h"
 
+namespace zxsp
+{
 
 Renderer::Renderer(isa_id id, uint screen_width, uint screen_height, uint h_border, uint v_border, bool color) :
 	IsaObject(id, isa_Renderer),
@@ -94,3 +96,5 @@ void GifWriter::stopRecording()
 	delete diff2;
 	diff2 = nullptr;
 }
+
+} // namespace zxsp

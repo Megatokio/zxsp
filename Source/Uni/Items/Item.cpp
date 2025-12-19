@@ -1,4 +1,4 @@
-// Copyright (c) 2004 - 2023 kio@little-bat.de
+// Copyright (c) 2004 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -6,6 +6,9 @@
 #include "IoInfo.h"
 #include "Machine.h"
 
+
+namespace zxsp
+{
 
 uint16 bitsForSpec(cstr s)
 {
@@ -139,6 +142,8 @@ void Item::showMessage(MessageStyle ms, cstr text)
 	if (machine) machine->showMessage(ms, text);
 	else ::showMessage(ms, text);
 }
+
+} // namespace zxsp
 
 /*
 

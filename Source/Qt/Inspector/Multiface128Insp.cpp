@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -7,7 +7,7 @@
 #include <QLabel>
 
 
-namespace gui
+namespace zxsp
 {
 
 Multiface128Insp::Multiface128Insp(QWidget* w, MachineController* mc, volatile Multiface128* i) :
@@ -33,4 +33,4 @@ void Multiface128Insp::updateWidgets()
 	if (label_visibility->isVisible() != mf128->isEnabled()) label_visibility->setVisible(mf128->isEnabled());
 }
 
-} // namespace gui
+} // namespace zxsp

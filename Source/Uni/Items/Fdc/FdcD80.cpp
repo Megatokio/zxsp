@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -15,7 +15,12 @@
 //    #define P_D80_SYSTEM                    0x89    /* System register (write)*/
 
 
+namespace zxsp
+{
+
 static cstr o_addr = nullptr; // TODO
 static cstr i_addr = nullptr; // TODO
 
 FdcD80::FdcD80(Machine* m) : Fdc(m, isa_FdcD80, external, o_addr, i_addr) {}
+
+} // namespace zxsp

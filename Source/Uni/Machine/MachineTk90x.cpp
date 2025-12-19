@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -12,6 +12,9 @@
 #include "Ula/UlaZxsp.h"
 
 
+namespace zxsp
+{
+
 MachineTk90x::MachineTk90x(IMachineController* m, bool is60hz) : MachineZxsp(m, tk90x, isa_MachineTk90x)
 {
 	addItem(new Z80(this));
@@ -22,6 +25,7 @@ MachineTk90x::MachineTk90x(IMachineController* m, bool is60hz) : MachineZxsp(m, 
 	addItem(new TS2020(this));
 }
 
+} // namespace zxsp
 
 /*	TODO
 

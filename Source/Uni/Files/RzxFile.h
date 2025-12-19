@@ -1,14 +1,18 @@
-#pragma once
-// Copyright (c) 2016 - 2023 kio@little-bat.de
+// Copyright (c) 2016 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Libraries/unix/FD.h"
 #include "RzxBlock.h"
 #include "Templates/Array.h"
 #include "ZxInfo/ZxInfo.h"
 #include "kio/kio.h"
 #include <zlib.h>
+
+
+namespace zxsp
+{
 
 #define OurRzxLibraryVersion 0x000C // rzx file version we create
 #define MaxRzxLibraryVersion 0x000D // some changes in encryption (we don't use)
@@ -128,3 +132,5 @@ private:
 	void init();
 	void kill();
 };
+
+} // namespace zxsp

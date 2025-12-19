@@ -1,15 +1,17 @@
-#pragma once
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
+
+#pragma once
+#include "Mmu128k.h"
 
 /*
 	Mmu for +2A and +3.
 	based on Mmu128k
 */
 
-#include "Mmu128k.h"
-
+namespace zxsp
+{
 
 class MmuPlus3 : public Mmu128k
 {
@@ -62,3 +64,5 @@ private:
 	void page_only_ram();
 	void set_port_7ffd_and_1ffd(uint8, uint8);
 };
+
+} // namespace zxsp

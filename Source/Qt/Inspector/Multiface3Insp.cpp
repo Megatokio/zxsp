@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -7,7 +7,7 @@
 #include <QLabel>
 
 
-namespace gui
+namespace zxsp
 {
 
 Multiface3Insp::Multiface3Insp(QWidget* w, MachineController* mc, volatile Multiface3* i) :
@@ -36,4 +36,4 @@ void Multiface3Insp::updateWidgets()
 	if (label_ramonly->isVisible() != mf3->isAllRam()) label_ramonly->setVisible(mf3->isAllRam());
 }
 
-} // namespace gui
+} // namespace zxsp

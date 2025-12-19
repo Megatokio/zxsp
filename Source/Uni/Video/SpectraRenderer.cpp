@@ -1,4 +1,4 @@
-// Copyright (c) 2013 - 2023 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -8,7 +8,8 @@
 #include "unix/os_utilities.h"
 #include "zxsp_globals.h"
 
-
+namespace zxsp
+{
 // Display mode register bit masks:
 #define HALFCELLMODE	   0x80
 #define ENHANCED_BORDER	   0x10
@@ -499,3 +500,4 @@ void SpectraGifWriter::drawScreen(
 
 	assert(p == bits->getData() + width * height);
 }
+} // namespace zxsp

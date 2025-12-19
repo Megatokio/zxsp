@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -12,6 +12,9 @@
 #include "Ula/UlaInves.h"
 
 
+namespace zxsp
+{
+
 MachineInves::MachineInves(IMachineController* m) : MachineZxsp(m, inves, isa_MachineInves)
 {
 	addItem(new Z80(this));		 // must be 1st item
@@ -21,3 +24,5 @@ MachineInves::MachineInves(IMachineController* m) : MachineZxsp(m, inves, isa_Ma
 	addItem(new InvesJoy(this));
 	addItem(new Walkman(this));
 }
+
+} // namespace zxsp

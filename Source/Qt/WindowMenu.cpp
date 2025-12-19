@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -7,7 +7,7 @@
 #include <QMainWindow>
 
 
-namespace gui
+namespace zxsp
 {
 
 static uint			windows	   = 0;
@@ -85,4 +85,4 @@ void WindowMenu::checkWindows()
 
 void WindowMenu::setTitle() { action->setText(window->windowTitle()); }
 
-} // namespace gui
+} // namespace zxsp

@@ -1,13 +1,16 @@
-#pragma once
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Crtc.h"
 #include "Item.h"
 #include "Keymap.h"
 #include "StereoSample.h"
 
+
+namespace zxsp
+{
 
 class Ula : public Crtc
 {
@@ -60,3 +63,5 @@ public:
 	// helper for snapshot loader:
 	void set_ula_out_byte(uint8 b) noexcept { ula_out_byte = b; }
 };
+
+} // namespace zxsp

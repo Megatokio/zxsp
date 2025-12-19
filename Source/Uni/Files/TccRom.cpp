@@ -1,4 +1,4 @@
-// Copyright (c) 2013 - 2023 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -40,6 +40,10 @@
 	That's all if only one bank is stored in the DCK file. Else a new 9-byte header for the next bank follows, and so
    on.
 */
+
+
+namespace zxsp
+{
 
 #define DOCK  0
 #define EXROM 254
@@ -333,3 +337,5 @@ void TccRom::save_as(cstr fpath)
 		}
 	}
 }
+
+} // namespace zxsp

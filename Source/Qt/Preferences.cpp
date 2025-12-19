@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2025 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -14,7 +14,7 @@
 #include <QRadioButton>
 
 
-namespace gui
+namespace zxsp
 {
 
 #define key_saved_session			  "settings/saved_session"			   /* QString  … filepath */
@@ -216,4 +216,4 @@ Preferences::Preferences(QWidget* parent) : QWidget(parent)
 }
 
 
-} // namespace gui
+} // namespace zxsp

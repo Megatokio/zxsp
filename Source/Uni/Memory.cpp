@@ -1,4 +1,4 @@
-// Copyright (c) 2014 - 2023 kio@little-bat.de
+// Copyright (c) 2014 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -10,6 +10,9 @@
 #include "Machine.h"
 #include "cpp/cppthreads.h"
 
+
+namespace zxsp
+{
 
 #define MAXSIZE 0x100000u // 1 MB
 
@@ -84,3 +87,5 @@ void Memory::grow(uint new_cnt) noexcept
 	data.grow(new_cnt);
 	machine->memoryModified(this);
 }
+
+} // namespace zxsp

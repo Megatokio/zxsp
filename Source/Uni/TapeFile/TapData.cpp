@@ -1,4 +1,4 @@
-// Copyright (c) 1994 - 2023 kio@little-bat.de
+// Copyright (c) 1994 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -53,6 +53,9 @@
 	Addresses inside of the file body are relative to loading position, idR. 0x3C51.
 */
 
+
+namespace zxsp
+{
 
 struct Timing
 {
@@ -638,3 +641,5 @@ void TapData::readFile(cstr fpath, TapeFile& data)
 cstr TapData::calcMajorBlockInfo() const noexcept { return calcMajorTapBlockInfo(data.getData(), data.count()); }
 
 cstr TapData::calcMinorBlockInfo() const noexcept { return calcMinorTapBlockInfo(data.getData(), data.count()); }
+
+} // namespace zxsp

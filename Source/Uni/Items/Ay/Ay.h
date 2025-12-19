@@ -1,8 +1,8 @@
-#pragma once
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Item.h"
 #include "StereoSample.h"
 
@@ -10,6 +10,10 @@
 // ay-3-8912 emulation
 // hardware independent part
 //
+
+
+namespace zxsp
+{
 
 extern const uint8 ayRegMask[16];
 const bool		   low	= false;
@@ -213,3 +217,5 @@ protected:
 	void audioBufferEnd(Time) override;
 	// void	videoFrameEnd	(int32 cc) override;
 };
+
+} // namespace zxsp

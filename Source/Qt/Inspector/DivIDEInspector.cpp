@@ -1,4 +1,4 @@
-// Copyright (c) 2014 - 2025 kio@little-bat.de
+// Copyright (c) 2014 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -18,7 +18,7 @@
 #include <QWidget>
 
 
-namespace gui
+namespace zxsp
 {
 
 static constexpr QRect box_nmi_button(269 + 4, 61 - 2, 19, 11 + 10);
@@ -397,7 +397,7 @@ cstr DivIDEInspector::getCustomTitle()
 	return divide->getRomFilepath() ? catstr(divide->name, ": ", divide->getRomFilename()) : nullptr;
 }
 
-} // namespace gui
+} // namespace zxsp
 
 
 /*

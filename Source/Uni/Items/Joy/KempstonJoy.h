@@ -1,10 +1,13 @@
-#pragma once
-// Copyright (c) 2006 - 2023 kio@little-bat.de
+// Copyright (c) 2006 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Joy.h"
 
+
+namespace zxsp
+{
 
 class KempstonJoy : public Joy
 {
@@ -19,3 +22,5 @@ protected:
 	// Item interface
 	void input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
 };
+
+} // namespace zxsp

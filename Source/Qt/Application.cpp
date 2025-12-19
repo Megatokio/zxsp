@@ -1,4 +1,4 @@
-// Copyright (c) 2009 - 2023 kio@little-bat.de
+// Copyright (c) 2009 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -55,7 +55,7 @@ class MyProxyStyle : public QProxyStyle
 cstr appl_rsrc_path = nullptr; // set by main()
 
 
-namespace gui
+namespace zxsp
 {
 
 // ==========================================================
@@ -214,7 +214,7 @@ void Application::showPreferences()
 	window->show();
 }
 
-} // namespace gui
+} // namespace zxsp
 
 
 // ==========================================================
@@ -317,8 +317,8 @@ int main(int argc, char* argv[])
 	logNl();
 
 	// *DOIT*
-	TempMemPool		 t; // new flushable pool, preserving some temp strings from above
-	gui::Application app(argc, argv);
+	TempMemPool		  t; // new flushable pool, preserving some temp strings from above
+	zxsp::Application app(argc, argv);
 	std::setlocale(LC_ALL, "en_US"); // decimal POINT!  ((bestimmt kann man Application selbst tweaken…))
 
 #if QT_VERSION >= 0x050000 && QT_VERSION < 0x050300

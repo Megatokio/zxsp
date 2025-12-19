@@ -1,4 +1,4 @@
-// Copyright (c) 2006 - 2023 kio@little-bat.de
+// Copyright (c) 2006 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -30,6 +30,9 @@ they don't make any problem.)
 */
 
 
+namespace zxsp
+{
+
 #define o_addr nullptr
 #define i_addr "----.----.--0-.----"
 
@@ -43,3 +46,5 @@ Tc2048Joy::Tc2048Joy(Machine* m) : KempstonJoy(m, isa_Tc2048Joy, internal) { xlo
 //	mask = 0xff;
 //	byte = machine==frontMachine ? joystick()->getState() : 0;
 // }
+
+} // namespace zxsp

@@ -1,7 +1,8 @@
-#pragma once
-// Copyright (c) 1996 - 2023 kio@little-bat.de
+// Copyright (c) 1996 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
+
+#pragma once
 
 /*
 	Z80 cpu options
@@ -13,6 +14,10 @@
 				options and callback functions for zxsp
 
    ##################################################################### */
+
+
+namespace zxsp
+{
 
 using uint32 = uint32_t;
 
@@ -56,3 +61,5 @@ enum {
 	cpu_exit_w,			// exit forced by macro POKE (options&cpu_break_w)
 	cpu_exit_x // exit forced by macro GET_INSTR before - or GET_BYTE(RGL) after executing opcode (options&cpu_break_x)
 };
+
+} // namespace zxsp

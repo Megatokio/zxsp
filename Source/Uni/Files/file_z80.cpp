@@ -1,4 +1,4 @@
-// Copyright (c) 2002 - 2023 kio@little-bat.de
+// Copyright (c) 2002 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -24,6 +24,9 @@
 #include "ZxIf1.h"
 #include "unix/FD.h"
 
+
+namespace zxsp
+{
 
 /* ----	write compressed .z80 block -------------------------------------------
 		writes block header and compressed data for v2.01 or later
@@ -691,3 +694,5 @@ void Machine::loadZ80(FD& fd) noexcept(false) /*file_error,DataError*/
 
 	xlogline("loaded ok");
 }
+
+} // namespace zxsp

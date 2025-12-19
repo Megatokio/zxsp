@@ -1,4 +1,4 @@
-// Copyright (c) 2013 - 2023 kio@little-bat.de
+// Copyright (c) 2013 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -48,6 +48,9 @@
 		%11	single		6000-77ff			5800-7fff
 */
 
+
+namespace zxsp
+{
 
 // RS232 RST8 hook codes:
 // #define RS232_READ_BYTE			0x1d
@@ -871,3 +874,5 @@ uint8 SpectraVideo::peekJoystickButtonsFUDLR() const volatile
 {
 	return joystick_enabled ? machine->peekJoystickButtons(joystick_id) : 0x00;
 }
+
+} // namespace zxsp

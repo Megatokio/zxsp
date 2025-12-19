@@ -1,10 +1,13 @@
-#pragma once
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
+#pragma once
 #include "Machine.h"
 
+
+namespace zxsp
+{
 
 class MachineZxsp : public Machine
 {
@@ -23,3 +26,5 @@ public:
 	void saveSna(FD& fd) override;
 	// void	loadTap         (FD& fd) override;
 };
+
+} // namespace zxsp

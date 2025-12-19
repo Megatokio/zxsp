@@ -1,4 +1,4 @@
-// Copyright (c) 2006 - 2023 kio@little-bat.de
+// Copyright (c) 2006 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -12,7 +12,7 @@
 #include <QtGui>
 
 
-namespace gui
+namespace zxsp
 {
 
 KempstonMouseInsp::KempstonMouseInsp(QWidget* w, MachineController* mc, volatile KempstonMouse* mif) :
@@ -144,4 +144,4 @@ void KempstonMouseInsp::updateWidgets()
 	}
 }
 
-} // namespace gui
+} // namespace zxsp

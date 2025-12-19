@@ -1,4 +1,4 @@
-// Copyright (c) 1995 - 2023 kio@little-bat.de
+// Copyright (c) 1995 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -109,6 +109,9 @@ When special mode is selected, the memory map changes to one of four configurati
  0x0000 +--------+  +--------+  +--------+  +--------+
 */
 
+
+namespace zxsp
+{
 
 #define o_addr_7ffd "01--.----.----.--0-" // üblicher Port: 0x7ffd
 #define o_addr_1ffd "0001.----.----.--0-" // üblicher Port: 0x1ffd
@@ -314,3 +317,5 @@ void MmuPlus3::output(Time t, int32 /*cc*/, uint16 addr, uint8 byte)
 			if (auto* p = dynamic_cast<PrinterPlus3*>(machine->printer)) p->strobe(byte & 0x10);
 	}
 }
+
+} // namespace zxsp

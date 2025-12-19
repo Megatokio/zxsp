@@ -1,4 +1,4 @@
-// Copyright (c) 2012 - 2023 kio@little-bat.de
+// Copyright (c) 2012 - 2026 kio@little-bat.de
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
@@ -88,6 +88,9 @@ CONCLUSIO:
 	out %----.----.-011.1111		FF_NMI.CLK:  disable NMI patch
 	out %----.----.0011.1111		FF_HIDE.CLK: hide the MF+3
 */
+
+namespace zxsp
+{
 
 static cstr i_addr = "----.----.-011.1111";
 static cstr o_addr = "----.----.--11.11-1";
@@ -207,3 +210,5 @@ void Multiface3::triggerNmi()
 	mf_enabled	= yes;
 	machine->cpu->triggerNmi();
 }
+
+} // namespace zxsp
