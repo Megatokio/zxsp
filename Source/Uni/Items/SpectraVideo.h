@@ -14,7 +14,7 @@ namespace zxsp
 
 class SpectraVideo : public Crtc
 {
-	friend class Machine;
+	//friend class Machine;
 
 public:
 	bool	  has_port_7ffd; // SPECTRA zxsp or zx128k model
@@ -37,11 +37,9 @@ public:
 	bool own_romdis_state; // own state
 
 	// CRTC:
-	UlaZxsp*	   ula {nullptr};
-	ZxspVideoData* bucket {nullptr}; // the currently constructed video frame
-	//CoreByte*	   video_ram {nullptr}; // current video ram
-	int32 ccx			= 0; // next cc for reading from video ram
-	int	  frame_counter = 0; // counter, used for flash phase
+	ZxspVideoData* bucket {nullptr};  // the currently constructed video frame
+	int32		   ccx			 = 0; // next cc for reading from video ram
+	int			   frame_counter = 0; // counter, used for flash phase
 
 
 private:

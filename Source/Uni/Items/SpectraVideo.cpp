@@ -167,6 +167,7 @@ SpectraVideo::~SpectraVideo()
 
 	xlogIn("~SpectraVideo");
 
+	if (machine->crtc == this) machine->setCrtc(machine->ula);
 	ejectRom();
 }
 
@@ -187,12 +188,12 @@ SpectraVideo::SpectraVideo(Machine* m, uint dip_switches) :
 	if1_rom_hooks_enabled(dip_switches & EnableIf1RomHooks),
 	rom(nullptr),
 	filepath(nullptr),
-	own_romdis_state(false),
-	ula(dynamic_cast<UlaZxsp*>(m->ula))
+	own_romdis_state(false)
 {
 	assert(machine->isA(isa_MachineZxsp));
-	screen	  = ula->screen;
+	screen	  = machine->ula->screen;
 	video_ram = &shadowram[0];
+	machine->setCrtc(this);
 	setup_timing();
 }
 
@@ -206,12 +207,14 @@ void SpectraVideo::powerOn(int32 cc)
 	assert(bucket->pixels_size >= 32 * 24 * 8 * 3);
 	bucket->ioinfo_count = 0;
 
+	machine->setCrtc(this);
 	setup_timing();
 	_reset(0);
 }
 
 void SpectraVideo::setup_timing()
 {
+	UlaZxsp* ula = dynamic_cast<UlaZxsp*>(machine->ula);
 	assert(ula);
 
 	lines_before_screen = ula->lines_before_screen; // 48k: 64, +128k: 63

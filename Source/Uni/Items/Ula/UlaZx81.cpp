@@ -378,7 +378,7 @@ void UlaZx81::input(Time now, int32 cc, uint16 addr, uint8& byte, uint8& mask)
 	if (!mic_in(now, cc)) byte &= ~EAR_IN_MASK;
 }
 
-void UlaZx81::crtcRead(int32 cc, uint opcode)
+void UlaZx81::crtcRead(int32 cc, __unused uint pc, uint opcode)
 {
 	// an instruction was read at an address with A15=1 and returned an opcode with A6=0
 	// => the Ula reads a video byte and fakes a NOP for the CPU
@@ -402,7 +402,7 @@ void UlaZx81::crtcRead(int32 cc, uint opcode)
 	Z80*  cpu = machine->cpu;
 	uint  ir  = cpu->getRegisters().ir; // i register
 	uchar b	  = cpu->peek(uint16((ir & 0x3e00) | ((opcode << 3) & 0x01f8) | lcntr));
-	tv_decoder.storePixelByte(cc + 4, opcode & 0x0080 ? b : ~b);
+	tv_decoder.storePixelByte(cc + 4, opcode & 0x0080 ? ~b : b);
 }
 
 int32 UlaZx81::nmiAtCycle(int32 cc)

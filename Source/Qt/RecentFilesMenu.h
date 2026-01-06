@@ -23,7 +23,8 @@ enum ListId {
 	RecentIf2Roms,
 	RecentTccRoms,
 	RecentDivideRoms,
-	RecentDivideDisks
+	RecentDivideDisks,
+	RecentChroma81Roms
 };
 
 

@@ -8,9 +8,10 @@
 namespace zxsp
 {
 
-class UlaZx81 : public UlaZx80
+class UlaZx81 final : public UlaZx80
 {
 	friend class MachineZx81;
+	friend class Chroma81;
 
 public:
 	static constexpr uint waitmap_size = 207; // cc
@@ -29,7 +30,7 @@ protected:
 	int32 doFrameFlyback(int32 cc) override;
 	void  drawVideoBeamIndicator(int32 cc) override;
 	int32 updateScreenUpToCycle(int32 cc) override;
-	void  crtcRead(int32 cc, uint byte) override;
+	void  crtcRead(int32 cc, uint pc, uint byte) override;
 	uint8 interruptAtCycle(int32, uint16) override;
 	int32 nmiAtCycle(int32 cc_nmi);
 

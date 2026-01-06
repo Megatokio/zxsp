@@ -3,7 +3,7 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #pragma once
-#include "TVDecoderMono.h"
+#include "TVDecoder.h"
 #include "Ula.h"
 
 namespace zxsp
@@ -11,6 +11,8 @@ namespace zxsp
 
 class UlaZx80 : public Ula
 {
+	friend class Chroma81;
+
 public:
 	UlaZx80(Machine*, bool is60hz);
 
@@ -28,10 +30,10 @@ public:
 	int32 cpuCycleOfInterrupt() override { return 1 << 30; }	  // ZX80 has no regular timer interrupt
 	int32 cpuCycleOfIrptEnd() override { return 1 << 30; }
 
-	int32		 cpuCycleOfFrameFlyback() override;
-	int32		 updateScreenUpToCycle(int32 cc) override;
-	virtual void crtcRead(int32 cc, uint byte);
-	uint8		 interruptAtCycle(int32, uint16) override;
+	int32 cpuCycleOfFrameFlyback() override;
+	int32 updateScreenUpToCycle(int32 cc) override;
+	void  crtcRead(int32 cc, uint pc, uint byte) override;
+	uint8 interruptAtCycle(int32, uint16) override;
 
 	void  set60Hz(bool = 1) override;
 	int32 getCcPerFrame() const volatile override { return tv_decoder.getCcPerFrame(); }
@@ -46,7 +48,7 @@ protected:
 	void mic_out(Time, int32 cc, bool bit);
 	bool mic_in(Time, int32 cc);
 
-	TVDecoderMono tv_decoder;
+	TVDecoder tv_decoder;
 
 	uint8 lcntr; // 3 bit low line counter [0..7] of ula
 	bool  vsync;

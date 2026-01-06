@@ -8,6 +8,7 @@
 #include "CurrahMicroSpeech.h"
 #include "Fdc/FdcPlus3.h"
 #include "Inspector/AyInsp.h"
+#include "Inspector/Chroma81Inspector.h"
 #include "Inspector/CurrahMicroSpeechInsp.h"
 #include "Inspector/CursorJoyInsp.h"
 #include "Inspector/DidaktikMelodikInsp.h"
@@ -288,6 +289,7 @@ Inspector* Inspector::newInspector(QWidget* p, MachineController* mc, volatile I
 	case isa_U2086Joy: return new Tc2068JoyInsp(p, mc, ITEM(Tc2068Joy), "/Images/u2086/side_view.jpg");
 	case isa_Tk85Joy: return new Tk85JoyInsp(p, mc, ITEM(Tk85Joy));
 
+	case isa_Chroma81: return new Chroma81Inspector(p, mc, ITEM(Chroma81));
 	case isa_SpectraVideo: return new SpectraVideoInspector(p, mc, ITEM(SpectraVideo));
 	case isa_DivIDE: return new DivIDEInspector(p, mc, ITEM(DivIDE));
 	case isa_CurrahMicroSpeech: return new CurrahMicroSpeechInsp(p, mc, ITEM(CurrahMicroSpeech));

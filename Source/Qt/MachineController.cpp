@@ -5,6 +5,7 @@
 
 #include "MachineController.h"
 #include "Application.h"
+#include "Chroma81.h"
 #include "Dialogs/ConfigureKeyboardJoystickDialog.h"
 #include "Fdc/DivIDE.h"
 #include "Fdc/Fdc.h"
@@ -209,6 +210,20 @@ void MachineController::updateSomeMenuItems()
 						screen->setJoystickOverlay(jscnt++, ov);
 						if (jscnt == NELEM(joystick_overlays)) break;
 					}
+				}
+			}
+
+			// Chroma81 is based on Crtc but has a joystick port:
+			else if (Chroma81* chroma = dynamic_cast<Chroma81*>(item))
+			{
+				if (JoystickID id = chroma->getJoystickID())
+				{
+					JoystickOverlayPtr& ov = joystick_overlays[jscnt];
+					if (!ov) ov = new JoystickOverlay;
+					ov->setIdf(chroma->getIdf());
+					ov->setState(m->joystick_buttons[id]);
+					screen->setJoystickOverlay(jscnt++, ov);
+					if (jscnt == NELEM(joystick_overlays)) break;
 				}
 			}
 
@@ -502,6 +517,8 @@ void MachineController::loadSnapshot(cstr filename)
 			{
 				ZxIf2*		  zxif2	  = machine->findZxIf2();
 				SpectraVideo* spectra = machine->findSpectraVideo();
+
+				// TODO: CHROMA81
 
 				if (!zxif2 && !spectra)
 				{
@@ -886,6 +903,9 @@ void MachineController::createActions()
 
 	action_addDivIDE = newAction(
 		NOICON, "DivIDE 57c CF card interface", NOKEY, [this](bool f) { addDivIDE(f); }, isa_DivIDE);
+
+	action_addChroma81 = newAction(
+		NOICON, "CHROMA81 colour interface", NOKEY, [=](bool f) { addChroma81(f); }, isa_Chroma81);
 
 	action_addSpectraVideo = newAction(
 		NOICON, "SPECTRA video interface", NOKEY, [=](bool f) { addSpectraVideo(f); }, isa_SpectraVideo);
@@ -1417,10 +1437,12 @@ Machine* MachineController::initMachine(
 										<< action_addMemotech64kRam << action_addZonxBox81 << action_addZxPrinter
 										<< action_addPrinterTs2040;
 
+		if (machine->ula->isA(isa_UlaZx81)) add_actions.append(action_addChroma81);
+
 		items_menu->addActions(add_actions);
 
 		if (alwaysAddAy && !machine->ay) action_addZonxBox81->setChecked(true);
-		if (alwaysAddJoy && !machine->joystick) {} // TODO
+		if (alwaysAddJoy && !machine->joystick) {} // TODO: Cursor, Chroma81
 		if (alwaysAddRam && machine->ram.count() < 16 kB)
 		{
 			if (model == zx80) action_addZx3kRam->setChecked(true);
@@ -2045,6 +2067,38 @@ void MachineController::addDivIDE(bool add)
 	if (f) machine->powerOn();
 
 	action_addDivIDE->setChecked(add);
+	setWindowTitle(model_info->name);
+}
+
+void MachineController::addChroma81(bool add)
+{
+	xlogIn("MachineController::addChroma81(%i)", add);
+
+	bool f = nvptr(machine)->powerOff();
+
+	if (add)
+	{
+		using Dip = Chroma81::DipSwitches;
+
+		uint dip_switches = 0;
+		if (settings.get_bool(key_chroma81_enable_16kRam, on)) dip_switches |= Dip::Enable16kRamAt4000;
+		if (settings.get_bool(key_chroma81_enable_WRX_graphics, off)) dip_switches |= Dip::EnableWRXGraphics;
+		if (settings.get_bool(key_chroma81_enable_8kRam, on)) dip_switches |= Dip::Enable8kRamAt2000;
+		if (settings.get_bool(key_chroma81_enable_QS_char_board, off)) dip_switches |= Dip::EnableQSCharBoard;
+		if (settings.get_bool(key_chroma81_enable_rs232, off)) dip_switches |= Dip::EnableRs232;
+		if (settings.get_bool(key_chroma81_enable_color_modes, on))
+			dip_switches |= Dip::Enable16kRamAtC000AndColorModes;
+
+		NV(machine)->addChroma81(dip_switches);
+	}
+	else
+	{
+		NV(machine)->removeChroma81(); //
+	}
+
+	if (f) machine->powerOn();
+
+	action_addChroma81->setChecked(add);
 	setWindowTitle(model_info->name);
 }
 

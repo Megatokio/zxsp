@@ -73,14 +73,15 @@ public:
 		*action_gifAnimateBorder,
 
 		// add external items:
-		*action_addDivIDE, *action_addSpectraVideo, *action_addCurrahMicroSpeech, *action_addFdcBeta128,
-		*action_addFdcD80, *action_addFdcJLO, *action_addFdcPlusD, *action_addKempstonJoy, *action_addProtekJoy,
-		*action_addIcTester, *action_addDktronicsDualJoy, *action_addZxPrinter, *action_addPrinterAerco,
-		*action_addPrinterTs2040, *action_addPrinterLprint3, *action_addZonxBox, *action_addZonxBox81,
-		*action_addDidaktikMelodik, *action_addZx16kRam, *action_addCheetah32kRam, *action_addJupiter16kRam,
-		*action_addMemotech64kRam, *action_addTs1016Ram, *action_addMemotech16kRam, *action_addZx3kRam,
-		*action_addStonechip16kRam, *action_addMultiface1, *action_addMultiface128, *action_addMultiface3,
-		*action_addFullerBox, *action_addGrafPad, *action_addKempstonMouse, *action_addZxIf1, *action_addZxIf2;
+		*action_addDivIDE, *action_addChroma81, *action_addSpectraVideo, *action_addCurrahMicroSpeech,
+		*action_addFdcBeta128, *action_addFdcD80, *action_addFdcJLO, *action_addFdcPlusD, *action_addKempstonJoy,
+		*action_addProtekJoy, *action_addIcTester, *action_addDktronicsDualJoy, *action_addZxPrinter,
+		*action_addPrinterAerco, *action_addPrinterTs2040, *action_addPrinterLprint3, *action_addZonxBox,
+		*action_addZonxBox81, *action_addDidaktikMelodik, *action_addZx16kRam, *action_addCheetah32kRam,
+		*action_addJupiter16kRam, *action_addMemotech64kRam, *action_addTs1016Ram, *action_addMemotech16kRam,
+		*action_addZx3kRam, *action_addStonechip16kRam, *action_addMultiface1, *action_addMultiface128,
+		*action_addMultiface3, *action_addFullerBox, *action_addGrafPad, *action_addKempstonMouse, *action_addZxIf1,
+		*action_addZxIf2;
 
 private:
 	QActionGroup* model_actiongroup; // --> model menu
@@ -117,6 +118,7 @@ private:
 	void	 addDivIDE(bool);
 	void	 addZx3kRam(bool);
 	void	 addMultiface1(bool);
+	void	 addChroma81(bool);
 	void	 addSpectraVideo(bool);
 	void	 setRzxRecording(bool);
 	void	 setRzxAutostartRecording(bool);

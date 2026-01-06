@@ -15,7 +15,6 @@ namespace zxsp
 class Ula : public Crtc
 {
 	friend class Machine;
-	friend class TVDecoderMono;
 
 protected:
 	uint8 ula_out_byte = 0; // last out byte to ula: border, beeper, ear_out
@@ -36,11 +35,6 @@ protected:
 	virtual void setupTiming() = 0;
 
 public:
-	//uint8	  getBorderColor() const volatile override { return ula_out_byte & 7; }
-	//void	  setBorderColor(uint8 b) override = 0;
-	//CoreByte* getVideoRam() override { return video_ram; }
-	//VideoDataReceiver* getScreen(); //TODO eliminate { return screen; }
-
 	bool is60Hz() const volatile { return is60hz; }
 	bool is50Hz() const volatile { return !is60hz; }
 

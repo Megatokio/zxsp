@@ -137,6 +137,7 @@ enum isa_id {
 	M_ISA(				isa_UlaZx81,	isa_UlaZx80,	"ZX81 Ula" ),
 	M_ISA(			isa_UlaJupiter,		isa_Ula,		"Jupiter ACE Ula" ),
 	M_ISA(		  isa_SpectraVideo,		isa_Crtc,		"SPECTRA Video Interface" ),
+	M_ISA(		  isa_Chroma81,			isa_Crtc,		"CHROMA81 Colour Interface" ),
 
 	M_ISA(		isa_Joy,				isa_Item,		"Joystick Interface" ),
 	M_ISA(			isa_Tk85Joy,		isa_Joy,		"TK85 Joystick Port" ),

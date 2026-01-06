@@ -15,9 +15,10 @@ class Crtc : public Item
 public:
 	Crtc(Machine*, isa_id, isa_id grp, Internal, cstr o_addr, cstr i_addr);
 
-	virtual int32 updateScreenUpToCycle(int32 cc)  = 0; // Z80
-	virtual void  drawVideoBeamIndicator(int32 cc) = 0; // Machine::runForSound()
-	virtual int32 doFrameFlyback(int32 cc)		   = 0; // Machine::runForSound()
+	virtual int32 updateScreenUpToCycle(int32 cc)  = 0;	  // Z80
+	virtual void  drawVideoBeamIndicator(int32 cc) = 0;	  // Machine::runForSound()
+	virtual int32 doFrameFlyback(int32 cc)		   = 0;	  // Machine::runForSound()
+	virtual void  crtcRead(int32 cc, uint pc, uint byte); // ZX80/ZX81 only
 
 	virtual void setBorderColor(uint8 b) { border_color = b; }			  // load .scr
 	CoreByte*	 getVideoRam() { return video_ram; }					  // load/save .scr
@@ -38,6 +39,8 @@ public:
 //		Inline Implementations
 // ----------------------------------
 //
+
+inline void Crtc::crtcRead(int32, uint, uint) { IERR(); } // ZX80/ZX81 only
 
 inline ZxspVideoData* Crtc::getZxspVideoData(VideoData::What what, bool aux)
 {

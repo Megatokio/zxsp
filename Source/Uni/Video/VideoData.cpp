@@ -11,7 +11,7 @@ QMutex IVideoDataReceiver::_mutex;
 Zx80VideoData::Zx80VideoData(bool aux) : VideoData(Zx80Frame, aux)
 {
 	if (aux) return; // aux has no own array
-	pixels_size	 = (312 + 32) * (208 + 32) / 4;
+	pixels_size	 = (312 + 32) * (208 + 32) / 4 * 2;
 	pixel_octets = new uint8[pixels_size];
 }
 

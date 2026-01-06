@@ -192,7 +192,8 @@
 		  R = peek(pc & 0x7fff);                                                    \
 		  if (~R & 0x40)                                                            \
 		  {                                                                         \
-			static_cast<UlaZx80*>(crtc)->crtcRead(cc, R);                           \
+			registers.r = r; /*for WRX*/                                            \
+			crtc->crtcRead(cc, pc, R);                                              \
 			R = NOP;                                                                \
 		  }                                                                         \
 		}                                                                           \
@@ -230,7 +231,8 @@
 		  R = peek(pc & 0x7fff);                                 \
 		  if (~R & 0x40)                                         \
 		  {                                                      \
-			static_cast<UlaZx80*>(crtc)->crtcRead(cc, R);        \
+			registers.r = r; /*for WRX*/                         \
+			crtc->crtcRead(cc, pc, R);                           \
 			R = NOP;                                             \
 		  }                                                      \
 		}                                                        \

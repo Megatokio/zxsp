@@ -8,7 +8,7 @@ CONFIG(debug,debug|release) { DEFINES += DEBUG } # ATTN: curly brace must start 
 
 CONFIG += c++14
 DEFINES += QT_NO_SESSIONMANAGER
-QMAKE_CXXFLAGS += -Wno-multichar -Wdeprecated-declarations
+QMAKE_CXXFLAGS += -Wno-multichar -Wdeprecated-declarations -fno-limit-debug-info
 RESOURCES += Resources/zxsp.qrc
 
 #win32{}
@@ -93,7 +93,9 @@ SOURCES +=	\
 #	Libraries/Devices/File.cpp \
 #	Libraries/Devices/SerialDevice.cpp \
 #	Libraries/Devices/StdFile.cpp \
+	Source/Qt/Inspector/Chroma81Inspector.cpp \
 	Source/Uni/Video/VideoData.cpp \
+	Source/Uni/Items/Chroma81.cpp \
 	Source/Uni/Video/GifRecorder.cpp \
 	\
 	zasm/Source/Error.cpp \
@@ -305,7 +307,7 @@ SOURCES +=	\
 	Source/Uni/Video/Tc2048Renderer.cpp \
 	Source/Uni/Video/MonoRenderer.cpp \
 	Source/Uni/Video/SpectraRenderer.cpp \
-	Source/Uni/Video/TVDecoderMono.cpp \
+	Source/Uni/Video/TVDecoder.cpp \
 	\
 	Source/Uni/Files/file_szx.cpp \
 	Source/Uni/Files/FloppyDisk.cpp \
@@ -340,7 +342,9 @@ HEADERS += \
 	Libraries/kio/util/count1bits.h \
 	Libraries/kio/TestTimer.h \
 	Libraries/Qt/QEventTypes.h \
+	Source/Qt/Inspector/Chroma81Inspector.h \
 	Source/Uni/Video/VideoData.h \
+	Source/Uni/Items/Chroma81.h \
 	Source/Uni/Video/GifRecorder.h \
 	\
 	Libraries/unix/log.h \
@@ -619,7 +623,7 @@ HEADERS += \
 	Source/Uni/Items/MassStorage.h \
 	\
 	Source/Uni/Video/Renderer.h \
-	Source/Uni/Video/TVDecoderMono.h \
+	Source/Uni/Video/TVDecoder.h \
 	\
 	Source/Uni/ZxInfo/ZxInfo.h \
 	Source/Uni/ZxInfo/info.h \

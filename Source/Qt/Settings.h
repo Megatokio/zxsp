@@ -72,6 +72,12 @@ inline cstr key_memoryview_size(int N) { return usingstr("gui/memoryview/%i/size
 static constexpr char key_memoryview_access_pixelsize[]	   = "gui/memoryview/3/pixelsize";				// int
 static constexpr char key_memoryview_access_decaymode[]	   = "gui/memoryview/3/decaymode";				// int
 static constexpr char key_memoryview_hex_is_words[]		   = "gui/memoryview/0/is_words";				// bool
+static constexpr char key_chroma81_enable_rs232[]		   = "settings/chroma81_enable_rs232";			// bool
+static constexpr char key_chroma81_enable_16kRam[]		   = "settings/chroma81_enable_16kRam";			// bool
+static constexpr char key_chroma81_enable_WRX_graphics[]   = "settings/chroma81_enable_WRX_graphics";	// bool
+static constexpr char key_chroma81_enable_8kRam[]		   = "settings/chroma81_enable_8kRam";			// bool
+static constexpr char key_chroma81_enable_QS_char_board[]  = "settings/chroma81_enable_QS_char_board";	// bool
+static constexpr char key_chroma81_enable_color_modes[]	   = "settings/chroma81_enable_color_modes";	// bool
 static constexpr char key_spectra_enable_if1_rom_hooks[]   = "settings/spectra_enable_if1_rom_hooks";	// bool
 static constexpr char key_spectra_enable_rs232[]		   = "settings/spectra_enable_rs232";			// bool
 static constexpr char key_spectra_enable_new_video_modes[] = "settings/spectra_enable_new_video_modes"; // bool

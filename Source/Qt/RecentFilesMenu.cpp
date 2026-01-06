@@ -87,13 +87,18 @@ void RecentFilesList::add_file(QString fpath)
 /*	All known recent files lists:
 	Must match enum ListId.
 */
-static QList<RecentFilesList*> recent_files =
-	QList<RecentFilesList*>() << new RecentFilesList("recent_files") << new RecentFilesList("recent_plus3_disks")
-							  << new RecentFilesList("recent_zxsp_tapes") << new RecentFilesList("recent_zx80_tapes")
-							  << new RecentFilesList("recent_zx81_tapes") << new RecentFilesList("recent_ace_tapes")
-							  << new RecentFilesList("recent_if2_roms") << new RecentFilesList("recent_tcc_roms")
-							  << new RecentFilesList("recent_divide_roms")
-							  << new RecentFilesList("recent_divide_disks");
+static QList<RecentFilesList*> recent_files = QList<RecentFilesList*>()						//
+											  << new RecentFilesList("recent_files")		//
+											  << new RecentFilesList("recent_plus3_disks")	//
+											  << new RecentFilesList("recent_zxsp_tapes")	//
+											  << new RecentFilesList("recent_zx80_tapes")	//
+											  << new RecentFilesList("recent_zx81_tapes")	//
+											  << new RecentFilesList("recent_ace_tapes")	//
+											  << new RecentFilesList("recent_if2_roms")		//
+											  << new RecentFilesList("recent_tcc_roms")		//
+											  << new RecentFilesList("recent_divide_roms")	//
+											  << new RecentFilesList("recent_divide_disks") //
+											  << new RecentFilesList("recent_zx81_roms");	// Chroma81
 
 
 /*	global function: clear recent files list[id]

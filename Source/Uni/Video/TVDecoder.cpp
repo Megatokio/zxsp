@@ -2,7 +2,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#include "TVDecoderMono.h"
+#include "TVDecoder.h"
 
 namespace zxsp
 {
@@ -16,8 +16,7 @@ static inline void memset(void* z, int byte, T size)
 }
 
 
-TVDecoderMono::TVDecoderMono(Crtc* crtc, int32 cc_per_sec, uint8 background_color) :
-	crtc(crtc),
+TVDecoder::TVDecoder(Crtc* crtc, int32 cc_per_sec, uint8 background_color) :
 	cc_per_sec(cc_per_sec),
 	typ_cc_per_line(int32(cc_per_sec * sec_per_scanline + 0.5f)),
 	min_cc_per_line(int32(cc_per_sec * sec_per_scanline * 0.9f)),
@@ -28,8 +27,7 @@ TVDecoderMono::TVDecoderMono(Crtc* crtc, int32 cc_per_sec, uint8 background_colo
 	//fb_lines(max_cc_per_frame / min_cc_per_line + 2),
 	fb_bytes_per_line(((max_cc_per_line + 15) >> 2) & ~3),
 	fb_cc_per_line(fb_bytes_per_line << 2),
-	background_color(background_color),
-	foreground_color(~background_color)
+	crtc(crtc)
 {
 	cc_pixel_offset = 0;
 	cc_per_line		= typ_cc_per_line;
@@ -41,17 +39,18 @@ TVDecoderMono::TVDecoderMono(Crtc* crtc, int32 cc_per_sec, uint8 background_colo
 	auto_position_countdown = 0;
 }
 
-TVDecoderMono::~TVDecoderMono() //
+TVDecoder::~TVDecoder() //
 {
 	delete bucket;
 }
 
-void TVDecoderMono::reset(int32 cc)
+void TVDecoder::reset(int32 cc)
 {
 	assert(crtc->screen);
 	if (!bucket) bucket = crtc->getZx80VideoData(VideoData::Zx80Frame);
-	assert_ge(bucket->pixels_size, max_lines_per_frame * (max_cc_per_line + 3) / 4);
+	assert_ge(bucket->pixels_size, 2 * max_lines_per_frame * (max_cc_per_line + 3) / 4);
 
+	border_attr	   = white_paper;
 	current_line   = 0;
 	idx_line_start = 0;
 	// cc_sync_start = 0;
@@ -62,7 +61,7 @@ void TVDecoderMono::reset(int32 cc)
 	reset_auto_position_data();
 }
 
-void TVDecoderMono::reset_auto_position_data()
+void TVDecoder::reset_auto_position_data()
 {
 	first_screen_line = 0;
 	last_screen_line  = 0;
@@ -70,7 +69,7 @@ void TVDecoderMono::reset_auto_position_data()
 	memset(cc_left, 255, sizeof(cc_left));
 }
 
-inline void TVDecoderMono::store_pixels(int32 cc, uint8 pixels)
+inline void TVDecoder::store_pixels(int32 cc, uint8 pixels, uint8 attr)
 {
 	// store 8 pixels
 
@@ -79,24 +78,27 @@ inline void TVDecoderMono::store_pixels(int32 cc, uint8 pixels)
 
 	assert(idx >= 0 && idx < fb_bytes_per_line);
 
-	uint8* p = bucket->pixel_octets + (idx_line_start + idx);
+	uint8* p = bucket->pixel_octets + 2 * (idx_line_start + idx);
 
 	if ((cc & 3) == 0) // byte aligned :-)
 	{
 		p[0] = pixels;
+		p[1] = attr;
 	}
 	else // store across 2 bytes
-	{
+	{	 // TODO: if color attributes are different then we'll get some wrong colored pixels here!
 		int	  sr   = (cc & 3) * 2;
 		int	  sl   = 8 - sr;
 		uint8 mask = uint8(0xff << sl);
 
 		p[0] = (p[0] & mask) | (pixels >> sr);
-		p[1] = uint8(pixels << sl); // no need to preserve 'future' pixels
+		p[1] = attr;
+		p[2] = uint8(pixels << sl); // no need to preserve 'future' pixels
+		p[3] = attr;
 	}
 }
 
-void TVDecoderMono::clear_pixels(int32 cca, int32 cce, uint8 color)
+void TVDecoder::clear_pixels(int32 cca, int32 cce, uint8 attr)
 {
 	// clear pixels with color
 
@@ -105,23 +107,42 @@ void TVDecoderMono::clear_pixels(int32 cca, int32 cce, uint8 color)
 
 	assert(cca >= 0 && cca <= cce && cce <= fb_cc_per_line);
 
-	uint8* p = bucket->pixel_octets + (idx_line_start + (cca >> 2));
-	uint8* e = bucket->pixel_octets + (idx_line_start + ((cce + 3) >> 2));
+	uint8* p = bucket->pixel_octets + 2 * (idx_line_start + (cca >> 2));
+	uint8* e = bucket->pixel_octets + 2 * (idx_line_start + ((cce + 3) >> 2));
 
-	if (cca & 3)
-	{
+	if (cca & 3) // border starts at odd position:
+	{			 // TODO: if color attributes are different then we'll get some wrong colored pixels here!
+				 // for b&w this won't happen, but for Chroma81 it may be!
 		int sr	 = (cca & 3) * 2;
 		int mask = 0xff >> sr;
-		*p		 = (*p & ~mask) | (color & mask);
-		p++;
+		p[0]	 = (p[0] & ~mask); // | (attr & mask);
+		//p[1]=attr;
+		p += 2;
 	}
 
-	while (p < e) { *p++ = color; }
+	while (p < e) // TODO: use uint16ptr
+	{
+		*p++ = 0;	 // pixels
+		*p++ = attr; // attr
+	}
 }
 
-inline void TVDecoderMono::next_line(int32 cc)
+inline void TVDecoder::next_line(int32 cc)
 {
-	assert(cc >= ccc && cc <= cc_line_start + max_cc_per_line);
+	assert_ge(cc, ccc);
+	assert_le(cc, cc_line_start + max_cc_per_line);
+
+	//	if (cc < ccc)
+	//	{
+	//		logline("cc < ccc: %i < %i", cc, ccc);
+	//		ccc = cc;
+	//	}
+
+	//	if (cc > cc_line_start + max_cc_per_line)
+	//	{
+	//		logline("cc > cc_line_start + max_cc_per_line: %i > %i", cc, cc_line_start + max_cc_per_line);
+	//		next_line(cc_line_start + max_cc_per_line);
+	//	}
 
 	cc_line_start = ccc = cc;
 	idx_line_start += fb_bytes_per_line;
@@ -130,7 +151,7 @@ inline void TVDecoderMono::next_line(int32 cc)
 	if (current_line >= max_lines_per_frame) send_frame(cc);
 }
 
-void TVDecoderMono::clear_screen_up_to_cc(int32 cc, uint8 color)
+void TVDecoder::clear_screen_up_to_cc(int32 cc, uint8 attr)
 {
 	// clear screen up to cc with color
 	// increments current_line if cc >= max_cc_per_line
@@ -140,16 +161,16 @@ void TVDecoderMono::clear_screen_up_to_cc(int32 cc, uint8 color)
 	{
 		while (cc >= cc_line_start + max_cc_per_line)
 		{
-			clear_pixels(ccc, cc_line_start + fb_cc_per_line, color);
+			clear_pixels(ccc, cc_line_start + fb_cc_per_line, attr);
 			next_line(cc_line_start + max_cc_per_line);
 		}
 
-		clear_pixels(ccc, cc, color);
+		clear_pixels(ccc, cc, attr);
 		ccc = cc;
 	}
 }
 
-void TVDecoderMono::auto_position_screen()
+void TVDecoder::auto_position_screen()
 {
 	// calculate enclosing rectangle for all screen pixels
 
@@ -256,18 +277,18 @@ void TVDecoderMono::auto_position_screen()
 	}
 }
 
-void TVDecoderMono::send_frame(int32 cc)
+void TVDecoder::send_frame(int32 cc)
 {
 	auto_position_screen();
 
-	bucket->frame  = Size {fb_bytes_per_line << 3, max_lines_per_frame};
+	bucket->frame  = Size {fb_bytes_per_line << 3, current_line};
 	bucket->screen = {screen_position, Size {256, 192}};
 	bucket->cc_row = 0; //TODO
 	bucket->cc_col = 0; //TODO
 
 	crtc->sendVideoData(bucket);
 	bucket = crtc->getZx80VideoData(VideoData::Zx80Frame);
-	assert(bucket->pixels_size >= max_lines_per_frame * (max_cc_per_line + 3) / 4);
+	assert(bucket->pixels_size >= 2 * max_lines_per_frame * (max_cc_per_line + 3) / 4);
 
 	current_line   = 0;
 	idx_line_start = 0;
@@ -279,7 +300,7 @@ void TVDecoderMono::send_frame(int32 cc)
 	reset_auto_position_data();
 }
 
-void TVDecoderMono::update_right_border_info(int line, int32 cc)
+void TVDecoder::update_right_border_info(int line, int32 cc)
 {
 	// called at hsync on
 
@@ -288,7 +309,7 @@ void TVDecoderMono::update_right_border_info(int line, int32 cc)
 	cc_right[line] = uint8(cc);
 }
 
-void TVDecoderMono::update_left_border_info(int line, int32 cc)
+void TVDecoder::update_left_border_info(int line, int32 cc)
 {
 	// called at store_pixel_byte
 
@@ -300,14 +321,14 @@ void TVDecoderMono::update_left_border_info(int line, int32 cc)
 	cc_left[line] = uint8(cc);
 }
 
-void TVDecoderMono::syncOn(int32 cc, bool new_state)
+void TVDecoder::syncOn(int32 cc, bool new_state)
 {
 	if (unlikely(new_state == sync_active)) return;
 
 	if (new_state == on)
 	{
 		update_right_border_info(current_line, ccc);
-		clear_screen_up_to_cc(cc, background_color);
+		clear_screen_up_to_cc(cc, border_attr);
 		sync_active	  = on;
 		cc_sync_start = cc;
 	}
@@ -327,8 +348,10 @@ void TVDecoderMono::syncOn(int32 cc, bool new_state)
 			lines_in_screen	   = last_screen_line + 1 - first_screen_line;
 			lines_below_screen = lines_per_frame - (last_screen_line + 1);
 
-			memset(
-				bucket->pixel_octets + idx_line_start, black, max_lines_per_frame * fb_bytes_per_line - idx_line_start);
+			//memset( bucket->pixel_octets + idx_line_start,
+			//		  black,
+			//		  max_lines_per_frame * fb_bytes_per_line - idx_line_start);
+
 			send_frame(cc);
 			clear_screen_up_to_cc(cc + 16, black); // back porch
 		}
@@ -344,7 +367,7 @@ void TVDecoderMono::syncOn(int32 cc, bool new_state)
 	}
 }
 
-void TVDecoderMono::storePixelByte(int32 cc, uint8 pixels)
+void TVDecoder::storePixelByte(int32 cc, uint8 pixels, uint8 attr)
 {
 	if (unlikely(sync_active)) return;
 
@@ -352,21 +375,28 @@ void TVDecoderMono::storePixelByte(int32 cc, uint8 pixels)
 
 	if (unlikely(cc != ccc || cc >= cc_line_start + max_cc_per_line))
 	{
-		clear_screen_up_to_cc(cc, background_color);
+		clear_screen_up_to_cc(cc, border_attr);
 		update_left_border_info(current_line, cc);
 	}
 
-	store_pixels(cc, pixels ^ foreground_color);
+	store_pixels(cc, pixels, attr);
 	ccc = cc + 4;
 }
 
-void TVDecoderMono::updateScreenUpToCycle(int32 cc)
+void TVDecoder::updateScreenUpToCycle(int32 cc)
 {
-	uint8 pattern = sync_active ? black : background_color;
-	clear_screen_up_to_cc(cc, pattern);
+	uint8 attr = sync_active ? black : border_attr;
+	clear_screen_up_to_cc(cc, attr);
 }
 
-int32 TVDecoderMono::getCcForFrameEnd() const
+void TVDecoder::setBorderColor(int32 cc, uint8 b)
+{
+	updateScreenUpToCycle(cc);
+	border_attr = (b & 15) << 4;
+}
+
+
+int32 TVDecoder::getCcForFrameEnd() const
 {
 	// return the estimated time for the end of the current/next frame.
 	// the machine will run up to this cc and probably overshoot by some cc.
@@ -377,13 +407,13 @@ int32 TVDecoderMono::getCcForFrameEnd() const
 	return cc;
 }
 
-void TVDecoderMono::drawVideoBeamIndicator(int32 cc)
+void TVDecoder::drawVideoBeamIndicator(int32 cc)
 {
 	updateScreenUpToCycle(cc);
 	// TODO();
 }
 
-int32 TVDecoderMono::doFrameFlyback(int32 cc)
+int32 TVDecoder::doFrameFlyback(int32 cc)
 {
 	// handle vertical frame flyback
 	// and return actual duration of last frame.
@@ -406,7 +436,7 @@ int32 TVDecoderMono::doFrameFlyback(int32 cc)
 	return cc;
 }
 
-void TVDecoderMono::shiftCcTimeBase(int32 cc_delta)
+void TVDecoder::shiftCcTimeBase(int32 cc_delta)
 {
 	cc_frame_start -= cc_delta;
 	cc_line_start -= cc_delta;
@@ -415,3 +445,34 @@ void TVDecoderMono::shiftCcTimeBase(int32 cc_delta)
 }
 
 } // namespace zxsp
+
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/

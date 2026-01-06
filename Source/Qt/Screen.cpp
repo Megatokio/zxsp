@@ -2,7 +2,7 @@
 // BSD-2-Clause license
 // https://opensource.org/licenses/BSD-2-Clause
 
-#define loglevel 1
+#define loglevel 0
 
 #include "Screen.h"
 #include "IsaObject.h"

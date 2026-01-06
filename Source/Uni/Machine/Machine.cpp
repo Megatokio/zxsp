@@ -587,7 +587,7 @@ void Machine::removeItem(Item* item)
 	if (cpu == item) cpu = nullptr;
 	if (mmu == item) mmu = nullptr;
 	if (ula == item) ula = nullptr;
-	if (crtc == item) crtc = nullptr;
+	if (crtc == item) crtc = ula;
 	if (keyboard == item) keyboard = nullptr;
 
 	if (ay == item) ay = find<Ay>();
@@ -710,6 +710,22 @@ DivIDE* Machine::addDivIDE(uint ramsize, cstr romfile)
 	return divide;
 }
 
+void Machine::removeChroma81()
+{
+	assert(isMainThread());
+	assert(is_locked());
+	assert(crtc);
+	assert(ula);
+
+	auto* chroma = dynamic_cast<Chroma81*>(crtc);
+	if (!chroma) assert(!find<Chroma81>());
+	if (!chroma) return;
+
+	removeItem(chroma);
+	setCrtc(ula);
+	if (isPowerOn()) crtc->powerOn(cpu->cpuCycle());
+}
+
 void Machine::removeSpectraVideo()
 {
 	assert(isMainThread());
@@ -722,10 +738,32 @@ void Machine::removeSpectraVideo()
 	if (!spectra) return;
 
 	removeItem(spectra);
+	setCrtc(ula);
+	if (isPowerOn()) crtc->powerOn(cpu->cpuCycle());
+}
 
-	crtc = ula;
-	cpu->setCrtc(ula);
-	if (isPowerOn()) ula->powerOn(cpu->cpuCycle());
+Chroma81* Machine::addChroma81(uint dip_switches)
+{
+	// Add Chroma81 interface
+	// Chroma81 is set as crtc in the CPU
+
+	assert(isMainThread());
+	assert(is_locked());
+	assert(dynamic_cast<UlaZx81*>(ula));
+
+	auto* chroma = dynamic_cast<Chroma81*>(crtc);
+	if (chroma) return chroma; // already attached
+	assert(!find<Chroma81>());
+
+	addItem(chroma = new Chroma81(this, dip_switches));
+	assert(crtc == chroma);
+
+	if (isPowerOn()) crtc->powerOn(cpu->cpuCycle());
+
+	//Z80::c2c(ula->getVideoRam(), chroma->getVideoRam(), 0x4000);
+	//chroma->setBorderColor(ula->getBorderColor());
+
+	return chroma;
 }
 
 SpectraVideo* Machine::addSpectraVideo(uint dip_switches)
@@ -736,21 +774,19 @@ SpectraVideo* Machine::addSpectraVideo(uint dip_switches)
 	assert(isMainThread());
 	assert(is_locked());
 	assert(dynamic_cast<UlaZxsp*>(ula));
-	assert(crtc);
 
 	auto* spectra = dynamic_cast<SpectraVideo*>(crtc);
 	if (spectra) return spectra; // already attached
 	assert(!find<SpectraVideo>());
 
 	addItem(spectra = new SpectraVideo(this, dip_switches));
+	assert(crtc == spectra);
 
-	cpu->setCrtc(spectra);
-	if (isPowerOn()) spectra->powerOn(cpu->cpuCycle());
+	if (isPowerOn()) crtc->powerOn(cpu->cpuCycle());
 
-	Z80::c2c(crtc->getVideoRam(), spectra->getVideoRam(), 0x4000);
-	spectra->setBorderColor(ula->getBorderColor());
+	//Z80::c2c(ula->getVideoRam(), spectra->getVideoRam(), 0x4000);
+	//spectra->setBorderColor(ula->getBorderColor());
 
-	crtc = spectra;
 	return spectra;
 }
 

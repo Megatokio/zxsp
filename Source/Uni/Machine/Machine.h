@@ -3,6 +3,7 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #pragma once
+#include "Chroma81.h"
 #include "Fdc/DivIDE.h"
 #include "Files/RzxFile.h"
 #include "Interfaces/IMachineController.h"
@@ -141,12 +142,14 @@ public:
 	Item*		  addExternalItem(isa_id);
 	ExternalRam*  addExternalRam(isa_id, uint size_or_options = 0);
 	SpectraVideo* addSpectraVideo(uint dip_switches);
+	Chroma81*	  addChroma81(uint dip_switches);
 	DivIDE*		  addDivIDE(uint ramsize, cstr romfile);
 	Multiface1*	  addMultiface1(bool joystick_enabled);
 
 	void removeItem(Item*);
 	void removeItem(isa_id id) { removeItem(findItem(id)); }
 	void removeSpectraVideo();
+	void removeChroma81();
 
 	template<typename ITEM>
 	void remove()
