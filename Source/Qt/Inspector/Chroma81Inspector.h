@@ -30,13 +30,6 @@ private:
 	void slotJoystickSelected();
 	void slotFindUsbJoysticks();
 	void slotSetKeyboardJoystickKeys();
-
-	void slotEnable16kRam(bool);
-	void slotEnableRS232(bool);
-	void slotEnable8kRam(bool);
-	void slotEnableWRXGraphics(bool);
-	void slotEnableQSCharBoard(bool);
-	void slotEnableNewColorModes(bool);
 	void slotInsertOrEjectRom();
 
 private:

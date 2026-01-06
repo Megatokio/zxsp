@@ -133,27 +133,45 @@ Chroma81Inspector::Chroma81Inspector(QWidget* w, MachineController* mc, volatile
 
 	checkbox_wrx_graphics = new QCheckBox("WRX graphics", this);
 	checkbox_wrx_graphics->setChecked(chroma->dip_wrx_enabled);
-	connect(checkbox_wrx_graphics, &QCheckBox::toggled, this, &Chroma81Inspector::slotEnableWRXGraphics);
+	connect(checkbox_wrx_graphics, &QCheckBox::toggled, this, [=](bool f) {
+		assert(validReference(chroma));
+		nvptr(chroma)->setWRXEnabled(f);
+	});
 
 	checkbox_qs_char_board = new QCheckBox("QS char board", this);
 	checkbox_qs_char_board->setChecked(chroma->dip_qs_enabled);
-	connect(checkbox_qs_char_board, &QCheckBox::toggled, this, &Chroma81Inspector::slotEnableQSCharBoard);
+	connect(checkbox_qs_char_board, &QCheckBox::toggled, this, [=](bool f) {
+		assert(validReference(chroma));
+		nvptr(chroma)->setQSEnabled(f);
+	});
 
 	checkbox_ram_at_C000_and_color = new QCheckBox("Ram at $C000", this);
 	checkbox_ram_at_C000_and_color->setChecked(chroma->dip_ram_at_C000_and_color_enabled);
-	connect(checkbox_ram_at_C000_and_color, &QCheckBox::toggled, this, &Chroma81Inspector::slotEnableNewColorModes);
+	connect(checkbox_ram_at_C000_and_color, &QCheckBox::toggled, this, [=](bool f) {
+		assert(validReference(chroma));
+		nvptr(chroma)->setRamAtC000AndColorEnabled(f);
+	});
 
 	checkbox_ram_at_2000 = new QCheckBox("Ram at $2000", this);
 	checkbox_ram_at_2000->setChecked(chroma->dip_ram_at_2000);
-	connect(checkbox_ram_at_2000, &QCheckBox::toggled, this, &Chroma81Inspector::slotEnable8kRam);
+	connect(checkbox_ram_at_2000, &QCheckBox::toggled, this, [=](bool f) {
+		assert(validReference(chroma));
+		nvptr(chroma)->set8kRamAt2000Enabled(f);
+	});
 
 	checkbox_ram_at_4000 = new QCheckBox("Ram at $4000", this);
 	checkbox_ram_at_4000->setChecked(chroma->dip_ram_at_4000);
-	connect(checkbox_ram_at_4000, &QCheckBox::toggled, this, &Chroma81Inspector::slotEnable16kRam);
+	connect(checkbox_ram_at_4000, &QCheckBox::toggled, this, [=](bool f) {
+		assert(validReference(chroma));
+		nvptr(chroma)->set16kRamAt4000Enabled(f);
+	});
 
 	checkbox_rs232 = new QCheckBox("RS232", this);
 	checkbox_rs232->setChecked(chroma->dip_rs232_enabled);
-	connect(checkbox_rs232, &QCheckBox::toggled, this, &Chroma81Inspector::slotEnableRS232);
+	connect(checkbox_rs232, &QCheckBox::toggled, this, [=](bool f) {
+		assert(validReference(chroma));
+		nvptr(chroma)->setRS232Enabled(f);
+	});
 	checkbox_rs232->setEnabled(no); // TODO
 
 	button_insert_rom = new QPushButton(chroma->isRomInserted() ? "Eject Rom" : "Insert Rom", this);
@@ -281,37 +299,6 @@ void Chroma81Inspector::updateWidgets()
 	}
 }
 
-void Chroma81Inspector::slotEnableNewColorModes(bool f)
-{
-	assert(validReference(chroma));
-	nvptr(chroma)->setRamAtC000AndColorEnabled(f);
-}
-void Chroma81Inspector::slotEnable16kRam(bool f)
-{
-	assert(validReference(chroma));
-	nvptr(chroma)->set16kRamAt4000Enabled(f);
-}
-void Chroma81Inspector::slotEnable8kRam(bool f)
-{
-	assert(validReference(chroma));
-	nvptr(chroma)->set8kRamAt2000Enabled(f);
-}
-void Chroma81Inspector::slotEnableQSCharBoard(bool f)
-{
-	assert(validReference(chroma));
-	nvptr(chroma)->setQSEnabled(f);
-}
-void Chroma81Inspector::slotEnableWRXGraphics(bool f)
-{
-	assert(validReference(chroma));
-	nvptr(chroma)->setWRXEnabled(f);
-}
-void Chroma81Inspector::slotEnableRS232(bool f)
-{
-	assert(validReference(chroma));
-	nvptr(chroma)->setRS232Enabled(f);
-}
-
 void Chroma81Inspector::slotFindUsbJoysticks()
 {
 	xlogIn("Chroma81Inspector::slotFindUsbJoysticks");
@@ -381,7 +368,7 @@ void Chroma81Inspector::fillContextMenu(QMenu* menu)
 			->setMenu(new RecentFilesMenu( //
 				RecentChroma81Roms, this, [=](cstr fpath) { insertRom(fpath); }));
 	}
-	// TODO: enable color and set color mode?
+	// TODO: menu entry to enable color and set color mode?
 }
 
 void Chroma81Inspector::slotInsertOrEjectRom()
