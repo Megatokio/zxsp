@@ -4,10 +4,9 @@
 
 #pragma once
 #include "Inspector.h"
-#include "Qt/MyLineEdit.h"
+#include "MyLineEdit.h"
 #include <QAction>
 #include <QCheckBox>
-#include <QLineEdit>
 
 
 namespace zxsp

@@ -7,6 +7,7 @@
 #include "Dialogs/ConfigureKeyboardJoystickDialog.h"
 #include "Joy/Joy.h"
 #include "MachineController.h"
+#include "MyLineEdit.h"
 #include "Templates/RCPtr.h"
 #include "UsbJoystick.h"
 #include <QComboBox>
@@ -28,9 +29,8 @@ JoyInsp::JoyInsp(QWidget* w, MachineController* mc, volatile Joy* joy, cstr imgp
 
 	for (uint i = 0; i < num_ports; i++)
 	{
-		lineedit_display[i] = new QLineEdit(this);
-		lineedit_display[i]->setText("%--------");
-		lineedit_state[i] = 0;
+		lineedit_display[i] = new MyLineEdit("%--------", this);
+		lineedit_state[i]	= 0;
 		lineedit_display[i]->setAlignment(Qt::AlignHCenter);
 		lineedit_display[i]->setReadOnly(yes);
 		lineedit_display[i]->setMinimumWidth(100);

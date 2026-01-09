@@ -41,6 +41,18 @@ bool MyLineEdit::event(QEvent* e)
 	if (e->type() == QEvent::KeyPress)
 	{
 		QKeyEvent* ke = (QKeyEvent*)e;
+
+		if (isReadOnly())
+		{
+			if (ke->key() == Qt::Key_Tab) return QLineEdit::event(e);
+			if (ke->key() == Qt::Key_Escape && hasSelectedText())
+			{
+				clearFocus();
+				return true;
+			}
+			return false;
+		}
+
 		if (ke->key() == Qt::Key_Enter)
 		{
 			emit returnPressed();
@@ -56,7 +68,10 @@ bool MyLineEdit::event(QEvent* e)
 			clearFocus();
 			return 1;
 		}
-		if (ke->key() == Qt::Key_Tab) { emit returnPressed(); }
+		if (ke->key() == Qt::Key_Tab)
+		{
+			emit returnPressed(); //
+		}
 	}
 	return QLineEdit::event(e);
 }

@@ -3,6 +3,7 @@
 // https://opensource.org/licenses/BSD-2-Clause
 
 #include "TapeRecorderInsp.h"
+#include "MyLineEdit.h"
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
 #include "RecentFilesMenu.h"
@@ -13,7 +14,6 @@
 #include <QMenu>
 #include <QPaintEvent>
 #include <QPainter>
-#include <QTextEdit>
 
 namespace zxsp
 {
@@ -188,7 +188,7 @@ TapeRecorderInsp::TapeRecorderInsp(
 	tape_position(0),
 	major_block_info_label(new QLabel(this)),
 	minor_block_info_label(new QLabel(this)),
-	tape_position_label(new QLineEdit(this)),
+	tape_position_label(new MyLineEdit("000", this)),
 	tape_filepath(nullptr),
 	cass(BlueBody, head_position),
 	axis_x1(axis_x1),

@@ -4,6 +4,7 @@
 
 #include "FullerBoxInsp.h"
 #include "Dialogs/ConfigureKeyboardJoystickDialog.h"
+#include "MyLineEdit.h"
 #include "UsbJoystick.h"
 #include "zxsp_globals.h"
 #include <QComboBox>
@@ -20,8 +21,7 @@ FullerBoxInsp::FullerBoxInsp(QWidget* w, MachineController* mc, volatile FullerB
 {
 	layout->setContentsMargins(10, 10, 10, 10);
 
-	js_display = new QLineEdit(this);
-	js_display->setText("%--------");
+	js_display = new MyLineEdit("%--------", this);
 	js_display->setAlignment(Qt::AlignHCenter);
 	js_display->setReadOnly(true);
 

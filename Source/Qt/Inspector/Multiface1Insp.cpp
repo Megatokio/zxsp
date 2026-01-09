@@ -5,6 +5,7 @@
 #include "Multiface1Insp.h"
 #include "MachineController.h"
 #include "Multiface/Multiface1.h"
+#include "MyLineEdit.h"
 #include "Qt/Overlays/Overlay.h"
 #include "Qt/Screen.h"
 #include "Settings.h"
@@ -30,7 +31,7 @@ Multiface1Insp::Multiface1Insp(QWidget* w, MachineController* mc, volatile Multi
 		joystick_selector, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 		&Multiface1Insp::slotJoystickSelected);
 
-	lineedit_display = new QLineEdit("%--------", this);
+	lineedit_display = new MyLineEdit("%--------", this);
 	lineedit_display->setAlignment(Qt::AlignHCenter);
 	lineedit_display->setReadOnly(yes);
 	lineedit_state = 0;

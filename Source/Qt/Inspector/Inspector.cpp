@@ -57,6 +57,7 @@
 #include "Machine.h"
 #include "MachineController.h"
 #include "Mouse.h"
+#include "MyLineEdit.h"
 #include "Qt/QEventTypes.h"
 #include "ToolWindow.h"
 #include "ZxInfo.h"
@@ -82,7 +83,7 @@ bool Inspector::validReference(volatile Item* item)
 
 QLineEdit* Inspector::newLineEdit(cstr text, int min_width)
 {
-	QLineEdit* te = new QLineEdit(text);
+	QLineEdit* te = new MyLineEdit(text, this);
 	te->setFont(QFont("Andale Mono", 13));
 	te->setAlignment(Qt::AlignHCenter);
 	te->setReadOnly(yes);

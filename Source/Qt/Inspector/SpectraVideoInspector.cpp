@@ -8,6 +8,7 @@
 #include "Items/SpectraVideo.h"
 #include "Machine.h"
 #include "MachineController.h"
+#include "MyLineEdit.h"
 #include "Qt/Settings.h"
 #include "Qt/qt_util.h"
 #include "RecentFilesMenu.h"
@@ -37,8 +38,7 @@ SpectraVideoInspector::SpectraVideoInspector(QWidget* w, MachineController* mc, 
 	rom_name->setAlignment(Qt::AlignTop);
 	setColors(rom_name, 0xffffff /*foregroundcolor*/);
 
-	js_display = new QLineEdit(this);
-	js_display->setText("%--------");
+	js_display = new MyLineEdit("%--------", this);
 	js_display->setAlignment(Qt::AlignHCenter);
 	js_display->setReadOnly(yes);
 	js_display->setFixedWidth(105);

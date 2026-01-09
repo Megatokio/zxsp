@@ -5,6 +5,7 @@
 #include "UlaInsp.h"
 #include "Machine.h"
 #include "MachineController.h"
+#include "MyLineEdit.h"
 #include "Qt/Screen.h"
 #include "Qt/qt_util.h"
 #include "Ula/Mmu.h"
@@ -20,7 +21,6 @@
 #include <QPushButton>
 #include <QTimer>
 
-
 namespace zxsp
 {
 
@@ -35,7 +35,7 @@ static QFont ff("Monaco" /*"Andale Mono"*/, 12);
 
 static QLineEdit* new_led(cstr s, int width)
 {
-	QLineEdit* e = new QLineEdit(s);
+	QLineEdit* e = new MyLineEdit(s);
 	e->setAlignment(Qt::AlignHCenter);
 	e->setFrame(0);
 	e->setReadOnly(1);

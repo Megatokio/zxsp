@@ -57,7 +57,7 @@ protected:
 	virtual cstr getCustomTitle() { return nullptr; } // override if inspector wishes a customized title
 	virtual void updateWidgets() {}					  // called by timer. Timer must be started by subclass ctor.
 
-	static QLineEdit* newLineEdit(cstr text, int min_width = 80);
+	QLineEdit* newLineEdit(cstr text, int min_width = 80);
 
 	bool validReference(volatile Item* item);
 

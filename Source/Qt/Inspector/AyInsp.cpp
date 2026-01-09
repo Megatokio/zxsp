@@ -4,6 +4,7 @@
 
 #include "AyInsp.h"
 #include "Ay/Ay.h"
+#include "MyLineEdit.h"
 #include "Qt/qt_util.h"
 #include "Templates/NVPtr.h"
 #include <QGridLayout>
@@ -183,7 +184,7 @@ void AyInsp::updateWidgets()
 
 QLineEdit* AyInsp::new_led(cstr s)
 {
-	QLineEdit* led = new QLineEdit(s);
+	QLineEdit* led = new MyLineEdit(s);
 	led->setAlignment(Qt::AlignHCenter);
 	led->setFrame(0);
 	led->setFont(ff);
