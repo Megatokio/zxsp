@@ -821,7 +821,7 @@ void MachineController::createActions()
 	action_zoom[1]		= newAction(NOICON, "Size x 2", Qt::Key_2, [=]() { setWindowZoom(2); });
 	action_zoom[2]		= newAction(NOICON, "Size x 3", Qt::Key_3, [=]() { setWindowZoom(3); });
 	action_zoom[3]		= newAction(NOICON, "Size x 4", Qt::Key_4, [=]() { setWindowZoom(4); });
-	action_fullscreen	= newAction(NOICON, "Fullscreen", Qt::Key_F, [=]() { QWidget::showFullScreen(); });
+	action_fullscreen	= newAction(NOICON, "Fullscreen", Qt::Key_F, [=]() { toggleFullscreen(); });
 	action_showLenslok	= newAction(NOICON, "Lenslok", NOKEY, [=](bool f) { showLenslok(f); });
 	action_newInspector = newAction(NOICON, "Inspector", NOKEY, [=] { newToolwindow()->show(); });
 
@@ -1888,18 +1888,32 @@ void MachineController::enableAudioIn(bool f)
 	action_audioin_enabled->setChecked(f);
 }
 
+void MachineController::toggleFullscreen()
+{
+	if (isFullScreen()) showNormal();
+	else showFullScreen();
+}
+
 void MachineController::setWindowZoom(int factor)
 {
-	xlogIn("MachineController:set_window_zoom()");
+	xlogIn("MachineController:set_window_zoom(%i)", factor);
+
+	// TODO: setting new size from fullscreen does not work.
+	// Qt/macos always restores to old size+position.
 
 	showNormal();
 	limit(1, factor, 4);
-	QRect box = geometry(); // rect();
-	int	  w = (32 + 2 * 4) * 8 * factor, h = (24 + 2 * 3) * 8 * factor, x = int(box.x() + (box.width() - w) / 2),
-		y = int(box.y() + (box.height() - h) * 1 / 4);
+	QRect box = geometry();
+	int	  w	  = (32 + 2 * 4) * 8 * factor;
+	int	  h	  = (24 + 2 * 3) * 8 * factor;
+	int	  x	  = box.x() + (box.width() - w) / 2;
+	int	  y	  = box.y() + (box.height() - h) / 4;
 
-	setGeometry(x, max(44, y), w, h);
+	y = max(y, 44);
+	xlogline("set geometry(%i,%i,%i,%i)", x, y, w, h);
+	setGeometry(x, y, w, h);
 	show();
+
 	//	arrangeOverlays();			nötig? müsste auch ein resizeEvent geben
 	// update_all = yes;
 }

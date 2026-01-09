@@ -99,6 +99,7 @@ private:
 	void	 killMachine();
 	Machine* initMachine(Model, uint32 ramsize, bool ay, bool joy, bool alwaysAddRam, bool alwaysAddDivide);
 	void	 setWindowZoom(int);
+	void	 toggleFullscreen();
 	void	 set_model(QAction*); // from model_actiongroup
 	void	 openFile();
 	void	 reloadFile();
