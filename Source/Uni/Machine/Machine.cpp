@@ -440,7 +440,7 @@ void Machine::_power_on(int32 start_cc)
 	xlogIn("Machine:PowerOn");
 	assert(is_locked());
 
-	rzxDispose();
+	//rzxDispose(); --> rzxLoadSnapshot()
 
 	total_frames   = 0; // information: accumulated frames until now
 	total_cc	   = 0; // information: accumulated cpu T cycles until now
@@ -472,6 +472,7 @@ void Machine::powerOn(int32 start_cc) volatile
 	//assert(is_locked());
 	if (is_power_on) return;
 
+	NV(this)->rzxDispose();
 	NV(this)->_power_on(start_cc);
 }
 
@@ -1486,6 +1487,7 @@ void Machine::rzxOutOfSync(cstr msg, bool red)
 
 void Machine::rzxDispose()
 {
+	if (!rzx_file) return;
 	delete rzx_file;
 	rzx_file = nullptr;
 }
