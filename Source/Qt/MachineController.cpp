@@ -277,10 +277,9 @@ RCPtr<Machine> MachineController::newMachineForModel(Model model)
 
 	assert(in_machine_ctor);
 
-	RCPtr<Machine> m = Machine::newMachine(this, model);
-	assert(m->crtc);
 	assert(screen);
-	m->crtc->setScreen(screen);
+	RCPtr<Machine> m = Machine::newMachine(this, screen, model);
+	assert(m->crtc);
 
 	switch (model)
 	{

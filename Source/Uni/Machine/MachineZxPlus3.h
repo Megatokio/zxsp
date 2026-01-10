@@ -12,7 +12,7 @@ namespace zxsp
 class MachineZxPlus3 : public MachineZxPlus2a
 {
 public:
-	MachineZxPlus3(IMachineController*, Model);
+	MachineZxPlus3(IMachineController*, IScreen*, Model);
 };
 
 } // namespace zxsp

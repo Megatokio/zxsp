@@ -28,7 +28,7 @@ protected:
 
 	// Item interface:
 	void powerOn(/*t=0*/ int32 cc) override;
-	void reset(Time t, int32 cc) override;
+	//void reset(Time t, int32 cc) override;
 	void input(Time t, int32 cc, uint16 addr, uint8& byte, uint8& mask) override;
 	void output(Time t, int32 cc, uint16 addr, uint8 byte) override;
 	// void	audioBufferEnd	(Time t) override;
@@ -38,7 +38,7 @@ protected:
 	int32 doFrameFlyback(int32 cc) override;
 	void  drawVideoBeamIndicator(int32 cc) override;
 	int32 updateScreenUpToCycle(int32 cc) override;
-	void  markVideoRam() override;
+	void  markVideoRam();
 	void  setBorderColor(uint8) override {} // can't be set
 	void  set60Hz(bool = 1) override;
 

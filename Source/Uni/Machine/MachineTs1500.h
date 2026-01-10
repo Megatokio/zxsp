@@ -12,7 +12,7 @@ namespace zxsp
 class MachineTs1500 : public MachineZx81
 {
 public:
-	explicit MachineTs1500(IMachineController*);
+	explicit MachineTs1500(IMachineController*, IScreen*);
 };
 
 } // namespace zxsp

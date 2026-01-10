@@ -12,10 +12,10 @@ namespace zxsp
 class MachineZxPlus2a : public MachineZx128
 {
 protected:
-	MachineZxPlus2a(IMachineController*, Model, isa_id);
+	MachineZxPlus2a(IMachineController*, IScreen*, Model, isa_id);
 
 public:
-	MachineZxPlus2a(IMachineController*, Model);
+	MachineZxPlus2a(IMachineController*, IScreen*, Model);
 };
 
 } // namespace zxsp

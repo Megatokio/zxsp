@@ -12,7 +12,7 @@ namespace zxsp
 class MachineInves : public MachineZxsp
 {
 public:
-	explicit MachineInves(IMachineController*);
+	explicit MachineInves(IMachineController*, IScreen*);
 };
 
 } // namespace zxsp

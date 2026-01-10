@@ -26,7 +26,7 @@ protected:
 	int32 doFrameFlyback(int32 cc) override;
 	int32 updateScreenUpToCycle(int32 cc) override;
 	// void	drawVideoBeamIndicator	(int32 cc) override;
-	void markVideoRam() override;
+	void markVideoRam();
 	// int32	addWaitCycles			(int32 cc, uint16 addr) volatile const override;	TODO ?
 
 public:

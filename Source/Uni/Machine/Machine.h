@@ -87,6 +87,7 @@ public:
 	bool trylock(int timeout_nsec) { return mutex.try_lock_for(std::chrono::nanoseconds(timeout_nsec)); }
 
 	volatile IMachineController* controller;
+	IScreen*					 screen;
 
 	// general info
 	const Model			model;
@@ -261,7 +262,7 @@ public:
 	void saveRom(FD& fd);
 
 protected:
-	Machine(IMachineController*, Model, isa_id);
+	Machine(IMachineController*, IScreen*, Model, isa_id);
 
 	void showMessage(MessageStyle s, cstr text);
 
@@ -276,7 +277,7 @@ private:
 	// ---- P U B L I C ----------------------------------------------------
 
 public:
-	static RCPtr<Machine> newMachine(IMachineController*, Model);
+	static RCPtr<Machine> newMachine(IMachineController*, IScreen*, Model);
 
 	~Machine() override;
 

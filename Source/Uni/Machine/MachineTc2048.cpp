@@ -23,9 +23,12 @@ except one OUT instruction setting proper video mode after reset.
 namespace zxsp
 {
 
-MachineTc2048::MachineTc2048(IMachineController* m, Model model, isa_id id) : MachineZxsp(m, model, id) {}
+MachineTc2048::MachineTc2048(IMachineController* m, IScreen* screen, Model model, isa_id id) : //
+	MachineZxsp(m, screen, model, id)
+{}
 
-MachineTc2048::MachineTc2048(IMachineController* m) : MachineZxsp(m, tc2048, isa_MachineTc2048)
+MachineTc2048::MachineTc2048(IMachineController* m, IScreen* screen) : //
+	MachineZxsp(m, screen, tc2048, isa_MachineTc2048)
 {
 	addItem(new Z80(this));						 // must be 1st item
 	addItem(new UlaTc2048(this, isa_UlaTc2048)); // should be 2nd item

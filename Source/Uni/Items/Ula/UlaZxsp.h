@@ -82,7 +82,7 @@ public:
 	// void		set60Hz				(bool=1) override;
 	int32 addWaitCycles(int32 cc, uint16 addr) const volatile override;
 	uint8 getFloatingBusByte(int32 cc) override;
-	void  markVideoRam() override;
+	void  markVideoRam();
 
 	// UlaZxsp:
 	int32 cpuCycleOfFrameFlyback() override { return cc_frame_end; }

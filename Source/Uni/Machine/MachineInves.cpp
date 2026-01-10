@@ -15,7 +15,8 @@
 namespace zxsp
 {
 
-MachineInves::MachineInves(IMachineController* m) : MachineZxsp(m, inves, isa_MachineInves)
+MachineInves::MachineInves(IMachineController* m, IScreen* screen) : //
+	MachineZxsp(m, screen, inves, isa_MachineInves)
 {
 	addItem(new Z80(this));		 // must be 1st item
 	addItem(new UlaInves(this)); // should be 2nd item

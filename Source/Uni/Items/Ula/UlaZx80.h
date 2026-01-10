@@ -21,7 +21,6 @@ public:
 	void output(Time t, int32 cc, uint16 addr, uint8 byte) override;
 	void videoFrameEnd(int32 cc) override;
 
-	void  markVideoRam() override {}
 	int32 doFrameFlyback(int32 cc) override;
 	void  drawVideoBeamIndicator(int32 cc) override;
 

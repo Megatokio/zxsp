@@ -12,7 +12,7 @@ namespace zxsp
 class MachineTk95 : public MachineZxsp
 {
 public:
-	explicit MachineTk95(IMachineController*, bool is60hz = false);
+	explicit MachineTk95(IMachineController*, IScreen*, bool is60hz = false);
 };
 
 } // namespace zxsp

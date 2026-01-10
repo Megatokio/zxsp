@@ -121,10 +121,9 @@ public:
 	int32 updateScreenUpToCycle(int32 cc) override;
 	int32 doFrameFlyback(int32 cc) override;
 	void  drawVideoBeamIndicator(int32 cc) override;
-	//CoreByte* getVideoRam() override { return video_ram; }
-	void markVideoRam() override;
-	void setPort7ffd(uint8);
-	bool getFlashPhase() { return (frame_counter >> 4) & 1; }
+	void  markVideoRam();
+	void  setPort7ffd(uint8);
+	bool  getFlashPhase() { return (frame_counter >> 4) & 1; }
 
 	bool newVideoModesEnabled() volatile { return new_video_modes_enabled; }
 	void enableNewVideoModes(bool);

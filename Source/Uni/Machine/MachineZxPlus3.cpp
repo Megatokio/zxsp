@@ -14,7 +14,8 @@
 namespace zxsp
 {
 
-MachineZxPlus3::MachineZxPlus3(IMachineController* m, Model model) : MachineZxPlus2a(m, model, isa_MachineZxPlus3)
+MachineZxPlus3::MachineZxPlus3(IMachineController* m, IScreen* screen, Model model) : //
+	MachineZxPlus2a(m, screen, model, isa_MachineZxPlus3)
 {
 	assert(model == zxplus3 || model == zxplus3_span);
 

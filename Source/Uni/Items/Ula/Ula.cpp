@@ -40,9 +40,7 @@ Ula::~Ula() {}
 
 void Ula::powerOn(int32 cc)
 {
-	//assert(screen != nullptr);
-
-	Item::powerOn(cc);
+	Crtc::powerOn(cc);
 
 	border_color			= 0;
 	ula_out_byte			= 0;

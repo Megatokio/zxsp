@@ -27,9 +27,6 @@ public:
 	Zx80VideoData* getZx80VideoData(VideoData::What, bool aux = no); // Ula
 	void		   sendVideoData(VideoData*);						 // Ula
 
-	void		 setScreen(IScreen*); // ctor
-	virtual void markVideoRam() = 0;  // ctor
-
 	IScreen*  screen	   = nullptr;
 	CoreByte* video_ram	   = nullptr; // current video ram
 	uint8	  border_color = 0;		  // current border color
@@ -42,15 +39,8 @@ public:
 // ----------------------------------
 //
 
-inline void Crtc::setScreen(IScreen* newscreen)
-{
-	screen = newscreen;
-	if (screen) markVideoRam();
-}
-
 inline ZxspVideoData* Crtc::getZxspVideoData(VideoData::What what, bool aux)
 {
-	assert(screen);
 	VideoData* z = screen->getVideoData(what, aux);
 	assert(dynamic_cast<ZxspVideoData*>(z));
 	return static_cast<ZxspVideoData*>(z);
@@ -58,15 +48,13 @@ inline ZxspVideoData* Crtc::getZxspVideoData(VideoData::What what, bool aux)
 
 inline Zx80VideoData* Crtc::getZx80VideoData(VideoData::What what, bool aux)
 {
-	assert(screen);
 	VideoData* z = screen->getVideoData(what, aux);
 	assert(dynamic_cast<Zx80VideoData*>(z));
 	return static_cast<Zx80VideoData*>(z);
 }
 
-inline void Crtc::sendVideoData(VideoData* data)
+inline void Crtc::sendVideoData(VideoData* data) //
 {
-	assert(screen);
 	screen->sendVideoData(data);
 }
 

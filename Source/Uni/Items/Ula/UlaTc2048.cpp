@@ -36,7 +36,7 @@ TS2068:
 	but uses D_FILE_2 (Hex: 6000-77FF, Dec: 24576-30719)
 	and A_FILE_2 (Hex: 7800-7AFF, Dec: 30720-31487) instead.
 
-	Mode 4: 'Ultra High Color Resoluton' mode:
+	Mode 4: 'Ultra High Color Resolution' mode:
 	uses D_FILE_1 to define pixel data (as with Mode 1) but holds attribute values in D_FILE_2 -
 	this contains 8 times as much memory as A_FILE_1, allowing an attribute byte to be assigned
 	to each row of pixels within each character.
@@ -140,7 +140,7 @@ void UlaTc2048::powerOn(/*t=0*/ int32 cc)
 {
 	byte_ff = 0;
 	UlaZxsp::powerOn(cc);
-	markVideoRam();
+	//markVideoRam(); <-- zxsp default screen
 	border_color = 0;
 	cpu->setInterrupt(cc_irpt_on, cc_irpt_off);
 	//	MmuTc2048Ptr(machine->mmu)->selectEXROM(0);	// get's it's own powerOn()

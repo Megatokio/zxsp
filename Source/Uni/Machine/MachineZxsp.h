@@ -12,13 +12,13 @@ namespace zxsp
 class MachineZxsp : public Machine
 {
 protected:
-	MachineZxsp(IMachineController*, Model, isa_id id);
+	MachineZxsp(IMachineController*, IScreen*, Model, isa_id id);
 
 	bool handleSaveTapePatch() override;
 	bool handleLoadTapePatch() override;
 
 public:
-	MachineZxsp(IMachineController*, Model);
+	MachineZxsp(IMachineController*, IScreen*, Model);
 
 	void loadScr(FD& fd) override;
 	void saveScr(FD& fd) override;

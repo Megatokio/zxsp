@@ -24,7 +24,8 @@ namespace zxsp
 #define C_FLAG 0x01
 
 
-MachineJupiter::MachineJupiter(IMachineController* m, bool is60hz) : Machine(m, jupiter, isa_MachineJupiter)
+MachineJupiter::MachineJupiter(IMachineController* m, IScreen* s, bool is60hz) :
+	Machine(m, s, jupiter, isa_MachineJupiter)
 {
 	addItem(new Z80(this));
 	addItem(new UlaJupiter(this, is60hz));

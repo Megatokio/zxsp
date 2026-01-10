@@ -28,7 +28,7 @@ void Ula128k::powerOn(/*t=0*/ int32 cc)
 {
 	port_7ffd = 0;
 	UlaZxsp::powerOn(cc);
-	// markVideoRam();
+	markVideoRam();
 }
 
 

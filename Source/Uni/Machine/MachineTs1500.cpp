@@ -13,7 +13,8 @@
 namespace zxsp
 {
 
-MachineTs1500::MachineTs1500(IMachineController* m) : MachineZx81(m, isa_MachineTs1500, ts1500)
+MachineTs1500::MachineTs1500(IMachineController* m, IScreen* screen) : //
+	MachineZx81(m, screen, isa_MachineTs1500, ts1500)
 {
 	addItem(new Z80(this));		// must be 1st item
 	addItem(new UlaZx81(this)); // should be 2nd item

@@ -16,9 +16,12 @@
 namespace zxsp
 {
 
-MachineZx128::MachineZx128(IMachineController* m, Model model, isa_id id) : MachineZxsp(m, model, id) {}
+MachineZx128::MachineZx128(IMachineController* m, IScreen* screen, Model model, isa_id id) : //
+	MachineZxsp(m, screen, model, id)
+{}
 
-MachineZx128::MachineZx128(IMachineController* m, Model model) : MachineZxsp(m, model, zx_info[model].id)
+MachineZx128::MachineZx128(IMachineController* m, IScreen* screen, Model model) : //
+	MachineZxsp(m, screen, model, zx_info[model].id)
 {
 	assert(model == zx128 || model == zx128_span);
 	assert(model_info->id == isa_MachineZx128);

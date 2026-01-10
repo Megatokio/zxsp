@@ -174,12 +174,7 @@ void UlaJupiter::powerOn(int32 cc)
 {
 	xlogIn("UlaJupiter:powerOn");
 	Ula::powerOn(cc);
-}
-
-void UlaJupiter::reset(Time t, int32 cc)
-{
-	xlogIn("UlaJupiter::reset");
-	Ula::reset(t, cc);
+	markVideoRam();
 }
 
 int32 UlaJupiter::updateScreenUpToCycle(int32 cc)

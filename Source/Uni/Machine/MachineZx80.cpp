@@ -25,7 +25,8 @@ namespace zxsp
 #define MIN_FREE (24 * 33 + 32) // full screen + edit line + some spare bytes...
 
 
-MachineZx80::MachineZx80(IMachineController* parent, bool is60hz) : Machine(parent, zx80, isa_MachineZx80)
+MachineZx80::MachineZx80(IMachineController* parent, IScreen* screen, bool is60hz) :
+	Machine(parent, screen, zx80, isa_MachineZx80)
 {
 	addItem(new Z80(this));
 	addItem(new UlaZx80(this, is60hz));

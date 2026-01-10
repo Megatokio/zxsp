@@ -31,7 +31,8 @@ kio: so i believe this TK90X info also applies:
 namespace zxsp
 {
 
-MachineTk95::MachineTk95(IMachineController* m, bool is60hz) : MachineZxsp(m, tk95, isa_MachineTk95)
+MachineTk95::MachineTk95(IMachineController* m, IScreen* screen, bool is60hz) : //
+	MachineZxsp(m, screen, tk95, isa_MachineTk95)
 {
 	addItem(new Z80(this));
 	addItem(new UlaTk90x(this, is60hz));

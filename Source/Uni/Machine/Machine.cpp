@@ -101,51 +101,51 @@ namespace zxsp
 // ########################################################################
 
 
-RCPtr<Machine> Machine::newMachine(IMachineController* mc, Model model)
+RCPtr<Machine> Machine::newMachine(IMachineController* mc, IScreen* s, Model model)
 {
 	// create Machine instance for model
 	// the machine is not powered on.
 
 	switch (model)
 	{
-	case jupiter: return new MachineJupiter(mc);
+	case jupiter: return new MachineJupiter(mc, s);
 
-	case zx80: return new MachineZx80(mc);
-	case zx81: return new MachineZx81(mc);
-	case tk85: return new MachineTk85(mc);
-	case ts1000: return new MachineTs1000(mc);
-	case ts1500: return new MachineTs1500(mc);
+	case zx80: return new MachineZx80(mc, s);
+	case zx81: return new MachineZx81(mc, s);
+	case tk85: return new MachineTk85(mc, s);
+	case ts1000: return new MachineTs1000(mc, s);
+	case ts1500: return new MachineTs1500(mc, s);
 
-	case tk90x: return new MachineTk90x(mc);
-	case tk95: return new MachineTk95(mc);
-	case inves: return new MachineInves(mc);
-	case tc2048: return new MachineTc2048(mc);
+	case tk90x: return new MachineTk90x(mc, s);
+	case tk95: return new MachineTk95(mc, s);
+	case inves: return new MachineInves(mc, s);
+	case tc2048: return new MachineTc2048(mc, s);
 
 	case zxsp_i1:
 	case zxsp_i2:
 	case zxsp_i3:
-	case zxplus: return new MachineZxsp(mc, model);
+	case zxplus: return new MachineZxsp(mc, s, model);
 
 	case zxplus2_span:
 	case zxplus2_frz:
-	case zxplus2: return new MachineZxPlus2(mc, model);
+	case zxplus2: return new MachineZxPlus2(mc, s, model);
 
 	case zx128_span:
-	case zx128: return new MachineZx128(mc, model);
+	case zx128: return new MachineZx128(mc, s, model);
 
 	case zxplus3_span:
-	case zxplus3: return new MachineZxPlus3(mc, model);
+	case zxplus3: return new MachineZxPlus3(mc, s, model);
 
 	case zxplus2a_span:
-	case zxplus2a: return new MachineZxPlus2a(mc, model);
+	case zxplus2a: return new MachineZxPlus2a(mc, s, model);
 
 	case u2086:
 	case tc2068:
-	case ts2068: return new MachineTc2068(mc, model);
+	case ts2068: return new MachineTc2068(mc, s, model);
 
-	case pentagon128: return new MachinePentagon128(mc);
-	case zxplus_span: return new MachineZxsp(mc, zxplus); // TODO
-	case scorpion: return new MachineZxsp(mc, zxsp_i3);	  // TODO
+	case pentagon128: return new MachinePentagon128(mc, s);
+	case zxplus_span: return new MachineZxsp(mc, s, zxplus); // TODO
+	case scorpion: return new MachineZxsp(mc, s, zxsp_i3);	 // TODO
 
 	case unknown_model:
 	case num_models:
@@ -154,10 +154,11 @@ RCPtr<Machine> Machine::newMachine(IMachineController* mc, Model model)
 	IERR();
 }
 
-Machine::Machine(IMachineController* parent, Model model, isa_id id) :
+Machine::Machine(IMachineController* parent, IScreen* screen, Model model, isa_id id) :
 	IsaObject(id, isa_Machine),
 	mutex(), //_lock(PLock::recursive),
 	controller(parent),
+	screen(screen),
 	model(model),
 	model_info(&zx_info[model]),
 	cpu_options(), // s.u.

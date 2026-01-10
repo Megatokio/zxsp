@@ -16,7 +16,7 @@ protected:
 	bool handleLoadTapePatch() override;
 
 public:
-	MachineZx80(IMachineController*, bool is60hz = false);
+	MachineZx80(IMachineController*, IScreen*, bool is60hz = false);
 
 	void loadO80(FD&) override;
 	void saveO80(FD&) override;

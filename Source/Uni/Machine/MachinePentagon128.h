@@ -12,7 +12,7 @@ namespace zxsp
 class MachinePentagon128 : public MachineZx128
 {
 public:
-	explicit MachinePentagon128(IMachineController*);
+	explicit MachinePentagon128(IMachineController*, IScreen*);
 };
 
 } // namespace zxsp

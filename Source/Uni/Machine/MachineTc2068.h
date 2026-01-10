@@ -12,7 +12,7 @@ namespace zxsp
 class MachineTc2068 : public MachineTc2048
 {
 public:
-	MachineTc2068(IMachineController*, Model);
+	MachineTc2068(IMachineController*, IScreen*, Model);
 
 	void insertCartridge(cstr fpath);
 };

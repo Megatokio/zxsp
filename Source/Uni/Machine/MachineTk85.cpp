@@ -13,7 +13,8 @@
 namespace zxsp
 {
 
-MachineTk85::MachineTk85(IMachineController* m, bool is60hz) : MachineZx81(m, isa_MachineTk85, tk85)
+MachineTk85::MachineTk85(IMachineController* m, IScreen* screen, bool is60hz) : //
+	MachineZx81(m, screen, isa_MachineTk85, tk85)
 {
 	addItem(new Z80(this));
 	addItem(new UlaZx81(this));

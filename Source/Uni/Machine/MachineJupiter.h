@@ -18,7 +18,7 @@ protected:
 	void saveAce(FD&) override;
 
 public:
-	explicit MachineJupiter(IMachineController*, bool is60hz = false);
+	explicit MachineJupiter(IMachineController*, IScreen*, bool is60hz = false);
 };
 
 } // namespace zxsp
