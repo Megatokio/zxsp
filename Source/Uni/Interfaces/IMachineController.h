@@ -5,7 +5,6 @@
 #pragma once
 #include "Templates/RCPtr.h"
 #include "zxsp_types.h"
-#include <memory>
 
 namespace zxsp
 {
@@ -16,10 +15,9 @@ public:
 	IMachineController() noexcept = default;
 	virtual ~IMachineController() = default;
 
-	virtual void memoryModified(Memory* m, uint how) volatile = 0;
-	virtual void itemAdded(RCPtr<Item>) volatile			  = 0;
-	virtual void itemRemoved(Item*) volatile				  = 0;
-	virtual void showMessage(MessageStyle, cstr text)		  = 0;
+	virtual void itemAdded(RCPtr<Item>) volatile	  = 0;
+	virtual void itemRemoved(Item*) volatile		  = 0;
+	virtual void showMessage(MessageStyle, cstr text) = 0;
 };
 
 } // namespace zxsp

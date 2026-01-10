@@ -2287,14 +2287,6 @@ void MachineController::item_removed(Item* item, bool force)
 	}
 }
 
-void MachineController::memoryModified(Memory* m, uint how) volatile
-{
-	// callback from machine
-
-	//assert(isMainThread());
-	emit NV(this)->signal_memoryModified(m, how);
-}
-
 
 // ###########################################################################################
 //								Queries

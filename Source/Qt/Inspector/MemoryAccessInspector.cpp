@@ -346,6 +346,8 @@ void MemoryAccessInspector::resizeEvent(QResizeEvent* e)
 	//	Qt callback: this widget was resized
 
 	xlogIn("MemoryAccessInspector::resizeEvent");
+	//assert(machine->memory_change_cnt == memory_change_cnt); <-- happens when toolwindow opened
+	if (machine->memory_change_cnt != memory_change_cnt) slotMemoryConfigChanged();
 
 	MemoryInspector::resizeEvent(e);
 
@@ -368,6 +370,9 @@ void MemoryAccessInspector::adjustSize(QSize& size)
 	//	please check, align and limit size
 	//	you'll be resized to it!
 
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
+
 	validate_rows();
 	validate_scrollposition();
 
@@ -378,7 +383,7 @@ void MemoryAccessInspector::adjustSize(QSize& size)
 	size.setHeight(height_for_rows(rows));
 }
 
-void MemoryAccessInspector::slotMemoryConfigChanged(Memory* m, uint how)
+void MemoryAccessInspector::slotMemoryConfigChanged()
 {
 	//	some memory has been attached / removed / resized
 
@@ -388,13 +393,16 @@ void MemoryAccessInspector::slotMemoryConfigChanged(Memory* m, uint how)
 
 	rom_pixels.resize(NV(machine->rom).count());
 	ram_pixels.resize(NV(machine->ram).count());
-	MemoryInspector::slotMemoryConfigChanged(m, how);
+	MemoryInspector::slotMemoryConfigChanged();
 }
 
 void MemoryAccessInspector::slotSetDecayMode(int m)
 {
 	//	slot for combobox_decaymode
 	//	argument is index in combobox
+
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	if (m != decay_mode)
 	{
@@ -412,6 +420,9 @@ void MemoryAccessInspector::slotSetPixelSize(int i)
 	//	slot for combobox_pixelzoom
 	//	argument is index in combobox
 
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
+
 	if (MIN_PIXEL_SIZE + i == pixel_size) return;
 
 	pixel_size = MIN_PIXEL_SIZE + i;
@@ -425,6 +436,9 @@ void MemoryAccessInspector::slotSetBytesPerRow(int i)
 {
 	//	slot for combobox_bytes_per_row
 	//	argument is index in combobox
+
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	if (MIN_BYTES_PER_ROW << i == bytes_per_row) return;
 
@@ -442,6 +456,8 @@ void MemoryAccessInspector::updateWidgets()
 
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+	//assert(machine->memory_change_cnt==memory_change_cnt);
+	if (machine->memory_change_cnt != memory_change_cnt) slotMemoryConfigChanged();
 	assert(rom_pixels.count() == NV(machine->rom).count());
 	assert(ram_pixels.count() == NV(machine->ram).count());
 

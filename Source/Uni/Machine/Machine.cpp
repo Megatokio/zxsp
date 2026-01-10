@@ -279,7 +279,7 @@ void Machine::memoryAdded(Memory* m)
 	assert(is_locked());
 
 	memory.append(m);
-	memoryModified(m, 0);
+	memoryModified();
 }
 
 void Machine::memoryRemoved(Memory* m)
@@ -298,17 +298,17 @@ void Machine::memoryRemoved(Memory* m)
 			break;
 		}
 	}
-	memoryModified(m, 1);
+	memoryModified();
 }
 
-void Machine::memoryModified(Memory* m, uint how)
+void Machine::memoryModified()
 {
 	// callback from Memory shrink or grow:
 
 	assert(isMainThread());
 	assert(is_locked());
 
-	controller->memoryModified(m, how);
+	memory_change_cnt++;
 }
 
 bool Machine::suspend()

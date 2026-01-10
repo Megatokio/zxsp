@@ -52,7 +52,7 @@ protected:
 	// void slotSetMemoryPage(int) override;	// combobox_memorypage
 	// void setScrollPosition(int) override;	// scrollbar
 	// void slotSetDataSource(int) override;	// combobox_datasource
-	void slotMemoryConfigChanged(Memory*, uint how) override;
+	void slotMemoryConfigChanged() override;
 
 private:
 	int	 width_for_bytes(int n);

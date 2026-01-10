@@ -673,6 +673,8 @@ void MemoryDisassInspector::resizeEvent(QResizeEvent* e)
 	xlogIn("MemoryDisassInspector::resizeEvent: %i x %i", width(), height());
 
 	MemoryInspector::resizeEvent(e);
+	//assert(machine->memory_change_cnt == memory_change_cnt); <-- happens when toolwoindow opened
+	if (machine->memory_change_cnt != memory_change_cnt) slotMemoryConfigChanged();
 
 	rows = rows_for_height(height());
 	limit(MIN_ROWS, rows, MAX_ROWS);
@@ -705,6 +707,8 @@ void MemoryDisassInspector::showEvent(QShowEvent* e)
 
 	xlogIn("MemoryDisassInspector::showEvent");
 
+	//assert(machine->memory_change_cnt==memory_change_cnt);
+	if (machine->memory_change_cnt != memory_change_cnt) slotMemoryConfigChanged();
 	MemoryInspector::showEvent(e);
 
 	updateAll();
@@ -720,6 +724,8 @@ void MemoryDisassInspector::adjustSize(QSize& size)
 	// setzt maxSize so dass Maximize nur vertikal vergrößert.
 
 	xlogIn("MemoryDisassInspector::adjustSize");
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	int disass_cols = disass_cols_for_width(size.width());
 	validate_disass_cols(disass_cols);
@@ -742,6 +748,8 @@ void MemoryDisassInspector::slotSetDataSource(int newdatasource)
 	xlogIn("MemoryDisassInspector.slotSetDataSource");
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	if (newdatasource == data_source) return;
 	MemoryInspector::slotSetDataSource(newdatasource);
@@ -778,6 +786,8 @@ void MemoryDisassInspector::slotSetMemoryPage(int newpage)
 	xlogIn("MemoryDisassInspector.setMemoryPage()");
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	if (newpage < 0) return; // empty comboBox
 	assert(data_source == RamPages || data_source == RomPages);
@@ -805,6 +815,8 @@ void MemoryDisassInspector::slotSetAddressFromRegister(int reg)
 	xlogIn("MemoryDisassInspector.slotSetAddressFromRegister");
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	MemoryInspector::slotSetAddressFromRegister(reg);
 
@@ -824,6 +836,8 @@ void MemoryDisassInspector::slotSetEditMode(bool f)
 	xlogIn("MemoryDisassInspector.slotSetEditMode");
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	if (f)
 	{
@@ -846,6 +860,8 @@ void MemoryDisassInspector::setBreakpoint(CoreByte mask, bool f)
 	xlogIn("MemoryDisassInspector.slotSetBreakPoint");
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 	assert((mask & ~cpu_break_rwx) == 0);
 
 	breakpoint_mask &= ~mask;
@@ -868,6 +884,8 @@ void MemoryDisassInspector::setScrollOffset(int32 new_scroll_offset)
 	xlogIn("MemoryDisassInspector.setScrollOffset(%i)", new_scroll_offset);
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	scroll_offset = new_scroll_offset;
 	validate_scrollposition();
@@ -884,6 +902,8 @@ void MemoryDisassInspector::slotSetScrollPosition(int32 new_scrollposition)
 	xlogIn("MemoryDisassInspector.setScrollPosition(%i)", new_scrollposition);
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	double bytes_per_row = data.size / (scrollbar->maximum() + rows);			 // calculate bytes/row
 	double delta_rows	 = (new_scrollposition - scroll_offset / bytes_per_row); // distance of movement [rows]
@@ -914,6 +934,8 @@ void MemoryDisassInspector::updateScrollbar()
 	xlogIn("MemoryDisassInspector.updateScrollbar");
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	int visible_bytes = 0;
 	for (int r = 0; r < rows; r++) visible_bytes += disass->opcodeLength(scroll_offset + visible_bytes);
@@ -933,6 +955,8 @@ void MemoryDisassInspector::updateWidgets()
 	// timer
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+	//assert(machine->memory_change_cnt==memory_change_cnt);
+	if (machine->memory_change_cnt != memory_change_cnt) slotMemoryConfigChanged();
 
 	// follow PC:
 	Z80Regs& regs = machine->cpu->getRegisters();
@@ -990,6 +1014,8 @@ void MemoryDisassInspector::mousePressEvent(QMouseEvent* e)
 
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	if (e->button() != Qt::LeftButton)
 	{
@@ -1079,6 +1105,8 @@ void MemoryDisassInspector::keyPressEvent(QKeyEvent* e)
 {
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	if (!editing_in_hex() && !editing_in_disass())
 	{
@@ -1204,6 +1232,8 @@ void MemoryDisassInspector::slotFocusChanged(bool f)
 
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	QObject* sender = (QObject::sender());
 

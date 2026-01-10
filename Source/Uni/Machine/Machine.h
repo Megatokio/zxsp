@@ -111,10 +111,11 @@ public:
 	Array<Memory*> memory; // updated by memoryAdded() / memoryRemoved()
 	MemoryPtr	   rom;	   // rom pages
 	MemoryPtr	   ram;	   // ram pages
+	int			   memory_change_cnt = 0;
 
 	void memoryAdded(Memory*);
 	void memoryRemoved(Memory*);
-	void memoryModified(Memory*, uint how = 2); // 0=added, 1=removed, 2=modified
+	void memoryModified();
 
 
 public:

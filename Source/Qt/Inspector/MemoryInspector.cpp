@@ -56,6 +56,7 @@ MemoryInspector::MemoryInspector(QWidget* p, MachineController* mc, volatile Isa
 	scrollbar(new MyScrollBar(Qt::Vertical, this)),
 	scrollbar_width(scrollbar->sizeHint().width()),
 	needs_aligned_addresses(displaymode == MemAccess),
+	memory_change_cnt(machine->memory_change_cnt - 1),
 	display_mode(displaymode),
 	data_source(settings.get_int(key_memoryview_datasource(displaymode), AsSeenByCpu)),
 	ram_page_idx(settings.get_int(key_memoryview_ram_page(displaymode), 0)),
@@ -98,7 +99,6 @@ MemoryInspector::MemoryInspector(QWidget* p, MachineController* mc, volatile Isa
 
 	// init:
 	connect(scrollbar, &MyScrollBar::valueChanged, this, &MemoryInspector::slotSetScrollPosition);
-	connect(controller, &MachineController::signal_memoryModified, this, &MemoryInspector::slotMemoryConfigChanged);
 
 	// toolbar:
 	toolbar				= new QToolBar();
@@ -217,7 +217,7 @@ void MemoryInspector::resizeEvent(QResizeEvent* e)
 	updateAll();
 }
 
-void MemoryInspector::slotMemoryConfigChanged(Memory*, uint /*how*/)
+void MemoryInspector::slotMemoryConfigChanged()
 {
 	//	Prüfe, ob Speicher wurde zur Laufzeit hinzugefügt / entfernt / geändert.
 	//	Wir prüfen, ob es die angezeigte Memory Page noch gibt
@@ -234,6 +234,8 @@ void MemoryInspector::slotMemoryConfigChanged(Memory*, uint /*how*/)
 		logline("MemoryInspector::slotMemoryConfigChanged called for void machine");
 		return;
 	}
+
+	memory_change_cnt = machine->memory_change_cnt;
 
 	switch (data_source)
 	{
@@ -272,6 +274,8 @@ void MemoryInspector::setScrollOffset(int32 new_scrolloffset)
 	// note: may be called for data source change => don't fast quit if new addr == old addr
 
 	xlogIn("MemoryInspector.setScrollOffset");
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	limit(0, new_scrolloffset, data.size - 2 * bytes_per_row);
 	if (needs_aligned_addresses) new_scrolloffset -= new_scrolloffset % bytes_per_row;
@@ -282,6 +286,8 @@ void MemoryInspector::setScrollOffset(int32 new_scrolloffset)
 void MemoryInspector::slotSetScrollPosition(int32 row)
 {
 	xlogIn("MemoryInspector.setScrollPosition");
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	int current_base_row = (scroll_offset + bytes_per_row - 1) / bytes_per_row;
 
@@ -291,6 +297,8 @@ void MemoryInspector::slotSetScrollPosition(int32 row)
 void MemoryInspector::updateScrollbar()
 {
 	xlogIn("MemoryInspector.updateScrollbar");
+	//assert(machine->memory_change_cnt == memory_change_cnt);  <-- happens when toolwindow opened
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	int total_rows = (data.size + scroll_offset % bytes_per_row + bytes_per_row - 1) / bytes_per_row;
 
@@ -310,6 +318,8 @@ void MemoryInspector::slotSetAddressFromRegister(int reg)
 	xlogIn("MemoryInspector.slotSetAddressFromRegister");
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	uint	 address;
 	Z80Regs& registers = machine->cpu->getRegisters();
@@ -369,6 +379,8 @@ void MemoryInspector::slotSetDataSource(int newdatasource)
 	xlogIn("MemoryInspector.slotSetDataSource");
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	if (newdatasource == data_source) return;
 
@@ -441,6 +453,8 @@ void MemoryInspector::slotSetMemoryPage(int newpage)
 	// weil sie auch nach Data Source Change oder Memory Config Change aufgerufen werden kann.
 
 	xlogIn("MemoryInspector.slotSetMemoryPage");
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	if (newpage < 0) return; // empty comboBox
 	assert(data_source == RamPages || data_source == RomPages);
@@ -471,6 +485,8 @@ void MemoryInspector::updateWidgets()
 	xxlogIn("MemoryInspector::updateWidgets");
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+
+	if (machine->memory_change_cnt != memory_change_cnt) slotMemoryConfigChanged();
 
 	if (old_baseaddress != data.baseaddress + scroll_offset)
 	{
@@ -585,6 +601,9 @@ int MemoryInspector::romPageIndexForCpuAddress(uint16 a)
 int32 MemoryInspector::pageOffsetForCpuAddress(uint16 addr)
 {
 	// returns -1 if outside of this page
+
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	if (data_source == AsSeenByCpu) return addr; // 64kB => always inside
 

@@ -167,14 +167,12 @@ public:
 	ToolWindow*		findToolWindowForItem(const volatile IsaObject* item);
 
 	// IMachineController interface:
-	void memoryModified(Memory* m, uint how) volatile override;
 	void itemAdded(RCPtr<Item>) volatile override;
 	void itemRemoved(Item*) volatile override;
 	void showMessage(MessageStyle, cstr text) override;
 
 signals:
 	void signal_keymapModified();
-	void signal_memoryModified(Memory*, uint how);
 };
 
 

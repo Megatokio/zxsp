@@ -180,6 +180,9 @@ void MemoryGraphInspector::resizeEvent(QResizeEvent* e)
 {
 	xlogIn("MemoryGraphInspector::resizeEvent: %i x %i", width(), height());
 
+	//assert(machine->memory_change_cnt == memory_change_cnt); <-- happens when toolwindow opened
+	if (machine->memory_change_cnt != memory_change_cnt) slotMemoryConfigChanged();
+
 	MemoryInspector::resizeEvent(e);
 
 	bytes_per_row = bytes_for_width(width()); // bytes per row
@@ -210,6 +213,9 @@ void MemoryGraphInspector::showEvent(QShowEvent* e)
 
 	xlogIn("MemoryGraphInspector::showEvent");
 
+	//assert(machine->memory_change_cnt==memory_change_cnt);
+	if (machine->memory_change_cnt != memory_change_cnt) slotMemoryConfigChanged();
+
 	MemoryInspector::showEvent(e);
 	updateScrollbar();
 	updateWidgets();
@@ -222,6 +228,8 @@ void MemoryGraphInspector::adjustMaxSizeDuringResize()
 	// after a 1 sec timeout ToolWindow will call adjustSize so that we can set the max size for the Maximize button.
 
 	xxlogIn("MemoryGraphInspector.adjustMaxSizeDuringResize");
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	int maxbytes = (data.size + rows - 1) / rows;
 	int maxrows	 = (data.size + bytes_per_row - 1) / bytes_per_row;
@@ -242,6 +250,8 @@ void MemoryGraphInspector::adjustSize(QSize& size)
 	// called from toolwindow to finalize size after resizing
 
 	xlogIn("MemoryGraphInspector.adjustSize");
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	validate_bytes_per_row();
 	validate_rows();
@@ -268,6 +278,8 @@ void MemoryGraphInspector::adjustSize(QSize& size)
 void MemoryGraphInspector::updateScrollbar()
 {
 	xlogIn("MemoryGraphInspector.updateScrollbar");
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	int current_base_row   = (scroll_offset + bytes_per_row - 1) / bytes_per_row;
 	int total_base_address = scroll_offset - current_base_row * bytes_per_row;
@@ -285,6 +297,8 @@ void MemoryGraphInspector::updateScrollbar()
 void MemoryGraphInspector::slotSet32BytesPerRow()
 {
 	xlogIn("MemoryGraphInspector::slotSet32BytesPerRow");
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	bytes_per_row = 32;
 	scroll_offset &= ~31;
@@ -299,6 +313,8 @@ void MemoryGraphInspector::updateWidgets()
 	xxlogIn("MemoryGraphInspector::updateWidgets");
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+	//assert(machine->memory_change_cnt==memory_change_cnt);
+	if (machine->memory_change_cnt != memory_change_cnt) slotMemoryConfigChanged();
 
 	if (!graphics_view->canvas) return;
 	assert(graphics_view->canvas);
@@ -359,6 +375,8 @@ void MemoryGraphInspector::update_tooltip()
 	xxlogIn("MemoryGraphInspector::updateTooltip");
 	assert(isMainThread());
 	assert(controller->getMachine() == machine);
+	assert(machine->memory_change_cnt == memory_change_cnt);
+	//if(machine->memory_change_cnt!=memory_change_cnt)slotMemoryConfigChanged();
 
 	// test whether mouse is over this inspector:
 	QPoint gpos = QCursor::pos();

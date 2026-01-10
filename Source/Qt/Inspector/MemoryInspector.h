@@ -91,6 +91,7 @@ protected:
 	int	 old_baseaddress; // for lineedit_baseaddress update
 	int	 scrollbar_width; // for convenience
 	bool needs_aligned_addresses;
+	int	 memory_change_cnt;
 
 	// data source:
 	MIDisplayMode display_mode;	 // Bytes, Words, Disass, MemGraph, MemAccess
@@ -129,7 +130,7 @@ protected:
 	virtual void slotSetMemoryPage(int);		  // combobox_memorypage
 	virtual void slotSetScrollPosition(int32);	  // scrollbar
 	virtual void slotSetAddressFromRegister(int); // combobox_register, follow_pc in MemoryDisassInspector
-	virtual void slotMemoryConfigChanged(Memory*, uint how);
+	virtual void slotMemoryConfigChanged();
 
 	FourBytes* dataReadPtrForOffset(int32 offset);
 	// uint8	peek(uint32 addr)				{ return rdPtr(addr)->data; }

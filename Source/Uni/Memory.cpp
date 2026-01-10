@@ -26,7 +26,7 @@ namespace zxsp
 */
 
 
-/*	Creator for initially present memory
+/*	Constructor for initially present memory
 	e.g. built-in ram and rom
 */
 Memory::Memory(Machine* machine, cstr name, uint size) noexcept :
@@ -67,7 +67,7 @@ void Memory::shrink(uint new_cnt) noexcept // shrinks only
 
 	if (machine->cpu) machine->cpu->unmapMemory(data.getData(), data.count());
 	data.shrink(new_cnt);
-	machine->memoryModified(this);
+	machine->memoryModified();
 }
 
 
@@ -85,7 +85,7 @@ void Memory::grow(uint new_cnt) noexcept
 
 	if (machine->cpu) machine->cpu->unmapMemory(data.getData(), data.count());
 	data.grow(new_cnt);
-	machine->memoryModified(this);
+	machine->memoryModified();
 }
 
 } // namespace zxsp
