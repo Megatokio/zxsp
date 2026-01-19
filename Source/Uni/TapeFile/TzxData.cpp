@@ -8,9 +8,9 @@
 #include "TapData.h"
 #include "TapeFile.h"
 #include "TapeFileDataBlock.h"
+#include "zxsp_globals.h"
 #include <math.h>
 #include <zlib.h>
-
 
 namespace zxsp
 {
@@ -2376,7 +2376,9 @@ CswBuffer::CswBuffer(const TzxData& tzxdata, uint32 ccps) : CswBuffer(ccps, 0, 6
 	// store pulses:
 	tzxdata.data->storeCsw(*this);
 
-	assert(getPhase0() == 0);
+	// initial phase must be 0 but this is violated in some ZX81 files:
+	// e.g. 3x in "Krazy Kong [Colourisation and CHR$64 Mode]"
+	if (getPhase0() != 0) logline("CswBuffer: phase(0) != 0");
 
 	//	if(ccps!=3500000)			// resampling required?
 	//	{
