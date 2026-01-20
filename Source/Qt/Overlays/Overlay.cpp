@@ -66,8 +66,8 @@ void JoystickOverlay::setZoom(int zoom)
 	}
 
 	QColor background_color {0, 0, 0, 0x20}; // rgba
-	QColor line_color(222, 222, 222, 0x80);
-	QColor text_color(222, 222, 222, 0x80);
+	QColor line_color(255, 255, 255, 0x80);
+	QColor text_color(255, 255, 255, 0x80);
 
 	pixmap.fill(Qt::GlobalColor::transparent);
 	QPainter p(&pixmap);

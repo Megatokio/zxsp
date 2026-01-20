@@ -1435,14 +1435,14 @@ Machine* MachineController::initMachine(
 		add_actions = QList<QAction*>() << action_addZx3kRam << action_addZx16kRam << action_addTs1016Ram
 										<< action_addStonechip16kRam << action_addMemotech16kRam
 										<< action_addMemotech64kRam << action_addZonxBox81 << action_addZxPrinter
-										<< action_addPrinterTs2040;
+										<< action_addPrinterTs2040 << action_addProtekJoy;
 
 		if (machine->ula->isA(isa_UlaZx81)) add_actions.append(action_addChroma81);
 
 		items_menu->addActions(add_actions);
 
 		if (alwaysAddAy && !machine->ay) action_addZonxBox81->setChecked(true);
-		if (alwaysAddJoy && !machine->joystick) {} // TODO: Cursor, Chroma81
+		if (alwaysAddJoy && !machine->joystick) action_addProtekJoy->setChecked(true);
 		if (alwaysAddRam && machine->ram.count() < 16 kB)
 		{
 			if (model == zx80) action_addZx3kRam->setChecked(true);
