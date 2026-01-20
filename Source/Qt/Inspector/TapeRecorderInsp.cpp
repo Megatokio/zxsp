@@ -331,18 +331,19 @@ TapeRecorderInsp::TapeRecorderInsp(
 		minor_block_info_label->setText(minor_block_info);
 
 		// tape position counter:
+		// NOTE: bei stretch + spacing funktioniert die Textpositionierung im Label nicht richtig!
 		tape_position_label->move(tapecounterpos);
 		QFont font = QFont("Menlo", 12);
-		// font.setWeight(QFont::Bold);
-		font.setStretch(125);
-		font.setLetterSpacing(QFont::AbsoluteSpacing, 5);
+		//font.setWeight(QFont::Bold);
+		font.setStretch(115);
+		font.setLetterSpacing(QFont::AbsoluteSpacing, 4);
 		tape_position_label->setFont(font);
 		setColors(tape_position_label, 0xffcccccc);
 		tape_position_label->setFixedSize(50, 20);
-		tape_position_label->setAlignment(Qt::AlignCenter);
-		tape_position_label->setFrame(0);
-		tape_position_label->setContentsMargins(0 /*l*/, 3 /*o*/, -12 /*r*/, 2 /*u*/);
-		tape_position_label->setReadOnly(1);
+		tape_position_label->setAlignment(Qt::AlignRight);
+		tape_position_label->setFrame(false);
+		tape_position_label->setContentsMargins(0 /*l*/, 3 /*o*/, 0 /*r*/, 2 /*u*/);
+		tape_position_label->setReadOnly(true);
 		tape_position_label->setText("OOO");
 	}
 
