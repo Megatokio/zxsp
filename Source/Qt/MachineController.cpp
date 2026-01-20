@@ -1352,6 +1352,11 @@ Machine* MachineController::initMachine(
 	action_stepOut->setEnabled(no);
 	action_stepOver->setEnabled(no);
 
+	// TODO: z.Zt. disabled wg. refactor Renderer
+	action_screenshot->setEnabled(no);
+	action_recordMovie->setEnabled(no);
+	action_gifAnimateBorder->setEnabled(no);
+
 	// Model menu:
 	// add checkmark to current model in model menu
 	// other machines become unchecked because they are in the same QActionGroup
