@@ -217,7 +217,7 @@ void MachineZx81::saveP81(FD& fd, bool p81) noexcept(false) /*file_error,data_er
 
 void MachineZx81::loadP81(FD& fd, bool p81) noexcept(false) /*file_error,data_error*/
 {
-	// SNAPSHOT: load a ZX80 .p, .81 or .p81 file:
+	// SNAPSHOT: load a ZX81 .p, .81 or .p81 file:
 	// loads data into ram from address $4009 to ($4014)		(sysvar E_LINE)
 	// sets PC as after rom tape load routine
 	// detaches an existing ram extension if too small
@@ -230,6 +230,8 @@ void MachineZx81::loadP81(FD& fd, bool p81) noexcept(false) /*file_error,data_er
 	xlogIn("MachineZx81:loadP81(fd)");
 
 	assert(is_locked());
+	_suspend();
+	_power_off();
 
 	// skip program name:
 	uint pnamelen = 0;
@@ -246,33 +248,47 @@ void MachineZx81::loadP81(FD& fd, bool p81) noexcept(false) /*file_error,data_er
 		if (end > 0x4015) len = min(len, end - 0x4009);
 	}
 
+	// detect continguous ram size:
+	uint ramsize = min(48 kB, ram.count());
+	if (ramsize > 32 kB && cpu->rdPtr(0x4000 + 32 kB) != &ram[32 kB])
+	{
+		xlogline("ram reduced to 32 kB");
+		ramsize = 32 kB;
+	}
+	if (ramsize > 16 kB && cpu->rdPtr(0x4000 + 16 kB) != &ram[16 kB])
+	{
+		xlogline("ram reduced to 16 kB");
+		ramsize = 16 kB;
+	}
+
 	// attach external ram if required
 	// note: MachineController must update the menu entries!
 	if (len + MIN_FREE_16k > ram.count() && len + MIN_FREE_16k > 16 kB)
 	{
 		remove<ExternalRam>();
-		new Memotech64kRam(this);
+		addExternalRam(isa_Memotech64kRam);
+		ramsize = 48 kB;
 	}
 	else if (ram.count() < 16 kB && len + MIN_FREE_4k > ram.count())
 	{
 		remove<ExternalRam>();
-		new Zx16kRam(this);
+		addExternalRam(isa_Zx16kRam);
+		ramsize = 16 kB;
 	}
 
-	// we need to power on the machine but it must not runForSound()
-	// don't block: we might be called from runForSound()!
-	_suspend();
+	// we need to power on the machine before setting the registers:
 	_power_on();
 
-	uint ramsize = min(0xBFFEu, ram.count());
+	uint ramtop = min(0x4000u + ramsize, 0xffffu); // 0x4000 + ramsize
+	uint err_sp = ramtop - 4;					   // 0x3ffc + ramsize
 
 	// nicht überschriebene Systemvariablen initialisieren:
 
-	cpu->poke(0x4000, 0xff);			  // ERR_NR  Errorcode-1
-	cpu->poke(0x4001, 0x80);			  // FLAGS   Various BASIC Control flags: Bit1=Redirect Output to printer
-	cpu->poke2(0x4002, 0x3ffc + ramsize); // ERR_SP  Pointer to top of Machine Stack / Bottom of GOSUB Stack
-	cpu->poke2(0x4004, 0x4000 + ramsize); // RAMTOP  Pointer to unused/free memory (Changes realized at next NEW or CLS)
-	cpu->poke(0x4006, 0x00);			  // Selects [K], [L], [F], or [G] Cursor
+	cpu->poke(0x4000, 0xff);	// ERR_NR  Errorcode-1
+	cpu->poke(0x4001, 0x80);	// FLAGS   Various BASIC Control flags: Bit1=Redirect Output to printer
+	cpu->poke2(0x4002, err_sp); // ERR_SP  Pointer to top of Machine Stack / Bottom of GOSUB Stack
+	cpu->poke2(0x4004, ramtop); // RAMTOP  Pointer to unused/free memory (Changes realized at next NEW or CLS)
+	cpu->poke(0x4006, 0x00);	// Selects [K], [L], [F], or [G] Cursor
 	cpu->poke2(0x4007, 0xfffe); // PPC     Line Number of most recently executed BASIC line  (($FFFE=cmd line))
 
 	// setup registers for 'success':
@@ -281,18 +297,18 @@ void MachineZx81::loadP81(FD& fd, bool p81) noexcept(false) /*file_error,data_er
 	Z80Regs& regs = cpu->getRegisters();
 
 	regs.pc = SLOW_FAST;
-	regs.sp = 0x4000 + ramsize;
-	cpu->push2(0x3e00);		  // always
-	cpu->push2(0x0676);		  // always
-	regs.bc		  = 0x0080;	  // always
-	regs.de		  = 0xffff;	  // always
-	regs.ix		  = 0x0281;	  // TODO: nötig?
-	regs.iy		  = 0x4000;	  // must be
-	regs.de2	  = 0x002b;	  // TODO: nötig?
-	regs.im		  = 1;		  // must be
-	regs.i		  = 0x1e;	  // must be
-	regs.iff1	  =			  // must be
-		regs.iff2 = disabled; // must be
+	regs.sp = ramtop;
+	cpu->push2(0x3e00);	  // always
+	cpu->push2(0x0676);	  // always
+	regs.bc	  = 0x0080;	  // always
+	regs.de	  = 0xffff;	  // always
+	regs.ix	  = 0x0281;	  // TODO: nötig?
+	regs.iy	  = 0x4000;	  // must be
+	regs.de2  = 0x002b;	  // TODO: nötig?
+	regs.im	  = 1;		  // must be
+	regs.i	  = 0x1e;	  // must be
+	regs.iff1 = disabled; // must be
+	regs.iff2 = disabled; // must be
 
 	// load data:
 	uint8 data[len];
@@ -310,7 +326,10 @@ void MachineZx81::loadP81(FD& fd, bool p81) noexcept(false) /*file_error,data_er
 		regs.pc = BREAK_CONT_REPEATS;
 		showWarning("Data corrupted: data is too short: len < ($4014)-$4009");
 	}
-	else if (0x4009 + len > cpu->getRegisters().sp) { showInfo("Note: The machine stack was overwritten by the data"); }
+	else if (0x4009 + len > cpu->getRegisters().sp)
+	{
+		showInfo("Note: The machine stack was overwritten by the data"); //
+	}
 }
 
 } // namespace zxsp

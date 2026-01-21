@@ -114,6 +114,9 @@ void Chroma81::map_memory()
 	}
 	else xlogline("chroma: NO ram at $4000");
 
+	// UlaZx81.map_memory() mapped out color ram to $8000 but that does not work:
+	cpu->unmapRam(0x8000, 16 kB, waitmap, waitmap_size);
+
 	if (dip_ram_at_C000_and_color_enabled)
 	{
 		logline("chroma: ram at $c000");
