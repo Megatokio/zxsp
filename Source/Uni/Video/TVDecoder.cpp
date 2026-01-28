@@ -129,7 +129,7 @@ void TVDecoder::clear_pixels(int32 cca, int32 cce, uint8 attr)
 
 inline void TVDecoder::next_line(int32 cc)
 {
-	assert_ge(cc, ccc);
+	//assert_ge(cc, ccc);
 	assert_le(cc, cc_line_start + max_cc_per_line);
 
 	//	if (cc < ccc)
@@ -144,11 +144,14 @@ inline void TVDecoder::next_line(int32 cc)
 	//		next_line(cc_line_start + max_cc_per_line);
 	//	}
 
-	cc_line_start = ccc = cc;
-	idx_line_start += fb_bytes_per_line;
-	current_line += 1;
+	if (cc >= ccc)
+	{
+		cc_line_start = ccc = cc;
+		idx_line_start += fb_bytes_per_line;
+		current_line += 1;
 
-	if (current_line >= max_lines_per_frame) send_frame(cc);
+		if (current_line >= max_lines_per_frame) send_frame(cc);
+	}
 }
 
 void TVDecoder::clear_screen_up_to_cc(int32 cc, uint8 attr)
@@ -280,9 +283,21 @@ void TVDecoder::auto_position_screen()
 void TVDecoder::send_frame(int32 cc)
 {
 	auto_position_screen();
+	int h = 192;
+	if unlikely (screen_position.y + h > current_line) // no sync -> may be less
+	{
+		logline("TVDecoder::send_frame(): screen height < 192");
+		h = current_line - screen_position.y;
+		assert(h > 0);
+		//		if (h <= 0)
+		//		{
+		//			logline("TVDecoder::send_frame(): current_line <= screen_top");
+		//			h = 1;
+		//		}
+	}
 
 	bucket->frame  = Size {fb_bytes_per_line << 3, current_line};
-	bucket->screen = {screen_position, Size {256, 192}};
+	bucket->screen = {screen_position, Size {256, h}};
 	bucket->cc_row = 0; //TODO
 	bucket->cc_col = 0; //TODO
 
