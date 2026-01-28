@@ -480,7 +480,9 @@ void TapeFile::videoFrameEnd(int32 cc)
 
 	current_cc -= cc;
 
-	current_block->videoFrameEnd(blk_cc_offset);
+	// advance the tape if the cpu actually does not IN or OUT:
+	if (blk_cc_offset >= 0) // may be negative in rare cases on ZX80/ZX81
+		current_block->videoFrameEnd(blk_cc_offset);
 }
 
 
@@ -728,83 +730,6 @@ void TapeFile::insertBlockAfterCurrent()
 	goto_block(pos + 1);
 	update_blk_info();
 }
-
-
-// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-// Input, Output and AudioBufferEnd are only called when the Tape is attached to a Machine
-
-
-#if 0
-void TapeFile::input( Time when, int32, uint16 addr, uint8& byte, uint8& mask )
-{
-	TODO(); // check for end of block
-	(void)addr;
-	if(state==playing)
-	{
-		byte = tapedata[pos]->input(when) ? byte | EAR_IN_MASK : byte & ~EAR_IN_MASK;
-		mask |= EAR_IN_MASK;
-	}
-}
-
-void TapeFile::output( Time when, int32, uint16 addr, uint8 byte )
-{
-/*	a zero in bit 3 activates the MIC output,
-	a one in bit 4 activates the EAR output and the internal speaker.
-	the EAR and MIC sockets are coupled by resistors, so activating one activates the other;
-	the EAR output produces a louder sound, but MIC out is used ROM:SAVETAPE.
-*/
-	(void)addr;
-
-	if(state==recording)
-	{
-		tapedata[pos]->output( when, ~byte&MIC_OUT_MASK );
-	}
-}
-
-void TapeFile::audioBufferEnd( Time when )
-{
-	tapedata[pos]->audioBufferEnd(when);
-}
-#endif
-
-
-#if 0
-// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-// Play and Record are called for the global tape recorder:
-
-/*	play tape:
-	tape -> audio buffer
-*/
-void TapeFile::play ( StereoSample* buffer, int count )
-{
-	if( state!=playing ) return;
-	assert(pos<tapedata.count());
-
-	for(;;)
-	{
-		int n = tapedata[pos]->play(buffer,count);
-		if( n>=count ) return;
-		if( isLastBlock() ) break;		// don't skip beyond last tapedata
-		pos++;
-		buffer+=n; count-=n;
-	}
-
-	while(count) *buffer++ = 0.0;
-}
-
-
-/*	record tape:
-	audio buffer -> tape
-*/
-void TapeFile::record ( StereoSample const* buffer, int count )
-{
-	if(state!=recording) return;
-	assert(pos<tapedata.count());
-	tapedata[pos]->record(buffer,count);
-	// TODO: check return value for end-of-block detection
-}
-#endif
-
 
 bool TapeFile::canBeSavedAs(cstr filename, cstr* why)
 {

@@ -628,6 +628,7 @@ void MachineController::loadSnapshot(cstr filename)
 			tr->setInstantLoadTape(1);	 //							   und lädt nicht weiter => kein autoSS
 			tr->insert(filename);
 			tr->play();
+			tr->pause(off);
 		}
 
 		else if (eq(ext, ".dsk"))
@@ -1353,9 +1354,9 @@ Machine* MachineController::initMachine(
 	action_stepOver->setEnabled(no);
 
 	// TODO: z.Zt. disabled wg. refactor Renderer
-	action_screenshot->setEnabled(no);
-	action_recordMovie->setEnabled(no);
-	action_gifAnimateBorder->setEnabled(no);
+	//	action_screenshot->setEnabled(no);
+	//	action_recordMovie->setEnabled(no);
+	//	action_gifAnimateBorder->setEnabled(no);
 
 	// Model menu:
 	// add checkmark to current model in model menu

@@ -166,7 +166,7 @@ void TapeFileDataBlock::videoFrameEnd(uint32 cc)
 	//		 und hatte evtl. schon cc > cc_ffb
 	//		=> dann kein seek, wg. abort
 
-	if (cc > cswdata->cc_pos + cswdata->cc_offset) cswdata->seekCc(cc);
+	if (cc > cswdata->getCurrentCc()) cswdata->seekCc(cc);
 }
 
 
